@@ -1,12 +1,7 @@
-"use client";
-import { MDXRemote, MDXRemoteSerializeResult } from "next-mdx-remote/rsc";
+import { MDXRemote } from "next-mdx-remote/rsc";
 import { components as MarkdownComponents } from "./Markdown";
 
-type PostProps = {
-  children: string;
-};
-
-export function Post({ children }: PostProps) {
+export function Post({ children }: {children: string}) {
   return (
     <MDXRemote
       source={children}

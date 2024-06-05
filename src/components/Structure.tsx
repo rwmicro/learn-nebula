@@ -2,27 +2,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { FileNode } from "../lib/types";
 
-type FileNode = {
-  name: string;
-  path: string;
-  type: "file" | "directory";
-  children?: FileNode[];
-};
-
-const TreeNode: React.FC<{ node: FileNode; setFile: any }> = ({
-  node,
-  setFile,
-}) => {
+const TreeNode: React.FC<{ node: FileNode }> = ({ node }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleOpen = () => {
     setIsOpen(!isOpen);
   };
-
-  function showPage() {
-    setFile(node);
-  }
 
   return (
     <div>
@@ -66,39 +53,28 @@ const TreeNode: React.FC<{ node: FileNode; setFile: any }> = ({
             {node.name}
           </div>
           {isOpen && node.children && (
-            <div className="ml-3 pl-2  border-l border-neutral-300">
+            <div className="ml-3 pl-2 border-l border-neutral-300">
               {node.children.map((childNode) => (
-                <TreeNode
-                  key={childNode.path}
-                  node={childNode}
-                  setFile={setFile}
-                />
+                <TreeNode key={childNode.path} node={childNode} />
               ))}
             </div>
           )}
         </div>
       ) : (
-        <div
-          onClick={showPage}
-          className="pointer pl-6 p-1 hover:bg-neutral-300 rounded"
-        >
-          {node.name}
-        </div>
+        <Link href={encodeURIComponent(node.path.replace(/\.(md|mdx)$/, ""))}>
+          <div className="pointer pl-6 p-1 hover:bg-neutral-300 rounded">
+            {node.name.replace(/\.(md|mdx)$/, "")}
+          </div>
+        </Link>
       )}
     </div>
   );
 };
 
-export default function FileTree({
-  tree,
-  setFile,
-}: {
-  tree: FileNode[];
-  setFile: any;
-}) {
+const FileTree: React.FC<{ tree: FileNode[] }> = ({ tree }) => {
   return (
-    <div className="w-1/6 h-screen border-r border-neutral-300 p-4 text-[14px] bg-neutral-200 text-neutral-600">
-      <div className="pl-20 flex items-center justify-between ">
+    <div className="w-1/6 h-screen fixed border-r border-neutral-300 p-4 text-[14px] bg-neutral-200 text-neutral-600">
+      <div className="pl-20 flex items-center justify-between">
         <Link
           href="https://www.nebula.li"
           target="_blank"
@@ -120,8 +96,10 @@ export default function FileTree({
         </Link>
       </div>
       {tree.map((node: FileNode) => (
-        <TreeNode key={node.path} node={node} setFile={setFile} />
+        <TreeNode key={node.path} node={node} />
       ))}
     </div>
   );
-}
+};
+
+export default FileTree;

@@ -1,18 +1,20 @@
 "use client";
 import { useState } from "react";
-import Structure from "../components/Structure";
-import View from "../components/View";
-import { FileNode } from "../lib/Structure";
+import FileTree from "./Structure";
 
-export default function General({ tree }) {
-  const [file, setFileState] = useState<FileNode>(null);
+type FileNode = {
+  name: string;
+  path: string;
+  type: "file" | "directory";
+  children?: FileNode[];
+};
+
+export default function General({ tree }: { tree: FileNode[] }) {
 
   return (
-    <>
-      <div className="flex">
-        <Structure tree={tree} setFile={setFileState} />
-        <View file={file} />
-      </div>
-    </>
+      <><FileTree tree={tree} /><div className="w-5/6 h-screen p-4 absolute right-0">
+      <h1 className="text-2xl font-bold">Welcome to Pensine</h1>
+      <p>This is a simple example of a file tree structure.</p>
+    </div></>
   );
 }
