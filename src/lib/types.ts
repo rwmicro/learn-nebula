@@ -1,9 +1,9 @@
+
 export type Post = {
   title: string;
-  slug: string;
-  date: string;
-  description: string;
+  path: string;
   body: string;
+  type: "mdx" | "md" | "pdf";
 };
 
 export type FileNode = {
