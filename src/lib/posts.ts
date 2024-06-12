@@ -1,18 +1,16 @@
 import path from "path";
 import fs from "fs";
 import fsPromises from "fs/promises";
-import matter from "gray-matter";
 import { Post, FileNode } from "./types";
 
-const postsDirectory = path.join(process.cwd(), "articles");
+const postsDirectory = path.join(process.cwd(), "pensine");
 
-export async function getAllFilesAndDirectories(
-  dirPath: string
-): Promise<FileNode[]> {
+export async function getTreeFrom(dirPath: string): Promise<FileNode[]> {
   const dirEntries = await fsPromises.readdir(dirPath, { withFileTypes: true });
 
   const structure = await Promise.all(
     dirEntries.map(async (entry) => {
+      if (entry.name.startsWith(".")) return null;
       const res = path.join(dirPath, entry.name);
       const finalPath = path.relative(postsDirectory, res);
       if (entry.isDirectory()) {
@@ -20,11 +18,13 @@ export async function getAllFilesAndDirectories(
           name: entry.name,
           path: finalPath,
           type: "directory",
-          children: await getAllFilesAndDirectories(res),
+          children: await getTreeFrom(res),
         } as FileNode;
       } else if (
         entry.isFile() &&
-        (entry.name.endsWith(".md") || entry.name.endsWith(".mdx"))
+        (entry.name.endsWith(".md") ||
+          entry.name.endsWith(".mdx") ||
+          entry.name.endsWith(".pdf"))
       ) {
         return {
           name: entry.name,
@@ -41,7 +41,7 @@ export async function getAllFilesAndDirectories(
 }
 
 export async function getPostSlugs() {
-  const structure = await getAllFilesAndDirectories(postsDirectory);
+  const structure = await getTreeFrom(postsDirectory);
 
   const filePaths: any = [];
 
@@ -55,7 +55,7 @@ export async function getPostSlugs() {
 
   structure.forEach(traverse);
   return filePaths.map((filePath: any) => ({
-    params: { slug: encodeURIComponent(filePath.replace(/\.(md|mdx)$/, "")) },
+    params: { slug: encodeURIComponent(filePath.replace(/\.(md|mdx|pdf)$/, "")) },
   }));
 }
 
@@ -63,25 +63,30 @@ export async function getPostBySlug(encodedSlug: string): Promise<Post | null> {
   const slug = decodeURIComponent(encodedSlug);
   const fullPath = path.join(postsDirectory, `${slug}.md`);
   const fullPathMdx = path.join(postsDirectory, `${slug}.mdx`);
-
+  const fullPathPDF = path.join(postsDirectory, `${slug}.pdf`);
+  const title = slug.split("/")[slug.split("/").length - 1];
   let filePath = "";
+  let type = "";
 
   if (fs.existsSync(fullPath)) {
     filePath = fullPath;
+    type = "md"
   } else if (fs.existsSync(fullPathMdx)) {
     filePath = fullPathMdx;
-  } else {
+    type = "mdx"
+  } else if (fs.existsSync(fullPathPDF)){
+    filePath = fullPathPDF;
+    type = "pdf"
+  }
+    else {
     return null;
   }
-
   const fileContents = fs.readFileSync(filePath, "utf8");
-  const { data, content } = matter(fileContents);
 
   return Promise.resolve({
-    title: data.title,
-    slug: data.slug,
-    date: data.date,
-    description: data.description,
-    body: content,
-  });
+    title: title,
+    body: fileContents,
+    path: slug,
+    type: type,
+  }) as unknown as Post;
 }
