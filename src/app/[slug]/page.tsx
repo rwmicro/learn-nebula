@@ -74,12 +74,12 @@ export default async function PostPage({
   return (
     <>
       <div
-        className={`flex flex-row w-full ${
+        className={`flex flex-col xl:flex-row w-full ${
           post.type === "pdf" ? "w-full" : "xl:w-5/6"
         }`}
       >
         <FileTree tree={tree} />
-        <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-screen">
+        <div className="w-full p-4 pt-0 px-7 xl:px-20 pb-5 overflow-scroll h-screen">
           <h1 className="text-sm text-center pt-3 text-[#404040]">{path}</h1>
           {post.type === "pdf" && (
             <>
