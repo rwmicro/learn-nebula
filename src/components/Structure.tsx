@@ -12,34 +12,24 @@ export default function Structure({ tree }: { tree: FileNode[] }) {
   const pathSplits: string[] = path.split("/");
   pathSplits.shift();
 
-  const [showUI, setShowUI] = useState(true);
-  const [mobile, setMobile] = useState(false);
+  const [mobile, setMobile] = useState(true);
+  const [showUI, setShowUI] = useState(mobile ? false : true);
 
   useEffect(() => {
     setMobile(window.innerWidth < 1024);
-    const html = document.querySelector("html");
-    const isLightOrAuto =
-      localStorage.getItem("hs_theme") === "light" ||
-      (localStorage.getItem("hs_theme") === "auto" &&
-        !window.matchMedia("(prefers-color-scheme: dark)").matches);
-    const isDarkOrAuto =
-      localStorage.getItem("hs_theme") === "dark" ||
-      (localStorage.getItem("hs_theme") === "auto" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches);
 
-    if (isLightOrAuto && html?.classList.contains("dark"))
-      html?.classList.remove("dark");
-    else if (isDarkOrAuto && html?.classList.contains("light"))
-      html?.classList.remove("light");
-    else if (isDarkOrAuto && !html?.classList.contains("dark"))
-      html?.classList.add("dark");
-    else if (isLightOrAuto && !html?.classList.contains("light"))
-      html?.classList.add("light");
+    document.documentElement.classList.remove("dark");
   }, []);
+
+  function toggleTheme(isDark: boolean) {
+    localStorage.theme = isDark ? "dark" : "light";
+    console.log("Theme set to", isDark);
+    document.documentElement.classList.toggle("dark", isDark);
+  }
 
   return (
     <>
-      <div className="min-w-14 w-14 flex flex-col justify-between items-center h-screen border-r py-5 border-neutral-300 bg-neutral-200 text-neutral-600">
+      <div className="min-w-14 xl:w-14 flex xl:flex-col justify-between items-center align-middle h-14 xl:h-screen border-r px-5 xl:px-0 xl:py-5 border-neutral-300 bg-neutral-200 text-neutral-600">
         <div
           className="p-1 bg-gray-300 hover:bg-neutral-400 rounded-md w-fit h-fit"
           onClick={() => {
@@ -57,14 +47,16 @@ export default function Structure({ tree }: { tree: FileNode[] }) {
         </div>
         <button
           type="button"
-          className="hs-dark-mode-active:hidden block hs-dark-mode group flex items-center text-gray-600 hover:text-blue-600 font-medium dark:text-neutral-400 dark:hover:text-neutral-500"
-          data-hs-theme-click-value="dark"
+          onClick={() => {
+            toggleTheme(false);
+          }}
+          className="dark:hidden block group flex items-center text-gray-600 hover:text-blue-600 font-medium dark:text-neutral-400 dark:hover:text-neutral-500"
         >
           <svg
-            className="flex-shrink-0 size-4"
+            className="flex-shrink-0 size-5"
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            width="32"
+            height="32"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -77,14 +69,16 @@ export default function Structure({ tree }: { tree: FileNode[] }) {
         </button>
         <button
           type="button"
-          className="hs-dark-mode-active:block hidden hs-dark-mode group flex items-center text-gray-600 hover:text-blue-600 font-medium dark:text-neutral-400 dark:hover:text-neutral-500"
-          data-hs-theme-click-value="light"
+          onClick={() => {
+            toggleTheme(true);
+          }}
+          className="dark:block hidden group flex items-center text-gray-600 hover:text-blue-600 font-medium dark:text-neutral-400 dark:hover:text-neutral-500"
         >
           <svg
-            className="flex-shrink-0 size-4"
+            className="flex-shrink-0 size-5"
             xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
+            width="32"
+            height="32"
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
@@ -107,10 +101,12 @@ export default function Structure({ tree }: { tree: FileNode[] }) {
       {showUI && (
         <div
           className={`${
-            mobile && showUI ? "fixed top-0 left-12 w-full h-full" : ""
+            mobile && showUI
+              ? "absolute top-14 xl:top-0 xl:left-12 w-full h-full"
+              : ""
           }hidden xl:block xl:w-1/4 h-screen border-r overflow-scroll border-neutral-300 p-4 text-[14px] bg-neutral-200 text-neutral-600`}
         >
-          <div className="flex items-center pb-3 pl-10">
+          <div className="flex justify-between items-center pb-3 pl-10">
             <Link
               href="https://www.nebula.li"
               target="_blank"
@@ -130,6 +126,18 @@ export default function Structure({ tree }: { tree: FileNode[] }) {
                 Learn
               </span>
             </Link>
+            {mobile && (
+              <Image
+                src="/img/close.svg"
+                alt="Close UI"
+                width={52}
+                height={52}
+                className="cursor-pointer w-6 h-6"
+                onClick={() => {
+                  setShowUI(false);
+                }}
+              />
+            )}
           </div>
           {tree.map((node: FileNode) => {
             return (
