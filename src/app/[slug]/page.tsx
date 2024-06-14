@@ -73,6 +73,10 @@ export default async function PostPage({
   const path = post.path.replace(/\//g, " / ");
   return (
     <>
+      <head>
+        <title>{post.title}- Pensine</title>
+        <meta name="description" content={post.title} />
+      </head>
       <div
         className={`flex flex-col xl:flex-row w-full ${
           post.type === "pdf" ? "w-full" : "xl:w-5/6"
