@@ -13,11 +13,11 @@ export default function Structure({ tree }: { tree: FileNode[] }) {
   pathSplits.shift();
 
   const [mobile, setMobile] = useState(true);
-  const [showUI, setShowUI] = useState(mobile ? false : true);
+  const [showUI, setShowUI] = useState(false);
 
   useEffect(() => {
     setMobile(window.innerWidth < 1024);
-
+    setShowUI(window.innerWidth > 1024);
     document.documentElement.classList.remove("dark");
   }, []);
 
