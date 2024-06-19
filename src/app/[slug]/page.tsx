@@ -10,6 +10,20 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import rehypeToc from "@jsdevtools/rehype-toc";
 import rehypePrettyCode from "rehype-pretty-code";
+import { Metadata, ResolvingMetadata } from "next";
+
+export async function generateMetadata(
+  { slug }: { slug: string },
+  parent: ResolvingMetadata
+): Promise<Metadata> {
+  const post = await getData(slug);
+
+  return {
+    title: post?.title + " - Pensine" ||  "Pensine",
+    description: post?.title || "",
+    keywords: post?.path.replace(/\//g, ", ") || "",
+  };
+}
 
 export async function generateStaticParams() {
   const paths = await getPostSlugs();
@@ -73,11 +87,6 @@ export default async function PostPage({
   const path = post.path.replace(/\//g, " / ");
   return (
     <>
-      <head>
-        <title>{`${post.title.toString()} - Pensine`}</title>.
-        <meta name="description" content={post.title} />
-        <meta name="tags" content={post.path.replace(/\//g, ", ")} />
-      </head>
       <div
         className={`flex flex-col xl:flex-row w-full ${
           post.type === "pdf" ? "w-full" : "xl:w-5/6"

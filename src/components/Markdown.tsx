@@ -90,7 +90,7 @@ export const components: MDXComponents = {
     return (
       <table
         {...props}
-        className="w-full text-sm text-left rtl:text-right text-[#404040] border rounded-md border-spacing-0 border-separate my-2 overflow-hidden"
+        className="w-full text-sm text-left rtl:text-right text-neutral-700 border border-neutral-200 rounded border-spacing-0 border-separate my-2 overflow-hidden"
       >
         {children}
       </table>
@@ -105,7 +105,7 @@ export const components: MDXComponents = {
   },
   th: ({ children, ...props }) => {
     return (
-      <th {...props} className="bg-neutral-300 px-6 py-3">
+      <th {...props} className="px-6 p-2 bg-neutral-200">
         {children}
       </th>
     );
@@ -119,7 +119,7 @@ export const components: MDXComponents = {
   },
   tr: ({ children, ...props }) => {
     return (
-      <tr {...props} className="odd:bg-white even:bg-neutral-100 border-b">
+      <tr {...props} className="border">
         {children}
       </tr>
     );
