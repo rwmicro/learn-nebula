@@ -74,8 +74,9 @@ export default async function PostPage({
   return (
     <>
       <head>
-        <title>{post.title}- Pensine</title>
+        <title>{`${post.title.toString()} - Pensine`}</title>.
         <meta name="description" content={post.title} />
+        <meta name="tags" content={post.path.replace(/\//g, ", ")} />
       </head>
       <div
         className={`flex flex-col xl:flex-row w-full ${
@@ -106,14 +107,14 @@ export default async function PostPage({
           )}
 
           {(post.type === "mdx" || post.type === "md") && (
-            <>
+            <div className="bg-[#F9F9F9]">
               <h1 className="text-3xl font-medium pt-2 pb-4">{post.title}</h1>
               <MDXRemote
                 source={post.body}
                 options={options}
                 components={MarkdownComponents}
               />
-            </>
+            </div>
           )}
         </div>
       </div>

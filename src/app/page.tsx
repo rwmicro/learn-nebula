@@ -28,7 +28,7 @@ export default async function Index() {
       >
         {" "}
         <FileTree tree={tree} />
-        <div className="w-full p-4 pt-0 px-7 xl:px-20 pb-5 overflow-scroll h-screen">
+        <div className="w-full p-4 pt-0 px-7 xl:px-20 pb-5 overflow-scroll h-screen bg-[#F9F9F9]">
           <h1 className="text-sm text-center pt-3 text-[#404040]">{path}</h1>
           <h1 className="text-3xl font-medium pt-2 pb-4">{post.title}</h1>
           <MDXRemote source={post.body} components={MarkdownComponents} />

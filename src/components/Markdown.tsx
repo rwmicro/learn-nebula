@@ -1,13 +1,15 @@
 import { MDXComponents } from "mdx/types";
 
 export const components: MDXComponents = {
-  a: ({ children,href, ...props }) => {
+  a: ({ children, href, ...props }) => {
     const isInternal = href?.startsWith("/") || href?.startsWith("#");
     return (
-      <a {...props} className="underline text-blue-600 duration-100"
-      rel={!isInternal ? 'noopener noreferrer' : undefined}
-      target={!isInternal ? '_blank' : undefined}
-      href={href}
+      <a
+        {...props}
+        className="underline text-blue-600 duration-100"
+        rel={!isInternal ? "noopener noreferrer" : undefined}
+        target={!isInternal ? "_blank" : undefined}
+        href={href}
       >
         {children}
       </a>
@@ -83,7 +85,7 @@ export const components: MDXComponents = {
       </li>
     );
   },
-  
+
   table: ({ children, ...props }) => {
     return (
       <table
@@ -124,13 +126,18 @@ export const components: MDXComponents = {
   },
 
   img: ({ ...props }) => {
-    return <img {...props} className="rounded-md" />;
+    return (
+      <img
+        {...props}
+        className="rounded-xl"
+        alt={props.alt || "Image"}
+      />
+    );
   },
   strong: ({ children, ...props }) => {
     return <strong {...props}>{children}</strong>;
   },
 };
-
 
 /*
 blockquote: ({ children, ...props }) => {
