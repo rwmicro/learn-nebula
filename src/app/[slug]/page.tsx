@@ -10,16 +10,17 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeSlug from "rehype-slug";
 import rehypeToc from "@jsdevtools/rehype-toc";
 import rehypePrettyCode from "rehype-pretty-code";
-import { Metadata, ResolvingMetadata } from "next";
+import { Metadata } from "next";
 
-export async function generateMetadata(
-  { slug }: { slug: string },
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  const post = await getData(slug);
+export async function generateMetadata({
+  params,
+}: {
+  params: { slug: string };
+}): Promise<Metadata> {
+  const post = await getData(params.slug);
 
   return {
-    title: post?.title + " - Pensine" ||  "Pensine",
+    title: post?.title + " - Pensine" || "Pensine",
     description: post?.title || "",
     keywords: post?.path.replace(/\//g, ", ") || "",
   };
