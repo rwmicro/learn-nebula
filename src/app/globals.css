@@ -47,6 +47,7 @@ body {
   color: rgb(82 82 82);
   padding: 0.25rem;
   border-radius: 0.25rem;
+  font-weight: normal;
 }
 
 .toc a:hover {
