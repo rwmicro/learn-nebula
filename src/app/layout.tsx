@@ -8,7 +8,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={GeistSans.className}>
-            <head>
+      <head>
         <title>Pensine - Garden of Knowledge</title>
         <meta
           name="description"

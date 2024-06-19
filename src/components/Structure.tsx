@@ -29,7 +29,7 @@ export default function Structure({ tree }: { tree: FileNode[] }) {
 
   return (
     <>
-      <div className="min-w-14 xl:w-14 flex xl:flex-col justify-between items-center align-middle h-14 xl:h-screen border-r px-5 xl:px-0 xl:py-5 border-neutral-300 bg-neutral-200 text-neutral-600">
+      <div className="min-w-14 xl:w-14 flex xl:flex-col justify-between items-center align-middle h-14 xl:h-screen border-r px-5 xl:px-0 xl:py-5 border-neutral-300 bg-[#E5E5E5] text-neutral-600">
         <div
           className="p-1 bg-gray-300 hover:bg-neutral-400 rounded-md w-fit h-fit"
           onClick={() => {
@@ -45,6 +45,27 @@ export default function Structure({ tree }: { tree: FileNode[] }) {
             <path d="M51 46c1.104 0 2 .895 2 2 0 1.105-.896 2-2 2-.601 0-37.399 0-38 0-1.104 0-2-.895-2-2 0-1.105.896-2 2-2C13.601 46 50.399 46 51 46zM51 30c1.104 0 2 .895 2 2 0 1.105-.896 2-2 2-.601 0-37.399 0-38 0-1.104 0-2-.895-2-2 0-1.105.896-2 2-2C13.601 30 50.399 30 51 30zM51 14c1.104 0 2 .895 2 2 0 1.105-.896 2-2 2-.601 0-37.399 0-38 0-1.104 0-2-.895-2-2 0-1.105.896-2 2-2C13.601 14 50.399 14 51 14z" />
           </svg>
         </div>
+        {mobile && (
+          <Link
+            href="https://www.nebula.li"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative p-2.5 pl-0 pt-3"
+          >
+            <div>
+              <Image
+                src="/img/nebula-b.png"
+                alt="Nebula.li"
+                width={300}
+                height={160}
+                className="cursor-pointer w-28"
+              />
+            </div>
+            <span className="absolute -right-4 top-0 text-[#da3434] text-[10px] font-bold">
+              Learn
+            </span>
+          </Link>
+        )}
         <button
           type="button"
           onClick={() => {
@@ -104,28 +125,31 @@ export default function Structure({ tree }: { tree: FileNode[] }) {
             mobile && showUI
               ? "absolute top-14 xl:top-0 xl:left-12 w-full h-full"
               : ""
-          }hidden xl:block xl:w-1/4 h-screen border-r overflow-scroll border-neutral-300 p-4 text-[14px] bg-neutral-200 text-neutral-600`}
+          }hidden xl:block xl:w-1/4 h-screen border-r overflow-scroll border-neutral-300 p-4 text-[14px] bg-[#E5E5E5] text-neutral-600`}
         >
           <div className="flex justify-between items-center pb-3 pl-10">
-            <Link
-              href="https://www.nebula.li"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative p-2.5 pl-0 pt-3"
-            >
-              <div>
-                <Image
-                  src="/img/nebula-b.png"
-                  alt="Nebula.li"
-                  width={300}
-                  height={160}
-                  className="cursor-pointer w-28"
-                />
-              </div>
-              <span className="absolute -right-4 top-0 text-[#da3434] text-[10px] font-bold">
-                Learn
-              </span>
-            </Link>
+            {!mobile && (
+              <Link
+                href="https://www.nebula.li"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="relative p-2.5 pl-0 pt-3"
+              >
+                <div>
+                  <Image
+                    src="/img/nebula-b.png"
+                    alt="Nebula.li"
+                    width={300}
+                    height={160}
+                    className="cursor-pointer w-28"
+                  />
+                </div>
+                <span className="absolute -right-4 top-0 text-[#da3434] text-[10px] font-bold">
+                  Learn
+                </span>
+              </Link>
+            )}
+
             {mobile && (
               <Image
                 src="/img/close.svg"
