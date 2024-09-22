@@ -5,6 +5,7 @@ import FileTree from "@/components/Structure";
 import { getTreeFrom } from "@/lib/posts";
 import { MDXRemote } from "next-mdx-remote-client/rsc";
 import { components as MarkdownComponents } from "../components/Markdown";
+import Search from "@/components/Search";
 
 async function getData(): Promise<Post | null> {
   try {
@@ -21,6 +22,7 @@ export default async function Index() {
   const path = post.path.replace(/\//g, " / ");
   return (
     <>
+    <Search tree={tree}/>
       <div
         className={`flex flex-col xl:flex-row w-full ${
           post.type === "pdf" ? "w-full" : "xl:w-5/6"

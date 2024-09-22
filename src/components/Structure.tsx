@@ -23,7 +23,6 @@ export default function Structure({ tree }: { tree: FileNode[] }) {
 
   function toggleTheme(isDark: boolean) {
     localStorage.theme = isDark ? "dark" : "light";
-    console.log("Theme set to", isDark);
     document.documentElement.classList.toggle("dark", isDark);
   }
 
