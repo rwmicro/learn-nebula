@@ -1,19 +1,18 @@
+"use client"
+
 import { useEffect } from "react";
 
 interface UseKeyboardShortcutArgs {
-  key: string
-  onKeyPressed: () => void;
+  key: string;
+  onKeyPressed: (event: KeyboardEvent) => void;
 }
 
-export function useKeyboardShortcut({
-  key,
-  onKeyPressed
-}: UseKeyboardShortcutArgs) {
+export function useKeyboardShortcut({ key, onKeyPressed }: UseKeyboardShortcutArgs) {
   useEffect(() => {
-    function keyDownHandler(e: globalThis.KeyboardEvent) {
+    function keyDownHandler(e: KeyboardEvent) {
       if (e.key === key) {
         e.preventDefault();
-        onKeyPressed();
+        onKeyPressed(e);
       }
     }
 
@@ -22,5 +21,5 @@ export function useKeyboardShortcut({
     return () => {
       document.removeEventListener("keydown", keyDownHandler);
     };
-  }, []);
+  }, [key, onKeyPressed]);
 }
