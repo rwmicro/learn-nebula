@@ -19,7 +19,9 @@ type Props = {
 
 export async function generateStaticParams() {
   const paths = await getPostSlugs()
-  return paths.map((path: any) => ({ article: path.params.article }))
+  return paths.map((path: any) => ({
+    article: path.filePath,
+  }))
 }
 
 export async function generateMetadata(
@@ -46,7 +48,7 @@ export default async function Article({
 }: {
   params: { article: string }
 }) {
-  const { article } = await params
+  const { article } = params
 
   try {
     const post = await getPostBySlug(article)
