@@ -20,39 +20,34 @@ export async function getPostSlugs() {
   }
 
   structure.forEach(traverse)
-  return filePaths.map((filePath: any) => ({
-    params: {
-      article: encodeURIComponent(
-        filePath.replace(
-          new RegExp(`\\.(${SUPPORTED_EXTENSIONS.join("|")})$`),
-          ""
-        )
-      ),
-    },
-  }))
+  return filePaths.map((filePath: any) => ({ filePath }))
 }
 
 export async function getPostBySlug(encodedSlug: string): Promise<Post | null> {
   const slug = decodeURIComponent(encodedSlug)
   const title = slug.split("/").pop() ?? slug
-  
+
   const directPath = path.join(POSTDIRECTORY, slug)
-  
+
   if (fs.existsSync(directPath)) {
     const ext = path.extname(directPath).toLowerCase().slice(1)
-    if (SUPPORTED_EXTENSIONS.includes(ext as typeof SUPPORTED_EXTENSIONS[number])) {
+    if (
+      SUPPORTED_EXTENSIONS.includes(
+        ext as (typeof SUPPORTED_EXTENSIONS)[number]
+      )
+    ) {
       const isImage = IMAGE_EXTENSIONS.includes(ext)
       return {
         title,
         path: directPath.replace(POSTDIRECTORY, ""),
         body: isImage ? "" : fs.readFileSync(directPath, "utf8"),
-        type: ext as typeof SUPPORTED_EXTENSIONS[number],
+        type: ext as (typeof SUPPORTED_EXTENSIONS)[number],
       }
     }
   }
 
   const baseSlug = slug.replace(/\.[^/.]+$/, "")
-  
+
   for (const ext of SUPPORTED_EXTENSIONS) {
     const fullPath = path.join(POSTDIRECTORY, `${baseSlug}.${ext}`)
     if (fs.existsSync(fullPath)) {

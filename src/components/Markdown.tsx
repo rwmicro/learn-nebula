@@ -34,7 +34,7 @@ const ImageWithCaption = ({ src, alt, ...props }: ImageWithCaptionProps) => {
         width={width || 800}
         height={height || 800}
         className="w-2/3 max-w-[50vw] rounded-lg"
-        {...props} // Spread any additional props passed to the img
+        {...props}
       />
       <figcaption className="pt-3 font-dmsans text-sm text-center text-gray-500 mb-5">
         <span>{description}</span>
