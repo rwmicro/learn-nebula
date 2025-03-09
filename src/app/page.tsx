@@ -23,7 +23,7 @@ export default async function Index() {
 
     return (
       <>
-        <div className="w-full p-4 pt-0 px-7 xl:px-20 pb-5 overflow-scroll max-h-[93vh] bg-[#F9F9F9]">
+        <div className="w-full p-4 pt-0 px-7 xl:px-20 pb-5 overflow-scroll min-h-[93vh] bg-[#F9F9F9]">
           <h1
             className="text-sm text-center pt-3 text-[#404040]"
             aria-label="Path"

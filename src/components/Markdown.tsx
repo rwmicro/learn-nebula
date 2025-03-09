@@ -94,7 +94,7 @@ const components: MDXComponents = {
       <h1
         {...props}
         id={id}
-        className="text-3xl font-medium mt-8 mb-4 text-[#333333]"
+        className="text-3xl font-medium mt-8 mb-4 text-[#1b1b1b]"
       >
         {children}
       </h1>
@@ -109,7 +109,7 @@ const components: MDXComponents = {
       <h2
         {...props}
         id={id}
-        className="text-2xl font-medium mt-6 mb-3 text-[#333333]"
+        className="text-2xl font-medium mt-6 mb-3 text-[#1b1b1b]"
       >
         {children}
       </h2>
@@ -124,7 +124,7 @@ const components: MDXComponents = {
       <h3
         {...props}
         id={id}
-        className="text-2xl font-medium mt-4 mb-2 text-[#333333]"
+        className="text-2xl font-medium mt-4 mb-2 text-[#1b1b1b]"
       >
         {children}
       </h3>
@@ -139,7 +139,7 @@ const components: MDXComponents = {
       <h4
         {...props}
         id={id}
-        className="text-xl font-medium mt-3 mb-1 text-[#333333]"
+        className="text-xl font-medium mt-3 mb-1 text-[#1b1b1b]"
       >
         {children}
       </h4>
@@ -154,7 +154,7 @@ const components: MDXComponents = {
       <h5
         {...props}
         id={id}
-        className="text-lg font-medium mt-2 mb-1 text-[#333333]"
+        className="text-lg font-medium mt-2 mb-1 text-[#1b1b1b]"
       >
         {children}
       </h5>
@@ -169,7 +169,7 @@ const components: MDXComponents = {
       <h6
         {...props}
         id={id}
-        className="text-base font-medium mt-1 mb-1 text-[#333333]"
+        className="text-base font-medium mt-1 mb-1 text-[#1b1b1b]"
       >
         {children}
       </h6>
@@ -177,7 +177,7 @@ const components: MDXComponents = {
   },
   p: ({ children, ...props }) => {
     return (
-      <p {...props} className="text-base font-normal leading-7 text-[#404040]">
+      <p {...props} className="text-base font-normal leading-7 text-[#222222]">
         {children}
       </p>
     )
