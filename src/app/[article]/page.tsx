@@ -89,14 +89,14 @@ export default async function Article({
 
     return (
       <>
-        <div className="w-full p-4 pt-0 px-7 xl:px-20 pb-5 overflow-scroll max-h-[93vh] bg-[#F9F9F9]">
+        <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll min-h-[93vh] bg-[#F9F9F9]">
           <h1
             className="text-sm text-center pt-3 text-[#404040]"
             aria-label="Path"
           >
             {formattedPath}
           </h1>
-          <h2 className="text-3xl font-medium py-2" aria-label="Post title">
+          <h2 className="text-3xl text-center sm:text-left font-medium py-2" aria-label="Post title">
             {post.title}
           </h2>
           <article className="prose dark:prose-invert" aria-label={post.title}>

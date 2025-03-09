@@ -41,18 +41,35 @@ export default function Search({ tree }: { tree: FileNode[] }) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleEscape = useCallback(() => setShowSearch(false), [])
+
   const handleOpenSearch = useCallback(
     (event: { ctrlKey: any; metaKey: any; preventDefault: () => void }) => {
-      if (event.ctrlKey || event.metaKey) {
+      if ((event.ctrlKey || event.metaKey) && !showSearch) {
         event.preventDefault()
         setShowSearch(true)
       }
     },
-    []
+    [showSearch]
   )
 
   useKeyboardShortcut({ key: "Escape", onKeyPressed: handleEscape })
-  useKeyboardShortcut({ key: "k", onKeyPressed: handleOpenSearch })
+
+  useKeyboardShortcut({
+    key: "k",
+    onKeyPressed: (event) => {
+      if (document.activeElement !== inputRef.current) {
+        handleOpenSearch(event)
+      }
+    },
+  })
+  useKeyboardShortcut({
+    key: "K",
+    onKeyPressed: (event) => {
+      if (document.activeElement !== inputRef.current) {
+        handleOpenSearch(event)
+      }
+    },
+  })
 
   useEffect(() => {
     if (showSearch && inputRef.current) {
@@ -84,7 +101,7 @@ export default function Search({ tree }: { tree: FileNode[] }) {
             className="w-full h-full fixed top-0 left-0 bg-neutral-300 bg-opacity-50 z-50"
             onClick={handleEscape}
           ></div>
-          <div className="fixed top-10 w-[44rem] left-1/2 transform pb-4 -translate-x-1/2 p-2 bg-white rounded-xl border z-[51] flex flex-col overflow-hidden">
+          <div className="fixed top-14 w-[46rem] left-1/2 transform pb-4 -translate-x-1/2 p-2 bg-white rounded-xl border z-[51] flex flex-col overflow-hidden">
             <div className="flex justify-between items-center border-b border-gray-200 px-4">
               <input
                 ref={inputRef}
@@ -95,6 +112,27 @@ export default function Search({ tree }: { tree: FileNode[] }) {
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={handleKeyDown}
               />
+              {search && (
+                <button
+                  className="p-1.5 text-neutral-500 hover:text-neutral-700"
+                  onClick={() => setSearch('')}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              )}
               <button
                 className="p-1.5 text-neutral-800 bg-neutral-100 font-mono text-xs border rounded-lg"
                 onClick={handleEscape}
@@ -105,8 +143,8 @@ export default function Search({ tree }: { tree: FileNode[] }) {
             <div className="flex flex-col px-3 text-[15px] text-neutral-800 pt-2">
               {filteredTree.slice(0, 8).map((node, index) => (
                 <Link
-                  className={`p-2 rounded border-gray-300 hover:bg-[#e7e7e9] ${
-                    index === selectedIndex ? "bg-[#e7e7e9]" : ""
+                  className={`p-2 rounded border-gray-300 hover:bg-[#f4f4f5] ${
+                    index === selectedIndex ? "bg-[#f4f4f5]" : ""
                   }`}
                   key={node.path}
                   href={encodeURL(node.path)}

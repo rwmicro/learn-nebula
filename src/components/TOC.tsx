@@ -31,8 +31,8 @@ export default function TOC({ toc }: { toc: Heading[] }) {
 
   return (
     <div
-      className={`w-1/4 max-w-1/4 border-l bg-[#F4F4F5] dark:bg-[#27272A] overflow-scroll h-screen max-h-[93vh] transition-all duration-300 ${
-        !isOpen ? "w-16" : "p-5"
+      className={`hidden xl:block border-l bg-[#F4F4F5] dark:bg-[#27272A] overflow-scroll min-h-[93vh] transition-all duration-300 ${
+        !isOpen ? "w-16" : "w-[32rem] p-5"
       }`}
     >
       <div className="flex items-center justify-between w-full pb-2">

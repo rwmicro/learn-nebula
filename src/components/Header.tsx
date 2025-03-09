@@ -2,13 +2,14 @@ import Image from "next/image"
 import Link from "next/link"
 import Search from "./Search"
 import { getTreeData } from "@/lib/treeData"
+import Hamburger from "./Hamburger"
 
 export default async function Header() {
   const tree = await getTreeData()
 
   return (
-    <header className="h-[6vh] flex flex-row justify-between items-center w-full px-20 py-2 bg-[#F9F9F9] border-b border-[#E0E0E0]">
-      <div className="flex justify-between items-center pl-10">
+    <header className="min-h-[6vh] flex justify-between items-center w-full px-20 py-2 bg-[#F9F9F9] border-b border-[#E0E0E0]">
+      <div className="flex justify-between items-center md:pl-10">
         <Link href="/" className="relative p-2.5 pl-0 pt-3">
           <div>
             <Image
@@ -24,8 +25,11 @@ export default async function Header() {
           </span>
         </Link>
       </div>
-      <div className="flex gap-5">
+      <div className="hidden sm:flex gap-5">
         <Search tree={tree} />
+      </div>
+      <div className="block sm:hidden">
+        <Hamburger treeData={tree} />
       </div>
     </header>
   )

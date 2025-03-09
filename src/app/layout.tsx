@@ -71,8 +71,10 @@ export default async function RootLayout({
       </head>
       <body>
         <Header />
-        <div className="flex flex-col xl:flex-row w-full">
-          <FileTree tree={treeData} />
+        <div className="flex flex-row w-full">
+          <div className="hidden xl:block h-screen max-h-[93vh]">
+            <FileTree tree={treeData} hidePosibility={true} />
+          </div>
           {children}
         </div>
       </body>
