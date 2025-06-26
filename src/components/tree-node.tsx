@@ -1,6 +1,6 @@
 "use client"
 import { encodeURL, sanitizePath } from "@/hooks/tools"
-import { FileNode } from "@/types/types"
+import { FileNode } from "@/utils/types"
 import Link from "next/link"
 import { useState } from "react"
 

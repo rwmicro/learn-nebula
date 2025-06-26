@@ -1,20 +1,14 @@
-import { notFound } from "next/navigation"
-import { getPostBySlug, getPostSlugs } from "@/lib/posts"
-import { MDXRemote } from "next-mdx-remote/rsc"
-import components from "@/components/Markdown"
-import { sanitizePath } from "@/hooks/tools"
-import remarkGfm from "remark-gfm"
-import TOCWrapper from "@/components/TOCWrapper"
+import { getPostBySlug, getPostSlugs, isDirectory } from "@/lib/posts"
 import type { Metadata, ResolvingMetadata } from "next"
-import remarkMath from "remark-math"
-import rehypeKatex from "rehype-katex"
-import rehypeUnwrapImages from "rehype-unwrap-images"
-import { IMAGE_EXTENSIONS } from "@/types/types"
-import Image from "next/image"
+import ArticleClient from "./article-client"
+import { sanitizePath } from "@/hooks/tools"
+import { notFound } from "next/navigation"
+import { generateTOC } from "@/hooks/generateTOC"
+import { IMAGE_EXTENSIONS } from "@/utils/constants"
 
 type Props = {
-  params: Promise<{ article: string }>
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+  params: { article: string }
+  searchParams: { [key: string]: string | string[] | undefined }
 }
 
 export async function generateStaticParams() {
@@ -24,103 +18,130 @@ export async function generateStaticParams() {
   }))
 }
 
-export async function generateMetadata(
-  { params }: Props,
-  parent: ResolvingMetadata
-): Promise<Metadata> {
-  const post = await getPostBySlug((await params).article)
-  if (!post) {
+export async function generateMetadata({ params }: Props, parent: ResolvingMetadata): Promise<Metadata> {
+  const { article } = await params
+  const articlePath = article
+
+  try {
+    // First check if it's a directory
+    const isDir = await isDirectory(articlePath)
+
+    if (isDir) {
+      return {
+        title: `${article.split("/").pop()} Directory`,
+        description: `Browse the ${article.split("/").pop()} section of the Pensine knowledge base.`,
+        robots: {
+          index: true,
+          follow: true,
+        },
+      }
+    }
+
+    const post = await getPostBySlug(articlePath)
+
+    if (!post) {
+      return {
+        title: "Page Not Found",
+        description: "The requested page could not be found.",
+        robots: {
+          index: false,
+          follow: false,
+        },
+      }
+    }
+
+    const formattedPath = sanitizePath(post.path)
+    const pathSegments = formattedPath.split("/").filter(Boolean)
+    const canonicalUrl = `https://pensine.nebula.li/${articlePath}`
+
+    // Generate breadcrumb keywords
+    const breadcrumbKeywords = pathSegments.map((segment) => segment.toLowerCase().replace(/[-_]/g, " "))
+
+    const description =
+      post.excerpt ||
+      `Learn about ${post.title} in this comprehensive guide. Part of the Pensine knowledge base covering ${pathSegments.join(", ")}.`
+
     return {
-      title: "Pensine - Garden of Knowledge",
+      title: post.title,
+      description: description,
+      keywords: [...breadcrumbKeywords, post.title.toLowerCase(), "pensine", "knowledge base", "learning", "education"],
+      authors: [{ name: "Martin" }],
+      openGraph: {
+        title: `${post.title} | Pensine`,
+        description: description,
+        type: "article",
+        url: canonicalUrl,
+        publishedTime: post.date || new Date().toISOString(),
+        modifiedTime: post.lastModified || new Date().toISOString(),
+        section: pathSegments[0] || "General",
+        tags: pathSegments,
+      },
+      twitter: {
+        title: `${post.title} | Pensine`,
+        description: description,
+        card: "summary_large_image",
+      },
+      alternates: {
+        canonical: canonicalUrl,
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          "max-video-preview": -1,
+          "max-image-preview": "large",
+          "max-snippet": -1,
+        },
+      },
+    }
+  } catch (error) {
+    console.error("Error generating metadata:", error)
+    return {
+      title: "Error Loading Page",
+      description: "An error occurred while loading this page.",
+      robots: {
+        index: false,
+        follow: false,
+      },
     }
   }
-
-  const formattedPath = sanitizePath(post.path)
-
-  return {
-    title: post!.title + " - Pensine" || "Pensine - Garden of Knowledge",
-    keywords: formattedPath.split("/").filter(Boolean),
-  }
 }
+
 
 export default async function Article({
   params,
 }: {
-  params: { article: string }
+  params: Promise<{ article: string }>;
 }) {
-  const { article } = params
+  const { article: articlePath } = await params
 
   try {
-    const post = await getPostBySlug(article)
+    // First check if it's a directory
+    const isDir = await isDirectory(articlePath)
+
+    if (isDir) {
+      return <ArticleClient params={{ article: articlePath.split("/") }} isDirectory={true} />
+    }
+
+    // If not a directory, try to get it as a post
+    const post = await getPostBySlug(articlePath)
 
     if (!post) {
       return notFound()
     }
 
-    const formattedPath = sanitizePath(post.path)
-
-    if (post.type === "pdf") {
-      return (
-        <div className="w-full overflow-scroll max-h-[93vh] bg-[#F9F9F9]">
-          <iframe
-            src={"/articles/pensine" + post.path}
-            width="100%"
-            height="100%"
-            aria-label={post.title}
-          ></iframe>
-        </div>
-      )
+    // Generate TOC data on the server side
+    let tocData = null
+    if (post.type && !["pdf", "PDF"].includes(post.type) && !IMAGE_EXTENSIONS.includes(post.type)) {
+      tocData = await generateTOC(post.body)
     }
 
-    if (IMAGE_EXTENSIONS.includes(post.type)) {
-      return (
-        <div className="w-full overflow-scroll max-h-[93vh] bg-[#F9F9F9] flex justify-center items-center p-4">
-          <Image
-            src={"/articles/pensine" + post.path}
-            alt={post.title}
-            width={1200}
-            height={800}
-            className="max-w-full max-h-[90vh] object-contain"
-            priority
-          />
-        </div>
-      )
-    }
-
-    return (
-      <>
-        <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll min-h-[93vh] bg-[#F9F9F9]">
-          <h1
-            className="text-sm text-center pt-3 text-[#404040]"
-            aria-label="Path"
-          >
-            {formattedPath}
-          </h1>
-          <h2 className="text-3xl text-center sm:text-left font-medium py-2" aria-label="Post title">
-            {post.title}
-          </h2>
-          <article className="prose dark:prose-invert" aria-label={post.title}>
-            <MDXRemote
-              source={post.body}
-              components={components}
-              options={{
-                mdxOptions: {
-                  remarkPlugins: [remarkMath, remarkGfm],
-                  rehypePlugins: [rehypeKatex, rehypeUnwrapImages],
-                },
-              }}
-            />
-          </article>
-        </div>
-        <TOCWrapper file={post.body} />
-      </>
-    )
+    return <ArticleClient params={{ article: articlePath.split("/") }} post={post} isDirectory={false} tocData={tocData} />
   } catch (error) {
-    console.error("Error fetching post:", error)
-    return (
-      <p className="text-center text-red-500 m-2">
-        Failed to load post. Please try again later.
-      </p>
-    )
+    console.error("Error in Article component:", error)
+    return <div className="text-red-500 mx-auto my-auto">Article not found</div>
+
   }
 }

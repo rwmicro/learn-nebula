@@ -1,9 +1,9 @@
 "use client"
-import { FileNode } from "../types/types"
+import { FileNode } from "../utils/types"
 import { usePathname } from "next/navigation"
-import TreeNode from "./TreeNode"
+import TreeNode from "./tree-node"
 import { useState } from "react"
-import sideBar from "public/img/sidebar.svg"
+import sideBar from "/public/img/sidebar.svg"
 import Image from "next/image"
 
 export default function Structure({
@@ -30,7 +30,7 @@ export default function Structure({
   return (
     <>
       <div
-        className={`bg-[#F4F4F5] transition-all duration-300 border-r overflow-scroll text-[14px] h-full
+        className={`bg-[#F4F4F5] min-w-16 transition-all duration-300 border-r border-gray-200 overflow-scroll text-[14px] h-full
         ${!showUI ? "w-16" : "w-[22rem] px-5 p-4"}`}
       >
         {hidePosibility && (

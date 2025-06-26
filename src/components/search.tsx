@@ -1,11 +1,11 @@
 "use client"
 import { useKeyboardShortcut } from "@/hooks/keyPressed"
 import { encodeURL, sanitizePath } from "@/hooks/tools"
-import { FileNode } from "@/types/types"
+import { FileNode } from "@/utils/types"
 import Link from "next/link"
 import { useEffect, useState, useRef, useMemo, useCallback } from "react"
 import Image from "next/image"
-import searchImage from "public/img/search.svg"
+import searchImage from "/public/img/search.svg"
 import { useRouter } from "next/navigation"
 
 function flattenFileTree(tree: FileNode[]): FileNode[] {
@@ -98,11 +98,11 @@ export default function Search({ tree }: { tree: FileNode[] }) {
       {showSearch && (
         <div id="search">
           <div
-            className="w-full h-full fixed top-0 left-0 bg-neutral-300 bg-opacity-50 z-50"
+            className="w-full h-full fixed top-0 left-0 bg-neutral-300/40 z-50"
             onClick={handleEscape}
           ></div>
-          <div className="fixed top-14 w-[46rem] left-1/2 transform pb-4 -translate-x-1/2 p-2 bg-white rounded-xl border z-[51] flex flex-col overflow-hidden">
-            <div className="flex justify-between items-center border-b border-gray-200 px-4">
+          <div className="fixed top-14 w-[90vw] lg:w-[46rem] left-1/2 transform pb-4 -translate-x-1/2 p-2 bg-white rounded-xl border-2 border-[#E0E0E0] z-[51] flex flex-col overflow-hidden">
+            <div className="flex justify-between items-center border-b border-gray-300 px-4">
               <input
                 ref={inputRef}
                 className="w-full h-10 outline-none"
@@ -115,7 +115,7 @@ export default function Search({ tree }: { tree: FileNode[] }) {
               {search && (
                 <button
                   className="p-1.5 text-neutral-500 hover:text-neutral-700"
-                  onClick={() => setSearch('')}
+                  onClick={() => setSearch("")}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -134,18 +134,17 @@ export default function Search({ tree }: { tree: FileNode[] }) {
                 </button>
               )}
               <button
-                className="p-1.5 text-neutral-800 bg-neutral-100 font-mono text-xs border rounded-lg"
+                className="p-1.5 text-gray-600 bg-neutral-100 font-mono text-xs border border-gray-300 rounded-lg"
                 onClick={handleEscape}
               >
                 Esc
               </button>
             </div>
-            <div className="flex flex-col px-3 text-[15px] text-neutral-800 pt-2">
+            <div className="flex flex-col px-3 text-[15px] text-neutral-600 pt-2">
               {filteredTree.slice(0, 8).map((node, index) => (
                 <Link
-                  className={`p-2 rounded border-gray-300 hover:bg-[#f4f4f5] ${
-                    index === selectedIndex ? "bg-[#f4f4f5]" : ""
-                  }`}
+                  className={`p-2 rounded border-gray-300 hover:bg-[#f4f4f5] ${index === selectedIndex ? "bg-[#f4f4f5]" : ""
+                    }`}
                   key={node.path}
                   href={encodeURL(node.path)}
                   onClick={handleEscape}
@@ -154,29 +153,29 @@ export default function Search({ tree }: { tree: FileNode[] }) {
                 </Link>
               ))}
             </div>
-            <div className="flex justify-center items-center py-2">
+            <div className="flex justify-center items-center py-2 border-b border-gray-300 mb-3">
               <span className="text-neutral-500 text-sm">
                 {filteredTree.length} results
               </span>
             </div>
             <div className="flex justify-between items-center py-2 px-10">
               <span className="text-neutral-500 text-sm">
-                <button className="p-1.5 w-5 text-neutral-800 bg-neutral-100 font-mono text-xs border rounded-lg">
+                <button className="p-1.5 w-5 text-gray-600 bg-neutral-100 font-mono text-xs border border-gray-300 rounded-lg">
                   ↑
                 </button>{" "}
-                <button className="p-1.5 w-5 text-neutral-800 bg-neutral-100 font-mono text-xs border rounded-lg">
+                <button className="p-1.5 w-5 text-gray-600 bg-neutral-100 font-mono text-xs border border-gray-300 rounded-lg">
                   ↓
                 </button>{" "}
                 to navigate
               </span>
               <span className="text-neutral-500 text-sm">
-                <button className="p-1.5 w-12 text-neutral-800 bg-neutral-100 font-mono text-xs border rounded-lg">
+                <button className="p-1.5 w-12 text-gray-600 bg-neutral-100 font-mono text-xs border border-gray-300 rounded-lg">
                   Enter
                 </button>{" "}
                 to open the file
               </span>
               <span className="text-neutral-500 text-sm">
-                <button className="p-1.5 w-12 text-neutral-800 bg-neutral-100 font-mono text-xs border rounded-lg">
+                <button className="p-1.5 w-12 text-gray-600 bg-neutral-100 font-mono text-xs border border-gray-300 rounded-lg">
                   Esc
                 </button>{" "}
                 to close the search
@@ -186,10 +185,10 @@ export default function Search({ tree }: { tree: FileNode[] }) {
         </div>
       )}
       <div
-        className="flex justify-between items-center border-2 border-[#E0E0E0] bg-[#F4F4F5] rounded-lg h-fit w-fit px-2"
+        className="flex justify-between items-center border-2 border-[#E0E0E0] bg-[#F4F4F5] rounded-lg h-fit w-fit px-1"
         onClick={() => setShowSearch(true)}
       >
-        <div className="flex items-center text-neutral-500 w-44 h-10 outline-none rounded-lg p-2 text-sm">
+        <div className="flex items-center text-neutral-500 w-40 h-9 outline-none rounded-lg p-2 text-sm">
           <Image
             src={searchImage}
             width={20}
@@ -199,7 +198,7 @@ export default function Search({ tree }: { tree: FileNode[] }) {
           />
           <span>Search File</span>
         </div>
-        <button className="p-1.5 w-20 text-neutral-800 bg-neutral-100 font-mono text-xs border rounded-lg">
+        <button className="p-1.5 w-20 border border-gray-300 text-gray-600 bg-neutral-100 font-mono text-xs border rounded-lg">
           Ctrl + K
         </button>
       </div>
