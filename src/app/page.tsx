@@ -1,14 +1,28 @@
 import { notFound } from "next/navigation"
 import { getPostBySlug } from "@/lib/posts"
-import { MDXRemote } from "next-mdx-remote/rsc"
-import components from "@/components/Markdown"
 import { sanitizePath } from "@/hooks/tools"
-import TOCWrapper from "@/components/TOCWrapper"
 import type { Metadata } from "next"
+import Content from "@/components/content"
 
 export const metadata: Metadata = {
-  title: "Pensine - Garden of Knowledge",
-  keywords: ["pensine", "garden of knowledge", "knowledge", "learning"],
+  title: "Pensine - Garden of knowledge",
+  description:
+    "Welcome to Pensine - Your Garden of Knowledge. Explore a comprehensive collection of learning materials, notes, and documentation across various subjects.",
+  keywords: ["pensine", "garden of knowledge", "knowledge base", "learning", "education", "home"],
+  openGraph: {
+    title: "Pensine - Garden of Knowledge",
+    description:
+      "Welcome to Pensine - Your Garden of Knowledge. Explore a comprehensive collection of learning materials, notes, and documentation across various subjects.",
+    type: "website",
+  },
+  twitter: {
+    title: "Pensine - Garden of Knowledge",
+    description:
+      "Welcome to Pensine - Your Garden of Knowledge. Explore a comprehensive collection of learning materials, notes, and documentation across various subjects.",
+  },
+  alternates: {
+    canonical: "https://pensine.nebula.li",
+  },
 }
 
 export default async function Index() {
@@ -21,37 +35,52 @@ export default async function Index() {
 
     const formattedPath = sanitizePath(post.path)
 
+    const jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "Pensine - Garden of Knowledge",
+      description:
+        "Welcome to Pensine - Your Garden of Knowledge. Explore a comprehensive collection of learning materials, notes, and documentation across various subjects.",
+      url: "https://pensine.nebula.li",
+      mainEntity: {
+        "@type": "Article",
+        headline: post.title,
+        author: {
+          "@type": "Person",
+          name: "Martin",
+        },
+        publisher: {
+          "@type": "Organization",
+          name: "Nebula",
+        },
+        dateModified: new Date().toISOString(),
+      },
+      breadcrumb: {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: "https://pensine.nebula.li",
+          },
+        ],
+      },
+    }
+
     return (
       <>
-        <div className="w-full p-4 pt-0 px-7 xl:px-20 pb-5 overflow-scroll min-h-[93vh] bg-[#F9F9F9]">
-          <h1
-            className="text-sm text-center pt-3 text-[#404040]"
-            aria-label="Path"
-          >
-            {formattedPath}
-          </h1>
-          <h2
-            className="text-3xl font-medium pt-2 pb-4"
-            aria-label={post.title}
-          >
-            {post.title}
-          </h2>
-          <article
-            className="prose dark:prose-invert"
-            aria-label="Post content"
-          >
-            <MDXRemote source={post.body} components={components} />
-          </article>
-        </div>
-        <TOCWrapper file={post.body} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <Content post={post} formattedPath={formattedPath} />
       </>
     )
   } catch (error) {
     console.error("Error fetching post:", error)
     return (
-      <p className="text-center text-red-500 m-2">
-        Failed to load post. Please try again later.
-      </p>
+      <div className="text-center p-8">
+        <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Content</h1>
+        <p className="text-red-500">Failed to load post. Please try again later.</p>
+      </div>
     )
   }
 }

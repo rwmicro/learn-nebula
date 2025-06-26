@@ -1,9 +1,8 @@
-import { FileNode } from "@/types/types"
+import { FileNode } from "@/utils/types"
 import fsPromises from "fs/promises"
 import path from "path"
-import { POSTDIRECTORY } from "./posts"
-import { SUPPORTED_EXTENSIONS } from "../types/types"
-
+import { SUPPORTED_EXTENSIONS } from "../utils/constants"
+import { PENSINE_DIRECTORY } from "../utils/constants"
 const EXCLUDED_ITEMS = [".", "sources"]
 
 export async function getTreeFrom(dirPath: string): Promise<FileNode[]> {
@@ -29,7 +28,7 @@ export async function getTreeFrom(dirPath: string): Promise<FileNode[]> {
         entry.isFile() &&
         SUPPORTED_EXTENSIONS.some((ext) => entry.name.endsWith(ext))
       ) {
-        const filePath = finalPath.replace(POSTDIRECTORY, "")
+        const filePath = finalPath.replace(PENSINE_DIRECTORY, "")
         return {
           name: entry.name,
           path: filePath,
@@ -48,7 +47,7 @@ let treeData: FileNode[] | null = null
 
 export async function getTreeData(): Promise<FileNode[]> {
   if (treeData === null) {
-    treeData = await getTreeFrom(POSTDIRECTORY)
+    treeData = await getTreeFrom(PENSINE_DIRECTORY)
   }
   return treeData
 }

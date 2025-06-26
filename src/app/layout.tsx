@@ -1,20 +1,117 @@
+import type React from "react"
 import { getTreeData } from "@/lib/treeData"
-import "../styles/globals.css"
+import "@/styles/globals.css"
 import { GeistSans } from "geist/font/sans"
-import FileTree from "@/components/Tree"
-import Header from "@/components/Header"
+import FileTree from "@/components/tree"
+import Header from "@/components/header"
 import "katex/dist/katex.min.css"
+import type { Metadata, Viewport } from "next"
 
-export const metadata = {
-  metadataBase: new URL("https://pensine.nebula.li"),
-  title: "Pensine - Garden of Knowledge",
+const siteConfig = {
+  name: "Pensine - Garden of Knowledge",
   description:
     "Here you will find my garden of knowledge, a place where I share all the subjects I have mastered or am in the process of learning.",
+  url: "https://pensine.nebula.li",
+  author: "Martin",
+  creator: "Martin",
+  publisher: "Nebula",
+}
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
+}
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: siteConfig.name,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: [
+    "pensine",
+    "garden of knowledge",
+    "knowledge base",
+    "learning",
+    "education",
+    "notes",
+    "documentation",
+    "wiki",
+  ],
+  authors: [{ name: siteConfig.author }],
+  creator: siteConfig.creator,
+  publisher: siteConfig.publisher,
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   openGraph: {
-    images: ["/open-graph-image.jpg"],
+    type: "website",
+    locale: "en_US",
+    alternateLocale: ["fr_FR"],
+    url: siteConfig.url,
+    title: siteConfig.name,
+    description: siteConfig.description,
+    siteName: siteConfig.name,
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: siteConfig.name,
+      },
+    ],
   },
   twitter: {
-    images: ["/twitter-image.jpg"],
+    card: "summary_large_image",
+    title: siteConfig.name,
+    description: siteConfig.description,
+    site: "@pensine",
+    creator: "@martin",
+    images: ["/twitter-image.png"],
+  },
+  icons: {
+    icon: [
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    other: [{ rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#000000" }],
+  },
+  manifest: "/site.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: siteConfig.name,
+  },
+  applicationName: siteConfig.name,
+  referrer: "origin-when-cross-origin",
+  category: "education",
+  classification: "education",
+  other: {
+    "mobile-web-app-capable": "yes",
+    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "msapplication-TileColor": "#000000",
+    "msapplication-config": "/browserconfig.xml",
   },
 }
 
@@ -25,54 +122,45 @@ export default async function RootLayout({
 }>) {
   const treeData = await getTreeData()
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteConfig.name,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    author: {
+      "@type": "Person",
+      name: siteConfig.author,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: siteConfig.publisher,
+    },
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: `${siteConfig.url}/search?q={search_term_string}`,
+      },
+      "query-input": "required name=search_term_string",
+    },
+  }
+
   return (
     <html lang="en" className={GeistSans.className}>
       <head>
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <link rel="canonical" href={siteConfig.url} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <meta name="generator" content="Next.js" />
-        <meta name="application-name" content="Pensine" />
-        <meta name="referrer" content="origin-when-cross-origin" />
         <meta name="rating" content="general" />
-        <meta name="author" content="Martin" />
-        <meta name="creator" content="Martin" />
-        <meta name="publisher" content="Nebula" />
-        <meta
-          name="format-detection"
-          content="email=no, address=no, telephone=no"
-        />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="robots" content="all" />
-        <link rel="canonical" href="https://pensine.nebula.li" />
-        <meta property="og:title" content="Pensine - Garden of Knowledge" />
-        <meta
-          property="og:description"
-          content="Here you will find my garden of knowledge, a place where I share all the subjects I have mastered or am in the process of learning."
-        />
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://pensine.nebula.li" />
-        <meta
-          property="og:image"
-          content="https://pensine.nebula.li/opengraph-image.png"
-        />
-        <meta property="og:site_name" content="Pensine - Garden of Knowledge" />
-        <meta property="og:locale" content="en_US" />
-        <meta property="og:locale" content="fr_FR" />
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Pensine - Garden of Knowledge" />
-        <meta
-          name="twitter:description"
-          content="Here you will find my garden of knowledge, a place where I share all the subjects I have mastered or am in the process of learning."
-        />
-        <meta
-          name="twitter:image"
-          content="https://pensine.nebula.li/twitter-image.png"
-        />
-        <meta name="twitter:site" content="@pensine" />
-        <meta name="twitter:creator" content="@martin" />
+        <meta name="apple-mobile-web-app-title" content="Pensine" />
       </head>
       <body>
         <Header />
         <div className="flex flex-row w-full">
-          <div className="hidden xl:block h-screen max-h-[93vh]">
+          <div className="hidden lg:block h-screen max-h-[93vh]">
             <FileTree tree={treeData} hidePosibility={true} />
           </div>
           {children}

@@ -1,7 +1,10 @@
 import { generateTOC } from "@/hooks/generateTOC"
-import TOC from "./TOC"
+import TOC from "./toc"
 
 export default async function TOCWrapper({ file }: { file: string }) {
   const toc = await generateTOC(file)
-  return <TOC toc={toc} />
+  if (toc) {
+    return <TOC toc={toc} />
+  }
+  return null
 }

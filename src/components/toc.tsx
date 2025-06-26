@@ -1,7 +1,7 @@
 "use client"
 
 import Image from "next/image"
-import sideBar from "public/img/sidebar.svg"
+import sideBar from "/public/img/sidebar.svg"
 import { useState } from "react"
 
 interface Heading {
@@ -16,7 +16,7 @@ const TOCLink = ({ heading }: { heading: Heading }) => {
   return (
     <a
       href={`#${id}`}
-      className={`block hover:text-[#09090B] font-medium transition-colors text-sm p-0.5 rounded-md ${
+      className={`block hover:text-[#09090B]/90 font-medium transition-colors text-sm p-0.5 rounded-md ${
         isActive ? "text-[#09090B]" : "text-[#71717A]"
       } `}
       style={{ marginLeft: `${heading.level * 0.6}rem` }}
@@ -31,12 +31,12 @@ export default function TOC({ toc }: { toc: Heading[] }) {
 
   return (
     <div
-      className={`hidden xl:block border-l bg-[#F4F4F5] dark:bg-[#27272A] overflow-scroll min-h-[93vh] transition-all duration-300 ${
+      className={`hidden min-w-16 xl:block border-l border-gray-200 bg-[#F4F4F5] overflow-scroll min-h-[93vh] transition-all duration-300 ${
         !isOpen ? "w-16" : "w-[32rem] p-5"
       }`}
     >
       <div className="flex items-center justify-between w-full pb-2">
-        {isOpen && <span className="font-s">Table of Contents</span>}
+        {isOpen && <span className="font-medium">Table of Contents</span>}
         <Image
           src={sideBar}
           alt="Sidebar Right"
