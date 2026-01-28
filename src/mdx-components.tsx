@@ -37,7 +37,7 @@ function ImageWithCaption({ src, alt, ...props }: ImageWithCaptionProps) {
         className="w-full md:w-2/3 md:max-w-[50vw] rounded-lg"
         {...props}
       />
-      <span className="blcok pt-3 font-dmsans text-sm text-center text-gray-500 mb-5">
+      <span className="block pt-3 font-dmsans text-sm text-center text-gray-500 mb-5">
         <span>{description}</span>
         {linkMatch && (
           <span>
@@ -213,7 +213,7 @@ const components: MDXComponents = {
 
   code: ({ children, ...props }: ComponentPropsWithoutRef<"code">) => {
     return (
-      <code {...props} className="text-sm font-mono break-all overflow-scroll">
+      <code {...props} className="bg-gray-100 dark:bg-[#1a1a1a] text-gray-800 dark:text-[#e5e5e5] px-1.5 py-0.5 rounded text-sm font-mono break-all overflow-scroll border border-gray-200 dark:border-[#2a2a2a]">
         {children}
       </code>
     )

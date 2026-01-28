@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation"
 import { getPostBySlug } from "@/lib/posts"
-import { sanitizePath } from "@/hooks/tools"
+import { sanitizePath } from "@/lib/tools"
 import type { Metadata } from "next"
 import Content from "@/components/content"
+import { logger } from "@/lib/logger"
 
 export const metadata: Metadata = {
   title: "Pensine - Garden of knowledge",
@@ -75,7 +76,7 @@ export default async function Index() {
       </>
     )
   } catch (error) {
-    console.error("Error fetching post:", error)
+    logger.error("Error fetching post", { error: error instanceof Error ? error.message : String(error) })
     return (
       <div className="text-center p-8">
         <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Content</h1>

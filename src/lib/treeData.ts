@@ -3,7 +3,9 @@ import fsPromises from "fs/promises"
 import path from "path"
 import { SUPPORTED_EXTENSIONS } from "../utils/constants"
 import { PENSINE_DIRECTORY } from "../utils/constants"
-const EXCLUDED_ITEMS = [".", "sources"]
+
+// Exclude hidden files and git directories
+const EXCLUDED_ITEMS = [".", ".git", "sources"]
 
 export async function getTreeFrom(dirPath: string): Promise<FileNode[]> {
   const dirEntries = await fsPromises.readdir(dirPath, { withFileTypes: true })
@@ -43,11 +45,40 @@ export async function getTreeFrom(dirPath: string): Promise<FileNode[]> {
   return structure.filter(Boolean) as FileNode[]
 }
 
-let treeData: FileNode[] | null = null
+// Cache with TTL (Time To Live)
+let treeDataCache: { data: FileNode[]; timestamp: number } | null = null
+const CACHE_TTL = 5 * 60 * 1000 // 5 minutes in milliseconds
 
+/**
+ * Get tree data with caching and TTL
+ * In development, cache is bypassed to reflect file changes
+ * In production, cache is used with 5-minute TTL
+ */
 export async function getTreeData(): Promise<FileNode[]> {
-  if (treeData === null) {
-    treeData = await getTreeFrom(PENSINE_DIRECTORY)
+  const now = Date.now()
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  
+  // In development, always fetch fresh data
+  if (isDevelopment) {
+    return await getTreeFrom(PENSINE_DIRECTORY)
   }
-  return treeData
+  
+  // In production, use cache with TTL
+  if (treeDataCache && (now - treeDataCache.timestamp) < CACHE_TTL) {
+    return treeDataCache.data
+  }
+  
+  // Fetch fresh data and update cache
+  const freshData = await getTreeFrom(PENSINE_DIRECTORY)
+  treeDataCache = { data: freshData, timestamp: now }
+  
+  return freshData
+}
+
+/**
+ * Clear the tree data cache
+ * Useful for manual cache invalidation
+ */
+export function clearTreeDataCache(): void {
+  treeDataCache = null
 }

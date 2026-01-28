@@ -30,7 +30,7 @@ export async function getPostSlugs() {
   }
   
   structure.forEach(traverse)
-  return filePaths.map((filePath: any) => ({ filePath }))
+  return filePaths.map((filePath: string) => ({ filePath }))
 }
 
 export async function getPostBySlug(encodedSlug: string): Promise<Post | null | undefined> {

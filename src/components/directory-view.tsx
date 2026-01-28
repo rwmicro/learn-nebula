@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Breadcrumb from "./breadcrumb"
+import { decodePathFromUrl, buildNavigationPath } from "@/lib/tools"
+import { logger } from "@/lib/logger"
 
 interface FileItem {
   name: string
@@ -14,47 +16,14 @@ interface DirectoryViewProps {
   directoryPath: string
 }
 
-// Fonction pour décoder le chemin depuis l'URL
-function decodePathFromUrl(encodedPath: string): string {
-  try {
-    // Décoder chaque segment du chemin séparément
-    return encodedPath
-      .split("/")
-      .map((segment) => decodeURIComponent(segment))
-      .join("/")
-  } catch (error) {
-    console.error("Error decoding path:", error)
-    return encodedPath
-  }
-}
-
-// Fonction pour construire le chemin de navigation
-function buildNavigationPath(filePath: string): string {
-  // Nettoyer le chemin et encoder chaque segment
-  const cleanPath = filePath.startsWith("/") ? filePath.slice(1) : filePath
-  const segments = cleanPath.split("/").filter((segment) => segment.length > 0)
-
-  // Encoder chaque segment individuellement
-  const encodedSegments = segments.map((segment) => segment)
-
-  // Construire l'URL finale
-  return encodeURIComponent(`${encodedSegments.join("/")}`)
-}
-
-// Fonction pour nettoyer le chemin
-function sanitizePath(path: string): string {
-  return path.replace(/\/+/g, "/").replace(/\/$/, "") || "/"
-}
-
 export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
   const [files, setFiles] = useState<FileItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  // Décoder le chemin du répertoire
+  // Decode the directory path
   const decodedDirectoryPath = decodePathFromUrl(directoryPath)
-  const formattedPath = sanitizePath(decodedDirectoryPath)
 
   useEffect(() => {
     const fetchDirectoryContents = async () => {
@@ -74,7 +43,10 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
         const data = await response.json()
         setFiles(data.files || [])
       } catch (err) {
-        console.error("Error fetching directory contents:", err)
+        logger.error("Error fetching directory contents", { 
+          error: err instanceof Error ? err.message : String(err),
+          directoryPath: decodedDirectoryPath
+        })
         setError(`Error loading directory contents: ${err instanceof Error ? err.message : "Unknown error"}`)
       } finally {
         setLoading(false)
@@ -89,7 +61,10 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
       const navigationPath = buildNavigationPath(filePath)
       router.push(navigationPath)
     } catch (error) {
-      console.error("Error navigating to file:", error)
+      logger.error("Error navigating to file", { 
+        error: error instanceof Error ? error.message : String(error),
+        filePath 
+      })
       setError("Error navigating to file")
     }
   }
@@ -99,7 +74,10 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
       const navigationPath = buildNavigationPath(dirPath)
       router.push(navigationPath)
     } catch (error) {
-      console.error("Error navigating to directory:", error)
+      logger.error("Error navigating to directory", { 
+        error: error instanceof Error ? error.message : String(error),
+        dirPath 
+      })
       setError("Error navigating to directory")
     }
   }
@@ -136,12 +114,12 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
 
   if (loading) {
     return (
-      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll min-h-[93vh] max-h-[93vh] bg-[#F9F9F9]">
+      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[#F9F9F9] dark:bg-[#0a0a0a]">
         <Breadcrumb formattedPath={directoryPath} currentPath={decodedDirectoryPath} />
-        <h2 className="text-3xl text-left font-medium py-2">Directory Contents</h2>
+        <h2 className="text-3xl text-left font-medium py-2 dark:text-[#e5e5e5]">Directory Contents</h2>
         <div className="flex items-center justify-center py-8">
           <div className="animate-pulse">
-            <div className="text-gray-500">Loading directory contents...</div>
+            <div className="text-gray-500 dark:text-[#6b6b6b]">Loading directory contents...</div>
           </div>
         </div>
       </div>
@@ -150,15 +128,15 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
 
   if (error) {
     return (
-      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll min-h-[93vh] max-h-[93vh] bg-[#F9F9F9]">
+      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[#F9F9F9] dark:bg-[#0a0a0a]">
         <Breadcrumb formattedPath={directoryPath} currentPath={decodedDirectoryPath} />
-        <h2 className="text-3xl text-left font-medium py-2">Directory Contents</h2>
-        <div className="text-red-500 p-4 bg-red-50 rounded-lg border border-red-200">
+        <h2 className="text-3xl text-left font-medium py-2 dark:text-[#e5e5e5]">Directory Contents</h2>
+        <div className="text-red-500 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-900/30">
           <h3 className="font-semibold mb-2">Error</h3>
           <p className="text-sm">{error}</p>
           <button
             onClick={() => window.location.reload()}
-            className="mt-3 px-4 py-2 bg-red-100 hover:bg-red-200 rounded-md text-sm font-medium transition-colors"
+            className="mt-3 px-4 py-2 bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 rounded-md text-sm font-medium transition-colors"
           >
             Retry
           </button>
@@ -168,21 +146,23 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
   }
 
   return (
-    <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll min-h-[93vh] max-h-[93vh] bg-[#F9F9F9]">
+    <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[#F9F9F9] dark:bg-[#0a0a0a]">
       <Breadcrumb formattedPath={directoryPath} currentPath={decodedDirectoryPath} />
-      <h2 className="text-3xl text-left font-medium py-2">Directory Contents</h2>
+      <h2 className="text-3xl text-left font-medium py-2 dark:text-[#e5e5e5]">Directory Contents</h2>
 
       {files.length === 0 ? (
-        <div className="text-gray-500 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div className="text-gray-500 dark:text-[#6b6b6b] p-4 bg-gray-50 dark:bg-[#121212] rounded-lg border border-gray-200 dark:border-[#2a2a2a]">
           <p>This directory is empty.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
           {files.map((file) => (
-            <div
+            <button
               key={file.path}
-              className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md hover:border-gray-300 transition-all cursor-pointer group"
+              className="bg-white dark:bg-[#121212] p-4 rounded-lg shadow-sm border border-gray-200 dark:border-[#2a2a2a] hover:shadow-md hover:border-gray-300 dark:hover:border-[#3a3a3a] transition-all cursor-pointer group text-left w-full"
               onClick={() => (file.isDirectory ? handleDirectoryClick(file.path) : handleFileClick(file.path))}
+              aria-label={`${file.isDirectory ? 'Open directory' : 'Open file'}: ${file.name}`}
+              type="button"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl group-hover:scale-110 transition-transform">
@@ -190,17 +170,17 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
                 </span>
                 <div className="flex-1 min-w-0">
                   <h3
-                    className="font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors"
+                    className="font-medium text-gray-900 dark:text-[#e5e5e5] truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
                     title={file.name}
                   >
                     {file.name}
                   </h3>
                   {!file.isDirectory && (
-                    <p className="text-sm text-gray-500 capitalize">{file.type ? `.${file.type}` : "File"}</p>
+                    <p className="text-sm text-gray-500 dark:text-[#6b6b6b] capitalize">{file.type ? `.${file.type}` : "File"}</p>
                   )}
                 </div>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       )}

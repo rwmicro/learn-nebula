@@ -4,6 +4,9 @@ import "@/styles/globals.css"
 import { GeistSans } from "geist/font/sans"
 import FileTree from "@/components/tree"
 import Header from "@/components/header"
+import { ErrorBoundary } from "@/components/error-boundary"
+import { ThemeProvider } from "@/components/theme-provider"
+import { SkipLink } from "@/components/skip-link"
 import "katex/dist/katex.min.css"
 import type { Metadata, Viewport } from "next"
 
@@ -147,7 +150,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className={GeistSans.className}>
+    <html lang="en" className={GeistSans.className} suppressHydrationWarning>
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <link rel="canonical" href={siteConfig.url} />
@@ -157,14 +160,26 @@ export default async function RootLayout({
         <meta name="rating" content="general" />
         <meta name="apple-mobile-web-app-title" content="Pensine" />
       </head>
-      <body>
-        <Header />
-        <div className="flex flex-row w-full">
-          <div className="hidden lg:block h-screen max-h-[93vh]">
-            <FileTree tree={treeData} hidePosibility={true} />
-          </div>
-          {children}
-        </div>
+      <body className="bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-[#e5e5e5] transition-colors h-screen overflow-hidden flex flex-col">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ErrorBoundary>
+            <SkipLink />
+            <Header />
+            <div className="flex flex-row w-full flex-1 overflow-hidden">
+              <div className="hidden lg:block h-full">
+                <FileTree tree={treeData} hidePosibility={true} />
+              </div>
+              <main id="main-content" className="flex-1 h-full overflow-hidden">
+                {children}
+              </main>
+            </div>
+          </ErrorBoundary>
+        </ThemeProvider>
       </body>
     </html>
   )

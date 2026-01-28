@@ -3,7 +3,7 @@
 /.pnp
 .pnp.js
 .yarn/install-state.gz
-public/sources
+
 # testing
 /coverage
 
@@ -21,11 +21,12 @@ yarn-debug.log*
 yarn-error.log*
 
 # local env files
+.env
 .env*.local
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
 
-.gitignore
+# content
 public/articles/pensine

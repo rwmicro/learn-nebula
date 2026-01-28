@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const posts = await getPostSlugs()
 
   // Generate sitemap entries for all posts
-  const postEntries: MetadataRoute.Sitemap = posts.map((post: any) => ({
+  const postEntries: MetadataRoute.Sitemap = posts.map((post: { filePath: string }) => ({
     url: `${baseUrl}/${post.filePath}`,
     lastModified: new Date(),
     changeFrequency: "weekly",

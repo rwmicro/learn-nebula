@@ -1,24 +1,25 @@
 import { getPostBySlug, getPostSlugs, isDirectory } from "@/lib/posts"
-import type { Metadata, ResolvingMetadata } from "next"
+import type { Metadata } from "next"
 import ArticleClient from "./article-client"
-import { sanitizePath } from "@/hooks/tools"
+import { sanitizePath } from "@/lib/tools"
 import { notFound } from "next/navigation"
 import { generateTOC } from "@/hooks/generateTOC"
 import { IMAGE_EXTENSIONS } from "@/utils/constants"
+import { logger } from "@/lib/logger"
 
 type Props = {
-  params: { article: string }
-  searchParams: { [key: string]: string | string[] | undefined }
+  params: Promise<{ article: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export async function generateStaticParams() {
   const paths = await getPostSlugs()
-  return paths.map((path: any) => ({
+  return paths.map((path: { filePath: string }) => ({
     article: path.filePath,
   }))
 }
 
-export async function generateMetadata({ params }: Props, parent: ResolvingMetadata): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { article } = await params
   const articlePath = article
 
@@ -97,7 +98,7 @@ export async function generateMetadata({ params }: Props, parent: ResolvingMetad
       },
     }
   } catch (error) {
-    console.error("Error generating metadata:", error)
+    logger.error("Error generating metadata", { error: error instanceof Error ? error.message : String(error) })
     return {
       title: "Error Loading Page",
       description: "An error occurred while loading this page.",
@@ -140,7 +141,7 @@ export default async function Article({
 
     return <ArticleClient params={{ article: articlePath.split("/") }} post={post} isDirectory={false} tocData={tocData} />
   } catch (error) {
-    console.error("Error in Article component:", error)
+    logger.error("Error in Article component", { error: error instanceof Error ? error.message : String(error) })
     return <div className="text-red-500 mx-auto my-auto">Article not found</div>
 
   }
