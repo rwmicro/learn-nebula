@@ -1,13 +1,13 @@
 "use client"
 import { useRouter } from "next/navigation"
-import { buildNavigationPath, decodePathFromUrl } from "@/hooks/tools"
+import { buildNavigationPath, decodePathFromUrl } from "@/lib/tools"
 
 interface BreadcrumbProps {
   formattedPath: string
-  currentPath: string
+  currentPath?: string
 }
 
-export default function Breadcrumb({ formattedPath, currentPath }: BreadcrumbProps) {
+export default function Breadcrumb({ formattedPath }: BreadcrumbProps) {
   const router = useRouter()
 
   // Decode the path and parse into segments
@@ -31,20 +31,25 @@ export default function Breadcrumb({ formattedPath, currentPath }: BreadcrumbPro
   }
 
   return (
-    <div className="">
-      <h1 className="text-sm text-center pt-3 text-[#404040] my-2" aria-label="Path">
+    <nav aria-label="Breadcrumb navigation">
+      <ol className="flex flex-wrap justify-center items-center text-sm pt-3 text-[#404040] dark:text-[#6b6b6b] my-2">
         {pathSegmentsWithPaths.map((segment, index) => (
-          <span key={segment.path}>
-            <span
-              className="hover:text-blue-600 hover:underline cursor-pointer transition-colors"
+          <li key={segment.path} className="flex items-center">
+            <button
+              className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
               onClick={() => handleBreadcrumbClick(segment.fullPath)}
+              aria-label={`Navigate to ${segment.name}`}
+              aria-current={index === pathSegmentsWithPaths.length - 1 ? "page" : undefined}
+              type="button"
             >
               {segment.name}
-            </span>
-            {index < pathSegmentsWithPaths.length - 1 && <span className="mx-1 text-gray-400">/</span>}
-          </span>
+            </button>
+            {index < pathSegmentsWithPaths.length - 1 && (
+              <span className="mx-1 text-gray-400 dark:text-[#525252]" aria-hidden="true">/</span>
+            )}
+          </li>
         ))}
-      </h1>
-    </div>
+      </ol>
+    </nav>
   )
 }

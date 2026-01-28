@@ -3,10 +3,10 @@ import { notFound } from "next/navigation"
 import Content from "@/components/content"
 import TOC from "@/components/toc"
 import DirectoryView from "@/components/directory-view"
-import { IMAGE_EXTENSIONS } from "@/utils/constants"
-import { sanitizePath } from "@/hooks/tools"
+import { sanitizePath } from "@/lib/tools"
 import { Post } from "@/utils/types"
 import { useEffect, useState } from "react"
+import { logger } from "@/lib/logger"
 
 interface Heading {
   text: string
@@ -134,14 +134,18 @@ export default function ArticleClient({
     return (
       <>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <Content post={post} formattedPath={formattedPath} />
-        {tocData && (
-          <TOC toc={tocData} />
-        )}
+        <div className="flex flex-row h-full w-full overflow-hidden">
+          <div className="flex-1 h-full overflow-hidden">
+            <Content post={post} formattedPath={formattedPath} />
+          </div>
+          {tocData && tocData.length > 0 && !post.path.toLowerCase().endsWith('.apkg') && (
+            <TOC toc={tocData} />
+          )}
+        </div>
       </>
     )
   } catch (error) {
-    console.error("Error in ArticleClient:", error)
+    logger.error("Error in ArticleClient", { error: error instanceof Error ? error.message : String(error) })
     return (
       <div className="text-center p-8">
         <h1 className="text-2xl font-bold text-red-600 mb-4">Error Loading Article</h1>

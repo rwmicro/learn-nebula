@@ -16,7 +16,7 @@ export function useKeyboardShortcut({
         activeElement?.tagName === "INPUT" ||
         activeElement?.tagName === "TEXTAREA"
 
-      // Autoriser Escape même si un input est actif
+      // Allow Escape key even if an input is active
       if (isInputActive && e.key !== "Escape") return
 
       if (e.key === key) {

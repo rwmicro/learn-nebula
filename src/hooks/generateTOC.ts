@@ -46,7 +46,7 @@ export async function generateTOC(content: string): Promise<Heading[]> {
   }
 
   if (headings.length === 0) {
-    return null as any
+    return []
   }
   return headings
 }
