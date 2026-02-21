@@ -2,6 +2,7 @@ import type { MDXComponents } from "mdx/types"
 import Link from "next/link"
 import type { ComponentPropsWithoutRef } from "react"
 import React from "react"
+import MermaidDiagram from "./components/MermaidDiagram"
 
 type AnchorProps = ComponentPropsWithoutRef<"a">
 
@@ -224,6 +225,18 @@ const components: MDXComponents = {
       <blockquote {...props} className="border-l-4 border-gray-400 pl-4">
         {children}
       </blockquote>
+    )
+  },
+
+  pre: ({ children, ...props }: ComponentPropsWithoutRef<"pre">) => {
+    const mermaidCode = (props as Record<string, unknown>)["data-mermaid"]
+    if (typeof mermaidCode === "string" && mermaidCode) {
+      return <MermaidDiagram chart={mermaidCode} />
+    }
+    return (
+      <pre {...props} className="bg-[#1e1e1e] text-white p-4 rounded-lg overflow-x-auto my-4 text-sm font-mono">
+        {children}
+      </pre>
     )
   },
 }

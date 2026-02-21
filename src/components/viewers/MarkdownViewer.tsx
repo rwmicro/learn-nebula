@@ -11,6 +11,8 @@ import type { Components } from "react-markdown"
 import Link from "next/link"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism"
+import MermaidDiagram from "../MermaidDiagram"
+import RelatedArticles from "../RelatedArticles"
 
 // Custom components for react-markdown to match MDX styling
 // Extract plain text from React children for generating heading IDs
@@ -151,8 +153,11 @@ const markdownComponents: Components = {
     return <code className={className}>{children}</code>
   },
   pre: ({ children }: { children?: React.ReactNode }) => {
+    // react-markdown v10 uses hast-util-to-jsx-runtime, which resolves components.code
+    // as the element type — so child.type is the code function, not the string "code".
+    // We just find the first valid React element child instead.
     const codeElement = React.Children.toArray(children).find(
-      (child) => React.isValidElement(child) && child.type === "code"
+      React.isValidElement
     ) as React.ReactElement<{ className?: string; children?: React.ReactNode }> | undefined
 
     if (!codeElement) {
@@ -167,6 +172,10 @@ const markdownComponents: Components = {
     const match = /language-(\w+)/.exec(className)
     const language = match ? match[1] : "text"
     const codeString = String(codeElement.props.children).replace(/\n$/, "")
+
+    if (language === "mermaid") {
+      return <MermaidDiagram chart={codeString} />
+    }
 
     return (
       <div className="relative my-4 rounded-lg overflow-hidden">
@@ -266,7 +275,11 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
           if (!response.ok) {
             throw new Error("Failed to load content")
           }
-          const content = await response.text()
+          const raw = await response.text()
+          // Strip YAML frontmatter before rendering
+          const content = raw.startsWith("---")
+            ? raw.replace(/^---[\s\S]*?\n---\n?/, "")
+            : raw
           setMarkdownContent(content)
           setLoading(false)
         } else if (fileExtension === "mdx") {
@@ -320,7 +333,7 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
   // Render .md files using react-markdown
   if (fileExtension === "md" && markdownContent) {
     return (
-      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[#F9F9F9] dark:bg-[#0a0a0a]">
+      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-10 overflow-scroll h-full bg-[#F9F9F9] dark:bg-[#0a0a0a]">
         <Breadcrumb formattedPath={formattedPath} currentPath={post.path} />
         <h2 className="text-3xl text-left font-medium my-2 dark:text-[#e5e5e5]">{post.title.replace(/\.md$/i, "")}</h2>
         <article className="max-w-none">
@@ -332,6 +345,7 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
             {markdownContent}
           </ReactMarkdown>
         </article>
+        <RelatedArticles currentPath={post.path} />
       </div>
     )
   }
@@ -339,12 +353,13 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
   // Render .mdx files using imported component
   if (fileExtension === "mdx" && ArticleComponent) {
     return (
-      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[#F9F9F9] dark:bg-[#0a0a0a]">
+      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-10 overflow-scroll h-full bg-[#F9F9F9] dark:bg-[#0a0a0a]">
         <Breadcrumb formattedPath={formattedPath} currentPath={post.path} />
         <h2 className="text-3xl text-left font-medium my-2 dark:text-[#e5e5e5]">{post.title.replace(/\.mdx$/i, "")}</h2>
         <article className="prose dark:prose-invert max-w-none">
           <ArticleComponent />
         </article>
+        <RelatedArticles currentPath={post.path} />
       </div>
     )
   }

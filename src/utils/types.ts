@@ -8,6 +8,7 @@ export type Post = {
   path: string;
   body: string;
   type: typeof SUPPORTED_EXTENSIONS[number];
+  metadata?: Record<string, string | string[]>;
 };
 
 export type FileNode = {

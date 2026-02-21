@@ -48,14 +48,25 @@ const TOCLink = ({ heading, activeId }: { heading: Heading; activeId: string }) 
   )
 }
 
+const TAG_COLORS = [
+  "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+  "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+  "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
+  "bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300",
+  "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
+]
+
 export default function TOC({
   toc,
   recentFiles = [],
-  trendingTags = []
+  trendingTags = [],
+  metadata = {},
 }: {
   toc: Heading[]
   recentFiles?: RecentFile[]
   trendingTags?: string[]
+  metadata?: Record<string, string | string[]>
 }) {
   const [isOpen, setIsOpen] = useState(true)
   const [activeId, setActiveId] = useState("")
@@ -166,6 +177,50 @@ export default function TOC({
                   </button>
                 )
               })}
+            </div>
+          </div>
+        )}
+
+        {/* Metadata bubbles */}
+        {Object.keys(metadata).length > 0 && (
+          <div className="px-4 mb-5 pb-5 border-b border-gray-200 dark:border-[#1f1f1f]">
+            <h3 className="text-xs font-medium text-gray-400 dark:text-[#6b6b6b] mb-3 uppercase tracking-wide">
+              About
+            </h3>
+            <div className="flex flex-col gap-2">
+              {/* Non-tag, non-title scalar fields */}
+              {(["type", "domain", "created"] as const).map((key) => {
+                const val = metadata[key]
+                if (!val || Array.isArray(val)) return null
+                return (
+                  <div key={key} className="flex items-center gap-2">
+                    <span className="text-[11px] uppercase tracking-wide text-gray-400 dark:text-[#6b6b6b] w-14 shrink-0">
+                      {key}
+                    </span>
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600 dark:bg-[#1a1a1a] dark:text-[#a0a0a0]">
+                      {val}
+                    </span>
+                  </div>
+                )
+              })}
+              {/* Tags */}
+              {(() => {
+                const tags = metadata["tags"]
+                if (!tags) return null
+                const tagList = Array.isArray(tags) ? tags : [tags]
+                return (
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {tagList.map((tag, i) => (
+                      <span
+                        key={tag}
+                        className={`px-2.5 py-0.5 text-xs rounded-full ${TAG_COLORS[i % TAG_COLORS.length]}`}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )
+              })()}
             </div>
           </div>
         )}
