@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { SkipLink } from "@/components/skip-link"
 import "katex/dist/katex.min.css"
 import type { Metadata, Viewport } from "next"
+// import AssistantLoader from "@/components/AssistantLoader"
 
 const siteConfig = {
   name: "Pensine - Garden of Knowledge",
@@ -178,6 +179,7 @@ export default async function RootLayout({
                 {children}
               </main>
             </div>
+            {/* <AssistantLoader /> */}
           </ErrorBoundary>
         </ThemeProvider>
       </body>

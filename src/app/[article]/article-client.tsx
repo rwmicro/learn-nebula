@@ -139,7 +139,7 @@ export default function ArticleClient({
             <Content post={post} formattedPath={formattedPath} />
           </div>
           {tocData && tocData.length > 0 && !post.path.toLowerCase().endsWith('.apkg') && (
-            <TOC toc={tocData} />
+            <TOC toc={tocData} metadata={post.metadata} />
           )}
         </div>
       </>

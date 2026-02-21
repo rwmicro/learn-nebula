@@ -4,6 +4,26 @@ import rehypeKatex from "rehype-katex"
 import rehypeUnwrapImages from "rehype-unwrap-images"
 import remarkMath from "remark-math"
 import rehypePrismPlus from "rehype-prism-plus"
+import { visit } from "unist-util-visit"
+
+// Extracts raw mermaid code into a data attribute before rehype-prism-plus transforms it
+function rehypeMermaidExtract() {
+  return (tree) => {
+    visit(tree, "element", (node) => {
+      if (node.tagName === "pre" && node.children?.[0]?.tagName === "code") {
+        const codeNode = node.children[0]
+        const classes = Array.isArray(codeNode.properties?.className) ? codeNode.properties.className : []
+        if (classes.includes("language-mermaid")) {
+          const text = codeNode.children
+            .filter((n) => n.type === "text")
+            .map((n) => n.value)
+            .join("")
+          node.properties = { ...(node.properties || {}), "data-mermaid": text }
+        }
+      }
+    })
+  }
+}
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -82,11 +102,11 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed for some MDX/React features
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net", // unsafe-eval needed for MDX/React, wasm-unsafe-eval for ONNX
               "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for styled-components/emotion
               "img-src 'self' data: https://pensine.nebula.li https://nebula.li https://upload.wikimedia.org https://*.wikipedia.org",
               "font-src 'self' data:",
-              "connect-src 'self'",
+              "connect-src 'self' https://huggingface.co https://*.huggingface.co https://cdn-lfs.huggingface.co https://cdn-lfs-us-1.huggingface.co https://cdn.jsdelivr.net https://raw.githubusercontent.com https://*.hf.co",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",
@@ -105,6 +125,14 @@ const nextConfig = {
       use: "ignore-loader",
     })
 
+    // Allow browser-only packages to resolve without Node.js built-ins
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+      crypto: false,
+    }
+
     return config
   },
 }
@@ -113,7 +141,7 @@ const withMDX = createMDX({
   extension: /\.(md|mdx)$/,
   options: {
     remarkPlugins: [remarkMath, remarkGfm],
-    rehypePlugins: [rehypeKatex, rehypeUnwrapImages, rehypePrismPlus],
+    rehypePlugins: [rehypeKatex, rehypeUnwrapImages, rehypeMermaidExtract, rehypePrismPlus],
   },
 })
 
