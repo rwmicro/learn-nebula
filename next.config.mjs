@@ -102,11 +102,11 @@ const nextConfig = {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdn.jsdelivr.net", // unsafe-eval needed for MDX/React, wasm-unsafe-eval for ONNX
-              "style-src 'self' 'unsafe-inline'", // unsafe-inline needed for styled-components/emotion
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed for MDX/React dynamic rendering
+              "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: https://pensine.nebula.li https://nebula.li https://upload.wikimedia.org https://*.wikipedia.org",
               "font-src 'self' data:",
-              "connect-src 'self' https://huggingface.co https://*.huggingface.co https://cdn-lfs.huggingface.co https://cdn-lfs-us-1.huggingface.co https://cdn.jsdelivr.net https://raw.githubusercontent.com https://*.hf.co",
+              "connect-src 'self'",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

@@ -35,8 +35,8 @@ const TOCLink = ({ heading, activeId }: { heading: Heading; activeId: string }) 
       className={`
         block py-1.5 px-4 text-[13px] transition-colors duration-150 cursor-pointer border-l-2
         ${isActive
-          ? "text-blue-600 dark:text-blue-400 font-normal border-blue-600 dark:border-blue-400"
-          : "text-gray-600 dark:text-[#a0a0a0] hover:text-gray-900 dark:hover:text-[#e5e5e5] border-transparent"
+          ? "text-[var(--c-text-1)] font-normal border-[var(--c-text-3)]"
+          : "text-[var(--c-text-2)] hover:text-[var(--c-text-1)] border-transparent"
         }
       `}
       style={{
@@ -48,14 +48,6 @@ const TOCLink = ({ heading, activeId }: { heading: Heading; activeId: string }) 
   )
 }
 
-const TAG_COLORS = [
-  "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
-  "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
-  "bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300",
-  "bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300",
-]
 
 export default function TOC({
   toc,
@@ -99,18 +91,18 @@ export default function TOC({
 
   return (
     <div
-      className={`hidden min-w-16 xl:block bg-[#F9F9F9] dark:bg-[#0a0a0a] overflow-hidden h-full border-l border-gray-200 dark:border-[#1f1f1f]
+      className={`hidden min-w-16 xl:block bg-[var(--c-bg)] overflow-hidden h-full border-l border-[var(--c-border)]
         transition-[width] duration-300 ease-in-out
         ${!isOpen ? "w-16" : "w-[22rem]"}`}
     >
       {/* Header — always visible */}
       <div className={`flex items-center transition-all duration-300 ease-in-out ${isOpen ? "justify-between px-4 pt-6 pb-4" : "justify-center pt-5"}`}>
-        <h2 className={`text-sm font-semibold text-gray-700 dark:text-[#e5e5e5] whitespace-nowrap transition-all duration-300 ease-in-out ${isOpen ? "opacity-100 max-w-full" : "opacity-0 max-w-0 overflow-hidden"}`}>
+        <h2 className={`text-sm font-semibold text-[var(--c-text-1)] whitespace-nowrap transition-all duration-300 ease-in-out ${isOpen ? "opacity-100 max-w-full" : "opacity-0 max-w-0 overflow-hidden"}`}>
           Contents
         </h2>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded transition-colors"
+          className="p-1.5 hover:bg-[var(--c-surface-hover)] rounded transition-colors"
           aria-label={isOpen ? "Close table of contents" : "Open table of contents"}
         >
           <Image
@@ -134,13 +126,13 @@ export default function TOC({
         {/* Recently Updated Section */}
         {recentFiles.length > 0 && (
           <div className="px-4 mb-6">
-            <h3 className="text-xs font-medium text-gray-500 dark:text-[#6b6b6b] mb-2 uppercase tracking-wide">Recently Updated</h3>
+            <h3 className="text-xs font-medium text-[var(--c-text-3)] mb-2 uppercase tracking-wide">Recently Updated</h3>
             <div className="space-y-2">
               {recentFiles.map((file, index) => (
                 <Link
                   key={index}
                   href={file.path}
-                  className="block text-[13px] text-gray-600 dark:text-[#a0a0a0] hover:text-gray-900 dark:hover:text-[#e5e5e5] truncate transition-colors"
+                  className="block text-[13px] text-[var(--c-text-2)] hover:text-[var(--c-text-1)] truncate transition-colors"
                   title={file.title}
                 >
                   {file.title}
@@ -152,52 +144,41 @@ export default function TOC({
 
         {/* Trending Tags Section */}
         {trendingTags.length > 0 && (
-          <div className="px-4 mb-6 pb-6 border-b border-gray-200 dark:border-[#2a2a2a]">
-            <h2 className="text-sm font-semibold text-gray-700 dark:text-[#e5e5e5] mb-3">Trending Tags</h2>
+          <div className="px-4 mb-6 pb-6 border-b border-[var(--c-border)]">
+            <h2 className="text-sm font-semibold text-[var(--c-text-1)] mb-3">Trending Tags</h2>
             <div className="flex flex-wrap gap-2">
-              {trendingTags.map((tag, index) => {
-                const colors = [
-                  'bg-blue-50 text-blue-700 hover:bg-blue-100',
-                  'bg-purple-50 text-purple-700 hover:bg-purple-100',
-                  'bg-green-50 text-green-700 hover:bg-green-100',
-                  'bg-orange-50 text-orange-700 hover:bg-orange-100',
-                  'bg-pink-50 text-pink-700 hover:bg-pink-100',
-                ]
-                const colorClass = colors[index % colors.length]
-
-                return (
-                  <button
+              {trendingTags.map((tag) => (
+                  <span
                     key={tag}
-                    onClick={() => {
-                      console.log('Tag clicked:', tag)
-                    }}
-                    className={`px-2.5 py-1 text-xs rounded-full transition-colors cursor-pointer ${colorClass}`}
+                    className="px-2.5 py-1 text-xs rounded-full bg-[var(--c-surface-hover)] text-[var(--c-text-2)] hover:bg-[var(--c-border)] transition-colors"
                   >
                     {tag}
-                  </button>
-                )
-              })}
+                  </span>
+              ))}
             </div>
           </div>
         )}
 
         {/* Metadata bubbles */}
         {Object.keys(metadata).length > 0 && (
-          <div className="px-4 mb-5 pb-5 border-b border-gray-200 dark:border-[#1f1f1f]">
-            <h3 className="text-xs font-medium text-gray-400 dark:text-[#6b6b6b] mb-3 uppercase tracking-wide">
+          <div className="px-4 mb-5 pb-5 border-b border-[var(--c-border)]">
+            <h3 className="text-xs font-medium text-[var(--c-text-3)] mb-3 uppercase tracking-wide">
               About
             </h3>
             <div className="flex flex-col gap-2">
               {/* Non-tag, non-title scalar fields */}
               {(["type", "domain", "created"] as const).map((key) => {
-                const val = metadata[key]
-                if (!val || Array.isArray(val)) return null
+                const raw = metadata[key]
+                if (!raw || Array.isArray(raw)) return null
+                // Strip surrounding quotes added by some YAML parsers
+                const val = String(raw).replace(/^["']|["']$/g, "")
+                if (!val) return null
                 return (
                   <div key={key} className="flex items-center gap-2">
-                    <span className="text-[11px] uppercase tracking-wide text-gray-400 dark:text-[#6b6b6b] w-14 shrink-0">
+                    <span className="text-[11px] uppercase tracking-wide text-[var(--c-text-3)] w-14 shrink-0">
                       {key}
                     </span>
-                    <span className="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-600 dark:bg-[#1a1a1a] dark:text-[#a0a0a0]">
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-[var(--c-surface-hover)] text-[var(--c-text-2)]">
                       {val}
                     </span>
                   </div>
@@ -205,15 +186,34 @@ export default function TOC({
               })}
               {/* Tags */}
               {(() => {
-                const tags = metadata["tags"]
-                if (!tags) return null
-                const tagList = Array.isArray(tags) ? tags : [tags]
+                const raw = metadata["tags"]
+                if (!raw) return null
+                // Handle both real arrays and strings like "[a, b, c]"
+                let tagList: string[]
+                if (Array.isArray(raw)) {
+                  tagList = raw.map((t) => String(t).trim()).filter(Boolean)
+                } else {
+                  const s = String(raw).trim()
+                  const inner = s.startsWith("[") && s.endsWith("]") ? s.slice(1, -1) : s
+                  tagList = inner.split(",").map((t) => t.trim().replace(/^["']|["']$/g, "")).filter(Boolean)
+                }
+                if (tagList.length === 0) return null
+
+                const COLORS = [
+                  "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800",
+                  "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800",
+                  "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800",
+                  "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800",
+                  "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-800",
+                  "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-950 dark:text-cyan-300 dark:border-cyan-800",
+                ]
+
                 return (
                   <div className="flex flex-wrap gap-1.5 mt-1">
                     {tagList.map((tag, i) => (
                       <span
                         key={tag}
-                        className={`px-2.5 py-0.5 text-xs rounded-full ${TAG_COLORS[i % TAG_COLORS.length]}`}
+                        className={`px-2 py-0.5 text-[11px] rounded border ${COLORS[i % COLORS.length]}`}
                       >
                         {tag}
                       </span>

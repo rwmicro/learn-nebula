@@ -20,6 +20,8 @@ const FILE_TYPES: Record<string, { label: string; extensions: string[] }> = {
 
 type FileTypeKey = "all" | "markdown" | "pdf" | "images" | "anki"
 
+interface ContentResult { path: string; title: string; snippet: string; matchCount: number }
+
 // Fuzzy search scoring function
 function fuzzyMatch(text: string, pattern: string): { match: boolean; score: number; indices: number[] } {
   const textLower = text.toLowerCase()
@@ -234,6 +236,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
   const [selectedIndex, setSelectedIndex] = useState<number>(0)
   const [selectedFileType, setSelectedFileType] = useState<FileTypeKey>("all")
   const [recentSearches, setRecentSearches] = useState<string[]>([])
+  const [contentResults, setContentResults] = useState<ContentResult[]>([])
 
   // Debounce search input for better performance
   const debouncedSearch = useDebounce(search, 150)
@@ -317,6 +320,18 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
     setSelectedIndex(0)
   }, [debouncedSearch, selectedFileType])
 
+  // Fetch full-text content search results
+  useEffect(() => {
+    if (debouncedSearch.trim().length < 2) {
+      setContentResults([])
+      return
+    }
+    fetch(`/api/search-content?q=${encodeURIComponent(debouncedSearch.trim())}`)
+      .then(r => r.ok ? r.json() : { results: [] })
+      .then(data => setContentResults(data.results ?? []))
+      .catch(() => setContentResults([]))
+  }, [debouncedSearch])
+
   const handleKeyDown = (event: React.KeyboardEvent) => {
     const maxIndex = Math.min(filteredTree.length, SEARCH_MAX_RESULTS) - 1
 
@@ -368,7 +383,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
         <div id="search">
           {/* Backdrop */}
           <div
-            className="w-full h-full fixed top-0 left-0 bg-neutral-300/40 dark:bg-black/60 z-[55] backdrop-blur-sm"
+            className="w-full h-full fixed top-0 left-0 bg-neutral-500/20 dark:bg-black/60 z-[55] backdrop-blur-sm"
             onClick={handleEscape}
             role="presentation"
             aria-hidden="true"
@@ -376,13 +391,13 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
 
           {/* Modal */}
           <div
-            className="fixed top-14 w-[95vw] sm:w-[90vw] lg:w-[46rem] left-1/2 transform -translate-x-1/2 bg-white dark:bg-[#121212] rounded-xl border border-[#E0E0E0] dark:border-[#2a2a2a] z-[56] flex flex-col overflow-hidden shadow-2xl"
+            className="fixed top-14 w-[95vw] sm:w-[90vw] lg:w-[46rem] left-1/2 transform -translate-x-1/2 bg-[var(--c-surface)] rounded-xl border border-[var(--c-border)] z-[56] flex flex-col overflow-hidden shadow-2xl"
             role="dialog"
             aria-modal="true"
             aria-label="Search files"
           >
             {/* Search input */}
-            <div className="flex items-center border-b border-gray-200 dark:border-[#252525] px-4 py-2 gap-2">
+            <div className="flex items-center border-b border-[var(--c-border)] px-4 py-2 gap-2">
               <Image
                 src="/img/search.svg"
                 width={20}
@@ -396,7 +411,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
               <input
                 id="search-input"
                 ref={inputRef}
-                className="flex-1 h-10 outline-none bg-transparent dark:text-[#e5e5e5] dark:placeholder-[#6b6b6b] text-base"
+                className="flex-1 h-10 outline-none bg-transparent text-[var(--c-text-1)] placeholder-[var(--c-text-3)] text-base"
                 type="text"
                 placeholder="Rechercher un fichier..."
                 value={search}
@@ -409,7 +424,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
               />
               {search && (
                 <button
-                  className="p-1.5 text-neutral-500 hover:text-neutral-700 dark:text-[#6b6b6b] dark:hover:text-[#e5e5e5] rounded-md hover:bg-gray-100 dark:hover:bg-[#252525] transition-colors"
+                  className="p-1.5 text-[var(--c-text-3)] hover:text-[var(--c-text-1)] rounded-md hover:bg-[var(--c-surface-hover)] transition-colors"
                   onClick={() => setSearch("")}
                   aria-label="Clear search"
                   type="button"
@@ -420,36 +435,36 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
                   </svg>
                 </button>
               )}
-              <kbd className="hidden sm:inline-block px-2 py-1 text-xs font-mono text-gray-500 dark:text-[#6b6b6b] bg-gray-100 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#252525] rounded">
+              <kbd className="hidden sm:inline-block px-2 py-1 text-xs font-mono text-[var(--c-text-3)] bg-[var(--c-surface-hover)] border border-[var(--c-border)] rounded">
                 Esc
               </kbd>
             </div>
 
             {/* File type filters */}
-            <div className="flex items-center gap-1 px-4 py-2 border-b border-gray-200 dark:border-[#252525] overflow-x-auto">
+            <div className="flex items-center gap-1 px-4 py-2 border-b border-[var(--c-border)] overflow-x-auto">
               {(Object.entries(FILE_TYPES) as [FileTypeKey, { label: string; extensions: string[] }][]).map(([key, { label }]) => (
                 <button
                   key={key}
                   onClick={() => setSelectedFileType(key)}
                   className={`px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-colors ${
                     selectedFileType === key
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-100 dark:bg-[#1a1a1a] text-gray-600 dark:text-[#a0a0a0] hover:bg-gray-200 dark:hover:bg-[#252525]"
+                      ? "bg-neutral-200 text-black"
+                      : "bg-[var(--c-surface-hover)] text-[var(--c-text-2)] hover:bg-[var(--c-border)]"
                   }`}
                   type="button"
                 >
                   {label}
                 </button>
               ))}
-              <span className="ml-auto text-xs text-gray-400 dark:text-[#6b6b6b] hidden sm:inline">
+              <span className="ml-auto text-xs text-[var(--c-text-3)] hidden sm:inline">
                 Tab pour changer
               </span>
             </div>
 
             {/* Recent searches */}
             {showRecentSearches && (
-              <div className="px-4 py-3 border-b border-gray-200 dark:border-[#252525]">
-                <h3 className="text-xs font-medium text-gray-500 dark:text-[#6b6b6b] uppercase tracking-wide mb-2">
+              <div className="px-4 py-3 border-b border-[var(--c-border)]">
+                <h3 className="text-xs font-medium text-[var(--c-text-3)] uppercase tracking-wide mb-2">
                   Recherches récentes
                 </h3>
                 <div className="flex flex-wrap gap-2">
@@ -457,7 +472,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
                     <button
                       key={index}
                       onClick={() => handleRecentSearchClick(recentSearch)}
-                      className="px-2.5 py-1 text-sm bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-[#a0a0a0] rounded-md hover:bg-gray-200 dark:hover:bg-[#252525] transition-colors"
+                      className="px-2.5 py-1 text-sm bg-[var(--c-surface-hover)] text-[var(--c-text-2)] rounded-md hover:bg-[var(--c-border)] transition-colors"
                       type="button"
                     >
                       {recentSearch}
@@ -477,13 +492,13 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
             >
               {filteredTree.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-                  <svg className="w-16 h-16 text-gray-300 dark:text-[#2a2a2a] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-16 h-16 text-[var(--c-text-3)] mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  <p className="text-gray-500 dark:text-[#6b6b6b] text-lg font-medium">
+                  <p className="text-[var(--c-text-3)] text-lg font-medium">
                     Aucun résultat trouvé
                   </p>
-                  <p className="text-gray-400 dark:text-[#4a4a4a] text-sm mt-1">
+                  <p className="text-[var(--c-text-3)] text-sm mt-1">
                     {search.trim()
                       ? `Aucun fichier ne correspond à "${search}"`
                       : "Commencez à taper pour rechercher"
@@ -502,8 +517,8 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
                         ref={isSelected ? selectedItemRef : null}
                         className={`flex items-center px-4 py-2.5 mx-2 rounded-lg transition-colors ${
                           isSelected
-                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
-                            : "text-gray-700 dark:text-[#a0a0a0] hover:bg-gray-50 dark:hover:bg-[#1a1a1a]"
+                            ? "bg-[var(--c-surface-hover)] text-[var(--c-text-1)]"
+                            : "text-[var(--c-text-2)] hover:bg-[var(--c-surface-hover)]"
                         }`}
                         key={node.path}
                         href={encodeURL(node.path)}
@@ -516,7 +531,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
                           <HighlightedText text={sanitizePath(node.path)} indices={node.matchIndices} />
                         </span>
                         {isSelected && (
-                          <kbd className="hidden sm:inline-block ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">
+                          <kbd className="hidden sm:inline-block ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-[var(--c-border)] text-[var(--c-text-1)] rounded">
                             Enter
                           </kbd>
                         )}
@@ -525,10 +540,26 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
                   })}
                 </div>
               )}
+              {contentResults.length > 0 && (
+                <div className="border-t border-[var(--c-border)] py-2">
+                  <p className="px-4 py-1.5 text-[10px] uppercase tracking-widest text-[var(--c-text-3)]">Dans le contenu</p>
+                  {contentResults.slice(0, 5).map((result) => (
+                    <Link
+                      key={result.path}
+                      href={`${encodeURL(result.path)}?highlight=${encodeURIComponent(debouncedSearch.trim())}`}
+                      onClick={handleResultClick}
+                      className="flex flex-col px-4 py-2.5 mx-2 rounded-lg hover:bg-[var(--c-surface-hover)] transition-colors"
+                    >
+                      <span className="text-sm text-[var(--c-text-1)] truncate font-medium">{result.title}</span>
+                      <span className="text-xs text-[var(--c-text-3)] mt-0.5 line-clamp-2 leading-relaxed">{result.snippet}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-between px-4 py-2 border-t border-gray-200 dark:border-[#252525] bg-gray-50 dark:bg-[#0a0a0a] text-xs text-gray-500 dark:text-[#6b6b6b]">
+            <div className="flex items-center justify-between px-4 py-2 border-t border-[var(--c-border)] bg-[var(--c-sidebar)] text-xs text-[var(--c-text-3)]">
               <span>
                 {filteredTree.length} résultat{filteredTree.length !== 1 ? "s" : ""}
               </span>
@@ -536,23 +567,23 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
               {/* Desktop keyboard hints */}
               <div className="hidden sm:flex items-center gap-4">
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 font-mono bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#252525] rounded text-[10px]">↑</kbd>
-                  <kbd className="px-1.5 py-0.5 font-mono bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#252525] rounded text-[10px]">↓</kbd>
+                  <kbd className="px-1.5 py-0.5 font-mono bg-[var(--c-surface-hover)] border border-[var(--c-border)] rounded text-[10px]">↑</kbd>
+                  <kbd className="px-1.5 py-0.5 font-mono bg-[var(--c-surface-hover)] border border-[var(--c-border)] rounded text-[10px]">↓</kbd>
                   <span className="ml-1">naviguer</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 font-mono bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#252525] rounded text-[10px]">Enter</kbd>
+                  <kbd className="px-1.5 py-0.5 font-mono bg-[var(--c-surface-hover)] border border-[var(--c-border)] rounded text-[10px]">Enter</kbd>
                   <span className="ml-1">ouvrir</span>
                 </span>
                 <span className="flex items-center gap-1">
-                  <kbd className="px-1.5 py-0.5 font-mono bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#252525] rounded text-[10px]">Tab</kbd>
+                  <kbd className="px-1.5 py-0.5 font-mono bg-[var(--c-surface-hover)] border border-[var(--c-border)] rounded text-[10px]">Tab</kbd>
                   <span className="ml-1">filtrer</span>
                 </span>
               </div>
 
               {/* Mobile close button */}
               <button
-                className="sm:hidden px-3 py-1 bg-gray-200 dark:bg-[#252525] rounded-md font-medium"
+                className="sm:hidden px-3 py-1 bg-[var(--c-surface-hover)] rounded-md font-medium text-[var(--c-text-2)]"
                 onClick={handleEscape}
                 type="button"
               >
@@ -565,7 +596,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
 
       {/* Search trigger button */}
       <button
-        className={`flex justify-between items-center border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#121212] rounded-lg h-fit px-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:border-gray-300 dark:hover:border-[#3a3a3a] transition-all shadow-sm ${fullWidth ? "w-full" : "w-fit"} ${hideTrigger ? "hidden lg:flex" : ""}`}
+        className={`flex justify-between items-center border border-[var(--c-border)] bg-[var(--c-surface)] rounded-lg h-fit px-2 cursor-pointer hover:bg-[var(--c-surface-hover)] hover:border-[var(--c-text-3)] transition-all shadow-sm ${fullWidth ? "w-full" : "w-fit"} ${hideTrigger ? "hidden lg:flex" : ""}`}
         onClick={() => {
           setShowSearch(true)
           setRecentSearches(getRecentSearches())
@@ -573,7 +604,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
         aria-label="Open search (Ctrl+K)"
         type="button"
       >
-        <div className={`flex items-center text-gray-500 dark:text-[#6b6b6b] h-9 outline-none p-2 text-sm ${fullWidth ? "flex-1" : "w-32 sm:w-40"}`}>
+        <div className={`flex items-center text-[var(--c-text-3)] h-9 outline-none p-2 text-sm ${fullWidth ? "flex-1" : "w-32 sm:w-40"}`}>
           <Image
             src="/img/search.svg"
             width={18}
@@ -583,7 +614,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
           />
           <span className="truncate">Rechercher</span>
         </div>
-        <kbd className="hidden sm:inline-block px-2 py-1 border border-gray-200 dark:border-[#252525] text-gray-500 dark:text-[#6b6b6b] bg-gray-50 dark:bg-[#1a1a1a] font-mono text-[11px] rounded" aria-hidden="true">
+        <kbd className="hidden sm:inline-block px-2 py-1 border border-[var(--c-border)] text-[var(--c-text-3)] bg-[var(--c-surface-hover)] font-mono text-[11px] rounded" aria-hidden="true">
           ⌘K
         </kbd>
       </button>

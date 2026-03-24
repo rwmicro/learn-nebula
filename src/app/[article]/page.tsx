@@ -53,7 +53,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const formattedPath = sanitizePath(post.path)
     const pathSegments = formattedPath.split("/").filter(Boolean)
-    const canonicalUrl = `https://pensine.nebula.li/${articlePath}`
+    const canonicalUrl = `https://pensine.nebula.li/${articlePath.split("/").map(encodeURIComponent).join("/")}`
 
     // Generate breadcrumb keywords
     const breadcrumbKeywords = pathSegments.map((segment) => segment.toLowerCase().replace(/[-_]/g, " "))

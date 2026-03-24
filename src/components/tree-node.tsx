@@ -53,7 +53,7 @@ const TreeNode = memo(function TreeNode({
         <div>
           <div
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center gap-1 py-[2.5px] rounded hover:bg-[#e7e7e9] dark:hover:bg-[#252525] cursor-pointer"
+            className="flex items-center gap-1 py-[2.5px] rounded hover:bg-[var(--c-surface-hover)] cursor-pointer"
           >
             <span>
               {isOpen ? (
@@ -89,7 +89,7 @@ const TreeNode = memo(function TreeNode({
             {node.name}
           </div>
           {isOpen && node.children && (
-            <div className="ml-3 pl-2 border-l border-neutral-300 dark:border-[#252525]">
+            <div className="ml-3 pl-2 border-l border-[var(--c-border)]">
               {node.children.map((childNode) => (
                 <TreeNode
                   key={childNode.path}
@@ -110,7 +110,7 @@ const TreeNode = memo(function TreeNode({
           onClick={() => onLinkClick(node.path)}
         >
           <div
-            className={`pl-6 p-1 hover:bg-[#e7e7e9] dark:hover:bg-[#252525] rounded transition-colors ${
+            className={`pl-6 p-1 hover:bg-[var(--c-surface-hover)] rounded transition-colors ${
               activePath?.replace(/^\//, "") === node.path.replace(/^\//, "")
                 ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 font-medium"
                 : ""

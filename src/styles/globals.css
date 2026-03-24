@@ -9,11 +9,28 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
   scroll-margin-top: 1rem;
 }
 
-/* Code block background variable for light/dark mode */
+/* CSS custom properties for light/dark mode */
 :root {
-  --code-block-bg: #263238;
+  --c-bg: #faf9f5;
+  --c-surface: #f5f4ed;
+  --c-surface-hover: #f0eee6;
+  --c-border: #e8e6dc;
+  --c-text-1: #1a1918;
+  --c-text-2: #5e5d59;
+  --c-text-3: #9c9a92;
+  --c-sidebar: #f5f4ed;
+  --code-block-bg: #f0eee6;
 }
+
 .dark {
+  --c-bg: #000000;
+  --c-surface: #0a0a0a;
+  --c-surface-hover: #171717;
+  --c-border: #262626;
+  --c-text-1: #e5e5e5;
+  --c-text-2: #737373;
+  --c-text-3: #404040;
+  --c-sidebar: #0a0a0a;
   --code-block-bg: #121212;
 }
 
@@ -48,20 +65,9 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
 
 /* Dark mode variables */
 .dark {
-  --typography-td-border-color: var(--color-dark-border);
-  --typography-th-border-color: var(--color-dark-border);
+  --typography-td-border-color: var(--c-border);
+  --typography-th-border-color: var(--c-border);
   color-scheme: dark;
-}
-
-/* Dark mode scrollbar */
-.dark ::-webkit-scrollbar-thumb {
-  background: #3a3a3a;
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #4a4a4a;
-}
-.dark {
-  scrollbar-color: #3a3a3a transparent;
 }
 
 html {
@@ -100,17 +106,17 @@ html {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #bdbdbd;
+  background: var(--c-border);
   border-radius: 50px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--c-text-3);
 }
 
 body {
   scrollbar-width: thin;
-  scrollbar-color: #bdbdbd transparent;
+  scrollbar-color: var(--c-border) transparent;
   scroll-behavior: smooth;
   height: 100%;
   margin: 0;
@@ -118,12 +124,12 @@ body {
   overflow: hidden;
 }
 body::-moz-scrollbar-thumb {
-  background-color: #bdbdbd;
+  background-color: var(--c-border);
   border-radius: 50px;
 }
 
 body::-moz-scrollbar-thumb:hover {
-  background-color: #a8a8a8;
+  background-color: var(--c-text-3);
 }
 
 pre {

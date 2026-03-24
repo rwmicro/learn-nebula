@@ -1,0 +1,12 @@
+services:
+  pensine:
+    build: .
+    ports:
+      - "4403:4403"
+    volumes:
+      # Articles are served from the host — update files without rebuilding the image
+      - ./public/articles:/app/public/articles:ro
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1

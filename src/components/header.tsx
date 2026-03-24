@@ -3,8 +3,8 @@ import Link from "next/link"
 import Search from "./search"
 import { getTreeData } from "@/lib/treeData"
 import Hamburger from "./hamburger"
-import { ThemeToggle } from "./theme-toggle"
 import { KeyboardShortcuts } from "./keyboard-shortcuts"
+import { ThemeToggle } from "./theme-toggle"
 
 export default async function Header() {
   const tree = await getTreeData()
@@ -12,7 +12,7 @@ export default async function Header() {
   return (
     <header
       id="main-header"
-      className="min-h-[4vh] flex justify-between items-center w-full px-5 md:px-20 py-2 bg-[#F9F9F9] dark:bg-[#121212] border-b border-[#E0E0E0] dark:border-[#2a2a2a] z-50">
+      className="min-h-[4vh] flex justify-between items-center w-full px-5 md:px-20 py-2 bg-[var(--c-bg)] border-b border-[var(--c-border)] z-50">
       <div className="flex justify-between items-center md:pl-10">
         <Link href="/" className="relative p-2.5 pl-0 pt-3">
           <div>

@@ -56,14 +56,14 @@ export default function Hamburger({ treeData }: { treeData: FileNode[] }) {
     <div className="relative flex items-center">
       {/* Hamburger / Close button */}
       <button
-        className="lg:hidden focus:outline-none hover:bg-neutral-200 dark:hover:bg-[#252525] p-1.5 rounded border border-gray-300 dark:border-[#333] transition-colors"
+        className="lg:hidden focus:outline-none hover:bg-[var(--c-surface-hover)] p-1.5 rounded border border-[var(--c-border)] transition-colors"
         aria-label={isOpen ? "Close menu" : "Open menu"}
         aria-expanded={isOpen}
         type="button"
         onClick={() => setIsOpen(!isOpen)}
       >
         <svg
-          className="w-5 h-5 text-gray-600 dark:text-[#a0a0a0]"
+          className="w-5 h-5 text-[var(--c-text-2)]"
           fill="none"
           strokeLinecap="round"
           strokeLinejoin="round"
@@ -89,13 +89,13 @@ export default function Hamburger({ treeData }: { treeData: FileNode[] }) {
 
         {/* Panel */}
         <div
-          className={`relative h-full flex flex-col bg-[#F9F9F9] dark:bg-[#0a0a0a] transition-transform duration-300 ease-in-out
+          className={`relative h-full flex flex-col bg-[var(--c-bg)] transition-transform duration-300 ease-in-out
             ${isOpen ? "translate-y-0" : "-translate-y-4"}`}
         >
           {/* Search trigger — opens the global search modal */}
-          <div className="px-4 pt-4 pb-2 border-b border-gray-200 dark:border-[#1f1f1f]">
+          <div className="px-4 pt-4 pb-2 border-b border-[var(--c-border)]">
             <button
-              className="flex items-center w-full border border-gray-200 dark:border-[#2a2a2a] bg-white dark:bg-[#121212] rounded-lg h-10 px-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-[#1a1a1a] hover:border-gray-300 dark:hover:border-[#3a3a3a] transition-all shadow-sm text-gray-500 dark:text-[#6b6b6b] text-sm"
+              className="flex items-center w-full border border-[var(--c-border)] bg-[var(--c-surface)] rounded-lg h-10 px-3 cursor-pointer hover:bg-[var(--c-surface-hover)] hover:border-[var(--c-text-3)] transition-all shadow-sm text-[var(--c-text-3)] text-sm"
               type="button"
               onClick={() => {
                 document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))
@@ -105,7 +105,7 @@ export default function Hamburger({ treeData }: { treeData: FileNode[] }) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <span>Rechercher...</span>
-              <kbd className="ml-auto px-1.5 py-0.5 border border-gray-200 dark:border-[#252525] bg-gray-50 dark:bg-[#1a1a1a] font-mono text-[11px] rounded">
+              <kbd className="ml-auto px-1.5 py-0.5 border border-[var(--c-border)] bg-[var(--c-surface-hover)] font-mono text-[11px] rounded">
                 ⌘K
               </kbd>
             </button>
@@ -117,14 +117,14 @@ export default function Hamburger({ treeData }: { treeData: FileNode[] }) {
           </div>
 
           {/* Footer */}
-          <div className="px-4 py-3 border-t border-gray-200 dark:border-[#1f1f1f] bg-[#F4F4F5] dark:bg-[#121212]">
+          <div className="px-4 py-3 border-t border-[var(--c-border)] bg-[var(--c-sidebar)]">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500 dark:text-[#6b6b6b]">
+              <span className="text-xs text-[var(--c-text-3)]">
                 Esc pour fermer
               </span>
               <button
                 onClick={() => setIsOpen(false)}
-                className="px-4 py-1.5 text-sm font-medium text-gray-600 dark:text-[#a0a0a0] bg-gray-200 dark:bg-[#1a1a1a] hover:bg-gray-300 dark:hover:bg-[#252525] rounded-lg transition-colors"
+                className="px-4 py-1.5 text-sm font-medium text-[var(--c-text-2)] bg-[var(--c-surface-hover)] hover:bg-[var(--c-border)] rounded-lg transition-colors"
                 type="button"
               >
                 Fermer
