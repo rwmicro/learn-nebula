@@ -9,7 +9,6 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { SkipLink } from "@/components/skip-link"
 import "katex/dist/katex.min.css"
 import type { Metadata, Viewport } from "next"
-// import AssistantLoader from "@/components/AssistantLoader"
 
 const siteConfig = {
   name: "Pensine - Garden of Knowledge",
@@ -26,10 +25,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
-    { media: "(prefers-color-scheme: dark)", color: "#000000" },
-  ],
+  themeColor: "#000000",
 }
 
 export const metadata: Metadata = {
@@ -151,7 +147,7 @@ export default async function RootLayout({
   }
 
   return (
-    <html lang="en" className={GeistSans.className} suppressHydrationWarning>
+    <html lang="fr" className={GeistSans.className} suppressHydrationWarning>
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <link rel="canonical" href={siteConfig.url} />
@@ -161,11 +157,11 @@ export default async function RootLayout({
         <meta name="rating" content="general" />
         <meta name="apple-mobile-web-app-title" content="Pensine" />
       </head>
-      <body className="bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-[#e5e5e5] transition-colors h-screen overflow-hidden flex flex-col">
+      <body className="bg-[var(--c-bg)] text-[var(--c-text-1)] h-screen overflow-hidden flex flex-col">
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="dark"
+          enableSystem={false}
           disableTransitionOnChange
         >
           <ErrorBoundary>
@@ -179,7 +175,6 @@ export default async function RootLayout({
                 {children}
               </main>
             </div>
-            {/* <AssistantLoader /> */}
           </ErrorBoundary>
         </ThemeProvider>
       </body>

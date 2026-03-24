@@ -35,17 +35,17 @@ export default function Structure({
 
   return (
     <div
-      className={`bg-[#F4F4F5] dark:bg-[#121212] overflow-hidden text-[14px] h-full
-        ${fullWidth ? "w-full" : `min-w-16 border-r border-gray-200 dark:border-[#2a2a2a] transition-[width] duration-300 ease-in-out ${!showUI ? "w-16" : "w-[22rem]"}`}`}
+      className={`bg-[var(--c-sidebar)] overflow-hidden text-[14px] h-full
+        ${fullWidth ? "w-full" : `min-w-16 border-r border-[var(--c-border)] transition-[width] duration-300 ease-in-out ${!showUI ? "w-16" : "w-[22rem]"}`}`}
     >
       {/* Toggle button — always visible */}
       {hidePosibility && (
         <div className={`flex items-center justify-between w-full transition-all duration-300 ease-in-out ${showUI ? "px-5 pt-4 pb-2" : "pt-4 px-0"}`}>
           <div className={`flex items-center gap-2 flex-1 overflow-hidden transition-all duration-300 ease-in-out ${showUI ? "opacity-100 max-w-full" : "opacity-0 max-w-0"}`}>
-            <span className="font-semibold dark:text-[#e5e5e5] whitespace-nowrap">Garden of Knowledge</span>
+            <span className="font-semibold text-[var(--c-text-1)] whitespace-nowrap">Garden of Knowledge</span>
             <button
               onClick={handleCollapseAll}
-              className="ml-auto text-xs px-2 py-1 bg-gray-200 dark:bg-[#1a1a1a] hover:bg-gray-300 dark:hover:bg-[#2a2a2a] rounded text-gray-700 dark:text-[#a0a0a0] transition-colors whitespace-nowrap"
+              className="ml-auto text-xs px-2 py-1 bg-[var(--c-surface-hover)] hover:bg-[var(--c-border)] rounded text-[var(--c-text-2)] transition-colors whitespace-nowrap"
               title="Collapse all folders"
             >
               Collapse All
@@ -54,7 +54,7 @@ export default function Structure({
 
           <button
             onClick={() => setShowUI(!showUI)}
-            className={`p-1.5 hover:bg-gray-100 dark:hover:bg-[#1a1a1a] rounded transition-colors ${!showUI ? "mx-auto" : ""}`}
+            className={`p-1.5 hover:bg-[var(--c-surface-hover)] rounded transition-colors ${!showUI ? "mx-auto" : ""}`}
             aria-label={showUI ? "Close sidebar" : "Open sidebar"}
           >
             <Image
@@ -72,7 +72,7 @@ export default function Structure({
 
       {/* Tree content with fade animation */}
       <div
-        className={`text-neutral-600 dark:text-[#a0a0a0] overflow-y-auto overflow-x-hidden px-5 pb-4
+        className={`text-[var(--c-text-2)] overflow-y-auto overflow-x-hidden px-5 pb-4
           transition-opacity duration-300 ease-in-out mt-5 lg:mt-0
           ${showUI ? "opacity-100 h-[calc(100%-3.5rem)]" : "opacity-0 h-0 pointer-events-none"}`}
       >

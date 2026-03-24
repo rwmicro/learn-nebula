@@ -4,7 +4,6 @@ import { buildNavigationPath, decodePathFromUrl } from "@/lib/tools"
 
 interface BreadcrumbProps {
   formattedPath: string
-  currentPath?: string
 }
 
 export default function Breadcrumb({ formattedPath }: BreadcrumbProps) {
@@ -32,11 +31,11 @@ export default function Breadcrumb({ formattedPath }: BreadcrumbProps) {
 
   return (
     <nav aria-label="Breadcrumb navigation">
-      <ol className="flex flex-wrap justify-center items-center text-sm pt-3 text-[#404040] dark:text-[#6b6b6b] my-2">
+      <ol className="flex flex-wrap justify-center items-center text-sm pt-3 text-[var(--c-text-3)] my-2">
         {pathSegmentsWithPaths.map((segment, index) => (
           <li key={segment.path} className="flex items-center">
             <button
-              className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
+              className="hover:text-[var(--c-text-1)] hover:underline transition-colors"
               onClick={() => handleBreadcrumbClick(segment.fullPath)}
               aria-label={`Navigate to ${segment.name}`}
               aria-current={index === pathSegmentsWithPaths.length - 1 ? "page" : undefined}
@@ -45,7 +44,7 @@ export default function Breadcrumb({ formattedPath }: BreadcrumbProps) {
               {segment.name}
             </button>
             {index < pathSegmentsWithPaths.length - 1 && (
-              <span className="mx-1 text-gray-400 dark:text-[#525252]" aria-hidden="true">/</span>
+              <span className="mx-1 text-[var(--c-text-3)]" aria-hidden="true">/</span>
             )}
           </li>
         ))}

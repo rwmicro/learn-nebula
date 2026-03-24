@@ -114,12 +114,12 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
 
   if (loading) {
     return (
-      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[#F9F9F9] dark:bg-[#0a0a0a]">
-        <Breadcrumb formattedPath={directoryPath} currentPath={decodedDirectoryPath} />
-        <h2 className="text-3xl text-left font-medium py-2 dark:text-[#e5e5e5]">Directory Contents</h2>
+      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
+        <Breadcrumb formattedPath={directoryPath} />
+        <h2 className="text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">Directory Contents</h2>
         <div className="flex items-center justify-center py-8">
           <div className="animate-pulse">
-            <div className="text-gray-500 dark:text-[#6b6b6b]">Loading directory contents...</div>
+            <div className="text-[var(--c-text-3)]">Loading directory contents...</div>
           </div>
         </div>
       </div>
@@ -128,9 +128,9 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
 
   if (error) {
     return (
-      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[#F9F9F9] dark:bg-[#0a0a0a]">
-        <Breadcrumb formattedPath={directoryPath} currentPath={decodedDirectoryPath} />
-        <h2 className="text-3xl text-left font-medium py-2 dark:text-[#e5e5e5]">Directory Contents</h2>
+      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
+        <Breadcrumb formattedPath={directoryPath} />
+        <h2 className="text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">Directory Contents</h2>
         <div className="text-red-500 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-900/30">
           <h3 className="font-semibold mb-2">Error</h3>
           <p className="text-sm">{error}</p>
@@ -146,12 +146,12 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
   }
 
   return (
-    <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[#F9F9F9] dark:bg-[#0a0a0a]">
-      <Breadcrumb formattedPath={directoryPath} currentPath={decodedDirectoryPath} />
-      <h2 className="text-3xl text-left font-medium py-2 dark:text-[#e5e5e5]">Directory Contents</h2>
+    <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
+      <Breadcrumb formattedPath={directoryPath} />
+      <h2 className="text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">Directory Contents</h2>
 
       {files.length === 0 ? (
-        <div className="text-gray-500 dark:text-[#6b6b6b] p-4 bg-gray-50 dark:bg-[#121212] rounded-lg border border-gray-200 dark:border-[#2a2a2a]">
+        <div className="text-[var(--c-text-3)] p-4 bg-[var(--c-surface)] rounded-lg border border-[var(--c-border)]">
           <p>This directory is empty.</p>
         </div>
       ) : (
@@ -159,7 +159,7 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
           {files.map((file) => (
             <button
               key={file.path}
-              className="bg-white dark:bg-[#121212] p-4 rounded-lg shadow-sm border border-gray-200 dark:border-[#2a2a2a] hover:shadow-md hover:border-gray-300 dark:hover:border-[#3a3a3a] transition-all cursor-pointer group text-left w-full"
+              className="bg-[var(--c-surface)] p-4 rounded-lg border border-[var(--c-border)] hover:border-[var(--c-text-3)] transition-all cursor-pointer group text-left w-full"
               onClick={() => (file.isDirectory ? handleDirectoryClick(file.path) : handleFileClick(file.path))}
               aria-label={`${file.isDirectory ? 'Open directory' : 'Open file'}: ${file.name}`}
               type="button"
@@ -170,13 +170,13 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
                 </span>
                 <div className="flex-1 min-w-0">
                   <h3
-                    className="font-medium text-gray-900 dark:text-[#e5e5e5] truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                    className="font-medium text-[var(--c-text-1)] truncate group-hover:text-[var(--c-text-1)] transition-colors"
                     title={file.name}
                   >
                     {file.name}
                   </h3>
                   {!file.isDirectory && (
-                    <p className="text-sm text-gray-500 dark:text-[#6b6b6b] capitalize">{file.type ? `.${file.type}` : "File"}</p>
+                    <p className="text-sm text-[var(--c-text-3)] capitalize">{file.type ? `.${file.type}` : "File"}</p>
                   )}
                 </div>
               </div>
