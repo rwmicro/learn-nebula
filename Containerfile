@@ -45,6 +45,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # sql.js WASM binary needed at runtime (serverExternalPackages)
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/sql.js/dist/sql-wasm.wasm ./node_modules/sql.js/dist/sql-wasm.wasm
 
+# Writable runtime caches (segment prerender cache + image optimization cache)
+RUN mkdir -p .next/cache/images .next/server/app && chown -R nextjs:nodejs .next
+
 USER nextjs
 
 EXPOSE 4403

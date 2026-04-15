@@ -72,8 +72,8 @@ export default function Structure({
 
       {/* Tree content with fade animation */}
       <div
-        className={`text-[var(--c-text-2)] overflow-y-auto overflow-x-hidden px-5 pb-4
-          transition-opacity duration-300 ease-in-out mt-5 lg:mt-0
+        className={`text-[var(--c-text-2)] overflow-y-auto overflow-x-hidden px-3 sm:px-5 pb-4
+          transition-opacity duration-300 ease-in-out mt-2 lg:mt-0
           ${showUI ? "opacity-100 h-[calc(100%-3.5rem)]" : "opacity-0 h-0 pointer-events-none"}`}
       >
         {tree.map((node: FileNode) => (
