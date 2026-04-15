@@ -119,7 +119,7 @@ export default function Hamburger({ treeData }: { treeData: FileNode[] }) {
           {/* Footer */}
           <div className="px-4 py-3 border-t border-[var(--c-border)] bg-[var(--c-sidebar)]">
             <div className="flex items-center justify-between">
-              <span className="text-xs text-[var(--c-text-3)]">
+              <span className="hidden sm:inline text-xs text-[var(--c-text-3)]">
                 Esc pour fermer
               </span>
               <button

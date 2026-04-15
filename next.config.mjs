@@ -65,7 +65,55 @@ const nextConfig = {
 
   // Security headers
   async headers() {
+    const longImmutable = [
+      { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+      { key: "CDN-Cache-Control", value: "public, max-age=31536000, immutable" },
+    ]
+    const staticAsset = [
+      { key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" },
+      { key: "CDN-Cache-Control", value: "public, max-age=31536000, stale-while-revalidate=86400" },
+    ]
+    const htmlPage = [
+      { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+      { key: "CDN-Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" },
+    ]
+
     return [
+      {
+        source: "/_next/static/:path*",
+        headers: longImmutable,
+      },
+      {
+        source: "/_next/image/:path*",
+        headers: staticAsset,
+      },
+      {
+        source: "/articles/:path*",
+        headers: staticAsset,
+      },
+      {
+        source: "/img/:path*",
+        headers: staticAsset,
+      },
+      {
+        source: "/favicons/:path*",
+        headers: staticAsset,
+      },
+      {
+        source: "/:file(favicon\\.(?:ico|png|svg)|apple-touch-icon\\.png|android-chrome-.*\\.png|mstile-.*\\.png|safari-pinned-tab\\.svg|opengraph-image\\.png|twitter-image\\.png|site\\.webmanifest|browserconfig\\.xml|robots\\.txt|sitemap\\.xml|sql-wasm\\.wasm|placeholder\\.svg)",
+        headers: staticAsset,
+      },
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Cache-Control", value: "no-store" },
+          { key: "CDN-Cache-Control", value: "no-store" },
+        ],
+      },
+      {
+        source: "/:path*",
+        headers: htmlPage,
+      },
       {
         // Apply to all routes
         source: "/:path*",

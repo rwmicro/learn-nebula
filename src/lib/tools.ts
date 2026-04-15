@@ -52,7 +52,7 @@ export function cleanPath(path: string): string {
  */
 export function encodePathForUrl(path: string): string {
   const cleanedPath = cleanPath(path)
-  return encodeURIComponent(cleanedPath)
+  return cleanedPath.split("/").map(encodeURIComponent).join("/")
 }
 
 /**
