@@ -9,7 +9,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Generate sitemap entries for all posts
   const postEntries: MetadataRoute.Sitemap = posts.map((post: { filePath: string }) => ({
-    url: `${baseUrl}/${post.filePath}`,
+    url: `${baseUrl}/${post.filePath.split("/").map(encodeURIComponent).join("/")}`,
     lastModified: new Date(),
     changeFrequency: "weekly",
     priority: 0.8,

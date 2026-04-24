@@ -8,29 +8,29 @@ import { IMAGE_EXTENSIONS } from "@/utils/constants"
 import { logger } from "@/lib/logger"
 
 type Props = {
-  params: Promise<{ article: string }>
+  params: Promise<{ article: string[] }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export async function generateStaticParams() {
   const paths = await getPostSlugs()
   return paths.map((path: { filePath: string }) => ({
-    article: path.filePath,
+    article: path.filePath.split("/"),
   }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { article } = await params
-  const articlePath = article
+  const articlePath = article.join("/")
 
   try {
-    // First check if it's a directory
     const isDir = await isDirectory(articlePath)
 
     if (isDir) {
+      const last = article[article.length - 1]
       return {
-        title: `${article.split("/").pop()} Directory`,
-        description: `Browse the ${article.split("/").pop()} section of the Pensine knowledge base.`,
+        title: `${last} Directory`,
+        description: `Browse the ${last} section of the Pensine knowledge base.`,
         robots: {
           index: true,
           follow: true,
@@ -53,9 +53,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const formattedPath = sanitizePath(post.path)
     const pathSegments = formattedPath.split("/").filter(Boolean)
-    const canonicalUrl = `https://pensine.nebula.li/${articlePath.split("/").map(encodeURIComponent).join("/")}`
+    const canonicalUrl = `https://pensine.nebula.li/${article.map(encodeURIComponent).join("/")}`
 
-    // Generate breadcrumb keywords
     const breadcrumbKeywords = pathSegments.map((segment) => segment.toLowerCase().replace(/[-_]/g, " "))
 
     const description =
@@ -114,32 +113,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function Article({
   params,
 }: {
-  params: Promise<{ article: string }>;
+  params: Promise<{ article: string[] }>;
 }) {
-  const { article: articlePath } = await params
+  const { article } = await params
+  const articlePath = article.join("/")
 
   try {
-    // First check if it's a directory
     const isDir = await isDirectory(articlePath)
 
     if (isDir) {
-      return <ArticleClient params={{ article: articlePath.split("/") }} isDirectory={true} />
+      return <ArticleClient params={{ article }} isDirectory={true} />
     }
 
-    // If not a directory, try to get it as a post
     const post = await getPostBySlug(articlePath)
 
     if (!post) {
       return notFound()
     }
 
-    // Generate TOC data on the server side
     let tocData = null
     if (post.type && !["pdf", "PDF"].includes(post.type) && !IMAGE_EXTENSIONS.includes(post.type)) {
       tocData = await generateTOC(post.body)
     }
 
-    return <ArticleClient params={{ article: articlePath.split("/") }} post={post} isDirectory={false} tocData={tocData} />
+    return <ArticleClient params={{ article }} post={post} isDirectory={false} tocData={tocData} />
   } catch (error) {
     logger.error("Error in Article component", { error: error instanceof Error ? error.message : String(error) })
     return <div className="text-red-500 mx-auto my-auto">Article not found</div>
