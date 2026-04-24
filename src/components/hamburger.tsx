@@ -98,7 +98,7 @@ export default function Hamburger({ treeData }: { treeData: FileNode[] }) {
               className="flex items-center w-full border border-[var(--c-border)] bg-[var(--c-surface)] rounded-lg h-10 px-3 cursor-pointer hover:bg-[var(--c-surface-hover)] hover:border-[var(--c-text-3)] transition-all shadow-sm text-[var(--c-text-3)] text-sm"
               type="button"
               onClick={() => {
-                document.dispatchEvent(new KeyboardEvent("keydown", { key: "k", ctrlKey: true, bubbles: true }))
+                document.dispatchEvent(new CustomEvent("open-search"))
               }}
             >
               <svg className="w-4 h-4 mr-2 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

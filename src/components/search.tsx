@@ -310,6 +310,15 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
   })
 
   useEffect(() => {
+    const open = () => {
+      setShowSearch(true)
+      setRecentSearches(getRecentSearches())
+    }
+    document.addEventListener("open-search", open)
+    return () => document.removeEventListener("open-search", open)
+  }, [])
+
+  useEffect(() => {
     if (showSearch && inputRef.current) {
       inputRef.current.focus()
     }
