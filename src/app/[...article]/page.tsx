@@ -14,8 +14,11 @@ type Props = {
 
 export async function generateStaticParams() {
   const paths = await getPostSlugs()
-  return paths.map((path: { filePath: string }) => ({
-    article: path.filePath.split("/"),
+  return paths.map(({ filePath }: { filePath: string }) => ({
+    article: filePath
+      .replace(/^\//, "")
+      .replace(/\.(md|mdx|pdf)$/i, "")
+      .split("/"),
   }))
 }
 
