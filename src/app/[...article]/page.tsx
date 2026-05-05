@@ -1,7 +1,7 @@
 import { getPostBySlug, getPostSlugs, isDirectory } from "@/lib/posts"
 import type { Metadata } from "next"
 import ArticleClient from "./article-client"
-import { sanitizePath } from "@/lib/tools"
+import { sanitizePath, filePathToSlugSegments } from "@/lib/tools"
 import { notFound } from "next/navigation"
 import { generateTOC } from "@/hooks/generateTOC"
 import { IMAGE_EXTENSIONS } from "@/utils/constants"
@@ -12,14 +12,14 @@ type Props = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
+export const dynamicParams = false
+
 export async function generateStaticParams() {
   const paths = await getPostSlugs()
-  return paths.map(({ filePath }: { filePath: string }) => ({
-    article: filePath
-      .replace(/^\//, "")
-      .replace(/\.(md|mdx|pdf)$/i, "")
-      .split("/"),
-  }))
+  return paths
+    .map(({ filePath }: { filePath: string }) => filePathToSlugSegments(filePath))
+    .filter((segments) => segments.length > 0)
+    .map((article) => ({ article }))
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

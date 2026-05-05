@@ -62,15 +62,16 @@ export async function isDirectory(pathStr: string): Promise<boolean> {
 export async function getPostSlugs() {
   const structure = await getTreeFrom(PENSINE_DIRECTORY)
   const filePaths: string[] = []
-  
+
   function traverse(node: FileNode) {
     if (node.type === "file") {
       filePaths.push(node.path)
-    } else if (node.type === "directory" && node.children) {
-      node.children.forEach(traverse)
+    } else if (node.type === "directory") {
+      filePaths.push(node.path)
+      node.children?.forEach(traverse)
     }
   }
-  
+
   structure.forEach(traverse)
   return filePaths.map((filePath: string) => ({ filePath }))
 }
