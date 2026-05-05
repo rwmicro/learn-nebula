@@ -132,7 +132,7 @@ const nextConfig = {
           },
           {
             key: "X-Frame-Options",
-            value: "DENY",
+            value: "SAMEORIGIN",
           },
           {
             key: "X-XSS-Protection",
@@ -155,7 +155,7 @@ const nextConfig = {
               "img-src 'self' data: https://pensine.nebula.li https://nebula.li https://upload.wikimedia.org https://*.wikipedia.org",
               "font-src 'self' data:",
               "connect-src 'self'",
-              "frame-ancestors 'none'",
+              "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",
             ].join("; "),
