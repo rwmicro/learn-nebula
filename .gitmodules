@@ -1,0 +1,3 @@
+[submodule "public/articles/pensine"]
+	path = public/articles/pensine
+	url = git@github.com:rwmicro/pensine.git
