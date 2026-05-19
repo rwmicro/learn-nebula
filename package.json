@@ -6,15 +6,15 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "dev": "next dev --webpack",
-    "build": "next build --webpack",
-    "build:pages": "node scripts/strip-binaries-for-build.mjs && next build --webpack",
+    "dev": "node scripts/build-pensine-index.mjs && next dev --webpack",
+    "build": "node scripts/build-pensine-index.mjs && next build --webpack",
+    "build:pages": "node scripts/build-pensine-index.mjs && node scripts/strip-binaries-for-build.mjs && next build --webpack",
     "start": "next start",
     "lint": "next lint .",
     "type-check": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "index": "node scripts/build-search-index.mjs",
+    "index": "node scripts/build-pensine-index.mjs",
     "sync:r2": "./scripts/sync-r2.sh",
     "hooks:install": "./scripts/install-hooks.sh"
   },

@@ -3,8 +3,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { buildNavigationPath } from "@/lib/tools"
 import { logger } from "@/lib/logger"
-
-interface FileItem { name: string; path: string; type: string; isDirectory: boolean }
+import { listDirectory, type DirectoryEntry as FileItem } from "@/lib/pensine-index"
 
 export function PrevNext({ currentPath }: { currentPath: string }) {
   const [prev, setPrev] = useState<FileItem | null>(null)
@@ -19,18 +18,18 @@ export function PrevNext({ currentPath }: { currentPath: string }) {
       const parentDir = withoutLeading.slice(0, lastSlash)
       const currentFileName = withoutLeading.slice(lastSlash + 1)
       try {
-        const res = await fetch(`/api/directory-files?dirPath=${encodeURIComponent(parentDir)}`)
-        if (!res.ok) return
-        const data = await res.json()
-        const files: FileItem[] = (data.files ?? [])
-          .filter((f: FileItem) => !f.isDirectory)
-          .sort((a: FileItem, b: FileItem) => a.name.localeCompare(b.name))
+        const entries = await listDirectory(parentDir)
+        const files = entries
+          .filter((f) => !f.isDirectory)
+          .sort((a, b) => a.name.localeCompare(b.name))
         const idx = files.findIndex((f) => f.name === currentFileName)
         if (idx === -1) return
         setPrev(idx > 0 ? files[idx - 1] : null)
         setNext(idx < files.length - 1 ? files[idx + 1] : null)
       } catch (err) {
-        logger.error("PrevNext: failed to fetch siblings", { error: err instanceof Error ? err.message : String(err) })
+        logger.error("PrevNext: failed to load siblings", {
+          error: err instanceof Error ? err.message : String(err),
+        })
       }
     }
     load()

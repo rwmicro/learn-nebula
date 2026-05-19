@@ -30,3 +30,8 @@ next-env.d.ts
 
 # content
 public/articles/pensine
+
+# generated build artifacts (created by scripts/build-pensine-index.mjs)
+public/pensine-index.json
+public/pensine-search.json
+public/sql-wasm.wasm

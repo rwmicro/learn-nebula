@@ -2,20 +2,7 @@
 import { useState, useEffect } from "react"
 import { logger } from "@/lib/logger"
 import DOMPurify from "isomorphic-dompurify"
-
-interface AnkiCard {
-  id: number
-  deckName: string
-  question: string
-  answer: string
-  tags: string[]
-}
-
-interface AnkiDeck {
-  deckName: string
-  cards: AnkiCard[]
-  totalCards: number
-}
+import type { AnkiDeck } from "@/lib/anki-parser"
 
 interface AnkiCardViewerProps {
   filePath: string
@@ -29,30 +16,27 @@ export default function AnkiCardViewer({ filePath }: AnkiCardViewerProps) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchDeck = async () => {
-      try {
-        setLoading(true)
-        const response = await fetch(`/api/parse-anki?path=${encodeURIComponent(filePath)}`)
-
-        if (!response.ok) {
-          const errorData = await response.json()
-          throw new Error(errorData.error || "Failed to load Anki deck")
-        }
-
-        const data: AnkiDeck = await response.json()
+    let cancelled = false
+    setLoading(true)
+    import("@/lib/anki-parser")
+      .then(({ parseAnkiFile }) => parseAnkiFile(filePath))
+      .then((data) => {
+        if (cancelled) return
         setDeck(data)
         setLoading(false)
-      } catch (err) {
+      })
+      .catch((err) => {
+        if (cancelled) return
         logger.error("Failed to load Anki deck", {
           error: err instanceof Error ? err.message : String(err),
           path: filePath,
         })
         setError(err instanceof Error ? err.message : "Failed to load Anki deck")
         setLoading(false)
-      }
+      })
+    return () => {
+      cancelled = true
     }
-
-    fetchDeck()
   }, [filePath])
 
   const handleNext = () => {
