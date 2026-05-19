@@ -3,7 +3,6 @@ import type { Post } from "@/utils/types"
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import Breadcrumb from "../breadcrumb"
 import { getAssetUrl } from "@/lib/assets"
-import { logger } from "@/lib/logger"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
@@ -124,48 +123,48 @@ function PreBlock({ children }: { children?: React.ReactNode }) {
 }
 
 const markdownComponents: Components = {
-  h1: ({ children, ...props }) => (
+  h1: ({ node: _node, children, ...props }) => (
     <h1 id={headingId(children)} className="group text-3xl font-medium mt-4 mb-4 text-[var(--c-text-1)] flex items-center gap-2" {...props}>
       {children}
       <a href={`#${headingId(children)}`} className="opacity-0 group-hover:opacity-100 text-[var(--c-text-3)] hover:text-[var(--c-text-2)] transition-opacity font-normal text-xl" aria-label="Lien vers cette section">#</a>
     </h1>
   ),
-  h2: ({ children, ...props }) => (
+  h2: ({ node: _node, children, ...props }) => (
     <h2 id={headingId(children)} className="group text-2xl font-medium mt-6 mb-3 text-[var(--c-text-1)] flex items-center gap-2" {...props}>
       {children}
       <a href={`#${headingId(children)}`} className="opacity-0 group-hover:opacity-100 text-[var(--c-text-3)] hover:text-[var(--c-text-2)] transition-opacity font-normal text-xl" aria-label="Lien vers cette section">#</a>
     </h2>
   ),
-  h3: ({ children, ...props }) => (
+  h3: ({ node: _node, children, ...props }) => (
     <h3 id={headingId(children)} className="group text-2xl font-medium mt-4 mb-2 text-[var(--c-text-1)] flex items-center gap-2" {...props}>
       {children}
       <a href={`#${headingId(children)}`} className="opacity-0 group-hover:opacity-100 text-[var(--c-text-3)] hover:text-[var(--c-text-2)] transition-opacity font-normal text-xl" aria-label="Lien vers cette section">#</a>
     </h3>
   ),
-  h4: ({ children, ...props }) => (
+  h4: ({ node: _node, children, ...props }) => (
     <h4 id={headingId(children)} className="group text-xl font-medium mt-3 mb-1 text-[var(--c-text-1)] flex items-center gap-2" {...props}>
       {children}
       <a href={`#${headingId(children)}`} className="opacity-0 group-hover:opacity-100 text-[var(--c-text-3)] hover:text-[var(--c-text-2)] transition-opacity font-normal text-xl" aria-label="Lien vers cette section">#</a>
     </h4>
   ),
-  h5: ({ children, ...props }) => (
+  h5: ({ node: _node, children, ...props }) => (
     <h5 id={headingId(children)} className="group text-lg font-medium mt-2 mb-1 text-[var(--c-text-1)] flex items-center gap-2" {...props}>
       {children}
       <a href={`#${headingId(children)}`} className="opacity-0 group-hover:opacity-100 text-[var(--c-text-3)] hover:text-[var(--c-text-2)] transition-opacity font-normal text-xl" aria-label="Lien vers cette section">#</a>
     </h5>
   ),
-  h6: ({ children, ...props }) => (
+  h6: ({ node: _node, children, ...props }) => (
     <h6 id={headingId(children)} className="group text-base font-medium mt-1 mb-1 text-[var(--c-text-1)] flex items-center gap-2" {...props}>
       {children}
       <a href={`#${headingId(children)}`} className="opacity-0 group-hover:opacity-100 text-[var(--c-text-3)] hover:text-[var(--c-text-2)] transition-opacity font-normal text-xl" aria-label="Lien vers cette section">#</a>
     </h6>
   ),
-  p: ({ children, ...props }) => (
+  p: ({ node: _node, children, ...props }) => (
     <p className="text-base font-normal leading-7 text-[var(--c-text-2)]" {...props}>
       {children}
     </p>
   ),
-  a: ({ href, children, ...props }) => {
+  a: ({ node: _node, href, children, ...props }) => {
     const className = "text-blue-500 hover:text-blue-700"
     if (href?.startsWith("/")) {
       return (
@@ -187,22 +186,22 @@ const markdownComponents: Components = {
       </a>
     )
   },
-  ul: ({ children, ...props }) => (
+  ul: ({ node: _node, children, ...props }) => (
     <ul className="list-disc pl-8 text-[var(--c-text-2)]" {...props}>
       {children}
     </ul>
   ),
-  ol: ({ children, ...props }) => (
+  ol: ({ node: _node, children, ...props }) => (
     <ol className="list-decimal pl-8 text-[var(--c-text-2)]" {...props}>
       {children}
     </ol>
   ),
-  li: ({ children, ...props }) => (
+  li: ({ node: _node, children, ...props }) => (
     <li className="text-md leading-7 text-[var(--c-text-2)]" {...props}>
       {children}
     </li>
   ),
-  table: ({ children, ...props }) => (
+  table: ({ node: _node, children, ...props }) => (
     <table
       className="w-full text-sm text-left rtl:text-right text-[var(--c-text-2)] border border-[var(--c-border)] rounded border-spacing-0 border-separate my-2 overflow-hidden"
       {...props}
@@ -210,32 +209,32 @@ const markdownComponents: Components = {
       {children}
     </table>
   ),
-  thead: ({ children, ...props }) => (
+  thead: ({ node: _node, children, ...props }) => (
     <thead className="text-md text-[var(--c-text-1)] font-medium" {...props}>
       {children}
     </thead>
   ),
-  th: ({ children, ...props }) => (
+  th: ({ node: _node, children, ...props }) => (
     <th className="px-6 p-2 bg-[var(--c-surface-hover)]" {...props}>
       {children}
     </th>
   ),
-  td: ({ children, ...props }) => (
+  td: ({ node: _node, children, ...props }) => (
     <td className="p-2 px-6" {...props}>
       {children}
     </td>
   ),
-  tr: ({ children, ...props }) => (
+  tr: ({ node: _node, children, ...props }) => (
     <tr className="border border-[var(--c-border)]" {...props}>
       {children}
     </tr>
   ),
-  strong: ({ children, ...props }) => (
+  strong: ({ node: _node, children, ...props }) => (
     <strong className="font-medium text-[var(--c-text-1)]" {...props}>
       {children}
     </strong>
   ),
-  em: ({ children, ...props }) => (
+  em: ({ node: _node, children, ...props }) => (
     <em className="font-medium" {...props}>
       {children}
     </em>
@@ -251,12 +250,12 @@ const markdownComponents: Components = {
     return <code className={className}>{children}</code>
   },
   pre: ({ children }: { children?: React.ReactNode }) => <PreBlock>{children}</PreBlock>,
-  blockquote: ({ children, ...props }) => (
+  blockquote: ({ node: _node, children, ...props }) => (
     <blockquote className="border-l-4 border-[var(--c-border)] pl-4" {...props}>
       {children}
     </blockquote>
   ),
-  img: ({ src, alt, ...props }) => {
+  img: ({ node: _node, src, alt, ...props }) => {
     // Security: only allow relative paths or trusted domains
     let imgSrc = "/placeholder.svg"
     if (typeof src === "string") {
@@ -265,7 +264,7 @@ const markdownComponents: Components = {
         imgSrc = src
       } else if (src.startsWith("http://") || src.startsWith("https://")) {
         // Only allow trusted domains
-        const trustedDomains = ["pensine.nebula.li", "nebula.li", "upload.wikimedia.org", "wikipedia.org"]
+        const trustedDomains = ["pensine.nebula.li", "nebula.li", "assets.nebula.li", "upload.wikimedia.org", "wikipedia.org"]
         try {
           const url = new URL(src)
           if (trustedDomains.some(domain => url.hostname === domain || url.hostname.endsWith(`.${domain}`))) {
@@ -303,16 +302,14 @@ interface MarkdownViewerProps {
 }
 
 export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerProps) {
-  const [ArticleComponent, setArticleComponent] = useState<React.ComponentType | null>(null)
-  const [markdownContent, setMarkdownContent] = useState<string>("")
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
   const contentRef = useRef<HTMLDivElement>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [highlightTerm, setHighlightTerm] = useState("")
   const [highlightCount, setHighlightCount] = useState(0)
+
+  // post.body is already frontmatter-stripped at build time (lib/posts.ts).
+  const markdownContent = post.body
 
   const handleScroll = useCallback(() => {
     const el = contentRef.current
@@ -354,184 +351,65 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
       })
       setHighlightCount(0)
     }
-  }, [highlightTerm, markdownContent, ArticleComponent])
+  }, [highlightTerm, markdownContent])
 
-  const fileExtension = post.path.split(".").pop()?.toLowerCase() || ""
-
-  useEffect(() => {
-    const loadComponent = async () => {
-      try {
-        // Security: validate path doesn't contain traversal patterns
-        const dangerousPatterns = ['..', '//', '\\', '\0', '%00', '%2e%2e']
-        const lowerPath = post.path.toLowerCase()
-        for (const pattern of dangerousPatterns) {
-          if (lowerPath.includes(pattern)) {
-            throw new Error("Invalid path")
-          }
-        }
-
-        if (fileExtension === "md") {
-          const response = await fetch(`/articles/pensine${post.path}`)
-          if (!response.ok) {
-            throw new Error("Failed to load content")
-          }
-          const raw = await response.text()
-          // Strip YAML frontmatter before rendering
-          const content = raw.startsWith("---")
-            ? raw.replace(/^---[\s\S]*?\n---\n?/, "")
-            : raw
-          setMarkdownContent(content)
-          setLoading(false)
-        } else if (fileExtension === "mdx") {
-          // Additional validation: only allow safe characters (Unicode letters, numbers, etc.)
-          const cleanPath = post.path.replace(/\.mdx$/i, "").replace(/^\//, "")
-          if (!/^[\p{L}\p{N}\-_/\s]+$/u.test(cleanPath)) {
-            throw new Error("Invalid path")
-          }
-          const importedModule = await import(`../../../public/articles/pensine/${cleanPath}.mdx`)
-          setArticleComponent(() => importedModule.default)
-          setLoading(false)
-        } else {
-          setLoading(false)
-        }
-      } catch (err) {
-        logger.error("Failed to load component", {
-          error: err instanceof Error ? err.message : String(err),
-        })
-        // Generic error message to user
-        setError("Failed to load content")
-        setLoading(false)
-      }
-    }
-
-    loadComponent()
-  }, [post.path, fileExtension])
-
-  if (loading) {
-    return (
-      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-auto h-full bg-[var(--c-bg)]">
-        <Breadcrumb formattedPath={formattedPath} />
-        <h2 className="text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">{post.title}</h2>
-        <p className="text-[var(--c-text-2)]">Chargement...</p>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
-        <Breadcrumb formattedPath={formattedPath} />
-        <h2 className="text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">{post.title}</h2>
-        <div className="text-red-500 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-          <h3 className="font-semibold">Error loading content</h3>
-          <p>{error}</p>
-        </div>
-      </div>
-    )
-  }
-
-  // Render .md files using react-markdown
-  if (fileExtension === "md" && markdownContent) {
-    return (
-      <div ref={contentRef} onScroll={handleScroll} className="w-full p-4 pt-0 px-10 xl:px-20 pb-10 overflow-scroll h-full bg-[var(--c-bg)]">
-        {/* Progress bar */}
-        <div className="sticky top-0 left-0 right-0 h-0.5 bg-[var(--c-border)] z-10 -mx-10 xl:-mx-20 mb-0">
-          <div className="h-full bg-[var(--c-text-3)] transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
-        </div>
-        {/* Highlight banner */}
-        {highlightTerm && (
-          <div className="sticky top-0.5 z-10 -mx-10 xl:-mx-20 mb-0">
-            <div className="flex items-center justify-between px-4 py-1.5 bg-amber-100/80 dark:bg-amber-950/80 border-b border-amber-300/40 dark:border-amber-800/40 backdrop-blur-sm">
-              <span className="text-xs text-amber-800 dark:text-amber-300">
-                {highlightCount > 0
-                  ? `${highlightCount} occurrence${highlightCount > 1 ? "s" : ""} de « ${highlightTerm} »`
-                  : `Aucune occurrence de « ${highlightTerm} »`}
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setHighlightTerm("")
-                  const url = new URL(window.location.href)
-                  url.searchParams.delete("highlight")
-                  window.history.replaceState({}, "", url.toString())
-                }}
-                className="text-amber-500 hover:text-amber-300 text-xs transition-colors"
-                aria-label="Fermer le surlignage"
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
-        <Breadcrumb formattedPath={formattedPath} />
-        <h2 className="text-3xl text-left font-medium my-2 text-[var(--c-text-1)]">{post.title.replace(/\.md$/i, "")}</h2>
-        <p className="text-xs text-[var(--c-text-3)] mb-6">{estimateReadingTime(markdownContent)} min de lecture</p>
-        <article className="max-w-none">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[rehypeKatex]}
-            components={markdownComponents}
-          >
-            {markdownContent}
-          </ReactMarkdown>
-        </article>
-        <PrevNext currentPath={post.path} />
-        <RelatedArticles currentPath={post.path} />
-        {showBackToTop && (
-          <button
-            onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-6 right-6 z-50 p-2.5 bg-[var(--c-surface-hover)] hover:bg-[var(--c-border)] border border-[var(--c-border)] rounded-full text-[var(--c-text-2)] hover:text-[var(--c-text-1)] transition-all shadow-lg"
-            aria-label="Retour en haut"
-            type="button"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="18 15 12 9 6 15" />
-            </svg>
-          </button>
-        )}
-      </div>
-    )
-  }
-
-  // Render .mdx files using imported component
-  if (fileExtension === "mdx" && ArticleComponent) {
-    return (
-      <div ref={contentRef} onScroll={handleScroll} className="w-full p-4 pt-0 px-10 xl:px-20 pb-10 overflow-scroll h-full bg-[var(--c-bg)]">
-        {/* Progress bar */}
-        <div className="sticky top-0 left-0 right-0 h-0.5 bg-[var(--c-border)] z-10 -mx-10 xl:-mx-20 mb-0">
-          <div className="h-full bg-[var(--c-text-3)] transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
-        </div>
-        <Breadcrumb formattedPath={formattedPath} />
-        <h2 className="text-3xl text-left font-medium my-2 text-[var(--c-text-1)]">{post.title.replace(/\.mdx$/i, "")}</h2>
-        <article className="prose dark:prose-invert max-w-none">
-          <ArticleComponent />
-        </article>
-        <PrevNext currentPath={post.path} />
-        <RelatedArticles currentPath={post.path} />
-        {showBackToTop && (
-          <button
-            onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="fixed bottom-6 right-6 z-50 p-2.5 bg-[var(--c-surface-hover)] hover:bg-[var(--c-border)] border border-[var(--c-border)] rounded-full text-[var(--c-text-2)] hover:text-[var(--c-text-1)] transition-all shadow-lg"
-            aria-label="Retour en haut"
-            type="button"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="18 15 12 9 6 15" />
-            </svg>
-          </button>
-        )}
-      </div>
-    )
-  }
-
-  // Fallback: No content available
   return (
-    <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
-      <Breadcrumb formattedPath={formattedPath} />
-      <h2 className="text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">{post.title}</h2>
-      <div className="text-[var(--c-text-3)] p-4">
-        <p>Content not available</p>
+    <div ref={contentRef} onScroll={handleScroll} className="w-full p-4 pt-0 px-10 xl:px-20 pb-10 overflow-scroll h-full bg-[var(--c-bg)]">
+      {/* Progress bar */}
+      <div className="sticky top-0 left-0 right-0 h-0.5 bg-[var(--c-border)] z-10 -mx-10 xl:-mx-20 mb-0">
+        <div className="h-full bg-[var(--c-text-3)] transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
       </div>
+      {/* Highlight banner */}
+      {highlightTerm && (
+        <div className="sticky top-0.5 z-10 -mx-10 xl:-mx-20 mb-0">
+          <div className="flex items-center justify-between px-4 py-1.5 bg-amber-100/80 dark:bg-amber-950/80 border-b border-amber-300/40 dark:border-amber-800/40 backdrop-blur-sm">
+            <span className="text-xs text-amber-800 dark:text-amber-300">
+              {highlightCount > 0
+                ? `${highlightCount} occurrence${highlightCount > 1 ? "s" : ""} de « ${highlightTerm} »`
+                : `Aucune occurrence de « ${highlightTerm} »`}
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setHighlightTerm("")
+                const url = new URL(window.location.href)
+                url.searchParams.delete("highlight")
+                window.history.replaceState({}, "", url.toString())
+              }}
+              className="text-amber-500 hover:text-amber-300 text-xs transition-colors"
+              aria-label="Fermer le surlignage"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
+      <Breadcrumb formattedPath={formattedPath} />
+      <h2 className="text-3xl text-left font-medium my-2 text-[var(--c-text-1)]">{post.title.replace(/\.mdx?$/i, "")}</h2>
+      <p className="text-xs text-[var(--c-text-3)] mb-6">{estimateReadingTime(markdownContent)} min de lecture</p>
+      <article className="max-w-none">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[rehypeKatex]}
+          components={markdownComponents}
+        >
+          {markdownContent}
+        </ReactMarkdown>
+      </article>
+      <PrevNext currentPath={post.path} />
+      <RelatedArticles currentPath={post.path} />
+      {showBackToTop && (
+        <button
+          onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="fixed bottom-6 right-6 z-50 p-2.5 bg-[var(--c-surface-hover)] hover:bg-[var(--c-border)] border border-[var(--c-border)] rounded-full text-[var(--c-text-2)] hover:text-[var(--c-text-1)] transition-all shadow-lg"
+          aria-label="Retour en haut"
+          type="button"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="18 15 12 9 6 15" />
+          </svg>
+        </button>
+      )}
     </div>
   )
 }

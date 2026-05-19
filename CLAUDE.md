@@ -84,8 +84,4 @@ npm run index            # rebuild only the pensine indexes (no Next build)
 - **`next/image` runs unoptimized** (`images.unoptimized: true`). Static export can't run the optimizer. Use Cloudflare Images via a custom loader if optimization is needed later.
 - **`R2_ASSETS_URL`** defaults to `https://assets.nebula.li` and is also overridable via `NEXT_PUBLIC_R2_ASSETS_URL`. Both production and the default agree, so the env var is rarely needed.
 - The strip-binaries script runs on the Cloudflare build machine only (ephemeral). **Don't run it locally** — it deletes your working tree's binaries.
-
-## Files that look unused but aren't fully
-
-- `src/lib/api-utils.ts` and `src/lib/security.ts`: previously used by the deleted API routes. Currently unreferenced — tree-shaken out of bundles. Kept in case future API work needs them. Safe to delete if you're sure.
-- `src/components/toc-wrapper.tsx` + `src/lib/toc-data.ts`: unreferenced. Same situation.
+- **Extension casing**: `SUPPORTED_EXTENSIONS` (utils/constants.ts) is lowercase-only. File lookups in `lib/posts.ts` and `lib/treeData.ts` are case-insensitive (via `readdirSync` scan / lowercased `endsWith`), so `.JPG` / `.PDF` resolve correctly. Don't reintroduce uppercase variants in the union — `Post.type` is always lowercase.

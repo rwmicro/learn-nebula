@@ -13,16 +13,8 @@ class Logger {
   private isDevelopment = process.env.NODE_ENV === 'development'
 
   private log(level: LogLevel, message: string, context?: LogContext): void {
-    const timestamp = new Date().toISOString()
-    const logData = {
-      timestamp,
-      level,
-      message,
-      ...context,
-    }
-
     if (this.isDevelopment) {
-      // In development, use console with colors
+      const timestamp = new Date().toISOString()
       switch (level) {
         case 'error':
           console.error(`[${timestamp}] ERROR:`, message, context || '')
@@ -36,10 +28,16 @@ class Logger {
         default:
           console.log(`[${timestamp}] INFO:`, message, context || '')
       }
-    } else {
-      // In production, use structured JSON logging
-      // This can be piped to log aggregation services
-      console.log(JSON.stringify(logData))
+      return
+    }
+
+    // In production the site runs in users' browsers (static export). Surface
+    // only errors/warnings to keep their devtools console clean and avoid
+    // leaking internal context. Wire this up to a tracking service if needed.
+    if (level === 'error') {
+      console.error(message)
+    } else if (level === 'warn') {
+      console.warn(message)
     }
   }
 

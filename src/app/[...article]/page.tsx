@@ -4,7 +4,6 @@ import ArticleClient from "./article-client"
 import { sanitizePath, filePathToSlugSegments } from "@/lib/tools"
 import { notFound } from "next/navigation"
 import { generateTOC } from "@/hooks/generateTOC"
-import { IMAGE_EXTENSIONS } from "@/utils/constants"
 import { logger } from "@/lib/logger"
 
 type Props = {
@@ -121,28 +120,17 @@ export default async function Article({
   const { article } = await params
   const articlePath = article.join("/")
 
-  try {
-    const isDir = await isDirectory(articlePath)
-
-    if (isDir) {
-      return <ArticleClient params={{ article }} isDirectory={true} />
-    }
-
-    const post = await getPostBySlug(articlePath)
-
-    if (!post) {
-      return notFound()
-    }
-
-    let tocData = null
-    if (post.type && !["pdf", "PDF"].includes(post.type) && !IMAGE_EXTENSIONS.includes(post.type)) {
-      tocData = await generateTOC(post.body)
-    }
-
-    return <ArticleClient params={{ article }} post={post} isDirectory={false} tocData={tocData} />
-  } catch (error) {
-    logger.error("Error in Article component", { error: error instanceof Error ? error.message : String(error) })
-    return <div className="text-red-500 mx-auto my-auto">Article not found</div>
-
+  if (await isDirectory(articlePath)) {
+    return <ArticleClient params={{ article }} isDirectory={true} />
   }
+
+  const post = await getPostBySlug(articlePath)
+  if (!post) notFound()
+
+  const tocData =
+    post.type === "md" || post.type === "mdx"
+      ? await generateTOC(post.body)
+      : null
+
+  return <ArticleClient params={{ article }} post={post} isDirectory={false} tocData={tocData} />
 }

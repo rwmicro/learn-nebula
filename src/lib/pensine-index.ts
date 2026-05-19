@@ -77,7 +77,7 @@ export async function listDirectory(dirPath: string): Promise<DirectoryEntry[]> 
   return children.map(toEntry)
 }
 
-const SEARCH_MAX_RESULTS = 15
+const MAX_CORPUS_RESULTS = 15
 
 export async function searchCorpus(query: string): Promise<SearchResult[]> {
   const q = query.trim()
@@ -114,5 +114,5 @@ export async function searchCorpus(query: string): Promise<SearchResult[]> {
   }
 
   results.sort((a, b) => b.matchCount - a.matchCount)
-  return results.slice(0, SEARCH_MAX_RESULTS)
+  return results.slice(0, MAX_CORPUS_RESULTS)
 }

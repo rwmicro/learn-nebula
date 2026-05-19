@@ -24,25 +24,18 @@ export const BINARY_EXTENSIONS = new Set([
 // URL de base R2 pour les assets binaires (configurée via env var sur Cloudflare Pages)
 export const R2_ASSETS_URL = process.env.NEXT_PUBLIC_R2_ASSETS_URL || "https://assets.nebula.li"
 
+// Normalize all extension comparisons to lowercase. Callers that look up files
+// from disk must do so case-insensitively (see lib/posts.ts, lib/treeData.ts).
 export const SUPPORTED_EXTENSIONS = [
   "md",
   "mdx",
   "pdf",
-  "PDF",
-  "MD",
-  "MDX",
   "apkg",
-  "APKG",
   ...IMAGE_EXTENSIONS,
 ] as const
+
+export const TEXT_EXTENSIONS = ["md", "mdx"] as const
 
 // UI Constants
 export const SEARCH_MAX_RESULTS = 8
 export const HEADER_HEIGHT_VAR = '--header-height'
-
-// Rate Limiting
-export const RATE_LIMIT_MAX_REQUESTS = 100
-export const RATE_LIMIT_WINDOW_MS = 60000 // 1 minute
-
-// Path Validation
-export const MAX_PATH_LENGTH = 500

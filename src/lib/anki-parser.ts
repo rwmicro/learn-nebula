@@ -4,7 +4,7 @@
 // Loads JSZip + sql.js dynamically so they're code-split out of the main bundle
 // and only fetched when a user actually opens an Anki page.
 
-import { R2_ASSETS_URL } from "@/utils/constants"
+import { getAssetUrl } from "@/lib/assets"
 
 export interface AnkiCard {
   id: number
@@ -98,10 +98,7 @@ export async function parseAnkiFile(filePath: string): Promise<AnkiDeck> {
     throw new Error("Invalid path")
   }
 
-  const normalizedPath = filePath.startsWith("/") ? filePath : `/${filePath}`
-  const assetUrl = `${R2_ASSETS_URL}${encodeURI(normalizedPath)}`
-
-  const response = await fetch(assetUrl, { cache: "force-cache" })
+  const response = await fetch(getAssetUrl(filePath), { cache: "force-cache" })
   if (!response.ok) {
     throw new Error(response.status === 404 ? "File not found" : "Failed to fetch asset")
   }
