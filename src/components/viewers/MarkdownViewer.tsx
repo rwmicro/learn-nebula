@@ -2,6 +2,7 @@
 import type { Post } from "@/utils/types"
 import React, { useState, useEffect, useRef, useCallback } from "react"
 import Breadcrumb from "../breadcrumb"
+import { getAssetUrl } from "@/lib/assets"
 import { logger } from "@/lib/logger"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -278,7 +279,7 @@ const markdownComponents: Components = {
         }
       } else if (!src.includes("..") && !src.includes("://")) {
         // Simple relative path without traversal
-        imgSrc = `/articles/pensine/${src}`
+        imgSrc = getAssetUrl(src)
       }
     }
     return (

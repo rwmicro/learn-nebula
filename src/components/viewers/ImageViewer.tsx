@@ -1,4 +1,5 @@
 "use client"
+import { getAssetUrl } from "@/lib/assets"
 import type { Post } from "@/utils/types"
 import Image from "next/image"
 import Breadcrumb from "../breadcrumb"
@@ -19,7 +20,7 @@ export default function ImageViewer({ post, formattedPath }: ImageViewerProps) {
       </h2>
       <div className="flex justify-center items-center">
         <Image
-          src={"/articles/pensine" + post.path}
+          src={getAssetUrl(post.path)}
           alt={post.title}
           width={1200}
           height={800}

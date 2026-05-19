@@ -8,12 +8,14 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",
+    "build:pages": "node scripts/strip-binaries-for-build.mjs && next build --webpack",
     "start": "next start",
     "lint": "next lint .",
     "type-check": "tsc --noEmit",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "index": "node scripts/build-search-index.mjs"
+    "index": "node scripts/build-search-index.mjs",
+    "sync:r2": "./scripts/sync-r2.sh"
   },
   "dependencies": {
     "@fontsource/geist": "^5.2.6",

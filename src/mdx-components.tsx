@@ -1,3 +1,4 @@
+import { getAssetUrl } from "@/lib/assets"
 import type { MDXComponents } from "mdx/types"
 import Link from "next/link"
 import type { ComponentPropsWithoutRef } from "react"
@@ -31,7 +32,7 @@ function ImageWithCaption({ src, alt, ...props }: ImageWithCaptionProps) {
   return (
     <span className="flex flex-col w-full items-center py-5 md:py-10">
       <img
-        src={linkMatch ? src : "/articles/pensine/" + src}
+        src={linkMatch ? src : getAssetUrl(src)}
         alt={description.join("|") || "Image"}
         width={width || 800}
         height={height || 800}
