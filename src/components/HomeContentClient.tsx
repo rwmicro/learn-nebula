@@ -2,7 +2,7 @@
 import dynamic from "next/dynamic"
 import type { Post } from "@/utils/types"
 
-const Content = dynamic(() => import("@/components/content"), { ssr: false })
+const Content = dynamic(() => import("@/components/content"))
 
 export default function HomeContentClient({
   post,

@@ -35,7 +35,11 @@ const nextConfig = {
   // Full static export — every page is a prerendered HTML file served by
   // Cloudflare Pages CDN. No worker, no runtime server. See public/_headers
   // for cache/CSP/security headers (next.config headers() are ignored in export mode).
-  output: "export",
+  //
+  // Only enable in production builds. In `next dev` with `output: export`,
+  // Webpack HMR breaks the static-params cache after the first hot update,
+  // producing spurious "missing param" errors on routes that exist.
+  output: process.env.NODE_ENV === "production" ? "export" : undefined,
   trailingSlash: false,
 
   images: {

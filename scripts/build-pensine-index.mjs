@@ -2,8 +2,9 @@
 //   public/pensine-index.json  — the file/directory tree of public/articles/pensine
 //   public/pensine-search.json — full-text search corpus (path, title, stripped body)
 //
-// Runs before `next build` to replace the runtime API routes /api/directory-files
-// and /api/search-content, which can't work on Cloudflare Workers (no filesystem).
+// Runs before `next build`. The site is a fully static export — no runtime
+// server — so directory listing and search are served by these prebuilt JSONs
+// (fetched client-side from src/lib/pensine-index.ts).
 
 import { readdir, readFile, stat, writeFile, mkdir, copyFile } from "node:fs/promises"
 import { join, relative, extname } from "node:path"

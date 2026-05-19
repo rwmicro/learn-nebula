@@ -16,19 +16,25 @@ export async function getTreeFrom(dirPath: string): Promise<FileNode[]> {
       if (EXCLUDED_ITEMS.some((item) => entry.name.startsWith(item))) return null
       const finalPath = path.join(dirPath, entry.name)
 
+      // Both files and directories produce paths relative to PENSINE_DIRECTORY,
+      // so consumers (generateStaticParams, navigation) get clean URLs without
+      // the "public/articles/pensine" prefix.
+      const relPath = finalPath.replace(PENSINE_DIRECTORY, "")
+
       if (entry.isDirectory()) {
         return {
           name: entry.name,
-          path: finalPath,
+          path: relPath,
           type: "directory",
           children: await getTreeFrom(finalPath),
         } as FileNode
       }
 
-      if (entry.isFile() && SUPPORTED_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) {
+      const lowerName = entry.name.toLowerCase()
+      if (entry.isFile() && SUPPORTED_EXTENSIONS.some((ext) => lowerName.endsWith("." + ext))) {
         return {
           name: entry.name,
-          path: finalPath.replace(PENSINE_DIRECTORY, ""),
+          path: relPath,
           type: "file",
         } as FileNode
       }
