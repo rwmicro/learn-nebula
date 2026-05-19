@@ -329,16 +329,21 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
     setSelectedIndex(0)
   }, [debouncedSearch, selectedFileType])
 
-  // Fetch full-text content search results
+  // Full-text content search runs entirely client-side against a pre-built corpus.
   useEffect(() => {
     if (debouncedSearch.trim().length < 2) {
       setContentResults([])
       return
     }
-    fetch(`/api/search-content?q=${encodeURIComponent(debouncedSearch.trim())}`)
-      .then(r => r.ok ? r.json() : { results: [] })
-      .then(data => setContentResults(data.results ?? []))
-      .catch(() => setContentResults([]))
+    let cancelled = false
+    import("@/lib/pensine-index").then(({ searchCorpus }) =>
+      searchCorpus(debouncedSearch.trim()).then((results) => {
+        if (!cancelled) setContentResults(results)
+      }),
+    )
+    return () => {
+      cancelled = true
+    }
   }, [debouncedSearch])
 
   const handleKeyDown = (event: React.KeyboardEvent) => {

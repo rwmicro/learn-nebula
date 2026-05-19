@@ -4,13 +4,7 @@ import { useRouter } from "next/navigation"
 import Breadcrumb from "./breadcrumb"
 import { decodePathFromUrl, buildNavigationPath } from "@/lib/tools"
 import { logger } from "@/lib/logger"
-
-interface FileItem {
-  name: string
-  path: string
-  type: string
-  isDirectory: boolean
-}
+import { listDirectory, type DirectoryEntry as FileItem } from "@/lib/pensine-index"
 
 interface DirectoryViewProps {
   directoryPath: string
@@ -22,38 +16,30 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
-  // Decode the directory path
   const decodedDirectoryPath = decodePathFromUrl(directoryPath)
 
   useEffect(() => {
-    const fetchDirectoryContents = async () => {
-      setLoading(true)
-      setError(null)
-
-      try {
-        // Utiliser le chemin décodé pour l'API
-        const apiUrl = `/api/directory-files?dirPath=${encodeURIComponent(decodedDirectoryPath)}`
-
-        const response = await fetch(apiUrl)
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-
-        const data = await response.json()
-        setFiles(data.files || [])
-      } catch (err) {
-        logger.error("Error fetching directory contents", { 
+    let cancelled = false
+    setLoading(true)
+    setError(null)
+    listDirectory(decodedDirectoryPath)
+      .then((entries) => {
+        if (!cancelled) setFiles(entries)
+      })
+      .catch((err) => {
+        if (cancelled) return
+        logger.error("Error loading directory contents", {
           error: err instanceof Error ? err.message : String(err),
-          directoryPath: decodedDirectoryPath
+          directoryPath: decodedDirectoryPath,
         })
-        setError(`Error loading directory contents: ${err instanceof Error ? err.message : "Unknown error"}`)
-      } finally {
-        setLoading(false)
-      }
+        setError("Error loading directory contents")
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
     }
-
-    fetchDirectoryContents()
   }, [decodedDirectoryPath])
 
   const handleFileClick = (filePath: string) => {

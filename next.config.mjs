@@ -64,8 +64,6 @@ const nextConfig = {
   output: "standalone",
   transpilePackages: ["geist"],
 
-  // Don't bundle sql.js - load it at runtime to avoid ESM/CJS issues
-  serverExternalPackages: ["sql.js"],
 
   // Security headers
   async headers() {

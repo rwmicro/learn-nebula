@@ -4,13 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { buildNavigationPath } from "@/lib/tools"
 import { logger } from "@/lib/logger"
-
-interface FileItem {
-  name: string
-  path: string
-  type: string
-  isDirectory: boolean
-}
+import { listDirectory, type DirectoryEntry as FileItem } from "@/lib/pensine-index"
 
 const TYPE_LABEL: Record<string, string> = {
   pdf: "PDF",
@@ -45,15 +39,11 @@ export default function RelatedArticles({ currentPath }: RelatedArticlesProps) {
 
     const fetchSiblings = async () => {
       try {
-        const res = await fetch(`/api/directory-files?dirPath=${encodeURIComponent(parentDir)}`)
-        if (!res.ok) return
-        const data = await res.json()
-        const files: FileItem[] = (data.files ?? []).filter(
-          (f: FileItem) => !f.isDirectory && f.name !== currentFileName
-        )
+        const entries = await listDirectory(parentDir)
+        const files = entries.filter((f) => !f.isDirectory && f.name !== currentFileName)
         setSiblings(files)
       } catch (err) {
-        logger.error("RelatedArticles: failed to fetch siblings", {
+        logger.error("RelatedArticles: failed to load siblings", {
           error: err instanceof Error ? err.message : String(err),
         })
       }
