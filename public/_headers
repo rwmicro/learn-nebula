@@ -1,0 +1,50 @@
+# Cloudflare Pages headers config.
+# Replaces the next.config.mjs headers() block (ignored when output: "export").
+# Order matters: later rules override earlier ones for the same path.
+
+# All routes: security headers
+/*
+  X-DNS-Prefetch-Control: on
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  X-XSS-Protection: 1; mode=block
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://pensine.nebula.li https://nebula.li https://assets.nebula.li https://upload.wikimedia.org https://*.wikipedia.org; font-src 'self' data:; connect-src 'self' https://assets.nebula.li; frame-src 'self' https://assets.nebula.li; frame-ancestors 'self'; base-uri 'self'; form-action 'self'
+
+# HTML pages: short cache, long stale-while-revalidate
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+  CDN-Cache-Control: public, s-maxage=3600, stale-while-revalidate=86400
+
+# Build-immutable assets (hashed)
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+  CDN-Cache-Control: public, max-age=31536000, immutable
+
+# Static assets with moderate cache
+/articles/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
+
+/img/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
+
+/favicons/*
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
+
+# Prebuilt index JSONs and wasm — cache long, content addressed via build
+/pensine-index.json
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
+
+/pensine-search.json
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
+
+/sql-wasm.wasm
+  Cache-Control: public, max-age=31536000, immutable
+  CDN-Cache-Control: public, max-age=31536000, immutable

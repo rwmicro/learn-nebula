@@ -32,141 +32,25 @@ const nextConfig = {
     ignoreBuildErrors: false,
   },
 
-  // Image optimization with restricted remote patterns
+  // Full static export — every page is a prerendered HTML file served by
+  // Cloudflare Pages CDN. No worker, no runtime server. See public/_headers
+  // for cache/CSP/security headers (next.config headers() are ignored in export mode).
+  output: "export",
+  trailingSlash: false,
+
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "pensine.nebula.li",
-      },
-      {
-        protocol: "https",
-        hostname: "nebula.li",
-      },
-      {
-        protocol: "https",
-        hostname: "assets.nebula.li",
-      },
-      // Wikipedia / Wikimedia
-      {
-        protocol: "https",
-        hostname: "upload.wikimedia.org",
-      },
-      {
-        protocol: "https",
-        hostname: "*.wikipedia.org",
-      },
-    ],
-    formats: ["image/avif", "image/webp"],
+    // Required for static export: skip the built-in image optimizer.
+    // Remote images still load, just unoptimized.
+    unoptimized: true,
   },
 
   pageExtensions: ["js", "jsx", "md", "mdx", "ts", "tsx"],
-  output: "standalone",
   transpilePackages: ["geist"],
 
 
   // Security headers
-  async headers() {
-    const longImmutable = [
-      { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-      { key: "CDN-Cache-Control", value: "public, max-age=31536000, immutable" },
-    ]
-    const staticAsset = [
-      { key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" },
-      { key: "CDN-Cache-Control", value: "public, max-age=31536000, stale-while-revalidate=86400" },
-    ]
-    const htmlPage = [
-      { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
-      { key: "CDN-Cache-Control", value: "public, s-maxage=3600, stale-while-revalidate=86400" },
-    ]
-
-    return [
-      {
-        source: "/_next/static/:path*",
-        headers: longImmutable,
-      },
-      {
-        source: "/_next/image/:path*",
-        headers: staticAsset,
-      },
-      {
-        source: "/articles/:path*",
-        headers: staticAsset,
-      },
-      {
-        source: "/img/:path*",
-        headers: staticAsset,
-      },
-      {
-        source: "/favicons/:path*",
-        headers: staticAsset,
-      },
-      {
-        source: "/:file(favicon\\.(?:ico|png|svg)|apple-touch-icon\\.png|android-chrome-.*\\.png|mstile-.*\\.png|safari-pinned-tab\\.svg|opengraph-image\\.png|twitter-image\\.png|site\\.webmanifest|browserconfig\\.xml|robots\\.txt|sitemap\\.xml|sql-wasm\\.wasm|placeholder\\.svg)",
-        headers: staticAsset,
-      },
-      {
-        source: "/api/:path*",
-        headers: [
-          { key: "Cache-Control", value: "no-store" },
-          { key: "CDN-Cache-Control", value: "no-store" },
-        ],
-      },
-      {
-        source: "/:path*",
-        headers: htmlPage,
-      },
-      {
-        // Apply to all routes
-        source: "/:path*",
-        headers: [
-          {
-            key: "X-DNS-Prefetch-Control",
-            value: "on",
-          },
-          {
-            key: "Strict-Transport-Security",
-            value: "max-age=63072000; includeSubDomains; preload",
-          },
-          {
-            key: "X-Content-Type-Options",
-            value: "nosniff",
-          },
-          {
-            key: "X-Frame-Options",
-            value: "SAMEORIGIN",
-          },
-          {
-            key: "X-XSS-Protection",
-            value: "1; mode=block",
-          },
-          {
-            key: "Referrer-Policy",
-            value: "strict-origin-when-cross-origin",
-          },
-          {
-            key: "Permissions-Policy",
-            value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-          },
-          {
-            key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed for MDX/React dynamic rendering
-              "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https://pensine.nebula.li https://nebula.li https://assets.nebula.li https://upload.wikimedia.org https://*.wikipedia.org",
-              "font-src 'self' data:",
-              "connect-src 'self' https://assets.nebula.li",
-              "frame-src 'self' https://assets.nebula.li",
-              "frame-ancestors 'self'",
-              "base-uri 'self'",
-              "form-action 'self'",
-            ].join("; "),
-          },
-        ],
-      },
-    ]
-  },
+  // NOTE: headers() is ignored when output: "export" is set. Cache + security
+  // headers live in public/_headers (consumed by Cloudflare Pages).
 
   // Exclude problematic directories from bundling
   webpack: (config) => {
