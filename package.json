@@ -6,8 +6,8 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "dev": "node scripts/build-pensine-index.mjs && next dev --webpack",
     "build": "node scripts/build-pensine-index.mjs && next build --webpack",
+    "dev": "node scripts/build-pensine-index.mjs && next dev --webpack",
     "build:pages": "node scripts/build-pensine-index.mjs && node scripts/strip-binaries-for-build.mjs && next build --webpack",
     "start": "next start",
     "lint": "next lint .",
@@ -16,13 +16,18 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "index": "node scripts/build-pensine-index.mjs",
     "sync:r2": "./scripts/sync-r2.sh",
-    "hooks:install": "./scripts/install-hooks.sh"
+    "hooks:install": "./scripts/install-hooks.sh",
+    "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
+    "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
     "@fontsource/geist": "^5.2.6",
     "@mdx-js/loader": "^3.1.0",
     "@mdx-js/react": "^3.1.0",
     "@next/mdx": "^16.1.6",
+    "@opennextjs/cloudflare": "^1.19.10",
     "@types/mdx": "^2.0.13",
     "@types/react-syntax-highlighter": "^15.5.13",
     "cssnano": "^6.1.2",
@@ -59,7 +64,8 @@
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "tailwindcss": "^4.1.8",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.93.0"
   },
   "repository": {
     "type": "git",

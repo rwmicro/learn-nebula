@@ -35,3 +35,13 @@ public/articles/pensine
 public/pensine-index.json
 public/pensine-search.json
 public/sql-wasm.wasm
+
+# OpenNext
+.open-next
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+
+!.env.example
