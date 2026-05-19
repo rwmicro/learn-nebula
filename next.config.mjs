@@ -43,6 +43,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "nebula.li",
       },
+      {
+        protocol: "https",
+        hostname: "assets.nebula.li",
+      },
       // Wikipedia / Wikimedia
       {
         protocol: "https",
@@ -152,9 +156,10 @@ const nextConfig = {
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-eval needed for MDX/React dynamic rendering
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https://pensine.nebula.li https://nebula.li https://upload.wikimedia.org https://*.wikipedia.org",
+              "img-src 'self' data: https://pensine.nebula.li https://nebula.li https://assets.nebula.li https://upload.wikimedia.org https://*.wikipedia.org",
               "font-src 'self' data:",
-              "connect-src 'self'",
+              "connect-src 'self' https://assets.nebula.li",
+              "frame-src 'self' https://assets.nebula.li",
               "frame-ancestors 'self'",
               "base-uri 'self'",
               "form-action 'self'",

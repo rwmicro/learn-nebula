@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
-import { validatePath, checkRateLimit, extractClientIp, sanitizeForLog } from "@/lib/security"
+import { checkRateLimit, extractClientIp, sanitizeForLog } from "@/lib/security"
 import { logger } from "@/lib/logger"
+import { R2_ASSETS_URL } from "@/utils/constants"
 import fs from "fs/promises"
 import path from "path"
 import JSZip from "jszip"
@@ -140,10 +141,15 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const baseDir = path.join(process.cwd(), "public/articles/pensine")
-    const fullPath = validatePath(filePath, baseDir)
-
-    if (!fullPath) {
+    // Le fichier vient désormais de R2 — valider le chemin reste indispensable
+    // pour éviter qu'un attaquant n'injecte une URL arbitraire via le param `path`.
+    if (
+      filePath.includes("..") ||
+      filePath.includes("\\") ||
+      filePath.includes("\0") ||
+      filePath.includes("://") ||
+      !filePath.toLowerCase().endsWith(".apkg")
+    ) {
       logger.warn("Invalid path in parse-anki request", {
         ip: clientIp,
         path: sanitizeForLog(filePath)
@@ -154,16 +160,18 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    try {
-      await fs.access(fullPath)
-    } catch {
+    const normalizedPath = filePath.startsWith("/") ? filePath : `/${filePath}`
+    const assetUrl = `${R2_ASSETS_URL}${encodeURI(normalizedPath)}`
+
+    const response = await fetch(assetUrl, { cache: "force-cache" })
+    if (!response.ok) {
+      const status = response.status === 404 ? 404 : 502
       return NextResponse.json(
-        { error: "File not found" },
-        { status: 404, headers: securityHeaders }
+        { error: status === 404 ? "File not found" : "Failed to fetch asset" },
+        { status, headers: securityHeaders }
       )
     }
-
-    const fileBuffer = await fs.readFile(fullPath)
+    const fileBuffer = Buffer.from(await response.arrayBuffer())
     const zip = new JSZip()
     const zipContents = await zip.loadAsync(fileBuffer)
 

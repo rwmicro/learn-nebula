@@ -1,4 +1,5 @@
 "use client"
+import { getAssetUrl } from "@/lib/assets"
 import type { Post } from "@/utils/types"
 import Breadcrumb from "../breadcrumb"
 
@@ -16,7 +17,7 @@ export default function PDFViewer({ post, formattedPath }: PDFViewerProps) {
       </h2>
       <div className="w-full overflow-scroll max-h-[90vh] bg-[var(--c-surface)] rounded-lg">
         <iframe
-          src={`/articles/pensine${post.path}`}
+          src={getAssetUrl(post.path)}
           width="100%"
           height="100%"
           aria-label={post.title}
