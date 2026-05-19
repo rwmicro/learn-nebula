@@ -2,7 +2,7 @@ import { notFound } from "next/navigation"
 import { getPostBySlug } from "@/lib/posts"
 import { sanitizePath } from "@/lib/tools"
 import type { Metadata } from "next"
-import Content from "@/components/content"
+import HomeContentClient from "@/components/HomeContentClient"
 import { logger } from "@/lib/logger"
 
 export const metadata: Metadata = {
@@ -72,7 +72,7 @@ export default async function Index() {
     return (
       <>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <Content post={post} formattedPath={formattedPath} />
+        <HomeContentClient post={post} formattedPath={formattedPath} />
       </>
     )
   } catch (error) {

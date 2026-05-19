@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Post-commit hook for the pensine submodule.
+# After a commit in pensine:
+#   1. push submodule to its remote
+#   2. sync binary assets to R2
+#   3. bump submodule pointer in parent repo, commit + push parent
+#
+# Installed via scripts/install-hooks.sh
+
+set -euo pipefail
+
+SUBMODULE_DIR="$(git rev-parse --show-toplevel)"
+PARENT_DIR="$(realpath "$SUBMODULE_DIR/../../..")"
+SUBMODULE_REL="public/articles/pensine"
+
+log() { echo "[pensine-hook] $*"; }
+warn() { echo "[pensine-hook] WARN: $*" >&2; }
+
+# 1. Push submodule
+BRANCH="$(git symbolic-ref --short HEAD 2>/dev/null || true)"
+if [ -z "$BRANCH" ]; then
+  warn "submodule in detached HEAD — skipping push. Checkout a branch (e.g. \`git checkout main\`) then re-commit."
+  exit 0
+fi
+
+log "Pushing submodule branch '$BRANCH'..."
+if ! git push origin "$BRANCH"; then
+  warn "submodule push failed — aborting pipeline. Resolve and run \`$PARENT_DIR/scripts/publish-pensine.sh\` manually."
+  exit 1
+fi
+
+# 2. Sync R2
+log "Syncing binaries to R2..."
+if ! "$PARENT_DIR/scripts/sync-r2.sh"; then
+  warn "R2 sync failed — submodule was pushed but assets are out of date."
+  exit 1
+fi
+
+# 3. Bump parent pointer (only if it actually changed)
+cd "$PARENT_DIR"
+if git diff --quiet -- "$SUBMODULE_REL" && git diff --cached --quiet -- "$SUBMODULE_REL"; then
+  log "Parent pointer already up-to-date — nothing to bump."
+  exit 0
+fi
+
+PARENT_BRANCH="$(git symbolic-ref --short HEAD 2>/dev/null || true)"
+if [ -z "$PARENT_BRANCH" ]; then
+  warn "parent in detached HEAD — skipping bump."
+  exit 0
+fi
+
+NEW_SHA="$(cd "$SUBMODULE_DIR" && git rev-parse --short HEAD)"
+log "Bumping parent pointer to $NEW_SHA..."
+git add "$SUBMODULE_REL"
+git commit -m "chore: bump pensine submodule to $NEW_SHA"
+
+log "Pushing parent branch '$PARENT_BRANCH'..."
+git push origin "$PARENT_BRANCH"
+
+log "Done — Cloudflare Pages build triggered."

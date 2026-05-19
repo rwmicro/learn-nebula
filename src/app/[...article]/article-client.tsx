@@ -1,12 +1,14 @@
 "use client"
 import { notFound } from "next/navigation"
-import Content from "@/components/content"
-import TOC from "@/components/toc"
-import DirectoryView from "@/components/directory-view"
+import dynamic from "next/dynamic"
 import { sanitizePath } from "@/lib/tools"
 import { Post } from "@/utils/types"
 import { useEffect, useState } from "react"
 import { logger } from "@/lib/logger"
+
+const Content = dynamic(() => import("@/components/content"), { ssr: false })
+const TOC = dynamic(() => import("@/components/toc"), { ssr: false })
+const DirectoryView = dynamic(() => import("@/components/directory-view"), { ssr: false })
 
 interface Heading {
   text: string

@@ -10,10 +10,17 @@ import remarkMath from "remark-math"
 import rehypeKatex from "rehype-katex"
 import type { Components } from "react-markdown"
 import Link from "next/link"
-import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
-import { vscDarkPlus, vs } from "react-syntax-highlighter/dist/esm/styles/prism"
-import { useTheme } from "next-themes"
+import dynamic from "next/dynamic"
 import MermaidDiagram from "../MermaidDiagram"
+
+const CodeBlock = dynamic(() => import("../CodeBlock"), {
+  ssr: false,
+  loading: () => (
+    <pre className="bg-[var(--code-block-bg)] text-[var(--c-text-1)] p-6 overflow-x-auto m-0">
+      <code />
+    </pre>
+  ),
+})
 import RelatedArticles from "../RelatedArticles"
 import { CopyButton } from "../CopyButton"
 import { PrevNext } from "../PrevNext"
@@ -84,9 +91,6 @@ function estimateReadingTime(text: string): number {
 }
 
 function PreBlock({ children }: { children?: React.ReactNode }) {
-  const { resolvedTheme } = useTheme()
-  const syntaxStyle = resolvedTheme === "dark" ? vscDarkPlus : vs
-
   const codeElement = React.Children.toArray(children).find(
     React.isValidElement
   ) as React.ReactElement<{ className?: string; children?: React.ReactNode }> | undefined
@@ -114,14 +118,7 @@ function PreBlock({ children }: { children?: React.ReactNode }) {
         <span className="text-[var(--c-text-2)] text-xs font-mono">{language}</span>
         <CopyButton code={codeString} />
       </div>
-      <SyntaxHighlighter
-        language={language}
-        style={syntaxStyle}
-        customStyle={{ margin: 0, borderRadius: "0", padding: "1.5rem", background: "var(--code-block-bg)" }}
-        showLineNumbers={false}
-      >
-        {codeString}
-      </SyntaxHighlighter>
+      <CodeBlock language={language} code={codeString} />
     </div>
   )
 }
