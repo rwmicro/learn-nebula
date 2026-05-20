@@ -23,6 +23,13 @@ const CodeBlock = dynamic(() => import("../CodeBlock"), {
 import RelatedArticles from "../RelatedArticles"
 import { CopyButton } from "../CopyButton"
 import { PrevNext } from "../PrevNext"
+import { BookmarkButton } from "../BookmarkButton"
+import { AudioNarrator } from "../AudioNarrator"
+import { ResumeReading } from "../ResumeReading"
+import { GraphView } from "../GraphView"
+import { useBionic } from "@/hooks/useBionic"
+import { useReadingPrefs } from "@/hooks/usePrefs"
+import { markAsRead, saveScrollPosition } from "@/lib/user-prefs"
 
 // Custom components for react-markdown to match MDX styling
 // Extract plain text from React children for generating heading IDs
@@ -303,30 +310,65 @@ interface MarkdownViewerProps {
 
 export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerProps) {
   const contentRef = useRef<HTMLDivElement>(null)
-  const [scrollProgress, setScrollProgress] = useState(0)
+  const articleRef = useRef<HTMLElement>(null)
+  const [scrollPct, setScrollPct] = useState(0)
   const [showBackToTop, setShowBackToTop] = useState(false)
   const [highlightTerm, setHighlightTerm] = useState("")
   const [highlightCount, setHighlightCount] = useState(0)
+  const [graphOpen, setGraphOpen] = useState(false)
+  const prefs = useReadingPrefs()
 
   // post.body is already frontmatter-stripped at build time (lib/posts.ts).
   const markdownContent = post.body
+  const totalMinutes = estimateReadingTime(markdownContent)
 
+  // Throttle scroll-position persistence: write once per ~1s of activity.
+  const lastSavedRef = useRef(0)
   const handleScroll = useCallback(() => {
     const el = contentRef.current
     if (!el) return
     const { scrollTop, scrollHeight, clientHeight } = el
     const scrollable = scrollHeight - clientHeight
     if (scrollable > 0) {
-      setScrollProgress((scrollTop / scrollable) * 100)
+      setScrollPct((scrollTop / scrollable) * 100)
       setShowBackToTop(scrollTop > 300)
     }
-  }, [])
+    const now = Date.now()
+    if (now - lastSavedRef.current > 1000) {
+      lastSavedRef.current = now
+      saveScrollPosition(post.path, scrollTop)
+    }
+  }, [post.path])
+
+  // Mark article as read on mount.
+  useEffect(() => {
+    markAsRead(post.path)
+  }, [post.path])
+
+  // Apply bionic reading (toggle).
+  useBionic(prefs.bionic, articleRef, [markdownContent])
 
   // Read highlight term from URL query param on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     setHighlightTerm(params.get("highlight") ?? "")
   }, [])
+
+  // Keyboard shortcut: `g` opens the graph view, Esc closes it.
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement | null)?.tagName
+      if (tag === "INPUT" || tag === "TEXTAREA") return
+      if (e.key === "g" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault()
+        setGraphOpen((v) => !v)
+      } else if (e.key === "Escape" && graphOpen) {
+        setGraphOpen(false)
+      }
+    }
+    window.addEventListener("keydown", handler)
+    return () => window.removeEventListener("keydown", handler)
+  }, [graphOpen])
 
   // Apply DOM-based highlights after content is rendered
   useEffect(() => {
@@ -353,13 +395,14 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
     }
   }, [highlightTerm, markdownContent])
 
+  const minutesRemaining = Math.max(0, Math.ceil(totalMinutes * (1 - scrollPct / 100)))
+
   return (
     <div ref={contentRef} onScroll={handleScroll} className="w-full p-4 pt-0 px-10 xl:px-20 pb-10 overflow-scroll h-full bg-[var(--c-bg)]">
-      {/* Progress bar */}
+      {/* Scroll progress — pure CSS via scroll-timeline, no JS reflow per frame. */}
       <div className="sticky top-0 left-0 right-0 h-0.5 bg-[var(--c-border)] z-10 -mx-10 xl:-mx-20 mb-0">
-        <div className="h-full bg-[var(--c-text-3)] transition-all duration-150" style={{ width: `${scrollProgress}%` }} />
+        <div className="h-full bg-[var(--c-text-3)] transition-[width] duration-150" style={{ width: `${scrollPct}%` }} />
       </div>
-      {/* Highlight banner */}
       {highlightTerm && (
         <div className="sticky top-0.5 z-10 -mx-10 xl:-mx-20 mb-0">
           <div className="flex items-center justify-between px-4 py-1.5 bg-amber-100/80 dark:bg-amber-950/80 border-b border-amber-300/40 dark:border-amber-800/40 backdrop-blur-sm">
@@ -384,10 +427,43 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
           </div>
         </div>
       )}
+      <ResumeReading path={post.path} containerRef={contentRef} />
       <Breadcrumb formattedPath={formattedPath} />
-      <h2 className="text-3xl text-left font-medium my-2 text-[var(--c-text-1)]">{post.title.replace(/\.mdx?$/i, "")}</h2>
-      <p className="text-xs text-[var(--c-text-3)] mb-6">{estimateReadingTime(markdownContent)} min de lecture</p>
-      <article className="max-w-none">
+      <div className="flex items-start justify-between gap-3 my-2">
+        <h2 className="text-3xl text-left font-medium text-[var(--c-text-1)] flex-1 min-w-0">
+          {post.title.replace(/\.mdx?$/i, "")}
+        </h2>
+        <div className="flex items-center gap-0.5 shrink-0 pt-1.5">
+          <BookmarkButton path={post.path} />
+          <AudioNarrator getText={() => articleRef.current?.innerText ?? ""} />
+          <button
+            onClick={() => setGraphOpen(true)}
+            className="p-1.5 rounded-md hover:bg-[var(--c-surface-hover)] transition-colors text-[var(--c-text-3)] hover:text-[var(--c-text-1)]"
+            aria-label="Voir le graphe des connexions"
+            title="Graphe (g)"
+            type="button"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="2" />
+              <circle cx="4" cy="6" r="2" />
+              <circle cx="20" cy="6" r="2" />
+              <circle cx="4" cy="18" r="2" />
+              <circle cx="20" cy="18" r="2" />
+              <line x1="12" y1="12" x2="4" y2="6" />
+              <line x1="12" y1="12" x2="20" y2="6" />
+              <line x1="12" y1="12" x2="4" y2="18" />
+              <line x1="12" y1="12" x2="20" y2="18" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p className="text-xs text-[var(--c-text-3)] mb-6">
+        {totalMinutes} min de lecture
+        {scrollPct > 5 && scrollPct < 95 && (
+          <span className="ml-2 opacity-70">· ~{minutesRemaining} min restantes</span>
+        )}
+      </p>
+      <article ref={articleRef} className="max-w-none">
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath]}
           rehypePlugins={[rehypeKatex]}
@@ -410,6 +486,7 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
           </svg>
         </button>
       )}
+      {graphOpen && <GraphView currentPath={post.path} onClose={() => setGraphOpen(false)} />}
     </div>
   )
 }

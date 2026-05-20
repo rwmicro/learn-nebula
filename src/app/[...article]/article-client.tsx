@@ -2,8 +2,11 @@
 import dynamic from "next/dynamic"
 import { sanitizePath } from "@/lib/tools"
 import { Post } from "@/utils/types"
+import Content from "@/components/content"
 
-const Content = dynamic(() => import("@/components/content"))
+// TOC and DirectoryView are mutually exclusive per route, so code-split them
+// to keep the per-page JS payload small. Content is always rendered for
+// articles, so we import it directly.
 const TOC = dynamic(() => import("@/components/toc"))
 const DirectoryView = dynamic(() => import("@/components/directory-view"))
 
@@ -100,7 +103,10 @@ export default function ArticleClient({
     },
   }
 
-  if (post.title === "Garden of Knowledge") {
+  // The "Garden of Knowledge" article (homepage article reused as a route) skips
+  // the TOC column. We match by path, not title — the file can be renamed via
+  // frontmatter but the path is the canonical identifier.
+  if (post.path === "/Garden of Knowledge.md") {
     return (
       <>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

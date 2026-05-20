@@ -2,6 +2,7 @@
 
 import { useTheme } from "next-themes"
 import { useMounted } from "@/hooks/useMounted"
+import { setPrefs } from "@/lib/user-prefs"
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -20,7 +21,10 @@ export function ThemeToggle() {
   }
 
   const toggleTheme = () => {
-    setTheme(theme === "dark" ? "light" : "dark")
+    const next = theme === "dark" ? "light" : "dark"
+    // Keep ReadingPrefs in sync so the applier doesn't fight us on re-render.
+    setPrefs({ theme: next })
+    setTheme(next)
   }
 
   return (

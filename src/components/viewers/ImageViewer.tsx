@@ -1,7 +1,6 @@
 "use client"
 import { getAssetUrl } from "@/lib/assets"
 import type { Post } from "@/utils/types"
-import Image from "next/image"
 import Breadcrumb from "../breadcrumb"
 
 interface ImageViewerProps {
@@ -19,13 +18,15 @@ export default function ImageViewer({ post, formattedPath }: ImageViewerProps) {
         {cleanTitle}
       </h2>
       <div className="flex justify-center items-center">
-        <Image
+        {/* `next/image` runs unoptimized in static export and forces hardcoded
+            width/height which causes whitespace for portrait images. Use a
+            plain <img> with intrinsic sizing so the asset displays at its
+            natural aspect ratio capped at 75vh. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={getAssetUrl(post.path)}
           alt={post.title}
-          width={1200}
-          height={800}
-          className="max-w-full max-h-[75vh] object-contain"
-          priority
+          className="max-w-full max-h-[75vh] h-auto w-auto object-contain"
         />
       </div>
     </div>

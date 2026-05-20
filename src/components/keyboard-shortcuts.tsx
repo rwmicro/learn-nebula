@@ -14,16 +14,13 @@ const shortcuts = [
 export function KeyboardShortcuts() {
   const [isOpen, setIsOpen] = useState(false)
 
-  // Close on Escape
   useKeyboardShortcut({
     key: "Escape",
     onKeyPressed: () => setIsOpen(false),
   })
 
-  // Open on ?
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Check if ? is pressed (Shift + /)
       if (e.key === "?" && !e.ctrlKey && !e.metaKey) {
         const activeElement = document.activeElement
         const isInputActive =
@@ -45,7 +42,7 @@ export function KeyboardShortcuts() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="p-2 rounded-lg bg-neutral-100 dark:bg-[#121212] border border-neutral-200 dark:border-[#2a2a2a] hover:bg-neutral-200 dark:hover:bg-[#252525] transition-colors text-gray-600 dark:text-[#a0a0a0]"
+        className="p-2 rounded-lg bg-[var(--c-surface)] border border-[var(--c-border)] hover:bg-[var(--c-surface-hover)] transition-colors text-[var(--c-text-2)]"
         aria-label="Keyboard shortcuts"
         title="Raccourcis clavier (?)"
       >
@@ -76,27 +73,25 @@ export function KeyboardShortcuts() {
 
   return (
     <>
-      {/* Backdrop */}
       <div
-        className="fixed inset-0 bg-black/50 dark:bg-black/70 z-[60]"
+        className="fixed inset-0 bg-black/50 z-[60]"
         onClick={() => setIsOpen(false)}
         aria-hidden="true"
       />
 
-      {/* Modal */}
       <div
-        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-[#121212] rounded-xl shadow-2xl z-[60] w-[90vw] max-w-md p-6"
+        className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[var(--c-surface)] border border-[var(--c-border)] rounded-xl shadow-2xl z-[60] w-[90vw] max-w-md p-6"
         role="dialog"
         aria-modal="true"
         aria-label="Raccourcis clavier"
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-[#e5e5e5]">
+          <h2 className="text-xl font-semibold text-[var(--c-text-1)]">
             Raccourcis clavier
           </h2>
           <button
             onClick={() => setIsOpen(false)}
-            className="p-1 rounded hover:bg-gray-100 dark:hover:bg-[#252525] text-gray-500 dark:text-[#6b6b6b]"
+            className="p-1 rounded hover:bg-[var(--c-surface-hover)] text-[var(--c-text-3)] hover:text-[var(--c-text-2)] transition-colors"
             aria-label="Fermer"
           >
             <svg
@@ -120,16 +115,16 @@ export function KeyboardShortcuts() {
           {shortcuts.map((shortcut, index) => (
             <div
               key={index}
-              className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-[#2a2a2a] last:border-0"
+              className="flex justify-between items-center py-2 border-b border-[var(--c-border)] last:border-0"
             >
-              <span className="text-gray-700 dark:text-[#a0a0a0]">
+              <span className="text-[var(--c-text-2)]">
                 {shortcut.description}
               </span>
               <div className="flex gap-1">
                 {shortcut.keys.map((key, keyIndex) => (
                   <kbd
                     key={keyIndex}
-                    className="px-2 py-1 text-xs font-mono bg-gray-100 dark:bg-[#1a1a1a] text-gray-700 dark:text-[#a0a0a0] border border-gray-300 dark:border-[#252525] rounded"
+                    className="px-2 py-1 text-xs font-mono bg-[var(--c-surface-hover)] text-[var(--c-text-2)] border border-[var(--c-border)] rounded"
                   >
                     {key}
                   </kbd>
@@ -139,8 +134,8 @@ export function KeyboardShortcuts() {
           ))}
         </div>
 
-        <p className="mt-4 text-xs text-gray-500 dark:text-[#6b6b6b] text-center">
-          Appuyez sur <kbd className="px-1.5 py-0.5 text-xs font-mono bg-gray-100 dark:bg-[#1a1a1a] rounded">Esc</kbd> pour fermer
+        <p className="mt-4 text-xs text-[var(--c-text-3)] text-center">
+          Appuyez sur <kbd className="px-1.5 py-0.5 text-xs font-mono bg-[var(--c-surface-hover)] rounded border border-[var(--c-border)]">Esc</kbd> pour fermer
         </p>
       </div>
     </>

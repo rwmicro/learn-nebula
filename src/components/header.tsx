@@ -1,14 +1,12 @@
 import Image from "next/image"
 import Link from "next/link"
 import Search from "./search"
-import { getTreeData } from "@/lib/treeData"
 import Hamburger from "./hamburger"
 import { KeyboardShortcuts } from "./keyboard-shortcuts"
 import { ThemeToggle } from "./theme-toggle"
+import { ReadingPrefsButton } from "./ReadingPrefs"
 
-export default async function Header() {
-  const tree = await getTreeData()
-
+export default function Header() {
   return (
     <header
       id="main-header"
@@ -31,13 +29,14 @@ export default async function Header() {
         </Link>
       </div>
       <div className="flex gap-1.5 sm:gap-2 md:gap-3 items-center">
-        <Search tree={tree} hideTrigger />
+        <Search hideTrigger />
         <div className="hidden sm:block">
           <KeyboardShortcuts />
         </div>
+        <ReadingPrefsButton />
         <ThemeToggle />
         <div className="block lg:hidden">
-          <Hamburger treeData={tree} />
+          <Hamburger />
         </div>
       </div>
     </header>

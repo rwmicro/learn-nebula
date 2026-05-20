@@ -4,7 +4,7 @@ import FileTree from "./tree"
 import { usePathname } from "next/navigation"
 import type { FileNode } from "@/utils/types"
 
-export default function Hamburger({ treeData }: { treeData: FileNode[] }) {
+export default function Hamburger({ treeData }: { treeData?: FileNode[] }) {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
 
@@ -118,10 +118,14 @@ export default function Hamburger({ treeData }: { treeData: FileNode[] }) {
 
           {/* Footer */}
           <div className="px-4 py-3 border-t border-[var(--c-border)] bg-[var(--c-sidebar)]">
-            <div className="flex items-center justify-between">
-              <span className="hidden sm:inline text-xs text-[var(--c-text-3)]">
-                Esc pour fermer
-              </span>
+            <div className="flex items-center justify-between gap-2">
+              <button
+                onClick={() => document.dispatchEvent(new CustomEvent("collapse-tree"))}
+                className="px-3 py-1.5 text-xs font-medium text-[var(--c-text-2)] bg-[var(--c-surface-hover)] hover:bg-[var(--c-border)] rounded-lg transition-colors"
+                type="button"
+              >
+                Tout replier
+              </button>
               <button
                 onClick={() => setIsOpen(false)}
                 className="px-4 py-1.5 text-sm font-medium text-[var(--c-text-2)] bg-[var(--c-surface-hover)] hover:bg-[var(--c-border)] rounded-lg transition-colors"

@@ -9,20 +9,31 @@ interface PDFViewerProps {
 }
 
 export default function PDFViewer({ post, formattedPath }: PDFViewerProps) {
+  const assetUrl = getAssetUrl(post.path)
   return (
-    <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-auto h-full bg-[var(--c-bg)]">
+    <div className="w-full p-4 pt-0 px-4 sm:px-10 xl:px-20 pb-5 overflow-auto h-full bg-[var(--c-bg)]">
       <Breadcrumb formattedPath={formattedPath} />
-      <h2 className="text-3xl text-center sm:text-left font-medium py-2 text-[var(--c-text-1)]" aria-label={post.title}>
-        {post.title}
-      </h2>
-      <div className="w-full overflow-scroll max-h-[90vh] bg-[var(--c-surface)] rounded-lg">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 py-2">
+        <h2 className="text-2xl sm:text-3xl font-medium text-[var(--c-text-1)]" aria-label={post.title}>
+          {post.title}
+        </h2>
+        {/* Mobile fallback: many mobile browsers (Chrome Android, some Firefox
+            builds) refuse to render PDFs in iframes. Offer a direct link. */}
+        <a
+          href={assetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-[var(--c-text-3)] hover:text-[var(--c-text-1)] underline transition-colors"
+        >
+          Ouvrir le PDF ↗
+        </a>
+      </div>
+      <div className="w-full overflow-hidden bg-[var(--c-surface)] rounded-lg">
         <iframe
-          src={getAssetUrl(post.path)}
-          width="100%"
-          height="100%"
-          aria-label={post.title}
-          className="min-h-[90vh] border-0 rounded-lg"
+          src={assetUrl}
+          className="w-full h-[70vh] sm:h-[80vh] lg:h-[85vh] border-0 rounded-lg"
           title={`PDF: ${post.title}`}
+          aria-label={post.title}
         />
       </div>
     </div>

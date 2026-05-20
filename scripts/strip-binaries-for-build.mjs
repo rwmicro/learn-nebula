@@ -1,9 +1,13 @@
-// Supprime les fichiers binaires de public/articles/pensine avant le build Next.
-// Ces fichiers sont servis depuis R2 (assets.nebula.li), pas depuis Cloudflare Pages,
-// pour éviter la limite de 25 MiB par asset Workers.
+// Supprime les fichiers binaires de out/articles/pensine APRÈS `next build`.
+// Ces fichiers sont servis depuis R2 (assets.nebula.li), pas depuis Cloudflare Pages
+// (limite de 25 MiB par asset).
 //
-// Important : ce script modifie l'arbo. Sur la machine de build Cloudflare c'est
-// éphémère ; en local, ne pas l'exécuter (utiliser `npm run build:local` si besoin).
+// Important : doit tourner APRÈS next build pour que generateStaticParams voie
+// les binaires et prérende leurs pages HTML. La page HTML est conservée dans out/,
+// seul le binaire physique est retiré (servi depuis R2 à la place).
+//
+// Sur la machine de build Cloudflare c'est éphémère ; en local, ne pas l'exécuter
+// (utiliser `npm run build` qui skip ce step).
 
 import { rm, stat } from "node:fs/promises"
 import { join, relative } from "node:path"
@@ -16,7 +20,7 @@ const BINARY_EXTENSIONS = new Set([
 ])
 
 const ROOT = process.cwd()
-const TARGET = join(ROOT, "public/articles/pensine")
+const TARGET = join(ROOT, "out/articles/pensine")
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true })

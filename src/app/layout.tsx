@@ -1,5 +1,4 @@
 import type React from "react"
-import { getTreeData } from "@/lib/treeData"
 import "@/styles/globals.css"
 import { GeistSans } from "geist/font/sans"
 import FileTree from "@/components/tree"
@@ -7,6 +6,8 @@ import Header from "@/components/header"
 import { ErrorBoundary } from "@/components/error-boundary"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SkipLink } from "@/components/skip-link"
+import { ReadingPrefsApplier } from "@/components/ReadingPrefs"
+import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration"
 import "katex/dist/katex.min.css"
 import type { Metadata, Viewport } from "next"
 
@@ -95,7 +96,6 @@ export const metadata: Metadata = {
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-    other: [{ rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#000000" }],
   },
   manifest: "/site.webmanifest",
   appleWebApp: {
@@ -115,13 +115,11 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const treeData = await getTreeData()
-
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -164,12 +162,14 @@ export default async function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
+          <ReadingPrefsApplier />
+          <ServiceWorkerRegistration />
           <ErrorBoundary>
             <SkipLink />
             <Header />
             <div className="flex flex-row w-full flex-1 overflow-hidden">
               <div className="hidden lg:block h-full">
-                <FileTree tree={treeData} hidePosibility={true} />
+                <FileTree hidePosibility={true} />
               </div>
               <main id="main-content" className="flex-1 h-full overflow-hidden">
                 {children}
