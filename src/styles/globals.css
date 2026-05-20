@@ -4,9 +4,41 @@
 /* Enable class-based dark mode for next-themes */
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Cross-document View Transitions (Chrome/Edge 126+, universal by 2026).
+ * The browser handles the morph between routes; no JS required. */
+@view-transition {
+  navigation: auto;
+}
+
+/* Disable transitions when the user prefers reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
 /* Scroll offset for TOC anchor links */
 h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
   scroll-margin-top: 1rem;
+}
+
+/* Scroll-driven entrance animations (CSS-only, no JS scroll listener).
+ * Supported natively in evergreen browsers since 2024; degrades gracefully
+ * to "always visible" when unsupported. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    article h2, article h3, article h4, article pre, article blockquote, article table {
+      animation: pensine-reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 25%;
+    }
+    @keyframes pensine-reveal {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  }
 }
 
 /* CSS custom properties for light/dark mode */
@@ -33,6 +65,50 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
   --c-sidebar: #0a0a0a;
   --code-block-bg: #121212;
 }
+
+/* Sepia variant — kindle-like warm tones, lower contrast than light mode,
+ * easier on the eyes during long reading sessions. */
+.sepia {
+  --c-bg: #f4ecd8;
+  --c-surface: #ece2c8;
+  --c-surface-hover: #e2d6b6;
+  --c-border: #c9b78f;
+  --c-text-1: #4a3a23;
+  --c-text-2: #6e5a39;
+  --c-text-3: #9a8763;
+  --c-sidebar: #ece2c8;
+  --code-block-bg: #e2d6b6;
+  color-scheme: light;
+}
+
+/* Reading font-size scale — applied to <html> via data-font attribute.
+ * Tailwind utility classes (text-base, text-3xl, ...) use absolute rem values
+ * which don't inherit from a parent font-size. So we override each utility
+ * inside <article> with a calc(base * --prose-scale).
+ *
+ * Specificity (`article .text-XYZ`) beats Tailwind's base utility, so this
+ * works without !important regardless of layer order. */
+html[data-font="compact"] article { --prose-scale: 0.92; }
+html[data-font="normal"]  article { --prose-scale: 1; }
+html[data-font="large"]   article { --prose-scale: 1.18; }
+
+article { font-size: calc(1rem * var(--prose-scale, 1)); line-height: 1.7; }
+article .text-3xl { font-size: calc(1.875rem * var(--prose-scale, 1)); }
+article .text-2xl { font-size: calc(1.5rem   * var(--prose-scale, 1)); }
+article .text-xl  { font-size: calc(1.25rem  * var(--prose-scale, 1)); }
+article .text-lg  { font-size: calc(1.125rem * var(--prose-scale, 1)); }
+article .text-base, article .text-md {
+  font-size: calc(1rem * var(--prose-scale, 1));
+}
+article .text-sm  { font-size: calc(0.875rem * var(--prose-scale, 1)); }
+article .text-xs  { font-size: calc(0.75rem  * var(--prose-scale, 1)); }
+
+/* Focus mode — narrower column + extra line-height for distraction-free reading. */
+html[data-focus="on"] article { max-width: 42rem; margin-inline: auto; line-height: 1.85; }
+
+/* Bionic reading — the JS walker wraps the first half of each word in <b
+ * class="bionic">…</b>. Here we just set the visual emphasis. */
+.bionic { font-weight: 700; color: var(--c-text-1); }
 
 @theme {
   /* Table and typography customizations */

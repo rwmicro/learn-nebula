@@ -2,18 +2,35 @@
 import { FileNode } from "../utils/types"
 import { usePathname } from "next/navigation"
 import TreeNode from "./tree-node"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Image from "next/image"
+import { loadTree } from "@/lib/pensine-index"
 
+// Tree data is fetched client-side from /pensine-index.json so we don't have
+// to ship the full ~150 KB tree DOM in every prerendered page. The fetch is
+// cached (HTTP + module-level promise via loadTree), so cost is ~one network
+// hit per session.
 export default function Structure({
-  tree,
+  tree: treeProp,
   hidePosibility,
   fullWidth = false,
 }: {
-  tree: FileNode[]
+  tree?: FileNode[]
   hidePosibility: boolean
   fullWidth?: boolean
 }) {
+  const [tree, setTree] = useState<FileNode[]>(treeProp ?? [])
+
+  useEffect(() => {
+    if (treeProp) return
+    let cancelled = false
+    loadTree().then((data) => {
+      if (!cancelled) setTree(data)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [treeProp])
   const location = usePathname()
   const path = decodeURIComponent(location)
   const pathSplits: string[] = path.split("/")
@@ -32,6 +49,13 @@ export default function Structure({
   const handleCollapseAll = () => {
     setCollapseAll((prev) => prev + 1)
   }
+
+  // Listen for collapse triggers from outside (e.g. the mobile Hamburger footer).
+  useEffect(() => {
+    const collapse = () => setCollapseAll((prev) => prev + 1)
+    document.addEventListener("collapse-tree", collapse)
+    return () => document.removeEventListener("collapse-tree", collapse)
+  }, [])
 
   return (
     <div
@@ -76,16 +100,28 @@ export default function Structure({
           transition-opacity duration-300 ease-in-out mt-2 lg:mt-0
           ${showUI ? "opacity-100 h-[calc(100%-3.5rem)]" : "opacity-0 h-0 pointer-events-none"}`}
       >
-        {tree.map((node: FileNode) => (
-          <TreeNode
-            key={node.path}
-            node={node}
-            pathName={pathSplits}
-            activePath={activePath}
-            onLinkClick={handlePathClick}
-            collapseAll={collapseAll}
-          />
-        ))}
+        {tree.length === 0 ? (
+          <div className="px-2 pt-2 space-y-2 animate-pulse" aria-busy="true" aria-label="Chargement de l'arborescence">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-4 bg-[var(--c-surface-hover)] rounded"
+                style={{ width: `${60 + ((i * 13) % 35)}%` }}
+              />
+            ))}
+          </div>
+        ) : (
+          tree.map((node: FileNode) => (
+            <TreeNode
+              key={node.path}
+              node={node}
+              pathName={pathSplits}
+              activePath={activePath}
+              onLinkClick={handlePathClick}
+              collapseAll={collapseAll}
+            />
+          ))
+        )}
       </div>
     </div>
   )

@@ -19,9 +19,14 @@ export function useKeyboardShortcut({
       // Allow Escape key even if an input is active
       if (isInputActive && e.key !== "Escape") return
 
-      if (e.key === key) {
+      // Case-insensitive single-character matching so registering "k" also
+      // catches "K" (shift held / caps lock). Multi-char keys like "Escape"
+      // compare exactly.
+      const normalizedKey = key.length === 1 ? key.toLowerCase() : key
+      const normalizedEvent = e.key.length === 1 ? e.key.toLowerCase() : e.key
+      if (normalizedEvent === normalizedKey) {
         e.preventDefault()
-        onKeyPressed(e) 
+        onKeyPressed(e)
       }
     }
 

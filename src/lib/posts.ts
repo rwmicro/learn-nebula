@@ -1,59 +1,30 @@
 import path from "path"
 import fs from "fs"
+import matter from "gray-matter"
 import { Post, FileNode } from "@/utils/types"
 import { getTreeFrom } from "./treeData"
 import { SUPPORTED_EXTENSIONS, TEXT_EXTENSIONS, PENSINE_DIRECTORY } from "@/utils/constants"
 
-function parseFrontmatter(content: string): { metadata: Record<string, string | string[]> } {
-  if (!content.startsWith("---")) return { metadata: {} }
-  const endIndex = content.indexOf("\n---", 3)
-  if (endIndex === -1) return { metadata: {} }
+type FrontmatterValue = string | string[]
 
-  const yamlBlock = content.slice(3, endIndex).trim()
-  const metadata: Record<string, string | string[]> = {}
-  const lines = yamlBlock.split("\n")
-
-  let currentKey: string | null = null
-  let currentArray: string[] | null = null
-
-  for (const line of lines) {
-    const trimmed = line.trim()
-    if (trimmed.startsWith("- ")) {
-      if (currentKey && currentArray) currentArray.push(trimmed.slice(2).trim())
-    } else {
-      if (currentKey && currentArray && currentArray.length > 0) {
-        metadata[currentKey] = currentArray
-        currentArray = null
-      }
-      const colonIndex = line.indexOf(":")
-      if (colonIndex > 0) {
-        const key = line.slice(0, colonIndex).trim()
-        const value = line.slice(colonIndex + 1).trim()
-        if (value === "") {
-          currentKey = key
-          currentArray = []
-        } else {
-          currentKey = key
-          metadata[key] = value
-        }
-      }
+// Coerce gray-matter's loose `unknown` values into the shape Post.metadata expects.
+function normalizeFrontmatter(data: Record<string, unknown>): Record<string, FrontmatterValue> {
+  const out: Record<string, FrontmatterValue> = {}
+  for (const [key, raw] of Object.entries(data)) {
+    if (Array.isArray(raw)) {
+      out[key] = raw.map((v) => String(v))
+    } else if (raw != null && typeof raw !== "object") {
+      out[key] = String(raw)
     }
   }
-  if (currentKey && currentArray && currentArray.length > 0) {
-    metadata[currentKey] = currentArray
-  }
-
-  return { metadata }
+  return out
 }
 
-function computeExcerpt(body: string, metadata: Record<string, string | string[]>): string {
+function computeExcerpt(body: string, metadata: Record<string, FrontmatterValue>): string {
   const fromMeta = metadata.description ?? metadata.summary ?? metadata.excerpt
   if (typeof fromMeta === "string" && fromMeta.length > 0) return fromMeta
 
-  const stripped = body.startsWith("---")
-    ? body.replace(/^---[\s\S]*?\n---\n?/, "")
-    : body
-  const text = stripped
+  const text = body
     .replace(/!\[[^\]]*\]\([^)]*\)/g, "")
     .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
     .replace(/^#{1,6}\s+/gm, "")
@@ -73,18 +44,78 @@ function toRelativePath(fullPath: string): string {
   return "/" + rel
 }
 
-function stripFrontmatter(content: string): string {
-  return content.startsWith("---") ? content.replace(/^---[\s\S]*?\n---\n?/, "") : content
+// One-shot scan of the pensine corpus building a basename → canonical path
+// lookup, used to resolve Obsidian-style wiki-links. Cached after first call
+// for the duration of the build.
+let basenameMap: Map<string, string> | null = null
+function getBasenameMap(): Map<string, string> {
+  if (basenameMap) return basenameMap
+  const map = new Map<string, string>()
+  const EXCLUDED = new Set([".git", "sources"])
+  function walk(dir: string) {
+    let entries: fs.Dirent[]
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true })
+    } catch {
+      return
+    }
+    for (const entry of entries) {
+      if (entry.name.startsWith(".") || EXCLUDED.has(entry.name)) continue
+      const full = path.join(dir, entry.name)
+      if (entry.isDirectory()) {
+        walk(full)
+      } else if (entry.isFile()) {
+        const ext = path.extname(entry.name).slice(1).toLowerCase()
+        if (!(TEXT_EXTENSIONS as readonly string[]).includes(ext)) continue
+        const base = path.basename(entry.name, path.extname(entry.name)).toLowerCase()
+        if (!map.has(base)) {
+          const rel = "/" + path.relative(pensineRoot(), full).replace(/\\/g, "/")
+          map.set(base, rel)
+        }
+      }
+    }
+  }
+  walk(pensineRoot())
+  basenameMap = map
+  return map
+}
+
+// Convert Obsidian-style [[Target]], [[Target|Display]], [[Target#anchor]],
+// [[Target#anchor|Display]] into standard markdown links so react-markdown can
+// render them. Unresolved targets are left as literal text so the user knows
+// the link is broken.
+const WIKI_LINK_RE = /\[\[([^\]|#]+?)(?:#([^\]|]+))?(?:\|([^\]]+))?\]\]/g
+
+function resolveWikiLinks(body: string): string {
+  return body.replace(WIKI_LINK_RE, (full, target: string, anchor: string | undefined, display: string | undefined) => {
+    const targetTrim = target.trim()
+    const resolved = getBasenameMap().get(targetTrim.toLowerCase())
+    if (!resolved) return full
+
+    // Strip extension and URL-encode each path segment so spaces / accents are
+    // valid inside markdown's (url) destination syntax.
+    const stripped = resolved.replace(/\.[^/.]+$/, "")
+    const segments = stripped.split("/").filter(Boolean).map(encodeURIComponent)
+    const anchorSuffix = anchor ? `#${encodeURIComponent(anchor.trim().toLowerCase().replace(/\s+/g, "-"))}` : ""
+    const url = `/${segments.join("/")}${anchorSuffix}`
+    const label = (display ?? targetTrim).trim()
+    return `[${label}](${url})`
+  })
 }
 
 function readPost(fullPath: string, ext: string, title: string): Post {
   const isText = (TEXT_EXTENSIONS as readonly string[]).includes(ext)
   const stats = fs.statSync(fullPath)
-  const rawBody = isText ? fs.readFileSync(fullPath, "utf8") : ""
-  const { metadata } = parseFrontmatter(rawBody)
-  // Strip frontmatter once at build time so consumers (MarkdownViewer, TOC)
-  // never have to re-parse it.
-  const body = isText ? stripFrontmatter(rawBody) : ""
+
+  let body = ""
+  let metadata: Record<string, FrontmatterValue> = {}
+  if (isText) {
+    const raw = fs.readFileSync(fullPath, "utf8")
+    const parsed = matter(raw)
+    body = resolveWikiLinks(parsed.content)
+    metadata = normalizeFrontmatter(parsed.data)
+  }
+
   return {
     title,
     path: toRelativePath(fullPath),
@@ -92,7 +123,7 @@ function readPost(fullPath: string, ext: string, title: string): Post {
     type: ext as Post["type"],
     lastModified: stats.mtime.toISOString(),
     date: stats.birthtime.toISOString(),
-    excerpt: isText ? computeExcerpt(rawBody, metadata) : "",
+    excerpt: isText ? computeExcerpt(body, metadata) : "",
     metadata,
   }
 }

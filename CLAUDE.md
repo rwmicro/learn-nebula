@@ -28,10 +28,10 @@ Binary assets (PDFs, images, .apkg, video) bypass Pages entirely and live in R2.
 
 - Source of truth: `public/articles/pensine/<path>` on disk (submodule)
 - `scripts/sync-r2.sh` uploads binaries to R2 bucket `pensine-assets`
-- `scripts/strip-binaries-for-build.mjs` deletes binaries from the build before `next build`
+- `scripts/strip-binaries-for-build.mjs` deletes binaries from `out/articles/pensine/` **after** `next build` (must run after so `generateStaticParams` sees the binaries and prerenders article pages for them; only the binary payload is dropped, the HTML article page stays)
 - Client URLs are resolved by `src/lib/assets.ts → getAssetUrl()`:
-  - Binary extension → `https://assets.nebula.li/<path>`
-  - Text (markdown etc.) → `/articles/pensine/<path>` (served by Pages)
+  - Production + binary extension → `https://assets.nebula.li/<path>`
+  - Dev or text content → `/articles/pensine/<path>` (served from disk; in dev the strip step doesn't run, so binaries are local too — avoids forcing an R2 sync for every dev session)
 
 **Cloudflare Pages config** (dashboard, not code):
 - Build command: `npm run build:pages` (the `:pages` variant runs the strip step)

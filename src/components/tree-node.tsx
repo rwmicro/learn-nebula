@@ -3,6 +3,7 @@ import { encodeURL, sanitizePath } from "@/lib/tools"
 import { FileNode } from "@/utils/types"
 import Link from "next/link"
 import { useState, useEffect, memo } from "react"
+import { useReadArticles } from "@/hooks/usePrefs"
 
 interface TreeNodeProps {
   node: FileNode
@@ -40,6 +41,8 @@ const TreeNode = memo(function TreeNode({
   }
 
   const [isOpen, setIsOpen] = useState(isNodeOpen())
+  const readArticles = useReadArticles()
+  const isRead = node.type === "file" && readArticles.has(node.path)
 
   // Collapse all folders when collapseAll changes
   useEffect(() => {
@@ -110,13 +113,22 @@ const TreeNode = memo(function TreeNode({
           onClick={() => onLinkClick(node.path)}
         >
           <div
-            className={`pl-6 py-1.5 px-1 lg:py-1 hover:bg-[var(--c-surface-hover)] rounded transition-colors ${
+            className={`pl-6 py-1.5 px-1 lg:py-1 hover:bg-[var(--c-surface-hover)] rounded transition-colors flex items-center gap-1.5 ${
               activePath?.replace(/^\//, "") === node.path.replace(/^\//, "")
                 ? "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400 font-medium"
-                : ""
+                : isRead
+                  ? "text-[var(--c-text-3)]"
+                  : ""
             }`}
           >
-            {sanitizePath(node.name)}
+            {isRead && (
+              <span
+                className="w-1 h-1 rounded-full bg-[var(--c-text-3)] shrink-0"
+                aria-label="Article déjà lu"
+                title="Déjà lu"
+              />
+            )}
+            <span className="flex-1 min-w-0">{sanitizePath(node.name)}</span>
           </div>
         </Link>
       )}

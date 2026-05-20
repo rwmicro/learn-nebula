@@ -22,6 +22,16 @@ export interface SearchResult {
 
 let treePromise: Promise<FileNode[]> | null = null
 let corpusPromise: Promise<SearchEntry[]> | null = null
+let backlinksPromise: Promise<Record<string, string[]>> | null = null
+
+export function loadBacklinks(): Promise<Record<string, string[]>> {
+  if (!backlinksPromise) {
+    backlinksPromise = fetch("/pensine-backlinks.json", { cache: "force-cache" })
+      .then((r) => (r.ok ? r.json() : {}))
+      .catch(() => ({}))
+  }
+  return backlinksPromise
+}
 
 export function loadTree(): Promise<FileNode[]> {
   if (!treePromise) {

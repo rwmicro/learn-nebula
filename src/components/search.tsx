@@ -4,6 +4,8 @@ import { useDebounce } from "@/hooks/useDebounce"
 import { encodeURL, sanitizePath } from "@/lib/tools"
 import { FileNode } from "@/utils/types"
 import { SEARCH_MAX_RESULTS } from "@/utils/constants"
+import { loadTree } from "@/lib/pensine-index"
+import { useBookmarks } from "@/hooks/usePrefs"
 import Link from "next/link"
 import { useEffect, useState, useRef, useMemo, useCallback } from "react"
 import Image from "next/image"
@@ -229,7 +231,22 @@ function FileTypeIcon({ extension }: { extension: string }) {
   }
 }
 
-export default function Search({ tree, fullWidth = false, hideTrigger = false }: { tree: FileNode[]; fullWidth?: boolean; hideTrigger?: boolean }) {
+export default function Search({ tree: treeProp, fullWidth = false, hideTrigger = false }: { tree?: FileNode[]; fullWidth?: boolean; hideTrigger?: boolean }) {
+  const [tree, setTree] = useState<FileNode[]>(treeProp ?? [])
+
+  // If no tree prop is passed, load it from the prebuilt JSON. Shared promise
+  // via loadTree() means search/tree/hamburger all reuse the same fetch.
+  useEffect(() => {
+    if (treeProp) return
+    let cancelled = false
+    loadTree().then((data) => {
+      if (!cancelled) setTree(data)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [treeProp])
+
   const defaultStack = useMemo(() => flattenFileTree(tree), [tree])
   const [search, setSearch] = useState<string>("")
   const [showSearch, setShowSearch] = useState<boolean>(false)
@@ -237,6 +254,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
   const [selectedFileType, setSelectedFileType] = useState<FileTypeKey>("all")
   const [recentSearches, setRecentSearches] = useState<string[]>([])
   const [contentResults, setContentResults] = useState<ContentResult[]>([])
+  const bookmarks = useBookmarks()
 
   // Debounce search input for better performance
   const debouncedSearch = useDebounce(search, 150)
@@ -294,14 +312,6 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
 
   useKeyboardShortcut({
     key: "k",
-    onKeyPressed: (event) => {
-      if (document.activeElement !== inputRef.current) {
-        handleOpenSearch(event)
-      }
-    },
-  })
-  useKeyboardShortcut({
-    key: "K",
     onKeyPressed: (event) => {
       if (document.activeElement !== inputRef.current) {
         handleOpenSearch(event)
@@ -390,6 +400,7 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
   }
 
   const showRecentSearches = !search.trim() && recentSearches.length > 0
+  const showBookmarks = !search.trim() && bookmarks.length > 0
 
   return (
     <>
@@ -474,6 +485,31 @@ export default function Search({ tree, fullWidth = false, hideTrigger = false }:
                 Tab pour changer
               </span>
             </div>
+
+            {/* Bookmarks */}
+            {showBookmarks && (
+              <div className="px-4 py-3 border-b border-[var(--c-border)]">
+                <h3 className="text-xs font-medium text-[var(--c-text-3)] uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" className="text-amber-500"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                  Favoris
+                </h3>
+                <div className="flex flex-col">
+                  {bookmarks.slice(0, 6).map((bookmarkPath) => {
+                    const name = bookmarkPath.split("/").pop()?.replace(/\.[^/.]+$/, "") ?? bookmarkPath
+                    return (
+                      <Link
+                        key={bookmarkPath}
+                        href={encodeURL(bookmarkPath)}
+                        onClick={handleResultClick}
+                        className="flex items-center px-2 py-1.5 rounded-md text-sm text-[var(--c-text-2)] hover:bg-[var(--c-surface-hover)] hover:text-[var(--c-text-1)] transition-colors truncate"
+                      >
+                        {name}
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Recent searches */}
             {showRecentSearches && (

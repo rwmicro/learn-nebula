@@ -90,8 +90,8 @@ export default function AnkiCardViewer({ filePath }: AnkiCardViewerProps) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-neutral-600">Chargement du deck Anki...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--c-text-2)] mx-auto mb-4"></div>
+          <p className="text-[var(--c-text-3)]">Chargement du deck Anki...</p>
         </div>
       </div>
     )
@@ -182,7 +182,7 @@ export default function AnkiCardViewer({ filePath }: AnkiCardViewerProps) {
               className="text-lg text-[var(--c-text-1)] prose dark:prose-invert max-w-none"
               dangerouslySetInnerHTML={renderHTML(currentCard.question)}
             />
-            <div className="text-center mt-8 text-sm text-neutral-600">
+            <div className="text-center mt-8 text-sm text-[var(--c-text-3)]">
               Cliquez pour voir la réponse
             </div>
           </div>
@@ -200,7 +200,7 @@ export default function AnkiCardViewer({ filePath }: AnkiCardViewerProps) {
               className="text-lg text-[var(--c-text-1)] prose dark:prose-invert max-w-none"
               dangerouslySetInnerHTML={renderHTML(currentCard.answer)}
             />
-            <div className="text-center mt-8 text-sm text-neutral-600">
+            <div className="text-center mt-8 text-sm text-[var(--c-text-3)]">
               Cliquez pour voir la question
             </div>
           </div>
@@ -225,7 +225,7 @@ export default function AnkiCardViewer({ filePath }: AnkiCardViewerProps) {
       <div className="mt-6 flex justify-center gap-6 text-xs text-[var(--c-text-3)]">
         <span>
           <kbd className="px-1.5 py-0.5 bg-[var(--c-surface-hover)] rounded border border-[var(--c-border)] font-mono">←</kbd>
-          <kbd className="px-1.5 py-0.5 bg-neutral-900 rounded border border-neutral-800 font-mono ml-1">→</kbd>
+          <kbd className="px-1.5 py-0.5 bg-[var(--c-surface-hover)] rounded border border-[var(--c-border)] font-mono ml-1">→</kbd>
           <span className="ml-2">naviguer</span>
         </span>
         <span>
