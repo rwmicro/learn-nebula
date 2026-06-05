@@ -20,6 +20,7 @@ const CodeBlock = dynamic(() => import("../CodeBlock"), {
     </pre>
   ),
 })
+import ArticleMetadata from "../ArticleMetadata"
 import RelatedArticles from "../RelatedArticles"
 import { CopyButton } from "../CopyButton"
 import { PrevNext } from "../PrevNext"
@@ -209,27 +210,31 @@ const markdownComponents: Components = {
     </li>
   ),
   table: ({ node: _node, children, ...props }) => (
-    <table
-      className="w-full text-sm text-left rtl:text-right text-[var(--c-text-2)] border border-[var(--c-border)] rounded border-spacing-0 border-separate my-2 overflow-hidden"
-      {...props}
-    >
+    // Wrapper lets wide tables scroll horizontally on narrow viewports instead
+    // of forcing the whole article to scroll sideways.
+    <div className="my-2 -mx-4 sm:mx-0 overflow-x-auto">
+      <table
+        className="w-full min-w-max text-sm text-left rtl:text-right text-[var(--c-text-2)] border border-[var(--c-border)] rounded border-spacing-0 border-separate"
+        {...props}
+      >
+        {children}
+      </table>
+    </div>
+  ),
+  th: ({ node: _node, children, ...props }) => (
+    <th className="px-3 sm:px-6 p-2 bg-[var(--c-surface-hover)]" {...props}>
       {children}
-    </table>
+    </th>
+  ),
+  td: ({ node: _node, children, ...props }) => (
+    <td className="p-2 px-3 sm:px-6" {...props}>
+      {children}
+    </td>
   ),
   thead: ({ node: _node, children, ...props }) => (
     <thead className="text-md text-[var(--c-text-1)] font-medium" {...props}>
       {children}
     </thead>
-  ),
-  th: ({ node: _node, children, ...props }) => (
-    <th className="px-6 p-2 bg-[var(--c-surface-hover)]" {...props}>
-      {children}
-    </th>
-  ),
-  td: ({ node: _node, children, ...props }) => (
-    <td className="p-2 px-6" {...props}>
-      {children}
-    </td>
   ),
   tr: ({ node: _node, children, ...props }) => (
     <tr className="border border-[var(--c-border)]" {...props}>
@@ -287,10 +292,14 @@ const markdownComponents: Components = {
     }
     return (
       <span className="flex flex-col w-full items-center py-5 md:py-10">
+        {/* min-h reserves a slot before the image loads to keep CLS low.
+            The bg color doubles as a skeleton placeholder. */}
         <img
           src={imgSrc}
           alt={alt || "Image"}
-          className="w-full md:w-2/3 md:max-w-[50vw] rounded-lg"
+          loading="lazy"
+          decoding="async"
+          className="w-full md:w-2/3 md:max-w-[50vw] min-h-[150px] rounded-lg bg-[var(--c-surface)]"
           {...props}
         />
         {alt && (
@@ -398,13 +407,13 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
   const minutesRemaining = Math.max(0, Math.ceil(totalMinutes * (1 - scrollPct / 100)))
 
   return (
-    <div ref={contentRef} onScroll={handleScroll} className="w-full p-4 pt-0 px-10 xl:px-20 pb-10 overflow-scroll h-full bg-[var(--c-bg)]">
+    <div ref={contentRef} onScroll={handleScroll} className="w-full pt-0 px-4 sm:px-6 md:px-10 xl:px-20 pb-10 overflow-auto h-full bg-[var(--c-bg)]">
       {/* Scroll progress — pure CSS via scroll-timeline, no JS reflow per frame. */}
-      <div className="sticky top-0 left-0 right-0 h-0.5 bg-[var(--c-border)] z-10 -mx-10 xl:-mx-20 mb-0">
+      <div className="sticky top-0 left-0 right-0 h-0.5 bg-[var(--c-border)] z-10 -mx-4 sm:-mx-6 md:-mx-10 xl:-mx-20 mb-0">
         <div className="h-full bg-[var(--c-text-3)] transition-[width] duration-150" style={{ width: `${scrollPct}%` }} />
       </div>
       {highlightTerm && (
-        <div className="sticky top-0.5 z-10 -mx-10 xl:-mx-20 mb-0">
+        <div className="sticky top-0.5 z-10 -mx-4 sm:-mx-6 md:-mx-10 xl:-mx-20 mb-0">
           <div className="flex items-center justify-between px-4 py-1.5 bg-amber-100/80 dark:bg-amber-950/80 border-b border-amber-300/40 dark:border-amber-800/40 backdrop-blur-sm">
             <span className="text-xs text-amber-800 dark:text-amber-300">
               {highlightCount > 0
@@ -430,7 +439,7 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
       <ResumeReading path={post.path} containerRef={contentRef} />
       <Breadcrumb formattedPath={formattedPath} />
       <div className="flex items-start justify-between gap-3 my-2">
-        <h2 className="text-3xl text-left font-medium text-[var(--c-text-1)] flex-1 min-w-0">
+        <h2 className="text-2xl sm:text-3xl text-left font-medium text-[var(--c-text-1)] flex-1 min-w-0 break-words">
           {post.title.replace(/\.mdx?$/i, "")}
         </h2>
         <div className="flex items-center gap-0.5 shrink-0 pt-1.5">
@@ -457,12 +466,21 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
           </button>
         </div>
       </div>
-      <p className="text-xs text-[var(--c-text-3)] mb-6">
+      <p className="text-xs text-[var(--c-text-3)] mb-3">
         {totalMinutes} min de lecture
         {scrollPct > 5 && scrollPct < 95 && (
           <span className="ml-2 opacity-70">· ~{minutesRemaining} min restantes</span>
         )}
       </p>
+      {/* Mobile-only metadata (tags / type / domain). On lg+ the TOC sidebar
+          renders the same metadata in its "About" block, so we hide this. */}
+      {post.metadata && (
+        <ArticleMetadata
+          metadata={post.metadata}
+          variant="inline"
+          className="lg:hidden mb-6"
+        />
+      )}
       <article ref={articleRef} className="max-w-none">
         <ReactMarkdown
           remarkPlugins={[remarkGfm, remarkMath]}
@@ -477,7 +495,7 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
       {showBackToTop && (
         <button
           onClick={() => contentRef.current?.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-6 right-6 z-50 p-2.5 bg-[var(--c-surface-hover)] hover:bg-[var(--c-border)] border border-[var(--c-border)] rounded-full text-[var(--c-text-2)] hover:text-[var(--c-text-1)] transition-all shadow-lg"
+          className="fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-[max(1.5rem,env(safe-area-inset-right))] z-50 p-2.5 bg-[var(--c-surface-hover)] hover:bg-[var(--c-border)] border border-[var(--c-border)] rounded-full text-[var(--c-text-2)] hover:text-[var(--c-text-1)] transition-all shadow-lg"
           aria-label="Retour en haut"
           type="button"
         >

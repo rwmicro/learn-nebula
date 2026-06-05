@@ -31,7 +31,7 @@ export default function PDFViewer({ post, formattedPath }: PDFViewerProps) {
       <div className="w-full overflow-hidden bg-[var(--c-surface)] rounded-lg">
         <iframe
           src={assetUrl}
-          className="w-full h-[70vh] sm:h-[80vh] lg:h-[85vh] border-0 rounded-lg"
+          className="w-full h-[70dvh] sm:h-[80dvh] lg:h-[85dvh] border-0 rounded-lg"
           title={`PDF: ${post.title}`}
           aria-label={post.title}
         />

@@ -116,8 +116,8 @@ export default function Hamburger({ treeData }: { treeData?: FileNode[] }) {
             <FileTree tree={treeData} hidePosibility={false} fullWidth />
           </div>
 
-          {/* Footer */}
-          <div className="px-4 py-3 border-t border-[var(--c-border)] bg-[var(--c-sidebar)]">
+          {/* Footer — adds safe-area-inset-bottom so iOS home indicator doesn't cover the buttons */}
+          <div className="px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] border-t border-[var(--c-border)] bg-[var(--c-sidebar)]">
             <div className="flex items-center justify-between gap-2">
               <button
                 onClick={() => document.dispatchEvent(new CustomEvent("collapse-tree"))}

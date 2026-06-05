@@ -88,7 +88,7 @@ export default function AnkiCardViewer({ filePath }: AnkiCardViewerProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex items-center justify-center min-h-[60dvh]">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[var(--c-text-2)] mx-auto mb-4"></div>
           <p className="text-[var(--c-text-3)]">Chargement du deck Anki...</p>
@@ -167,7 +167,7 @@ export default function AnkiCardViewer({ filePath }: AnkiCardViewerProps) {
 
       {/* Card Display */}
       <div
-        className="relative bg-[var(--c-surface)] rounded-lg border border-[var(--c-border)] p-8 min-h-[400px] cursor-pointer"
+        className="relative bg-[var(--c-surface)] rounded-lg border border-[var(--c-border)] p-4 sm:p-6 md:p-8 min-h-[280px] sm:min-h-[400px] cursor-pointer"
         onClick={handleFlip}
       >
         {/* Front of card (Question) */}

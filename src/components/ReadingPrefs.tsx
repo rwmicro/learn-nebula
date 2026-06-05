@@ -54,7 +54,7 @@ export function ReadingPrefsButton() {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-72 bg-[var(--c-surface)] border border-[var(--c-border)] rounded-xl shadow-2xl z-[55] p-4">
+        <div className="absolute right-0 mt-2 w-72 max-w-[calc(100vw-1rem)] bg-[var(--c-surface)] border border-[var(--c-border)] rounded-xl shadow-2xl z-[55] p-4">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-[var(--c-text-3)] mb-3">
             Lecture
           </h3>

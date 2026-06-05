@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { useState, useEffect } from "react"
+import ArticleMetadata from "./ArticleMetadata"
 
 interface Heading {
   text: string
@@ -118,63 +119,7 @@ export default function TOC({
             <h3 className="text-xs font-medium text-[var(--c-text-3)] mb-3 uppercase tracking-wide">
               About
             </h3>
-            <div className="flex flex-col gap-2">
-              {/* Non-tag, non-title scalar fields */}
-              {(["type", "domain", "created"] as const).map((key) => {
-                const raw = metadata[key]
-                if (!raw || Array.isArray(raw)) return null
-                // Strip surrounding quotes added by some YAML parsers
-                const val = String(raw).replace(/^["']|["']$/g, "")
-                if (!val) return null
-                return (
-                  <div key={key} className="flex items-center gap-2">
-                    <span className="text-[11px] uppercase tracking-wide text-[var(--c-text-3)] w-14 shrink-0">
-                      {key}
-                    </span>
-                    <span className="px-2 py-0.5 text-xs rounded-full bg-[var(--c-surface-hover)] text-[var(--c-text-2)]">
-                      {val}
-                    </span>
-                  </div>
-                )
-              })}
-              {/* Tags */}
-              {(() => {
-                const raw = metadata["tags"]
-                if (!raw) return null
-                // Handle both real arrays and strings like "[a, b, c]"
-                let tagList: string[]
-                if (Array.isArray(raw)) {
-                  tagList = raw.map((t) => String(t).trim()).filter(Boolean)
-                } else {
-                  const s = String(raw).trim()
-                  const inner = s.startsWith("[") && s.endsWith("]") ? s.slice(1, -1) : s
-                  tagList = inner.split(",").map((t) => t.trim().replace(/^["']|["']$/g, "")).filter(Boolean)
-                }
-                if (tagList.length === 0) return null
-
-                const COLORS = [
-                  "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-800",
-                  "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-800",
-                  "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800",
-                  "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-800",
-                  "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-800",
-                  "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-950 dark:text-cyan-300 dark:border-cyan-800",
-                ]
-
-                return (
-                  <div className="flex flex-wrap gap-1.5 mt-1">
-                    {tagList.map((tag, i) => (
-                      <span
-                        key={tag}
-                        className={`px-2 py-0.5 text-[11px] rounded border ${COLORS[i % COLORS.length]}`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )
-              })()}
-            </div>
+            <ArticleMetadata metadata={metadata} variant="stacked" />
           </div>
         )}
 

@@ -31,12 +31,20 @@ export default function ArticleClient({
   const articlePath = params.article.join("/")
 
   if (isDirectory) {
+    const dirUrl = `https://pensine.nebula.li/${params.article.map(encodeURIComponent).join("/")}`
+    const dirName = params.article[params.article.length - 1]
     const jsonLd = {
       "@context": "https://schema.org",
       "@type": "CollectionPage",
-      name: `${params.article[params.article.length - 1]} Directory`,
-      description: `Browse the ${params.article[params.article.length - 1]} section of the Pensine knowledge base.`,
-      url: `https://pensine.nebula.li/${articlePath}`,
+      name: `${dirName} Directory`,
+      description: `Browse the ${dirName} section of the Pensine knowledge base.`,
+      url: dirUrl,
+      inLanguage: "fr",
+      isPartOf: {
+        "@type": "WebSite",
+        name: "Pensine - Garden of Knowledge",
+        url: "https://pensine.nebula.li",
+      },
       breadcrumb: {
         "@type": "BreadcrumbList",
         itemListElement: [
@@ -50,7 +58,7 @@ export default function ArticleClient({
             "@type": "ListItem",
             position: index + 2,
             name: segment,
-            item: `https://pensine.nebula.li/${params.article.slice(0, index + 1).join("/")}`,
+            item: `https://pensine.nebula.li/${params.article.slice(0, index + 1).map(encodeURIComponent).join("/")}`,
           })),
         ],
       },
@@ -69,6 +77,27 @@ export default function ArticleClient({
 
   const formattedPath = sanitizePath(post.path)
   const pathSegments = formattedPath.split("/").filter(Boolean)
+  const articleUrl = `https://pensine.nebula.li/${params.article.map(encodeURIComponent).join("/")}`
+
+  // Pull tags / domain from frontmatter for richer schema.org metadata.
+  const frontTags = (() => {
+    const raw = post.metadata?.["tags"]
+    if (!raw) return [] as string[]
+    if (Array.isArray(raw)) return raw.map((t) => String(t).trim()).filter(Boolean)
+    const s = String(raw).trim()
+    const inner = s.startsWith("[") && s.endsWith("]") ? s.slice(1, -1) : s
+    return inner.split(",").map((t) => t.trim().replace(/^["']|["']$/g, "")).filter(Boolean)
+  })()
+  const keywords = [...frontTags, ...pathSegments.map((s) => s.replace(/[-_]/g, " "))]
+  // Rough word count from the markdown body — used as a quality signal by
+  // search engines for long-form content (`wordCount` schema.org property).
+  const wordCount = post.body
+    ? post.body
+        .replace(/```[\s\S]*?```/g, " ")
+        .replace(/[#>*`_~\[\]()!-]/g, " ")
+        .split(/\s+/)
+        .filter(Boolean).length
+    : undefined
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -76,14 +105,28 @@ export default function ArticleClient({
     headline: post.title,
     description: post.excerpt || `Learn about ${post.title}`,
     author: { "@type": "Person", name: "Martin" },
-    publisher: { "@type": "Organization", name: "Nebula" },
+    publisher: {
+      "@type": "Organization",
+      name: "Nebula",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://pensine.nebula.li/android-chrome-512x512.png",
+        width: 512,
+        height: 512,
+      },
+    },
+    image: "https://pensine.nebula.li/opengraph-image.png",
     datePublished: post.date || new Date().toISOString(),
     dateModified: post.lastModified || new Date().toISOString(),
-    url: `https://pensine.nebula.li/${articlePath}`,
+    inLanguage: "fr",
+    url: articleUrl,
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `https://pensine.nebula.li/${articlePath}`,
+      "@id": articleUrl,
     },
+    ...(keywords.length > 0 && { keywords: keywords.join(", ") }),
+    ...(wordCount && wordCount > 0 && { wordCount }),
+    ...(pathSegments.length > 0 && { articleSection: pathSegments[0] }),
     breadcrumb: {
       "@type": "BreadcrumbList",
       itemListElement: [
@@ -97,7 +140,7 @@ export default function ArticleClient({
           "@type": "ListItem",
           position: index + 2,
           name: segment,
-          item: `https://pensine.nebula.li/${pathSegments.slice(0, index + 1).join("/")}`,
+          item: `https://pensine.nebula.li/${pathSegments.slice(0, index + 1).map(encodeURIComponent).join("/")}`,
         })),
       ],
     },

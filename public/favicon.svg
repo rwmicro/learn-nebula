@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Pensine">
+  <style>
+    .bg { fill: #000000; }
+    .fg { fill: #ffffff; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #ffffff; }
+      .fg { fill: #000000; }
+    }
+  </style>
+  <rect class="bg" width="64" height="64" rx="12" ry="12"/>
+  <path class="fg" d="M20 14h16c8.837 0 16 7.163 16 16s-7.163 16-16 16h-8v12h-8V14zm8 24h8c4.418 0 8-3.582 8-8s-3.582-8-8-8h-8v16z"/>
+</svg>

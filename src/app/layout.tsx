@@ -26,7 +26,12 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  themeColor: "#000000",
+  viewportFit: "cover",
+  colorScheme: "dark light",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#000000" },
+  ],
 }
 
 export const metadata: Metadata = {
@@ -92,10 +97,16 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
     ],
+    shortcut: ["/favicon.ico"],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    other: [
+      { rel: "mask-icon", url: "/favicon.svg", color: "#000000" },
+    ],
   },
   manifest: "/site.webmanifest",
   appleWebApp: {
@@ -149,13 +160,14 @@ export default function RootLayout({
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <link rel="canonical" href={siteConfig.url} />
+        <link rel="preconnect" href="https://assets.nebula.li" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://assets.nebula.li" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <meta name="generator" content="Next.js" />
         <meta name="rating" content="general" />
         <meta name="apple-mobile-web-app-title" content="Pensine" />
       </head>
-      <body className="bg-[var(--c-bg)] text-[var(--c-text-1)] h-screen overflow-hidden flex flex-col">
+      <body className="bg-[var(--c-bg)] text-[var(--c-text-1)] h-dvh overflow-hidden flex flex-col">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

@@ -1,6 +1,6 @@
 "use client"
+import Link from "next/link"
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import Breadcrumb from "./breadcrumb"
 import { decodePathFromUrl, buildNavigationPath } from "@/lib/tools"
 import { logger } from "@/lib/logger"
@@ -14,7 +14,6 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
   const [files, setFiles] = useState<FileItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
 
   const decodedDirectoryPath = decodePathFromUrl(directoryPath)
 
@@ -41,32 +40,6 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
       cancelled = true
     }
   }, [decodedDirectoryPath])
-
-  const handleFileClick = (filePath: string) => {
-    try {
-      const navigationPath = buildNavigationPath(filePath)
-      router.push(navigationPath)
-    } catch (error) {
-      logger.error("Error navigating to file", { 
-        error: error instanceof Error ? error.message : String(error),
-        filePath 
-      })
-      setError("Error navigating to file")
-    }
-  }
-
-  const handleDirectoryClick = (dirPath: string) => {
-    try {
-      const navigationPath = buildNavigationPath(dirPath)
-      router.push(navigationPath)
-    } catch (error) {
-      logger.error("Error navigating to directory", { 
-        error: error instanceof Error ? error.message : String(error),
-        dirPath 
-      })
-      setError("Error navigating to directory")
-    }
-  }
 
   const getFileIcon = (type: string, isDirectory: boolean) => {
     if (isDirectory) return "📁"
@@ -100,9 +73,9 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
 
   if (loading) {
     return (
-      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
+      <div className="w-full pt-0 px-4 sm:px-6 md:px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
         <Breadcrumb formattedPath={directoryPath} />
-        <h2 className="text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">Directory Contents</h2>
+        <h2 className="text-2xl sm:text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">Directory Contents</h2>
         <div className="flex items-center justify-center py-8">
           <div className="animate-pulse">
             <div className="text-[var(--c-text-3)]">Loading directory contents...</div>
@@ -114,9 +87,9 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
 
   if (error) {
     return (
-      <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
+      <div className="w-full pt-0 px-4 sm:px-6 md:px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
         <Breadcrumb formattedPath={directoryPath} />
-        <h2 className="text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">Directory Contents</h2>
+        <h2 className="text-2xl sm:text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">Directory Contents</h2>
         <div className="text-red-500 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-900/30">
           <h3 className="font-semibold mb-2">Error</h3>
           <p className="text-sm">{error}</p>
@@ -132,9 +105,9 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
   }
 
   return (
-    <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
+    <div className="w-full pt-0 px-4 sm:px-6 md:px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
       <Breadcrumb formattedPath={directoryPath} />
-      <h2 className="text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">Directory Contents</h2>
+      <h2 className="text-2xl sm:text-3xl text-left font-medium py-2 text-[var(--c-text-1)]">Directory Contents</h2>
 
       {files.length === 0 ? (
         <div className="text-[var(--c-text-3)] p-4 bg-[var(--c-surface)] rounded-lg border border-[var(--c-border)]">
@@ -143,12 +116,11 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mt-6">
           {files.map((file) => (
-            <button
+            <Link
               key={file.path}
+              href={buildNavigationPath(file.path)}
               className="bg-[var(--c-surface)] p-4 rounded-lg border border-[var(--c-border)] hover:border-[var(--c-text-3)] transition-all cursor-pointer group text-left w-full"
-              onClick={() => (file.isDirectory ? handleDirectoryClick(file.path) : handleFileClick(file.path))}
               aria-label={`${file.isDirectory ? 'Open directory' : 'Open file'}: ${file.name}`}
-              type="button"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl group-hover:scale-110 transition-transform">
@@ -166,7 +138,7 @@ export default function DirectoryView({ directoryPath }: DirectoryViewProps) {
                   )}
                 </div>
               </div>
-            </button>
+            </Link>
           ))}
         </div>
       )}

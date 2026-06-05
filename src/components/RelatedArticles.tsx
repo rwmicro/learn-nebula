@@ -1,7 +1,7 @@
 "use client"
 
+import Link from "next/link"
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import { buildNavigationPath } from "@/lib/tools"
 import { logger } from "@/lib/logger"
 import { listDirectory, loadBacklinks, type DirectoryEntry as FileItem } from "@/lib/pensine-index"
@@ -32,7 +32,6 @@ export default function RelatedArticles({ currentPath }: RelatedArticlesProps) {
   const [siblings, setSiblings] = useState<FileItem[]>([])
   const [backlinks, setBacklinks] = useState<Backlink[]>([])
   const [folderName, setFolderName] = useState("")
-  const router = useRouter()
 
   useEffect(() => {
     const withoutLeading = currentPath.replace(/^\//, "")
@@ -81,11 +80,10 @@ export default function RelatedArticles({ currentPath }: RelatedArticlesProps) {
           </p>
           <div className="flex flex-col">
             {backlinks.map((b) => (
-              <button
+              <Link
                 key={b.path}
-                type="button"
-                onClick={() => router.push(buildNavigationPath(b.path))}
-                className="group flex items-center gap-4 py-3 border-b border-[var(--c-border)] hover:translate-x-1 transition-transform duration-150 text-left"
+                href={buildNavigationPath(b.path)}
+                className="group flex items-center gap-4 py-3 border-b border-[var(--c-border)] [@media(hover:hover)]:hover:translate-x-1 transition-transform duration-150 text-left"
               >
                 <span className="text-[var(--c-text-3)] font-mono text-[10px] uppercase tracking-widest w-10 shrink-0">
                   ←
@@ -96,7 +94,7 @@ export default function RelatedArticles({ currentPath }: RelatedArticlesProps) {
                 <span className="text-[var(--c-text-3)] group-hover:text-[var(--c-text-2)] transition-colors duration-150 text-sm">
                   →
                 </span>
-              </button>
+              </Link>
             ))}
           </div>
         </div>
@@ -114,11 +112,10 @@ export default function RelatedArticles({ currentPath }: RelatedArticlesProps) {
               const displayName = file.name.replace(/\.[^/.]+$/, "")
 
               return (
-                <button
+                <Link
                   key={file.path}
-                  type="button"
-                  onClick={() => router.push(buildNavigationPath(file.path))}
-                  className="group flex items-center gap-4 py-3 border-b border-[var(--c-border)] hover:translate-x-1 transition-transform duration-150 text-left"
+                  href={buildNavigationPath(file.path)}
+                  className="group flex items-center gap-4 py-3 border-b border-[var(--c-border)] [@media(hover:hover)]:hover:translate-x-1 transition-transform duration-150 text-left"
                 >
                   <span className="text-[var(--c-text-3)] font-mono text-[10px] uppercase tracking-widest w-10 shrink-0">
                     {label}
@@ -129,7 +126,7 @@ export default function RelatedArticles({ currentPath }: RelatedArticlesProps) {
                   <span className="text-[var(--c-text-3)] group-hover:text-[var(--c-text-2)] transition-colors duration-150 text-sm">
                     →
                   </span>
-                </button>
+                </Link>
               )
             })}
           </div>
