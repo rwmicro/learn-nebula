@@ -38,7 +38,7 @@ export class ErrorBoundary extends Component<Props, State> {
       }
 
       return (
-        <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-[var(--c-bg)]">
+        <div className="flex flex-col items-center justify-center min-h-dvh p-4 bg-[var(--c-bg)]">
           <div className="max-w-md w-full bg-[var(--c-surface)] rounded-lg border border-[var(--c-border)] shadow-lg p-6">
             <h1 className="text-2xl font-bold text-red-500 mb-4">
               Something went wrong

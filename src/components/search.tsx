@@ -437,7 +437,13 @@ export default function Search({ tree: treeProp, fullWidth = false, hideTrigger 
                 id="search-input"
                 ref={inputRef}
                 className="flex-1 h-10 outline-none bg-transparent text-[var(--c-text-1)] placeholder-[var(--c-text-3)] text-base"
-                type="text"
+                type="search"
+                inputMode="search"
+                enterKeyHint="search"
+                autoCapitalize="off"
+                autoCorrect="off"
+                autoComplete="off"
+                spellCheck={false}
                 placeholder="Rechercher un fichier..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
@@ -536,7 +542,7 @@ export default function Search({ tree: treeProp, fullWidth = false, hideTrigger 
             <div
               id="search-results"
               ref={resultsRef}
-              className="flex flex-col overflow-y-auto max-h-[50vh] min-h-[200px]"
+              className="flex flex-col overflow-y-auto max-h-[50dvh] min-h-[200px]"
               role="listbox"
               aria-label="Search results"
             >

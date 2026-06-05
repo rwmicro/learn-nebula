@@ -518,8 +518,8 @@ export function GraphView({ currentPath, onClose }: GraphViewProps) {
               </g>
             </svg>
 
-            {/* Bottom-left legend */}
-            <div className="absolute bottom-3 left-3 flex flex-col gap-1.5 text-[11px] text-[var(--c-text-3)] bg-[var(--c-surface)]/80 backdrop-blur-sm rounded-md border border-[var(--c-border)] px-2.5 py-1.5">
+            {/* Bottom-left legend — bottom offset honors iOS safe area. */}
+            <div className="absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-[max(0.75rem,env(safe-area-inset-left))] flex flex-col gap-1.5 text-[11px] text-[var(--c-text-3)] bg-[var(--c-surface)]/80 backdrop-blur-sm rounded-md border border-[var(--c-border)] px-2.5 py-1.5">
               <div className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-full" style={{ background: "#da3434" }} />
                 <span>Article courant</span>
@@ -534,8 +534,8 @@ export function GraphView({ currentPath, onClose }: GraphViewProps) {
               </div>
             </div>
 
-            {/* Bottom-right controls + hint */}
-            <div className="absolute bottom-3 right-3 flex items-center gap-2 text-[11px] text-[var(--c-text-3)] bg-[var(--c-surface)]/80 backdrop-blur-sm rounded-md border border-[var(--c-border)] px-2.5 py-1.5">
+            {/* Bottom-right controls + hint — bottom offset honors iOS safe area. */}
+            <div className="absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] right-[max(0.75rem,env(safe-area-inset-right))] flex items-center gap-2 text-[11px] text-[var(--c-text-3)] bg-[var(--c-surface)]/80 backdrop-blur-sm rounded-md border border-[var(--c-border)] px-2.5 py-1.5">
               <kbd className="px-1.5 py-0.5 font-mono bg-[var(--c-surface-hover)] border border-[var(--c-border)] rounded text-[10px]">drag</kbd>
               <span>déplacer un nœud</span>
               <span className="mx-1 opacity-40">·</span>

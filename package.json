@@ -15,6 +15,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "index": "node scripts/build-pensine-index.mjs",
+    "icons:regen": "node scripts/regen-icons.mjs",
     "sync:r2": "./scripts/sync-r2.sh",
     "hooks:install": "./scripts/install-hooks.sh"
   },
@@ -49,9 +50,11 @@
     "autoprefixer": "^10.4.19",
     "eslint": "^9",
     "eslint-config-next": "^16.1.6",
+    "png-to-ico": "^3.0.1",
     "postcss": "^8.4.38",
     "prettier": "^3.2.5",
     "tailwindcss": "^4.1.8",
+    "to-ico": "^1.1.5",
     "typescript": "^5"
   },
   "repository": {

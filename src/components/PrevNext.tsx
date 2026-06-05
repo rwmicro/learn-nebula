@@ -1,6 +1,6 @@
 "use client"
+import Link from "next/link"
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
 import { buildNavigationPath } from "@/lib/tools"
 import { logger } from "@/lib/logger"
 import { listDirectory, type DirectoryEntry as FileItem } from "@/lib/pensine-index"
@@ -8,7 +8,6 @@ import { listDirectory, type DirectoryEntry as FileItem } from "@/lib/pensine-in
 export function PrevNext({ currentPath }: { currentPath: string }) {
   const [prev, setPrev] = useState<FileItem | null>(null)
   const [next, setNext] = useState<FileItem | null>(null)
-  const router = useRouter()
 
   useEffect(() => {
     const load = async () => {
@@ -40,10 +39,10 @@ export function PrevNext({ currentPath }: { currentPath: string }) {
   return (
     <div className="mt-12 pt-8 border-t border-[var(--c-border)] flex justify-between gap-4">
       {prev ? (
-        <button
-          onClick={() => router.push(buildNavigationPath(prev.path))}
+        <Link
+          href={buildNavigationPath(prev.path)}
           className="group flex items-center gap-3 text-left max-w-[45%]"
-          type="button"
+          rel="prev"
         >
           <span className="text-[var(--c-text-3)] group-hover:text-[var(--c-text-2)] transition-colors text-lg">←</span>
           <div className="min-w-0">
@@ -52,13 +51,13 @@ export function PrevNext({ currentPath }: { currentPath: string }) {
               {prev.name.replace(/\.[^/.]+$/, "")}
             </p>
           </div>
-        </button>
+        </Link>
       ) : <div />}
       {next ? (
-        <button
-          onClick={() => router.push(buildNavigationPath(next.path))}
+        <Link
+          href={buildNavigationPath(next.path)}
           className="group flex items-center gap-3 text-right max-w-[45%] ml-auto"
-          type="button"
+          rel="next"
         >
           <div className="min-w-0">
             <p className="text-[10px] uppercase tracking-widest text-[var(--c-text-3)] mb-0.5">Suivant</p>
@@ -67,7 +66,7 @@ export function PrevNext({ currentPath }: { currentPath: string }) {
             </p>
           </div>
           <span className="text-[var(--c-text-3)] group-hover:text-[var(--c-text-2)] transition-colors text-lg">→</span>
-        </button>
+        </Link>
       ) : <div />}
     </div>
   )

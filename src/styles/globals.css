@@ -24,6 +24,33 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
   scroll-margin-top: 1rem;
 }
 
+/* Accessible keyboard focus ring (WCAG 2.4.7 / 2.4.11).
+ * Applies only on keyboard navigation thanks to :focus-visible;
+ * mouse clicks don't trigger the ring. */
+:focus-visible {
+  outline: 2px solid var(--c-accent, #3b82f6);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+/* Suppress non-keyboard focus outline that some UAs still draw. */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Respect the user's motion preference globally. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Better word-breaking for long URLs / code in narrow viewports. */
+img, picture, svg, video, canvas { max-width: 100%; height: auto; }
+img { font-style: italic; } /* shows alt nicely if image fails */
+
 /* Scroll-driven entrance animations (CSS-only, no JS scroll listener).
  * Supported natively in evergreen browsers since 2024; degrades gracefully
  * to "always visible" when unsupported. */
@@ -52,6 +79,7 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
   --c-text-3: #9c9a92;
   --c-sidebar: #f5f4ed;
   --code-block-bg: #f0eee6;
+  --c-accent: #2563eb;
 }
 
 .dark {
@@ -64,6 +92,7 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
   --c-text-3: #404040;
   --c-sidebar: #0a0a0a;
   --code-block-bg: #121212;
+  --c-accent: #60a5fa;
 }
 
 /* Sepia variant — kindle-like warm tones, lower contrast than light mode,
@@ -78,6 +107,7 @@ h1[id], h2[id], h3[id], h4[id], h5[id], h6[id] {
   --c-text-3: #9a8763;
   --c-sidebar: #ece2c8;
   --code-block-bg: #e2d6b6;
+  --c-accent: #8b5e34;
   color-scheme: light;
 }
 
@@ -255,4 +285,125 @@ pre {
   margin-left: -8px;
   color: rgb(156, 163, 175); /* Line number color */
   content: attr(line);
+}
+
+/* ============================================================================
+ * Print styles — strip the app chrome (header, sidebar, TOC, fixed controls)
+ * and render the article as clean black-on-white prose suitable for paper /
+ * PDF export. Tested against Chrome/Edge/Safari print preview.
+ * ========================================================================== */
+@media print {
+  /* Force light, high-contrast palette regardless of the theme. */
+  :root, .dark, .sepia {
+    --c-bg: #ffffff;
+    --c-surface: #ffffff;
+    --c-surface-hover: #f4f4f4;
+    --c-border: #cccccc;
+    --c-sidebar: #ffffff;
+    --c-text-1: #000000;
+    --c-text-2: #1a1a1a;
+    --c-text-3: #555555;
+    --code-block-bg: #f6f6f6;
+    color-scheme: light;
+  }
+
+  html, body {
+    height: auto !important;
+    overflow: visible !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  /* Hide application chrome. Targets components by id/class/role so the
+   * markup doesn't need print-specific classes everywhere. */
+  header,
+  #main-header,
+  nav[aria-label],
+  #search,
+  [role="dialog"],
+  .skip-link,
+  aside,
+  [aria-label="Toggle table of contents"],
+  /* Hide the persistent left sidebar (FileTree) and the right-hand TOC. */
+  body > div > div > div.hidden,
+  /* Fixed UI widgets: back-to-top, graph overlay, search, hamburger. */
+  .fixed,
+  [class*="z-["],
+  /* Buttons that don't translate to paper (theme toggle, prefs, etc.). */
+  [aria-label="Préférences de lecture"],
+  [aria-label="Keyboard shortcuts"],
+  [aria-label*="theme"],
+  [aria-label*="Theme"] {
+    display: none !important;
+  }
+
+  /* Main article container: full width, no scroll, generous margins. */
+  main,
+  main > *,
+  article {
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    height: auto !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  article {
+    font-size: 11pt;
+    line-height: 1.55;
+  }
+
+  /* Keep headings on the same page as their first paragraph. */
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+    break-after: avoid;
+    color: #000 !important;
+  }
+
+  /* Avoid splitting paragraphs / list items / figures across pages. */
+  p, li, blockquote, pre, figure, table {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Expand abbreviations and show link URLs in print (helpful for offline). */
+  a[href]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.85em;
+    color: #555;
+    word-break: break-all;
+  }
+  a[href^="#"]::after,
+  a[href^="javascript:"]::after {
+    content: "";
+  }
+
+  /* Code blocks: keep monospace, lighten the background so ink isn't wasted. */
+  pre, code {
+    background: #f6f6f6 !important;
+    color: #000 !important;
+    border: 1px solid #ddd !important;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  /* Images: never larger than the page; no shadows / borders. */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Reasonable @page margins (standard A4 / Letter prints). */
+  @page {
+    margin: 18mm 16mm;
+  }
 }

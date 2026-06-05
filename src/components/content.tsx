@@ -64,9 +64,9 @@ export default function Content({ post, formattedPath }: ContentProps) {
 
   // Fallback for unsupported types
   return (
-    <div className="w-full p-4 pt-0 px-10 xl:px-20 pb-5 overflow-scroll h-full bg-[var(--c-bg)]">
+    <div className="w-full pt-0 px-4 sm:px-6 md:px-10 xl:px-20 pb-5 overflow-auto h-full bg-[var(--c-bg)]">
       <Breadcrumb formattedPath={formattedPath} />
-      <h2 className="text-3xl text-center sm:text-left font-medium py-2 text-[var(--c-text-1)]" aria-label={post.title}>
+      <h2 className="text-2xl sm:text-3xl text-center sm:text-left font-medium py-2 text-[var(--c-text-1)] break-words" aria-label={post.title}>
         {post.title}
       </h2>
       <div className="text-red-500 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">

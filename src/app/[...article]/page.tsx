@@ -30,9 +30,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (isDir) {
       const last = article[article.length - 1]
+      const dirCanonical = `https://pensine.nebula.li/${article.map(encodeURIComponent).join("/")}`
+      const dirDescription = `Browse the ${last} section of the Pensine knowledge base.`
       return {
         title: `${last} Directory`,
-        description: `Browse the ${last} section of the Pensine knowledge base.`,
+        description: dirDescription,
+        alternates: { canonical: dirCanonical },
+        openGraph: {
+          title: `${last} | Pensine`,
+          description: dirDescription,
+          type: "website",
+          url: dirCanonical,
+        },
+        twitter: {
+          title: `${last} | Pensine`,
+          description: dirDescription,
+          card: "summary_large_image",
+        },
         robots: {
           index: true,
           follow: true,
