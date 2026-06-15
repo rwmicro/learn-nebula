@@ -11,7 +11,7 @@ type ScrollPositions = Record<string, { y: number; t: number }>
 
 export interface ReadingPrefs {
   fontSize: "compact" | "normal" | "large"
-  theme: "system" | "dark" | "light" | "sepia"
+  theme: "system" | "dark" | "light" | "sepia" | "editorial"
   focusMode: boolean
   bionic: boolean
 }

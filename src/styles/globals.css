@@ -1,6 +1,19 @@
 @import "tailwindcss";
 @import './code-themes.css';
 
+/* Editorial theme fonts — loaded only as @fontsource bundles so the woff2
+ * files end up in the static export; the .editorial class actually swaps
+ * font-family below. Variable axis (400–900) keeps the bundle compact. */
+@import "@fontsource/alegreya/latin-400.css";
+@import "@fontsource/alegreya/latin-500.css";
+@import "@fontsource/alegreya/latin-italic.css";
+@import "@fontsource/alegreya-sc/latin-500.css";
+@import "@fontsource/alegreya-sc/latin-700.css";
+@import "@fontsource/alegreya-sans/latin-400.css";
+@import "@fontsource/alegreya-sans/latin-700.css";
+@import "@fontsource/inconsolata/latin-400.css";
+@import "@fontsource/inconsolata/latin-500.css";
+
 /* Enable class-based dark mode for next-themes */
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -93,6 +106,282 @@ img { font-style: italic; } /* shows alt nicely if image fails */
   --c-sidebar: #0a0a0a;
   --code-block-bg: #121212;
   --c-accent: #60a5fa;
+}
+
+/* ============================================================================
+ * Editorial theme — Tufte-inspired serif aesthetic adapted from
+ * david.alvarezrosa.com. Off-white background, near-black text, navy links,
+ * oxblood code & numeric notes. Triggered by `.editorial` on <html>. The
+ * theme assumes a light color-scheme and overrides typography inside <article>
+ * so the app shell (sidebar, header) stays Geist-sans for utility.
+ * ========================================================================== */
+.editorial {
+  --c-bg: #fcfcfc;
+  --c-surface: #f7f7f5;
+  --c-surface-hover: #efeeea;
+  --c-border: #d8d4cc;
+  --c-text-1: #111111;
+  --c-text-2: #2a2a2a;
+  --c-text-3: #6a6a6a;
+  --c-sidebar: #f7f7f5;
+  --code-block-bg: #f6f6f3;
+  --c-accent: #003366;
+  --c-editorial-link: #003366;
+  --c-editorial-link-hover-bg: #f0f7ff;
+  --c-editorial-accent: #660000;
+  --c-editorial-rule: #111111;
+  color-scheme: light;
+}
+
+/* Editorial mode applies the serif typography to the WHOLE site, not just the
+ * article body. We override at the `body` level so it cascades into the
+ * sidebar, header, search, modals, etc. The Geist class on <html> sets the
+ * font via CSS variable, but a direct font-family on body (more specific)
+ * wins. */
+.editorial body,
+html.editorial body {
+  font-family: "Alegreya", Georgia, "Times New Roman", serif;
+  font-weight: 440;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+/* UI controls (buttons, inputs, kbd, nav links) → companion sans for legibility
+ * at small sizes. Tables and form widgets follow David's choice. */
+.editorial button,
+.editorial input,
+.editorial textarea,
+.editorial select,
+.editorial kbd,
+.editorial nav,
+.editorial [role="dialog"] button,
+.editorial [data-toc-sidebar] {
+  font-family: "Alegreya Sans", "Helvetica Neue", system-ui, sans-serif;
+}
+
+/* Monospace surfaces stay Inconsolata, even outside <article>. */
+.editorial code,
+.editorial pre,
+.editorial kbd.font-mono,
+.editorial .font-mono {
+  font-family: "Inconsolata", ui-monospace, SFMono-Regular, Menlo, monospace !important;
+}
+
+/* Article typography refinements — keep the dedicated rules so the prose
+ * column gets `hyphens: auto` and old-style figures, which we don't want
+ * everywhere (e.g. numeric kbd labels). */
+.editorial article {
+  font-family: "Alegreya", Georgia, "Times New Roman", serif;
+  font-weight: 440;
+  color: var(--c-text-1);
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1, "onum" 1;
+}
+
+.editorial article p,
+.editorial article li,
+.editorial article dd {
+  line-height: 1.6;
+}
+
+.editorial article h1,
+.editorial article h2,
+.editorial article h3,
+.editorial article h4,
+.editorial article h5,
+.editorial article h6 {
+  font-family: "Alegreya", Georgia, serif;
+  color: var(--c-text-1);
+}
+
+/* The signature H1: heavy ruled border on top, low font-weight, line-height 1
+ * — straight from David's site. */
+.editorial article h1 {
+  border-top: 1px solid var(--c-editorial-rule);
+  padding-top: 0.4rem;
+  font-weight: 420;
+  margin-top: 0.5rem;
+  margin-bottom: 1.8rem;
+  line-height: 1;
+}
+
+/* H2: small-caps lowercase — the most distinctive Tufte choice. */
+.editorial article h2 {
+  font-family: "Alegreya SC", Georgia, serif;
+  font-weight: 700;
+  text-transform: lowercase;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-top: 2.2rem;
+  margin-bottom: 0.6rem;
+}
+
+.editorial article h3 {
+  font-family: "Alegreya SC", Georgia, serif;
+  font-weight: 500;
+  text-transform: lowercase;
+  letter-spacing: -0.01em;
+}
+
+.editorial article h4,
+.editorial article h5,
+.editorial article h6 {
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Links: deep navy, no underline by default, soft pale-blue background pad
+ * on hover. Matches David's site exactly. */
+.editorial article a,
+.editorial article a:visited {
+  color: var(--c-editorial-link);
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+.editorial article a:hover,
+.editorial article a:focus-visible {
+  background: var(--c-editorial-link-hover-bg);
+  box-shadow: 0 0 0 2px var(--c-editorial-link-hover-bg);
+}
+
+/* Inline code: Inconsolata monospace, oxblood — a strong visual signal. */
+.editorial article code:not(.chroma code):not(pre code) {
+  font-family: "Inconsolata", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 530;
+  color: var(--c-editorial-accent);
+  letter-spacing: -0.01em;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: 0.95em;
+}
+
+/* Code blocks: light bg, thin left rule (Tufte/Modus Operandi). */
+.editorial article pre {
+  background: var(--code-block-bg) !important;
+  border: 1px solid var(--c-border) !important;
+  border-left: 3px solid var(--c-border) !important;
+  border-radius: 0;
+  color: var(--c-text-1);
+}
+.editorial article pre code {
+  font-family: "Inconsolata", ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--c-text-1);
+}
+
+/* Tables: only top + bottom rules — classic typographic style. */
+.editorial article table {
+  font-family: "Alegreya Sans", "Helvetica Neue", system-ui, sans-serif;
+  border: 0 !important;
+  border-block: 2px solid var(--c-editorial-rule) !important;
+  border-collapse: collapse;
+  border-radius: 0;
+}
+.editorial article table tbody tr:first-child td {
+  border-top: 1px solid var(--c-editorial-rule);
+  padding-top: 0.6rem;
+}
+.editorial article table th,
+.editorial article table td {
+  background: transparent !important;
+  border: 0 !important;
+}
+.editorial article table th {
+  font-weight: 700;
+  text-align: left;
+}
+
+/* Footnote markers (<sup>) become oxblood numerals — same as David's sup. */
+.editorial article sup {
+  color: var(--c-editorial-accent);
+  line-height: 0;
+}
+
+/* Blockquote: italic, thin gray rule — restrained. */
+.editorial article blockquote {
+  font-style: italic;
+  border-left: 2px solid var(--c-border) !important;
+  color: var(--c-text-2);
+}
+
+/* Strong / em with serifs reads better at semi-bold than fully bold. */
+.editorial article strong { font-weight: 700; }
+.editorial article em { font-style: italic; font-weight: inherit; }
+
+/* ── Tufte sidenotes ──────────────────────────────────────────────────────
+ * Footnotes are lifted out of the bottom <section data-footnotes> by a client
+ * effect (MarkdownViewer.tsx) and re-inserted next to their reference as
+ * <aside class="sidenote">. Here we float them into the right margin.
+ *
+ * The sidenote gutter only exists at xl+ widths (≥1280 px) — at narrower
+ * sizes we fall back to inline boxed asides so we don't break the layout. */
+.editorial article aside.sidenote {
+  display: block;
+  font-family: "Alegreya Sans", "Helvetica Neue", system-ui, sans-serif;
+  font-size: 0.82em;
+  line-height: 1.45;
+  color: var(--c-text-2);
+}
+.editorial article aside.sidenote .sidenote-num {
+  color: var(--c-editorial-accent);
+  font-weight: 700;
+  margin-right: 0.3em;
+}
+
+/* The desktop TOC steals the gutter we need for marginalia. Hide it in
+ * editorial mode — the article's metadata mobile block (already wired into
+ * MarkdownViewer) still surfaces the same content above the prose. */
+.editorial [data-toc-sidebar] {
+  display: none !important;
+}
+/* Show the inline mobile metadata in editorial mode even at lg+ to compensate
+ * for the hidden TOC (which is where it normally lives on desktop). */
+.editorial [data-article-metadata] {
+  display: flex !important;
+}
+
+/* xl+: floating marginalia. Requires the article container to leave room — we
+ * compensate by tightening `.editorial article` max-width at this breakpoint. */
+@media (min-width: 1280px) {
+  .editorial article {
+    /* Reserve a 20rem gutter to the right of the prose column for sidenotes. */
+    margin-right: 22rem;
+  }
+  .editorial article aside.sidenote {
+    float: right;
+    clear: right;
+    width: 19rem;
+    margin-right: -22rem;
+    margin-top: 0.2rem;
+    margin-bottom: 0.4rem;
+    padding-left: 0.4rem;
+    border-left: 1px solid var(--c-border);
+  }
+}
+
+/* < xl: keep sidenotes inline as small boxed asides. */
+@media (max-width: 1279px) {
+  .editorial article aside.sidenote {
+    margin: 0.6rem 0;
+    padding: 0.45rem 0.7rem;
+    border: 1px solid var(--c-border);
+    border-left: 3px solid var(--c-border);
+    background: var(--c-surface);
+  }
+}
+
+/* Hide the auto-generated bottom footnotes block — they're now in the margin. */
+.editorial article section[data-footnotes],
+.editorial article section.footnotes {
+  display: none;
+}
+
+/* Selection: pale blue, dark text (Tufte standard). */
+.editorial ::selection {
+  background: #d8e8ff;
+  color: #08111c;
 }
 
 /* Sepia variant — kindle-like warm tones, lower contrast than light mode,

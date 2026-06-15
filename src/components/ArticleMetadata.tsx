@@ -50,7 +50,7 @@ export default function ArticleMetadata({ metadata, variant = "stacked", classNa
 
   if (variant === "inline") {
     return (
-      <div className={`flex flex-wrap items-center gap-1.5 ${className}`}>
+      <div data-article-metadata className={`flex flex-wrap items-center gap-1.5 ${className}`}>
         {scalars.map(({ key, val }) => (
           <span
             key={key}

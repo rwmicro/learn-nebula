@@ -16,9 +16,14 @@ export function ReadingPrefsApplier() {
     root.dataset.focus = prefs.focusMode ? "on" : "off"
     root.dataset.bionic = prefs.bionic ? "on" : "off"
     root.classList.toggle("sepia", prefs.theme === "sepia")
+    // Editorial is a Tufte-inspired serif theme. It piggybacks on the "light"
+    // next-themes color scheme but swaps the typography + palette via a
+    // dedicated CSS class so the existing dark/light infra stays unchanged.
+    root.classList.toggle("editorial", prefs.theme === "editorial")
 
     if (prefs.theme === "dark" && resolvedTheme !== "dark") setTheme("dark")
     if (prefs.theme === "light" && resolvedTheme !== "light") setTheme("light")
+    if (prefs.theme === "editorial" && resolvedTheme !== "light") setTheme("light")
   }, [prefs, resolvedTheme, setTheme])
 
   return null
@@ -83,17 +88,18 @@ export function ReadingPrefsButton() {
           {/* Theme */}
           <div className="mb-4">
             <label className="block text-xs text-[var(--c-text-3)] mb-1.5">Thème</label>
-            <div className="flex gap-1 rounded-lg bg-[var(--c-surface-hover)] p-0.5">
-              {(["dark", "light", "sepia"] as const).map((t) => (
+            <div className="grid grid-cols-2 gap-1 rounded-lg bg-[var(--c-surface-hover)] p-0.5">
+              {(["dark", "light", "sepia", "editorial"] as const).map((t) => (
                 <button
                   key={t}
                   onClick={() => update({ theme: t })}
-                  className={`flex-1 px-2 py-1.5 text-xs rounded-md transition-colors capitalize ${
+                  className={`px-2 py-1.5 text-xs rounded-md transition-colors capitalize ${
                     prefs.theme === t
                       ? "bg-[var(--c-bg)] text-[var(--c-text-1)] font-medium"
                       : "text-[var(--c-text-2)] hover:text-[var(--c-text-1)]"
                   }`}
                   type="button"
+                  title={t === "editorial" ? "Style éditorial Tufte (serif Alegreya + sidenotes)" : undefined}
                 >
                   {t}
                 </button>

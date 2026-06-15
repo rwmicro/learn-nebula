@@ -81,6 +81,7 @@ export default function TOC({
 
   return (
     <div
+      data-toc-sidebar
       className={`hidden min-w-16 lg:block bg-[var(--c-bg)] overflow-hidden h-full border-l border-[var(--c-border)]
         transition-[width] duration-300 ease-in-out
         ${!isOpen ? "w-16" : "w-[22rem]"}`}
