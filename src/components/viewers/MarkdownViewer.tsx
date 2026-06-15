@@ -404,6 +404,61 @@ export default function MarkdownViewer({ post, formattedPath }: MarkdownViewerPr
     }
   }, [highlightTerm, markdownContent])
 
+  // Editorial-theme sidenotes: lift markdown footnotes (rendered by remark-gfm
+  // as a <section data-footnotes>...) into <aside.sidenote> blocks adjacent to
+  // their references, so the CSS can float them into the right margin (Tufte
+  // style). Skipped in any other theme. Re-runs whenever the markdown body or
+  // the active theme changes.
+  useEffect(() => {
+    if (typeof window === "undefined") return
+    const articleEl = articleRef.current
+    if (!articleEl) return
+
+    const apply = () => {
+      // Clean up any sidenotes we previously injected — keeps the DOM idempotent
+      // across renders / theme toggles.
+      articleEl.querySelectorAll("aside.sidenote[data-pensine-injected]").forEach((n) => n.remove())
+
+      if (!document.documentElement.classList.contains("editorial")) return
+
+      const refs = articleEl.querySelectorAll<HTMLElement>('[id^="user-content-fnref-"]')
+      if (refs.length === 0) return
+
+      refs.forEach((ref, i) => {
+        const link = ref.tagName === "A" ? ref : ref.querySelector("a[href^='#user-content-fn-']")
+        if (!link) return
+        const href = (link.getAttribute("href") || "").slice(1)
+        if (!href) return
+        const def = articleEl.querySelector(`[id='${CSS.escape(href)}']`)
+        if (!def) return
+
+        const clone = def.cloneNode(true) as HTMLElement
+        clone.querySelectorAll("a[href^='#user-content-fnref-']").forEach((a) => a.remove())
+
+        const aside = document.createElement("aside")
+        aside.className = "sidenote"
+        aside.setAttribute("data-pensine-injected", "true")
+        const num = document.createElement("span")
+        num.className = "sidenote-num"
+        num.textContent = String(i + 1)
+        aside.appendChild(num)
+        while (clone.firstChild) aside.appendChild(clone.firstChild)
+
+        // Insert after the <sup> wrapping the reference (or after the ref itself).
+        const supParent = ref.closest("sup") || ref
+        supParent.after(aside)
+      })
+    }
+
+    apply()
+
+    // Observe theme class changes on <html> so toggling editorial on/off
+    // immediately reflows the sidenotes without a page reload.
+    const observer = new MutationObserver(apply)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["class"] })
+    return () => observer.disconnect()
+  }, [markdownContent])
+
   const minutesRemaining = Math.max(0, Math.ceil(totalMinutes * (1 - scrollPct / 100)))
 
   return (
