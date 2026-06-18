@@ -1,0 +1,18 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# vault assets generated from content/posts at build time (copy-vault-images.mjs)
+/public/vault/
+
+# notes cloned from the external pensine repo at build time (fetch-notes.mjs)
+/content/posts/
+
+# typescript build info
+*.tsbuildinfo
+
+# misc
+.DS_Store
