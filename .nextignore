@@ -1,5 +1,0 @@
-# Files and directories to ignore during Next.js build
-public/articles/pensine/.git
-public/articles/pensine/.gitignore
-**/.git/**
-**/.DS_Store
