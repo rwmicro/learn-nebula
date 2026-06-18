@@ -1,0 +1,719 @@
+html {
+  font-size: 15px;
+}
+
+body {
+  margin: 4rem auto;
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-weight: 440;
+  background-color: #fcfcfc;
+  color: #111;
+  width: 100%;
+  max-width: 1080px;
+  counter-reset: margin-counter;
+}
+
+::selection {
+  background-color: #ffcf33; /* Couleur de l'arrière-plan (surlignage) */
+  color: #000000; /* Couleur du texte sélectionné */
+}
+
+/* Version pour les navigateurs Firefox */
+::-moz-selection {
+  background-color: #ffcf33;
+  color: #000000;
+}
+
+main,
+footer {
+  margin-left: 2rem;
+  margin-right: 26rem;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 2000;
+  background: #fff;
+  border: 1px solid #111;
+  padding: 0.5rem 1rem;
+  font-family: "Alegreya Sans", sans-serif;
+}
+
+.skip-link:focus {
+  left: 0.6rem;
+  top: 0.6rem;
+}
+
+h1 {
+  border-top: 1px solid #111;
+  padding-top: 0.4rem;
+  font-weight: 420;
+  margin-bottom: 2.2rem;
+  margin-top: 0;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+h2 {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02rem;
+  line-height: 1;
+  margin-bottom: 0.64rem;
+  margin-top: 2.4rem;
+  text-transform: lowercase;
+}
+
+.subtitle {
+  font-style: italic;
+  margin-bottom: 0.4rem;
+  font-size: 1.4rem;
+  display: block;
+  font-weight: lighter;
+}
+
+.signature {
+  display: block;
+  text-align: right;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-size: 1.4rem;
+}
+
+.figure-number {
+  display: none;
+}
+
+main p,
+main dd,
+main ul li,
+main ol li {
+  hyphens: auto;
+  font-size: 1.4rem;
+  line-height: 2rem;
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  padding-right: 0;
+}
+
+figcaption p {
+  margin-bottom: 0;
+}
+
+.site-nav ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 0.4rem;
+  margin-top: 4rem;
+  gap: 1.4rem;
+  display: flex;
+  align-items: center;
+}
+
+.site-nav li {
+  margin: 0 !important;
+  padding: 0;
+}
+
+.site-nav li a {
+  color: #111;
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+footer {
+  border-top: 1px solid #111;
+}
+
+footer p {
+  width: 100%;
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin: 0.6rem 0 !important;
+}
+
+figure {
+  margin: 0 auto 1.4rem auto;
+}
+
+table {
+  font-family: "Alegreya Sans", sans-serif;
+  border: none;
+  border-collapse: collapse;
+  font-size: 1.2rem;
+  border-block: 2px solid #111;
+  margin: 1.6rem auto;
+}
+
+table tbody tr:first-child td {
+  border-top: 1px solid #111;
+  padding-top: 0.6rem;
+}
+
+table th,
+table td {
+  padding: 0.5rem 1rem;
+}
+
+a {
+  color: #003366;
+  text-decoration: none;
+}
+
+a:hover {
+  background: #f0f7ff;
+  transition-property: background;
+  transition-duration: 0.2s;
+  border-radius: 4px;
+}
+
+main img {
+  max-width: 100%;
+  height: auto;
+  margin-top: 0.2rem;
+  cursor: zoom-in;
+}
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.lightbox[hidden] {
+  display: none;
+}
+
+.lb-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 3rem 4rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  cursor: zoom-out;
+}
+
+.lb-img {
+  max-width: 92vw;
+  max-height: 88vh;
+  margin: 0;
+  background: #fff;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  cursor: zoom-in;
+  touch-action: none;
+}
+
+.lb-btn {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  line-height: 1;
+  font-family: "Alegreya Sans", sans-serif;
+}
+
+.lb-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.lb-close {
+  top: 1rem;
+  right: 1rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  font-size: 1.8rem;
+}
+
+.lb-prev,
+.lb-next {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.8rem;
+  height: 4rem;
+  font-size: 2.4rem;
+}
+
+.lb-prev {
+  left: 0.6rem;
+}
+.lb-next {
+  right: 0.6rem;
+}
+
+.lb-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  gap: 1rem;
+  align-items: baseline;
+  padding: 0.6rem 1.2rem;
+  color: #eee;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 1.1rem;
+}
+
+.lb-count {
+  flex: none;
+  color: #bbb;
+}
+.lb-caption {
+  flex: 1;
+}
+
+sup {
+  color: #660000;
+  line-height: 0;
+}
+
+.side,
+figcaption {
+  float: right;
+  clear: right;
+  padding-top: 0.2rem;
+  margin-bottom: 0.2rem;
+  margin-right: -24rem;
+  width: 21rem;
+  position: relative;
+}
+
+.fullwidth {
+  margin-right: -24rem;
+  clear: right;
+  margin-top: 1.6rem;
+  margin-bottom: 1.6rem;
+}
+
+.fullwidth table {
+  width: 100%;
+  table-layout: fixed;
+  margin: 0;
+}
+
+.fullwidth img {
+  width: 100%;
+  height: auto;
+}
+
+.fullwidth figcaption {
+  float: none;
+  clear: both;
+  width: auto;
+  position: static;
+  margin: 0.4rem 0 0;
+  padding-top: 0;
+}
+
+.side,
+figcaption p {
+  font-size: 1.1rem;
+  line-height: 1.54rem;
+}
+
+.side code,
+figcaption p code {
+  font-size: 1.05rem !important;
+}
+
+.side img {
+  display: block;
+  margin-bottom: 0.4rem;
+  margin-top: 0;
+  height: auto;
+}
+
+.side sup:has(+ img),
+.side sup:has(+ a img),
+.side sup:has(+ figure),
+sup:has(+ .side img) {
+  display: none;
+}
+
+code {
+  font-family: "Inconsolata", monospace;
+  letter-spacing: -0.01rem;
+}
+
+code:not(.chroma code) {
+  font-weight: 530;
+  color: #660000;
+  font-size: 1.33rem;
+  overflow-wrap: anywhere;
+}
+
+.anchor {
+  padding: 0 0.4rem;
+  position: relative;
+  transition: opacity 0.2s;
+  opacity: 0;
+  font-size: 1.4rem;
+}
+.anchor::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  bottom: -12px;
+  left: -12px;
+  right: -12px;
+  background: transparent;
+  pointer-events: auto;
+}
+
+h2:hover .anchor,
+h2:focus-within .anchor {
+  opacity: 1;
+}
+
+.chroma {
+  font-size: 1.15rem;
+  overflow-x: auto;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-left: 3px solid #ccc;
+  background-color: inherit;
+}
+
+.katex {
+  font-size: 1.1em;
+}
+
+.katex-display {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Build-time SVG diagram (scripts/render-mermaid.mjs). */
+.mermaid-diagram {
+  margin: 1.6rem auto;
+  text-align: center;
+}
+
+.mermaid-diagram svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Diagram source mermaid couldn't parse (e.g. unquoted labels): shown flagged
+ * so it can be fixed, rather than silently hidden. */
+.mermaid {
+  font-family: "Inconsolata", monospace;
+  font-size: 1.05rem;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  margin: 1.6rem 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-left: 3px solid #c0392b;
+}
+
+.note-header {
+  font-size: 1.05rem;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.3rem;
+  margin-bottom: 1.4rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: baseline;
+}
+
+.note-header a {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  color: #111;
+}
+
+.note-header .crumbs {
+  color: #777;
+  font-size: 0.95rem;
+}
+
+.toc {
+  position: fixed;
+  top: 4rem;
+  right: max(1rem, calc((100vw - 1080px) / 2 + 1rem));
+  width: 20rem;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  padding-left: 0.6rem;
+  border-left: 1px solid #ccc;
+  font-size: 1.05rem;
+  line-height: 1.45;
+}
+
+.toc-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  margin: 0 0 0.3rem 0;
+}
+
+.toc ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: block;
+}
+
+.toc li {
+  margin: 0.12rem 0;
+  font-size: 1.05rem;
+  line-height: 1.4;
+}
+
+.toc .toc-h3 {
+  padding-left: 1rem;
+  font-size: 0.97rem;
+}
+
+.toc a {
+  color: #555;
+}
+
+.toc a.active {
+  color: #111;
+  font-weight: 700;
+}
+
+.siblings {
+  border-top: 1px solid #111;
+  margin-top: 2.6rem;
+  padding-top: 0.8rem;
+}
+
+.sib-arrows {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 1.15rem;
+}
+
+.sib-next {
+  text-align: right;
+  margin-left: auto;
+}
+
+.sib-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin: 0.4rem 0 0.3rem;
+}
+
+.siblings ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  columns: 2;
+  column-gap: 1.6rem;
+}
+
+.siblings li {
+  margin: 0.12rem 0;
+  font-size: 1.2rem;
+  break-inside: avoid;
+}
+
+.sib-current {
+  color: #777;
+}
+
+.note-search {
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 1.2rem;
+  padding: 0.35rem 0.6rem;
+  width: 100%;
+  max-width: 24rem;
+  border: 1px solid dimgray;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.pf-search {
+  margin-bottom: 1.6rem;
+}
+
+/* Sober styling for the search bar only — results keep the Pagefind default. */
+.pf-search .pagefind-ui__form {
+  max-width: 32rem;
+}
+
+.pf-search .pagefind-ui__search-input {
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 1.3rem;
+  font-weight: 400;
+  padding: 0.35rem 0.6rem;
+  color: #111;
+  background-color: #fcfcfc;
+  background-image: none; /* drop the magnifier icon */
+  border: 1px solid dimgray;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.pf-search .pagefind-ui__search-input::placeholder {
+  color: #777;
+  font-style: italic;
+}
+
+.pf-search .pagefind-ui__search-input:focus {
+  outline: 1px solid #003366;
+  outline-offset: 0;
+}
+
+.pf-search .pagefind-ui__search-clear {
+  background: transparent;
+  box-shadow: none;
+  color: #777;
+  font-family: "Alegreya Sans", sans-serif;
+  font-weight: 400;
+}
+
+.note-tree,
+.note-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.note-tree ul {
+  padding-left: 1.3rem;
+  margin-left: 0.35rem;
+  border-left: 1px solid #ddd;
+}
+
+.note-tree li {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  margin: 0.1rem 0;
+}
+
+.note-tree .tree-asset a {
+  font-style: italic;
+  color: #555;
+}
+
+.note-tree details {
+  margin: 0.1rem 0;
+}
+
+.note-tree summary {
+  cursor: pointer;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  text-transform: lowercase;
+  letter-spacing: -0.01rem;
+}
+
+.note-tree summary:hover {
+  color: #003366;
+}
+
+@media screen and (max-width: 860px) {
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    margin: 2.2rem auto;
+    max-width: 580px;
+  }
+
+  main,
+  footer {
+    margin: 0 1.2rem;
+  }
+
+  .side,
+  figcaption {
+    float: inline-end;
+    margin: 0.4rem 0;
+    width: calc(100% - 1.2rem - 1px);
+    padding: 0.4rem 0.5rem;
+    border: 1px solid #ccc;
+    border-left: 3px solid #ccc;
+  }
+
+  figure {
+    display: flex;
+    flex-direction: column;
+  }
+
+  figcaption {
+    order: 1;
+  }
+
+  .side img {
+    margin: auto auto 0.4rem auto;
+  }
+
+  .fullwidth {
+    margin-right: 0;
+  }
+
+  .toc {
+    display: none;
+  }
+
+  /* Same-folder notes: single column on narrow screens. */
+  .siblings ul {
+    columns: 1;
+  }
+
+  /* Shallower indentation so deeply-nested folders fit. */
+  .note-tree ul {
+    padding-left: 0.8rem;
+    margin-left: 0.2rem;
+  }
+
+  /* Wide tables scroll horizontally instead of overflowing the page. */
+  main table {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
+@media print {
+  html {
+    font-size: 12px;
+  }
+
+  main,
+  footer {
+    margin-left: 1rem;
+    margin-right: 18rem;
+  }
+
+  .side,
+  figcaption {
+    margin-right: -16.5rem;
+    width: 15rem;
+  }
+}
+
+.notes-image {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #08111c;
+  width: 70%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 2%;
+}

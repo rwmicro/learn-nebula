@@ -1,0 +1,24 @@
+/* Code highlighting.
+ * Token colors come from the inline styles emitted by Shiki's "modus-operandi"
+ * theme (see lib/highlight.ts). Here we only reproduce chroma's gutter line
+ * numbers (lineNumbers = true) using CSS counters over Shiki's .line spans. */
+
+.chroma {
+  tab-size: 4;
+}
+
+.chroma code {
+  counter-reset: line;
+}
+
+.chroma .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 2ch;
+  margin-right: 0.8em;
+  text-align: right;
+  color: #7f7f7f;
+  -webkit-user-select: none;
+  user-select: none;
+}

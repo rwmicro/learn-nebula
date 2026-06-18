@@ -1,66 +1,19 @@
-# Cloudflare Pages headers config.
-# Replaces the next.config.mjs headers() block (ignored when output: "export").
-# Order matters: later rules override earlier ones for the same path.
+# Cloudflare Pages response headers (https://developers.cloudflare.com/pages/configuration/headers/)
 
-# All routes: security headers
 /*
-  X-DNS-Prefetch-Control: on
-  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests
   X-Content-Type-Options: nosniff
-  X-Frame-Options: SAMEORIGIN
-  X-XSS-Protection: 1; mode=block
+  X-Frame-Options: DENY
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: camera=(), microphone=(), geolocation=(), interest-cohort=()
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://pensine.nebula.li https://nebula.li https://assets.nebula.li https://upload.wikimedia.org https://*.wikipedia.org; font-src 'self' data:; connect-src 'self' https://assets.nebula.li; frame-src 'self' https://assets.nebula.li; frame-ancestors 'self'; base-uri 'self'; form-action 'self'
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
 
-# HTML pages: short cache, long stale-while-revalidate
-/*.html
-  Cache-Control: public, max-age=0, must-revalidate
-  CDN-Cache-Control: public, s-maxage=3600, stale-while-revalidate=86400
-
-# Build-immutable assets (hashed)
+# Long-lived caching for static, stable assets.
+/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+/katex/*
+  Cache-Control: public, max-age=31536000, immutable
+/vault/*
+  Cache-Control: public, max-age=31536000
 /_next/static/*
   Cache-Control: public, max-age=31536000, immutable
-  CDN-Cache-Control: public, max-age=31536000, immutable
-
-# Static assets with moderate cache
-/articles/*
-  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
-  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
-
-/img/*
-  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
-  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
-
-/favicons/*
-  Cache-Control: public, max-age=86400, stale-while-revalidate=2592000
-  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=2592000
-
-# Prebuilt index JSONs and wasm
-# Tree index changes whenever the corpus is modified — keep client cache short
-# so the sidebar reflects new content within an hour.
-/pensine-index.json
-  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
-  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
-
-# Search corpus is 6 MB+. 24h client cache + 1y CDN cache. New content shows
-# up in search within a day for returning visitors; first-time visitors get
-# the latest from the CDN.
-/pensine-search.json
-  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
-  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=604800
-
-# Backlinks index — small, refreshes with corpus.
-/pensine-backlinks.json
-  Cache-Control: public, max-age=3600, stale-while-revalidate=86400
-  CDN-Cache-Control: public, max-age=31536000, stale-while-revalidate=86400
-
-# Service worker must never be cached aggressively — clients pick up SW updates
-# on the next navigation.
-/sw.js
-  Cache-Control: public, max-age=0, must-revalidate
-  CDN-Cache-Control: public, max-age=0, must-revalidate
-
-/sql-wasm.wasm
-  Cache-Control: public, max-age=31536000, immutable
-  CDN-Cache-Control: public, max-age=31536000, immutable
