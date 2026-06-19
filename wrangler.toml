@@ -1,0 +1,17 @@
+# Cloudflare Pages configuration for the RAG assistant Function.
+# `name` must match your Pages project name.
+name = "the-gardener"
+pages_build_output_dir = "out"
+compatibility_date = "2024-11-01"
+# The Anthropic SDK needs a few Node built-ins on the Workers runtime.
+compatibility_flags = ["nodejs_compat"]
+
+# Workers AI — used to embed the question at runtime (@cf/baai/bge-m3).
+[ai]
+binding = "AI"
+
+# Vectorize — semantic index of note chunks, populated by scripts/index-notes.mjs.
+# Create it once: wrangler vectorize create garden-notes --dimensions=1024 --metric=cosine
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "garden-notes"
