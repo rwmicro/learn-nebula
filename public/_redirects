@@ -1,0 +1,5 @@
+# Cloudflare Pages redirects (https://developers.cloudflare.com/pages/configuration/redirects/)
+
+# Canonicalise www -> apex (301) so both hostnames don't get indexed separately.
+# Requires www.4d52.net to be added as a custom domain in the Pages project.
+https://www.4d52.net/* https://4d52.net/:splat 301

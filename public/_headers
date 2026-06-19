@@ -8,7 +8,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
 
-# Long-lived caching for static, stable assets.
+# Long-lived caching for content-hashed / immutable assets.
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
 /katex/*
@@ -17,3 +17,19 @@
   Cache-Control: public, max-age=31536000
 /_next/static/*
   Cache-Control: public, max-age=31536000, immutable
+
+# Stable but non-hashed assets: cache hard, but allow updates to propagate.
+/images/*
+  Cache-Control: public, max-age=2592000
+/js/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+# Pagefind's fragment/index files are content-hashed; its UI entry points are not.
+/pagefind/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+# Early Hints (103): Cloudflare Pages turns these Link headers into 103 responses
+# so the browser can start fetching the body font before the HTML finishes.
+/
+  Link: </fonts/alegreya-normal-latin.woff2>; rel=preload; as=font; type=font/woff2; crossorigin
+/posts/*
+  Link: </fonts/alegreya-normal-latin.woff2>; rel=preload; as=font; type=font/woff2; crossorigin

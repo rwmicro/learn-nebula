@@ -18,12 +18,25 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="fr">
       <head>
         <meta httpEquiv="Content-Security-Policy" content={buildCSP()} />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
+        {/* Body font: preloaded so text paints in the real face sooner (the
+            metric-matched fallback already prevents layout shift). */}
+        <link
+          rel="preload"
+          href="/fonts/alegreya-normal-latin.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
       </head>
       <body>
         <a href="#main" className="skip-link">
