@@ -24,10 +24,12 @@ const GEN_MODEL = "claude-haiku-4-5";
 const EMBED_MODEL = "@cf/baai/bge-m3";
 const TOP_K = 5;
 const MAX_QUESTION = 1000; // chars
+const MAX_SELECTION = 4000; // chars
 
 const SYSTEM = `Tu es l'assistant de « The Gardener », un jardin de notes personnel.
 Règles :
 - Réponds UNIQUEMENT à partir des extraits de notes fournis dans le message de l'utilisateur.
+- Si un « passage sélectionné » est fourni, c'est l'extrait que l'utilisateur veut comprendre : appuie-toi dessus en priorité.
 - Si la réponse n'y figure pas, dis-le clairement (« Je ne trouve pas cela dans les notes ») — n'invente rien et n'utilise pas de connaissances générales extérieures aux notes.
 - Quand c'est utile, cite le titre des notes que tu utilises.
 - Réponds en français, de façon concise et claire.`;
@@ -46,21 +48,30 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     );
   }
 
-  let payload: { question?: string };
+  let payload: { question?: string; selection?: string };
   try {
     payload = await request.json();
   } catch {
     return json({ error: "Requête invalide." }, 400);
   }
-  const question = (payload.question ?? "").trim();
-  if (!question || question.length > MAX_QUESTION) {
-    return json({ error: "Question manquante ou trop longue." }, 400);
+  const selection = (payload.selection ?? "").trim().slice(0, MAX_SELECTION);
+  // A selected passage can stand in for the question (e.g. "explain this").
+  const question = (
+    (payload.question ?? "").trim() || (selection ? "Explique ce passage." : "")
+  ).slice(0, MAX_QUESTION);
+  if (!question) {
+    return json({ error: "Question manquante." }, 400);
   }
 
-  // 1. Embed the question.
+  // 1. Embed the query — fold in the selection so retrieval finds its source note.
   let queryVector: number[];
   try {
-    const embedding = (await env.AI.run(EMBED_MODEL, { text: [question] })) as {
+    const queryText = (
+      selection ? `${question}\n${selection}` : question
+    ).slice(0, 2000);
+    const embedding = (await env.AI.run(EMBED_MODEL, {
+      text: [queryText],
+    })) as {
       data: number[][];
     };
     queryVector = embedding.data[0];
@@ -92,7 +103,17 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     // Index missing/empty — fall through and let the model say it doesn't know.
   }
 
-  // 3. Generate the grounded answer, streamed back as plain text.
+  // 3. Generate the grounded answer, streamed back as plain text. The selected
+  // passage (if any) leads the context so the model treats it as the focus.
+  const noteContext = [
+    selection
+      ? `Passage sélectionné par l'utilisateur dans une note :\n« ${selection} »`
+      : "",
+    context ? `Extraits de notes pertinents :\n\n${context}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n\n");
+
   const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
   const stream = client.messages.stream({
     model: GEN_MODEL,
@@ -101,8 +122,8 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     messages: [
       {
         role: "user",
-        content: context
-          ? `Extraits de notes :\n\n${context}\n\n---\nQuestion : ${question}`
+        content: noteContext
+          ? `${noteContext}\n\n---\nQuestion : ${question}`
           : `(Aucune note pertinente n'a été trouvée pour cette question.)\n\nQuestion : ${question}`,
       },
     ],

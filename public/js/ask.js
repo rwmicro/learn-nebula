@@ -31,6 +31,10 @@
     '<div class="ask-sources"></div>' +
     "</div>" +
     '<form class="ask-form">' +
+    '<div class="ask-chip" hidden>' +
+    '<span class="ask-chip-text"></span>' +
+    '<button class="ask-chip-clear" type="button" aria-label="Retirer le passage">×</button>' +
+    "</div>" +
     '<span class="ask-grip" aria-hidden="true" title="Glisser pour déplacer">' +
     ROBOT +
     "</span>" +
@@ -48,6 +52,10 @@
   const form = bar.querySelector(".ask-form");
   const input = bar.querySelector(".ask-input");
   const submit = bar.querySelector(".ask-submit");
+  const chip = bar.querySelector(".ask-chip");
+  const chipText = bar.querySelector(".ask-chip-text");
+  const chipClear = bar.querySelector(".ask-chip-clear");
+  let pinnedSelection = "";
 
   // --- restore + keep position ----------------------------------------------
   const pos = load();
@@ -110,7 +118,7 @@
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const q = input.value.trim();
-    if (q) ask(q);
+    if (q || pinnedSelection) ask(q);
   });
 
   async function ask(question) {
@@ -124,7 +132,10 @@
       resp = await fetch("/api/ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question }),
+        body: JSON.stringify({
+          question,
+          selection: pinnedSelection || undefined,
+        }),
       });
     } catch {
       output.textContent = "Impossible de joindre l'assistant.";
@@ -181,6 +192,83 @@
     answer.dataset.busy = busy ? "true" : "false";
     form.setAttribute("aria-busy", busy ? "true" : "false");
   }
+
+  // --- "ask about selection": pin selected note text as context -------------
+  chipClear.addEventListener("click", clearSelection);
+
+  function setSelection(text) {
+    pinnedSelection = text;
+    chipText.textContent = text.length > 90 ? text.slice(0, 90) + "…" : text;
+    chip.hidden = false;
+    input.placeholder = "Que veux-tu savoir sur ce passage ?";
+  }
+  function clearSelection() {
+    pinnedSelection = "";
+    chip.hidden = true;
+    input.placeholder = "Demander au jardin…";
+  }
+
+  const selBtn = document.createElement("button");
+  selBtn.type = "button";
+  selBtn.className = "ask-sel-btn";
+  selBtn.hidden = true;
+  selBtn.innerHTML = ROBOT + "<span>Demander à l'IA</span>";
+  document.body.appendChild(selBtn);
+
+  let candidate = "";
+  function selectionInfo() {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0) return null;
+    const text = sel.toString().trim();
+    if (text.length < 2 || text.length > 4000) return null;
+    const node = sel.anchorNode;
+    const elNode = node && (node.nodeType === 1 ? node : node.parentElement);
+    const main = document.getElementById("main");
+    if (!main || !elNode || !main.contains(elNode)) return null;
+    if (elNode.closest(".ask-bar")) return null; // not inside the assistant
+    const rect = sel.getRangeAt(0).getBoundingClientRect();
+    if (!rect || (rect.width === 0 && rect.height === 0)) return null;
+    return { text, rect };
+  }
+  function showSelBtn() {
+    const info = selectionInfo();
+    if (!info) {
+      selBtn.hidden = true;
+      return;
+    }
+    candidate = info.text;
+    selBtn.hidden = false;
+    const bw = selBtn.offsetWidth;
+    const bh = selBtn.offsetHeight;
+    let top = info.rect.top - bh - 6;
+    if (top < 4) top = info.rect.bottom + 6;
+    const left = Math.max(
+      4,
+      Math.min(info.rect.left, window.innerWidth - bw - 4),
+    );
+    selBtn.style.top = top + "px";
+    selBtn.style.left = left + "px";
+  }
+  function hideSelBtn() {
+    selBtn.hidden = true;
+  }
+
+  document.addEventListener("mouseup", () => setTimeout(showSelBtn, 0));
+  document.addEventListener("touchend", () => setTimeout(showSelBtn, 0));
+  document.addEventListener("selectionchange", () => {
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed) hideSelBtn();
+  });
+  window.addEventListener("scroll", hideSelBtn, { passive: true });
+
+  selBtn.addEventListener("mousedown", (e) => e.preventDefault()); // keep selection
+  selBtn.addEventListener("click", () => {
+    if (candidate) setSelection(candidate);
+    const sel = window.getSelection();
+    if (sel) sel.removeAllRanges();
+    hideSelBtn();
+    input.focus();
+  });
 
   // --- persistence ----------------------------------------------------------
   function load() {
