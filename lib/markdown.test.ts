@@ -14,7 +14,9 @@ describe("truncate", () => {
 
 describe("extractPlain", () => {
   it("strips markdown syntax and footnotes", () => {
-    const plain = extractPlain("# Title\n\nHello **world** [link](/x).[^fn:1]\n\n[^fn:1]: note");
+    const plain = extractPlain(
+      "# Title\n\nHello **world** [link](/x).[^fn:1]\n\n[^fn:1]: note",
+    );
     expect(plain).toContain("Hello world link.");
     expect(plain).not.toContain("**");
     expect(plain).not.toContain("note");
@@ -29,23 +31,81 @@ describe("renderMarkdown", () => {
   });
 
   it("turns footnotes into margin notes", async () => {
-    const { html } = await renderMarkdown("Body[^fn:1]\n\n[^fn:1]: a side note");
+    const { html } = await renderMarkdown(
+      "Body[^fn:1]\n\n[^fn:1]: a side note",
+    );
     expect(html).toContain('class="side"');
     expect(html).toContain("a side note");
   });
 
   it("renders inline math with KaTeX", async () => {
-    const { html } = await renderMarkdown(String.raw`Euler: \\(e^{i\pi}+1=0\\).`);
+    const { html } = await renderMarkdown(
+      String.raw`Euler: \\(e^{i\pi}+1=0\\).`,
+    );
     expect(html).toContain("katex");
   });
 
+  it("renders $…$ inline math (Obsidian/KaTeX dollar syntax)", async () => {
+    const { html, hasMath } = await renderMarkdown(
+      String.raw`Ramsey: $R(k,k) > 2^{k/2}$ for large $k$.`,
+    );
+    expect(hasMath).toBe(true);
+    expect(html).toContain("katex");
+    expect(html).not.toContain("$R(k");
+  });
+
+  it("renders $$…$$ display math", async () => {
+    const { html } = await renderMarkdown(String.raw`$$\binom{k}{2}$$`);
+    expect(html).toContain("katex-display");
+  });
+
+  it("does not treat $ inside code as math", async () => {
+    const { html, hasMath } = await renderMarkdown(
+      "```bash\necho $PATH and $HOME\n```",
+    );
+    expect(hasMath).toBe(false);
+    expect(html).toContain("chroma");
+    expect(html).toContain("PATH");
+  });
+
+  it("leaves prose prices ($5, $10) untouched", async () => {
+    const { hasMath } = await renderMarkdown("Between $5 and $10 per item.");
+    expect(hasMath).toBe(false);
+  });
+
+  it("renders an Obsidian callout with title and body", async () => {
+    const { html } = await renderMarkdown(
+      "> [!warning] Attention\n> Sois prudent.",
+    );
+    expect(html).toContain('class="callout callout-warning"');
+    expect(html).toContain('class="callout-title"');
+    expect(html).toContain("Attention");
+    expect(html).toContain("Sois prudent");
+  });
+
+  it("uses a default label when the callout has no title", async () => {
+    const { html } = await renderMarkdown("> [!tip]\n> Un conseil.");
+    expect(html).toContain("callout-tip");
+    expect(html).toContain("Astuce");
+  });
+
+  it("makes +/- callouts foldable", async () => {
+    const { html } = await renderMarkdown("> [!note]- Replié\n> caché");
+    expect(html).toContain("<details");
+    expect(html).toContain("<summary");
+  });
+
   it("emits mermaid blocks for client/build rendering", async () => {
-    const { html } = await renderMarkdown("```mermaid\nflowchart LR\n A --> B\n```");
+    const { html } = await renderMarkdown(
+      "```mermaid\nflowchart LR\n A --> B\n```",
+    );
     expect(html).toContain('class="mermaid"');
   });
 
   it("does not treat bash [[ … ]] in code as a wikilink", async () => {
-    const { html } = await renderMarkdown("```bash\nif [[ $x -gt 0 ]]; then :; fi\n```");
+    const { html } = await renderMarkdown(
+      "```bash\nif [[ $x -gt 0 ]]; then :; fi\n```",
+    );
     expect(html).not.toContain('href="/posts');
     expect(html).toContain("chroma");
   });

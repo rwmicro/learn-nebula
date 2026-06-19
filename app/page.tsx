@@ -20,7 +20,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const doc = getIndexDoc();
-  const { html } = await renderMarkdown(doc.body);
+  const { html, hasMath } = await renderMarkdown(doc.body);
   const tree = renderNoteTree(getPostTree());
 
   // Pagefind full-text search needs the build index, so it only exists in
@@ -31,6 +31,7 @@ export default async function HomePage() {
       : `<input type="search" id="note-search" class="note-search" placeholder="Filtrer les notes…" autocomplete="off" aria-label="Filtrer les notes">`;
 
   const main =
+    (hasMath ? `<link rel="stylesheet" href="/katex/katex.min.css">` : "") +
     `<h1>${doc.frontmatter.title}</h1>` +
     html +
     `<img src="/images/eragny.webp" alt="Éragny" class="notes-image" width="1200" height="950" fetchpriority="high" decoding="async" />` +
