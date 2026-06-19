@@ -731,3 +731,161 @@ h2:focus-within .anchor {
   height: auto;
   border-radius: 2%;
 }
+
+/* Draggable assistant bar (built by public/js/ask.js): a wide input row docked
+   bottom-right by default and movable by its robot grip; the answer panel floats
+   above it. */
+.ask-bar {
+  position: fixed;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  z-index: 1001;
+  width: min(38rem, calc(100vw - 2rem));
+}
+
+.ask-answer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 0.5rem); /* float above the input row */
+  display: flex;
+  flex-direction: column;
+  max-height: min(26rem, calc(100vh - 8rem));
+  background: #fcfcfc;
+  border: 1px solid #111;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.18);
+}
+.ask-answer[hidden] {
+  display: none;
+}
+.ask-answer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.3rem 0.35rem 0.7rem;
+  border-bottom: 1px solid #ccc;
+}
+.ask-answer-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.ask-close {
+  border: none;
+  background: transparent;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: #555;
+  cursor: pointer;
+  padding: 0 0.3rem;
+}
+.ask-close:hover {
+  color: #111;
+}
+
+.ask-output {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.7rem;
+  font-size: 1.25rem;
+  line-height: 1.7rem;
+  white-space: pre-wrap; /* keep the model's line breaks (plain text) */
+}
+.ask-output:empty::before {
+  content: "Posez une question sur les notes du jardin.";
+  color: #777;
+  font-style: italic;
+}
+.ask-answer[data-busy="true"] .ask-output:empty::before {
+  content: "";
+}
+.ask-answer[data-busy="true"] .ask-output::after {
+  content: "▎";
+  animation: ask-blink 1s steps(1) infinite;
+}
+@keyframes ask-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.ask-sources {
+  padding: 0 0.7rem 0.6rem;
+}
+.ask-sources-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #555;
+  margin: 0 0 0.2rem;
+}
+.ask-sources ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ask-sources li {
+  font-size: 1.1rem;
+  line-height: 1.45;
+}
+
+.ask-form {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  background: #fcfcfc;
+  border: 1px solid #111;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.14);
+}
+.ask-grip {
+  display: flex;
+  flex: none;
+  color: #111;
+  padding: 0 0.2rem;
+  cursor: move;
+  touch-action: none; /* JS owns the drag gesture on touch */
+}
+.ask-input {
+  flex: 1;
+  min-width: 0;
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 1.2rem;
+  padding: 0.35rem 0.3rem;
+  border: none;
+  background: transparent;
+  color: #111;
+}
+.ask-input:focus {
+  outline: none;
+}
+.ask-submit {
+  flex: none;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0.3rem 0.8rem;
+  border: 1px solid #111;
+  background: #fcfcfc;
+  color: #111;
+  cursor: pointer;
+}
+.ask-submit:hover {
+  background: #f0f7ff;
+}
+.ask-input:disabled,
+.ask-submit:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+@media screen and (max-width: 860px) {
+  .ask-bar {
+    right: 0.8rem;
+    bottom: 0.8rem;
+    width: calc(100vw - 1.6rem);
+  }
+}

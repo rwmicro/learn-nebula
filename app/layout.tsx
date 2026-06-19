@@ -47,6 +47,7 @@ export default function RootLayout({
         <Script src="/js/instantpage.js" strategy="afterInteractive" />
         <Script src="/js/lightbox.js" strategy="afterInteractive" />
         <Script src="/js/toc.js" strategy="afterInteractive" />
+        <Script src="/js/ask.js" strategy="afterInteractive" />
       </body>
     </html>
   );

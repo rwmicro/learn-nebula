@@ -54,9 +54,57 @@ so use `npm start` to test it — not `npm run dev`.
 - `INCLUDE_DRAFTS=true` — include `draft: true` notes.
 - `SITE_BASE_URL="http://…onion/"` — build for a Tor onion service.
 
+## Assistant (semantic RAG over the notes)
+
+A Cloudflare Pages Function (`functions/api/ask.ts`) answers questions using
+**only** the notes: it embeds the question with Workers AI (`@cf/baai/bge-m3`),
+retrieves the nearest note chunks from a **Vectorize** index, and has **Claude
+Haiku 4.5** answer from those chunks (streamed). Chunks are embedded and upserted
+at build time by `scripts/index-notes.mjs`. The assistant runs on Cloudflare only
+(Functions + bindings) — not under `next dev` or `npm start`.
+
+### One-time setup
+
+```bash
+# 1. Create the Vectorize index (bge-m3 = 1024 dims, cosine).
+npx wrangler vectorize create garden-notes --dimensions=1024 --metric=cosine
+```
+
+The `AI` and `VECTORIZE` bindings are declared in `wrangler.toml`; set `name`
+there to your Pages project name. `public/_routes.json` routes `/api/*` to the
+Function (everything else stays static).
+
+### Environment variables
+
+| Variable | Where | Purpose |
+| --- | --- | --- |
+| `ANTHROPIC_API_KEY` | Pages → Settings → **secret** (Production + Preview) | Claude Haiku generation at runtime |
+| `CLOUDFLARE_ACCOUNT_ID` | Pages **build** env var | build-time embedding + Vectorize upsert |
+| `CLOUDFLARE_API_TOKEN` | Pages **build** env var | token with **Workers AI: Run** + **Vectorize: Edit** |
+| `VECTORIZE_INDEX` | optional build env var | index name (default `garden-notes`) |
+
+The `AI` / `VECTORIZE` runtime bindings come from `wrangler.toml` (or the Pages
+dashboard → Settings → Functions → bindings), **not** env vars. If the two build
+variables are absent the indexer skips with a warning, so previews still build —
+the assistant just has nothing to retrieve until a build runs with them set.
+
+### Local test
+
+```bash
+pnpm build                       # also runs the indexer if build vars are set
+echo 'ANTHROPIC_API_KEY="sk-..."' > .dev.vars   # gitignored
+npx wrangler pages dev out       # serves Functions + bindings locally
+```
+
+> ⚠️ The endpoint is public and costs tokens per call. Add a **Cloudflare Rate
+> Limiting** rule on `/api/ask` before going live (the Function already caps
+> `max_tokens` and question length).
+
 ## Deployment
 
-Deploy the contents of `out/` to any static host (rsync, Cloudflare, …). See
+Deploy via **Cloudflare Pages** (build command `pnpm build`, output `out/`) so the
+assistant Function and its bindings ship too. The static site alone (`out/`) can
+go to any host (rsync, …) but then `/api/ask` is unavailable. See
 [SECURITY.md](SECURITY.md) for the recommended response headers (CSP, HSTS…).
 
 ## Architecture notes

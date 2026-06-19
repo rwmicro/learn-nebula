@@ -14,5 +14,10 @@
 # typescript build info
 *.tsbuildinfo
 
+# cloudflare pages / wrangler (local secrets + state)
+.dev.vars
+.wrangler/
+pnpm-lock.yaml
+
 # misc
 .DS_Store
