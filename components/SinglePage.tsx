@@ -29,16 +29,24 @@ export async function SinglePage({
   jsonLd?: Record<string, unknown> | null;
   note?: boolean;
 }) {
-  const dir = doc.rawPath.includes("/") ? doc.rawPath.slice(0, doc.rawPath.lastIndexOf("/")) : "";
-  const { html, plain } = await renderMarkdown(doc.body, { dir });
+  const dir = doc.rawPath.includes("/")
+    ? doc.rawPath.slice(0, doc.rawPath.lastIndexOf("/"))
+    : "";
+  const { html, plain, hasMath } = await renderMarkdown(doc.body, { dir });
   const fm = doc.frontmatter;
   const subtitle = fm.subtitle ?? formatDateLong(fm.date);
   const author = fm.author?.[0] ?? AUTHOR;
 
-  const katex = fm.latex ? `<link rel="stylesheet" href="/katex/katex.min.css">` : "";
+  const katex =
+    hasMath || fm.latex
+      ? `<link rel="stylesheet" href="/katex/katex.min.css">`
+      : "";
 
   // Mark English notes (the site default is French) for SEO/accessibility.
-  const lang = franc(plain, { only: ["fra", "eng"], minLength: 30 }) === "eng" ? "en" : undefined;
+  const lang =
+    franc(plain, { only: ["fra", "eng"], minLength: 30 }) === "eng"
+      ? "en"
+      : undefined;
 
   const siblings = note ? siblingNavHtml(getSiblings(doc.slug)) : "";
 

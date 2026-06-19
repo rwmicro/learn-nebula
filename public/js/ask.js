@@ -270,6 +270,23 @@
     input.focus();
   });
 
+  // --- lift the bar above the mobile on-screen keyboard ---------------------
+  const vv = window.visualViewport;
+  if (vv) {
+    const liftForKeyboard = () => {
+      bar.style.transform = ""; // measure the natural position first
+      if (document.activeElement !== input) return;
+      const overlap =
+        bar.getBoundingClientRect().bottom - (vv.offsetTop + vv.height);
+      if (overlap > 0) bar.style.transform = `translateY(-${overlap + 8}px)`;
+    };
+    vv.addEventListener("resize", liftForKeyboard);
+    vv.addEventListener("scroll", liftForKeyboard);
+    input.addEventListener("blur", () => {
+      bar.style.transform = "";
+    });
+  }
+
   // --- persistence ----------------------------------------------------------
   function load() {
     try {

@@ -9,7 +9,7 @@ body {
   background-color: #fcfcfc;
   color: #111;
   width: 100%;
-  max-width: 1080px;
+  max-width: 1200px;
   counter-reset: margin-counter;
 }
 
@@ -445,7 +445,7 @@ h2:focus-within .anchor {
 .toc {
   position: fixed;
   top: 4rem;
-  right: max(1rem, calc((100vw - 1080px) / 2 + 1rem));
+  right: max(1rem, calc((100vw - 1200px) / 2 + 1rem));
   width: 20rem;
   max-height: calc(100vh - 6rem);
   overflow-y: auto;
@@ -640,14 +640,17 @@ h2:focus-within .anchor {
   color: #003366;
 }
 
-@media screen and (max-width: 860px) {
+/* Below 1080px the Tufte side-margin (26rem) no longer fits, so collapse to a
+   single centred column: sidenotes/figcaptions inline, no fixed TOC. Covers
+   phones and tablets (portrait and landscape). */
+@media screen and (max-width: 1080px) {
   html {
     font-size: 14px;
   }
 
   body {
     margin: 2.2rem auto;
-    max-width: 580px;
+    max-width: 680px;
   }
 
   main,
@@ -947,10 +950,84 @@ h2:focus-within .anchor {
   cursor: default;
 }
 
-@media screen and (max-width: 860px) {
+@media screen and (max-width: 640px) {
   .ask-bar {
     right: 0.8rem;
     bottom: 0.8rem;
     width: calc(100vw - 1.6rem);
   }
+}
+
+/* Obsidian-style callouts (built by rehypeCallouts in lib/markdown.ts). */
+.callout {
+  --c: #2d6cc0;
+  margin: 1.4rem 0;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #ddd;
+  border-left: 4px solid var(--c);
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--c) 7%, #fcfcfc);
+}
+.callout-title,
+.callout summary.callout-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  color: var(--c);
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+.callout summary.callout-title {
+  cursor: pointer;
+  list-style: none;
+}
+.callout summary.callout-title::-webkit-details-marker {
+  display: none;
+}
+.callout-icon {
+  display: flex;
+  flex: none;
+}
+.callout-body {
+  margin-top: 0.4rem;
+}
+.callout-body > :first-child {
+  margin-top: 0;
+}
+.callout-body > :last-child {
+  margin-bottom: 0;
+}
+
+.callout-note,
+.callout-info,
+.callout-todo {
+  --c: #2d6cc0;
+}
+.callout-abstract,
+.callout-tip {
+  --c: #009b8f;
+}
+.callout-success {
+  --c: #2e8b3d;
+}
+.callout-question {
+  --c: #b8740f;
+}
+.callout-warning {
+  --c: #c08a00;
+}
+.callout-failure,
+.callout-danger,
+.callout-bug {
+  --c: #b3322f;
+}
+.callout-example {
+  --c: #6b4fbb;
+}
+.callout-quote {
+  --c: #6b6b6b;
 }
