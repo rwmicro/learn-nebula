@@ -1,20 +1,31 @@
 import type { Metadata } from "next";
 import { SITE_TITLE, SITE_DESCRIPTION, absoluteURL } from "./site";
-import { resolveVaultAsset } from "./vault-assets";
+import { resolveVaultAsset, resolveVaultAssetByName } from "./vault-assets";
 import { extractPlain, truncate } from "./markdown";
 import type { Frontmatter } from "./content";
 
 // Used for Open Graph / Twitter when a note has no image of its own.
 const DEFAULT_IMAGE = "/images/og.png";
+const IMG_EXT = /\.(png|jpe?g|gif|webp|svg|avif)(?:$|[?#])/i;
 
-/** Absolute URL of the first image in a document, or the site icon as fallback. */
+/**
+ * Absolute URL of the first image in a document, or the default OG image.
+ * Recognises markdown `![alt](src)`, Obsidian embeds `![[file.png]]` and raw
+ * `<img src>`, in document order; local targets must resolve to a vault image.
+ */
 export function firstImage(body: string): string {
-  const md = body.match(/!\[[^\]]*\]\(([^)]+)\)/);
-  const src = md?.[1]?.trim();
-  if (src) {
-    if (/^https?:\/\//i.test(src)) return src;
-    const vault = resolveVaultAsset(src, "");
-    if (vault) return absoluteURL(vault);
+  const re =
+    /!\[[^\]]*\]\(([^)\s]+)[^)]*\)|!\[\[([^\]|#]+?)(?:[|#][^\]]*)?\]\]|<img\b[^>]*\bsrc=["']([^"']+)["']/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(body)) !== null) {
+    const raw = (m[1] ?? m[2] ?? m[3] ?? "").trim();
+    if (!raw) continue;
+    if (/^https?:\/\//i.test(raw)) return raw;
+    // m[2] is an embed (match by file name); the rest are relative/vault paths.
+    const vault = m[2]
+      ? resolveVaultAssetByName(raw)
+      : resolveVaultAsset(raw, "");
+    if (vault && IMG_EXT.test(vault)) return absoluteURL(vault);
   }
   return absoluteURL(DEFAULT_IMAGE);
 }
@@ -26,7 +37,12 @@ interface SeoInput {
   isArticle: boolean;
 }
 
-export function buildMetadata({ fm, body, path, isArticle }: SeoInput): Metadata {
+export function buildMetadata({
+  fm,
+  body,
+  path,
+  isArticle,
+}: SeoInput): Metadata {
   const title = fm.seotitle ?? `${fm.title} | ${SITE_TITLE}`;
   const description = truncate(extractPlain(body), 160) || SITE_DESCRIPTION;
   const url = absoluteURL(path);
@@ -56,6 +72,11 @@ export function buildMetadata({ fm, body, path, isArticle }: SeoInput): Metadata
           }
         : {}),
     },
-    twitter: { card: "summary", title, description, images: [image] },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+    },
   };
 }

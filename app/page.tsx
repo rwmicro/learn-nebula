@@ -10,7 +10,12 @@ import { graph, personJsonLd, websiteJsonLd } from "@/lib/jsonld";
 
 export async function generateMetadata(): Promise<Metadata> {
   const doc = getIndexDoc();
-  return buildMetadata({ fm: doc.frontmatter, body: doc.body, path: "/", isArticle: false });
+  return buildMetadata({
+    fm: doc.frontmatter,
+    body: doc.body,
+    path: "/",
+    isArticle: false,
+  });
 }
 
 export default async function HomePage() {
@@ -28,7 +33,7 @@ export default async function HomePage() {
   const main =
     `<h1>${doc.frontmatter.title}</h1>` +
     html +
-    `<img src="/images/eragny.webp" alt="Image Eragny" class="notes-image" width="1200" height="950" loading="lazy" decoding="async" />` +
+    `<img src="/images/eragny.webp" alt="Éragny" class="notes-image" width="1200" height="950" fetchpriority="high" decoding="async" />` +
     searchBox +
     `<h2 id="notes">Notes <a class="anchor" href="#notes">§</a></h2>` +
     tree +

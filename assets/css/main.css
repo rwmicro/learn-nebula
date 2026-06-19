@@ -550,7 +550,21 @@ h2:focus-within .anchor {
   margin-bottom: 1.6rem;
 }
 
-/* Sober styling for the search bar only — results keep the Pagefind default. */
+/* Align the whole Pagefind widget (input + results) with the site theme via its
+   own custom properties. Set on `.pagefind-ui` so these beat Pagefind's default
+   declarations on that same element. */
+.pf-search .pagefind-ui {
+  --pagefind-ui-font: "Alegreya Sans", sans-serif;
+  --pagefind-ui-primary: #003366; /* links/accents — matches site `a` colour */
+  --pagefind-ui-text: #111; /* body text */
+  --pagefind-ui-background: #fcfcfc; /* page background */
+  --pagefind-ui-border: #ccc; /* hairlines, like .toc / .chroma */
+  --pagefind-ui-tag: #f0f7ff; /* filter pills — the link-hover tint */
+  --pagefind-ui-border-width: 1px; /* flat 1px rules, not the default 2px */
+  --pagefind-ui-border-radius: 0; /* sharp corners, like the search input */
+}
+
+/* Sober styling for the search bar; results inherit the site font set above. */
 .pf-search .pagefind-ui__form {
   max-width: 32rem;
 }

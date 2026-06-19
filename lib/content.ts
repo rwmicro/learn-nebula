@@ -105,7 +105,10 @@ function slugMap(): Map<string, string> {
 }
 
 // --- Wikilink resolution ([[Note]], [[path/Note|alias]], [[Note#heading]]) ---
-let wikiCache: { byPath: Map<string, string>; byBase: Map<string, string> } | null = null;
+let wikiCache: {
+  byPath: Map<string, string>;
+  byBase: Map<string, string>;
+} | null = null;
 function wikiIndex() {
   if (wikiCache) return wikiCache;
   const byPath = new Map<string, string>(); // rawPath (lower) -> url
@@ -134,7 +137,11 @@ export function resolveWikiLink(target: string): string | null {
     for (const [rawLower, url] of byPath) {
       if (rawLower.endsWith(`/${tl}`)) return url; // partial path match
     }
-    return byBase.get(tl.split("/").pop() ?? tl) ?? resolveVaultAssetByName(target) ?? null;
+    return (
+      byBase.get(tl.split("/").pop() ?? tl) ??
+      resolveVaultAssetByName(target) ??
+      null
+    );
   }
   // Fall back to a vault asset (e.g. [[file.pdf]], [[image.png]]).
   return byBase.get(tl) ?? resolveVaultAssetByName(target) ?? null;
@@ -142,7 +149,9 @@ export function resolveWikiLink(target: string): string | null {
 
 function parse(file: string, slug: string, rawPath: string): Doc {
   const raw = fs.readFileSync(file, "utf8");
-  const { data, content } = raw.startsWith("+++") ? matter(raw, tomlOptions) : matter(raw);
+  const { data, content } = raw.startsWith("+++")
+    ? matter(raw, tomlOptions)
+    : matter(raw);
   const fm = data as Record<string, unknown>;
 
   // Notes often have no `title`; fall back to the file name.
@@ -159,7 +168,11 @@ function parse(file: string, slug: string, rawPath: string): Doc {
     slug,
     rawPath,
     body,
-    frontmatter: { ...(fm as unknown as Frontmatter), title, date: toDate(fm.date) },
+    frontmatter: {
+      ...(fm as unknown as Frontmatter),
+      title,
+      date: toDate(fm.date),
+    },
   };
 }
 
@@ -167,11 +180,19 @@ export function getPostSlugs(): string[] {
   return [...slugMap().keys()];
 }
 
+// generateMetadata() and the page component both call getPost() for the same
+// slug; cache so each note's file is read and parsed once per build.
+const postCache = new Map<string, Doc>();
+
 /** `slug` is the ASCII URL slug. */
 export function getPost(slug: string): Doc {
+  const cached = postCache.get(slug);
+  if (cached) return cached;
   const rawPath = slugMap().get(slug);
   if (!rawPath) throw new Error(`Unknown post slug: ${slug}`);
-  return parse(path.join(POSTS_DIR, `${rawPath}.md`), slug, rawPath);
+  const doc = parse(path.join(POSTS_DIR, `${rawPath}.md`), slug, rawPath);
+  postCache.set(slug, doc);
+  return doc;
 }
 
 let allPostsCache: Doc[] | null = null;
@@ -179,7 +200,9 @@ let allPostsCache: Doc[] | null = null;
 export function getAllPosts(): Doc[] {
   if (allPostsCache) return allPostsCache;
   allPostsCache = [...slugMap().entries()]
-    .map(([slug, rawPath]) => parse(path.join(POSTS_DIR, `${rawPath}.md`), slug, rawPath))
+    .map(([slug, rawPath]) =>
+      parse(path.join(POSTS_DIR, `${rawPath}.md`), slug, rawPath),
+    )
     .filter((p) => INCLUDE_DRAFTS || !p.frontmatter.draft)
     .sort((a, b) => dateValue(b) - dateValue(a));
   return allPostsCache;
@@ -208,7 +231,9 @@ export type TreeNode = TreeDir | TreeFile;
 function addToTree(root: TreeNode[], parts: string[], file: TreeFile): void {
   let level = root;
   for (const dirName of parts.slice(0, -1)) {
-    let dir = level.find((n): n is TreeDir => n.type === "dir" && n.name === dirName);
+    let dir = level.find(
+      (n): n is TreeDir => n.type === "dir" && n.name === dirName,
+    );
     if (!dir) {
       dir = { type: "dir", name: dirName, children: [] };
       level.push(dir);
@@ -271,7 +296,9 @@ export interface SiblingNav {
 }
 
 function dirOf(rawPath: string): string {
-  return rawPath.includes("/") ? rawPath.slice(0, rawPath.lastIndexOf("/")) : "";
+  return rawPath.includes("/")
+    ? rawPath.slice(0, rawPath.lastIndexOf("/"))
+    : "";
 }
 
 /** Notes in the same folder as `slug`, with previous/next neighbours (A→Z). */
@@ -283,9 +310,14 @@ export function getSiblings(slug: string): SiblingNav {
   const base = (p: Doc) => p.rawPath.split("/").pop() ?? "";
   const sibs = all
     .filter((p) => dirOf(p.rawPath) === dir)
-    .sort((a, b) => base(a).localeCompare(base(b), undefined, { numeric: true }));
+    .sort((a, b) =>
+      base(a).localeCompare(base(b), undefined, { numeric: true }),
+    );
   const idx = sibs.findIndex((p) => p.slug === slug);
-  const ref = (p: Doc): SiblingRef => ({ title: p.frontmatter.title, slug: p.slug });
+  const ref = (p: Doc): SiblingRef => ({
+    title: p.frontmatter.title,
+    slug: p.slug,
+  });
   return {
     folder: dir,
     siblings: sibs.map((p) => ({ ...ref(p), current: p.slug === slug })),

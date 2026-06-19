@@ -1,9 +1,10 @@
 // Central site configuration.
 
-// The canonical base URL. Overridable at build time (e.g. for a Tor onion
-// build): SITE_BASE_URL="https://example.com" next build
-// NOTE: replace the default below with the real domain for this site.
-export const SITE_URL = (process.env.SITE_BASE_URL ?? "https://4d52.net").replace(/\/$/, "");
+// The canonical base URL (apex, no www). Overridable at build time, e.g. for a
+// Tor onion build: SITE_BASE_URL="https://example.onion" next build
+export const SITE_URL = (
+  process.env.SITE_BASE_URL ?? "https://4d52.net"
+).replace(/\/$/, "");
 
 export const SITE_TITLE = "The Gardener";
 export const SITE_DESCRIPTION = "Garden of knowledge";
@@ -39,7 +40,8 @@ export function buildCSP(): string {
   // React/Turbopack use eval() in dev only; production never needs it.
   const dev = process.env.NODE_ENV !== "production";
   const scriptSrc =
-    "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'" + (dev ? " 'unsafe-eval'" : "");
+    "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'" +
+    (dev ? " 'unsafe-eval'" : "");
   const directives = [
     "default-src 'self'",
     "base-uri 'self'",
@@ -55,6 +57,7 @@ export function buildCSP(): string {
     "frame-ancestors 'none'",
   ];
   // Only force HTTPS upgrades on an HTTPS site (not on a .onion HTTP build).
-  if (!dev && SITE_URL.startsWith("https://")) directives.push("upgrade-insecure-requests");
+  if (!dev && SITE_URL.startsWith("https://"))
+    directives.push("upgrade-insecure-requests");
   return directives.join("; ");
 }
