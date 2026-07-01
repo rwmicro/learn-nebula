@@ -1,0 +1,67 @@
+/* Styles for the full-bleed interactive graph page (/graph), loaded only there.
+   The canvas overlays the body's centred column; a back link sits top-left.
+   Self-contained (sets its own colours/decoration) since main.css's element
+   rules are no longer global. */
+.graph-page {
+  position: fixed;
+  inset: 0;
+  background: #fcfcfc;
+  z-index: 1;
+}
+
+.graph-canvas {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.graph-canvas:active {
+  cursor: grabbing;
+}
+
+.graph-back {
+  position: absolute;
+  top: 1rem;
+  left: 1.2rem;
+  z-index: 2;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  letter-spacing: -0.01rem;
+  font-size: 1.15rem;
+  color: #111;
+  text-decoration: none;
+  padding: 0.25rem 0.6rem;
+  background: rgba(252, 252, 252, 0.85);
+  border-radius: 4px;
+}
+
+.graph-back:hover {
+  background: #f0f7ff;
+}
+
+.graph-hint {
+  position: absolute;
+  bottom: 1rem;
+  left: 1.2rem;
+  z-index: 2;
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 0.9rem;
+  color: #777;
+  font-style: italic;
+  padding: 0.2rem 0.55rem;
+  background: rgba(252, 252, 252, 0.7);
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* force-graph injects its own .graph-tooltip on hover; we style the inner
+   span so it picks up Alegreya rather than the browser default. */
+.graph-tip {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  text-transform: lowercase;
+  letter-spacing: -0.01rem;
+  font-size: 0.95rem;
+  color: #111;
+}
