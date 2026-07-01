@@ -62,7 +62,7 @@ const modusOperandi: ThemeRegistration = {
 // Markdown fence language -> Shiki grammar id.
 const LANG_MAP: Record<string, string> = { cfg: "ini", sh: "bash" };
 // Grammars to load. Plain text uses Shiki's built-in "text" (no grammar needed).
-const LANGS = ["cpp", "asm", "ini", "cmake", "nginx", "bash"];
+const LANGS = ["cpp", "asm", "ini", "cmake", "nginx", "bash", "python"];
 
 let highlighterPromise: Promise<Highlighter> | null = null;
 function getHighlighter(): Promise<Highlighter> {

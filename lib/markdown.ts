@@ -12,9 +12,10 @@ import { fromHtml } from "hast-util-from-html";
 import { toString as mdToString } from "mdast-util-to-string";
 import katex from "katex";
 import type { Root, Element, ElementContent, RootContent } from "hast";
+import { createHash } from "node:crypto";
 import { rehypeShiki } from "./highlight";
 import { resolveWikiLink } from "./content";
-import { resolveVaultAsset } from "./vault-assets";
+import { resolveVaultAsset, isVideoSrc } from "./vault-assets";
 
 // ---------------------------------------------------------------------------
 // Preprocessing (runs on the raw Markdown, before the unified pipeline so that
@@ -330,7 +331,9 @@ function rehypeHeadingIds() {
 }
 
 /** Point relative note assets (images, PDFs…) at the served copies in
- * public/vault; leave remote/absolute references untouched. */
+ * public/vault; leave remote/absolute references untouched. Also upgrades
+ * `<img>` whose src ends in a video extension to a `<video>` element so
+ * `![clip](demo.mp4)` works the way authors expect. */
 function rehypeVaultAssets(dir: string) {
   return (tree: Root) => {
     visit(tree, "element", (node: Element) => {
@@ -340,9 +343,31 @@ function rehypeVaultAssets(dir: string) {
         node.properties = node.properties ?? {};
         node.properties.loading = "lazy";
         node.properties.decoding = "async";
-        if (/^(https?:|data:)/i.test(src)) return; // external / data URIs
-        const resolved = resolveVaultAsset(src, dir);
-        if (resolved) node.properties.src = resolved;
+        let finalSrc = src;
+        if (!/^(https?:|data:)/i.test(src)) {
+          const resolved = resolveVaultAsset(src, dir);
+          if (resolved) {
+            finalSrc = resolved;
+            node.properties.src = resolved;
+          }
+        }
+        // Promote video files to a real <video> element. The HTML spec doesn't
+        // let <img> render mp4/webm, so a literal Markdown image link to a
+        // video would otherwise show a broken-image icon.
+        if (isVideoSrc(finalSrc)) {
+          const alt = typeof node.properties.alt === "string" ? node.properties.alt : "";
+          node.tagName = "video";
+          node.properties = {
+            src: finalSrc,
+            controls: true,
+            loop: true,
+            muted: true,
+            playsInline: true,
+            preload: "metadata",
+            ...(alt ? { "aria-label": alt } : {}),
+          };
+          node.children = [];
+        }
       } else if (node.tagName === "a") {
         const href = node.properties?.href;
         if (typeof href !== "string") return;
@@ -351,6 +376,147 @@ function rehypeVaultAssets(dir: string) {
         const resolved = resolveVaultAsset(href, dir);
         if (resolved) node.properties.href = resolved;
       }
+    });
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Manim — convert ```manim``` fenced blocks into <figure> with a cached video
+// and a collapsible Python source. The cache file is looked up by SHA-256 of
+// the trimmed source (first 16 hex chars), matching the algorithm used by the
+// companion `obsidian-manim-renderer` plugin. When no cached render exists
+// the block falls back to a plain Python code block with a small notice.
+// ---------------------------------------------------------------------------
+
+function manimHash(code: string): string {
+  return createHash("sha256").update(code.trim(), "utf-8").digest("hex").slice(0, 16);
+}
+
+function findManimCacheUrl(hash: string, dir: string): string | null {
+  // Try mp4 first, then gif, then png (single-frame renders from `frame=last`
+  // or `format=png`), then webm. We resolve through the same vault-asset
+  // pipeline so the URL matches what `copy-vault-images.mjs` emits.
+  for (const ext of ["mp4", "gif", "png", "webm"]) {
+    const url = resolveVaultAsset(`_manim/${hash}.${ext}`, dir);
+    if (url) return url;
+  }
+  return null;
+}
+
+/** True for image-like outputs that should be rendered as <img>, not <video>. */
+function isStaticManimUrl(url: string): boolean {
+  const u = url.toLowerCase().split(/[?#]/)[0];
+  return u.endsWith(".gif") || u.endsWith(".png");
+}
+
+function rehypeManim(dir: string) {
+  return (tree: Root) => {
+    visit(tree, "element", (node: Element, _index, parent) => {
+      if (node.tagName !== "pre" || !parent) return;
+      const code = node.children.find(
+        (c): c is Element => c.type === "element" && c.tagName === "code",
+      );
+      if (!code) return;
+      const classes = (code.properties?.className as string[] | undefined) ?? [];
+      const isManim = classes.some(
+        (c) => typeof c === "string" && c === "language-manim",
+      );
+      if (!isManim) return;
+
+      const source = hastText(code).replace(/\n$/, "");
+      const hash = manimHash(source);
+      const videoUrl = findManimCacheUrl(hash, dir);
+
+      // Re-mark the inner <code> as Python so rehypeShiki highlights it.
+      code.properties = code.properties ?? {};
+      code.properties.className = ["language-python"];
+
+      const summaryText = videoUrl
+        ? `Source · ${hash}`
+        : `Source · ${hash} · (no cached render)`;
+      const sourceDetails: Element = {
+        type: "element",
+        tagName: "details",
+        properties: { className: ["manim-source"] },
+        children: [
+          {
+            type: "element",
+            tagName: "summary",
+            properties: {},
+            children: [{ type: "text", value: summaryText }],
+          },
+          // Keep the original <pre><code> so shiki picks it up later.
+          { ...node },
+        ],
+      };
+
+      const figureChildren: ElementContent[] = [];
+
+      if (videoUrl) {
+        const isStatic = isStaticManimUrl(videoUrl);
+        figureChildren.push(
+          isStatic
+            ? {
+                type: "element",
+                tagName: "img",
+                properties: {
+                  src: videoUrl,
+                  alt: "Manim render",
+                  loading: "lazy",
+                  decoding: "async",
+                  className: ["manim-output"],
+                },
+                children: [],
+              }
+            : {
+                type: "element",
+                tagName: "video",
+                properties: {
+                  src: videoUrl,
+                  controls: true,
+                  loop: true,
+                  muted: true,
+                  playsInline: true,
+                  preload: "metadata",
+                  className: ["manim-output"],
+                },
+                children: [],
+              },
+        );
+      } else {
+        figureChildren.push({
+          type: "element",
+          tagName: "p",
+          properties: { className: ["manim-missing"] },
+          children: [
+            {
+              type: "text",
+              value:
+                "No cached render — open this note in Obsidian with the Manim plugin enabled and click ▶ to generate it.",
+            },
+          ],
+        });
+      }
+
+      figureChildren.push(sourceDetails);
+
+      const figure: Element = {
+        type: "element",
+        tagName: "figure",
+        properties: {
+          className: ["manim-figure"],
+          dataManimHash: hash,
+        },
+        children: figureChildren,
+      };
+
+      // Replace the <pre> in its parent with the <figure>. `parent.children`
+      // may be RootContent[] or ElementContent[] depending on context; the
+      // figure is a valid member of both so the cast is sound.
+      const siblings = parent.children as unknown as Array<RootContent | ElementContent>;
+      const i = siblings.indexOf(node as unknown as RootContent);
+      if (i !== -1) siblings.splice(i, 1, figure);
+      return SKIP;
     });
   };
 }
@@ -511,6 +677,7 @@ export async function renderMarkdown(
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
     .use(rehypeCallouts)
+    .use(rehypeManim, dir)
     .use(rehypeShiki)
     .use(rehypePlaceholders, ph.map)
     .use(rehypeHeadingIds)

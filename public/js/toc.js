@@ -19,9 +19,7 @@
     if (id && map.get(id)) map.get(id).classList.add("active");
   }
 
-  let ticking = false;
   function update() {
-    ticking = false;
     let active = headings[0].id;
     for (const h of headings) {
       if (h.getBoundingClientRect().top <= 120) active = h.id;
@@ -30,15 +28,12 @@
     setActive(active);
   }
 
-  window.addEventListener(
-    "scroll",
-    () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(update);
-      }
-    },
-    { passive: true },
-  );
+  // Recompute only when a heading crosses the top band of the viewport, instead
+  // of on every scroll event; the % rootMargin also re-fires on resize.
+  const io = new IntersectionObserver(() => update(), {
+    rootMargin: "0px 0px -80% 0px",
+    threshold: [0, 1],
+  });
+  headings.forEach((h) => io.observe(h));
   update();
 })();

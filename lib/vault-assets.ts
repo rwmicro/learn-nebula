@@ -6,7 +6,22 @@ import path from "node:path";
 // note-relative ("x.png", "img/x.png"), or a bare file name (Obsidian wikilink).
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
-const EXTS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".avif", ".pdf"]);
+const EXTS = new Set([
+  // Images
+  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".avif",
+  // Documents
+  ".pdf",
+  // Video — Manim cache outputs (_manim/*.mp4) and direct ![](clip.mp4) embeds.
+  ".mp4", ".webm", ".mov", ".ogv",
+]);
+
+export const VIDEO_EXTS = new Set([".mp4", ".webm", ".mov", ".ogv"]);
+export function isVideoSrc(src: string): boolean {
+  const dot = src.lastIndexOf(".");
+  if (dot < 0) return false;
+  const ext = src.slice(dot).toLowerCase().split(/[?#]/)[0];
+  return VIDEO_EXTS.has(ext);
+}
 
 let cache: Map<string, string> | null = null;
 function index(): Map<string, string> {

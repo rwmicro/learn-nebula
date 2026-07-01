@@ -6,7 +6,7 @@ export function PagefindAssets() {
   if (process.env.NODE_ENV !== "production") return null;
   return (
     <>
-      {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+      { }
       <link rel="stylesheet" href="/pagefind/pagefind-ui.css" precedence="default" />
       <Script src="/pagefind/pagefind-ui.js" strategy="afterInteractive" />
       <Script src="/js/pagefind-init.js" strategy="afterInteractive" />

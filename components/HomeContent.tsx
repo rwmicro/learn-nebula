@@ -1,0 +1,930 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import type { HomeTreeNode, PdfRef } from "@/lib/content";
+import type { GraphData } from "@/lib/graph-data";
+import { Graph } from "@/components/Graph";
+import { t, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
+import { readAskStream } from "@/lib/ask-stream";
+
+// Diacritic-insensitive fold so the query and the note/folder names compare
+// apples to apples (matches lib/content slugging).
+function fold(s: string): string {
+  return s
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+}
+
+// Track the active UI locale reactively (same signal LangSwitcher emits), so
+// every label re-renders through t() instead of being mutated by /js/i18n.js.
+function useLocale(): Locale {
+  const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
+  useEffect(() => {
+    const isLocale = (s: unknown): s is Locale =>
+      typeof s === "string" && (LOCALES as readonly string[]).includes(s);
+    const current = window.__i18n?.locale ?? window.__i18n?.defaultLocale;
+    if (isLocale(current)) setLocale(current);
+    const onChange = (e: Event) => {
+      const next = (e as CustomEvent<{ locale: string }>).detail?.locale;
+      if (isLocale(next)) setLocale(next);
+    };
+    document.addEventListener("i18n:change", onChange);
+    return () => document.removeEventListener("i18n:change", onChange);
+  }, []);
+  return locale;
+}
+
+type Scope = "all" | "notes" | "pdf" | "anki" | "themes";
+
+interface Match {
+  title: string;
+  /** Navigation target for note / deck results. */
+  href?: string;
+  /** Browse-tree key for theme (folder) results. */
+  path?: string;
+  /** Folder breadcrumb (group dropped) for context, e.g. "Arts · Artistes". */
+  where: string;
+  /** "note" = regular note, "deck" = Anki deck, "theme" = matching folder. */
+  kind: "note" | "deck" | "theme";
+  /** Note count, for theme results. */
+  count?: number;
+}
+
+// Flatten every match. A folder whose name matches contributes a "theme" result
+// AND (via ancestorMatch) all of its notes; otherwise notes match on their own
+// title. Anki decks are notes tagged deck → kind "deck".
+function collectMatches(
+  nodes: HomeTreeNode[],
+  q: string,
+  ancestorMatch: boolean,
+  parents: string[],
+): Match[] {
+  const out: Match[] = [];
+  for (const node of nodes) {
+    if (node.type === "note") {
+      if (node.asset) continue; // assets show in the browse list, not in search
+      if (ancestorMatch || fold(node.title).includes(q)) {
+        out.push({
+          kind: node.deck ? "deck" : "note",
+          title: node.title,
+          href: node.href,
+          where: parents.slice(1).join(" · "),
+        });
+      }
+    } else {
+      const selfMatch = fold(node.name).includes(q);
+      if (selfMatch) {
+        out.push({
+          kind: "theme",
+          title: node.name,
+          path: node.path,
+          count: node.count,
+          where: parents.slice(1).join(" · "),
+        });
+      }
+      out.push(
+        ...collectMatches(node.children, q, ancestorMatch || selfMatch, [
+          ...parents,
+          node.name,
+        ]),
+      );
+    }
+  }
+  return out;
+}
+
+const MAX_RESULTS = 240;
+
+const labelCls =
+  "m-0 mb-4 border-0 p-0 text-meta font-semibold uppercase tracking-[0.1em] leading-tight text-[#1a1a1a] [font-family:var(--gk-serif),Georgia,serif]";
+const linkCls =
+  "text-[#1a1a1a] no-underline underline-offset-[3px] hover:bg-transparent hover:underline focus-visible:underline";
+const catLabelCls =
+  "mb-2 text-meta font-semibold uppercase tracking-[0.1em] text-[#8a857b]";
+
+// Stable anchor slug for a folder path, e.g. "Applied Sciences" → "applied-sciences".
+// Top-level groups expose it as an id so the header can deep-link (/#applied-sciences).
+const slugifyPath = (p: string) =>
+  p.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+
+// Light Markdown → React for the assistant's answer (the system prompt asks for
+// **bold**, *italic*, `code`, [links] and "- " lists). Built as React nodes, not
+// via dangerouslySetInnerHTML, so there's no injection surface from the model.
+function inlineMd(text: string): ReactNode[] {
+  const out: ReactNode[] = [];
+  const re = /\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let i = 0;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) out.push(text.slice(last, m.index));
+    if (m[1] != null) {
+      out.push(<strong key={i}>{m[1]}</strong>);
+    } else if (m[2] != null) {
+      out.push(<em key={i}>{m[2]}</em>);
+    } else if (m[3] != null) {
+      out.push(
+        <code key={i} className="rounded bg-[#f0eee9] px-1 py-0.5 text-[0.92em]">
+          {m[3]}
+        </code>,
+      );
+    } else if (m[4] != null && m[5] != null) {
+      // Only allow safe schemes; otherwise fall back to plain text.
+      out.push(
+        /^(https?:\/\/|\/)/.test(m[5]) ? (
+          <a key={i} href={m[5]} className={linkCls}>
+            {m[4]}
+          </a>
+        ) : (
+          m[0]
+        ),
+      );
+    }
+    last = m.index + m[0].length;
+    i++;
+  }
+  if (last < text.length) out.push(text.slice(last));
+  return out;
+}
+
+function renderAnswer(text: string): ReactNode {
+  return text
+    .split(/\n{2,}/)
+    .filter((b) => b.trim())
+    .map((block, bi) => {
+      const lines = block.split("\n");
+      const isList = lines.every((l) => /^\s*[-*]\s+/.test(l));
+      if (isList) {
+        return (
+          <ul key={bi} className="m-0 mb-[0.7rem] list-disc pl-[1.2rem] last:mb-0">
+            {lines.map((l, li) => (
+              <li key={li} className="mb-1 last:mb-0">
+                {inlineMd(l.replace(/^\s*[-*]\s+/, ""))}
+              </li>
+            ))}
+          </ul>
+        );
+      }
+      return (
+        <p key={bi} className="m-0 mb-[0.7rem] text-pretty whitespace-pre-wrap last:mb-0">
+          {inlineMd(block)}
+        </p>
+      );
+    });
+}
+
+function Chevron({ open, size = 11 }: { open: boolean; size?: number }) {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      width={size}
+      height={size}
+      aria-hidden="true"
+      className={`shrink-0 text-[#8a857b] transition-transform duration-200 ${
+        open ? "rotate-90" : ""
+      }`}
+    >
+      <path
+        d="M6 4l4 4-4 4"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
+interface Source {
+  title?: string;
+  url?: string;
+}
+
+// Mount the (heavy) force-graph preview only once its box scrolls near the
+// viewport, so the home page's most-common first paint doesn't pull the
+// force-graph bundle off the critical path.
+function LazyGraph({ graphData }: { graphData: GraphData }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || show) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setShow(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: "250px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [show]);
+  return (
+    <div ref={ref} className="h-full w-full">
+      {show ? <Graph data={graphData} embedded /> : null}
+    </div>
+  );
+}
+
+interface PfHit {
+  url: string;
+  title: string;
+  excerpt: string;
+}
+
+// Full-text search over note CONTENT via Pagefind (index built into /pagefind by
+// `npx pagefind --site out`). Production only — gracefully no-ops in dev (no
+// index), where the title/folder filter above still works.
+function usePagefind(query: string): PfHit[] {
+  const [hits, setHits] = useState<PfHit[]>([]);
+  const pfRef = useRef<{
+    search: (q: string) => Promise<{ results: { data: () => Promise<unknown> }[] }>;
+  } | null>(null);
+  const failed = useRef(false);
+  useEffect(() => {
+    const q = query.trim();
+    if (q.length < 2 || failed.current) {
+      setHits([]);
+      return;
+    }
+    let cancelled = false;
+    const timer = setTimeout(async () => {
+      try {
+        if (!pfRef.current) {
+          // Variable specifier (not a literal) so the bundler/TS leave it as a
+          // runtime URL import — the file only exists in the built /pagefind.
+          const mod = "/pagefind/pagefind.js";
+          pfRef.current = await import(
+            /* webpackIgnore: true */ /* turbopackIgnore: true */ mod
+          );
+        }
+        const res = await pfRef.current!.search(q);
+        const data = await Promise.all(res.results.slice(0, 20).map((r) => r.data()));
+        if (cancelled) return;
+        setHits(
+          data.map((d) => {
+            const x = d as { url: string; meta?: { title?: string }; excerpt?: string };
+            return { url: x.url, title: x.meta?.title || x.url, excerpt: x.excerpt || "" };
+          }),
+        );
+      } catch {
+        failed.current = true; // no index (dev) → stop retrying
+        if (!cancelled) setHits([]);
+      }
+    }, 180);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [query]);
+  return hits;
+}
+
+export function HomeContent({
+  tree,
+  pdfs,
+  graphData,
+}: {
+  tree: HomeTreeNode[];
+  pdfs: PdfRef[];
+  graphData: GraphData;
+}) {
+  const locale = useLocale();
+  const tr = (k: string) => t(k, undefined, locale);
+  // Localise only the two top-level "grands thèmes"; deeper folder names stay as
+  // authored on disk. Reuses the existing nav translations.
+  const themeLabel = (name: string) =>
+    name === "Applied Sciences"
+      ? tr("nav.appliedsciences")
+      : name === "Social Sciences"
+        ? tr("nav.socialsciences")
+        : name;
+
+  // --- search + collapsible browse state ----------------------------------
+  const [query, setQuery] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const q = fold(query.trim());
+  const searching = q !== "";
+  // Advanced search: scope filter (notes / pdf / anki / themes) in a panel that
+  // drops down when the field gains focus.
+  const [scope, setScope] = useState<Scope>("all");
+  const [advancedOpen, setAdvancedOpen] = useState(false);
+  // Open folders by path (browse mode). Collapsed by default.
+  const [openDirs, setOpenDirs] = useState<Set<string>>(new Set());
+  const toggleDir = (path: string) =>
+    setOpenDirs((prev) => {
+      const next = new Set(prev);
+      if (next.has(path)) next.delete(path);
+      else next.add(path);
+      return next;
+    });
+  // Reveal a folder in the browse tree: open it and every ancestor.
+  const openToPath = (path: string) =>
+    setOpenDirs((prev) => {
+      const segs = path.split("/");
+      const next = new Set(prev);
+      for (let i = 0; i < segs.length; i++) next.add(segs.slice(0, i + 1).join("/"));
+      return next;
+    });
+
+  // Close the advanced panel on an outside click.
+  useEffect(() => {
+    if (!advancedOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (formRef.current && !formRef.current.contains(e.target as Node)) {
+        setAdvancedOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [advancedOpen]);
+
+  // Search results live in a full-width overlay, not in the browse tree.
+  const matches = useMemo(
+    () => (searching ? collectMatches(tree, q, false, []) : []),
+    [tree, q, searching],
+  );
+  const notes = matches.filter((m) => m.kind === "note");
+  const decks = matches.filter((m) => m.kind === "deck");
+  const themes = matches.filter((m) => m.kind === "theme");
+  const pdfMatches = useMemo(
+    () =>
+      searching
+        ? pdfs.filter(
+            (p) => fold(p.title).includes(q) || fold(p.where).includes(q),
+          )
+        : [],
+    [pdfs, q, searching],
+  );
+
+  // Full-text content matches (Pagefind, prod only); drop notes already shown by
+  // the title/folder filter above.
+  const pfHits = usePagefind(query);
+  const noteUrls = new Set(notes.map((m) => m.href));
+  const contentHits = pfHits.filter((h) => !noteUrls.has(h.url)).slice(0, 20);
+
+  // Per-scope counts for the filter tabs, and which scope a category shows in.
+  const scopes: { id: Scope; label: string; count: number }[] = [
+    {
+      id: "all",
+      label: tr("home.scopeAll"),
+      count: notes.length + contentHits.length + pdfMatches.length + decks.length + themes.length,
+    },
+    { id: "notes", label: tr("home.scopeNotes"), count: notes.length + contentHits.length },
+    { id: "pdf", label: tr("home.scopePdf"), count: pdfMatches.length },
+    { id: "anki", label: tr("home.scopeAnki"), count: decks.length },
+    { id: "themes", label: tr("home.scopeThemes"), count: themes.length },
+  ];
+  const showCat = (cat: Scope) => scope === "all" || scope === cat;
+  const visibleCount = scopes.find((s) => s.id === scope)?.count ?? 0;
+  const openPanel = advancedOpen || searching;
+
+  // restore / persist the query + open folders across back-navigation (session)
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem("gkHome") || "null");
+      if (saved?.q) setQuery(saved.q);
+      if (Array.isArray(saved?.open)) setOpenDirs(new Set(saved.open));
+    } catch {
+      /* sessionStorage unavailable */
+    }
+  }, []);
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(
+        "gkHome",
+        JSON.stringify({ q: query, open: [...openDirs] }),
+      );
+    } catch {
+      /* sessionStorage unavailable */
+    }
+  }, [query, openDirs]);
+
+  // Header deep links ("/#applied-sciences", "/#social-sciences"): open the
+  // matching top-level group in the browse tree and scroll to it.
+  useEffect(() => {
+    const applyHash = () => {
+      const h = decodeURIComponent(window.location.hash.replace(/^#/, ""));
+      if (!h) return;
+      const group = tree.find((n) => n.type === "dir" && slugifyPath(n.path) === h);
+      if (!group || group.type !== "dir") return;
+      const segs = group.path.split("/");
+      setOpenDirs((prev) => {
+        const next = new Set(prev);
+        for (let i = 0; i < segs.length; i++) next.add(segs.slice(0, i + 1).join("/"));
+        return next;
+      });
+      requestAnimationFrame(() =>
+        document
+          .getElementById(h)
+          ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      );
+    };
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
+  }, [tree]);
+
+  // Recursive browse tree. Depth 0 = editorial group header (uppercase +
+  // hairline + note count); deeper folders are lighter disclosures; notes are
+  // links prefixed with an em dash.
+  const renderNodes = (nodes: HomeTreeNode[], depth: number) => (
+    <ul className={`m-0 list-none p-0 ${depth > 0 ? "pl-[1.1rem]" : ""}`}>
+      {nodes.map((node) => {
+        if (node.type === "note") {
+          const icon = node.deck ? "▦" : node.asset ? "▤" : "—";
+          return (
+            <li key={node.href} className="m-0 mb-[0.55rem] flex items-baseline">
+              <span aria-hidden="true" className="mr-2 select-none text-[#8a857b]">
+                {icon}
+              </span>
+              <a
+                href={node.href}
+                {...(node.asset ? { target: "_blank", rel: "noopener" } : {})}
+                className={`${linkCls} text-body`}
+              >
+                {node.title}
+              </a>
+              {node.deck && (
+                <span className="ml-2 shrink-0 text-micro uppercase tracking-[0.08em] text-[#8a857b]">
+                  cartes
+                </span>
+              )}
+            </li>
+          );
+        }
+        const open = openDirs.has(node.path);
+        const slug = slugifyPath(node.path);
+        const listId = `gk-dir-${slug}`;
+        const isGroup = depth === 0;
+        return (
+          <li
+            key={node.path}
+            id={isGroup ? slug : undefined}
+            className={isGroup ? "mb-9 scroll-mt-6" : "m-0 mb-[0.4rem]"}
+          >
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-controls={listId}
+              onClick={() => toggleDir(node.path)}
+              className={
+                isGroup
+                  ? "flex w-full cursor-pointer items-baseline justify-between gap-4 border-b border-[#e4e2dd] bg-transparent p-0 pb-[0.35rem] text-left hover:bg-transparent"
+                  : "flex w-full cursor-pointer items-center gap-2 bg-transparent p-0 py-[0.15rem] text-left hover:bg-transparent"
+              }
+            >
+              {isGroup ? (
+                <>
+                  <span className="flex items-center gap-2">
+                    <Chevron open={open} />
+                    <span className="text-meta font-semibold uppercase tracking-[0.1em] text-[#1a1a1a]">
+                      {themeLabel(node.name)}
+                    </span>
+                  </span>
+                  <span className="text-meta tabular-nums text-[#8a857b]">
+                    {node.count}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Chevron open={open} size={10} />
+                  <span className="text-body text-[#1a1a1a]">{node.name}</span>
+                </>
+              )}
+            </button>
+            {open && (
+              <div id={listId} className={isGroup ? "mt-[0.9rem]" : "mt-[0.3rem]"}>
+                {renderNodes(node.children, depth + 1)}
+              </div>
+            )}
+          </li>
+        );
+      })}
+    </ul>
+  );
+
+  // --- inline "ask the garden" --------------------------------------------
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState("");
+  const [sources, setSources] = useState<Source[]>([]);
+  const [asked, setAsked] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const answerRef = useRef<HTMLDivElement>(null);
+  // Follow the streamed answer: keep the scroll pinned to the bottom while it grows.
+  useEffect(() => {
+    if (busy && answerRef.current) {
+      answerRef.current.scrollTop = answerRef.current.scrollHeight;
+    }
+  }, [answer, busy]);
+
+  async function ask(text: string) {
+    abortRef.current?.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+
+    setAsked(true);
+    setAnswer("");
+    setSources([]);
+    setBusy(true);
+
+    let resp: Response;
+    try {
+      resp = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ question: text, locale }),
+        signal: ctrl.signal,
+      });
+    } catch (e) {
+      if ((e as Error)?.name === "AbortError") return;
+      setAnswer(tr("askAi.errorReach"));
+      setBusy(false);
+      return;
+    }
+    if (!resp.ok || !resp.body) {
+      setAnswer(tr(resp.status === 429 ? "askAi.errorRate" : "askAi.errorUnavailable"));
+      setBusy(false);
+      return;
+    }
+
+    // NDJSON stream (shared parser): {sources}, then {chunk} deltas, {error}.
+    let raw = "";
+    try {
+      await readAskStream(resp.body, {
+        onSources: (s) =>
+          setSources(s.filter((x) => x && x.url && /^(https?:|\/)/.test(x.url))),
+        onChunk: (t) => {
+          raw = t;
+          setAnswer(t);
+        },
+        partialError: tr("askAi.errorPartial"),
+      });
+    } catch (e) {
+      if ((e as Error)?.name === "AbortError") return;
+      setAnswer(raw || tr("askAi.errorUnavailable"));
+    }
+    setBusy(false);
+    if (abortRef.current === ctrl) abortRef.current = null;
+  }
+
+  // Full body width: <main> reserves a 26rem right gutter for note asides on
+  // wide screens; reclaim it so this zone spans the whole body.
+  return (
+    <section className="mt-12 text-[#1a1a1a] [font-family:var(--gk-serif),Georgia,serif] [container-type:inline-size] min-[1081px]:-mr-96">
+      {/* 1. filter field + full-width results overlay */}
+      <form
+        ref={formRef}
+        role="search"
+        className="relative z-30 mb-10"
+        onSubmit={(e) => e.preventDefault()}
+      >
+        <label className="flex items-center gap-2 border-b border-[#1a1a1a] pb-2">
+          <svg
+            viewBox="0 0 24 24"
+            width="18"
+            height="18"
+            aria-hidden="true"
+            className="shrink-0 text-[#1a1a1a]"
+          >
+            <circle
+              cx="10.5"
+              cy="10.5"
+              r="6.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+            />
+            <path
+              d="M15.5 15.5 21 21"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+            />
+          </svg>
+          <span className="sr-only">{tr("home.searchAria")}</span>
+          <input
+            ref={searchRef}
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setAdvancedOpen(true)}
+            onKeyDown={(e) => {
+              if (e.key !== "Escape") return;
+              if (query) setQuery("");
+              else setAdvancedOpen(false);
+            }}
+            autoComplete="off"
+            placeholder={tr("home.searchPlaceholder")}
+            aria-label={tr("home.searchAria")}
+            className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-lead text-[#1a1a1a] outline-none placeholder:italic placeholder:text-[#8a857b] [&::-webkit-search-cancel-button]:appearance-none"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                searchRef.current?.focus();
+              }}
+              aria-label={tr("home.searchClear")}
+              title={tr("home.searchClear")}
+              className="-mr-1 shrink-0 p-1 text-[#8a857b] transition-colors hover:text-[#1a1a1a]"
+            >
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <path
+                  d="M6 6 18 18M18 6 6 18"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.8"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          )}
+        </label>
+
+        {openPanel && (
+          <div className="absolute left-0 right-0 top-full z-40 mt-3 max-h-[70vh] overflow-y-auto border border-[#e4e2dd] bg-[#fcfcfc] px-6 py-5 shadow-[0_12px_32px_rgba(0,0,0,0.07)]">
+            {/* scope filter tabs */}
+            <div className="mb-4 flex flex-wrap gap-2 border-b border-[#e4e2dd] pb-3">
+              {scopes.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setScope(s.id)}
+                  aria-pressed={scope === s.id}
+                  className={`rounded-full border px-3 py-1 text-meta uppercase tracking-[0.08em] transition-colors ${
+                    scope === s.id
+                      ? "border-[#1a1a1a] bg-[#1a1a1a] text-[#fcfcfc]"
+                      : "border-[#d8d5ce] text-[#1a1a1a] hover:border-[#1a1a1a]"
+                  }`}
+                >
+                  {s.label}
+                  {searching && (
+                    <span
+                      className={`ml-1.5 tabular-nums ${
+                        scope === s.id ? "text-[#cfcdc6]" : "text-[#8a857b]"
+                      }`}
+                    >
+                      {s.count}
+                    </span>
+                  )}
+                </button>
+              ))}
+            </div>
+
+            {!searching ? (
+              <p className="m-0 italic text-[#8a857b]">{tr("home.scopeHint")}</p>
+            ) : visibleCount === 0 ? (
+              <p className="m-0 italic text-[#8a857b]">{tr("home.empty")}</p>
+            ) : (
+              <div className="flex flex-col gap-6">
+                {/* Notes (+ full-text content hits) */}
+                {showCat("notes") && (notes.length > 0 || contentHits.length > 0) && (
+                  <div>
+                    {scope === "all" && (
+                      <p className={catLabelCls}>{tr("home.scopeNotes")}</p>
+                    )}
+                    {notes.length > 0 && (
+                      <>
+                        <ul className="m-0 list-none p-0 [column-gap:2.5rem] min-[700px]:columns-2 min-[1100px]:columns-3">
+                          {notes.slice(0, MAX_RESULTS).map((m) => (
+                            <li key={m.href} className="mb-[0.55rem] flex break-inside-avoid">
+                              <span aria-hidden="true" className="mr-2 select-none text-[#8a857b]">—</span>
+                              <a href={m.href} className={`${linkCls} text-body`}>
+                                {m.title}
+                                {m.where && (
+                                  <span className="ml-2 text-meta italic text-[#8a857b]">{m.where}</span>
+                                )}
+                              </a>
+                            </li>
+                          ))}
+                        </ul>
+                        {notes.length > MAX_RESULTS && (
+                          <p className="mt-3 text-meta italic text-[#8a857b]">
+                            + {notes.length - MAX_RESULTS}…
+                          </p>
+                        )}
+                      </>
+                    )}
+                    {contentHits.length > 0 && (
+                      <div className={notes.length > 0 ? "mt-5 border-t border-[#e4e2dd] pt-4" : ""}>
+                        <p className="mb-3 text-meta font-semibold uppercase tracking-[0.1em] text-[#8a857b]">
+                          {tr("home.inContent")}
+                        </p>
+                        <ul className="m-0 list-none p-0">
+                          {contentHits.map((h) => (
+                            <li key={h.url} className="mb-3">
+                              <a href={h.url} className={`${linkCls} text-body`}>{h.title}</a>
+                              {h.excerpt && (
+                                <p
+                                  className="m-0 mt-1 text-small text-[#8a857b] [&_mark]:bg-[#ffe9a8] [&_mark]:text-[#1a1a1a]"
+                                  dangerouslySetInnerHTML={{ __html: h.excerpt }}
+                                />
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* PDF attachments */}
+                {showCat("pdf") && pdfMatches.length > 0 && (
+                  <div>
+                    {scope === "all" && <p className={catLabelCls}>{tr("home.scopePdf")}</p>}
+                    <ul className="m-0 list-none p-0 [column-gap:2.5rem] min-[700px]:columns-2">
+                      {pdfMatches.slice(0, MAX_RESULTS).map((p) => (
+                        <li key={p.href} className="mb-[0.55rem] flex break-inside-avoid">
+                          <span aria-hidden="true" className="mr-2 select-none text-[#8a857b]">▤</span>
+                          <a
+                            href={p.href}
+                            target="_blank"
+                            rel="noopener"
+                            className={`${linkCls} text-body`}
+                          >
+                            {p.title}
+                            {p.where && (
+                              <span className="ml-2 text-meta italic text-[#8a857b]">{p.where}</span>
+                            )}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Anki decks */}
+                {showCat("anki") && decks.length > 0 && (
+                  <div>
+                    {scope === "all" && <p className={catLabelCls}>{tr("home.scopeAnki")}</p>}
+                    <ul className="m-0 list-none p-0">
+                      {decks.map((m) => (
+                        <li key={m.href} className="mb-[0.55rem] flex break-inside-avoid">
+                          <span aria-hidden="true" className="mr-2 select-none text-[#8a857b]">▦</span>
+                          <a href={m.href} className={`${linkCls} text-body`}>
+                            {m.title}
+                            {m.where && (
+                              <span className="ml-2 text-meta italic text-[#8a857b]">{m.where}</span>
+                            )}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Themes (folders) — clicking reveals the folder in the browse tree */}
+                {showCat("themes") && themes.length > 0 && (
+                  <div>
+                    {scope === "all" && <p className={catLabelCls}>{tr("home.scopeThemes")}</p>}
+                    <ul className="m-0 list-none p-0">
+                      {themes.map((m) => (
+                        <li key={m.path} className="mb-[0.4rem]">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (m.path) openToPath(m.path);
+                              setQuery("");
+                              setAdvancedOpen(false);
+                              document
+                                .getElementById("notes")
+                                ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                            }}
+                            className="flex items-baseline gap-2 bg-transparent p-0 text-left"
+                          >
+                            <span aria-hidden="true" className="text-[#8a857b]">▸</span>
+                            <span className={`${linkCls} text-body`}>{themeLabel(m.title)}</span>
+                            <span className="text-meta tabular-nums text-[#8a857b]">{m.count}</span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </form>
+
+      {/* 2. two columns spread across the full body width */}
+      <div className="grid grid-cols-1 gap-10 min-[700px]:items-start min-[700px]:justify-between min-[700px]:gap-y-0 min-[700px]:[grid-template-columns:minmax(240px,360px)_minmax(340px,580px)]">
+        {/* left — notes browse tree */}
+        <div id="notes" className="scroll-mt-6">
+          <h2 className={labelCls}>{tr("home.notesLabel")}</h2>
+          {renderNodes(tree, 0)}
+        </div>
+
+        {/* right — map + assistant (nudged in from the right edge on wide screens) */}
+        <div className="flex flex-col gap-9 min-[1081px]:mr-12">
+          <section>
+            <h2 className={labelCls}>{tr("home.mapLabel")}</h2>
+            <a
+              href="/graph/"
+              aria-label={tr("home.mapLabel")}
+              className="block h-[440px] w-full cursor-pointer overflow-hidden rounded-[3px] border border-[#e4e2dd] hover:bg-transparent max-[700px]:h-[300px]"
+            >
+              <LazyGraph graphData={graphData} />
+            </a>
+            <p className="mt-[0.7rem] text-pretty text-small italic text-[#8a857b]">
+              {tr("home.mapCaption")}
+            </p>
+          </section>
+
+          <section className="rounded-[3px] border border-[#e4e2dd] px-6 py-5">
+            <h2 className={`${labelCls} mb-[0.6rem]`}>{tr("home.askLabel")}</h2>
+            <p className="m-0 mb-[1.1rem] text-pretty text-body text-[#1a1a1a]">
+              {tr("home.askIntro")}
+            </p>
+            <form
+              className="flex items-center gap-4 border-b border-[#1a1a1a] pb-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const text = question.trim();
+                if (text) ask(text);
+              }}
+            >
+              <input
+                type="text"
+                value={question}
+                onChange={(e) => setQuestion(e.target.value)}
+                maxLength={1000}
+                autoComplete="off"
+                disabled={busy}
+                placeholder={tr("home.askPlaceholder")}
+                aria-label={tr("home.askAria")}
+                className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-body text-[#1a1a1a] outline-none placeholder:italic placeholder:text-[#8a857b] disabled:opacity-60"
+              />
+              <button
+                type="submit"
+                disabled={busy}
+                className="shrink-0 cursor-pointer border-0 bg-transparent p-0 text-meta font-semibold uppercase tracking-[0.1em] text-[#1a1a1a] underline-offset-[3px] hover:underline focus-visible:underline disabled:cursor-default disabled:text-[#8a857b]"
+              >
+                {tr("home.askSend")}
+              </button>
+            </form>
+
+            {asked && (
+              <div
+                ref={answerRef}
+                aria-live={busy ? "off" : "polite"}
+                aria-busy={busy}
+                className="mt-[1.1rem] max-h-[22rem] overflow-y-auto text-body leading-relaxed text-[#1a1a1a]"
+              >
+                {renderAnswer(answer)}
+              </div>
+            )}
+
+            {sources.length > 0 && (
+              <div className="mt-3">
+                <p className="m-0 mb-[0.3rem] text-micro font-semibold uppercase tracking-[0.1em] text-[#8a857b]">
+                  {tr("askAi.sourcesTitle")}
+                </p>
+                <ul className="m-0 list-disc pl-[1.1rem]">
+                  {sources.map((s, i) => (
+                    <li key={i}>
+                      <a href={s.url} className={linkCls}>
+                        {s.title || s.url}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
+
+      {/* 3. footer */}
+      <footer className="mt-[3.4rem] border-t border-[#1a1a1a] pt-[1.1rem]">
+        <nav
+          aria-label={tr("home.footerNavAria")}
+          className="mb-[0.6rem] flex gap-7"
+        >
+          <a
+            href="/"
+            className={`${linkCls} text-micro font-semibold uppercase tracking-[0.1em]`}
+          >
+            {tr("nav.home")}
+          </a>
+          <a
+            href="/graph/"
+            className={`${linkCls} text-micro font-semibold uppercase tracking-[0.1em]`}
+          >
+            {tr("nav.graph")}
+          </a>
+        </nav>
+        <p className="m-0 text-pretty text-micro text-[#8a857b]">{tr("home.copyright")}</p>
+      </footer>
+    </section>
+  );
+}

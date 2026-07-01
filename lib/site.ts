@@ -14,7 +14,13 @@ export const AUTHOR = "The Gardener";
 export const ORIGINAL_AUTHOR = "David Álvarez Rosa";
 export const ORIGINAL_AUTHOR_URL = "https://david.alvarezrosa.com";
 
-export const NAV = [{ name: "Home", href: "/" }];
+/** NAV entries store an i18n key in `name`; navHtml resolves it via t() at
+ * build time and the runtime swap (/js/i18n.js) does the same at locale
+ * change. */
+export const NAV = [
+  { name: "nav.home", href: "/" },
+  { name: "nav.graph", href: "/graph/" },
+];
 
 // Social profiles for the Person JSON-LD (none yet).
 export const SAME_AS: string[] = [];
@@ -39,8 +45,12 @@ export function absoluteURL(path: string): string {
 export function buildCSP(): string {
   // React/Turbopack use eval() in dev only; production never needs it.
   const dev = process.env.NODE_ENV !== "production";
+  // Turnstile loads its script + an iframed challenge from challenges.cloudflare.com.
+  const turnstile = "https://challenges.cloudflare.com";
+  // Cloudflare Web Analytics beacon (cookieless): script host + beacon endpoint.
+  const cfa = "https://static.cloudflareinsights.com";
   const scriptSrc =
-    "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'" +
+    `script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' ${turnstile} ${cfa}` +
     (dev ? " 'unsafe-eval'" : "");
   const directives = [
     "default-src 'self'",
@@ -52,7 +62,8 @@ export function buildCSP(): string {
     "style-src 'self' 'unsafe-inline'",
     // 'wasm-unsafe-eval' lets Pagefind's search run its WebAssembly.
     scriptSrc,
-    "connect-src 'self'",
+    "connect-src 'self' https://cloudflareinsights.com",
+    `frame-src ${turnstile}`,
     "form-action 'none'",
     "frame-ancestors 'none'",
   ];

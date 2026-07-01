@@ -40,7 +40,7 @@
 
   function gather() {
     const list = [];
-    document.querySelectorAll("main img, a[href]").forEach((el) => {
+    document.querySelectorAll("main img:not([data-no-lightbox]), a[href]").forEach((el) => {
       if (el.tagName === "IMG") {
         if (el.closest(".lightbox")) return;
         list.push({ src: el.currentSrc || el.src, alt: el.alt || "", el });
@@ -170,7 +170,7 @@
 
   document.addEventListener("click", (e) => {
     const a = e.target.closest("a");
-    const img = e.target.closest("main img");
+    const img = e.target.closest("main img:not([data-no-lightbox])");
     let target = null;
     if (a && IMG_EXT.test(a.getAttribute("href") || "")) target = a;
     else if (img) target = img;

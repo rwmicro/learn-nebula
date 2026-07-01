@@ -1,14 +1,20 @@
-// Draggable assistant bar (semantic RAG).
+// Draggable assistant bar (semantic RAG). UI is split into a few clear
+// responsibilities, declared inline for the single-file IIFE constraint:
+//   - createWidgets / wireMobile : DOM build + mobile open/close
+//   - attachDrag                 : pointer drag (rAF-throttled)
+//   - selectionPopup             : highlight-to-ask helper
+//   - keyboardLift               : visualViewport keyboard avoidance
+//   - ask                        : POST + NDJSON streaming with abort
+//   - markdownToHtml             : minimal inline-Markdown renderer
 //
-// A wide input bar (robot grip + question field + send button) floats on the
-// right by default and can be dragged anywhere by its robot grip (or the answer
-// header). The answer expands in a panel above it. Submitting POSTs the question
-// to the /api/ask Function, which embeds it, retrieves the nearest note chunks
-// from Vectorize, and streams back a grounded answer from Claude Haiku. Retrieval
-// and the API key stay server-side; the client only sends the question. The
-// position is remembered in localStorage.
+// Strings are pulled from window.__i18n.t at use-time so a locale switch
+// while reading takes effect on the next interaction.
+//
+// The NDJSON stream reader is shared with the home assistant (esbuild resolves
+// this import; see scripts/bundle-js.mjs).
+import { readAskStream } from "../../lib/ask-stream";
 (function () {
-  if (document.querySelector(".ask-bar")) return; // guard against double-load
+  if (document.querySelector(".ask-bar")) return; // double-load guard
   const KEY = "askBar";
 
   const ROBOT =
@@ -19,13 +25,51 @@
     '<circle cx="9" cy="13" r="1.1"/><circle cx="15" cy="13" r="1.1"/>' +
     '<path d="M9.5 16.4h5"/><path d="M2 12v3M22 12v3"/></svg>';
 
+  function tt(k) {
+    return window.__i18n && window.__i18n.t ? window.__i18n.t(k) : k;
+  }
+  // Shared helpers (defined synchronously in app/layout.tsx's bootstrap).
+  const getLocale = window.__i18n.getActiveLocale;
+  const escHtml = window.__i18n.escapeHtml;
+
+  // --- Markdown → HTML (minimal: bold, italic, inline code, lists, paragraphs).
+  // Run only on the final stream content, never on partial chunks — partial
+  // unbalanced `**` would render incorrectly.
+  function markdownToHtml(text) {
+    let s = escHtml(text);
+    s = s.replace(/`([^`\n]+)`/g, "<code>$1</code>");
+    s = s.replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>");
+    s = s.replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s.,!?:;)]|$)/g, "$1<em>$2</em>");
+    const blocks = s.split(/\n{2,}/);
+    return blocks
+      .map((block) => {
+        const lines = block.split("\n");
+        if (lines.every((l) => /^- /.test(l))) {
+          return (
+            "<ul>" + lines.map((l) => "<li>" + l.slice(2) + "</li>").join("") + "</ul>"
+          );
+        }
+        if (lines.every((l) => /^\d+\. /.test(l))) {
+          return (
+            "<ol>" +
+            lines.map((l) => "<li>" + l.replace(/^\d+\. /, "") + "</li>").join("") +
+            "</ol>"
+          );
+        }
+        return "<p>" + lines.join("<br>") + "</p>";
+      })
+      .join("");
+  }
+
+  // --- DOM build -----------------------------------------------------------
   const bar = document.createElement("div");
   bar.className = "ask-bar";
+  bar.dataset.mobileOpen = "false";
   bar.innerHTML =
     '<div class="ask-answer" hidden>' +
     '<div class="ask-answer-head">' +
-    '<span class="ask-answer-title">demander au jardin</span>' +
-    '<button class="ask-close" type="button" aria-label="Fermer">×</button>' +
+    `<span class="ask-answer-title" data-i18n="askAi.title">${escHtml(tt("askAi.title"))}</span>` +
+    `<button class="ask-close" type="button" aria-label="${escHtml(tt("askAi.closeAria"))}" data-i18n-aria-label="askAi.closeAria">×</button>` +
     "</div>" +
     '<div class="ask-output" aria-live="polite"></div>' +
     '<div class="ask-sources"></div>' +
@@ -33,15 +77,41 @@
     '<form class="ask-form">' +
     '<div class="ask-chip" hidden>' +
     '<span class="ask-chip-text"></span>' +
-    '<button class="ask-chip-clear" type="button" aria-label="Retirer le passage">×</button>' +
+    `<button class="ask-chip-clear" type="button" aria-label="${escHtml(tt("askAi.removeChipAria"))}" data-i18n-aria-label="askAi.removeChipAria">×</button>` +
     "</div>" +
-    '<span class="ask-grip" aria-hidden="true" title="Glisser pour déplacer">' +
+    `<span class="ask-grip" aria-hidden="true" title="${escHtml(tt("askAi.gripTitle"))}" data-i18n-title="askAi.gripTitle">` +
     ROBOT +
     "</span>" +
-    '<input class="ask-input" type="text" autocomplete="off" maxlength="1000" placeholder="Demander au jardin…" aria-label="Votre question">' +
-    '<button class="ask-submit" type="submit">envoyer</button>' +
+    `<button class="ask-minimize" type="button" aria-label="${escHtml(tt("askAi.minimizeAria"))}" data-i18n-aria-label="askAi.minimizeAria">×</button>` +
+    `<input class="ask-input" type="text" autocomplete="off" maxlength="1000" placeholder="${escHtml(tt("askAi.placeholderDefault"))}" data-i18n-placeholder="askAi.placeholderDefault" aria-label="${escHtml(tt("askAi.inputAria"))}" data-i18n-aria-label="askAi.inputAria">` +
+    `<button class="ask-submit" type="submit" data-i18n="askAi.submit">${escHtml(tt("askAi.submit"))}</button>` +
     "</form>";
   document.body.appendChild(bar);
+
+  // Mobile/tablet trigger pill — uses data-i18n so the locale swap fills the
+  // label after i18n.js initialises, avoiding the early-load race.
+  const trigger = document.createElement("button");
+  trigger.type = "button";
+  trigger.className = "ask-trigger";
+  trigger.innerHTML =
+    ROBOT +
+    `<span class="ask-trigger-label" data-i18n="askAi.trigger">${escHtml(tt("askAi.trigger"))}</span>`;
+  document.body.appendChild(trigger);
+
+  function setMobileOpen(open) {
+    bar.dataset.mobileOpen = open ? "true" : "false";
+    if (open) {
+      trigger.setAttribute("hidden", "");
+      const inp = bar.querySelector(".ask-input");
+      if (inp) requestAnimationFrame(() => inp.focus());
+    } else {
+      trigger.removeAttribute("hidden");
+    }
+  }
+  trigger.addEventListener("click", () => setMobileOpen(true));
+  bar.querySelector(".ask-minimize").addEventListener("click", () =>
+    setMobileOpen(false),
+  );
 
   const answer = bar.querySelector(".ask-answer");
   const answerHead = bar.querySelector(".ask-answer-head");
@@ -57,7 +127,7 @@
   const chipClear = bar.querySelector(".ask-chip-clear");
   let pinnedSelection = "";
 
-  // --- restore + keep position ----------------------------------------------
+  // --- restore + keep position --------------------------------------------
   const pos = load();
   if (pos.left != null && pos.top != null) placeAt(pos.left, pos.top);
   window.addEventListener("resize", () => {
@@ -65,26 +135,38 @@
       placeAt(parseFloat(bar.style.left), parseFloat(bar.style.top));
   });
 
-  // --- drag (by the robot grip and the answer header) -----------------------
+  // --- drag (rAF-throttled) -----------------------------------------------
   attachDrag(grip);
   attachDrag(answerHead, ".ask-close");
 
   function attachDrag(handle, ignoreSel) {
     let drag = null;
+    let pending = null;
+    let rafId = 0;
     handle.style.cursor = "move";
     handle.addEventListener("pointerdown", (e) => {
       if (ignoreSel && e.target.closest(ignoreSel)) return;
       const r = bar.getBoundingClientRect();
       drag = { dx: e.clientX - r.left, dy: e.clientY - r.top };
       handle.setPointerCapture(e.pointerId);
-      e.preventDefault(); // don't focus/select while grabbing
+      e.preventDefault();
     });
     handle.addEventListener("pointermove", (e) => {
-      if (drag) placeAt(e.clientX - drag.dx, e.clientY - drag.dy);
+      if (!drag) return;
+      pending = [e.clientX - drag.dx, e.clientY - drag.dy];
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        if (pending) placeAt(pending[0], pending[1]);
+      });
     });
     handle.addEventListener("pointerup", (e) => {
       if (!drag) return;
       drag = null;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
       handle.releasePointerCapture(e.pointerId);
       const r = bar.getBoundingClientRect();
       save({ left: r.left, top: r.top });
@@ -92,8 +174,6 @@
   }
 
   function placeAt(left, top) {
-    // The answer panel is absolutely positioned, so the bar box is just the
-    // input row — clamp that into the viewport (the panel floats above it).
     const w = bar.offsetWidth;
     const h = bar.offsetHeight;
     left = Math.max(4, Math.min(left, window.innerWidth - w - 4));
@@ -104,8 +184,10 @@
     bar.style.bottom = "auto";
   }
 
-  // --- answer panel ---------------------------------------------------------
+  // --- answer panel -------------------------------------------------------
+  let abortController = null;
   closeBtn.addEventListener("click", () => {
+    if (abortController) abortController.abort();
     answer.hidden = true;
     output.textContent = "";
     sourcesEl.textContent = "";
@@ -122,6 +204,11 @@
   });
 
   async function ask(question) {
+    // Cancel any in-flight stream before starting a new one.
+    if (abortController) abortController.abort();
+    abortController = new AbortController();
+    const localCtrl = abortController;
+
     answer.hidden = false;
     output.textContent = "";
     sourcesEl.textContent = "";
@@ -135,50 +222,66 @@
         body: JSON.stringify({
           question,
           selection: pinnedSelection || undefined,
+          locale: getLocale(),
         }),
+        signal: localCtrl.signal,
       });
-    } catch {
-      output.textContent = "Impossible de joindre l'assistant.";
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+      output.textContent = tt("askAi.errorReach");
       setBusy(false);
       return;
     }
     if (!resp.ok || !resp.body) {
-      output.textContent = "L'assistant est indisponible pour le moment.";
+      output.textContent = tt(
+        resp.status === 429 ? "askAi.errorRate" : "askAi.errorUnavailable",
+      );
       setBusy(false);
       return;
     }
 
-    renderSources(resp.headers.get("x-sources"));
-    const reader = resp.body.getReader();
-    const dec = new TextDecoder();
-    for (;;) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      output.textContent += dec.decode(value, { stream: true });
-      output.scrollTop = output.scrollHeight;
+    // NDJSON stream (shared parser). Mute the live region while streaming so
+    // screen readers don't re-announce every partial chunk; restored below.
+    output.setAttribute("aria-live", "off");
+    let raw = "";
+    try {
+      await readAskStream(resp.body, {
+        onSources: renderSources,
+        // textContent (not markdown) during the stream so partial `**` stays
+        // readable; re-rendered with markdownToHtml on completion.
+        onChunk: (t) => {
+          raw = t;
+          output.textContent = t;
+          output.scrollTop = output.scrollHeight;
+        },
+        partialError: tt("askAi.errorPartial"),
+      });
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+      output.textContent = raw || tt("askAi.errorUnavailable");
     }
+    // Stream complete: swap to rendered Markdown so bold/italic/code/lists
+    // display as such — and re-enable the live region so the finished answer is
+    // announced once.
+    output.setAttribute("aria-live", "polite");
+    if (raw.trim()) output.innerHTML = markdownToHtml(raw);
     setBusy(false);
+    if (abortController === localCtrl) abortController = null;
   }
 
-  function renderSources(header) {
-    if (!header) return;
-    let sources = [];
-    try {
-      sources = JSON.parse(decodeURIComponent(header));
-    } catch {
-      return;
-    }
+  function renderSources(sources) {
     if (!Array.isArray(sources) || !sources.length) return;
-
     const title = document.createElement("p");
     title.className = "ask-sources-title";
-    title.textContent = "Notes consultées";
+    title.textContent = tt("askAi.sourcesTitle");
+    title.setAttribute("data-i18n", "askAi.sourcesTitle");
     const ul = document.createElement("ul");
     for (const s of sources) {
-      if (!s || !s.url) continue;
+      // Only same-origin/relative or http(s) links — never javascript:, data:, …
+      if (!s || !s.url || !/^(https?:|\/)/.test(s.url)) continue;
       const li = document.createElement("li");
       const a = document.createElement("a");
-      a.href = s.url; // same-origin /posts/… path
+      a.href = s.url;
       a.textContent = s.title || s.url;
       li.appendChild(a);
       ul.appendChild(li);
@@ -193,26 +296,30 @@
     form.setAttribute("aria-busy", busy ? "true" : "false");
   }
 
-  // --- "ask about selection": pin selected note text as context -------------
+  // --- "ask about selection" ----------------------------------------------
   chipClear.addEventListener("click", clearSelection);
 
   function setSelection(text) {
     pinnedSelection = text;
     chipText.textContent = text.length > 90 ? text.slice(0, 90) + "…" : text;
     chip.hidden = false;
-    input.placeholder = "Que veux-tu savoir sur ce passage ?";
+    input.placeholder = tt("askAi.placeholderWithSelection");
+    input.setAttribute("data-i18n-placeholder", "askAi.placeholderWithSelection");
   }
   function clearSelection() {
     pinnedSelection = "";
     chip.hidden = true;
-    input.placeholder = "Demander au jardin…";
+    input.placeholder = tt("askAi.placeholderDefault");
+    input.setAttribute("data-i18n-placeholder", "askAi.placeholderDefault");
   }
 
   const selBtn = document.createElement("button");
   selBtn.type = "button";
   selBtn.className = "ask-sel-btn";
   selBtn.hidden = true;
-  selBtn.innerHTML = ROBOT + "<span>Demander à l'IA</span>";
+  selBtn.innerHTML =
+    ROBOT +
+    `<span data-i18n="askAi.selButton">${escHtml(tt("askAi.selButton"))}</span>`;
   document.body.appendChild(selBtn);
 
   let candidate = "";
@@ -225,7 +332,7 @@
     const elNode = node && (node.nodeType === 1 ? node : node.parentElement);
     const main = document.getElementById("main");
     if (!main || !elNode || !main.contains(elNode)) return null;
-    if (elNode.closest(".ask-bar")) return null; // not inside the assistant
+    if (elNode.closest(".ask-bar")) return null;
     const rect = sel.getRangeAt(0).getBoundingClientRect();
     if (!rect || (rect.width === 0 && rect.height === 0)) return null;
     return { text, rect };
@@ -253,15 +360,16 @@
     selBtn.hidden = true;
   }
 
-  document.addEventListener("mouseup", () => setTimeout(showSelBtn, 0));
-  document.addEventListener("touchend", () => setTimeout(showSelBtn, 0));
+  document.addEventListener("pointerup", () =>
+    requestAnimationFrame(showSelBtn),
+  );
   document.addEventListener("selectionchange", () => {
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed) hideSelBtn();
   });
   window.addEventListener("scroll", hideSelBtn, { passive: true });
 
-  selBtn.addEventListener("mousedown", (e) => e.preventDefault()); // keep selection
+  selBtn.addEventListener("mousedown", (e) => e.preventDefault());
   selBtn.addEventListener("click", () => {
     if (candidate) setSelection(candidate);
     const sel = window.getSelection();
@@ -270,11 +378,11 @@
     input.focus();
   });
 
-  // --- lift the bar above the mobile on-screen keyboard ---------------------
+  // --- lift the bar above the mobile on-screen keyboard ------------------
   const vv = window.visualViewport;
   if (vv) {
     const liftForKeyboard = () => {
-      bar.style.transform = ""; // measure the natural position first
+      bar.style.transform = "";
       if (document.activeElement !== input) return;
       const overlap =
         bar.getBoundingClientRect().bottom - (vv.offsetTop + vv.height);
@@ -287,7 +395,7 @@
     });
   }
 
-  // --- persistence ----------------------------------------------------------
+  // --- persistence --------------------------------------------------------
   function load() {
     try {
       return JSON.parse(localStorage.getItem(KEY) || "{}") || {};

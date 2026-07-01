@@ -1,3 +1,7 @@
+// Vendored third-party library — instant.page v5.2.0 (speculation-rules edition),
+// MIT licensed, https://instant.page. Do NOT edit by hand: update by replacing
+// this file with a newer release. Its style (no semicolons / no IIFE) differs
+// from our own scripts on purpose, to keep diffs against upstream minimal.
 let _speculationRulesType
   , _preloadedList = new Set()
 

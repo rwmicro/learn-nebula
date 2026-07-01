@@ -4,6 +4,7 @@ import matter from "gray-matter";
 import * as TOML from "smol-toml";
 import { INCLUDE_DRAFTS } from "./site";
 import { resolveVaultAssetByName, listVaultAssets } from "./vault-assets";
+import { getAnkiManifest } from "./anki";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const POSTS_DIR = path.join(CONTENT_DIR, "posts");
@@ -218,6 +219,7 @@ export interface TreeFile {
   title: string;
   href: string;
   asset?: boolean; // standalone image/PDF file rather than a note
+  deck?: boolean; // Anki flashcard deck (links to /cartes/<slug>)
   date?: Date;
 }
 export interface TreeDir {
@@ -270,6 +272,18 @@ export function getPostTree(): TreeNode[] {
       asset: true,
     });
   }
+  // Anki decks surface in the folder that held their .apkg, linking to the
+  // flip-through study page.
+  for (const deck of getAnkiManifest()) {
+    const parts = (deck.folder ? deck.folder.split("/") : []).concat(deck.name);
+    addToTree(root, parts, {
+      type: "file",
+      name: deck.name,
+      title: deck.name,
+      href: `/cartes/${deck.slug}/`,
+      deck: true,
+    });
+  }
   sortTree(root);
   return root;
 }
@@ -282,6 +296,101 @@ function sortTree(nodes: TreeNode[]): void {
     return a.name.localeCompare(b.name, undefined, { numeric: true });
   });
   for (const n of nodes) if (n.type === "dir") sortTree(n.children);
+}
+
+// --- Home page taxonomy -----------------------------------------------------
+// The home page renders a collapsible tree of every note, derived from the real
+// folder tree rather than hard-coded.
+
+export type HomeTreeNode =
+  | {
+      type: "dir";
+      /** Display name, e.g. "Computer Science" or "Échecs". */
+      name: string;
+      /** Stable, on-disk path used as the open/closed key (raw, un-prettified). */
+      path: string;
+      /** Number of notes contained (transitively). */
+      count: number;
+      children: HomeTreeNode[];
+    }
+  | {
+      type: "note";
+      title: string;
+      href: string;
+      deck?: boolean;
+      /** Standalone attachment (image/PDF) rather than a note. */
+      asset?: boolean;
+    };
+
+// On-disk folder names that lack the accents/symbols we want to display.
+const HOME_DISPLAY_NAME: Record<string, string> = {
+  Echecs: "Échecs",
+  Litterature: "Littérature",
+  "Languages - Dialects": "Languages & Dialects",
+};
+function homeDisplayName(folder: string): string {
+  return HOME_DISPLAY_NAME[folder] ?? folder;
+}
+
+// Keep notes, decks AND standalone assets (images/PDFs) as leaves, tagging each
+// folder with how many items it transitively contains.
+function pruneToNotes(node: TreeNode, parentPath: string): HomeTreeNode | null {
+  if (node.type === "file") {
+    return {
+      type: "note",
+      title: node.title,
+      href: node.href,
+      deck: node.deck,
+      asset: node.asset,
+    };
+  }
+  const path = parentPath ? `${parentPath}/${node.name}` : node.name;
+  const children = node.children
+    .map((c) => pruneToNotes(c, path))
+    .filter((c): c is HomeTreeNode => c !== null);
+  if (children.length === 0) return null;
+  const count = children.reduce(
+    (n, c) => n + (c.type === "note" ? 1 : c.count),
+    0,
+  );
+  return { type: "dir", name: homeDisplayName(node.name), path, count, children };
+}
+
+/** Full notes tree for the home page (assets pruned); top level is the two top
+ *  folders (Applied / Social Sciences). */
+export function getHomeTree(): HomeTreeNode[] {
+  return getPostTree()
+    .map((n) => pruneToNotes(n, ""))
+    .filter((n): n is HomeTreeNode => n !== null);
+}
+
+export interface PdfRef {
+  title: string;
+  href: string;
+  /** Folder breadcrumb (top group dropped), e.g. "Psychologie · Biais". */
+  where: string;
+}
+
+/** Standalone PDF attachments in the vault, with their folder breadcrumb.
+ *  getHomeTree() prunes assets, so the home advanced-search PDF scope reads
+ *  this list instead. */
+export function getPdfAssets(): PdfRef[] {
+  const out: PdfRef[] = [];
+  const walk = (nodes: TreeNode[], parents: string[]) => {
+    for (const node of nodes) {
+      if (node.type === "dir") {
+        walk(node.children, [...parents, homeDisplayName(node.name)]);
+      } else if (node.asset && /\.pdf$/i.test(node.name)) {
+        out.push({
+          title: node.name.replace(/\.pdf$/i, ""),
+          href: node.href,
+          where: parents.slice(1).join(" · "),
+        });
+      }
+    }
+  };
+  walk(getPostTree(), []);
+  return out.sort((a, b) => a.title.localeCompare(b.title));
 }
 
 export interface SiblingRef {
@@ -326,6 +435,56 @@ export function getSiblings(slug: string): SiblingNav {
   };
 }
 
+// --- Backlinks: reverse [[wikilink]] index (which notes link to a note) ------
+let backlinkCache: Map<string, Set<string>> | null = null;
+function backlinkIndex(): Map<string, Set<string>> {
+  if (backlinkCache) return backlinkCache;
+  const inbound = new Map<string, Set<string>>(); // targetSlug -> source slugs
+  for (const post of getAllPosts()) {
+    const re = /\[\[([^\]\n]+)\]\]/g;
+    const seen = new Set<string>();
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(post.body)) !== null) {
+      const raw = m[1].split("|")[0].split("#")[0].trim();
+      if (!raw) continue;
+      const url = resolveWikiLink(raw);
+      if (!url || !url.startsWith("/posts/")) continue;
+      const target = url.slice("/posts/".length).replace(/\/$/, "");
+      if (target === post.slug || seen.has(target)) continue;
+      seen.add(target);
+      let set = inbound.get(target);
+      if (!set) inbound.set(target, (set = new Set()));
+      set.add(post.slug);
+    }
+  }
+  backlinkCache = inbound;
+  return inbound;
+}
+
+/** All note→note [[wikilink]] edges as [sourceSlug, targetSlug] pairs. */
+export function getWikiLinkEdges(): [string, string][] {
+  const edges: [string, string][] = [];
+  for (const [target, sources] of backlinkIndex()) {
+    for (const s of sources) edges.push([s, target]);
+  }
+  return edges;
+}
+
+/** Notes that link to `slug` via [[wikilinks]], A→Z by title. */
+export function getBacklinks(slug: string): SiblingRef[] {
+  const sources = backlinkIndex().get(slug);
+  if (!sources) return [];
+  const out: SiblingRef[] = [];
+  for (const s of sources) {
+    try {
+      out.push({ title: getPost(s).frontmatter.title, slug: s });
+    } catch {
+      /* slug no longer resolvable */
+    }
+  }
+  return out.sort((a, b) => a.title.localeCompare(b.title));
+}
+
 /** Top-level single page such as `404`. */
 export function getPage(name: string): Doc {
   return parse(path.join(CONTENT_DIR, `${name}.md`), name, name);
@@ -338,14 +497,13 @@ export function getIndexDoc(): Doc {
 
 export function formatDateLong(date: Date | undefined): string {
   if (!date) return "";
-  return new Intl.DateTimeFormat("en-US", {
+  // Build-time output must match the site default locale (fr): the runtime date
+  // swap (/js/i18n.js) only re-runs when a *non-default* locale is stored, so for
+  // a default-locale visitor this SSR string is what stays on screen.
+  return new Intl.DateTimeFormat("fr-FR", {
     year: "numeric",
     month: "long",
     day: "numeric",
     timeZone: "UTC",
   }).format(date);
-}
-
-export function formatDateMachine(date: Date | undefined): string {
-  return date ? date.toISOString() : "";
 }
