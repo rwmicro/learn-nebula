@@ -33,8 +33,10 @@ export default function Header({ doc }: { doc: Doc }) {
         <LangSwitcher />
       </div>
 
-      {/* 2. masthead: dateline · wordmark · tagline */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-4 py-4">
+      {/* 2. masthead: dateline · wordmark · tagline. On mobile the dateline is
+          hidden, so collapse to a single centred column (otherwise the title
+          lands in the empty left 1fr and reads off-centre). */}
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4 py-4">
           <EditionDate
             iso={editionIso}
             className="hidden sm:block text-micro uppercase tracking-[0.04em] text-[#8a857b]"
