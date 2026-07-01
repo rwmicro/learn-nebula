@@ -58,11 +58,12 @@ function nodeFill(
 }
 
 function nodeRadius(node: GraphNode): number {
-  if (node.kind === "root") return 13;
-  // Size by depth in the folder tree: top-level themes much bigger, each level
-  // down steps 2px smaller (floored at 4). Steep enough that the hierarchy
-  // reads at a glance. Notes/assets stay the smallest dots.
-  if (node.kind === "dir") return Math.max(4, 12 - node.depth * 2);
+  if (node.kind === "root") return 16;
+  // Size by depth in the folder tree: the top-level disciplines (Social
+  // Sciences, Applied Sciences) read as very large hubs, and each nested level
+  // is markedly smaller. Steep drop (−7px/level, floored at 5) so the hierarchy
+  // is obvious at a glance. Notes/assets stay the smallest dots.
+  if (node.kind === "dir") return Math.max(5, 30 - node.depth * 7);
   return 2;
 }
 
@@ -432,7 +433,7 @@ export function Graph({
           e.preventDefault();
           locateNode(locate);
         }}
-        className="absolute right-3 top-3 z-10 flex items-center gap-2 rounded-full border border-[#d4d4d4] bg-[#fcfcfc]/90 px-3 py-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.06)] backdrop-blur"
+        className="absolute z-10 flex items-center gap-2 rounded-full border border-[#d4d4d4] bg-[#fcfcfc]/90 px-3 py-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.06)] backdrop-blur bottom-4 left-1/2 -translate-x-1/2 sm:bottom-auto sm:left-auto sm:top-3 sm:right-3 sm:translate-x-0"
       >
         <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" className="shrink-0 text-[#8a857b]">
           <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
