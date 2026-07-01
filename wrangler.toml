@@ -26,4 +26,4 @@ index_name = "garden-notes"
 [[d1_databases]]
 binding = "DB"
 database_name = "garden-comments"
-database_id = "REPLACE_WITH_DATABASE_ID"
+database_id = "d92dc863-0290-476e-80aa-c6fd3ae0a662"
