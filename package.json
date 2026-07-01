@@ -4,11 +4,11 @@
   "type": "module",
   "packageManager": "pnpm@10.28.0",
   "scripts": {
-    "predev": "node scripts/bundle-js.mjs && node scripts/copy-vault-images.mjs && node scripts/build-anki.mjs",
+    "predev": "node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-anki.mjs",
     "dev": "next dev",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "build": "node scripts/fetch-notes.mjs && node scripts/bundle-js.mjs && node scripts/copy-vault-images.mjs && node scripts/build-anki.mjs && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/index-notes.mjs",
+    "build": "node scripts/fetch-notes.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-anki.mjs && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/index-notes.mjs",
     "index": "node scripts/index-notes.mjs",
     "start": "npx serve out",
     "format": "prettier --write .",
@@ -63,5 +63,10 @@
     "unist-util-visit": "^5.0.0",
     "vitest": "^4.1.9",
     "wrangler": "^4.102.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "postcss": ">=8.5.10"
+    }
   }
 }
