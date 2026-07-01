@@ -70,12 +70,6 @@ async function rateLimited(ip: string): Promise<boolean> {
 
 type ReplyLang = "fr" | "en" | "es" | "zh";
 const REPLY_LANGS = new Set<string>(["fr", "en", "es", "zh"]);
-const REPLY_LINE: Record<ReplyLang, string> = {
-  fr: "Réponds en français, de façon concise et claire.",
-  en: "Reply in English, concisely and clearly.",
-  es: "Responde en español, de forma concisa y clara.",
-  zh: "用中文简洁明了地回答。",
-};
 const DEFAULT_Q: Record<ReplyLang, string> = {
   fr: "Explique ce passage.",
   en: "Explain this passage.",
@@ -83,8 +77,7 @@ const DEFAULT_Q: Record<ReplyLang, string> = {
   zh: "解释这段内容。",
 };
 
-function buildSystem(replyLang: ReplyLang): string {
-  const replyLine = REPLY_LINE[replyLang];
+function buildSystem(): string {
   return [
     "Tu es l'assistant de « The Gardener », un jardin de notes personnel.",
     "Règles :",
@@ -93,7 +86,7 @@ function buildSystem(replyLang: ReplyLang): string {
     "- Si la réponse n'y figure pas, dis-le clairement (« Je ne trouve pas cela dans les notes ») — n'invente rien et n'utilise pas de connaissances générales extérieures aux notes.",
     "- Quand c'est utile, cite le titre des notes que tu utilises.",
     "- Le texte peut utiliser du Markdown léger (**gras**, *italique*, `code`, listes `- `).",
-    "- " + replyLine,
+    "- Réponds TOUJOURS dans la même langue que la question de l'utilisateur (celle qui suit « Question : » ci-dessous), de façon concise et claire — quelle que soit la langue des notes.",
   ].join("\n");
 }
 
@@ -205,7 +198,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     .filter(Boolean)
     .join("\n\n");
 
-  const system = buildSystem(replyLang);
+  const system = buildSystem();
   const userContent = noteContext
     ? `${noteContext}\n\n---\nQuestion : ${question}`
     : `(Aucune note pertinente n'a été trouvée pour cette question.)\n\nQuestion : ${question}`;
