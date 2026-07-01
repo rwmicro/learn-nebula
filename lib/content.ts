@@ -76,6 +76,11 @@ export const INDEX_NOTE = "Garden of Knowledge";
 // Recursively list post files as paths without extension (forward slashes).
 function walkPosts(dir = POSTS_DIR, base = ""): string[] {
   const out: string[] = [];
+  // In the Cloudflare Workers runtime (e.g. /api/translate re-running this
+  // build pipeline) content/posts isn't on disk. Degrade to an empty index so
+  // resolveWikiLink returns null (links stay literal) instead of throwing —
+  // mirrors the existsSync guard in lib/vault-assets.ts.
+  if (!fs.existsSync(dir)) return out;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const rel = base ? `${base}/${entry.name}` : entry.name;
     if (entry.isDirectory()) {
