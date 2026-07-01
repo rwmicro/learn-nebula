@@ -523,6 +523,8 @@ export function HomeContent({
       answerRef.current.scrollTop = answerRef.current.scrollHeight;
     }
   }, [answer, busy]);
+  // Abort any in-flight assistant stream if the page unmounts mid-answer.
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   async function ask(text: string) {
     abortRef.current?.abort();

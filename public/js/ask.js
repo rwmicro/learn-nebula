@@ -191,6 +191,9 @@ import { readAskStream } from "../../lib/ask-stream";
     answer.hidden = true;
     output.textContent = "";
     sourcesEl.textContent = "";
+    // Aborting rejects the stream, whose catch returns early without touching
+    // busy — re-enable the input/submit here so the bar stays usable.
+    setBusy(false);
     input.focus();
   });
   document.addEventListener("keydown", (e) => {

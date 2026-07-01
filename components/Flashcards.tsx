@@ -116,6 +116,10 @@ export function Flashcards({
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key === " " || e.key === "Enter") {
+        // Let a focused control (Prev/Next/Shuffle/…) activate natively; the card
+        // is itself a <button> so it still flips on Space/Enter when focused.
+        const el = e.target as HTMLElement | null;
+        if (el?.closest("button, a, input, textarea, select")) return;
         e.preventDefault();
         flip();
       } else if (e.key === "ArrowRight") go(1);
