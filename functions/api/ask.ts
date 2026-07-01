@@ -14,11 +14,16 @@
 // (`/api/ask`), so the site's `connect-src 'self'` CSP already allows the call.
 
 import Anthropic from "@anthropic-ai/sdk";
+import { llmConfig, openaiChatDeltas } from "./_llm";
 
 interface Env {
-  ANTHROPIC_API_KEY: string;
-  AI: Ai;
-  VECTORIZE: VectorizeIndex;
+  ANTHROPIC_API_KEY?: string;
+  AI?: Ai;
+  VECTORIZE?: VectorizeIndex;
+  // Dev-only (see .dev.vars): when set, generation goes to an OpenAI-compatible
+  // endpoint (e.g. LM Studio) and semantic retrieval is skipped. Unset in prod.
+  LLM_BASE_URL?: string;
+  LLM_MODEL?: string;
 }
 
 const GEN_MODEL = "claude-haiku-4-5";
@@ -110,7 +115,8 @@ function json(data: unknown, status: number): Response {
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
-  if (!env.ANTHROPIC_API_KEY) {
+  const llm = llmConfig(env);
+  if (!llm && !env.ANTHROPIC_API_KEY) {
     return json(
       { error: "Assistant non configuré (ANTHROPIC_API_KEY manquante)." },
       503,
@@ -145,49 +151,46 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
   inFlight.add(ip);
 
-  // 1. Embed the query — fold in the selection so retrieval finds its source note.
-  let queryVector: number[];
-  try {
-    const queryText = (
-      selection ? `${question}\n${selection}` : question
-    ).slice(0, 2000);
-    const embedding = (await env.AI.run(EMBED_MODEL, {
-      text: [queryText],
-    })) as { data?: number[][] };
-    if (!embedding?.data?.length || !embedding.data[0]?.length) {
-      inFlight.delete(ip);
-      return json({ error: "Échec de l'embedding." }, 502);
-    }
-    queryVector = embedding.data[0];
-  } catch (e) {
-    console.error("ask: embed failed", e);
-    inFlight.delete(ip);
-    return json({ error: "Indexation sémantique indisponible." }, 502);
-  }
-
-  // 2. Retrieve the nearest note chunks.
+  // 1 + 2. Semantic retrieval (embed → Vectorize). Skipped when running against
+  // a local OpenAI-compatible model (dev) or when the AI/VECTORIZE bindings are
+  // absent — the assistant then answers without note context.
   const sources: { title: string; url: string }[] = [];
   let context = "";
-  try {
-    const result = (await env.VECTORIZE.query(queryVector, {
-      topK: TOP_K,
-      returnMetadata: "all",
-    })) as { matches: { metadata?: ChunkMeta }[] };
-
-    const seen = new Set<string>();
-    const blocks: string[] = [];
-    for (const match of result.matches) {
-      const md = match.metadata ?? {};
-      blocks.push(`## ${md.title ?? "Note"}\n${md.text ?? ""}`);
-      if (md.url && md.title && !seen.has(md.url)) {
-        seen.add(md.url);
-        sources.push({ title: md.title, url: md.url });
+  const ai = env.AI;
+  const vectorize = env.VECTORIZE;
+  if (!llm && ai && vectorize) {
+    try {
+      // Fold the selection into the query so retrieval finds its source note.
+      const queryText = (
+        selection ? `${question}\n${selection}` : question
+      ).slice(0, 2000);
+      const embedding = (await ai.run(EMBED_MODEL, {
+        text: [queryText],
+      })) as { data?: number[][] };
+      if (!embedding?.data?.length || !embedding.data[0]?.length) {
+        inFlight.delete(ip);
+        return json({ error: "Échec de l'embedding." }, 502);
       }
+      const result = (await vectorize.query(embedding.data[0], {
+        topK: TOP_K,
+        returnMetadata: "all",
+      })) as { matches: { metadata?: ChunkMeta }[] };
+
+      const seen = new Set<string>();
+      const blocks: string[] = [];
+      for (const match of result.matches) {
+        const md = match.metadata ?? {};
+        blocks.push(`## ${md.title ?? "Note"}\n${md.text ?? ""}`);
+        if (md.url && md.title && !seen.has(md.url)) {
+          seen.add(md.url);
+          sources.push({ title: md.title, url: md.url });
+        }
+      }
+      context = blocks.join("\n\n");
+    } catch (e) {
+      // Index missing/empty — fall through and let the model say it doesn't know.
+      console.warn("ask: retrieval failed", e);
     }
-    context = blocks.join("\n\n");
-  } catch (e) {
-    // Index missing/empty — fall through and let the model say it doesn't know.
-    console.warn("ask: vectorize query failed", e);
   }
 
   // 3. Stream the grounded answer back as NDJSON. First line = sources, then
@@ -202,41 +205,55 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     .filter(Boolean)
     .join("\n\n");
 
-  const client = getAnthropic(env.ANTHROPIC_API_KEY);
-  const stream = client.messages.stream({
-    model: GEN_MODEL,
-    max_tokens: 1024,
-    system: buildSystem(replyLang),
-    messages: [
-      {
-        role: "user",
-        content: noteContext
-          ? `${noteContext}\n\n---\nQuestion : ${question}`
-          : `(Aucune note pertinente n'a été trouvée pour cette question.)\n\nQuestion : ${question}`,
-      },
-    ],
-  });
+  const system = buildSystem(replyLang);
+  const userContent = noteContext
+    ? `${noteContext}\n\n---\nQuestion : ${question}`
+    : `(Aucune note pertinente n'a été trouvée pour cette question.)\n\nQuestion : ${question}`;
+
+  // Aborts the upstream generation when the client disconnects.
+  const ac = new AbortController();
+
+  // Unified text-delta source: local OpenAI-compatible model (dev) or Claude.
+  async function* deltas(): AsyncGenerator<string> {
+    if (llm) {
+      yield* openaiChatDeltas(
+        llm,
+        [
+          { role: "system", content: system },
+          { role: "user", content: userContent },
+        ],
+        { maxTokens: 1024, signal: ac.signal },
+      );
+      return;
+    }
+    const client = getAnthropic(env.ANTHROPIC_API_KEY!);
+    const stream = client.messages.stream({
+      model: GEN_MODEL,
+      max_tokens: 1024,
+      system,
+      messages: [{ role: "user", content: userContent }],
+    });
+    for await (const event of stream) {
+      if (
+        event.type === "content_block_delta" &&
+        event.delta.type === "text_delta"
+      ) {
+        yield event.delta.text;
+      }
+    }
+  }
 
   const encoder = new TextEncoder();
   const body = new ReadableStream<Uint8Array>({
     async start(controller) {
       controller.enqueue(encoder.encode(ndLine({ sources })));
       try {
-        for await (const event of stream) {
-          if (
-            event.type === "content_block_delta" &&
-            event.delta.type === "text_delta"
-          ) {
-            controller.enqueue(
-              encoder.encode(ndLine({ chunk: event.delta.text })),
-            );
-          }
+        for await (const d of deltas()) {
+          controller.enqueue(encoder.encode(ndLine({ chunk: d })));
         }
       } catch (e) {
         console.error("ask: stream failed", e);
-        controller.enqueue(
-          encoder.encode(ndLine({ error: "stream_failed" })),
-        );
+        controller.enqueue(encoder.encode(ndLine({ error: "stream_failed" })));
       } finally {
         inFlight.delete(ip);
         controller.close();
@@ -245,6 +262,7 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     cancel() {
       // Client aborted (AbortController, navigation away). Free the slot.
       inFlight.delete(ip);
+      ac.abort();
     },
   });
 

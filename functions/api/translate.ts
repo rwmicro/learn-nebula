@@ -18,9 +18,14 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { renderMarkdown } from "../../lib/markdown";
+import { llmConfig, openaiChatText } from "./_llm";
 
 interface Env {
-  ANTHROPIC_API_KEY: string;
+  ANTHROPIC_API_KEY?: string;
+  // Dev-only (see .dev.vars): route generation to an OpenAI-compatible endpoint
+  // (e.g. LM Studio) instead of Anthropic. Unset in production.
+  LLM_BASE_URL?: string;
+  LLM_MODEL?: string;
 }
 
 const MODEL = "claude-sonnet-4-6";
@@ -121,6 +126,30 @@ function json(data: unknown, status = 200): Response {
   });
 }
 
+// Per-IP cooldown via the Cache API — translation spends Claude (Sonnet) tokens,
+// so throttle rapid sequential calls to blunt scripted cost abuse. Per-colo and
+// best-effort (fails open); pair with a Cloudflare WAF rule for a hard cap.
+const RATE_COOLDOWN_S = 5;
+async function rateLimited(ip: string): Promise<boolean> {
+  if (ip === "anon") return false;
+  try {
+    const cache = caches.default;
+    const key = new Request(
+      `https://ratelimit.internal/translate/${encodeURIComponent(ip)}`,
+    );
+    if (await cache.match(key)) return true;
+    await cache.put(
+      key,
+      new Response("1", {
+        headers: { "cache-control": `max-age=${RATE_COOLDOWN_S}` },
+      }),
+    );
+    return false;
+  } catch {
+    return false;
+  }
+}
+
 // Per-instance dedupe: refuse a second concurrent translation for the same
 // {ip, payload-hash}. Cleared once the first completes.
 const inFlight = new Set<string>();
@@ -134,7 +163,8 @@ async function fingerprint(s: string): Promise<string> {
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
-  if (!env.ANTHROPIC_API_KEY) {
+  const llm = llmConfig(env);
+  if (!llm && !env.ANTHROPIC_API_KEY) {
     return json({ error: "Traduction non configurée." }, 503);
   }
 
@@ -162,6 +192,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   }
 
   const ip = request.headers.get("cf-connecting-ip") ?? "anon";
+  if (await rateLimited(ip)) {
+    return json({ error: "Trop de requêtes — réessaie dans un instant." }, 429);
+  }
   const key = `${ip}:${await fingerprint(markdown)}:${targetLang}`;
   if (inFlight.has(key)) {
     return json({ error: "Traduction déjà en cours." }, 429);
@@ -169,33 +202,47 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   inFlight.add(key);
 
   try {
-    const anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
     const system = buildSystemPrompt(
       LANG_NAME_EN[sourceLang] ?? sourceLang,
       LANG_NAME_EN[targetLang] ?? targetLang,
     );
 
-    const completion = await anthropic.messages.create({
-      model: MODEL,
-      max_tokens: MAX_OUTPUT_TOKENS,
-      system,
-      messages: [{ role: "user", content: markdown }],
-    });
-
-    if (completion.stop_reason === "max_tokens") {
-      return json(
-        {
-          error:
-            "Article trop long pour être traduit en une seule passe — découpe-le ou réduis-le.",
-        },
-        413,
+    let translated: string;
+    if (llm) {
+      // Dev: local OpenAI-compatible model (e.g. LM Studio). No stop_reason to
+      // inspect — a local truncation just yields a shorter note.
+      translated = await openaiChatText(
+        llm,
+        [
+          { role: "system", content: system },
+          { role: "user", content: markdown },
+        ],
+        { maxTokens: MAX_OUTPUT_TOKENS },
       );
-    }
+    } else {
+      const anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY! });
+      const completion = await anthropic.messages.create({
+        model: MODEL,
+        max_tokens: MAX_OUTPUT_TOKENS,
+        system,
+        messages: [{ role: "user", content: markdown }],
+      });
 
-    const translated = completion.content
-      .filter((b): b is Anthropic.TextBlock => b.type === "text")
-      .map((b) => b.text)
-      .join("");
+      if (completion.stop_reason === "max_tokens") {
+        return json(
+          {
+            error:
+              "Article trop long pour être traduit en une seule passe — découpe-le ou réduis-le.",
+          },
+          413,
+        );
+      }
+
+      translated = completion.content
+        .filter((b): b is Anthropic.TextBlock => b.type === "text")
+        .map((b) => b.text)
+        .join("");
+    }
 
     if (!translated.trim()) {
       return json({ error: "Réponse vide du modèle." }, 502);
