@@ -19,6 +19,7 @@ const SCRIPTS = [
   "translate",
   "aside-toggle",
   "sticky-header",
+  "mermaid-render",
   "comments",
   "ask",
 ];
