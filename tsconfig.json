@@ -29,5 +29,5 @@
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "out", ".next", "functions"]
+  "exclude": ["node_modules", "out", ".next", "functions", "obsidian-manim-plugin"]
 }

@@ -1,0 +1,51 @@
+name: CI
+
+# Runs on every push to main and every pull request. Gates merges on the same
+# checks you run locally: TypeScript (app + Pages Functions), ESLint and the
+# vitest unit suite. Fast and secret-free (no notes fetch, no build).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Type-check · Lint · Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4 — version comes from package.json "packageManager"
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check (app)
+        run: pnpm exec tsc --noEmit
+
+      # functions/ is excluded from the root tsconfig, so the RAG backend
+      # (ask.ts, comments.ts, translate.ts) needs its own typecheck pass.
+      - name: Type-check (Pages Functions)
+        run: pnpm exec tsc -p functions/tsconfig.json
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Unit tests
+        run: pnpm test:unit

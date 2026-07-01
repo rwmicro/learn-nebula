@@ -1,0 +1,53 @@
+# TODO
+
+## Fait
+- [x] Ajouter une croix dans la barre de recherche pour effacer le texte
+      → bouton ✕ (visible quand il y a du texte, refocus l'input), clé i18n `home.searchClear` ×4 langues
+- [x] Ajouter la traduction pour Social Sciences dans toutes les langues
+      → les 2 grands thèmes (Applied/Social Sciences) localisés sur l'accueil via `nav.*`
+- [x] Faire un scan de la codebase backend
+      → functions/api/* sains : SQL paramétré, entrées plafonnées, nettoyage du flux (finally/cancel),
+        dégradation gracieuse si config absente. Voir « Points d'attention » plus bas.
+- [x] Faire un scan de la codebase frontend (responsive)
+      → pas de largeurs px débordantes, `-mr-96` gated `min-[1081px]`, tables/code scrollables. OK.
+- [x] Ajouter des tests
+      → vitest : 18 → 34 (i18n + site/CSP). `pnpm test:unit`
+- [x] Ajouter un linter
+      → ESLint flat config (eslint-config-next 16) + scripts `lint` / `lint:fix`. 0 erreur.
+- [x] Github Actions pour le déploiement
+      → .github/workflows/ci.yml (typecheck+lint+tests) et deploy.yml (Cloudflare Pages, opt-in)
+- [x] Recherche avancée déroulante (par notes / pdf / anki / thèmes) au clic sur l'input
+      → panneau qui descend au focus, onglets de portée avec compteurs live, PDF surfacés
+        via getPdfAssets(), thèmes ouvrent le dossier dans l'arbre. i18n ×4.
+
+## Points d'attention déploiement (action requise de ta part)
+- wrangler.toml : `database_id = "REPLACE_WITH_DATABASE_ID"` → /api/comments ne marchera pas
+  tant que la base D1 n'est pas créée (`wrangler d1 create garden-comments`).
+- Lockfiles : le projet utilise pnpm (`packageManager`) mais `pnpm-lock.yaml` était gitignoré
+  (corrigé) et `package-lock.json` (npm) est encore suivi. → committer pnpm-lock.yaml et
+  supprimer package-lock.json pour un build/CI reproductible.
+- Secrets Pages à définir : ANTHROPIC_API_KEY, TURNSTILE_SECRET_KEY, COMMENTS_ADMIN_TOKEN ;
+  et pour l'index : CLOUDFLARE_ACCOUNT_ID / CLOUDFLARE_API_TOKEN.
+
+## Fait (suite 2)
+- [x] Le titre de la page principale s'affichait sur deux lignes sur mobile
+      → wordmark en `whitespace-nowrap` + `--text-wordmark: clamp(1.3rem, 7.5cqi, 6.5rem)`.
+        Vérifié 1 ligne de 360px à 1280px, sans débordement horizontal.
+- [x] Afficher toutes les notes (même images/PDF) dans la liste des notes
+      → pruneToNotes garde les assets (icône ▤, ouverture nouvel onglet) ; ~19 assets.
+        Search inchangée (assets exclus de la recherche, PDF déjà gérés par le scope PDF).
+- [x] Scanner l'UI de la page de notes et donne ton avis
+      → revue faite (voir messages) ; constats : date en anglais sur page FR (formatDateLong
+        hardcode en-US), collision « temps de lecture » ↔ TOC, dropcap un peu serrée.
+
+## Assistant IA (fait précédemment)
+- Rate-limit Cache API, langues es/zh, rendu Markdown léger, auto-scroll.
+
+## Fait (suite 3)
+- [x] Fixes UI page de note : date en FR (formatDateLong → fr-FR), reading-time sorti de
+      la colonne TOC, dropcap aérée, toggle « texte large » masqué < 640px.
+- [x] Améliorer le graphe / évaluer une meilleure lib
+      → recherche : à ~1300 nœuds, force-graph (canvas) reste le bon choix ; Sigma.js (WebGL)
+        seulement si >10k nœuds. Pas de migration. Amélioration appliquée (d'après l'article
+        Cambridge Intelligence) : boîte de recherche « Localiser une note » qui recadre/zoome
+        sur le nœud. Pistes restantes : filtre par discipline + légende, toggle liens/notes.
