@@ -906,27 +906,6 @@ export function HomeContent({
         </div>
       </div>
 
-      {/* 3. footer */}
-      <footer className="mt-[3.4rem] border-t border-[#1a1a1a] pt-[1.1rem]">
-        <nav
-          aria-label={tr("home.footerNavAria")}
-          className="mb-[0.6rem] flex gap-7"
-        >
-          <a
-            href="/"
-            className={`${linkCls} text-micro font-semibold uppercase tracking-[0.1em]`}
-          >
-            {tr("nav.home")}
-          </a>
-          <a
-            href="/graph/"
-            className={`${linkCls} text-micro font-semibold uppercase tracking-[0.1em]`}
-          >
-            {tr("nav.graph")}
-          </a>
-        </nav>
-        <p className="m-0 text-pretty text-micro text-[#8a857b]">{tr("home.copyright")}</p>
-      </footer>
     </section>
   );
 }

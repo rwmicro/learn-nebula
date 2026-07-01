@@ -1,14 +1,7 @@
-"use client";
-
-import { usePathname } from "next/navigation";
 import { AUTHOR, ORIGINAL_AUTHOR, ORIGINAL_AUTHOR_URL } from "@/lib/site";
 
+// Single site-wide footer, identical on the home page and note pages.
 export function Footer() {
-  // The home page renders its own editorial footer (see HomeContent), so the
-  // site-wide footer steps aside there.
-  const pathname = usePathname();
-  if (pathname === "/") return null;
-
   const year = new Date().getFullYear();
   return (
     <footer
