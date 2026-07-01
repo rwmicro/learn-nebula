@@ -15,3 +15,15 @@ binding = "AI"
 [[vectorize]]
 binding = "VECTORIZE"
 index_name = "garden-notes"
+
+# D1 — comments storage for /api/comments.
+# One-time setup:
+#   wrangler d1 create garden-comments       # copy returned database_id below
+#   wrangler d1 execute garden-comments --remote --file=./schema/comments.sql
+# Secrets to set:
+#   wrangler pages secret put TURNSTILE_SECRET_KEY
+#   wrangler pages secret put COMMENTS_ADMIN_TOKEN
+[[d1_databases]]
+binding = "DB"
+database_name = "garden-comments"
+database_id = "REPLACE_WITH_DATABASE_ID"

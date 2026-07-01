@@ -8,7 +8,15 @@ import path from "node:path";
 const ROOT = process.cwd();
 const SRC = path.join(ROOT, "content", "posts");
 const OUT = path.join(ROOT, "public", "vault");
-const EXTS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".avif", ".pdf"]);
+const EXTS = new Set([
+  // Images
+  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".avif",
+  // Documents
+  ".pdf",
+  // Video — needed for embedded clips and for the Manim cache (_manim/*.mp4)
+  // populated by the obsidian-manim-renderer plugin.
+  ".mp4", ".webm", ".mov", ".ogv",
+]);
 // Cloudflare Pages rejects any single asset larger than 25 MiB. Skip those
 // (with a warning) so one oversized file can't fail the whole deployment;
 // optimise it at the source instead.
