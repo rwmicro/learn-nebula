@@ -38,6 +38,7 @@
     "@types/react-dom": "^19.0.0",
     "axe-core": "^4.11.1",
     "axe-playwright": "^2.2.2",
+    "esbuild": "^0.28.1",
     "eslint": "^9.39.4",
     "eslint-config-next": "16.2.9",
     "fflate": "^0.8.3",
