@@ -5,7 +5,8 @@
 // Pipeline, all server-side:
 //   1. embed the question with Workers AI (@cf/baai/bge-m3, multilingual)
 //   2. query the Vectorize index for the nearest note chunks
-//   3. ask Claude Haiku to answer *only* from those chunks, streamed back
+//   3. ask Claude Haiku to answer *only* from those chunks, streamed back as
+//      NDJSON ({sources}, then {chunk: "…"} per delta, then optional {error})
 //
 // The note chunks are embedded and upserted at build time by
 // scripts/index-notes.mjs. The Anthropic key is the `ANTHROPIC_API_KEY` secret;
@@ -26,18 +27,86 @@ const TOP_K = 5;
 const MAX_QUESTION = 1000; // chars
 const MAX_SELECTION = 4000; // chars
 
-const SYSTEM = `Tu es l'assistant de « The Gardener », un jardin de notes personnel.
-Règles :
-- Réponds UNIQUEMENT à partir des extraits de notes fournis dans le message de l'utilisateur.
-- Si un « passage sélectionné » est fourni, c'est l'extrait que l'utilisateur veut comprendre : appuie-toi dessus en priorité.
-- Si la réponse n'y figure pas, dis-le clairement (« Je ne trouve pas cela dans les notes ») — n'invente rien et n'utilise pas de connaissances générales extérieures aux notes.
-- Quand c'est utile, cite le titre des notes que tu utilises.
-- Réponds en français, de façon concise et claire.`;
+// Module-scope client: reused across hot Worker invocations instead of being
+// re-instantiated per request.
+let cachedClient: Anthropic | null = null;
+function getAnthropic(key: string): Anthropic {
+  if (!cachedClient) cachedClient = new Anthropic({ apiKey: key });
+  return cachedClient;
+}
+
+// In-flight set keyed by IP — refuses parallel duplicates from the same
+// client (the typical misclick / impatient resend). Cleared once the stream
+// finishes. Not a real rate limiter (Workers are ephemeral and per-region),
+// just a cheap dedupe to avoid burning tokens on accidental double-submits.
+const inFlight = new Set<string>();
+
+// Per-IP cooldown via the Cache API: this endpoint spends Anthropic + Workers AI
+// tokens, so throttle rapid sequential calls to blunt scripted abuse. Per-colo
+// (the cache is per data centre) and best-effort — for a hard global limit, add
+// a Cloudflare WAF rate-limiting rule or Turnstile on top. Fails open if the
+// cache is unavailable.
+const RATE_COOLDOWN_S = 3;
+async function rateLimited(ip: string): Promise<boolean> {
+  if (ip === "anon") return false;
+  try {
+    const cache = caches.default;
+    const key = new Request(`https://ratelimit.internal/ask/${encodeURIComponent(ip)}`);
+    if (await cache.match(key)) return true;
+    await cache.put(
+      key,
+      new Response("1", { headers: { "cache-control": `max-age=${RATE_COOLDOWN_S}` } }),
+    );
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+type ReplyLang = "fr" | "en" | "es" | "zh";
+const REPLY_LANGS = new Set<string>(["fr", "en", "es", "zh"]);
+const REPLY_LINE: Record<ReplyLang, string> = {
+  fr: "Réponds en français, de façon concise et claire.",
+  en: "Reply in English, concisely and clearly.",
+  es: "Responde en español, de forma concisa y clara.",
+  zh: "用中文简洁明了地回答。",
+};
+const DEFAULT_Q: Record<ReplyLang, string> = {
+  fr: "Explique ce passage.",
+  en: "Explain this passage.",
+  es: "Explica este pasaje.",
+  zh: "解释这段内容。",
+};
+
+function buildSystem(replyLang: ReplyLang): string {
+  const replyLine = REPLY_LINE[replyLang];
+  return [
+    "Tu es l'assistant de « The Gardener », un jardin de notes personnel.",
+    "Règles :",
+    "- Réponds UNIQUEMENT à partir des extraits de notes fournis dans le message de l'utilisateur.",
+    "- Si un « passage sélectionné » est fourni, c'est l'extrait que l'utilisateur veut comprendre : appuie-toi dessus en priorité.",
+    "- Si la réponse n'y figure pas, dis-le clairement (« Je ne trouve pas cela dans les notes ») — n'invente rien et n'utilise pas de connaissances générales extérieures aux notes.",
+    "- Quand c'est utile, cite le titre des notes que tu utilises.",
+    "- Le texte peut utiliser du Markdown léger (**gras**, *italique*, `code`, listes `- `).",
+    "- " + replyLine,
+  ].join("\n");
+}
 
 interface ChunkMeta {
   title?: string;
   url?: string;
   text?: string;
+}
+
+function ndLine(obj: unknown): string {
+  return JSON.stringify(obj) + "\n";
+}
+
+function json(data: unknown, status: number): Response {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8" },
+  });
 }
 
 export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
@@ -48,20 +117,33 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     );
   }
 
-  let payload: { question?: string; selection?: string };
+  let payload: { question?: string; selection?: string; locale?: string };
   try {
     payload = await request.json();
   } catch {
     return json({ error: "Requête invalide." }, 400);
   }
+
+  const replyLang: ReplyLang = REPLY_LANGS.has(payload.locale ?? "")
+    ? (payload.locale as ReplyLang)
+    : "fr";
+  const defaultQ = DEFAULT_Q[replyLang];
   const selection = (payload.selection ?? "").trim().slice(0, MAX_SELECTION);
-  // A selected passage can stand in for the question (e.g. "explain this").
   const question = (
-    (payload.question ?? "").trim() || (selection ? "Explique ce passage." : "")
+    (payload.question ?? "").trim() || (selection ? defaultQ : "")
   ).slice(0, MAX_QUESTION);
   if (!question) {
     return json({ error: "Question manquante." }, 400);
   }
+
+  const ip = request.headers.get("cf-connecting-ip") ?? "anon";
+  if (await rateLimited(ip)) {
+    return json({ error: "Trop de requêtes — réessaie dans un instant." }, 429);
+  }
+  if (inFlight.has(ip)) {
+    return json({ error: "Une requête est déjà en cours." }, 429);
+  }
+  inFlight.add(ip);
 
   // 1. Embed the query — fold in the selection so retrieval finds its source note.
   let queryVector: number[];
@@ -71,11 +153,15 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     ).slice(0, 2000);
     const embedding = (await env.AI.run(EMBED_MODEL, {
       text: [queryText],
-    })) as {
-      data: number[][];
-    };
+    })) as { data?: number[][] };
+    if (!embedding?.data?.length || !embedding.data[0]?.length) {
+      inFlight.delete(ip);
+      return json({ error: "Échec de l'embedding." }, 502);
+    }
     queryVector = embedding.data[0];
-  } catch {
+  } catch (e) {
+    console.error("ask: embed failed", e);
+    inFlight.delete(ip);
     return json({ error: "Indexation sémantique indisponible." }, 502);
   }
 
@@ -99,12 +185,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       }
     }
     context = blocks.join("\n\n");
-  } catch {
+  } catch (e) {
     // Index missing/empty — fall through and let the model say it doesn't know.
+    console.warn("ask: vectorize query failed", e);
   }
 
-  // 3. Generate the grounded answer, streamed back as plain text. The selected
-  // passage (if any) leads the context so the model treats it as the focus.
+  // 3. Stream the grounded answer back as NDJSON. First line = sources, then
+  // one `{chunk: "…"}` per text delta, and a trailing `{error}` if the stream
+  // dies mid-way so the client can show a clear failure indicator.
   const noteContext = [
     selection
       ? `Passage sélectionné par l'utilisateur dans une note :\n« ${selection} »`
@@ -114,11 +202,11 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
     .filter(Boolean)
     .join("\n\n");
 
-  const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+  const client = getAnthropic(env.ANTHROPIC_API_KEY);
   const stream = client.messages.stream({
     model: GEN_MODEL,
     max_tokens: 1024,
-    system: SYSTEM,
+    system: buildSystem(replyLang),
     messages: [
       {
         role: "user",
@@ -132,38 +220,38 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const encoder = new TextEncoder();
   const body = new ReadableStream<Uint8Array>({
     async start(controller) {
+      controller.enqueue(encoder.encode(ndLine({ sources })));
       try {
         for await (const event of stream) {
           if (
             event.type === "content_block_delta" &&
             event.delta.type === "text_delta"
           ) {
-            controller.enqueue(encoder.encode(event.delta.text));
+            controller.enqueue(
+              encoder.encode(ndLine({ chunk: event.delta.text })),
+            );
           }
         }
-      } catch {
+      } catch (e) {
+        console.error("ask: stream failed", e);
         controller.enqueue(
-          encoder.encode("\n\n[L'assistant a rencontré une erreur.]"),
+          encoder.encode(ndLine({ error: "stream_failed" })),
         );
       } finally {
+        inFlight.delete(ip);
         controller.close();
       }
+    },
+    cancel() {
+      // Client aborted (AbortController, navigation away). Free the slot.
+      inFlight.delete(ip);
     },
   });
 
   return new Response(body, {
     headers: {
-      "content-type": "text/plain; charset=utf-8",
+      "content-type": "application/x-ndjson; charset=utf-8",
       "cache-control": "no-store",
-      // Sources travel in a header so the streamed body stays pure answer text.
-      "x-sources": encodeURIComponent(JSON.stringify(sources)),
     },
   });
 };
-
-function json(data: unknown, status: number): Response {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "content-type": "application/json; charset=utf-8" },
-  });
-}

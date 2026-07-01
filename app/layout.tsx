@@ -1,10 +1,33 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, buildCSP } from "@/lib/site";
+import { DEFAULT_LOCALE, getMessages, t } from "@/lib/i18n";
 import { Footer } from "@/components/Footer";
 import "../assets/css/fonts.css";
-import "../assets/css/main.css";
-import "../assets/css/syntax.css";
+// Global frame only (Tailwind + @theme + html/body/main margins). Article
+// typography lives in main.css, loaded per-route on note pages / 404.
+import "../assets/css/global.css";
+
+// Inline both message bundles so the runtime swap (/js/i18n.js) has them
+// available without a second fetch. Escapes `</script>` collisions.
+const I18N_BOOTSTRAP = `window.__i18n = {
+  defaultLocale: ${JSON.stringify(DEFAULT_LOCALE)},
+  bundles: { fr: ${JSON.stringify(getMessages("fr"))}, en: ${JSON.stringify(getMessages("en"))}, es: ${JSON.stringify(getMessages("es"))}, zh: ${JSON.stringify(getMessages("zh"))} }
+};
+/* Shared helpers, defined synchronously so every afterInteractive module
+   (audio.js, comments.js, ask.js, translate.js…) can use them without
+   redefining their own copy or racing /js/i18n.js. */
+window.__i18n.escapeHtml = function (s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+};
+window.__i18n.hash = function (s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(16);
+};
+window.__i18n.getActiveLocale = function () {
+  return window.__i18n.locale || window.__i18n.defaultLocale;
+};`.replace(/<\/script/gi, "<\\/script");
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -29,6 +52,12 @@ export default function RootLayout({
       <head>
         <meta httpEquiv="Content-Security-Policy" content={buildCSP()} />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
+        <link
+          rel="alternate"
+          type="application/atom+xml"
+          title={SITE_TITLE}
+          href="/feed.xml"
+        />
         {/* Body font: preloaded so text paints in the real face sooner (the
             metric-matched fallback already prevents layout shift). */}
         <link
@@ -40,15 +69,37 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <a href="#main" className="skip-link">
-          Aller au contenu
+        <a
+          href="#main"
+          className="absolute left-[-9999px] top-0 z-[2000] border border-[#111] bg-white px-4 py-2 [font-family:'Alegreya_Sans',sans-serif] focus:left-[0.6rem] focus:top-[0.6rem]"
+          data-i18n="layout.skipLink"
+        >
+          {t("layout.skipLink")}
         </a>
+        <script
+          // Sync inline: must run before any vanilla module (audio.js, comments.js,
+          // …) so they can read window.__i18n.t at load. Loader-blocking is fine
+          // — the bundle is small (< 6 KB).
+          dangerouslySetInnerHTML={{ __html: I18N_BOOTSTRAP }}
+        />
+        <Script src="/js/i18n.js" strategy="afterInteractive" />
         {children}
         <Footer />
+        {/* Site-wide enhancers. Note-page-only behaviours (TOC, audio, comments,
+            the floating assistant, …) load per-route via <NoteScripts /> so the
+            home page no longer pulls scripts it doesn't use. */}
         <Script src="/js/instantpage.js" strategy="afterInteractive" />
         <Script src="/js/lightbox.js" strategy="afterInteractive" />
-        <Script src="/js/toc.js" strategy="afterInteractive" />
-        <Script src="/js/ask.js" strategy="afterInteractive" />
+        {/* Cloudflare Web Analytics (cookieless). Set NEXT_PUBLIC_CF_BEACON_TOKEN
+            in the Pages env (from the Cloudflare dashboard) to enable it; unset
+            in dev/local so no analytics are sent. */}
+        {process.env.NEXT_PUBLIC_CF_BEACON_TOKEN && (
+          <Script
+            src="https://static.cloudflareinsights.com/beacon.min.js"
+            strategy="afterInteractive"
+            data-cf-beacon={`{"token": "${process.env.NEXT_PUBLIC_CF_BEACON_TOKEN}"}`}
+          />
+        )}
       </body>
     </html>
   );

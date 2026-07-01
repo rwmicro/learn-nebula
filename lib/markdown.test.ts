@@ -109,4 +109,42 @@ describe("renderMarkdown", () => {
     expect(html).not.toContain('href="/posts');
     expect(html).toContain("chroma");
   });
+
+  it("transforms ```manim blocks into a figure with collapsible source", async () => {
+    const { html } = await renderMarkdown(
+      "```manim\nfrom manim import *\nclass Hello(Scene):\n    def construct(self):\n        self.play(Create(Circle()))\n```",
+    );
+    // Figure wrapper + missing-render placeholder (no cached file in tests).
+    expect(html).toContain('class="manim-figure"');
+    expect(html).toContain("data-manim-hash");
+    expect(html).toContain("manim-missing");
+    // The source is still present in a <details>, syntax-highlighted as Python.
+    expect(html).toContain("manim-source");
+    expect(html).toContain("<details");
+    // The source code text survives.
+    expect(html).toContain("Hello");
+  });
+
+  it("includes the per-block directive in the hash (different config → different file)", async () => {
+    const baseCode =
+      "from manim import *\nclass Hello(Scene):\n    def construct(self):\n        pass";
+    const a = await renderMarkdown("```manim\n" + baseCode + "\n```");
+    const b = await renderMarkdown(
+      "```manim\n# manim: quality=h\n" + baseCode + "\n```",
+    );
+    const hashA = a.html.match(/data-manim-hash="([0-9a-f]+)"/)?.[1];
+    const hashB = b.html.match(/data-manim-hash="([0-9a-f]+)"/)?.[1];
+    expect(hashA).toBeDefined();
+    expect(hashB).toBeDefined();
+    expect(hashA).not.toBe(hashB);
+  });
+
+  it("converts ![](video.mp4) to a <video> element", async () => {
+    const { html } = await renderMarkdown("![clip](https://example.com/demo.mp4)");
+    expect(html).toContain("<video");
+    expect(html).toContain("controls");
+    expect(html).toContain("https://example.com/demo.mp4");
+    // No broken <img> for the same src.
+    expect(html).not.toContain("<img");
+  });
 });

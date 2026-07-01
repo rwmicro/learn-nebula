@@ -5,6 +5,10 @@ import { extractPlain, truncate } from "@/lib/markdown";
 import { SITE_URL, AUTHOR, absoluteURL } from "@/lib/site";
 import { graph, breadcrumbJsonLd } from "@/lib/jsonld";
 import { SinglePage } from "@/components/SinglePage";
+import { NoteScripts } from "@/components/NoteScripts";
+// Article typography + note-widget styles, scoped to this route only.
+import "@/assets/css/main.css";
+import "@/assets/css/syntax.css";
 
 type Params = { params: Promise<{ slug: string[] }> };
 
@@ -40,10 +44,15 @@ export default async function PostPage({ params }: Params) {
     mainEntityOfPage: url,
     image: firstImage(doc.body),
     ...(iso ? { datePublished: iso, dateModified: iso } : {}),
-    author: { "@type": "Person", name: fm.author?.[0] ?? AUTHOR },
+    author: { "@type": "Person", name: AUTHOR },
     publisher: { "@type": "Person", name: AUTHOR, url: `${SITE_URL}/` },
   };
   const breadcrumb = breadcrumbJsonLd(fm.title, url, INDEX_NOTE);
 
-  return <SinglePage doc={doc} jsonLd={graph(article, breadcrumb)} note />;
+  return (
+    <>
+      <SinglePage doc={doc} jsonLd={graph(article, breadcrumb)} note />
+      <NoteScripts />
+    </>
+  );
 }

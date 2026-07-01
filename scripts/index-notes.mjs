@@ -184,7 +184,51 @@ if (!records.length) {
   process.exit(0);
 }
 
-console.log(`index-notes: embedding ${records.length} chunk(s) from notes…`);
+// --- incremental: only (re)embed chunks whose text changed since last run ----
+// The manifest (id -> sha256(text)) is persisted between builds; in CI it is
+// restored/saved via actions/cache. On a cache miss (empty manifest) everything
+// is re-embedded, which is always safe. Set FORCE_REINDEX=true to ignore it
+// (e.g. after recreating/wiping the Vectorize index).
+const MANIFEST_PATH = path.join(process.cwd(), ".cache", "index-manifest.json");
+const FORCE_REINDEX = process.env.FORCE_REINDEX === "true";
+const hashText = (t) => crypto.createHash("sha256").update(t).digest("hex");
+
+let oldManifest = {};
+if (!FORCE_REINDEX) {
+  try {
+    oldManifest = JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8"));
+  } catch {
+    oldManifest = {}; // missing/invalid manifest -> full reindex
+  }
+}
+
+const manifest = {};
+const toIndex = [];
+for (const r of records) {
+  const h = hashText(r.text);
+  manifest[r.id] = h;
+  if (oldManifest[r.id] !== h) toIndex.push(r);
+}
+
+function writeManifest() {
+  fs.mkdirSync(path.dirname(MANIFEST_PATH), { recursive: true });
+  fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest));
+}
+
+if (!toIndex.length) {
+  writeManifest(); // drops ids for deleted notes
+  console.log(
+    `index-notes: ${records.length} chunk(s) unchanged — nothing to embed.`,
+  );
+  process.exit(0);
+}
+
+const skipped = records.length - toIndex.length;
+console.log(
+  `index-notes: embedding ${toIndex.length} new/changed chunk(s)` +
+    (skipped ? ` (${skipped} unchanged, skipped)` : "") +
+    " from notes…",
+);
 
 // Embed in batches, then upsert in batches.
 let pending = [];
@@ -194,8 +238,8 @@ async function flushUpsert() {
   pending = [];
 }
 
-for (let i = 0; i < records.length; i += EMBED_BATCH) {
-  const batch = records.slice(i, i + EMBED_BATCH);
+for (let i = 0; i < toIndex.length; i += EMBED_BATCH) {
+  const batch = toIndex.slice(i, i + EMBED_BATCH);
   const vectors = await embed(batch.map((r) => r.text));
   batch.forEach((r, j) => {
     pending.push({
@@ -208,6 +252,9 @@ for (let i = 0; i < records.length; i += EMBED_BATCH) {
 }
 await flushUpsert();
 
+// Only record success once the vectors are actually upserted.
+writeManifest();
+
 console.log(
-  `index-notes: upserted ${records.length} vector(s) into "${INDEX}".`,
+  `index-notes: upserted ${toIndex.length} vector(s) into "${INDEX}".`,
 );

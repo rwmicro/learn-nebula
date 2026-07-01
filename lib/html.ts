@@ -1,5 +1,6 @@
 import { NAV } from "./site";
-import { INDEX_NOTE, type TreeNode, type SiblingNav } from "./content";
+import { INDEX_NOTE, type SiblingNav, type SiblingRef } from "./content";
+import { t, i18nAttrs, i18nAttr } from "./i18n";
 
 export function escapeHtml(s: string): string {
   return s
@@ -14,9 +15,14 @@ export function encodeSlug(slug: string): string {
   return slug.split("/").map(encodeURIComponent).join("/");
 }
 
-/** Site navigation, rendered inside <main> as in layouts/baseof.html. */
+/** Site navigation, rendered inside <main> as in layouts/baseof.html. The
+ * NAV entries' `name` field is an i18n key (e.g. "nav.home"); the runtime
+ * swap reads `data-i18n` and replaces textContent. */
 export function navHtml(): string {
-  const items = NAV.map((n) => `<li><a href="${n.href}">${escapeHtml(n.name)}</a></li>`).join("");
+  const items = NAV.map(
+    (n) =>
+      `<li><a href="${n.href}"${i18nAttrs(n.name)}>${escapeHtml(t(n.name))}</a></li>`,
+  ).join("");
   return `<nav class="site-nav" data-pagefind-ignore><ul>${items}</ul></nav>`;
 }
 
@@ -25,7 +31,9 @@ export function navHtml(): string {
  * plus, when enabled and the first letter is A–Z, the matching Goudy font.
  */
 export function dropcapHtml(plain: string, dropcap: boolean | undefined): string {
-  const base = `<style>main > p:first-of-type::first-letter { font-family: "GoudyInitialen", "Alegreya", "Alegreya Fallback", serif; float: left; font-size: 6.6rem; line-height: 0.8; padding: 0.43rem 0.3rem 0 0; }</style>`;
+  // Dropcap is fluid too: 60px @ 320px viewport → 99px @ ≥1080. The
+  // tight line-height and small padding stay constant; only the cap scales.
+  const base = `<style>.article-body > p:first-of-type::first-letter, main > p:first-of-type::first-letter { font-family: "GoudyInitialen", "Alegreya", "Alegreya Fallback", serif; float: left; font-size: clamp(3.8rem, 2.2rem + 5vw, 6.6rem); line-height: 0.8; padding: 0.4rem 0.5rem 0.08rem 0; }</style>`;
   const first = plain
     .replace(/^[^A-Za-z]*/, "")
     .charAt(0)
@@ -38,21 +46,206 @@ export function dropcapHtml(plain: string, dropcap: boolean | undefined): string
   return font + base;
 }
 
-export function signatureHtml(author: string): string {
-  return `<div class="signature">&mdash;${escapeHtml(author)}</div>`;
+/** Text-to-speech toggle for note bodies; wired client-side by /js/audio.js. */
+export function audioButtonHtml(): string {
+  const play =
+    `<svg class="audio-icon audio-icon-play" viewBox="0 0 32 32" width="14" height="14" aria-hidden="true">` +
+    `<path fill="currentColor" d="M31.995 18.892c0.003-0.658-0.101-3.141-0.18-3.851-0.91-8.149-7.523-14.063-15.724-14.063-8.542 0-15.463 6.582-15.932 15.309-0.010 0.191-0.080 1.542-0.085 2.346l-0.003 0.448c-0.041 0.185-0.066 0.376-0.066 0.573v8.708c0 1.465 1.192 2.657 2.656 2.657h2.696c1.465 0 2.657-1.192 2.657-2.657v-8.707c0-1.465-1.192-2.657-2.657-2.657h-2.697c-0.184 0-0.364 0.019-0.537 0.055 0.015-0.325 0.029-0.581 0.032-0.658 0.412-7.649 6.473-13.417 13.936-13.417 7.165 0 12.941 5.167 13.736 12.285 0.034 0.297 0.077 1.052 0.111 1.81-0.195-0.045-0.394-0.075-0.601-0.075h-2.665c-1.465 0-2.657 1.192-2.657 2.657v8.677c0 1.465 1.192 2.657 2.657 2.657h2.665c1.465 0 2.657-1.192 2.657-2.657v-8.677c0-0.163-0.020-0.322-0.049-0.476 0.029-0.092 0.048-0.188 0.049-0.288zM2.66 19h2.696c0.362 0 0.657 0.294 0.657 0.657v8.708c0 0.363-0.295 0.657-0.657 0.657h-2.696c-0.362 0-0.656-0.294-0.656-0.657v-8.708c0.001-0.363 0.295-0.657 0.657-0.657zM29.995 28.333c0 0.363-0.295 0.657-0.657 0.657h-2.665c-0.363 0-0.657-0.294-0.657-0.657v-8.677c0-0.363 0.294-0.657 0.657-0.657h2.665c0.363 0 0.657 0.294 0.657 0.657v8.677z"/>` +
+    `</svg>`;
+  const pause =
+    `<svg class="audio-icon audio-icon-pause" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">` +
+    `<rect x="6" y="4" width="4" height="16" fill="currentColor"/>` +
+    `<rect x="14" y="4" width="4" height="16" fill="currentColor"/>` +
+    `</svg>`;
+  return (
+    `<button class="audio-btn" type="button" data-state="idle" ` +
+    `aria-label="${escapeHtml(t("noteActions.audioAriaIdle"))}"` +
+    i18nAttr("aria-label", "noteActions.audioAriaIdle") +
+    ` hidden data-pagefind-ignore>` +
+    play +
+    pause +
+    `<span class="audio-label"${i18nAttrs("noteActions.audioListen")}>${escapeHtml(t("noteActions.audioListen"))}</span>` +
+    `</button>`
+  );
 }
 
-/** Small page header for notes: link home + folder breadcrumb. */
-export function noteHeaderHtml(rawPath: string): string {
+/** Cycle the note body width: normal → wide → widest → normal. State is
+ * persisted by /js/wide-text.js as `noteWideText` in localStorage. The CSS
+ * for each non-normal state lives behind `body[data-wide-text="wide|widest"]`. */
+export function wideTextButtonHtml(): string {
+  const expand =
+    `<svg class="wide-icon wide-icon-expand" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">` +
+    `<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ` +
+    `d="M10 6 4 12l6 6M14 6l6 6-6 6M4 12h16"/>` +
+    `</svg>`;
+  const collapse =
+    `<svg class="wide-icon wide-icon-collapse" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">` +
+    `<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ` +
+    `d="M3 6l6 6-6 6M21 6l-6 6 6 6M9 12h6"/>` +
+    `</svg>`;
+  return (
+    `<button class="wide-text-btn" type="button" data-state="normal" ` +
+    `aria-label="${escapeHtml(t("noteActions.wideAriaNormal"))}"` +
+    i18nAttr("aria-label", "noteActions.wideAriaNormal") +
+    ` data-pagefind-ignore>` +
+    expand +
+    collapse +
+    `<span class="wide-text-label"${i18nAttrs("noteActions.wideExpand")}>${escapeHtml(t("noteActions.wideExpand"))}</span>` +
+    `</button>`
+  );
+}
+
+/** Supported target languages for on-demand translation. Display names are
+ * resolved at runtime via Intl.DisplayNames so they follow the UI locale;
+ * /js/translate.js sorts the menu by display name in that locale. */
+export const TRANSLATE_LANGS = [
+  // Western Europe
+  "en", "es", "fr", "de", "it", "pt", "nl", "ca", "ga", "cy", "eu",
+  // Nordic
+  "sv", "da", "no", "fi", "is",
+  // Central / Eastern Europe
+  "pl", "cs", "sk", "hu", "ro", "bg", "hr", "sr", "sl", "el", "uk", "ru", "be",
+  "lv", "lt", "et",
+  // Middle East
+  "tr", "ar", "he", "fa",
+  // South Asia
+  "hi", "bn", "ur", "ta", "te", "mr", "gu", "pa", "ml", "kn",
+  // East / Southeast Asia
+  "ja", "zh", "ko", "vi", "th", "id", "ms", "tl",
+  // Africa
+  "sw", "am", "yo",
+] as const;
+
+/** Translate-this-note widget: a typographic button that toggles a dropdown
+ * menu of target languages. Menu items are rendered without their textContent
+ * — /js/translate.js fills them with Intl.DisplayNames in the active UI
+ * locale. State + caching also live in translate.js. */
+export function translateButtonHtml(sourceLang: "fr" | "en"): string {
+  const icon =
+    `<svg class="translate-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">` +
+    `<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ` +
+    `d="M4 5h10M9 4v2M5 14a8 8 0 0 0 10-7M14 19l4-10 4 10M15.5 16h5"/>` +
+    `</svg>`;
+  const items = TRANSLATE_LANGS.filter((l) => l !== sourceLang)
+    .map(
+      (l) =>
+        `<li role="none"><button class="translate-menu-item" role="menuitem" type="button" data-target-lang="${l}"></button></li>`,
+    )
+    .join("");
+  return (
+    `<span class="translate-wrap" data-pagefind-ignore>` +
+    `<button class="translate-btn" type="button" data-state="idle" ` +
+    `data-source-lang="${sourceLang}" aria-haspopup="menu" aria-expanded="false" ` +
+    `aria-label="${escapeHtml(t("noteActions.translateAriaIdle"))}"` +
+    i18nAttr("aria-label", "noteActions.translateAriaIdle") +
+    `>` +
+    icon +
+    `<span class="translate-label"${i18nAttrs("noteActions.translate")}>${escapeHtml(t("noteActions.translate"))}</span>` +
+    `</button>` +
+    `<ul class="translate-menu" role="menu" ` +
+    `aria-label="${escapeHtml(t("noteActions.translateMenuAria"))}"` +
+    i18nAttr("aria-label", "noteActions.translateMenuAria") +
+    ` hidden>${items}</ul>` +
+    `</span>`
+  );
+}
+
+/** Text-size cycler ("Aa") for the note body; wired by /js/font-size.js. */
+export function fontSizeButtonHtml(): string {
+  return (
+    `<button class="text-size-btn" type="button" data-size="md" ` +
+    `aria-label="${escapeHtml(t("noteActions.textSizeAria"))}"` +
+    i18nAttr("aria-label", "noteActions.textSizeAria") +
+    ` data-pagefind-ignore>` +
+    `<span class="text-size-small">A</span>` +
+    `<span class="text-size-large">A</span>` +
+    `</button>`
+  );
+}
+
+/** Page header for notes. Two bars:
+ *   1. The original in-flow header: home link + folder breadcrumb + toggle.
+ *      Always visible at the top of the article (mobile and desktop).
+ *   2. A condensed sticky bar with the note's title + date + toggle, shown
+ *      only on mobile/tablet (≤ 1080 px) and only once the original header
+ *      has scrolled out of view (handled by /js/sticky-header.js).
+ * The toggle pill is duplicated so it's reachable in both states. */
+export function noteHeaderHtml(
+  rawPath: string,
+  title?: string,
+  date?: { iso: string; formatted: string },
+): string {
   const folders = rawPath.split("/").slice(0, -1);
   const crumbs = folders.length
     ? `<span class="crumbs">${folders.map(escapeHtml).join(" › ")}</span>`
     : "";
-  return `<header class="note-header" data-pagefind-ignore><a href="/">${escapeHtml(INDEX_NOTE)}</a>${crumbs}</header>`;
+  function makeToggle(): string {
+    return (
+      `<button class="aside-toggle" type="button" hidden ` +
+      `aria-label="${escapeHtml(t("sidebar.toggleOpenAria"))}"` +
+      i18nAttr("aria-label", "sidebar.toggleOpenAria") +
+      ` data-pagefind-ignore>` +
+      `<svg class="aside-toggle-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">` +
+      `<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" ` +
+      `d="M4 6h12M4 12h12M4 18h8M19 18l2-2-2-2"/>` +
+      `</svg>` +
+      `<span${i18nAttrs("sidebar.toggleOpen")}>${escapeHtml(t("sidebar.toggleOpen"))}</span>` +
+      `</button>`
+    );
+  }
+  const meta =
+    title || date
+      ? `<div class="note-header-meta">` +
+        (title
+          ? `<span class="note-header-title">${escapeHtml(title)}</span>`
+          : "") +
+        (date
+          ? `<time class="note-header-date" datetime="${escapeHtml(date.iso)}" data-i18n-date>${escapeHtml(date.formatted)}</time>`
+          : "") +
+        `</div>`
+      : "";
+  return (
+    `<header class="note-header" data-pagefind-ignore>` +
+    `<div class="note-header-crumb">` +
+    `<a href="/">${escapeHtml(INDEX_NOTE)}</a>${crumbs}` +
+    `</div>` +
+    makeToggle() +
+    `</header>` +
+    `<div class="note-header-condensed" data-pagefind-ignore aria-hidden="true">` +
+    meta +
+    makeToggle() +
+    `</div>`
+  );
 }
 
-/** Build a right-margin table of contents from the rendered headings (h2/h3). */
-export function buildToc(html: string): string {
+/** Deterministic hash of a string → 0..359 hue, so a given tag always picks
+ * the same colour. Cheap djb2 variant; collisions are fine since we just want
+ * a stable visual chip per tag. */
+function tagHue(s: string): number {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return Math.abs(h) % 360;
+}
+
+function themePillsHtml(tags: unknown[] | undefined): string {
+  if (!tags || !tags.length) return "";
+  // YAML coerces tokens like `802.11` to numbers; cast every entry so neither
+  // `.toLowerCase()` nor `escapeHtml` (which expects a string) blow up.
+  const pills = tags
+    .map((t) => {
+      const s = String(t);
+      const hue = tagHue(s.toLowerCase());
+      return `<span class="theme-pill" style="--theme-h:${hue}">${escapeHtml(s)}</span>`;
+    })
+    .join("");
+  return `<div class="note-themes" aria-label="${escapeHtml(t("sidebar.themesAriaLabel"))}"${i18nAttr("aria-label", "sidebar.themesAriaLabel")}>${pills}</div>`;
+}
+
+/** Build a right-margin sidebar with a Pagefind search bar, the note's themes
+ * (frontmatter `tags`), and the table of contents. The TOC lists rendered
+ * h2/h3 headings; in dev (no Pagefind bundle) the search box becomes a plain
+ * placeholder input. */
+export function buildToc(html: string, tags?: unknown[]): string {
   const re = /<h([23]) id="([^"]+)">([\s\S]*?)<\/h\1>/g;
   const items: { level: string; id: string; text: string }[] = [];
   let m: RegExpExecArray | null;
@@ -64,11 +257,63 @@ export function buildToc(html: string): string {
       .trim();
     if (text) items.push({ level: m[1], id: m[2], text });
   }
-  if (items.length < 2) return "";
-  const lis = items
-    .map((i) => `<li class="toc-h${i.level}"><a href="#${i.id}">${i.text}</a></li>`)
-    .join("");
-  return `<nav class="toc" data-pagefind-ignore aria-label="Table of contents"><p class="toc-title">Contents</p><ul>${lis}</ul></nav>`;
+  const search =
+    process.env.NODE_ENV === "production"
+      ? `<div id="search" class="pf-search" data-pagefind-ignore></div>`
+      : `<input type="search" class="note-search" placeholder="${escapeHtml(t("sidebar.searchPlaceholder"))}"` +
+        i18nAttr("placeholder", "sidebar.searchPlaceholder") +
+        ` autocomplete="off" aria-label="${escapeHtml(t("sidebar.searchAriaLabel"))}"` +
+        i18nAttr("aria-label", "sidebar.searchAriaLabel") +
+        ` data-pagefind-ignore>`;
+  const toc =
+    items.length >= 2
+      ? `<nav class="toc" aria-label="${escapeHtml(t("sidebar.tocTitle"))}"${i18nAttr("aria-label", "sidebar.tocTitle")}><p class="toc-title"${i18nAttrs("sidebar.tocTitle")}>${escapeHtml(t("sidebar.tocTitle"))}</p><ul>${items
+          .map((i) => `<li class="toc-h${i.level}"><a href="#${i.id}">${i.text}</a></li>`)
+          .join("")}</ul></nav>`
+      : "";
+  // Mobile/tablet close button (lives inside the aside but is hidden by CSS
+  // above 1080 px; on small screens it sits inside the slide-in drawer).
+  const close =
+    `<button class="aside-close" type="button" ` +
+    `aria-label="${escapeHtml(t("sidebar.toggleCloseAria"))}"` +
+    i18nAttr("aria-label", "sidebar.toggleCloseAria") +
+    `>×</button>`;
+  // The trigger pill itself lives in noteHeaderHtml so the sticky header can
+  // host it directly — kept out of the aside so it stays visible while the
+  // aside is hidden behind its drawer transform.
+  return `<aside class="note-aside" data-pagefind-ignore>${close}${search}${themePillsHtml(tags)}${toc}</aside>`;
+}
+
+/** Comments section mount point; data fetching and form handling live in
+ * /js/comments.js. The Turnstile widget is rendered only when the site key is
+ * configured at build time (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`); without it,
+ * submissions still work but go to the moderation queue. */
+export function commentsHtml(slug: string): string {
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
+  const turnstile = siteKey
+    ? `<div class="cf-turnstile" data-sitekey="${escapeHtml(siteKey)}" data-theme="light" data-size="flexible"></div>`
+    : "";
+  return (
+    `<section class="comments" data-pagefind-ignore data-slug="${escapeHtml(slug)}">` +
+    `<h2 class="comments-title"${i18nAttrs("comments.title")}>${escapeHtml(t("comments.title"))}</h2>` +
+    `<div class="comments-list" aria-live="polite"></div>` +
+    `<form class="comments-form" novalidate>` +
+    `<label class="comments-field">` +
+    `<span class="comments-label"${i18nAttrs("comments.namePlaceholder")}>${escapeHtml(t("comments.namePlaceholder"))}</span>` +
+    `<input class="comments-name" type="text" name="name" maxlength="80" autocomplete="name">` +
+    `</label>` +
+    `<label class="comments-field">` +
+    `<span class="comments-label"${i18nAttrs("comments.messageLabel")}>${escapeHtml(t("comments.messageLabel"))}</span>` +
+    `<textarea class="comments-body" name="body" required maxlength="2000" rows="4"></textarea>` +
+    `</label>` +
+    turnstile +
+    `<div class="comments-actions">` +
+    `<button class="comments-submit" type="submit"${i18nAttrs("comments.submit")}>${escapeHtml(t("comments.submit"))}</button>` +
+    `<span class="comments-status" role="status"></span>` +
+    `</div>` +
+    `</form>` +
+    `</section>`
+  );
 }
 
 /** Bottom-of-page navigation between notes in the same folder (prev/next + list). */
@@ -84,7 +329,8 @@ export function siblingNavHtml(nav: SiblingNav): string {
     (nav.next ? link(nav.next, "next") : `<span></span>`) +
     `</div>`;
   const folderName = nav.folder.split("/").pop() ?? "";
-  const heading = folderName ? `More in ${prettyFolder(folderName)}` : "More notes";
+  const headingKey = folderName ? "siblings.moreIn" : "siblings.more";
+  const headingVars = folderName ? { folder: prettyFolder(folderName) } : undefined;
   const items = nav.siblings
     .map((s) =>
       s.current
@@ -93,9 +339,26 @@ export function siblingNavHtml(nav: SiblingNav): string {
     )
     .join("");
   return (
-    `<nav class="siblings" data-pagefind-ignore aria-label="Notes in this folder">` +
+    `<nav class="siblings" data-pagefind-ignore>` +
     arrows +
-    `<p class="sib-title">${escapeHtml(heading)}</p>` +
+    `<p class="sib-title"${i18nAttrs(headingKey, headingVars)}>${escapeHtml(t(headingKey, headingVars))}</p>` +
+    `<ul>${items}</ul>` +
+    `</nav>`
+  );
+}
+
+/** "Notes that link here" — the reverse [[wikilink]] index for a note. */
+export function backlinksHtml(backlinks: SiblingRef[]): string {
+  if (!backlinks.length) return "";
+  const items = backlinks
+    .map(
+      (b) =>
+        `<li><a href="/posts/${encodeSlug(b.slug)}/">${escapeHtml(b.title)}</a></li>`,
+    )
+    .join("");
+  return (
+    `<nav class="backlinks" data-pagefind-ignore>` +
+    `<p class="backlinks-title"${i18nAttrs("siblings.backlinks")}>${escapeHtml(t("siblings.backlinks"))}</p>` +
     `<ul>${items}</ul>` +
     `</nav>`
   );
@@ -106,21 +369,5 @@ function prettyFolder(name: string): string {
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
-function renderNode(node: TreeNode, parentPath = ""): string {
-  if (node.type === "dir") {
-    const path = parentPath ? `${parentPath}/${node.name}` : node.name;
-    return (
-      `<li><details data-path="${escapeHtml(path)}"><summary>${escapeHtml(prettyFolder(node.name))}</summary>` +
-      `<ul>${node.children.map((c) => renderNode(c, path)).join("")}</ul>` +
-      `</details></li>`
-    );
-  }
-  const cls = node.asset ? ' class="tree-asset"' : "";
-  return `<li${cls}><a href="${escapeHtml(node.href)}">${escapeHtml(node.title)}</a></li>`;
-}
-
-/** Collapsible folder tree of notes for the home page. */
-export function renderNoteTree(nodes: TreeNode[]): string {
-  if (!nodes.length) return "<p>No notes yet.</p>";
-  return `<ul class="note-tree" data-pagefind-ignore>${nodes.map((n) => renderNode(n)).join("")}</ul>`;
-}
+// renderNoteTree()/renderNode() removed — the home notes list is now the
+// <HomeContent> React component (lib/content getHomeTree()).
