@@ -742,10 +742,15 @@ body[data-text-size="lg"] main ol li {
   max-width: none;
 }
 
-.note-aside .pf-search .pagefind-ui__search-input,
 .note-aside .note-search {
   font-size: 1.05rem;
   padding: 0.3rem 0.5rem;
+}
+.note-aside .pf-search .pagefind-ui__search-input {
+  font-size: 1.05rem;
+  /* Extra left padding so the placeholder/text clears Pagefind's magnifier
+     (which sits on the form background) instead of colliding with it. */
+  padding: 0.35rem 0.5rem 0.45rem 2.3rem;
 }
 
 .note-themes {
@@ -919,11 +924,13 @@ body[data-text-size="lg"] main ol li {
   font-family: "Alegreya Sans", sans-serif;
   font-size: 1.3rem;
   font-weight: 400;
-  padding: 0.35rem 0.6rem;
   color: #111;
-  background-color: #fcfcfc;
-  background-image: none; /* drop the magnifier icon */
-  border: 1px solid dimgray;
+  /* Match the home search bar: a transparent field with a single bottom rule,
+     not a full box. Pagefind keeps drawing its magnifier on the form. */
+  background-color: transparent;
+  background-image: none;
+  border: none;
+  border-bottom: 1px solid #1a1a1a;
   border-radius: 0;
   box-shadow: none;
 }
