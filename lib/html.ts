@@ -163,6 +163,24 @@ export function fontSizeButtonHtml(): string {
   );
 }
 
+/** The TOC/sidebar toggle pill (mobile only) — rendered next to the date in
+ * SinglePage's subtitle row and in the condensed sticky header. Wired by
+ * public/js/aside-toggle.js, which un-hides every .aside-toggle. */
+export function asideToggleHtml(): string {
+  return (
+    `<button class="aside-toggle" type="button" hidden ` +
+    `aria-label="${escapeHtml(t("sidebar.toggleOpenAria"))}"` +
+    i18nAttr("aria-label", "sidebar.toggleOpenAria") +
+    ` data-pagefind-ignore>` +
+    `<svg class="aside-toggle-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">` +
+    `<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" ` +
+    `d="M4 6h12M4 12h12M4 18h8M19 18l2-2-2-2"/>` +
+    `</svg>` +
+    `<span${i18nAttrs("sidebar.toggleOpen")}>${escapeHtml(t("sidebar.toggleOpen"))}</span>` +
+    `</button>`
+  );
+}
+
 /** Page header for notes. Two bars:
  *   1. The original in-flow header: home link + folder breadcrumb + toggle.
  *      Always visible at the top of the article (mobile and desktop).
@@ -179,20 +197,6 @@ export function noteHeaderHtml(
   const crumbs = folders.length
     ? `<span class="crumbs">${folders.map(escapeHtml).join(" › ")}</span>`
     : "";
-  function makeToggle(): string {
-    return (
-      `<button class="aside-toggle" type="button" hidden ` +
-      `aria-label="${escapeHtml(t("sidebar.toggleOpenAria"))}"` +
-      i18nAttr("aria-label", "sidebar.toggleOpenAria") +
-      ` data-pagefind-ignore>` +
-      `<svg class="aside-toggle-icon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">` +
-      `<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" ` +
-      `d="M4 6h12M4 12h12M4 18h8M19 18l2-2-2-2"/>` +
-      `</svg>` +
-      `<span${i18nAttrs("sidebar.toggleOpen")}>${escapeHtml(t("sidebar.toggleOpen"))}</span>` +
-      `</button>`
-    );
-  }
   const meta =
     title || date
       ? `<div class="note-header-meta">` +
@@ -209,11 +213,10 @@ export function noteHeaderHtml(
     `<div class="note-header-crumb">` +
     `<a href="/">${escapeHtml(INDEX_NOTE)}</a>${crumbs}` +
     `</div>` +
-    makeToggle() +
     `</header>` +
     `<div class="note-header-condensed" data-pagefind-ignore aria-hidden="true">` +
     meta +
-    makeToggle() +
+    asideToggleHtml() +
     `</div>`
   );
 }
