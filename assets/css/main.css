@@ -63,13 +63,26 @@ h1 {
 
 h2 {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-  /* 20px @ 320 → 24px @ ≥1080. */
-  font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
+  /* Fluid, clearly above the ~21px body: ~23px @ 320 → ~37px @ ≥1080. */
+  font-size: clamp(1.45rem, 1.2rem + 1.3vw, 2.3rem);
   font-weight: 700;
   letter-spacing: -0.02rem;
   line-height: 1.1;
   margin-bottom: 0.64rem;
   margin-top: 2.4rem;
+  text-transform: lowercase;
+}
+
+h3 {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  /* Tailwind Preflight resets h3 to body size, so set it explicitly — clearly
+     above the body, a step below h2. Fluid: ~21px @ 320 → ~30px @ ≥1080. */
+  font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: -0.01rem;
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+  margin-top: 1.9rem;
   text-transform: lowercase;
 }
 
@@ -80,6 +93,19 @@ h2 {
   font-size: clamp(1.1rem, 0.95rem + 0.6vw, 1.4rem);
   display: block;
   font-weight: lighter;
+}
+
+/* Date + TOC toggle share a row on notes. The toggle is mobile-only (display
+   none on desktop), so on wide screens the row is simply the date. */
+.subtitle-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+}
+.subtitle-row .subtitle {
+  margin-bottom: 0;
 }
 
 .signature {

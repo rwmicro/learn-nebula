@@ -13,7 +13,7 @@
   /* Min kept small so a long wordmark ("Garden of Knowledge") fits on one line
      on phones instead of wrapping; the cqi term still scales it up grandly on
      wider screens, capped at the max. */
-  --text-wordmark: clamp(1.3rem, 7.5cqi, 6.5rem);
+  --text-wordmark: clamp(1.55rem, 8.6cqi, 6.5rem);
 }
 
 /* ===========================================================================

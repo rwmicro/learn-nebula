@@ -14,6 +14,7 @@ import {
   wideTextButtonHtml,
   translateButtonHtml,
   commentsHtml,
+  asideToggleHtml,
 } from "@/lib/html";
 import { AUTHOR } from "@/lib/site";
 import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
@@ -94,7 +95,10 @@ export async function SinglePage({
     (note ? buildToc(html, fm.tags) : "") +
     katex +
     dropcapHtml(plain, fm.dropcap) +
-    subtitle +
+    // On notes, the date sits on a row with the TOC/sidebar toggle (mobile).
+    (note
+      ? `<div class="subtitle-row">${subtitle}${asideToggleHtml()}</div>`
+      : subtitle) +
     `<h1 class='title-note'>${escapeHtml(fm.title)}</h1>` +
     (note
       ? `<div class="note-actions" data-pagefind-ignore>` +
