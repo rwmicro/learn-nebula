@@ -20,6 +20,9 @@ export interface Frontmatter {
   noindex?: boolean;
   latex?: boolean;
   dropcap?: boolean;
+  /** Taxonomy from the Obsidian frontmatter (see sources/YAML_TAGS_GUIDE). */
+  domain?: string;
+  subdomain?: string;
 }
 
 export interface Doc {
@@ -216,6 +219,34 @@ export function getAllPosts(): Doc[] {
 
 function dateValue(d: Doc): number {
   return d.frontmatter.date ? d.frontmatter.date.getTime() : 0;
+}
+
+export interface DomainGroup {
+  /** The frontmatter `domain` value, e.g. "Computer Science". */
+  name: string;
+  notes: { title: string; href: string }[];
+}
+
+/** Notes grouped by their frontmatter `domain`, for the home "Domaines" search
+ *  scope. Slugs are already ASCII, so the href needs no further encoding. */
+export function getDomains(): DomainGroup[] {
+  const map = new Map<string, { title: string; href: string }[]>();
+  for (const doc of getAllPosts()) {
+    const domain =
+      typeof doc.frontmatter.domain === "string"
+        ? doc.frontmatter.domain.trim()
+        : "";
+    if (!domain) continue;
+    const list = map.get(domain) ?? [];
+    list.push({ title: doc.frontmatter.title, href: `/posts/${doc.slug}/` });
+    map.set(domain, list);
+  }
+  return [...map.entries()]
+    .map(([name, notes]) => ({
+      name,
+      notes: notes.sort((a, b) => a.title.localeCompare(b.title)),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 }
 
 export interface TreeFile {
