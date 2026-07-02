@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { HomeTreeNode, PdfRef } from "@/lib/content";
+import type { HomeTreeNode, PdfRef, DomainGroup } from "@/lib/content";
 import type { GraphData } from "@/lib/graph-data";
 import { Graph } from "@/components/Graph";
 import { t, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
@@ -35,7 +35,7 @@ function useLocale(): Locale {
   return locale;
 }
 
-type Scope = "all" | "notes" | "pdf" | "anki" | "themes";
+type Scope = "all" | "notes" | "pdf" | "anki" | "themes" | "domaines";
 
 interface Match {
   title: string;
@@ -287,10 +287,12 @@ function usePagefind(query: string): PfHit[] {
 export function HomeContent({
   tree,
   pdfs,
+  domains,
   graphData,
 }: {
   tree: HomeTreeNode[];
   pdfs: PdfRef[];
+  domains: DomainGroup[];
   graphData: GraphData;
 }) {
   const locale = useLocale();
@@ -361,6 +363,11 @@ export function HomeContent({
         : [],
     [pdfs, q, searching],
   );
+  // Domaines: match the frontmatter `domain` name; each match lists its notes.
+  const domainMatches = useMemo(
+    () => (searching ? domains.filter((d) => fold(d.name).includes(q)) : []),
+    [domains, q, searching],
+  );
 
   // Full-text content matches (Pagefind, prod only); drop notes already shown by
   // the title/folder filter above.
@@ -373,12 +380,15 @@ export function HomeContent({
     {
       id: "all",
       label: tr("home.scopeAll"),
-      count: notes.length + contentHits.length + pdfMatches.length + decks.length + themes.length,
+      count:
+        notes.length + contentHits.length + pdfMatches.length + decks.length +
+        themes.length + domainMatches.length,
     },
     { id: "notes", label: tr("home.scopeNotes"), count: notes.length + contentHits.length },
     { id: "pdf", label: tr("home.scopePdf"), count: pdfMatches.length },
     { id: "anki", label: tr("home.scopeAnki"), count: decks.length },
     { id: "themes", label: tr("home.scopeThemes"), count: themes.length },
+    { id: "domaines", label: tr("home.scopeDomains"), count: domainMatches.length },
   ];
   const showCat = (cat: Scope) => scope === "all" || scope === cat;
   const visibleCount = scopes.find((s) => s.id === scope)?.count ?? 0;
@@ -810,6 +820,42 @@ export function HomeContent({
                         </li>
                       ))}
                     </ul>
+                  </div>
+                )}
+
+                {/* Domaines (frontmatter `domain`) — each match lists its notes */}
+                {showCat("domaines") && domainMatches.length > 0 && (
+                  <div>
+                    {scope === "all" && (
+                      <p className={catLabelCls}>{tr("home.scopeDomains")}</p>
+                    )}
+                    <div className="flex flex-col gap-4">
+                      {domainMatches.map((d) => (
+                        <div key={d.name}>
+                          <p className="m-0 mb-2 text-body font-semibold text-[#1a1a1a]">
+                            {d.name}
+                            <span className="ml-2 text-meta tabular-nums text-[#8a857b]">
+                              {d.notes.length}
+                            </span>
+                          </p>
+                          <ul className="m-0 list-none p-0 [column-gap:2.5rem] min-[700px]:columns-2">
+                            {d.notes.slice(0, MAX_RESULTS).map((n) => (
+                              <li
+                                key={n.href}
+                                className="mb-[0.55rem] flex break-inside-avoid"
+                              >
+                                <span aria-hidden="true" className="mr-2 select-none text-[#8a857b]">
+                                  —
+                                </span>
+                                <a href={n.href} className={`${linkCls} text-body`}>
+                                  {n.title}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

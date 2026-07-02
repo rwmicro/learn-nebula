@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import { getIndexDoc, getHomeTree, getPdfAssets } from "@/lib/content";
+import { getIndexDoc, getHomeTree, getPdfAssets, getDomains } from "@/lib/content";
 import { renderMarkdown } from "@/lib/markdown";
 import { buildGraph } from "@/lib/graph-data";
 import { buildMetadata } from "@/lib/seo";
@@ -58,7 +58,12 @@ export default async function HomePage() {
           </div>
       </div>
       <main id="main" className={newsreader.variable}>
-        <HomeContent tree={getHomeTree()} pdfs={getPdfAssets()} graphData={graphData} />
+        <HomeContent
+          tree={getHomeTree()}
+          pdfs={getPdfAssets()}
+          domains={getDomains()}
+          graphData={graphData}
+        />
       </main>
       <JsonLd data={graph(personJsonLd(), websiteJsonLd())} />
     </>

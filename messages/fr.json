@@ -111,6 +111,7 @@
     "scopePdf": "PDF",
     "scopeAnki": "Anki",
     "scopeThemes": "Thèmes",
+    "scopeDomains": "Domaines",
     "scopeHint": "Choisissez un type, puis tapez votre recherche.",
     "notesLabel": "Notes",
     "empty": "Aucune note ne correspond.",
