@@ -17,13 +17,16 @@ import { readAskStream } from "../../lib/ask-stream";
   if (document.querySelector(".ask-bar")) return; // double-load guard
   const KEY = "askBar";
 
-  const ROBOT =
+  // A seedling, not a robot: the assistant speaks as "le jardin", so the icon
+  // should read as garden, not chatbot.
+  const SPROUT =
     '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" ' +
     'stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<rect x="4" y="8" width="16" height="11" rx="2"/>' +
-    '<path d="M12 4.5V8"/><circle cx="12" cy="3.2" r="1"/>' +
-    '<circle cx="9" cy="13" r="1.1"/><circle cx="15" cy="13" r="1.1"/>' +
-    '<path d="M9.5 16.4h5"/><path d="M2 12v3M22 12v3"/></svg>';
+    '<path d="M7 20h10"/>' +
+    '<path d="M10 20c5.5-2.5.8-6.4 3-10"/>' +
+    '<path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/>' +
+    '<path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/>' +
+    '</svg>';
 
   function tt(k) {
     return window.__i18n && window.__i18n.t ? window.__i18n.t(k) : k;
@@ -40,6 +43,12 @@ import { readAskStream } from "../../lib/ask-stream";
     s = s.replace(/`([^`\n]+)`/g, "<code>$1</code>");
     s = s.replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>");
     s = s.replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s.,!?:;)]|$)/g, "$1<em>$2</em>");
+    // Links [text](url) — only http(s) or root-relative targets, matching the
+    // home renderer. escHtml already ran, so a quote in the URL is neutralised.
+    s = s.replace(
+      /\[([^\]\n]+)\]\((https?:\/\/[^)\s]+|\/[^)\s]*)\)/g,
+      '<a href="$2">$1</a>',
+    );
     const blocks = s.split(/\n{2,}/);
     return blocks
       .map((block) => {
@@ -80,7 +89,7 @@ import { readAskStream } from "../../lib/ask-stream";
     `<button class="ask-chip-clear" type="button" aria-label="${escHtml(tt("askAi.removeChipAria"))}" data-i18n-aria-label="askAi.removeChipAria">×</button>` +
     "</div>" +
     `<span class="ask-grip" aria-hidden="true" title="${escHtml(tt("askAi.gripTitle"))}" data-i18n-title="askAi.gripTitle">` +
-    ROBOT +
+    SPROUT +
     "</span>" +
     `<button class="ask-minimize" type="button" aria-label="${escHtml(tt("askAi.minimizeAria"))}" data-i18n-aria-label="askAi.minimizeAria">×</button>` +
     `<input class="ask-input" type="text" autocomplete="off" maxlength="1000" placeholder="${escHtml(tt("askAi.placeholderDefault"))}" data-i18n-placeholder="askAi.placeholderDefault" aria-label="${escHtml(tt("askAi.inputAria"))}" data-i18n-aria-label="askAi.inputAria">` +
@@ -94,7 +103,7 @@ import { readAskStream } from "../../lib/ask-stream";
   trigger.type = "button";
   trigger.className = "ask-trigger";
   trigger.innerHTML =
-    ROBOT +
+    SPROUT +
     `<span class="ask-trigger-label" data-i18n="askAi.trigger">${escHtml(tt("askAi.trigger"))}</span>`;
   document.body.appendChild(trigger);
 
@@ -126,6 +135,15 @@ import { readAskStream } from "../../lib/ask-stream";
   const chipText = bar.querySelector(".ask-chip-text");
   const chipClear = bar.querySelector(".ask-chip-clear");
   let pinnedSelection = "";
+
+  // Idle hint for the empty answer panel. CSS renders it via
+  // content: attr(data-placeholder); keeping the text here makes it translatable
+  // and keeps it in sync when the reader switches language.
+  function syncPlaceholder() {
+    output.setAttribute("data-placeholder", tt("askAi.placeholderEmpty"));
+  }
+  syncPlaceholder();
+  document.addEventListener("i18n:change", syncPlaceholder);
 
   // --- restore + keep position --------------------------------------------
   const pos = load();
@@ -213,7 +231,9 @@ import { readAskStream } from "../../lib/ask-stream";
     const localCtrl = abortController;
 
     answer.hidden = false;
-    output.textContent = "";
+    // Immediate feedback: embedding + retrieval + first-token latency is a few
+    // seconds of otherwise-blank panel. Replaced by the first streamed chunk.
+    output.textContent = tt("askAi.searching");
     sourcesEl.textContent = "";
     setBusy(true);
 
@@ -321,7 +341,7 @@ import { readAskStream } from "../../lib/ask-stream";
   selBtn.className = "ask-sel-btn";
   selBtn.hidden = true;
   selBtn.innerHTML =
-    ROBOT +
+    SPROUT +
     `<span data-i18n="askAi.selButton">${escHtml(tt("askAi.selButton"))}</span>`;
   document.body.appendChild(selBtn);
 

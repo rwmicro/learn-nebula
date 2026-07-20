@@ -88,26 +88,57 @@
     keepAliveId = null;
   }
 
+  // Chrome silently truncates a single utterance past ~32k characters, which
+  // would cut long notes off mid-read. Split on sentence boundaries into safe
+  // chunks and queue them — SpeechSynthesis plays a queue seamlessly.
+  const CHUNK_CHARS = 2000;
+  function chunkText(text) {
+    const parts = [];
+    let buf = "";
+    for (const piece of text.split(/(?<=[.!?…])\s+/)) {
+      if (buf && (buf + " " + piece).length > CHUNK_CHARS) {
+        parts.push(buf);
+        buf = piece;
+      } else {
+        buf = buf ? `${buf} ${piece}` : piece;
+      }
+    }
+    if (buf.trim()) parts.push(buf);
+    // A single sentence longer than the budget still needs hard splitting.
+    return parts.flatMap((p) =>
+      p.length <= CHUNK_CHARS
+        ? [p]
+        : (p.match(new RegExp(`[\\s\\S]{1,${CHUNK_CHARS}}`, "g")) ?? [p]),
+    );
+  }
+
   function speak() {
     const text = articleText();
     if (!text) return;
-    utterance = new SpeechSynthesisUtterance(text);
     const lang = currentLang();
     const v = pickVoice(lang);
-    if (v) utterance.voice = v;
-    utterance.lang = (v && v.lang) || lang;
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    utterance.onend = () => {
-      stopKeepAlive();
-      setState("idle");
-    };
-    utterance.onerror = () => {
-      stopKeepAlive();
-      setState("idle");
-    };
+    const chunks = chunkText(text);
     synth.cancel();
-    synth.speak(utterance);
+    chunks.forEach((part, i) => {
+      const u = new SpeechSynthesisUtterance(part);
+      if (v) u.voice = v;
+      u.lang = (v && v.lang) || lang;
+      u.rate = 1;
+      u.pitch = 1;
+      // Only the last chunk returns the button to idle; any error stops all.
+      if (i === chunks.length - 1) {
+        u.onend = () => {
+          stopKeepAlive();
+          setState("idle");
+        };
+      }
+      u.onerror = () => {
+        stopKeepAlive();
+        setState("idle");
+      };
+      if (i === 0) utterance = u;
+      synth.speak(u);
+    });
     setState("playing");
     startKeepAlive();
   }
