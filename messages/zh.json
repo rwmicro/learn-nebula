@@ -46,7 +46,9 @@
     "translateError": "翻译出错",
     "translateNetworkError": "网络错误",
     "readingTimeAria": "预计阅读时间",
-    "readingTimeFormat": "阅读 {min} 分钟"
+    "readingTimeFormat": "阅读 {min} 分钟",
+    "translateFilter": "筛选语言…",
+    "translateNoMatch": "无匹配语言"
   },
   "comments": {
     "title": "评论",
@@ -84,7 +86,9 @@
     "gripTitle": "拖动以移动",
     "inputAria": "你的问题",
     "submit": "发送",
-    "selButton": "询问 AI"
+    "selButton": "询问 AI",
+    "searching": "正在检索笔记…",
+    "placeholderEmpty": "就花园的笔记提问。"
   },
   "lang": {
     "switcherAria": "切换界面语言",
@@ -125,5 +129,32 @@
     "footerNavAria": "页脚导航",
     "copyright": "Copyright 2026 · The Gardener · 采用知识共享许可协议 (CC BY-NC-SA)，源代码采用 GNU GPL。",
     "inContent": "在内容中"
+  },
+  "graph": {
+    "back": "返回花园",
+    "locatePlaceholder": "定位笔记…",
+    "locateAria": "在图谱中定位笔记",
+    "links": "链接",
+    "notes": "笔记",
+    "disciplines": "学科",
+    "all": "全部",
+    "hint": "拖动 · 滚轮缩放 · 点击打开"
+  },
+  "lightbox": {
+    "close": "关闭",
+    "prev": "上一张",
+    "next": "下一张"
+  },
+  "flashcards": {
+    "home": "花园",
+    "flip": "翻转",
+    "next": "下一张",
+    "prev": "上一张",
+    "shuffle": "打乱",
+    "size": "放大",
+    "loading": "正在加载卡组…",
+    "empty": "空卡组。",
+    "err": "无法加载卡组。",
+    "hint": "点击 / 空格：翻转 · ← → ：切换"
   }
 }

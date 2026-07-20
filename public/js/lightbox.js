@@ -11,15 +11,29 @@
   let overlay, imgEl, captionEl, countEl, prevBtn, nextBtn;
   let lastFocus = null;
 
+  function tt(k) {
+    return window.__i18n && window.__i18n.t ? window.__i18n.t(k) : k;
+  }
+  const esc =
+    (window.__i18n && window.__i18n.escapeHtml) || ((s) => String(s));
+
   function build() {
     if (overlay) return;
     overlay = document.createElement("div");
     overlay.className = "lightbox";
     overlay.hidden = true;
+    // Labels come from the shared bundles; the data-i18n-aria-label markers let
+    // /js/i18n.js re-translate them when the reader switches language.
     overlay.innerHTML =
-      '<button class="lb-btn lb-close" aria-label="Close">×</button>' +
-      '<button class="lb-btn lb-prev" aria-label="Previous">‹</button>' +
-      '<button class="lb-btn lb-next" aria-label="Next">›</button>' +
+      '<button class="lb-btn lb-close" aria-label="' +
+      esc(tt("lightbox.close")) +
+      '" data-i18n-aria-label="lightbox.close">×</button>' +
+      '<button class="lb-btn lb-prev" aria-label="' +
+      esc(tt("lightbox.prev")) +
+      '" data-i18n-aria-label="lightbox.prev">‹</button>' +
+      '<button class="lb-btn lb-next" aria-label="' +
+      esc(tt("lightbox.next")) +
+      '" data-i18n-aria-label="lightbox.next">›</button>' +
       '<div class="lb-stage"><img class="lb-img" alt=""></div>' +
       '<div class="lb-bar"><span class="lb-count"></span><span class="lb-caption"></span></div>';
     document.body.appendChild(overlay);

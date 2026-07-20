@@ -46,7 +46,9 @@
     "translateError": "erreur de traduction",
     "translateNetworkError": "erreur réseau",
     "readingTimeAria": "Temps de lecture estimé",
-    "readingTimeFormat": "{min} min de lecture"
+    "readingTimeFormat": "{min} min de lecture",
+    "translateFilter": "Filtrer les langues…",
+    "translateNoMatch": "Aucune langue"
   },
   "comments": {
     "title": "Commentaires",
@@ -84,7 +86,9 @@
     "gripTitle": "Glisser pour déplacer",
     "inputAria": "Votre question",
     "submit": "envoyer",
-    "selButton": "Demander à l'IA"
+    "selButton": "Demander à l'IA",
+    "searching": "Recherche dans les notes…",
+    "placeholderEmpty": "Posez une question sur les notes du jardin."
   },
   "lang": {
     "switcherAria": "Changer la langue de l'interface",
@@ -125,5 +129,32 @@
     "footerNavAria": "Navigation du pied de page",
     "copyright": "Copyright 2026 · The Gardener · sous licence Creative Commons (CC BY-NC-SA), code source sous GNU GPL.",
     "inContent": "Dans le contenu"
+  },
+  "graph": {
+    "back": "Retour au jardin",
+    "locatePlaceholder": "Localiser une note…",
+    "locateAria": "Localiser une note dans le graphe",
+    "links": "Liens",
+    "notes": "Notes",
+    "disciplines": "Disciplines",
+    "all": "tout",
+    "hint": "glisser · molette pour zoomer · clic = ouvrir"
+  },
+  "lightbox": {
+    "close": "Fermer",
+    "prev": "Précédent",
+    "next": "Suivant"
+  },
+  "flashcards": {
+    "home": "Le jardin",
+    "flip": "Retourner",
+    "next": "Suivant",
+    "prev": "Précédent",
+    "shuffle": "Mélanger",
+    "size": "Agrandir",
+    "loading": "Chargement du deck…",
+    "empty": "Deck vide.",
+    "err": "Impossible de charger le deck.",
+    "hint": "Clic / Espace : retourner · ← → : naviguer"
   }
 }

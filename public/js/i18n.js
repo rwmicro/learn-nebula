@@ -59,7 +59,9 @@
     const locale = i18n.locale || i18n.defaultLocale;
     const bundle = i18n.bundles[locale] || i18n.bundles[i18n.defaultLocale];
     const fallback = i18n.bundles[i18n.defaultLocale];
-    const raw = lookup(bundle, key) || lookup(fallback, key) || key;
+    // `??`, not `||`, so an intentionally empty translation ("") is honoured
+    // instead of falling through — matches lib/i18n.ts's resolution exactly.
+    const raw = lookup(bundle, key) ?? lookup(fallback, key) ?? key;
     return interpolate(raw, vars);
   }
 
