@@ -7,8 +7,10 @@
   const wrap = document.querySelector(".translate-wrap");
   if (!wrap) return;
   const btn = wrap.querySelector(".translate-btn");
-  const menu = wrap.querySelector(".translate-menu");
-  if (!btn || !menu) return;
+  const menu = wrap.querySelector(".translate-menu"); // container (toggles hidden)
+  const list = wrap.querySelector(".translate-menu-list"); // scrolling <ul>
+  const filter = wrap.querySelector(".translate-filter");
+  if (!btn || !menu || !list) return;
   const sourceEl = document.getElementById("article-source");
   const articleBody = document.querySelector(".article-body");
   if (!sourceEl || !articleBody) return;
@@ -42,7 +44,7 @@
     } catch {
       return;
     }
-    const items = Array.from(menu.querySelectorAll("li"));
+    const items = Array.from(list.querySelectorAll("li"));
     const collator = new Intl.Collator(ui, { sensitivity: "base" });
     items.forEach((li) => {
       const item = li.querySelector(".translate-menu-item");
@@ -57,7 +59,9 @@
     );
     // Re-append in sorted order; appendChild moves the existing node so we
     // don't re-create DOM, which preserves click listeners on items.
-    items.forEach((li) => menu.appendChild(li));
+    items.forEach((li) => list.appendChild(li));
+    // Keep an open, filtered menu consistent after a locale change.
+    if (!menu.hidden && typeof applyFilter === "function") applyFilter();
   }
   fillMenuLabels();
   document.addEventListener("i18n:change", fillMenuLabels);
@@ -73,7 +77,7 @@
   try {
     const prefix = `translate:${location.pathname}:`;
     const fresh = new Set(
-      Array.from(menu.querySelectorAll(".translate-menu-item")).map(
+      Array.from(list.querySelectorAll(".translate-menu-item")).map(
         (it) => cacheKeyFor(it.dataset.targetLang),
       ),
     );
@@ -86,6 +90,38 @@
   }
 
   const originalHtml = articleBody.innerHTML;
+
+  // The translation is re-rendered in the Worker runtime, where the vault isn't
+  // on disk, so relative asset refs (e.g. ![](sources/images/x.gif)) can't be
+  // resolved to /vault/… and come back broken. The original render already has
+  // them resolved, so map basename → resolved URL and re-point the translated
+  // copy client-side (images, videos, and asset links like PDFs).
+  const assetMap = new Map();
+  const baseName = (u) =>
+    decodeURIComponent((u.split("/").pop() || "").split(/[?#]/)[0]).toLowerCase();
+  articleBody
+    .querySelectorAll(
+      'img[src^="/vault/"], source[src^="/vault/"], video[src^="/vault/"], a[href^="/vault/"]',
+    )
+    .forEach((el) => {
+      const url = el.getAttribute("src") || el.getAttribute("href") || "";
+      const file = baseName(url);
+      if (file && !assetMap.has(file)) assetMap.set(file, url);
+    });
+  function fixRelativeAssets(root) {
+    if (!assetMap.size) return;
+    const repoint = (el, attr) => {
+      const v = el.getAttribute(attr);
+      // Leave absolute, remote and already-resolved refs untouched.
+      if (!v || /^(https?:|data:|mailto:|tel:|#|\/)/i.test(v)) return;
+      const hit = assetMap.get(baseName(v));
+      if (hit) el.setAttribute(attr, hit);
+    };
+    root
+      .querySelectorAll("img[src], source[src], video[src]")
+      .forEach((el) => repoint(el, "src"));
+    root.querySelectorAll("a[href]").forEach((el) => repoint(el, "href"));
+  }
   const labels = {
     get idle() {
       return tt("noteActions.translate");
@@ -122,6 +158,7 @@
 
   function applyTranslation(html, targetLang) {
     articleBody.innerHTML = html;
+    fixRelativeAssets(articleBody);
     const main = document.getElementById("main");
     if (main) main.setAttribute("lang", targetLang);
     activeTarget = targetLang;
@@ -139,8 +176,37 @@
     setState("idle");
   }
 
+  // "No match" hint, revealed when the filter empties the list.
+  const noMatch = document.createElement("p");
+  noMatch.className = "translate-menu-empty";
+  noMatch.hidden = true;
+  noMatch.textContent = tt("noteActions.translateNoMatch");
+  noMatch.setAttribute("data-i18n", "noteActions.translateNoMatch");
+  list.after(noMatch);
+
+  const foldText = (s) =>
+    s
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .toLowerCase();
+
+  function applyFilter() {
+    const q = foldText((filter && filter.value ? filter.value : "").trim());
+    let visible = 0;
+    list.querySelectorAll("li").forEach((li) => {
+      const name = foldText(li.dataset.sortKey || li.textContent || "");
+      const hit = !q || name.includes(q);
+      li.hidden = !hit;
+      if (hit) visible++;
+    });
+    noMatch.hidden = visible > 0;
+  }
+
   function menuItems() {
-    return Array.from(menu.querySelectorAll(".translate-menu-item"));
+    // Only rows the filter currently shows — keyboard nav skips hidden ones.
+    return Array.from(list.querySelectorAll(".translate-menu-item")).filter(
+      (it) => !it.closest("li").hidden,
+    );
   }
   function focusItem(i) {
     const items = menuItems();
@@ -150,12 +216,32 @@
   function openMenu() {
     menu.hidden = false;
     btn.setAttribute("aria-expanded", "true");
-    requestAnimationFrame(() => focusItem(0));
+    if (filter) {
+      filter.value = "";
+      applyFilter();
+      requestAnimationFrame(() => filter.focus());
+    } else {
+      requestAnimationFrame(() => focusItem(0));
+    }
   }
   function closeMenu(returnFocus) {
     menu.hidden = true;
     btn.setAttribute("aria-expanded", "false");
     if (returnFocus) btn.focus();
+  }
+
+  if (filter) {
+    filter.addEventListener("input", applyFilter);
+    filter.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        focusItem(0);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        const items = menuItems();
+        if (items.length) items[0].click();
+      }
+    });
   }
 
   // Outside click / escape close the menu.
@@ -168,7 +254,7 @@
   });
 
   // Arrow-key roving focus between languages (Home/End jump to ends).
-  menu.addEventListener("keydown", (e) => {
+  list.addEventListener("keydown", (e) => {
     const items = menuItems();
     const idx = items.indexOf(document.activeElement);
     if (e.key === "ArrowDown") {

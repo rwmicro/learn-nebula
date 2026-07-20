@@ -76,7 +76,9 @@
     }
   }
 
+  let lastComments = null;
   function renderList(comments) {
+    lastComments = comments;
     if (!comments.length) {
       list.innerHTML =
         '<p class="comments-empty">' + esc(tt("comments.empty")) + "</p>";
@@ -106,9 +108,19 @@
       .join("");
   }
 
+  // Match the rest of the site: format comment dates in the active UI locale
+  // (mirrors the BCP-47 map in components/EditionDate.tsx), not a fixed fr-FR.
+  const BCP47 = { fr: "fr-FR", en: "en-US", es: "es-ES", zh: "zh-CN" };
+  function currentLocale() {
+    const g = window.__i18n || {};
+    const loc =
+      (g.getActiveLocale ? g.getActiveLocale() : g.locale || g.defaultLocale) ||
+      "fr";
+    return BCP47[loc] || loc;
+  }
   function formatDate(ms) {
     try {
-      return new Date(ms).toLocaleDateString("fr-FR", {
+      return new Date(ms).toLocaleDateString(currentLocale(), {
         day: "numeric",
         month: "long",
         year: "numeric",
@@ -117,6 +129,12 @@
       return "";
     }
   }
+
+  // Re-localize dates + labels ("anonymous", empty message) when the UI language
+  // changes, like the server-rendered dates elsewhere on the page.
+  document.addEventListener("i18n:change", () => {
+    if (lastComments) renderList(lastComments);
+  });
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
