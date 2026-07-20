@@ -1,17 +1,12 @@
 import { getAllPosts } from "@/lib/content";
 import { extractPlain, truncate } from "@/lib/markdown";
 import { SITE_URL, SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from "@/lib/site";
+// Escapes & < > " — enough for XML text nodes and double-quoted attributes.
+// Shared with the HTML builders rather than re-implemented here.
+import { escapeHtml as esc } from "@/lib/escape";
 
 // Pre-rendered to a static out/feed.xml at build (output: export).
 export const dynamic = "force-static";
-
-function esc(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
 
 export function GET() {
   const posts = getAllPosts()

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SITE_TITLE, SITE_DESCRIPTION, absoluteURL } from "./site";
 import { resolveVaultAsset, resolveVaultAssetByName } from "./vault-assets";
 import { extractPlain, truncate } from "./markdown";
+import { franc } from "franc-min";
 import type { Frontmatter } from "./content";
 
 // Used for Open Graph / Twitter when a note has no image of its own.
@@ -44,9 +45,17 @@ export function buildMetadata({
   isArticle,
 }: SeoInput): Metadata {
   const title = fm.seotitle ?? `${fm.title} | ${SITE_TITLE}`;
-  const description = truncate(extractPlain(body), 160) || SITE_DESCRIPTION;
+  const plain = extractPlain(body);
+  const description = truncate(plain, 160) || SITE_DESCRIPTION;
   const url = absoluteURL(path);
   const image = firstImage(body);
+  // Notes are written in French or English; advertise the one actually used
+  // (SinglePage runs the same detection to set <main lang>) instead of always
+  // claiming fr_FR.
+  const ogLocale =
+    franc(plain, { only: ["fra", "eng"], minLength: 30 }) === "eng"
+      ? "en_US"
+      : "fr_FR";
 
   return {
     title,
@@ -61,12 +70,11 @@ export function buildMetadata({
       description,
       url,
       siteName: SITE_TITLE,
-      locale: "fr_FR",
+      locale: ogLocale,
       images: [{ url: image, alt: title }],
       ...(isArticle && fm.date
         ? {
             publishedTime: fm.date.toISOString(),
-            modifiedTime: fm.date.toISOString(),
             authors: fm.author,
             tags: fm.tags,
           }
