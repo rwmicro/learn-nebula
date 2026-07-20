@@ -451,12 +451,9 @@ h2:focus-within .anchor {
   top: calc(100% + 0.3rem);
   left: 0;
   z-index: 50;
-  margin: 0;
-  padding: 0.3rem 0;
-  list-style: none;
-  min-width: 11rem;
-  max-height: 18rem;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 12rem;
   background: #fcfcfc;
   border: 1px solid #ccc;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
@@ -466,9 +463,52 @@ h2:focus-within .anchor {
   display: none;
 }
 
-.translate-menu li {
+/* Filter field pinned above the scrolling list. */
+.translate-filter {
+  flex: none;
+  margin: 0;
+  padding: 0.45rem 0.9rem;
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 1rem;
+  color: #111;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #e4e2dd;
+  outline: none;
+}
+.translate-filter::placeholder {
+  color: #8a857b;
+  font-style: italic;
+}
+.translate-filter:focus {
+  border-bottom-color: #111;
+}
+
+.translate-menu-list {
+  margin: 0;
+  padding: 0.3rem 0;
+  list-style: none;
+  max-height: 16rem;
+  overflow-y: auto;
+}
+
+.translate-menu-list li {
   margin: 0;
   padding: 0;
+}
+.translate-menu-list li[hidden] {
+  display: none;
+}
+/* "No match" hint when the filter empties the list. */
+.translate-menu-empty {
+  padding: 0.5rem 0.9rem;
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 0.95rem;
+  font-style: italic;
+  color: #8a857b;
+}
+.translate-menu-empty[hidden] {
+  display: none;
 }
 
 .translate-menu-item {
@@ -703,6 +743,24 @@ body[data-text-size="lg"] main ol li {
 .note-header .crumbs {
   color: #777;
   font-size: 0.95rem;
+}
+
+/* Folder crumbs are links to the home browse tree, but should keep the muted
+   look of the old plain-text breadcrumb (not the bold Alegreya SC home link) —
+   just add a hover affordance. */
+.note-header .crumbs a {
+  font: inherit;
+  color: inherit;
+  text-transform: none;
+  font-weight: inherit;
+  text-decoration: none;
+}
+
+.note-header .crumbs a:hover,
+.note-header .crumbs a:focus-visible {
+  color: #111;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 /* The title/date block (and the condensed sticky bar that hosts it) are
@@ -1413,8 +1471,11 @@ body[data-text-size="lg"] main ol li {
   line-height: 1.7rem;
   white-space: pre-wrap; /* keep the model's line breaks (plain text) */
 }
+/* Idle hint. The text itself is set by /js/ask.js from the i18n bundles
+   (data-placeholder) so it follows the reader's language — it used to be a
+   hardcoded French string here, untranslatable by nature. */
 .ask-output:empty::before {
-  content: "Posez une question sur les notes du jardin.";
+  content: attr(data-placeholder);
   color: #777;
   font-style: italic;
 }
@@ -1533,6 +1594,12 @@ body[data-text-size="lg"] main ol li {
   padding: 0 0.2rem;
   cursor: move;
   touch-action: none; /* JS owns the drag gesture on touch */
+  border-radius: 4px;
+  transition: background-color 0.15s ease;
+}
+/* Hover tint (with the move cursor) signals the bar is draggable by its grip. */
+.ask-grip:hover {
+  background: #f0eee9;
 }
 .ask-input {
   flex: 1;
