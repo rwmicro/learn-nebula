@@ -14,6 +14,12 @@
 //   DB                     — D1 database "garden-comments"
 //   TURNSTILE_SECRET_KEY   — secret, Cloudflare Turnstile siteverify key
 //   COMMENTS_ADMIN_TOKEN   — secret, Bearer token gating admin GET/PATCH
+//
+// Turnstile config is a PAIR — set both together or neither:
+//   NEXT_PUBLIC_TURNSTILE_SITE_KEY (build var) renders the widget client-side,
+//   TURNSTILE_SECRET_KEY (this secret) verifies its token here. If only the
+//   secret is set, submissions have no token → 403; if only the site key is set,
+//   the token is never verified → everything falls through to `pending`.
 
 interface Env {
   DB: D1Database;
@@ -42,10 +48,26 @@ function json(data: unknown, status = 200): Response {
 }
 
 function clean(s: string, max: number): string {
-  // Collapse runs of whitespace but keep newlines so the body can have line
-  // breaks (the frontend converts \n to <br> at render).
-  return s.replace(/[ \t]+/g, " ").replace(/\r\n?/g, "\n").trim().slice(0, max);
+  return (
+    s
+      // Strip control chars (keep \t \n \r, handled below) and zero-width /
+      // bidi-override characters (Trojan-Source display tricks) before any
+      // normalization, so they can't hide inside an otherwise-innocent comment.
+      .replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, "")
+      .replace(/[\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g, "")
+      // Collapse runs of spaces/tabs but keep newlines so the body can have line
+      // breaks (the frontend converts \n to <br> at render).
+      .replace(/[ \t]+/g, " ")
+      .replace(/\r\n?/g, "\n")
+      .trim()
+      .slice(0, max)
+  );
 }
+
+// Post slugs are ASCII: lowercase alphanumeric segments (hyphen-separated)
+// joined by "/". Reject anything else so the moderation queue can't be filled
+// with comments targeting junk slugs that no page will ever render.
+const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/;
 
 // Length-checked constant-time compare so the admin token can't be recovered
 // from the timing of the `===` short-circuit.
@@ -163,6 +185,9 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
   const body = clean(payload.body ?? "", MAX_BODY);
   if (!slug || !body) {
     return json({ error: "Slug et message requis." }, 400);
+  }
+  if (!SLUG_RE.test(slug)) {
+    return json({ error: "Slug invalide." }, 400);
   }
 
   const ip = request.headers.get("cf-connecting-ip") ?? undefined;
