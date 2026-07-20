@@ -46,7 +46,9 @@
     "translateError": "error de traducción",
     "translateNetworkError": "error de red",
     "readingTimeAria": "Tiempo de lectura estimado",
-    "readingTimeFormat": "{min} min de lectura"
+    "readingTimeFormat": "{min} min de lectura",
+    "translateFilter": "Filtrar idiomas…",
+    "translateNoMatch": "Ningún idioma"
   },
   "comments": {
     "title": "Comentarios",
@@ -84,7 +86,9 @@
     "gripTitle": "Arrastra para mover",
     "inputAria": "Tu pregunta",
     "submit": "enviar",
-    "selButton": "Preguntar a la IA"
+    "selButton": "Preguntar a la IA",
+    "searching": "Buscando en las notas…",
+    "placeholderEmpty": "Haz una pregunta sobre las notas del jardín."
   },
   "lang": {
     "switcherAria": "Cambiar el idioma de la interfaz",
@@ -125,5 +129,32 @@
     "footerNavAria": "Navegación del pie de página",
     "copyright": "Copyright 2026 · The Gardener · bajo licencia Creative Commons (CC BY-NC-SA), código fuente bajo GNU GPL.",
     "inContent": "En el contenido"
+  },
+  "graph": {
+    "back": "Volver al jardín",
+    "locatePlaceholder": "Localizar una nota…",
+    "locateAria": "Localizar una nota en el grafo",
+    "links": "Enlaces",
+    "notes": "Notas",
+    "disciplines": "Disciplinas",
+    "all": "todo",
+    "hint": "arrastrar · rueda para zoom · clic para abrir"
+  },
+  "lightbox": {
+    "close": "Cerrar",
+    "prev": "Anterior",
+    "next": "Siguiente"
+  },
+  "flashcards": {
+    "home": "El jardín",
+    "flip": "Voltear",
+    "next": "Siguiente",
+    "prev": "Anterior",
+    "shuffle": "Mezclar",
+    "size": "Agrandar",
+    "loading": "Cargando el mazo…",
+    "empty": "Mazo vacío.",
+    "err": "No se pudo cargar el mazo.",
+    "hint": "Clic / Espacio: voltear · ← → : navegar"
   }
 }

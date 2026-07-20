@@ -2,6 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { GraphData, GraphNode, GraphLink } from "@/lib/graph-data";
+import { escapeHtml } from "@/lib/escape";
+import { t } from "@/lib/i18n";
+import { useLocale } from "@/lib/use-locale";
 
 type ThemePalette = Map<string, string>;
 
@@ -144,6 +147,8 @@ export function Graph({
   const graphRef = useRef<ForceGraphInstance | null>(null);
   const nodesRef = useRef<CanvasNode[]>([]);
   const [locate, setLocate] = useState("");
+  const locale = useLocale();
+  const tr = (k: string) => t(k, undefined, locale);
 
   // Decluttering controls (full graph only).
   const [filterTheme, setFilterTheme] = useState<string | null>(null);
@@ -294,6 +299,11 @@ export function Graph({
             return;
           }
 
+          // Home preview: colour clusters only. At this size the ~25 discipline
+          // labels overlap into an illegible tangle; the full graph (one click
+          // away) carries them. Keep just the central "garden" anchor drawn above.
+          if (embedded) return;
+
           const isDir = n.kind === "dir";
           // Level-of-detail: drawing a rotated text label for every node (≈1000
           // notes) on every frame is what makes the graph lag — during the load
@@ -427,7 +437,7 @@ export function Graph({
 
   return (
     <section className="graph-page relative">
-      <a className="graph-back" href="/">← Retour au jardin</a>
+      <a className="graph-back" href="/">← {tr("graph.back")}</a>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -443,8 +453,8 @@ export function Graph({
           type="search"
           value={locate}
           onChange={(e) => setLocate(e.target.value)}
-          placeholder="Localiser une note…"
-          aria-label="Localiser une note dans le graphe"
+          placeholder={tr("graph.locatePlaceholder")}
+          aria-label={tr("graph.locateAria")}
           className="w-40 border-0 bg-transparent p-0 text-sm text-[#1a1a1a] outline-none placeholder:text-[#8a857b] sm:w-48"
         />
       </form>
@@ -456,7 +466,7 @@ export function Graph({
               checked={showWiki}
               onChange={(e) => setShowWiki(e.target.checked)}
             />
-            <span>Liens</span>
+            <span>{tr("graph.links")}</span>
           </label>
           <label className="flex cursor-pointer items-center gap-1.5">
             <input
@@ -464,12 +474,12 @@ export function Graph({
               checked={showNotes}
               onChange={(e) => setShowNotes(e.target.checked)}
             />
-            <span>Notes</span>
+            <span>{tr("graph.notes")}</span>
           </label>
         </div>
         <div className="mb-1 flex items-center justify-between">
           <span className="text-meta uppercase tracking-[0.08em] text-[#8a857b]">
-            Disciplines
+            {tr("graph.disciplines")}
           </span>
           {filterTheme && (
             <button
@@ -477,7 +487,7 @@ export function Graph({
               onClick={() => setFilterTheme(null)}
               className="text-meta text-[#003366] hover:underline"
             >
-              tout
+              {tr("graph.all")}
             </button>
           )}
         </div>
@@ -503,7 +513,7 @@ export function Graph({
         </ul>
       </div>
       <div ref={ref} className="graph-canvas" />
-      <div className="graph-hint">glisser · molette pour zoomer · clic = ouvrir</div>
+      <div className="graph-hint">{tr("graph.hint")}</div>
     </section>
   );
 }
@@ -535,6 +545,8 @@ function linkEndpoints(l: CanvasLink): [string, string] {
   const t = typeof l.target === "string" ? l.target : l.target.id;
   return [s, t];
 }
+
+// escapeHtml now lives in lib/escape (shared with the server HTML builders).
 
 function linkColor(
   l: CanvasLink,
@@ -575,8 +587,4 @@ function linkWidth(
   if (l.kind === "wikilink") return touches ? 1.2 : showWiki ? 0.4 : 0;
   if (hoverId === null) return 0.8;
   return touches ? 1.4 : 0.6;
-}
-
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }

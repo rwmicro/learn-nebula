@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { t } from "@/lib/i18n";
+import { useLocale } from "@/lib/use-locale";
 
 interface Card {
   front: string;
@@ -10,30 +12,6 @@ interface Deck {
   name: string;
   css: string;
   cards: Card[];
-}
-
-const LABELS: Record<string, Record<string, string>> = {
-  fr: { home: "Le jardin", flip: "Retourner", next: "Suivant", prev: "Précédent", shuffle: "Mélanger", size: "Agrandir", loading: "Chargement du deck…", empty: "Deck vide.", err: "Impossible de charger le deck.", hint: "Clic / Espace : retourner · ← → : naviguer" },
-  en: { home: "The garden", flip: "Flip", next: "Next", prev: "Previous", shuffle: "Shuffle", size: "Enlarge", loading: "Loading deck…", empty: "Empty deck.", err: "Couldn't load the deck.", hint: "Click / Space: flip · ← → : navigate" },
-  es: { home: "El jardín", flip: "Voltear", next: "Siguiente", prev: "Anterior", shuffle: "Mezclar", size: "Agrandar", loading: "Cargando el mazo…", empty: "Mazo vacío.", err: "No se pudo cargar el mazo.", hint: "Clic / Espacio: voltear · ← → : navegar" },
-  zh: { home: "花园", flip: "翻转", next: "下一张", prev: "上一张", shuffle: "打乱", size: "放大", loading: "正在加载卡组…", empty: "空卡组。", err: "无法加载卡组。", hint: "点击 / 空格：翻转 · ← → ：切换" },
-};
-
-function useLocale(): string {
-  const [locale, setLocale] = useState("fr");
-  useEffect(() => {
-    const ok = (s: unknown): s is string =>
-      typeof s === "string" && s in LABELS;
-    const cur = window.__i18n?.locale ?? window.__i18n?.defaultLocale;
-    if (ok(cur)) setLocale(cur);
-    const onChange = (e: Event) => {
-      const next = (e as CustomEvent<{ locale: string }>).detail?.locale;
-      if (ok(next)) setLocale(next);
-    };
-    document.addEventListener("i18n:change", onChange);
-    return () => document.removeEventListener("i18n:change", onChange);
-  }, []);
-  return locale;
 }
 
 const btn =
@@ -49,7 +27,8 @@ export function Flashcards({
   slug: string;
   name: string;
 }) {
-  const L = LABELS[useLocale()] ?? LABELS.fr;
+  const locale = useLocale();
+  const tr = (k: string) => t(`flashcards.${k}`, undefined, locale);
   const [deck, setDeck] = useState<Deck | null>(null);
   const [error, setError] = useState(false);
   const [order, setOrder] = useState<number[]>([]);
@@ -59,8 +38,12 @@ export function Flashcards({
 
   // Restore + cycle the card size, persisted across cards/sessions.
   useEffect(() => {
-    const s = Number(localStorage.getItem("flashcardSize"));
-    if (Number.isInteger(s) && s >= 0 && s < SIZES.length) setSizeIdx(s);
+    try {
+      const s = Number(localStorage.getItem("flashcardSize"));
+      if (Number.isInteger(s) && s >= 0 && s < SIZES.length) setSizeIdx(s);
+    } catch {
+      /* localStorage unavailable */
+    }
   }, []);
   const cycleSize = useCallback(() => {
     setSizeIdx((i) => {
@@ -141,7 +124,7 @@ export function Flashcards({
         href="/"
         className="text-micro font-semibold uppercase tracking-[0.1em] text-[#8a857b] no-underline hover:bg-transparent hover:text-[#1a1a1a]"
       >
-        ← {L.home}
+        ← {tr("home")}
       </a>
 
       <header className="mb-6 mt-3 flex items-baseline justify-between gap-4 border-b border-[#1a1a1a] pb-2">
@@ -156,17 +139,17 @@ export function Flashcards({
       </header>
 
       {error ? (
-        <p className="italic text-[#8a857b]">{L.err}</p>
+        <p className="italic text-[#8a857b]">{tr("err")}</p>
       ) : !deck ? (
-        <p className="italic text-[#8a857b]">{L.loading}</p>
+        <p className="italic text-[#8a857b]">{tr("loading")}</p>
       ) : !cards.length ? (
-        <p className="italic text-[#8a857b]">{L.empty}</p>
+        <p className="italic text-[#8a857b]">{tr("empty")}</p>
       ) : (
         <>
           <button
             type="button"
             onClick={flip}
-            aria-label={L.flip}
+            aria-label={tr("flip")}
             className="flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-[#e4e2dd] bg-white p-8 text-center transition-[min-height] duration-200 hover:bg-white"
             style={{ minHeight: `${26 * SIZES[sizeIdx]}rem` }}
           >
@@ -181,29 +164,29 @@ export function Flashcards({
 
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <button type="button" className={btn} onClick={() => go(-1)}>
-              {L.prev}
+              {tr("prev")}
             </button>
             <button type="button" className={btn} onClick={flip}>
-              {L.flip}
+              {tr("flip")}
             </button>
             <button type="button" className={btn} onClick={() => go(1)}>
-              {L.next}
+              {tr("next")}
             </button>
             <button type="button" className={btn} onClick={shuffle}>
-              {L.shuffle}
+              {tr("shuffle")}
             </button>
             <button
               type="button"
               className={btn}
               onClick={cycleSize}
-              aria-label={L.size}
+              aria-label={tr("size")}
             >
-              {L.size}
+              {tr("size")}
               {SIZES[sizeIdx] !== 1 ? ` ×${SIZES[sizeIdx]}` : ""}
             </button>
           </div>
           <p className="mt-4 text-center text-micro italic text-[#8a857b]">
-            {L.hint}
+            {tr("hint")}
           </p>
         </>
       )}
