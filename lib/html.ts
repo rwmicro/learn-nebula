@@ -1,14 +1,11 @@
 import { NAV } from "./site";
 import { INDEX_NOTE, type SiblingNav, type SiblingRef } from "./content";
+import { folderAnchor } from "./slug";
+import { escapeHtml } from "./escape";
 import { t, i18nAttrs, i18nAttr } from "./i18n";
 
-export function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
+// Re-exported for the many modules (SinglePage, tests) that import it from here.
+export { escapeHtml };
 
 /** URL-encode each slug segment (spaces, accents…) while keeping the slashes. */
 export function encodeSlug(slug: string): string {
@@ -142,10 +139,20 @@ export function translateButtonHtml(sourceLang: "fr" | "en"): string {
     icon +
     `<span class="translate-label"${i18nAttrs("noteActions.translate")}>${escapeHtml(t("noteActions.translate"))}</span>` +
     `</button>` +
-    `<ul class="translate-menu" role="menu" ` +
+    // A type-to-filter field tops the menu: 50+ languages are unusable as a flat
+    // scroll. /js/translate.js hides non-matching rows as you type.
+    `<div class="translate-menu" hidden>` +
+    `<input class="translate-filter" type="text" autocomplete="off" ` +
+    `placeholder="${escapeHtml(t("noteActions.translateFilter"))}"` +
+    i18nAttr("placeholder", "noteActions.translateFilter") +
+    ` aria-label="${escapeHtml(t("noteActions.translateFilter"))}"` +
+    i18nAttr("aria-label", "noteActions.translateFilter") +
+    `>` +
+    `<ul class="translate-menu-list" role="menu" ` +
     `aria-label="${escapeHtml(t("noteActions.translateMenuAria"))}"` +
     i18nAttr("aria-label", "noteActions.translateMenuAria") +
-    ` hidden>${items}</ul>` +
+    `>${items}</ul>` +
+    `</div>` +
     `</span>`
   );
 }
@@ -193,9 +200,18 @@ export function noteHeaderHtml(
   title?: string,
   date?: { iso: string; formatted: string },
 ): string {
+  // Each folder segment links to the home browse tree opened at that folder
+  // (/#<folderAnchor>), so the breadcrumb doubles as navigation back up the
+  // discipline it belongs to. The cumulative on-disk path drives the anchor,
+  // matching the ids HomeContent gives its folder rows.
   const folders = rawPath.split("/").slice(0, -1);
   const crumbs = folders.length
-    ? `<span class="crumbs">${folders.map(escapeHtml).join(" › ")}</span>`
+    ? `<span class="crumbs">${folders
+        .map(
+          (name, i) =>
+            `<a href="/#${folderAnchor(folders.slice(0, i + 1).join("/"))}">${escapeHtml(name)}</a>`,
+        )
+        .join(" › ")}</span>`
     : "";
   const meta =
     title || date
@@ -249,16 +265,22 @@ function themePillsHtml(tags: unknown[] | undefined): string {
  * h2/h3 headings; in dev (no Pagefind bundle) the search box becomes a plain
  * placeholder input. */
 export function buildToc(html: string, tags?: unknown[]): string {
-  const re = /<h([23]) id="([^"]+)">([\s\S]*?)<\/h\1>/g;
+  // Match any h2/h3 regardless of attribute order, then pull `id` out of the
+  // opening tag — so a heading that ever carries a class (e.g. raw HTML in a
+  // note) isn't silently dropped from the TOC. Headings without an id can't be
+  // anchor targets and are skipped.
+  const re = /<h([23])\b([^>]*)>([\s\S]*?)<\/h\1>/g;
   const items: { level: string; id: string; text: string }[] = [];
   let m: RegExpExecArray | null;
   while ((m = re.exec(html)) !== null) {
+    const idMatch = m[2].match(/\bid="([^"]+)"/);
+    if (!idMatch) continue;
     // Heading text is already HTML-escaped; just drop the anchor and any tags.
     const text = m[3]
       .replace(/<a class="anchor"[\s\S]*?<\/a>/g, "")
       .replace(/<[^>]+>/g, "")
       .trim();
-    if (text) items.push({ level: m[1], id: m[2], text });
+    if (text) items.push({ level: m[1], id: idMatch[1], text });
   }
   const search =
     process.env.NODE_ENV === "production"

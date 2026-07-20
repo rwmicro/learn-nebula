@@ -6,6 +6,7 @@ import type { GraphData } from "@/lib/graph-data";
 import { Graph } from "@/components/Graph";
 import { t, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import { readAskStream } from "@/lib/ask-stream";
+import { folderAnchor } from "@/lib/slug";
 
 // Diacritic-insensitive fold so the query and the note/folder names compare
 // apples to apples (matches lib/content slugging).
@@ -103,11 +104,6 @@ const linkCls =
 const catLabelCls =
   "mb-2 text-meta font-semibold uppercase tracking-[0.1em] text-[#8a857b]";
 
-// Stable anchor slug for a folder path, e.g. "Applied Sciences" → "applied-sciences".
-// Top-level groups expose it as an id so the header can deep-link (/#applied-sciences).
-const slugifyPath = (p: string) =>
-  p.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-
 // Light Markdown → React for the assistant's answer (the system prompt asks for
 // **bold**, *italic*, `code`, [links] and "- " lists). Built as React nodes, not
 // via dangerouslySetInnerHTML, so there's no injection surface from the model.
@@ -154,16 +150,22 @@ function renderAnswer(text: string): ReactNode {
     .filter((b) => b.trim())
     .map((block, bi) => {
       const lines = block.split("\n");
-      const isList = lines.every((l) => /^\s*[-*]\s+/.test(l));
-      if (isList) {
+      const isUl = lines.every((l) => /^\s*[-*]\s+/.test(l));
+      const isOl = lines.every((l) => /^\s*\d+\.\s+/.test(l));
+      if (isUl || isOl) {
+        const ListTag = isOl ? "ol" : "ul";
+        const marker = isOl ? /^\s*\d+\.\s+/ : /^\s*[-*]\s+/;
         return (
-          <ul key={bi} className="m-0 mb-[0.7rem] list-disc pl-[1.2rem] last:mb-0">
+          <ListTag
+            key={bi}
+            className={`m-0 mb-[0.7rem] pl-[1.2rem] last:mb-0 ${isOl ? "list-decimal" : "list-disc"}`}
+          >
             {lines.map((l, li) => (
               <li key={li} className="mb-1 last:mb-0">
-                {inlineMd(l.replace(/^\s*[-*]\s+/, ""))}
+                {inlineMd(l.replace(marker, ""))}
               </li>
             ))}
-          </ul>
+          </ListTag>
         );
       }
       return (
@@ -194,6 +196,21 @@ function Chevron({ open, size = 11 }: { open: boolean; size?: number }) {
         strokeLinejoin="round"
       />
     </svg>
+  );
+}
+
+// Shown while the assistant works but before the first token — otherwise the
+// answer panel sits blank through the embed + retrieval + first-token latency.
+function Thinking({ label }: { label: string }) {
+  return (
+    <p className="m-0 flex items-center gap-2 text-body italic text-[#8a857b]">
+      {label}
+      <span aria-hidden="true" className="inline-flex gap-1">
+        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#8a857b] [animation-delay:-0.3s]" />
+        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#8a857b] [animation-delay:-0.15s]" />
+        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#8a857b]" />
+      </span>
+    </p>
   );
 }
 
@@ -316,8 +333,13 @@ export function HomeContent({
   // drops down when the field gains focus.
   const [scope, setScope] = useState<Scope>("all");
   const [advancedOpen, setAdvancedOpen] = useState(false);
-  // Open folders by path (browse mode). Collapsed by default.
-  const [openDirs, setOpenDirs] = useState<Set<string>>(new Set());
+  // Open folders by path (browse mode). The two top-level "grands thèmes" start
+  // expanded so the tree shows its disciplines on first paint — it fills the
+  // left column and reveals the garden's breadth instead of two lone rows.
+  // Deeper folders stay collapsed; a saved session (below) overrides this.
+  const [openDirs, setOpenDirs] = useState<Set<string>>(
+    () => new Set(tree.filter((n) => n.type === "dir").map((n) => n.path)),
+  );
   const toggleDir = (path: string) =>
     setOpenDirs((prev) => {
       const next = new Set(prev);
@@ -396,9 +418,14 @@ export function HomeContent({
 
   // restore / persist the query + open folders across back-navigation (session)
   useEffect(() => {
+    // An explicit ?q= (a shared link, or Google's sitelinks search box — the
+    // SearchAction in lib/jsonld.ts advertises this entry point) wins over the
+    // restored session.
+    const urlQ = new URLSearchParams(window.location.search).get("q");
+    if (urlQ) setQuery(urlQ);
     try {
       const saved = JSON.parse(sessionStorage.getItem("gkHome") || "null");
-      if (saved?.q) setQuery(saved.q);
+      if (!urlQ && saved?.q) setQuery(saved.q);
       if (Array.isArray(saved?.open)) setOpenDirs(new Set(saved.open));
     } catch {
       /* sessionStorage unavailable */
@@ -415,13 +442,32 @@ export function HomeContent({
     }
   }, [query, openDirs]);
 
-  // Header deep links ("/#applied-sciences", "/#social-sciences"): open the
-  // matching top-level group in the browse tree and scroll to it.
+  // Deep links to any folder in the tree, at any depth: the header groups
+  // ("/#applied-sciences") and the note-page breadcrumbs (a sub-folder like
+  // "/#applied-sciences-agriculture"). Find the folder anywhere in the tree,
+  // open it plus every ancestor, then scroll to its row.
   useEffect(() => {
+    const findDir = (nodes: HomeTreeNode[], h: string): HomeTreeNode | null => {
+      for (const n of nodes) {
+        if (n.type !== "dir") continue;
+        if (folderAnchor(n.path) === h) return n;
+        const found = findDir(n.children, h);
+        if (found) return found;
+      }
+      return null;
+    };
+    // The target row may not be in the DOM until React commits the newly
+    // opened ancestors, so retry across a few frames before giving up.
+    const scrollToAnchor = (h: string, tries = 0) => {
+      const el = document.getElementById(h);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      else if (tries < 12)
+        requestAnimationFrame(() => scrollToAnchor(h, tries + 1));
+    };
     const applyHash = () => {
       const h = decodeURIComponent(window.location.hash.replace(/^#/, ""));
       if (!h) return;
-      const group = tree.find((n) => n.type === "dir" && slugifyPath(n.path) === h);
+      const group = findDir(tree, h);
       if (!group || group.type !== "dir") return;
       const segs = group.path.split("/");
       setOpenDirs((prev) => {
@@ -429,11 +475,7 @@ export function HomeContent({
         for (let i = 0; i < segs.length; i++) next.add(segs.slice(0, i + 1).join("/"));
         return next;
       });
-      requestAnimationFrame(() =>
-        document
-          .getElementById(h)
-          ?.scrollIntoView({ behavior: "smooth", block: "start" }),
-      );
+      scrollToAnchor(h);
     };
     applyHash();
     window.addEventListener("hashchange", applyHash);
@@ -469,14 +511,16 @@ export function HomeContent({
           );
         }
         const open = openDirs.has(node.path);
-        const slug = slugifyPath(node.path);
-        const listId = `gk-dir-${slug}`;
+        // Every folder row is an anchor target so a note breadcrumb can deep-link
+        // to it (/#<folderAnchor>); top-level groups keep their editorial spacing.
+        const anchor = folderAnchor(node.path);
+        const listId = `gk-dir-${anchor}`;
         const isGroup = depth === 0;
         return (
           <li
             key={node.path}
-            id={isGroup ? slug : undefined}
-            className={isGroup ? "mb-9 scroll-mt-6" : "m-0 mb-[0.4rem]"}
+            id={anchor}
+            className={isGroup ? "mb-9 scroll-mt-6" : "m-0 mb-[0.4rem] scroll-mt-6"}
           >
             <button
               type="button"
@@ -879,9 +923,22 @@ export function HomeContent({
             <a
               href="/graph/"
               aria-label={tr("home.mapLabel")}
-              className="block h-[440px] w-full cursor-pointer overflow-hidden rounded-[3px] border border-[#e4e2dd] hover:bg-transparent max-[700px]:h-[300px]"
+              className="group relative block h-[440px] w-full cursor-pointer overflow-hidden rounded-[3px] border border-[#e4e2dd] hover:bg-transparent max-[700px]:h-[300px]"
             >
               <LazyGraph graphData={graphData} />
+              {/* Hover cue: this decorative preview opens the full, labelled graph. */}
+              <span className="pointer-events-none absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border border-[#e4e2dd] bg-[#fcfcfc]/85 text-[#1a1a1a] opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
+                <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                  <path
+                    d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
             </a>
             <p className="mt-[0.7rem] text-pretty text-small italic text-[#8a857b]">
               {tr("home.mapCaption")}
@@ -928,7 +985,11 @@ export function HomeContent({
                 aria-busy={busy}
                 className="mt-[1.1rem] max-h-[22rem] overflow-y-auto text-body leading-relaxed text-[#1a1a1a]"
               >
-                {renderAnswer(answer)}
+                {busy && !answer ? (
+                  <Thinking label={tr("askAi.searching")} />
+                ) : (
+                  renderAnswer(answer)
+                )}
               </div>
             )}
 

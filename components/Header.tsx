@@ -39,7 +39,11 @@ export default function Header({ doc }: { doc: Doc }) {
       <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4 py-4">
           <EditionDate
             iso={editionIso}
-            className="hidden sm:block text-micro uppercase tracking-[0.04em] text-[#8a857b]"
+            // pr-4 keeps a gutter between the (left-aligned, wrapping) dateline
+            // and the wordmark: on long days ("dimanche") the date used to fill
+            // its column right up to the title. 1rem is the widest padding that
+            // still fits "DIMANCHE" without breaking at the ≥640px column width.
+            className="hidden sm:block sm:pr-4 text-micro uppercase tracking-[0.04em] text-[#8a857b]"
           />
           <a
             href="/"
