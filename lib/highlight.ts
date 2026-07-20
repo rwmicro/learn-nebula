@@ -81,7 +81,6 @@ function hastText(node: any): string {
 /** Highlight fenced code blocks with Shiki, wrapping output in `.chroma`. */
 export function rehypeShiki() {
   return async (tree: Root) => {
-    const hl = await getHighlighter();
     const jobs: {
       node: Element;
       parent: { children: RootContent[] };
@@ -112,6 +111,21 @@ export function rehypeShiki() {
       });
       return SKIP;
     });
+
+    // No fenced code → don't touch the Shiki engine at all. This also lets
+    // renderMarkdown run in runtimes that forbid runtime WASM instantiation
+    // (workerd / Cloudflare Pages Functions, e.g. /api/translate) whenever the
+    // note has no code block.
+    if (!jobs.length) return;
+
+    let hl: Highlighter;
+    try {
+      hl = await getHighlighter();
+    } catch {
+      // Shiki's oniguruma WASM can't be instantiated here (workerd disallows it).
+      // Degrade to unhighlighted <pre><code> instead of failing the whole render.
+      return;
+    }
 
     for (const j of jobs) {
       const mapped = LANG_MAP[j.lang] ?? j.lang;

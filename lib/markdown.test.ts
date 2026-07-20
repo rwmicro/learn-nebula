@@ -147,4 +147,23 @@ describe("renderMarkdown", () => {
     // No broken <img> for the same src.
     expect(html).not.toContain("<img");
   });
+
+  it("strips script-execution vectors from note-authored raw HTML", async () => {
+    const { html } = await renderMarkdown(
+      'Text\n\n<script>alert(1)</script>\n\n<img src="x" onerror="alert(2)">\n\n[go](javascript:alert(3))',
+    );
+    expect(html).not.toContain("<script");
+    expect(html).not.toContain("onerror");
+    expect(html).not.toContain("javascript:");
+    // Benign markup survives.
+    expect(html).toContain("<img");
+    expect(html).toContain("Text");
+  });
+
+  it("keeps KaTeX and math placeholders intact through the sanitizer", async () => {
+    const { html, hasMath } = await renderMarkdown(String.raw`Inline $a^2+b^2$ math.`);
+    expect(hasMath).toBe(true);
+    expect(html).toContain("katex");
+    expect(html).not.toContain("data-ph");
+  });
 });

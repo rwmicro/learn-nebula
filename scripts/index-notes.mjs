@@ -17,6 +17,23 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import matter from "gray-matter";
+import * as TOML from "smol-toml";
+
+// `+++ … +++` blocks are TOML (mirror of lib/content.ts); gray-matter has no
+// built-in TOML engine, so without this it silently yields empty frontmatter —
+// losing the title and, worse, the `draft` flag.
+const tomlOptions = {
+  delimiters: "+++",
+  language: "toml",
+  engines: {
+    toml: {
+      parse: (s) => TOML.parse(s),
+      stringify: () => {
+        throw new Error("TOML stringify is not supported");
+      },
+    },
+  },
+};
 
 const ACCOUNT = process.env.CLOUDFLARE_ACCOUNT_ID;
 const TOKEN = process.env.CLOUDFLARE_API_TOKEN;
@@ -81,8 +98,10 @@ function toPlainText(markdown) {
   return markdown
     .replace(/```[\s\S]*?```/g, " ") // code fences
     .replace(/`[^`]*`/g, " ") // inline code
-    .replace(/\\\[[\s\S]*?\\\]/g, " ") // display math
-    .replace(/\\\([\s\S]*?\\\)/g, " ") // inline math
+    .replace(/\$\$[\s\S]+?\$\$/g, " ") // display math $$…$$
+    .replace(/(?<![\d\\$])\$(?![\s$])(?:[^$\n]|\\\$)+?(?<![\s\\])\$(?!\d)/g, " ") // inline $…$ (skip prose prices)
+    .replace(/\\\[[\s\S]*?\\\]/g, " ") // display math \[ … \]
+    .replace(/\\\([\s\S]*?\\\)/g, " ") // inline math \( … \)
     .replace(/!\[\[[^\]]*\]\]/g, " ") // embeds
     .replace(/\[\[([^\]|#]+)(?:[#|][^\]]*)?\]\]/g, "$1") // wikilinks -> target
     .replace(/!\[[^\]]*\]\([^)]*\)/g, " ") // images
@@ -149,6 +168,23 @@ async function upsert(ndjson) {
   }
 }
 
+async function deleteVectors(ids) {
+  const res = await fetch(`${CF}/vectorize/v2/indexes/${INDEX}/delete_by_ids`, {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${TOKEN}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ ids }),
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok || body.success === false) {
+    throw new Error(
+      `delete failed: ${res.status} ${JSON.stringify(body.errors ?? body)}`,
+    );
+  }
+}
+
 const idFor = (slug, i) =>
   "c_" +
   crypto.createHash("sha256").update(`${slug}#${i}`).digest("hex").slice(0, 40);
@@ -163,7 +199,7 @@ const records = []; // { id, text, title, url }
 for (const [slug, rawPath] of buildSlugMap()) {
   const raw = fs.readFileSync(path.join(POSTS_DIR, `${rawPath}.md`), "utf8");
   const { data, content } = raw.startsWith("+++")
-    ? matter(raw, { delimiters: "+++", language: "toml" })
+    ? matter(raw, tomlOptions)
     : matter(raw);
   if (!INCLUDE_DRAFTS && data.draft) continue;
 
@@ -210,51 +246,68 @@ for (const r of records) {
   if (oldManifest[r.id] !== h) toIndex.push(r);
 }
 
+// Chunks present last run but gone now (note deleted/renamed, or shortened so a
+// trailing chunk id disappeared). Their vectors otherwise linger in Vectorize
+// and keep surfacing as sources that 404. Only detectable with a manifest cache
+// (an empty oldManifest — cache miss or FORCE_REINDEX — leaves nothing to diff).
+const orphanIds = Object.keys(oldManifest).filter((id) => !(id in manifest));
+
 function writeManifest() {
   fs.mkdirSync(path.dirname(MANIFEST_PATH), { recursive: true });
   fs.writeFileSync(MANIFEST_PATH, JSON.stringify(manifest));
 }
 
-if (!toIndex.length) {
-  writeManifest(); // drops ids for deleted notes
+async function purgeOrphans() {
+  if (!orphanIds.length) return;
+  for (let i = 0; i < orphanIds.length; i += UPSERT_BATCH) {
+    await deleteVectors(orphanIds.slice(i, i + UPSERT_BATCH));
+  }
+  console.log(`index-notes: removed ${orphanIds.length} orphaned vector(s).`);
+}
+
+if (!toIndex.length && !orphanIds.length) {
+  writeManifest();
   console.log(
     `index-notes: ${records.length} chunk(s) unchanged — nothing to embed.`,
   );
   process.exit(0);
 }
 
-const skipped = records.length - toIndex.length;
-console.log(
-  `index-notes: embedding ${toIndex.length} new/changed chunk(s)` +
-    (skipped ? ` (${skipped} unchanged, skipped)` : "") +
-    " from notes…",
-);
+if (toIndex.length) {
+  const skipped = records.length - toIndex.length;
+  console.log(
+    `index-notes: embedding ${toIndex.length} new/changed chunk(s)` +
+      (skipped ? ` (${skipped} unchanged, skipped)` : "") +
+      " from notes…",
+  );
 
-// Embed in batches, then upsert in batches.
-let pending = [];
-async function flushUpsert() {
-  if (!pending.length) return;
-  await upsert(pending.map((v) => JSON.stringify(v)).join("\n"));
-  pending = [];
-}
+  // Embed in batches, then upsert in batches.
+  let pending = [];
+  const flushUpsert = async () => {
+    if (!pending.length) return;
+    await upsert(pending.map((v) => JSON.stringify(v)).join("\n"));
+    pending = [];
+  };
 
-for (let i = 0; i < toIndex.length; i += EMBED_BATCH) {
-  const batch = toIndex.slice(i, i + EMBED_BATCH);
-  const vectors = await embed(batch.map((r) => r.text));
-  batch.forEach((r, j) => {
-    pending.push({
-      id: r.id,
-      values: vectors[j],
-      metadata: { title: r.title, url: r.url, text: r.text },
+  for (let i = 0; i < toIndex.length; i += EMBED_BATCH) {
+    const batch = toIndex.slice(i, i + EMBED_BATCH);
+    const vectors = await embed(batch.map((r) => r.text));
+    batch.forEach((r, j) => {
+      pending.push({
+        id: r.id,
+        values: vectors[j],
+        metadata: { title: r.title, url: r.url, text: r.text },
+      });
     });
-  });
-  if (pending.length >= UPSERT_BATCH) await flushUpsert();
+    if (pending.length >= UPSERT_BATCH) await flushUpsert();
+  }
+  await flushUpsert();
+  console.log(
+    `index-notes: upserted ${toIndex.length} vector(s) into "${INDEX}".`,
+  );
 }
-await flushUpsert();
 
-// Only record success once the vectors are actually upserted.
+await purgeOrphans();
+
+// Only record success once vectors are actually upserted and orphans purged.
 writeManifest();
-
-console.log(
-  `index-notes: upserted ${toIndex.length} vector(s) into "${INDEX}".`,
-);

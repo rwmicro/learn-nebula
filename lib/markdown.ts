@@ -90,6 +90,40 @@ function hastText(node: any): string {
   return "";
 }
 
+// Script-execution schemes that must never survive in a note-authored link/src.
+const UNSAFE_URL = /^\s*(?:javascript|vbscript):/i;
+
+/**
+ * Strip the script-execution vectors from note-authored raw HTML — everything
+ * that flowed through rehypeRaw. Runs *before* our own trusted fragments (KaTeX,
+ * callout icons, manim/video, highlighted code) are injected, so it only touches
+ * what the note author wrote. Notes are first-party, but /api/translate re-runs
+ * this exact pipeline on the model's output, so this keeps a prompt-injected note
+ * from smuggling executable markup back through the translator. `<script>` goes,
+ * inline `on*` event handlers go (they still fire under our `unsafe-inline`
+ * script-src), and `javascript:`/`vbscript:` URLs are dropped. `data-*` is left
+ * intact — the math placeholders (`data-ph`) depend on it.
+ */
+function rehypeStripUnsafe() {
+  return (tree: Root) => {
+    visit(tree, "element", (node: Element, index, parent) => {
+      if (node.tagName === "script" && parent && index != null) {
+        parent.children.splice(index, 1);
+        return [SKIP, index];
+      }
+      const props = node.properties;
+      if (!props) return;
+      for (const key of Object.keys(props)) {
+        if (/^on/i.test(key)) delete props[key];
+      }
+      for (const attr of ["href", "src"] as const) {
+        const v = props[attr];
+        if (typeof v === "string" && UNSAFE_URL.test(v)) delete props[attr];
+      }
+    });
+  };
+}
+
 /** Replace <div|span data-ph="…"> placeholders with their stored HTML. */
 function rehypePlaceholders(map: Map<string, string>) {
   return (tree: Root) => {
@@ -676,6 +710,7 @@ export async function renderMarkdown(
     .use(remarkSmartypants)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
+    .use(rehypeStripUnsafe)
     .use(rehypeCallouts)
     .use(rehypeManim, dir)
     .use(rehypeShiki)

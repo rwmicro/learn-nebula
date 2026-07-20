@@ -29,6 +29,12 @@ interface Env {
 const GEN_MODEL = "claude-haiku-4-5";
 const EMBED_MODEL = "@cf/baai/bge-m3";
 const TOP_K = 5;
+// Cosine similarity floor for a retrieved chunk to count as relevant. Vectorize
+// always returns the TOP_K nearest, even for an off-topic question; without a
+// floor those near-random chunks get stuffed into the context and listed as
+// sources under a "je ne trouve pas" answer. bge-m3 relevant matches sit well
+// above this; ~random ones fall below.
+const MIN_SCORE = 0.4;
 const MAX_QUESTION = 1000; // chars
 const MAX_SELECTION = 4000; // chars
 
@@ -167,11 +173,14 @@ export const onRequestPost: PagesFunction<Env> = async ({ request, env }) => {
       const result = (await vectorize.query(embedding.data[0], {
         topK: TOP_K,
         returnMetadata: "all",
-      })) as { matches: { metadata?: ChunkMeta }[] };
+      })) as { matches: { score?: number; metadata?: ChunkMeta }[] };
 
       const seen = new Set<string>();
       const blocks: string[] = [];
-      for (const match of result.matches) {
+      for (const match of result.matches ?? []) {
+        // Skip weak matches so an off-topic question yields no context (the model
+        // then says it can't find it) instead of a wall of irrelevant sources.
+        if ((match.score ?? 1) < MIN_SCORE) continue;
         const md = match.metadata ?? {};
         blocks.push(`## ${md.title ?? "Note"}\n${md.text ?? ""}`);
         if (md.url && md.title && !seen.has(md.url)) {
