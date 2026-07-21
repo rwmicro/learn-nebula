@@ -8,10 +8,16 @@ export const dynamic = "force-static";
 // iOS uses app/apple-icon.png; the favicon uses app/icon.png.
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    // `id` pins the app's identity across deploys, so a later change to
+    // start_url doesn't register as a different app.
+    id: "/",
     name: SITE_TITLE,
     short_name: SITE_TITLE,
     description: SITE_DESCRIPTION,
     start_url: "/",
+    scope: "/",
+    lang: "fr",
+    categories: ["education", "books", "productivity"],
     display: "standalone",
     background_color: "#fcfcfc",
     theme_color: "#fcfcfc",
