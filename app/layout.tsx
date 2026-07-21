@@ -90,6 +90,9 @@ export default function RootLayout({
             home page no longer pulls scripts it doesn't use. */}
         <Script src="/js/instantpage.js" strategy="afterInteractive" />
         <Script src="/js/lightbox.js" strategy="afterInteractive" />
+        {/* Service worker: offline reading of visited notes + instant repeat
+            loads. It never caches /api/*. */}
+        <Script src="/js/sw-register.js" strategy="afterInteractive" />
         {/* Cloudflare Web Analytics (cookieless). Set NEXT_PUBLIC_CF_BEACON_TOKEN
             in the Pages env (from the Cloudflare dashboard) to enable it; unset
             in dev/local so no analytics are sent. */}
