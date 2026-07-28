@@ -23,6 +23,14 @@ export interface Frontmatter {
   /** Taxonomy from the Obsidian frontmatter (see sources/YAML_TAGS_GUIDE). */
   domain?: string;
   subdomain?: string;
+  /** BCP-47-ish language code (e.g. "es", "de") for a note whose content is
+   *  substantially in that language — a full-immersion or reading-practice
+   *  note, say, as opposed to a French note that just embeds a few foreign
+   *  vocabulary words. Drives `<main lang>` (SinglePage), the TTS voice pick
+   *  (/js/audio.js reads `main[lang]`), OG locale (lib/seo.ts) and the home
+   *  "Langues" search facet / /graph language filter. Independent of the
+   *  site's own UI locale (lib/i18n.ts). */
+  lang?: string;
 }
 
 export interface Doc {
@@ -249,6 +257,45 @@ export function getDomains(): DomainGroup[] {
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
 }
 
+export interface LangGroup {
+  /** The frontmatter `lang` code, e.g. "es". */
+  code: string;
+  /** Display name in the site's default locale, e.g. "espagnol". */
+  name: string;
+  notes: { title: string; href: string }[];
+}
+
+// Intl.DisplayNames throws for a code it doesn't recognise; fall back to the
+// raw code rather than losing the group.
+function langDisplayName(code: string): string {
+  try {
+    return new Intl.DisplayNames(["fr"], { type: "language" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
+/** Notes grouped by their frontmatter `lang`, for the home "Langues" search
+ *  scope and the /graph language filter. */
+export function getLangs(): LangGroup[] {
+  const map = new Map<string, { title: string; href: string }[]>();
+  for (const doc of getAllPosts()) {
+    const code =
+      typeof doc.frontmatter.lang === "string" ? doc.frontmatter.lang.trim().toLowerCase() : "";
+    if (!code) continue;
+    const list = map.get(code) ?? [];
+    list.push({ title: doc.frontmatter.title, href: `/posts/${doc.slug}/` });
+    map.set(code, list);
+  }
+  return [...map.entries()]
+    .map(([code, notes]) => ({
+      code,
+      name: langDisplayName(code),
+      notes: notes.sort((a, b) => a.title.localeCompare(b.title)),
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, "fr", { numeric: true }));
+}
+
 export interface TreeFile {
   type: "file";
   name: string;
@@ -257,6 +304,8 @@ export interface TreeFile {
   asset?: boolean; // standalone image/PDF file rather than a note
   deck?: boolean; // Anki flashcard deck (links to /cartes/<slug>)
   date?: Date;
+  /** Frontmatter `lang`, notes only — carried through to the /graph language filter. */
+  lang?: string;
 }
 export interface TreeDir {
   type: "dir";
@@ -295,6 +344,7 @@ export function getPostTree(): TreeNode[] {
       title: post.frontmatter.title,
       href: `/posts/${post.slug}/`,
       date: post.frontmatter.date,
+      lang: post.frontmatter.lang,
     });
   }
   for (const asset of listVaultAssets()) {

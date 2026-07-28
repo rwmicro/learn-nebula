@@ -122,6 +122,7 @@
     "scopeAnki": "Anki",
     "scopeThemes": "Thèmes",
     "scopeDomains": "Domaines",
+    "scopeLangs": "Langues",
     "scopeHint": "Choisissez un type, puis tapez votre recherche.",
     "notesLabel": "Notes",
     "empty": "Aucune note ne correspond.",
@@ -143,6 +144,7 @@
     "links": "Liens",
     "notes": "Notes",
     "disciplines": "Disciplines",
+    "langs": "Langues",
     "all": "tout",
     "hint": "glisser · molette pour zoomer · clic = ouvrir"
   },
