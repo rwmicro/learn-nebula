@@ -8,6 +8,16 @@ import { useLocale } from "@/lib/use-locale";
 
 type ThemePalette = Map<string, string>;
 
+/** "es" → "espagnol"/"Spanish"/… in the active UI locale; falls back to the
+ * raw code for one Intl.DisplayNames doesn't recognise. */
+function langLabel(code: string, locale: string): string {
+  try {
+    return new Intl.DisplayNames([locale], { type: "language" }).of(code) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 /** Build the per-theme colour table once from the graph's nodes. Distinct
  * disciplines are sorted then spaced around the hue wheel by the golden angle
  * (137.5°), which packs them as far apart as possible (sunflower distribution)
@@ -152,10 +162,12 @@ export function Graph({
 
   // Decluttering controls (full graph only).
   const [filterTheme, setFilterTheme] = useState<string | null>(null);
+  const [filterLang, setFilterLang] = useState<string | null>(null);
   const [showWiki, setShowWiki] = useState(false);
   const [showNotes, setShowNotes] = useState(true);
   // Mirrored into refs so the imperative render callbacks read live values.
   const filterRef = useRef<string | null>(null);
+  const filterLangRef = useRef<string | null>(null);
   const showWikiRef = useRef(false);
   const showNotesRef = useRef(true);
   const refreshRef = useRef<(() => void) | null>(null);
@@ -170,14 +182,21 @@ export function Graph({
         .sort(),
     [data],
   );
+  // Language codes present on any note (frontmatter `lang`) — empty unless at
+  // least one note is tagged, so the panel section only shows up when relevant.
+  const langs = useMemo(
+    () => [...new Set(data.nodes.map((n) => n.lang).filter((l): l is string => !!l))].sort(),
+    [data],
+  );
 
   // Push control state into the graph and force a redraw.
   useEffect(() => {
     filterRef.current = filterTheme;
+    filterLangRef.current = filterLang;
     showWikiRef.current = showWiki;
     showNotesRef.current = showNotes;
     refreshRef.current?.();
-  }, [filterTheme, showWiki, showNotes]);
+  }, [filterTheme, filterLang, showWiki, showNotes]);
 
   // Find a node by (diacritic-insensitive) name and fly the camera to it — the
   // one decluttering aid a ~1000-node graph really needs.
@@ -271,11 +290,17 @@ export function Graph({
         .nodeCanvasObjectMode(() => "replace")
         .nodeCanvasObject((n, ctx, scale) => {
           // Discipline filter: everything outside the chosen theme reads as dimmed
-          // (root stays as an anchor).
+          // (root stays as an anchor). Language filter is narrower — it only ever
+          // dims individual *notes* (a folder can hold notes in several
+          // languages, so folders/root/assets stay fully legible landmarks
+          // regardless of which language is picked); it doesn't touch edges.
           const filteredOut =
-            filterRef.current !== null &&
-            n.kind !== "root" &&
-            n.theme !== filterRef.current;
+            (filterRef.current !== null &&
+              n.kind !== "root" &&
+              n.theme !== filterRef.current) ||
+            (filterLangRef.current !== null &&
+              n.kind === "note" &&
+              n.lang !== filterLangRef.current);
           const dim =
             filteredOut || (hoverId !== null && !isNeighbour(neighbours, hoverId, n.id));
           const focus =
@@ -511,6 +536,45 @@ export function Graph({
             </li>
           ))}
         </ul>
+
+        {/* Language filter (frontmatter `lang`) — a secondary facet, so pill
+            chips rather than the discipline list's swatch style; only shown
+            once at least one note is tagged. Dims individual notes only, never
+            folders/root (see the nodeCanvasObject comment above). */}
+        {langs.length > 0 && (
+          <div className="mt-2 border-t border-[#e4e2dd] pt-2">
+            <div className="mb-1 flex items-center justify-between">
+              <span className="text-meta uppercase tracking-[0.08em] text-[#8a857b]">
+                {tr("graph.langs")}
+              </span>
+              {filterLang && (
+                <button
+                  type="button"
+                  onClick={() => setFilterLang(null)}
+                  className="text-meta text-[#003366] hover:underline"
+                >
+                  {tr("graph.all")}
+                </button>
+              )}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {langs.map((code) => (
+                <button
+                  key={code}
+                  type="button"
+                  onClick={() => setFilterLang(filterLang === code ? null : code)}
+                  className={`rounded-full border px-2 py-0.5 text-meta ${
+                    filterLang === code
+                      ? "border-[#003366] bg-[#eef1f5] font-semibold text-[#003366]"
+                      : "border-[#d4d4d4] hover:bg-[#f3f1ec]"
+                  }`}
+                >
+                  {langLabel(code, locale)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       <div ref={ref} className="graph-canvas" />
       <div className="graph-hint">{tr("graph.hint")}</div>

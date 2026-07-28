@@ -18,6 +18,8 @@ export interface GraphNode {
   theme: string;
   /** Tree depth from the root (0 = synthetic root). */
   depth: number;
+  /** Frontmatter `lang` (notes only) — drives the /graph language filter. */
+  lang?: string;
 }
 
 export interface GraphLink {
@@ -89,6 +91,7 @@ export function buildGraph(opts: { foldersOnly?: boolean } = {}): GraphData {
           group: parentPath || "root",
           theme: theme || "root",
           depth,
+          lang: node.lang,
         });
         links.push({ source: parentId, target: id, kind: "tree" });
       }
