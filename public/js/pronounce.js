@@ -1,5 +1,9 @@
-// Pronunciation clips embedded as `![word](clip.mp3)`, rendered by
-// rehypeVaultAssets (lib/markdown.ts) as `.pron-btn` inside a `.pron` span.
+// Pronunciation clips render as `.pron-btn` inside a `.pron` span, produced by
+// two build-time sources: `![word](clip.mp3)` in a note (rehypeVaultAssets in
+// lib/markdown.ts) and `[sound:clip.mp3]` in an Anki field (rewriteMedia in
+// scripts/build-anki.mjs). Loaded site-wide (app/layout.tsx) rather than only
+// via <NoteScripts /> so it covers both /posts/* and /cartes/* decks.
+//
 // Same idle → playing → paused → playing cycle as the whole-article "listen"
 // button (/js/audio.js), so the interaction is consistent across the site.
 // Only one clip is active at a time: starting one fully stops (not just
@@ -7,10 +11,12 @@
 //
 // Delegated on `document` (like lightbox.js) rather than bound per-button, so
 // clips still work after /js/translate.js swaps .article-body's innerHTML for
-// a translated render.
+// a translated render, or after Flashcards re-renders a card's front/back.
 (function () {
-  if (!document.querySelector(".pron-btn")) return;
-
+  // No early "any .pron-btn on the page?" bail-out here: Flashcards fetches
+  // and renders its deck client-side, after this script has already run, so
+  // buttons can appear well after load — the delegated listener below still
+  // needs to be live for them.
   function tt(k) {
     return window.__i18n && window.__i18n.t ? window.__i18n.t(k) : k;
   }
