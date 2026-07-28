@@ -13,6 +13,8 @@ const EXTS = new Set([
   ".pdf",
   // Video — Manim cache outputs (_manim/*.mp4) and direct ![](clip.mp4) embeds.
   ".mp4", ".webm", ".mov", ".ogv",
+  // Audio — pronunciation clips embedded as ![word](clip.mp3).
+  ".mp3", ".wav", ".ogg", ".oga", ".m4a", ".opus", ".flac", ".aac",
 ]);
 
 export const VIDEO_EXTS = new Set([".mp4", ".webm", ".mov", ".ogv"]);
@@ -21,6 +23,18 @@ export function isVideoSrc(src: string): boolean {
   if (dot < 0) return false;
   const ext = src.slice(dot).toLowerCase().split(/[?#]/)[0];
   return VIDEO_EXTS.has(ext);
+}
+
+export const AUDIO_EXTS = new Set([
+  ".mp3", ".wav", ".ogg", ".oga", ".m4a", ".opus", ".flac", ".aac",
+]);
+/** True for the pronunciation-clip extensions rehypeVaultAssets promotes
+ * `![word](clip.mp3)` into the `.pron` player instead of a broken `<img>`. */
+export function isAudioSrc(src: string): boolean {
+  const dot = src.lastIndexOf(".");
+  if (dot < 0) return false;
+  const ext = src.slice(dot).toLowerCase().split(/[?#]/)[0];
+  return AUDIO_EXTS.has(ext);
 }
 
 let cache: Map<string, string> | null = null;

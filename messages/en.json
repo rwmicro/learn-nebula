@@ -50,6 +50,12 @@
     "translateFilter": "Filter languages…",
     "translateNoMatch": "No language"
   },
+  "pronunciation": {
+    "playAria": "Listen to the pronunciation",
+    "pauseAria": "Pause",
+    "loadingAria": "Loading audio…",
+    "errorAria": "Audio playback error"
+  },
   "comments": {
     "title": "Comments",
     "namePlaceholder": "Name (optional)",

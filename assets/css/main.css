@@ -1920,3 +1920,79 @@ main video {
   height: auto;
   margin: 0.6rem auto;
 }
+
+/* ---------------------------------------------------------------------------
+ * Pronunciation player — produced by rehypeVaultAssets in lib/markdown.ts from
+ * `![word](clip.mp3)`, wired up client-side by /js/pronounce.js. An icon-only
+ * pill so it sits inline in running prose or a vocabulary table cell; the
+ * optional label (the image's alt text) renders next to it.
+ * ------------------------------------------------------------------------- */
+.pron {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  vertical-align: -0.2em;
+}
+
+.pron-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+  color: #555;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.pron-btn:hover {
+  background: #f0f7ff;
+  color: #003366;
+}
+
+.pron-btn:focus-visible {
+  outline: 1px solid #003366;
+  outline-offset: 2px;
+}
+
+.pron-label {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-style: italic;
+  font-size: 0.95em;
+  color: inherit;
+}
+
+/* Playing: icon and label pick up the link blue, waves pulse to read as
+   "sound coming out" without swapping in a second icon. */
+.pron-btn[data-state="playing"] {
+  color: #003366;
+}
+.pron-btn[data-state="playing"] .pron-wave {
+  animation: pron-pulse 0.9s ease-in-out infinite;
+}
+.pron-btn[data-state="playing"] .pron-wave:last-child {
+  animation-delay: 0.15s;
+}
+
+@keyframes pron-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+/* Loading: same pulse on the whole icon while the clip buffers. */
+.pron-btn[data-state="loading"] {
+  color: #777;
+  cursor: progress;
+}
+.pron-btn[data-state="loading"] .pron-icon {
+  animation: pron-pulse 1s ease-in-out infinite;
+}
+
+/* Error: the failure red used by callout-failure/danger/bug. */
+.pron-btn[data-state="error"] {
+  color: #b3322f;
+}
