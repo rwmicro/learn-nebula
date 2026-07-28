@@ -14,7 +14,6 @@ const JS_DIR = join(process.cwd(), "public", "js");
 const SCRIPTS = [
   "toc",
   "audio",
-  "pronounce",
   "font-size",
   "wide-text",
   "translate",

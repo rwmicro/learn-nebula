@@ -90,6 +90,10 @@ export default function RootLayout({
             home page no longer pulls scripts it doesn't use. */}
         <Script src="/js/instantpage.js" strategy="afterInteractive" />
         <Script src="/js/lightbox.js" strategy="afterInteractive" />
+        {/* Pronunciation clips (.pron-btn): notes render them via Markdown
+            (![word](clip.mp3)) and /cartes decks via [sound:clip.mp3], so this
+            loads everywhere rather than only through <NoteScripts />. */}
+        <Script src="/js/pronounce.js" strategy="afterInteractive" />
         {/* Service worker: offline reading of visited notes + instant repeat
             loads. It never caches /api/*. */}
         <Script src="/js/sw-register.js" strategy="afterInteractive" />
