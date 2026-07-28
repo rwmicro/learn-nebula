@@ -50,6 +50,12 @@
     "translateFilter": "Filtrer les langues…",
     "translateNoMatch": "Aucune langue"
   },
+  "pronunciation": {
+    "playAria": "Écouter la prononciation",
+    "pauseAria": "Mettre en pause",
+    "loadingAria": "Chargement de l'audio…",
+    "errorAria": "Erreur de lecture audio"
+  },
   "comments": {
     "title": "Commentaires",
     "namePlaceholder": "Nom (optionnel)",

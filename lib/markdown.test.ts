@@ -148,6 +148,25 @@ describe("renderMarkdown", () => {
     expect(html).not.toContain("<img");
   });
 
+  it("converts ![word](clip.mp3) to a pronunciation player", async () => {
+    const { html } = await renderMarkdown(
+      "![bonjour](https://example.com/bonjour-fr.mp3)",
+    );
+    expect(html).toContain('class="pron"');
+    expect(html).toContain('class="pron-btn"');
+    expect(html).toContain('data-pron-src="https://example.com/bonjour-fr.mp3"');
+    expect(html).toContain('class="pron-label"');
+    expect(html).toContain("bonjour");
+    // No broken <img> for the same src.
+    expect(html).not.toContain("<img");
+  });
+
+  it("renders an icon-only pronunciation player when there is no alt text", async () => {
+    const { html } = await renderMarkdown("![](https://example.com/clip.mp3)");
+    expect(html).toContain('class="pron-btn"');
+    expect(html).not.toContain('class="pron-label"');
+  });
+
   it("strips script-execution vectors from note-authored raw HTML", async () => {
     const { html } = await renderMarkdown(
       'Text\n\n<script>alert(1)</script>\n\n<img src="x" onerror="alert(2)">\n\n[go](javascript:alert(3))',
