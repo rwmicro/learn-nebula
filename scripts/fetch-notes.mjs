@@ -39,17 +39,18 @@ try {
     { stdio: ["ignore", "inherit", "inherit"] },
   );
 
-  // The vault stores audio clips (.mp3) and Anki decks (.apkg) via git-lfs.
-  // A plain clone only fetches LFS *pointer* files unless git-lfs smudges them,
-  // which would leave broken audio players and decks on the site. Pull the real
-  // objects explicitly: `lfs install --local` registers the filters for this
-  // clone, `lfs pull` downloads the objects for the checked-out tip. Requires
-  // git-lfs in the build image; failure is warned (text notes still deploy).
+  // Pronunciation audio (.mp3) is stored in the vault via git-lfs. A plain
+  // clone only fetches LFS *pointer* files unless git-lfs smudges them, which
+  // would leave broken audio players on the site. Pull the real objects
+  // explicitly, scoped to *.mp3: the vault also keeps large Anki decks (.apkg)
+  // in LFS that the build doesn't need, so --include avoids re-downloading them
+  // (hundreds of MB) on every build. Requires git-lfs in the build image;
+  // failure is warned (text notes still deploy).
   try {
     execFileSync("git", ["-C", tmp, "lfs", "install", "--local"], {
       stdio: ["ignore", "inherit", "inherit"],
     });
-    execFileSync("git", ["-C", tmp, "lfs", "pull"], {
+    execFileSync("git", ["-C", tmp, "lfs", "pull", "--include=*.mp3"], {
       stdio: ["ignore", "inherit", "inherit"],
     });
   } catch (err) {
