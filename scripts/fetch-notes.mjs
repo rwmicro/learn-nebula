@@ -39,6 +39,27 @@ try {
     { stdio: ["ignore", "inherit", "inherit"] },
   );
 
+  // The vault stores audio clips (.mp3) and Anki decks (.apkg) via git-lfs.
+  // A plain clone only fetches LFS *pointer* files unless git-lfs smudges them,
+  // which would leave broken audio players and decks on the site. Pull the real
+  // objects explicitly: `lfs install --local` registers the filters for this
+  // clone, `lfs pull` downloads the objects for the checked-out tip. Requires
+  // git-lfs in the build image; failure is warned (text notes still deploy).
+  try {
+    execFileSync("git", ["-C", tmp, "lfs", "install", "--local"], {
+      stdio: ["ignore", "inherit", "inherit"],
+    });
+    execFileSync("git", ["-C", tmp, "lfs", "pull"], {
+      stdio: ["ignore", "inherit", "inherit"],
+    });
+  } catch (err) {
+    console.warn(
+      "WARNING: git-lfs pull failed — LFS assets (audio clips, Anki decks) may " +
+        "be missing or left as pointer files. Ensure git-lfs is available in " +
+        `the build image.\n${err?.message ?? err}`,
+    );
+  }
+
   const src = subdir ? path.join(tmp, subdir) : tmp;
   if (!fs.existsSync(src)) {
     throw new Error(`NOTES_SUBDIR "${subdir}" not found in repo.`);
