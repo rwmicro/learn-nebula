@@ -39,6 +39,28 @@ try {
     { stdio: ["ignore", "inherit", "inherit"] },
   );
 
+  // Pronunciation audio (.mp3) is stored in the vault via git-lfs. A plain
+  // clone only fetches LFS *pointer* files unless git-lfs smudges them, which
+  // would leave broken audio players on the site. Pull the real objects
+  // explicitly, scoped to *.mp3: the vault also keeps large Anki decks (.apkg)
+  // in LFS that the build doesn't need, so --include avoids re-downloading them
+  // (hundreds of MB) on every build. Requires git-lfs in the build image;
+  // failure is warned (text notes still deploy).
+  try {
+    execFileSync("git", ["-C", tmp, "lfs", "install", "--local"], {
+      stdio: ["ignore", "inherit", "inherit"],
+    });
+    execFileSync("git", ["-C", tmp, "lfs", "pull", "--include=*.mp3"], {
+      stdio: ["ignore", "inherit", "inherit"],
+    });
+  } catch (err) {
+    console.warn(
+      "WARNING: git-lfs pull failed — LFS assets (audio clips, Anki decks) may " +
+        "be missing or left as pointer files. Ensure git-lfs is available in " +
+        `the build image.\n${err?.message ?? err}`,
+    );
+  }
+
   const src = subdir ? path.join(tmp, subdir) : tmp;
   if (!fs.existsSync(src)) {
     throw new Error(`NOTES_SUBDIR "${subdir}" not found in repo.`);
