@@ -50,6 +50,12 @@
     "translateFilter": "Filtrar idiomas…",
     "translateNoMatch": "Ningún idioma"
   },
+  "pronunciation": {
+    "playAria": "Escuchar la pronunciación",
+    "pauseAria": "Pausar",
+    "loadingAria": "Cargando el audio…",
+    "errorAria": "Error al reproducir el audio"
+  },
   "comments": {
     "title": "Comentarios",
     "namePlaceholder": "Nombre (opcional)",
@@ -116,6 +122,7 @@
     "scopeAnki": "Anki",
     "scopeThemes": "Temas",
     "scopeDomains": "Dominios",
+    "scopeLangs": "Idiomas",
     "scopeHint": "Elige un tipo y luego escribe tu búsqueda.",
     "notesLabel": "Notas",
     "empty": "Ninguna nota coincide.",
@@ -137,6 +144,7 @@
     "links": "Enlaces",
     "notes": "Notas",
     "disciplines": "Disciplinas",
+    "langs": "Idiomas",
     "all": "todo",
     "hint": "arrastrar · rueda para zoom · clic para abrir"
   },

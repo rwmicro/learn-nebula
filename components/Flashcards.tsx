@@ -83,6 +83,16 @@ export function Flashcards({
     [cards.length],
   );
   const flip = useCallback(() => setFlipped((f) => !f), []);
+  // The card's front/back HTML (dangerouslySetInnerHTML) can itself contain a
+  // `.pron-btn` pronunciation player nested inside this flip button; let that
+  // handle its own click instead of also flipping the card away under it.
+  const handleCardClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if ((e.target as HTMLElement).closest(".pron-btn")) return;
+      flip();
+    },
+    [flip],
+  );
   const shuffle = useCallback(() => {
     setOrder((o) => {
       const a = [...o];
@@ -148,13 +158,13 @@ export function Flashcards({
         <>
           <button
             type="button"
-            onClick={flip}
+            onClick={handleCardClick}
             aria-label={tr("flip")}
             className="flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-[#e4e2dd] bg-white p-8 text-center transition-[min-height] duration-200 hover:bg-white"
             style={{ minHeight: `${26 * SIZES[sizeIdx]}rem` }}
           >
             <div
-              className="card [&_audio]:mt-3"
+              className="card [&_.pron]:mt-3"
               style={{ zoom: SIZES[sizeIdx] }}
               dangerouslySetInnerHTML={{
                 __html: flipped ? card.back : card.front,

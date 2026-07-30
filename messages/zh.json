@@ -50,6 +50,12 @@
     "translateFilter": "筛选语言…",
     "translateNoMatch": "无匹配语言"
   },
+  "pronunciation": {
+    "playAria": "收听发音",
+    "pauseAria": "暂停",
+    "loadingAria": "音频加载中…",
+    "errorAria": "音频播放出错"
+  },
   "comments": {
     "title": "评论",
     "namePlaceholder": "名字（可选）",
@@ -116,6 +122,7 @@
     "scopeAnki": "Anki",
     "scopeThemes": "主题",
     "scopeDomains": "领域",
+    "scopeLangs": "语言",
     "scopeHint": "选择类型，然后输入搜索内容。",
     "notesLabel": "笔记",
     "empty": "没有匹配的笔记。",
@@ -137,6 +144,7 @@
     "links": "链接",
     "notes": "笔记",
     "disciplines": "学科",
+    "langs": "语言",
     "all": "全部",
     "hint": "拖动 · 滚轮缩放 · 点击打开"
   },
