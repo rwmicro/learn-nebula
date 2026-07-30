@@ -25,7 +25,11 @@ test.describe("Security", () => {
   });
 
   test("should not reference a third-party CDN", async ({ page }) => {
-    await page.goto("/posts/fundamental-theorem-of-calculus/");
+    // Any note that renders KaTeX (math): the previous fixed slug had been
+    // removed from the vault, so this points at a current math note instead.
+    await page.goto(
+      "/posts/applied-sciences/computer-science/software/security/cryptographie/hash-cracking/",
+    );
     const html = await page.content();
     // KaTeX is self-hosted and pre-rendered; no jsdelivr/CDN scripts.
     expect(html).not.toContain("cdn.jsdelivr.net");
