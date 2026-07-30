@@ -67,9 +67,19 @@ export async function SinglePage({
       : "";
 
   // Mark English notes (the site default is French) for SEO/accessibility.
+  // Drives the translate widget's source language, which only ever offers fr
+  // or en as the note's *prose* language — independent of `fm.lang` below,
+  // since a French note can embed a few foreign words without being written
+  // in that language.
   const detectedLang =
     franc(plain, { only: ["fra", "eng"], minLength: 30 }) === "eng" ? "en" : "fr";
-  const lang = detectedLang === "en" ? "en" : undefined;
+  // `<main lang>`: a note tagged `lang` (substantially written in that
+  // language — full immersion/reading practice, as opposed to a French note
+  // that just embeds a few foreign vocabulary words) wins; otherwise fall
+  // back to the fr/en heuristic above. /js/audio.js's TTS voice picker reads
+  // this same attribute, so tagging a note also gets it read aloud correctly.
+  const noteLang = fm.lang?.trim().toLowerCase() || detectedLang;
+  const lang = noteLang !== "fr" ? noteLang : undefined;
 
   const siblings = note ? siblingNavHtml(getSiblings(doc.slug)) : "";
   const backlinks = note ? backlinksHtml(getBacklinks(doc.slug)) : "";

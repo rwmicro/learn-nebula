@@ -31,6 +31,19 @@ export function firstImage(body: string): string {
   return absoluteURL(DEFAULT_IMAGE);
 }
 
+/** "es" → "es_ES" via Intl's likely-subtags data; null for an empty/unrecognised code. */
+function ogLocaleFor(lang: string | undefined): string | null {
+  if (!lang) return null;
+  const code = lang.trim().toLowerCase();
+  if (!code) return null;
+  try {
+    const region = new Intl.Locale(code).maximize().region;
+    return region ? `${code}_${region}` : null;
+  } catch {
+    return null;
+  }
+}
+
 interface SeoInput {
   fm: Frontmatter;
   body: string;
@@ -49,13 +62,16 @@ export function buildMetadata({
   const description = truncate(plain, 160) || SITE_DESCRIPTION;
   const url = absoluteURL(path);
   const image = firstImage(body);
-  // Notes are written in French or English; advertise the one actually used
-  // (SinglePage runs the same detection to set <main lang>) instead of always
-  // claiming fr_FR.
+  // A note tagged `lang` (SinglePage sets <main lang> from the same field) is
+  // substantially in that language — advertise its likely region (Intl's
+  // likely-subtails data, e.g. "es" → "es_ES") instead of the fr/en guess.
+  // Otherwise fall back to detecting French vs. English, since untagged notes
+  // are written in one of those two.
   const ogLocale =
-    franc(plain, { only: ["fra", "eng"], minLength: 30 }) === "eng"
+    ogLocaleFor(fm.lang) ??
+    (franc(plain, { only: ["fra", "eng"], minLength: 30 }) === "eng"
       ? "en_US"
-      : "fr_FR";
+      : "fr_FR");
 
   return {
     title,

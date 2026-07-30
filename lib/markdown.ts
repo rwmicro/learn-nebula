@@ -15,7 +15,8 @@ import type { Root, Element, ElementContent, RootContent } from "hast";
 import { createHash } from "node:crypto";
 import { rehypeShiki } from "./highlight";
 import { resolveWikiLink } from "./content";
-import { resolveVaultAsset, isVideoSrc } from "./vault-assets";
+import { resolveVaultAsset, isVideoSrc, isAudioSrc } from "./vault-assets";
+import { t } from "./i18n";
 
 // ---------------------------------------------------------------------------
 // Preprocessing (runs on the raw Markdown, before the unified pipeline so that
@@ -364,13 +365,65 @@ function rehypeHeadingIds() {
   };
 }
 
+// Speaker icon shared by every `.pron` player (see rehypeVaultAssets below).
+// The two outer arcs carry `.pron-wave` so main.css can pulse them while
+// `data-state="playing"` without needing a second icon swapped in by JS.
+const PRON_ICON_SVG =
+  '<svg class="pron-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">' +
+  '<path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 9v6h4l5 4V5L8 9H4z"/>' +
+  '<path class="pron-wave" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M15.5 8.5a5 5 0 0 1 0 7"/>' +
+  '<path class="pron-wave" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" d="M18.2 5.8a9 9 0 0 1 0 12.4"/>' +
+  "</svg>";
+
+function pronIcon(): ElementContent {
+  return fromHtml(PRON_ICON_SVG, { fragment: true }).children[0] as Element;
+}
+
+/** Build the `.pron` pronunciation-player markup replacing `![word](clip.mp3)`.
+ * Hydrated client-side by /js/pronounce.js (idle → loading → playing/error). */
+function pronPlayer(src: string, alt: string, id: number): Element {
+  const labelId = alt ? `pron-label-${id}` : undefined;
+  const button: Element = {
+    type: "element",
+    tagName: "button",
+    properties: {
+      type: "button",
+      className: ["pron-btn"],
+      dataState: "idle",
+      dataPronSrc: src,
+      ariaLabel: t("pronunciation.playAria"),
+      dataI18nAriaLabel: "pronunciation.playAria",
+      ...(labelId ? { ariaDescribedby: labelId } : {}),
+    },
+    children: [pronIcon()],
+  };
+  const children: ElementContent[] = [button];
+  if (alt) {
+    children.push({
+      type: "element",
+      tagName: "span",
+      properties: { className: ["pron-label"], id: labelId },
+      children: [{ type: "text", value: alt }],
+    });
+  }
+  return {
+    type: "element",
+    tagName: "span",
+    properties: { className: ["pron"] },
+    children,
+  };
+}
+
 /** Point relative note assets (images, PDFs…) at the served copies in
  * public/vault; leave remote/absolute references untouched. Also upgrades
  * `<img>` whose src ends in a video extension to a `<video>` element so
- * `![clip](demo.mp4)` works the way authors expect. */
+ * `![clip](demo.mp4)` works the way authors expect, and one ending in an
+ * audio extension to the `.pron` pronunciation player so `![bonjour](fr.mp3)`
+ * plays inline instead of showing a broken image. */
 function rehypeVaultAssets(dir: string) {
+  let pronId = 0;
   return (tree: Root) => {
-    visit(tree, "element", (node: Element) => {
+    visit(tree, "element", (node: Element, index, parent) => {
       if (node.tagName === "img") {
         const src = node.properties?.src;
         if (typeof src !== "string") return;
@@ -384,6 +437,14 @@ function rehypeVaultAssets(dir: string) {
             finalSrc = resolved;
             node.properties.src = resolved;
           }
+        }
+        if (isAudioSrc(finalSrc) && parent && index != null) {
+          const alt =
+            typeof node.properties.alt === "string" ? node.properties.alt.trim() : "";
+          const player = pronPlayer(finalSrc, alt, ++pronId);
+          const siblings = parent.children as unknown as Array<RootContent | ElementContent>;
+          siblings.splice(index, 1, player);
+          return SKIP;
         }
         // Promote video files to a real <video> element. The HTML spec doesn't
         // let <img> render mp4/webm, so a literal Markdown image link to a

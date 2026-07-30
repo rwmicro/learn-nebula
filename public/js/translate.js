@@ -101,10 +101,15 @@
     decodeURIComponent((u.split("/").pop() || "").split(/[?#]/)[0]).toLowerCase();
   articleBody
     .querySelectorAll(
-      'img[src^="/vault/"], source[src^="/vault/"], video[src^="/vault/"], a[href^="/vault/"]',
+      'img[src^="/vault/"], source[src^="/vault/"], video[src^="/vault/"], ' +
+        'a[href^="/vault/"], button.pron-btn[data-pron-src^="/vault/"]',
     )
     .forEach((el) => {
-      const url = el.getAttribute("src") || el.getAttribute("href") || "";
+      const url =
+        el.getAttribute("src") ||
+        el.getAttribute("href") ||
+        el.getAttribute("data-pron-src") ||
+        "";
       const file = baseName(url);
       if (file && !assetMap.has(file)) assetMap.set(file, url);
     });
@@ -121,6 +126,9 @@
       .querySelectorAll("img[src], source[src], video[src]")
       .forEach((el) => repoint(el, "src"));
     root.querySelectorAll("a[href]").forEach((el) => repoint(el, "href"));
+    root
+      .querySelectorAll("button.pron-btn[data-pron-src]")
+      .forEach((el) => repoint(el, "data-pron-src"));
   }
   const labels = {
     get idle() {

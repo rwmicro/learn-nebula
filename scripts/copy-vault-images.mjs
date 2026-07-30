@@ -16,6 +16,8 @@ const EXTS = new Set([
   // Video — needed for embedded clips and for the Manim cache (_manim/*.mp4)
   // populated by the obsidian-manim-renderer plugin.
   ".mp4", ".webm", ".mov", ".ogv",
+  // Audio — pronunciation clips embedded as ![word](clip.mp3).
+  ".mp3", ".wav", ".ogg", ".oga", ".m4a", ".opus", ".flac", ".aac",
 ]);
 // Cloudflare Pages rejects any single asset larger than 25 MiB. Skip those
 // (with a warning) so one oversized file can't fail the whole deployment;
