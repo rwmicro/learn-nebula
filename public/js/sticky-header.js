@@ -19,7 +19,10 @@
       const e = entries[0];
       const show = !e.isIntersecting;
       document.body.dataset.condensedHeader = show ? "true" : "false";
-      condensed.setAttribute("aria-hidden", show ? "false" : "true");
+      // `inert`, not aria-hidden: the bar holds a focusable toggle, so
+      // aria-hidden on it would trap that button (WCAG 4.1.2 / aria-hidden-focus).
+      // inert removes the whole off-screen subtree from focus AND the a11y tree.
+      condensed.inert = !show;
     },
     { threshold: 0, rootMargin: "0px 0px -1px 0px" },
   );

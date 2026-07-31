@@ -215,7 +215,11 @@ export function noteHeaderHtml(
     : "";
   const meta =
     title || date
-      ? `<div class="note-header-meta">` +
+      ? // aria-hidden here (not on the whole condensed bar): the title/date are a
+        // visual duplicate of the article's h1/date, but the sibling toggle is a
+        // real control — hiding the bar wholesale trapped a focusable button
+        // inside aria-hidden (WCAG 4.1.2 / axe aria-hidden-focus).
+        `<div class="note-header-meta" aria-hidden="true">` +
         (title
           ? `<span class="note-header-title">${escapeHtml(title)}</span>`
           : "") +
@@ -230,7 +234,7 @@ export function noteHeaderHtml(
     `<a href="/">${escapeHtml(INDEX_NOTE)}</a>${crumbs}` +
     `</div>` +
     `</header>` +
-    `<div class="note-header-condensed" data-pagefind-ignore aria-hidden="true">` +
+    `<div class="note-header-condensed" data-pagefind-ignore>` +
     meta +
     asideToggleHtml() +
     `</div>`

@@ -132,7 +132,7 @@ export function Flashcards({
 
       <a
         href="/"
-        className="text-micro font-semibold uppercase tracking-[0.1em] text-[#8a857b] no-underline hover:bg-transparent hover:text-[#1a1a1a]"
+        className="text-micro font-semibold uppercase tracking-[0.1em] text-[#787369] no-underline hover:bg-transparent hover:text-[#1a1a1a]"
       >
         ← {tr("home")}
       </a>
@@ -142,18 +142,18 @@ export function Flashcards({
           {name}
         </h1>
         {cards.length > 0 && (
-          <span className="shrink-0 text-meta tabular-nums text-[#8a857b]">
+          <span className="shrink-0 text-meta tabular-nums text-[#787369]">
             {pos + 1} / {cards.length}
           </span>
         )}
       </header>
 
       {error ? (
-        <p className="italic text-[#8a857b]">{tr("err")}</p>
+        <p className="italic text-[#787369]">{tr("err")}</p>
       ) : !deck ? (
-        <p className="italic text-[#8a857b]">{tr("loading")}</p>
+        <p className="italic text-[#787369]">{tr("loading")}</p>
       ) : !cards.length ? (
-        <p className="italic text-[#8a857b]">{tr("empty")}</p>
+        <p className="italic text-[#787369]">{tr("empty")}</p>
       ) : (
         <>
           <button
@@ -195,7 +195,7 @@ export function Flashcards({
               {SIZES[sizeIdx] !== 1 ? ` ×${SIZES[sizeIdx]}` : ""}
             </button>
           </div>
-          <p className="mt-4 text-center text-micro italic text-[#8a857b]">
+          <p className="mt-4 text-center text-micro italic text-[#787369]">
             {tr("hint")}
           </p>
         </>

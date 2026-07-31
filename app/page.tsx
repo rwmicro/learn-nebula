@@ -49,12 +49,12 @@ export default async function HomePage() {
     <>
       <div dangerouslySetInnerHTML={{ __html: masthead }} />
       <Header doc={doc} />
-      <div className='w-11/12 mx-auto text-center text-lead text-neutral-400 mt-10'>
+      <div className='w-11/12 mx-auto text-center text-lead text-neutral-500 mt-10'>
       <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-neutral-700 mt-10" />
           <div className="w-full max-w-11/12 mx-auto">
 
       <img src="/images/eragny.webp" alt="Éragny" className="mb-2" width="1200" height="950" fetchPriority="high" decoding="async" />
-      <span className="text-sm text-neutral-400"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>
+      <span className="text-sm text-neutral-500"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>
           </div>
       </div>
       <main id="main" className={newsreader.variable}>

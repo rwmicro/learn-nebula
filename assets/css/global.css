@@ -252,7 +252,7 @@ footer {
 
 /* Loading: same pulse on the whole icon while the clip buffers. */
 .pron-btn[data-state="loading"] {
-  color: #777;
+  color: #6f6f6f;
   cursor: progress;
 }
 .pron-btn[data-state="loading"] .pron-icon {
@@ -262,4 +262,17 @@ footer {
 /* Error: the failure red used by callout-failure/danger/bug in main.css. */
 .pron-btn[data-state="error"] {
   color: #b3322f;
+}
+
+/* Footer prose links: a persistent underline so they're distinguishable without
+   relying on colour (WCAG 1.4.1). Plain (unlayered) rule with higher specificity
+   than the bare `a` reset, so it holds on note pages too. */
+.footer-prose a {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  text-decoration-color: #b3ada2;
+}
+.footer-prose a:hover {
+  text-decoration-color: currentColor;
 }

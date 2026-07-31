@@ -21,7 +21,11 @@ export function Footer() {
           <p className="m-0">
             Copyright {year} · {AUTHOR}
           </p>
-          <p className="m-0">
+          {/* Prose links: `.footer-prose a` (global.css) gives them a persistent
+              underline so they're distinguishable without colour (WCAG 1.4.1) —
+              done in plain CSS, not a Tailwind utility, because the note-page
+              `a { text-decoration: none }` (unlayered) would otherwise win. */}
+          <p className="footer-prose m-0">
             Unless otherwise noted, site content is licensed under a{" "}
             <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
               Creative Commons license

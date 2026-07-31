@@ -202,6 +202,20 @@ a:hover {
   border-radius: 4px;
 }
 
+/* Prose links inside the article body carry a subtle, persistent underline so
+   they're distinguishable without relying on colour alone (WCAG 1.4.1). Chrome
+   links (nav, breadcrumb, siblings, TOC, heading anchors) keep the clean
+   underline-on-hover treatment. */
+.article-body a:not(.anchor) {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  text-decoration-color: #9fb3c8; /* muted tint of the link blue, not shouty */
+}
+.article-body a:not(.anchor):hover {
+  text-decoration-color: currentColor;
+}
+
 main img {
   max-width: 100%;
   height: auto;
@@ -477,7 +491,7 @@ h2:focus-within .anchor {
   outline: none;
 }
 .translate-filter::placeholder {
-  color: #8a857b;
+  color: #787369;
   font-style: italic;
 }
 .translate-filter:focus {
@@ -505,7 +519,7 @@ h2:focus-within .anchor {
   font-family: "Alegreya Sans", sans-serif;
   font-size: 0.95rem;
   font-style: italic;
-  color: #8a857b;
+  color: #787369;
 }
 .translate-menu-empty[hidden] {
   display: none;
@@ -544,7 +558,7 @@ h2:focus-within .anchor {
 }
 
 .translate-btn[data-state="loading"] {
-  color: #777;
+  color: #6f6f6f;
   cursor: progress;
 }
 
@@ -581,7 +595,7 @@ h2:focus-within .anchor {
   font-style: italic;
   font-weight: 400;
   font-size: 1rem;
-  color: #777;
+  color: #6f6f6f;
   padding: 0.15rem 0;
   align-self: baseline;
   /* Sits inline after the action buttons. (It used to be pushed to the far
@@ -741,7 +755,7 @@ body[data-text-size="lg"] main ol li {
 }
 
 .note-header .crumbs {
-  color: #777;
+  color: #6f6f6f;
   font-size: 0.95rem;
 }
 
@@ -941,7 +955,7 @@ body[data-text-size="lg"] main ol li {
 }
 
 .sib-current {
-  color: #777;
+  color: #6f6f6f;
 }
 
 .note-search {
@@ -994,7 +1008,7 @@ body[data-text-size="lg"] main ol li {
 }
 
 .pf-search .pagefind-ui__search-input::placeholder {
-  color: #777;
+  color: #6f6f6f;
   font-style: italic;
 }
 
@@ -1006,7 +1020,7 @@ body[data-text-size="lg"] main ol li {
 .pf-search .pagefind-ui__search-clear {
   background: transparent;
   box-shadow: none;
-  color: #777;
+  color: #6f6f6f;
   font-family: "Alegreya Sans", sans-serif;
   font-weight: 400;
 }
@@ -1041,7 +1055,7 @@ body[data-text-size="lg"] main ol li {
 .comments-loading,
 .comments-empty {
   font-style: italic;
-  color: #777;
+  color: #6f6f6f;
   font-size: 1.15rem;
   margin: 0 0 1.2rem 0;
 }
@@ -1076,7 +1090,7 @@ body[data-text-size="lg"] main ol li {
 .comment-date {
   font-family: "Alegreya Sans", sans-serif;
   font-size: 0.95rem;
-  color: #777;
+  color: #6f6f6f;
   font-style: italic;
 }
 
@@ -1338,7 +1352,7 @@ body[data-text-size="lg"] main ol li {
     font-family: "Alegreya", "Alegreya Fallback", serif;
     font-style: italic;
     font-size: 0.8rem;
-    color: #777;
+    color: #6f6f6f;
     line-height: 1.2;
     margin-top: 0.05rem;
   }
@@ -1476,7 +1490,7 @@ body[data-text-size="lg"] main ol li {
    hardcoded French string here, untranslatable by nature. */
 .ask-output:empty::before {
   content: attr(data-placeholder);
-  color: #777;
+  color: #6f6f6f;
   font-style: italic;
 }
 .ask-answer[data-busy="true"] .ask-output:empty::before {
