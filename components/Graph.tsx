@@ -470,7 +470,7 @@ export function Graph({
         }}
         className="absolute z-10 flex items-center gap-2 rounded-full border border-[#d4d4d4] bg-[#fcfcfc]/90 px-3 py-1.5 shadow-[0_2px_10px_rgba(0,0,0,0.06)] backdrop-blur bottom-4 left-1/2 -translate-x-1/2 sm:bottom-auto sm:left-auto sm:top-3 sm:right-3 sm:translate-x-0"
       >
-        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" className="shrink-0 text-[#8a857b]">
+        <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" className="shrink-0 text-[#787369]">
           <circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" strokeWidth="1.6" />
           <path d="M15.5 15.5 21 21" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
@@ -480,7 +480,7 @@ export function Graph({
           onChange={(e) => setLocate(e.target.value)}
           placeholder={tr("graph.locatePlaceholder")}
           aria-label={tr("graph.locateAria")}
-          className="w-40 border-0 bg-transparent p-0 text-sm text-[#1a1a1a] outline-none placeholder:text-[#8a857b] sm:w-48"
+          className="w-40 border-0 bg-transparent p-0 text-sm text-[#1a1a1a] outline-none placeholder:text-[#787369] sm:w-48"
         />
       </form>
       <div className="absolute left-3 top-12 z-10 w-52 rounded-md border border-[#e4e2dd] bg-[#fcfcfc]/92 p-3 text-sm text-[#1a1a1a] shadow-[0_2px_10px_rgba(0,0,0,0.06)] backdrop-blur">
@@ -503,7 +503,7 @@ export function Graph({
           </label>
         </div>
         <div className="mb-1 flex items-center justify-between">
-          <span className="text-meta uppercase tracking-[0.08em] text-[#8a857b]">
+          <span className="text-meta uppercase tracking-[0.08em] text-[#787369]">
             {tr("graph.disciplines")}
           </span>
           {filterTheme && (
@@ -544,7 +544,7 @@ export function Graph({
         {langs.length > 0 && (
           <div className="mt-2 border-t border-[#e4e2dd] pt-2">
             <div className="mb-1 flex items-center justify-between">
-              <span className="text-meta uppercase tracking-[0.08em] text-[#8a857b]">
+              <span className="text-meta uppercase tracking-[0.08em] text-[#787369]">
                 {tr("graph.langs")}
               </span>
               {filterLang && (

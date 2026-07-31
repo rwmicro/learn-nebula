@@ -66,7 +66,7 @@ export function LangSwitcher() {
   ${
           active
               ? "bg-[#ffcf33] text-[#1a1a1a] underline"
-              : "bg-transparent text-[#8a857b]"
+              : "bg-transparent text-[#787369]"
       }
   `;
 
@@ -79,7 +79,7 @@ export function LangSwitcher() {
       {OPTIONS.map((o, i) => (
         <Fragment key={o.code}>
           {i > 0 && (
-            <span className="text-[#8a857b]" aria-hidden="true">
+            <span className="text-[#787369]" aria-hidden="true">
               ·
             </span>
           )}
