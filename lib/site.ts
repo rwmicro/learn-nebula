@@ -58,6 +58,12 @@ export function buildCSP(): string {
     "object-src 'none'",
     // Notes embed remote images (Wikipedia, etc.); allow HTTPS images.
     "img-src 'self' data: https:",
+    // Pronunciation clips (`![word](clip.mp3)`) resolve straight to the vault
+    // repo's raw.githubusercontent.com (see lib/vault-assets.ts's
+    // audioBaseUrl) rather than being bundled locally — a vault can hold
+    // thousands of small clips, more than Cloudflare Pages' 20,000-file cap
+    // per deployment. Remote `![clip](demo.mp4)` video needs the same allowance.
+    "media-src 'self' https:",
     "font-src 'self'",
     "style-src 'self' 'unsafe-inline'",
     // 'wasm-unsafe-eval' lets Pagefind's search run its WebAssembly.

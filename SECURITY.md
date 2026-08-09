@@ -16,11 +16,16 @@ the edge (Cloudflare) or origin (nginx). Notes:
   cannot mint a per-request nonce) and `'wasm-unsafe-eval'` (Pagefind's
   WebAssembly). `'unsafe-eval'` is added **only in dev** (React fast-refresh).
 - `img-src` allows `https:` because notes embed remote images (Wikipedia, etc.).
+- `media-src` allows `https:` because pronunciation clips
+  (`![word](clip.mp3)`) resolve straight to the vault repo's
+  raw.githubusercontent.com instead of being bundled into the deployment — a
+  vault can hold thousands of small per-word clips, more than Cloudflare
+  Pages' 20,000-file-per-deployment cap.
 
 ### nginx
 
 ```nginx
-add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" always;
+add_header Content-Security-Policy "default-src 'self'; base-uri 'self'; object-src 'none'; img-src 'self' data: https:; media-src 'self' https:; font-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'; connect-src 'self'; form-action 'none'; frame-ancestors 'none'; upgrade-insecure-requests" always;
 add_header X-Content-Type-Options "nosniff" always;
 add_header X-Frame-Options "DENY" always;
 add_header Referrer-Policy "strict-origin-when-cross-origin" always;

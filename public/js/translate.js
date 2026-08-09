@@ -101,8 +101,11 @@
     decodeURIComponent((u.split("/").pop() || "").split(/[?#]/)[0]).toLowerCase();
   articleBody
     .querySelectorAll(
+      // pron-btn isn't prefix-matched like the others: its data-pron-src is
+      // always an external raw.githubusercontent.com URL (never /vault/…),
+      // since audio is served straight from the vault repo (lib/vault-assets.ts).
       'img[src^="/vault/"], source[src^="/vault/"], video[src^="/vault/"], ' +
-        'a[href^="/vault/"], button.pron-btn[data-pron-src^="/vault/"]',
+        'a[href^="/vault/"], button.pron-btn[data-pron-src]',
     )
     .forEach((el) => {
       const url =

@@ -28,6 +28,11 @@ describe("buildCSP", () => {
     expect(csp).toContain("frame-ancestors 'none'");
   });
 
+  it("allows cross-origin audio/video (pronunciation clips served from the vault repo)", () => {
+    const csp = buildCSP();
+    expect(csp).toContain("media-src 'self' https:");
+  });
+
   it("allows the Cloudflare Analytics beacon host", () => {
     const csp = buildCSP();
     expect(csp).toContain("https://static.cloudflareinsights.com");

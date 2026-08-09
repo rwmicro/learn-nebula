@@ -16,8 +16,12 @@ const EXTS = new Set([
   // Video — needed for embedded clips and for the Manim cache (_manim/*.mp4)
   // populated by the obsidian-manim-renderer plugin.
   ".mp4", ".webm", ".mov", ".ogv",
-  // Audio — pronunciation clips embedded as ![word](clip.mp3).
-  ".mp3", ".wav", ".ogg", ".oga", ".m4a", ".opus", ".flac", ".aac",
+  // Audio (pronunciation clips, ![word](clip.mp3)) is deliberately NOT copied
+  // here: a vault can hold thousands of small per-word clips (this project's
+  // currently has ~9,500), and Cloudflare Pages hard-caps a deployment at
+  // 20,000 files — copying them all in blew past that in production. Instead
+  // lib/vault-assets.ts resolves audio references straight to the vault
+  // repo's raw.githubusercontent.com URL; see its audioBaseUrl() comment.
 ]);
 // Cloudflare Pages rejects any single asset larger than 25 MiB. Skip those
 // (with a warning) so one oversized file can't fail the whole deployment;
