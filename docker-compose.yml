@@ -15,7 +15,10 @@
 
 services:
   web:
-    # Pull the CI-built image…
+    # Pull the CI-built image (multi-arch: amd64 + arm64). The GHCR package is
+    # private by default — authenticate once on the host:
+    #   echo $GHCR_PAT | docker login ghcr.io -u <github-user> --password-stdin
+    # (PAT with read:packages), or make the package public in its GitHub settings.
     image: ghcr.io/rwmicro/learn-nebula:latest
     # …or build locally instead (requires `pnpm build:docker` first, so out/ and
     # data/rag-chunks.json exist):
