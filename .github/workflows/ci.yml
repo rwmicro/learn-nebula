@@ -46,6 +46,11 @@ jobs:
       - name: Type-check (Pages Functions)
         run: pnpm exec tsc -p functions/tsconfig.json
 
+      # server/ (self-hosted Node backend) is likewise excluded from the root
+      # tsconfig and typechecked on its own.
+      - name: Type-check (Node server)
+        run: pnpm exec tsc -p server/tsconfig.json
+
       - name: Lint
         run: pnpm lint
 
