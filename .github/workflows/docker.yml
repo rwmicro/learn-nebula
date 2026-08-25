@@ -62,6 +62,20 @@ jobs:
           NOTES_REPO_TOKEN: ${{ secrets.NOTES_REPO_TOKEN }} # only if the vault is private
         run: pnpm build:docker
 
+      # The multi-arch buildx (two image filesystems) + gha cache export needs
+      # more scratch than the runner has free once the ~20 GB of preinstalled
+      # toolchains are counted — the first run died with "No space left on
+      # device". Reclaim it here: after the Node build (which still needs Node in
+      # the hosted tool cache) and before buildx. Node is left untouched.
+      - name: Free disk space
+        run: |
+          echo "before:"; df -h / | tail -1
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc \
+            /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/share/swift \
+            /usr/local/share/powershell /usr/share/miniconda || true
+          sudo docker image prune -af || true
+          echo "after:"; df -h / | tail -1
+
       # Emulation so the amd64 runner can also build the arm64 image.
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
