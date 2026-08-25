@@ -1,0 +1,92 @@
+name: Docker image (GHCR)
+
+# Builds the static export (fetching notes + Git LFS from the pensine repo,
+# which the Actions runner supports out of the box) and the RAG chunks, then
+# packages them with the Node server into a container pushed to GHCR.
+#
+# Opt-in for the automatic path: set repo variable ENABLE_DOCKER_BUILD = true.
+# It also gates on CI passing first, so a broken build is never imaged.
+# workflow_dispatch always runs (manual button), regardless of the variable.
+#
+# Runtime secrets (ANTHROPIC_API_KEY / LLM_BASE_URL, EMBED_BASE_URL,
+# TURNSTILE_SECRET_KEY, COMMENTS_ADMIN_TOKEN, …) are NOT baked in — pass them at
+# `docker run` on your server (see .env.example).
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: docker-image
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && vars.ENABLE_DOCKER_BUILD == 'true')
+    name: Build & push
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          lfs: false # the notes (and their LFS assets) come from the pensine repo
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v5
+
+      - name: Setup Node
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Best-effort: pre-render mermaid diagrams to inline SVG. Self-skips if the
+      # browser is missing, so failure here never blocks the build.
+      - name: Install Chromium (mermaid pre-render)
+        run: pnpm exec playwright install --with-deps chromium || true
+
+      - name: Build static site + RAG chunks
+        env:
+          NOTES_REPO_TOKEN: ${{ secrets.NOTES_REPO_TOKEN }} # only if the vault is private
+        run: pnpm build:docker
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+
+      - name: Build & push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -1,0 +1,49 @@
+# Self-hosted stack: the site + a local OpenAI-compatible model server (Ollama)
+# for the assistant's generation and RAG embeddings. No Cloudflare, no API cost.
+#
+#   1. cp .env.example .env   (uncomment the Ollama LLM_BASE_URL / EMBED_BASE_URL)
+#   2. docker compose up -d
+#   3. Pull the models once:
+#        docker compose exec ollama ollama pull qwen2.5:7b-instruct
+#        docker compose exec ollama ollama pull bge-m3
+#
+# First boot embeds every note chunk once (a few minutes for ~5k chunks); the
+# vectors are cached on the gk-data volume, so restarts are instant.
+#
+# Drop the whole `ollama` service and point ANTHROPIC_API_KEY at Claude instead
+# if you'd rather not run a local model.
+
+services:
+  web:
+    # Pull the CI-built image…
+    image: ghcr.io/rwmicro/learn-nebula:latest
+    # …or build locally instead (requires `pnpm build:docker` first, so out/ and
+    # data/rag-chunks.json exist):
+    # build: .
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - gk-data:/data
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama:/root/.ollama
+    # Uncomment to use an NVIDIA GPU:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+volumes:
+  gk-data:
+  ollama:

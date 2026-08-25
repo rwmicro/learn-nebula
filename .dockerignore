@@ -1,0 +1,28 @@
+# Keep the build context small. The image only needs: out/, server/, lib/,
+# schema/, data/rag-chunks.json, package.json, pnpm-lock.yaml.
+node_modules
+.next
+.git
+.github
+.idea
+.vscode
+
+# Notes vault + generated asset mirrors (already inside out/).
+content
+public/vault
+public/anki
+public/js/mermaid.min.js
+public/js/note.bundle.js
+
+# Tests / tooling / local config
+tests
+test-results
+playwright-report
+obsidian-manim-plugin
+.cache
+.dev.vars
+*.log
+
+# Runtime state (baked chunks are kept; DB + vector cache are not)
+data/*
+!data/rag-chunks.json
