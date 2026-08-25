@@ -36,3 +36,6 @@
 
 # JetBrains IDE
 /.idea/
+
+# Self-hosted server runtime data (RAG chunks/vectors, comments DB) — generated
+/data/
