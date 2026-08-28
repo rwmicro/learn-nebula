@@ -79,8 +79,17 @@ function slugifyPath(rel: string): string {
   return rel.split("/").map(slugifySegment).filter(Boolean).join("/");
 }
 
-// Folders excluded from publishing (Obsidian internals / source material).
-const IGNORE_DIRS = new Set(["sources", ".obsidian", ".trash"]);
+// Folders hidden from the frontend (Obsidian internals / source material /
+// attachment caches). Their files are still copied to public/vault/ by
+// copy-vault-images.mjs, so notes embedding `_manim/*.mp4` or `audios/*.mp3`
+// keep working — they're just kept out of the browse tree, graph and search.
+const IGNORE_DIRS = new Set([
+  "sources",
+  ".obsidian",
+  ".trash",
+  "audios",
+  "_manim",
+]);
 // The note used as the site index (rendered on the home page, not as a post).
 export const INDEX_NOTE = "Garden of Knowledge";
 
