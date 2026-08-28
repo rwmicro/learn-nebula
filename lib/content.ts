@@ -87,8 +87,8 @@ const IGNORE_DIRS = new Set([
   "sources",
   ".obsidian",
   ".trash",
-  "audios",
-  "_manim",
+  "audio", // per-word pronunciation clips (thousands of ![word](audio/*.mp3))
+  "_manim", // obsidian-manim render cache (_manim/*.mp4)
 ]);
 // The note used as the site index (rendered on the home page, not as a post).
 export const INDEX_NOTE = "Garden of Knowledge";
