@@ -20,6 +20,7 @@ const OPTIONS = [
   { code: "fr", label: "Français" },
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
+  { code: "ar", label: "العربية" },
   { code: "zh", label: "中文" },
 ] as const;
 
