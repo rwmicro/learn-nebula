@@ -108,6 +108,10 @@ function linkPath(sa: number, sr: number, ta: number, tr: number): string {
 export function CircularGraph({ data }: { data: GraphData }) {
   const layout = useMemo(() => buildLayout(data), [data]);
   const palette = useMemo(() => buildPalette(data.nodes), [data.nodes]);
+  const rootLabel = useMemo(
+    () => layout.nodes.find((n) => n.node.kind === "root")?.node.label ?? "",
+    [layout.nodes],
+  );
 
   const wrapRef = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ w: 1200, h: 800 });
@@ -189,27 +193,36 @@ export function CircularGraph({ data }: { data: GraphData }) {
     [layout.nodes, palette, filter],
   );
 
-  // Folder labels (root + level-1/2 dirs only) — recomputed with the rotation so
-  // they follow their node, but kept horizontal so text is never sideways.
-  const labelsEl = useMemo(() => {
-    return layout.nodes
-      .filter((p) => p.node.kind === "root" || (p.node.kind === "dir" && p.depth <= 2))
-      .map((p) => {
-        const [x, y] = polar(p.angle + rot, p.radius + (p.node.kind === "root" ? 0 : 10));
-        const isRoot = p.node.kind === "root";
-        return (
-          <text
-            key={p.id}
-            x={x.toFixed(1)}
-            y={(y + (isRoot ? 26 : 0)).toFixed(1)}
-            className={`cg-label${isRoot ? " cg-label-root" : ""}${p.depth === 2 ? " cg-label-2" : ""}`}
-            textAnchor="middle"
-          >
-            {p.node.label}
-          </text>
-        );
-      });
-  }, [layout.nodes, rot]);
+  // Radial labels for EVERY sub-folder and file (classic dendrogram treatment:
+  // text runs along the spoke, flipped on the left half so it always reads
+  // outward). Rendered inside the rotating group so spinning the roulette never
+  // re-renders the ~1300 labels. To stay legible, folder names show at every
+  // zoom while file names only appear once zoomed in (CSS, driven by the svg's
+  // data-zoomed flag) — otherwise the rim is an illegible pile of text.
+  const radialLabelsEl = useMemo(
+    () => (
+      <g className="cg-labels">
+        {layout.nodes.map((p) => {
+          if (p.node.kind === "root") return null;
+          const deg = (p.angle * 180) / Math.PI - 90;
+          const flip = p.angle >= Math.PI;
+          const isDir = p.node.kind === "dir";
+          return (
+            <text
+              key={p.id}
+              className={isDir ? "cg-dlabel" : "cg-flabel"}
+              transform={`rotate(${deg.toFixed(2)}) translate(${(p.radius + 5).toFixed(1)},0)${flip ? " rotate(180)" : ""}`}
+              textAnchor={flip ? "end" : "start"}
+              dominantBaseline="central"
+            >
+              {p.node.label}
+            </text>
+          );
+        })}
+      </g>
+    ),
+    [layout.nodes],
+  );
 
   // --- interaction ---------------------------------------------------------
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
@@ -270,6 +283,7 @@ export function CircularGraph({ data }: { data: GraphData }) {
         width={size.w}
         height={size.h}
         data-filter={filter ?? undefined}
+        data-zoomed={zoom >= fitZoom * 1.8 ? "" : undefined}
         onWheel={onWheel}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -281,8 +295,11 @@ export function CircularGraph({ data }: { data: GraphData }) {
           <g transform={`rotate(${(rot * 180) / Math.PI})`}>
             {linksEl}
             {circlesEl}
+            {radialLabelsEl}
           </g>
-          <g>{labelsEl}</g>
+          <text className="cg-label-root" y="26" textAnchor="middle">
+            {rootLabel}
+          </text>
         </g>
       </svg>
 
