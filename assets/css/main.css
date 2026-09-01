@@ -846,6 +846,22 @@ body[data-text-size="lg"] main ol li {
   border-radius: 999px;
   line-height: 1.5;
   white-space: nowrap;
+  /* Clickable (#12): a theme links to the home search for that term. */
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
+}
+a.theme-pill:hover,
+a.theme-pill:focus-visible {
+  background: hsl(var(--theme-h, 210), 38%, 88%);
+  border-color: hsl(var(--theme-h, 210), 40%, 68%);
+  outline: none;
+}
+a.theme-pill:focus-visible {
+  outline: 2px solid hsl(var(--theme-h, 210), 45%, 55%);
+  outline-offset: 2px;
 }
 
 .toc {
@@ -960,13 +976,26 @@ body[data-text-size="lg"] main ol li {
 
 .note-search {
   font-family: "Alegreya Sans", sans-serif;
-  font-size: 1.2rem;
-  padding: 0.35rem 0.6rem;
+  font-size: 1.3rem;
+  padding: 0.35rem 0.2rem 0.45rem;
   width: 100%;
   max-width: 24rem;
-  border: 1px solid dimgray;
   margin-bottom: 1rem;
   display: block;
+  /* Match the home search bar (#3): transparent field with a single bottom
+     rule, italic placeholder — same look as the Pagefind input in prod. */
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #1a1a1a;
+  border-radius: 0;
+}
+.note-search::placeholder {
+  color: #6f6f6f;
+  font-style: italic;
+}
+.note-search:focus {
+  outline: 1px solid #003366;
+  outline-offset: 0;
 }
 
 .pf-search {
@@ -1202,10 +1231,13 @@ body[data-text-size="lg"] main ol li {
   color: #660000;
 }
 
-/* Below 1080px the Tufte side-margin (26rem) no longer fits, so collapse to a
-   single centred column: sidenotes/figcaptions inline, no fixed TOC. Covers
-   phones and tablets (portrait and landscape). */
-@media screen and (max-width: 1080px) {
+/* Below 1400px there isn't room for the reading column AND the 30rem fixed
+   aside (search + themes + TOC) without them colliding (#11 — the justified
+   body text used to run under the sidebar between ~1080 and ~1400px). So below
+   that width we collapse to a single centred column and the aside becomes a
+   right-hand drawer opened by the toggle pill. Covers phones, tablets and
+   narrow laptops. */
+@media screen and (max-width: 1400px) {
   /* Body text & headings are fluid via clamp() — no global rem rebase here.
      Only the layout (margins, max-width) collapses to the single-column
      Tufte fallback. */
