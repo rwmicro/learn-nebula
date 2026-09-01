@@ -51,6 +51,45 @@ body {
 }
 
 
+/* Home hero image (#10): vine/leaf flourishes at each corner — no frame, just
+   the ornaments hugging the picture's corners. */
+.home-hero {
+  position: relative;
+  display: block;
+}
+.home-hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.corner-orn {
+  position: absolute;
+  width: clamp(46px, 11vw, 96px);
+  height: auto;
+  pointer-events: none;
+  z-index: 2;
+  color: #6f5a34; /* sepia scrollwork (currentColor) */
+}
+.corner-tl {
+  top: -2.2%;
+  left: -2.2%;
+}
+.corner-tr {
+  top: -2.2%;
+  right: -2.2%;
+  transform: scaleX(-1);
+}
+.corner-bl {
+  bottom: -2.2%;
+  left: -2.2%;
+  transform: scaleY(-1);
+}
+.corner-br {
+  bottom: -2.2%;
+  right: -2.2%;
+  transform: scale(-1, -1);
+}
+
 ::selection {
   background-color: #ffcf33;
   color: #000000;
