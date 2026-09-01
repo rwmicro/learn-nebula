@@ -27,9 +27,33 @@ export default function Header({ doc }: { doc: Doc }) {
   const editionIso = new Date().toISOString();
 
   return (
-    <header className="mx-auto max-w-300 px-4 text-black @container">
-      {/* 1. utility bar: language "editions" */}
-      <div className="py-2 text-center">
+    <header className="relative mx-auto max-w-300 px-4 text-black @container">
+      {/* Mobile-only hamburger (#13): on phones the masthead keeps only the
+          wordmark; the language editions and the section nav collapse behind
+          this toggle. CSS-only (a visually-hidden peer checkbox) so it works in
+          the static export with no JS; peer-focus-visible surfaces a focus ring
+          on the label since the real control is the sr-only checkbox. */}
+      <input
+        id="gk-menu"
+        type="checkbox"
+        className="peer sr-only"
+        aria-label={t("nav.menu")}
+      />
+      <label
+        htmlFor="gk-menu"
+        className="absolute right-2 top-3 z-20 inline-flex cursor-pointer items-center justify-center rounded-[3px] p-1.5 text-black peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-black peer-checked:[&_.gk-ic-open]:hidden peer-checked:[&_.gk-ic-close]:block sm:hidden"
+      >
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+        </svg>
+        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-close hidden">
+          <path d="M6 6l12 12M18 6l-12 12" />
+        </svg>
+      </label>
+
+      {/* 1. utility bar: language "editions" — hidden on mobile until the
+          hamburger is toggled, always shown from sm up. */}
+      <div className="hidden py-2 text-center peer-checked:block sm:block">
         <LangSwitcher />
       </div>
 
@@ -59,8 +83,9 @@ export default function Header({ doc }: { doc: Doc }) {
       <div className="border-t-[1.5px] border-black" />
       <div className="mt-0.5 border-t-[1.5px] border-black" />
       
-      {/* 3. section nav between a hairline and a thick double rule */}
-      <nav aria-label={t("home.footerNavAria")}>
+      {/* 3. section nav between a hairline and a thick double rule — also folded
+          into the mobile hamburger (#13). */}
+      <nav aria-label={t("home.footerNavAria")} className="hidden peer-checked:block sm:block">
         <ul className="m-0 flex list-none flex-wrap justify-center gap-x-7 gap-y-1 px-0 py-2 text-small font-semibold uppercase tracking-[0.08em] border-b border-neutral-200">
           <li className="m-0">
             <a href="/#applied-sciences" className={navLink} data-i18n="nav.appliedsciences">
