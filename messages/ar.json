@@ -1,0 +1,182 @@
+{
+  "layout": {
+    "skipLink": "تخطي إلى المحتوى"
+  },
+
+  "nav": {
+    "home": "الرئيسية",
+    "appliedsciences": "العلوم التطبيقية",
+    "socialsciences": "العلوم الاجتماعية",
+    "graph": "الرسم البياني"
+  },
+
+  "sidebar": {
+    "searchPlaceholder": "البحث في الملاحظات…",
+    "searchAriaLabel": "البحث في الملاحظات",
+    "tocTitle": "المحتويات",
+    "themesAriaLabel": "المواضيع",
+    "toggleOpen": "المحتويات",
+    "toggleOpenAria": "فتح جدول المحتويات والبحث",
+    "toggleCloseAria": "إغلاق جدول المحتويات"
+  },
+
+  "noteActions": {
+    "audioListen": "استماع",
+    "audioPause": "إيقاف مؤقت",
+    "audioResume": "استئناف",
+    "audioAriaIdle": "استمع إلى هذه المقالة",
+    "audioAriaPlaying": "إيقاف مؤقت",
+    "audioAriaPaused": "استئناف التشغيل",
+    "wideExpand": "توسيع",
+    "wideExtend": "تمديد",
+    "wideCollapse": "تضييق",
+    "wideAriaNormal": "توسيع النص",
+    "wideAriaWide": "تمديد النص أكثر",
+    "wideAriaWidest": "تضييق النص",
+    "textSizeAria": "تغيير حجم النص",
+    "textSizeAriaWithSize": "حجم النص: {size}. انقر للتغيير.",
+    "textSizeSmall": "صغير",
+    "textSizeMedium": "عادي",
+    "textSizeLarge": "كبير",
+    "translate": "ترجمة",
+    "translateLoading": "جارٍ الترجمة…",
+    "translateSlow": "لا يزال العمل جارياً… (ملاحظة طويلة)",
+    "translateShowOriginal": "إظهار الأصل",
+    "translateAriaIdle": "ترجمة هذه المقالة",
+    "translateAriaLoading": "الترجمة قيد التنفيذ",
+    "translateAriaShowOriginal": "إظهار النسخة الأصلية",
+    "translateMenuAria": "اختيار لغة الترجمة",
+    "translateError": "خطأ في الترجمة",
+    "translateNetworkError": "خطأ في الشبكة",
+    "readingTimeAria": "الوقت المقدر للقراءة",
+    "readingTimeFormat": "قراءة لمدة {min} دقيقة",
+    "translateFilter": "تصفية اللغات…",
+    "translateNoMatch": "لا توجد لغة"
+  },
+
+  "pronunciation": {
+    "playAria": "الاستماع إلى النطق",
+    "pauseAria": "إيقاف مؤقت",
+    "loadingAria": "جارٍ تحميل الصوت…",
+    "errorAria": "خطأ في تشغيل الصوت"
+  },
+
+  "comments": {
+    "title": "التعليقات",
+    "namePlaceholder": "الاسم (اختياري)",
+    "messageLabel": "الرسالة",
+    "submit": "إرسال",
+    "anonymous": "مجهول",
+    "empty": "لا توجد تعليقات بعد. كن أول من يعلّق.",
+    "loading": "جارٍ تحميل التعليقات…",
+    "loadError": "تعذر تحميل التعليقات.",
+    "emptyMessage": "لا يمكن أن تكون الرسالة فارغة.",
+    "sending": "جارٍ الإرسال…",
+    "publishedOk": "تم نشر التعليق.",
+    "publishedPending": "تم إرسال التعليق؛ في انتظار المراجعة.",
+    "networkError": "خطأ في الشبكة؛ يرجى المحاولة مرة أخرى."
+  },
+
+  "siblings": {
+    "moreIn": "المزيد في {folder}",
+    "more": "المزيد من الملاحظات",
+    "backlinks": "الملاحظات التي تشير إلى هنا"
+  },
+
+  "askAi": {
+    "trigger": "اسأل الذكاء الاصطناعي",
+    "minimizeAria": "تصغير المساعد",
+    "title": "اسأل الحديقة",
+    "placeholderDefault": "اسأل الحديقة…",
+    "placeholderWithSelection": "ماذا تريد أن تعرف عن هذا المقطع؟",
+    "sourcesTitle": "الملاحظات التي تمت مراجعتها",
+    "errorReach": "تعذر الوصول إلى المساعد.",
+    "errorUnavailable": "المساعد غير متاح حالياً.",
+    "errorRate": "طلبات كثيرة جداً — حاول مرة أخرى بعد قليل.",
+    "errorPartial": "[واجه المساعد خطأ.]",
+    "closeAria": "إغلاق",
+    "removeChipAria": "إزالة المقطع",
+    "gripTitle": "اسحب للتحريك",
+    "inputAria": "سؤالك",
+    "submit": "إرسال",
+    "selButton": "اسأل الذكاء الاصطناعي",
+    "searching": "جارٍ البحث في الملاحظات…",
+    "placeholderEmpty": "اطرح سؤالاً حول ملاحظات الحديقة."
+  },
+
+  "lang": {
+    "switcherAria": "تغيير لغة الواجهة",
+    "fr": "FR",
+    "en": "EN",
+    "es": "ES",
+    "ar": "AR",
+    "zh": "中文"
+  },
+
+  "footer": {
+    "copyright": "حقوق النشر {year} · {author}",
+    "licenseAlt": "رخصة المشاع الإبداعي: نسب المصنف - غير تجاري - المشاركة بالمثل 4.0 دولية.",
+    "licenseBefore": "ما لم يُذكر خلاف ذلك، فإن محتوى الموقع مرخّص بموجب ",
+    "licenseLink": "رخصة المشاع الإبداعي",
+    "licenseMiddle": "، والشفرة المصدرية بموجب ",
+    "licenseGpl": "رخصة GNU GPL",
+    "licenseAfter": ". أُنشئ في الأصل بواسطة "
+  },
+
+  "home": {
+    "searchPlaceholder": "تصفية الملاحظات…",
+    "searchAria": "تصفية الملاحظات",
+    "searchClear": "مسح البحث",
+    "scopeAll": "الكل",
+    "scopeNotes": "الملاحظات",
+    "scopePdf": "PDF",
+    "scopeAnki": "Anki",
+    "scopeThemes": "المواضيع",
+    "scopeDomains": "المجالات",
+    "scopeLangs": "اللغات",
+    "scopeHint": "اختر نوعاً، ثم اكتب بحثك.",
+    "notesLabel": "الملاحظات",
+    "empty": "لا توجد ملاحظة مطابقة.",
+    "mapLabel": "خريطة المعرفة",
+    "mapCaption": "نظرة عامة على الروابط بين الملاحظات — انقر لفتح الرسم البياني.",
+    "askLabel": "اسأل الحديقة",
+    "askIntro": "اطرح سؤالاً وستبحث الحديقة في ملاحظاتها نيابةً عنك.",
+    "askPlaceholder": "مثال: ما هو علم العلامات؟",
+    "askSend": "إرسال",
+    "askAria": "سؤالك للحديقة",
+    "footerNavAria": "التنقل في تذييل الصفحة",
+    "copyright": "حقوق النشر 2026 · البستاني · مرخّص بموجب المشاع الإبداعي (CC BY-NC-SA)، والشفرة المصدرية بموجب GNU GPL.",
+    "inContent": "في المحتوى"
+  },
+
+  "graph": {
+    "back": "العودة إلى الحديقة",
+    "locatePlaceholder": "العثور على ملاحظة…",
+    "locateAria": "العثور على ملاحظة في الرسم البياني",
+    "links": "الروابط",
+    "notes": "الملاحظات",
+    "disciplines": "التخصصات",
+    "langs": "اللغات",
+    "all": "الكل",
+    "hint": "اسحب · مرر للتكبير · انقر للفتح"
+  },
+
+  "lightbox": {
+    "close": "إغلاق",
+    "prev": "السابق",
+    "next": "التالي"
+  },
+
+  "flashcards": {
+    "home": "الحديقة",
+    "flip": "قلب البطاقة",
+    "next": "التالي",
+    "prev": "السابق",
+    "shuffle": "خلط",
+    "size": "تكبير",
+    "loading": "جارٍ تحميل المجموعة…",
+    "empty": "المجموعة فارغة.",
+    "err": "تعذر تحميل المجموعة.",
+    "hint": "النقر / المسافة: قلب البطاقة · ← → : التنقل"
+  }
+}
