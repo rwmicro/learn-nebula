@@ -1,118 +1,100 @@
 # Garden of Knowledge
 
-A personal knowledge garden — a static website generated from an Obsidian-style
-note vault.
+A personal knowledge garden — a website generated from an Obsidian-style note
+vault, self-hosted with Docker.
+
+The site itself is a **static export** (plain HTML/CSS/JS). A small **Node
+server** sits in front of it to power three optional features that need a
+backend: the RAG assistant, comments, and on-demand translation.
 
 ## Stack
 
-- **Next.js** (App Router, static export `output: "export"`) + **React 19** + **TypeScript**
-- Markdown rendered at build time with a custom **unified** (remark/rehype) pipeline
-- **KaTeX** (math, rendered at build), **Shiki** (code), **Mermaid** (diagrams, client-side)
-- **Pagefind** (full-text search), self-hosted fonts
-
-Everything is static: `next build` emits plain HTML/CSS/JS into `out/` — no server,
-no database, no backend.
+- **Next.js** (App Router, `output: "export"`) + **React 19** + **TypeScript** + **Tailwind v4**
+- Markdown rendered at build with a custom **unified** (remark/rehype) pipeline
+- **KaTeX** (math), **Shiki** (code), **Mermaid** (diagrams), **Pagefind** (search)
+- Backend: **Hono** on Node, **SQLite** (comments), an OpenAI-compatible endpoint
+  for embeddings/generation (or the Anthropic API)
 
 ## Content
 
 Notes live in `content/posts/**` as Markdown with YAML (`---`) or TOML (`+++`)
-frontmatter (Obsidian export). Conventions:
+frontmatter. They are fetched at build from the public vault repo
+(`rwmicro/pensine`) by `scripts/fetch-notes.mjs`.
 
-- **`content/posts/Garden of Knowledge.md`** is the home/index note.
-- **`content/posts/sources/`** (templates, attachments) is **ignored** (not published).
-- Folders become the navigable tree on the home page; URLs are slugified to ASCII
+- **`Garden of Knowledge.md`** is the home/index note.
+- Folders become the navigable tree; URLs are slugified to ASCII
   (`Applied Sciences/… → /posts/applied-sciences/…`).
-- Standalone images/PDFs in the vault are copied to `/vault/…` and listed in the tree.
+- `sources/`, `audio/` and `_manim/` folders are kept out of the tree/search
+  (their files are still served, so embedded clips keep working).
+- Standalone images/PDFs are copied to `/vault/…` and listed in the tree.
 
-### Supported in notes
+**In notes:** `[[wikilinks]]`, footnotes → Tufte margin notes, ` ```mermaid `
+diagrams, math, highlighted code, local/remote images, and a YouTube link on its
+own line becomes a click-to-load player.
 
-- `[[wikilinks]]`, `[[note|alias]]`, `[[file.pdf]]` (resolved to other notes/assets)
-- Footnotes → Tufte-style **margin notes**
-- ` ```mermaid ` diagrams, math (`\( … \)`, `\[ … \]`), fenced code (highlighted)
-- Local images/PDFs (relative or vault-relative) and remote `https` images
-- First heading `# Title` is dropped (the title comes from the frontmatter/filename)
+## Develop
 
-## Commands
-
-```bash
-npm install
-npm run dev      # dev server (search needs a build; see below)
-npm run build    # static export -> out/ (+ Pagefind index)
-npm start        # serve the built out/ locally
-npm run format   # Prettier
-npm test         # build + Playwright
-```
-
-`prebuild`/`predev` copy vault assets and the Mermaid bundle into `public/`.
-**Full-text search only works after `npm run build`** (Pagefind indexes `out/`),
-so use `npm start` to test it — not `npm run dev`.
-
-## Configuration (`lib/site.ts`)
-
-- **`SITE_BASE_URL`** — set the real domain before deploying (drives canonical,
-  Open Graph, sitemap, robots). The default is a placeholder.
-- `INCLUDE_DRAFTS=true` — include `draft: true` notes.
-- `SITE_BASE_URL="http://…onion/"` — build for a Tor onion service.
-
-## Assistant (semantic RAG over the notes)
-
-A Cloudflare Pages Function (`functions/api/ask.ts`) answers questions using
-**only** the notes: it embeds the question with Workers AI (`@cf/baai/bge-m3`),
-retrieves the nearest note chunks from a **Vectorize** index, and has **Claude
-Haiku 4.5** answer from those chunks (streamed). Chunks are embedded and upserted
-at build time by `scripts/index-notes.mjs`. The assistant runs on Cloudflare only
-(Functions + bindings) — not under `next dev` or `npm start`.
-
-### One-time setup
+Package manager is **pnpm**.
 
 ```bash
-# 1. Create the Vectorize index (bge-m3 = 1024 dims, cosine).
-npx wrangler vectorize create garden-notes --dimensions=1024 --metric=cosine
+pnpm install
+pnpm dev      # dev server (http://localhost:3000)
+pnpm build    # static export → out/ (+ Pagefind index)
+pnpm lint     # ESLint
+pnpm test     # unit tests (vitest) + Playwright
+pnpm server   # run the Node backend against a built out/
 ```
 
-The `AI` and `VECTORIZE` bindings are declared in `wrangler.toml`; set `name`
-there to your Pages project name. `public/_routes.json` routes `/api/*` to the
-Function (everything else stays static).
+Two things only work after a full build: **full-text search** (Pagefind indexes
+`out/`) and the **/api/** routes (served by the Node backend, not `next dev`).
 
-### Environment variables
+Set the real domain in `lib/site.ts` (`SITE_URL`) before deploying — it drives
+canonical URLs, Open Graph, the sitemap and robots.
 
-| Variable | Where | Purpose |
-| --- | --- | --- |
-| `ANTHROPIC_API_KEY` | Pages → Settings → **secret** (Production + Preview) | Claude Haiku generation at runtime |
-| `CLOUDFLARE_ACCOUNT_ID` | Pages **build** env var | build-time embedding + Vectorize upsert |
-| `CLOUDFLARE_API_TOKEN` | Pages **build** env var | token with **Workers AI: Run** + **Vectorize: Edit** |
-| `VECTORIZE_INDEX` | optional build env var | index name (default `garden-notes`) |
+## Deploy with Docker
 
-The `AI` / `VECTORIZE` runtime bindings come from `wrangler.toml` (or the Pages
-dashboard → Settings → Functions → bindings), **not** env vars. If the two build
-variables are absent the indexer skips with a warning, so previews still build —
-the assistant just has nothing to retrieve until a build runs with them set.
-
-### Local test
+A multi-arch image (amd64 + arm64) is built from `main` and pushed to GHCR:
+`ghcr.io/rwmicro/learn-nebula:latest`. It bundles the pre-built site + the Node
+server. Runtime secrets are **not** baked in — pass them at run time.
 
 ```bash
-pnpm build                       # also runs the indexer if build vars are set
-echo 'ANTHROPIC_API_KEY="sk-..."' > .dev.vars   # gitignored
-npx wrangler pages dev out       # serves Functions + bindings locally
+cp .env.example .env          # fill in the vars you need (see below)
+docker compose pull
+docker compose up -d          # serves the site on :8080
 ```
 
-> ⚠️ The endpoint is public and costs tokens per call. Add a **Cloudflare Rate
-> Limiting** rule on `/api/ask` before going live (the Function already caps
-> `max_tokens` and question length).
+The image is private on GHCR, so `docker login ghcr.io -u <user>` first (with a
+`read:packages` token), or make the package public.
 
-## Deployment
+### Environment
 
-Deploy via **Cloudflare Pages** (build command `pnpm build`, output `out/`) so the
-assistant Function and its bindings ship too. The static site alone (`out/`) can
-go to any host (rsync, …) but then `/api/ask` is unavailable. See
-[SECURITY.md](SECURITY.md) for the recommended response headers (CSP, HSTS…).
+Everything is optional — leave a group blank to disable that feature.
 
-## Architecture notes
+| Variable | Purpose |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Claude for the assistant + translation (else use the `LLM_*` vars) |
+| `LLM_BASE_URL`, `LLM_MODEL` | OpenAI-compatible chat endpoint (e.g. Ollama/LM Studio) |
+| `EMBED_BASE_URL`, `EMBED_MODEL` | OpenAI-compatible embeddings endpoint (enables RAG) |
+| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret (spam check on comments) |
+| `COMMENTS_ADMIN_TOKEN` | bearer token to moderate comments |
+| `TRUST_PROXY` | `true` when behind nginx/Caddy (reads `X-Forwarded-For`) |
 
-- Pages build their `<main>` as an HTML string (rendered via
-  `dangerouslySetInnerHTML`) so content paragraphs stay direct children of
-  `<main>` — required by the dropcap selectors (`main > p:first-of-type`).
-- Markdown pipeline: `lib/markdown.ts`; content loading + tree + slugs:
-  `lib/content.ts`; SEO/JSON-LD: `lib/seo.ts`, `lib/jsonld.ts`.
-- Client behaviour is plain scripts in `public/js/` (search, lightbox, TOC
-  scrollspy, mermaid), loaded from `app/layout.tsx`.
+`docker-compose.yml` also ships an optional **Ollama** service so the assistant
+and embeddings can run locally with no API key.
+
+**Comments persist across rebuilds:** the SQLite DB and the RAG vector cache live
+in `/data`, mounted as the named volume `gk-data`. Don't remove that volume and
+your comments survive `docker compose pull && up -d`.
+
+## How it fits together
+
+- **Pages:** `app/` (home, `posts/[...slug]`, graph, cartes). Note `<main>` is an
+  HTML string so content `<p>` stay direct children of `<main>` (dropcap rule).
+- **Build libs:** `lib/content.ts` (loading, tree, slugs, wikilinks),
+  `lib/markdown.ts` (unified pipeline), `lib/graph-data.ts`, `lib/seo.ts`.
+- **Backend:** `server/` — `routes/ask.ts` (RAG), `routes/comments.ts` (SQLite +
+  Turnstile), `routes/translate.ts`.
+- **Client enhancers:** vanilla scripts in `public/js/`, bundled by
+  `scripts/bundle-js.mjs` into `note.bundle.js`.
+
+See **CLAUDE.md** for the agent-oriented map (commands, gotchas, conventions).
