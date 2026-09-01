@@ -6,7 +6,9 @@ import { franc } from "franc-min";
 import type { Frontmatter } from "./content";
 
 // Used for Open Graph / Twitter when a note has no image of its own.
-const DEFAULT_IMAGE = "/images/og.png";
+// Camille Pissarro, "Le Jardin potager à Éragny" (public/images/eragny.webp),
+// resized to a 1200×630 JPEG for broad OG/Twitter compatibility.
+const DEFAULT_IMAGE = "/images/og.jpg";
 const IMG_EXT = /\.(png|jpe?g|gif|webp|svg|avif)(?:$|[?#])/i;
 
 /**
