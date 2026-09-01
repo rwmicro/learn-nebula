@@ -148,7 +148,9 @@
     "disciplines": "Disciplines",
     "langs": "Langues",
     "all": "tout",
-    "hint": "glisser · molette pour zoomer · clic = ouvrir"
+    "hint": "glisser · molette pour zoomer · clic sur une note = ouvrir · clic sur un dossier = pivoter",
+    "rotate": "Pivoter",
+    "reset": "Réinitialiser"
   },
   "lightbox": {
     "close": "Fermer",
