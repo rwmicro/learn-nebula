@@ -1057,6 +1057,84 @@ a.theme-pill:focus-visible {
 /* .note-tree* removed — the home notes list is now <HomeContent> (React/Tailwind);
    renderNoteTree()/search.js are no longer used. */
 
+/* YouTube facade (#16): a click-to-load player. The thumbnail + play button
+   show until the reader clicks; public/js/youtube.js then swaps in the iframe.
+   Editorial framing (hairline, sober play button in the garden green). */
+.yt-embed {
+  position: relative;
+  margin: 1.6rem 0;
+}
+.yt-embed-btn,
+.yt-embed-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid #ccc;
+}
+.yt-embed-btn {
+  position: relative;
+  padding: 0;
+  margin: 0;
+  background: #000;
+  cursor: pointer;
+  overflow: hidden;
+}
+.yt-embed-thumb {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Slightly muted until hovered, so the play button reads clearly. */
+  filter: brightness(0.92);
+  transition: filter 0.2s;
+}
+.yt-embed-btn:hover .yt-embed-thumb,
+.yt-embed-btn:focus-visible .yt-embed-thumb {
+  filter: brightness(1);
+}
+.yt-embed-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(52px, 9%, 72px);
+  height: auto;
+  pointer-events: none;
+}
+.yt-embed-play svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+}
+.yt-embed-play-bg {
+  fill: var(--color-garden);
+  opacity: 0.92;
+  transition:
+    fill 0.2s,
+    opacity 0.2s;
+}
+.yt-embed-btn:hover .yt-embed-play-bg,
+.yt-embed-btn:focus-visible .yt-embed-play-bg {
+  fill: var(--color-garden-dark);
+  opacity: 1;
+}
+.yt-embed-btn:focus-visible {
+  outline: 2px solid var(--color-garden);
+  outline-offset: 2px;
+}
+.yt-embed-frame {
+  border: 1px solid #ccc;
+}
+.yt-embed-link {
+  display: inline-block;
+  margin-top: 0.4rem;
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 0.95rem;
+  color: #6f6f6f;
+}
+
 /* .graph-* styles moved to assets/css/graph.css (loaded only on /graph). */
 
 /* Comments section, rendered below the note body. Mirrors the site's

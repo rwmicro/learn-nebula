@@ -166,5 +166,9 @@
     "empty": "Empty deck.",
     "err": "Couldn’t load the deck.",
     "hint": "Click / Space: flip · ← → : navigate"
+  },
+  "youtube": {
+    "play": "Play the YouTube video",
+    "watch": "Watch on YouTube"
   }
 }
