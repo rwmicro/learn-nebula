@@ -1161,29 +1161,30 @@ body[data-text-size="lg"] main ol li {
   font-weight: 700;
   letter-spacing: -0.01rem;
   font-size: 1.15rem;
-  padding: 0.4rem 1.1rem;
-  background: #fcfcfc;
-  border: 1px solid dimgray;
-  color: #111;
+  padding: 0.4rem 1.4rem;
+  background: var(--color-garden);
+  border: 1px solid var(--color-garden);
+  color: #fcfcfc;
   cursor: pointer;
   line-height: 1.2;
 }
 
 .comments-submit:hover {
-  background: #f0f7ff;
+  background: var(--color-garden-dark);
+  border-color: var(--color-garden-dark);
   transition: background 0.2s;
 }
 
 .comments-submit:focus-visible {
-  outline: 1px solid #003366;
-  outline-offset: 1px;
+  outline: 2px solid var(--color-garden);
+  outline-offset: 2px;
 }
 
 .comments-submit:disabled {
-  color: #999;
-  border-color: #ccc;
+  color: #fcfcfc;
+  background: #c9c6bf;
+  border-color: #c9c6bf;
   cursor: not-allowed;
-  background: transparent;
 }
 
 .comments-status {
@@ -1634,14 +1635,19 @@ body[data-text-size="lg"] main ol li {
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
-  padding: 0.3rem 0.8rem;
-  border: 1px solid #111;
-  background: #fcfcfc;
-  color: #111;
+  padding: 0.3rem 1rem;
+  border: 1px solid var(--color-garden);
+  background: var(--color-garden);
+  color: #fcfcfc;
   cursor: pointer;
 }
 .ask-submit:hover {
-  background: #f0f7ff;
+  background: var(--color-garden-dark);
+  border-color: var(--color-garden-dark);
+}
+.ask-submit:focus-visible {
+  outline: 2px solid var(--color-garden);
+  outline-offset: 2px;
 }
 .ask-input:disabled,
 .ask-submit:disabled {
@@ -1649,24 +1655,67 @@ body[data-text-size="lg"] main ol li {
   cursor: default;
 }
 
-/* Mobile/tablet "Ask AI" trigger: hidden by default on desktop. The bar
-   itself stays open at all times above 1080 px. */
-.ask-trigger {
+/* "Ask the garden" is trigger-first at EVERY width (#9): only the green pill
+   shows until the reader opens it; then the floating bar appears (draggable on
+   desktop, a bottom sheet on mobile) and a minimize button collapses it back to
+   the pill. The [data-mobile-open] attribute name is kept for historical reasons
+   but now governs the open/closed state on all viewports. */
+.ask-bar[data-mobile-open="false"] {
   display: none;
+}
+
+.ask-trigger {
+  position: fixed;
+  right: 1.2rem;
+  bottom: 1.2rem;
+  z-index: 1001;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  letter-spacing: -0.01rem;
+  font-size: 1.05rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--color-garden);
+  background: var(--color-garden);
+  color: #fcfcfc;
+  cursor: pointer;
+  border-radius: 999px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  line-height: 1.2;
+}
+.ask-trigger[hidden] {
+  display: none;
+}
+.ask-trigger:hover,
+.ask-trigger:focus-visible {
+  background: var(--color-garden-dark);
+  border-color: var(--color-garden-dark);
+  outline: none;
 }
 
 .ask-minimize {
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #555;
+  cursor: pointer;
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0 0.4rem;
+  margin-right: 0.2rem;
+}
+.ask-minimize:hover {
+  color: #111;
 }
 
 @media screen and (max-width: 1080px) {
-  /* Collapsed by default on touch viewports; the trigger pill expands it. */
-  .ask-bar[data-mobile-open="false"] {
-    display: none;
-  }
-  /* Force the open bar to anchor at the bottom regardless of any inline
-     left/top set by a prior desktop drag — otherwise a remembered position
-     could leave it offscreen at narrow widths. */
+  /* Open bar becomes a full-width bottom sheet, ignoring any remembered desktop
+     drag position that could otherwise leave it offscreen at narrow widths. */
   .ask-bar[data-mobile-open="true"] {
     left: 0.8rem !important;
     right: 0.8rem !important;
@@ -1674,61 +1723,14 @@ body[data-text-size="lg"] main ol li {
     top: auto !important;
     width: auto !important;
   }
-
-  /* The pill: matches the site's typographic UI (Alegreya SC, lowercase,
-     dimgray border, link-blue hover). */
   .ask-trigger {
-    position: fixed;
     right: 0.8rem;
     bottom: 0.8rem;
-    z-index: 1001;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-    text-transform: lowercase;
-    font-weight: 700;
-    letter-spacing: -0.01rem;
-    font-size: 1.05rem;
-    padding: 0.55rem 1rem;
-    border: 1px solid #111;
-    background: #fcfcfc;
-    color: #111;
-    cursor: pointer;
-    border-radius: 999px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
-    line-height: 1.2;
-  }
-  .ask-trigger[hidden] {
-    display: none;
-  }
-  .ask-trigger:hover,
-  .ask-trigger:focus-visible {
-    background: #f0f7ff;
-    outline: none;
   }
 
   /* Drag handle is useless when the bar spans the viewport. */
   .ask-grip {
     display: none;
-  }
-
-  /* Minimize button mirrors the answer panel's close style. */
-  .ask-minimize {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    border: none;
-    color: #555;
-    cursor: pointer;
-    font-size: 1.4rem;
-    line-height: 1;
-    padding: 0 0.4rem;
-    margin-right: 0.2rem;
-  }
-  .ask-minimize:hover {
-    color: #111;
   }
 }
 

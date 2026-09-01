@@ -95,10 +95,13 @@ import { readAskStream } from "../../lib/ask-stream";
     `<input class="ask-input" type="text" autocomplete="off" maxlength="1000" placeholder="${escHtml(tt("askAi.placeholderDefault"))}" data-i18n-placeholder="askAi.placeholderDefault" aria-label="${escHtml(tt("askAi.inputAria"))}" data-i18n-aria-label="askAi.inputAria">` +
     `<button class="ask-submit" type="submit" data-i18n="askAi.submit">${escHtml(tt("askAi.submit"))}</button>` +
     "</form>";
+  // Trigger-first at every width (#9): the bar starts collapsed and only the
+  // pill shows until the reader opens it.
+  bar.dataset.mobileOpen = "false";
   document.body.appendChild(bar);
 
-  // Mobile/tablet trigger pill — uses data-i18n so the locale swap fills the
-  // label after i18n.js initialises, avoiding the early-load race.
+  // Trigger pill — uses data-i18n so the locale swap fills the label after
+  // i18n.js initialises, avoiding the early-load race.
   const trigger = document.createElement("button");
   trigger.type = "button";
   trigger.className = "ask-trigger";
@@ -398,6 +401,7 @@ import { readAskStream } from "../../lib/ask-stream";
     const sel = window.getSelection();
     if (sel) sel.removeAllRanges();
     hideSelBtn();
+    setMobileOpen(true); // open the (now trigger-gated) bar before focusing
     input.focus();
   });
 
