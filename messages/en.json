@@ -150,7 +150,9 @@
     "all": "all",
     "hint": "drag · scroll to zoom · click a note = open · click a folder = spin it up",
     "rotate": "Rotate",
-    "reset": "Reset"
+    "reset": "Reset",
+    "rotateLeft": "Rotate left",
+    "rotateRight": "Rotate right"
   },
   "lightbox": {
     "close": "Close",

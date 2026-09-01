@@ -148,15 +148,32 @@
   font-size: 0.85rem;
   color: #555;
 }
-.cg-roulette label {
+.cg-rot-label {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
   font-weight: 700;
+  margin-right: auto;
 }
-.cg-roulette input[type="range"] {
-  flex: 1;
-  min-width: 4rem;
-  accent-color: var(--color-garden, #3f6b4a);
+.cg-rot-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid #ccc;
+  background: #fcfcfc;
+  border-radius: 3px;
+  color: #333;
+  cursor: pointer;
+}
+.cg-rot-btn:hover {
+  background: #eef3ec;
+  color: var(--color-garden, #3f6b4a);
+  border-color: var(--color-garden, #3f6b4a);
+}
+.cg-rot-btn:focus-visible {
+  outline: 2px solid var(--color-garden, #3f6b4a);
+  outline-offset: 2px;
 }
 .cg-reset {
   border: 1px solid #ccc;

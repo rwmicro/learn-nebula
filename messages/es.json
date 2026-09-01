@@ -150,7 +150,9 @@
     "all": "todo",
     "hint": "arrastrar · rueda para ampliar · clic en una nota = abrir · clic en una carpeta = girar",
     "rotate": "Girar",
-    "reset": "Restablecer"
+    "reset": "Restablecer",
+    "rotateLeft": "Girar a la izquierda",
+    "rotateRight": "Girar a la derecha"
   },
   "lightbox": {
     "close": "Cerrar",
