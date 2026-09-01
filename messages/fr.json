@@ -150,7 +150,9 @@
     "all": "tout",
     "hint": "glisser · molette pour zoomer · clic sur une note = ouvrir · clic sur un dossier = pivoter",
     "rotate": "Pivoter",
-    "reset": "Réinitialiser"
+    "reset": "Réinitialiser",
+    "rotateLeft": "Pivoter vers la gauche",
+    "rotateRight": "Pivoter vers la droite"
   },
   "lightbox": {
     "close": "Fermer",

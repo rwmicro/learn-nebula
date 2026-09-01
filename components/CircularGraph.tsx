@@ -25,6 +25,7 @@ function themeColor(theme: string, p: Palette, alpha = 1): string {
 }
 
 const TAU = Math.PI * 2;
+const ROT_STEP = Math.PI / 12; // 15° per arrow-button click
 /** Polar → cartesian with 0 rad at 12 o'clock, growing clockwise. */
 function polar(angle: number, radius: number): [number, number] {
   const a = angle - Math.PI / 2;
@@ -310,15 +311,27 @@ export function CircularGraph({ data }: { data: GraphData }) {
       {/* Discipline legend + roulette control */}
       <div className="cg-panel">
         <div className="cg-roulette">
-          <label htmlFor="cg-rot">{t("graph.rotate")}</label>
-          <input
-            id="cg-rot"
-            type="range"
-            min={0}
-            max={360}
-            value={Math.round((rot * 180) / Math.PI)}
-            onChange={(e) => setRot((Number(e.target.value) * Math.PI) / 180)}
-          />
+          <span className="cg-rot-label">{t("graph.rotate")}</span>
+          <button
+            type="button"
+            className="cg-rot-btn"
+            aria-label={t("graph.rotateLeft")}
+            onClick={() => setRot((r) => ((r - ROT_STEP) % TAU + TAU) % TAU)}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M15 5 L8 12 L15 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            className="cg-rot-btn"
+            aria-label={t("graph.rotateRight")}
+            onClick={() => setRot((r) => (r + ROT_STEP) % TAU)}
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M9 5 L16 12 L9 19" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
           <button
             type="button"
             className="cg-reset"
