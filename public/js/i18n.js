@@ -27,7 +27,9 @@
 
   // Map UI locale codes to BCP-47 tags for Intl date formatting. Unknown codes
   // fall back to the code itself, so adding a locale needs no change here.
-  const BCP47 = { fr: "fr-FR", en: "en-US", es: "es-ES", zh: "zh-CN" };
+  const BCP47 = { fr: "fr-FR", en: "en-US", es: "es-ES", zh: "zh-CN", ar: "ar" };
+  // Right-to-left locales — drive <html dir> so Arabic actually reads correctly.
+  const RTL = { ar: 1, he: 1, fa: 1, ur: 1 };
 
   function getLocale() {
     try {
@@ -109,6 +111,7 @@
     // Reflect the active locale on <html lang>; pages without a manual lang
     // attribute on their <main> stay neutral so franc detection still wins.
     document.documentElement.setAttribute("lang", locale);
+    document.documentElement.setAttribute("dir", RTL[locale] ? "rtl" : "ltr");
   }
 
   function setLocale(locale) {

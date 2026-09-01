@@ -1,18 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, buildCSP } from "@/lib/site";
-import { DEFAULT_LOCALE, getMessages, t } from "@/lib/i18n";
+import { DEFAULT_LOCALE, LOCALES, getMessages, t } from "@/lib/i18n";
 import { Footer } from "@/components/Footer";
 import "../assets/css/fonts.css";
 // Global frame only (Tailwind + @theme + html/body/main margins). Article
 // typography lives in main.css, loaded per-route on note pages / 404.
 import "../assets/css/global.css";
 
-// Inline both message bundles so the runtime swap (/js/i18n.js) has them
-// available without a second fetch. Escapes `</script>` collisions.
+// Inline every message bundle so the runtime swap (/js/i18n.js) has them all
+// available without a second fetch — built from LOCALES so a new language is
+// picked up automatically. `<` is escaped to avoid a `</script>` break-out.
 const I18N_BOOTSTRAP = `window.__i18n = {
   defaultLocale: ${JSON.stringify(DEFAULT_LOCALE)},
-  bundles: { fr: ${JSON.stringify(getMessages("fr"))}, en: ${JSON.stringify(getMessages("en"))}, es: ${JSON.stringify(getMessages("es"))}, zh: ${JSON.stringify(getMessages("zh"))} }
+  bundles: ${JSON.stringify(Object.fromEntries(LOCALES.map((l) => [l, getMessages(l)]))).replace(/</g, "\\u003c")}
 };
 /* Shared helpers, defined synchronously so every afterInteractive module
    (audio.js, comments.js, ask.js, translate.js…) can use them without
@@ -65,7 +66,7 @@ export default function RootLayout({
       <body>
         <a
           href="#main"
-          className="absolute left-[-9999px] top-0 z-[2000] border border-[#111] bg-white px-4 py-2 [font-family:'Alegreya_Sans',sans-serif] focus:left-[0.6rem] focus:top-[0.6rem]"
+          className="sr-only focus:not-sr-only focus:absolute focus:start-[0.6rem] focus:top-[0.6rem] focus:z-[2000] border border-[#111] bg-white px-4 py-2 [font-family:'Alegreya_Sans',sans-serif]"
           data-i18n="layout.skipLink"
         >
           {t("layout.skipLink")}
