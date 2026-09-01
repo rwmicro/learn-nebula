@@ -41,8 +41,15 @@ COPY data/rag-chunks.json ./data/rag-chunks.json
 COPY out ./out
 
 # /data holds the SQLite comments DB and the embedded-vector cache — mount it so
-# comments and the (slow first-run) RAG index survive restarts.
+# comments and the (slow first-run) RAG index survive restarts. Owned by the
+# unprivileged `node` user (uid 1000, shipped in the base image) so the server
+# can write it after we drop root; a fresh named volume inherits this ownership.
+RUN mkdir -p /data && chown -R node:node /data
 VOLUME ["/data"]
+
+# Drop privileges: the server only ever reads /app and writes /data.
+USER node
+
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
