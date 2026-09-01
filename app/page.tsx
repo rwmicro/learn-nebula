@@ -77,7 +77,10 @@ export default async function HomePage() {
       <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-neutral-700 mt-10" />
           <div className="w-full md:w-11/12 max-w-11/12 mx-auto">
             <span className="home-hero mb-2 block">
-              <img src="/images/eragny.webp" alt="Éragny" width="1200" height="950" fetchPriority="high" decoding="async" />
+              <picture>
+                <source type="image/avif" srcSet="/images/eragny.avif" />
+                <img src="/images/eragny.webp" alt="Éragny" width="1200" height="950" fetchPriority="high" decoding="async" />
+              </picture>
               <CornerOrnament className="corner-orn corner-tl" />
               <CornerOrnament className="corner-orn corner-tr" />
               <CornerOrnament className="corner-orn corner-bl" />

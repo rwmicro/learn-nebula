@@ -51,6 +51,11 @@ jobs:
       - name: Type-check (Node server)
         run: pnpm exec tsc -p server/tsconfig.json
 
+      # Fast Rust-based pre-check (milliseconds): catches common mistakes before
+      # the slower type-aware ESLint pass. Warnings don't fail; real errors do.
+      - name: Lint (oxlint, fast pre-check)
+        run: pnpm exec oxlint
+
       - name: Lint
         run: pnpm lint
 
