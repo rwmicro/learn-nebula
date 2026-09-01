@@ -13,7 +13,12 @@
   /* Min kept small so a long wordmark ("Garden of Knowledge") fits on one line
      on phones instead of wrapping; the cqi term still scales it up grandly on
      wider screens, capped at the max. */
-  --text-wordmark: clamp(1.55rem, 8.6cqi, 6.5rem);
+  --text-wordmark: clamp(1.55rem, 8.6cqi, 6rem);
+  /* Muted garden green — CTA fill for the "Ask the garden" / comment submit
+     buttons. Subtle enough for the editorial B&W palette, clearly a button.
+     Exposed as bg-garden / text-garden and as var(--color-garden). */
+  --color-garden: #3f6b4a;
+  --color-garden-dark: #345a3e;
 }
 
 /* ===========================================================================
@@ -29,7 +34,7 @@ html {
 }
 
 body {
-  margin: 4rem auto;
+  margin: 2rem auto;
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-weight: 440;
   background-color: #fcfcfc;
@@ -38,6 +43,13 @@ body {
   max-width: 1100px;
   counter-reset: margin-counter;
 }
+
+@media (max-width: 1650px) {
+  body {
+    margin: 0rem auto;
+  }
+}
+
 
 ::selection {
   background-color: #ffcf33;
@@ -58,7 +70,6 @@ footer {
 
 @media screen and (max-width: 1080px) {
   body {
-    margin: 2.2rem auto;
     max-width: 680px;
   }
   main,
@@ -68,9 +79,6 @@ footer {
 }
 
 @media screen and (max-width: 640px) {
-  body {
-    margin: 1.4rem auto;
-  }
   main,
   footer {
     margin: 0 0.9rem;

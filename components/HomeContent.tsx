@@ -1020,7 +1020,7 @@ export function HomeContent({
               <button
                 type="submit"
                 disabled={busy}
-                className="shrink-0 cursor-pointer border-0 bg-transparent p-0 text-meta font-semibold uppercase tracking-[0.1em] text-[#1a1a1a] underline-offset-[3px] hover:underline focus-visible:underline disabled:cursor-default disabled:text-[#787369]"
+                className="shrink-0 cursor-pointer rounded-[3px] border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-[#fcfcfc] transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-[#c9c6bf] disabled:text-[#fcfcfc]"
               >
                 {tr("home.askSend")}
               </button>
