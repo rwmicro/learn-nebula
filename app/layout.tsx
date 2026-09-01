@@ -52,12 +52,6 @@ export default function RootLayout({
       <head>
         <meta httpEquiv="Content-Security-Policy" content={buildCSP()} />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
-        <link
-          rel="alternate"
-          type="application/atom+xml"
-          title={SITE_TITLE}
-          href="/feed.xml"
-        />
         {/* Body font: preloaded so text paints in the real face sooner (the
             metric-matched fallback already prevents layout shift). */}
         <link
