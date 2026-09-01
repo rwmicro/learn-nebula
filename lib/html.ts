@@ -258,7 +258,10 @@ function themePillsHtml(tags: unknown[] | undefined): string {
     .map((t) => {
       const s = String(t);
       const hue = tagHue(s.toLowerCase());
-      return `<span class="theme-pill" style="--theme-h:${hue}">${escapeHtml(s)}</span>`;
+      // Clicking a theme runs a search for it on the home page (#12): the home
+      // search reads ?q= on mount, so a plain link is enough — no JS needed.
+      const href = `/?q=${encodeURIComponent(s)}`;
+      return `<a class="theme-pill" href="${href}" style="--theme-h:${hue}">${escapeHtml(s)}</a>`;
     })
     .join("");
   return `<div class="note-themes" aria-label="${escapeHtml(t("sidebar.themesAriaLabel"))}"${i18nAttr("aria-label", "sidebar.themesAriaLabel")}>${pills}</div>`;
