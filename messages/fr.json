@@ -166,5 +166,9 @@
     "empty": "Deck vide.",
     "err": "Impossible de charger le deck.",
     "hint": "Clic / Espace : retourner · ← → : naviguer"
+  },
+  "youtube": {
+    "play": "Lire la vidéo YouTube",
+    "watch": "Voir sur YouTube"
   }
 }

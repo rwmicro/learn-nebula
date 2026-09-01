@@ -166,5 +166,9 @@
     "empty": "空卡组。",
     "err": "无法加载卡组。",
     "hint": "点击 / 空格：翻转 · ← → ：切换"
+  },
+  "youtube": {
+    "play": "播放 YouTube 视频",
+    "watch": "在 YouTube 上观看"
   }
 }

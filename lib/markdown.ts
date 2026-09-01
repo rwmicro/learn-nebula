@@ -476,6 +476,73 @@ function rehypeVaultAssets(dir: string) {
 }
 
 // ---------------------------------------------------------------------------
+// YouTube — a paragraph whose sole content is a YouTube link becomes a
+// privacy-friendly facade (#16): the video thumbnail + a play button styled
+// like the rest of the site. public/js/youtube.js swaps in a youtube-nocookie
+// iframe only once the reader clicks, so no Google frame (or cookie) loads up
+// front; the CSP allows youtube-nocookie.com in frame-src (lib/site.ts).
+// ---------------------------------------------------------------------------
+
+const YT_ID = /^[A-Za-z0-9_-]{11}$/;
+
+function youtubeId(url: string): string | null {
+  let u: URL;
+  try {
+    u = new URL(url);
+  } catch {
+    return null;
+  }
+  const host = u.hostname.replace(/^www\./, "").replace(/^m\./, "");
+  let id = "";
+  if (host === "youtu.be") {
+    id = u.pathname.slice(1).split("/")[0];
+  } else if (host === "youtube.com" || host === "youtube-nocookie.com") {
+    if (u.pathname === "/watch") id = u.searchParams.get("v") ?? "";
+    else if (u.pathname.startsWith("/embed/")) id = u.pathname.slice(7).split("/")[0];
+    else if (u.pathname.startsWith("/shorts/")) id = u.pathname.slice(8).split("/")[0];
+    else if (u.pathname.startsWith("/live/")) id = u.pathname.slice(6).split("/")[0];
+  }
+  return YT_ID.test(id) ? id : null;
+}
+
+function youtubeFacadeHtml(id: string): string {
+  // id is validated against YT_ID (word chars only), so it is safe to inline.
+  const watch = t("youtube.watch");
+  const play = t("youtube.play");
+  return (
+    `<div class="yt-embed" data-yt-id="${id}">` +
+    `<button class="yt-embed-btn" type="button" aria-label="${play}" data-i18n-aria-label="youtube.play">` +
+    `<img class="yt-embed-thumb" src="https://i.ytimg.com/vi/${id}/hqdefault.jpg" alt="" loading="lazy" width="480" height="360">` +
+    `<span class="yt-embed-play" aria-hidden="true">` +
+    `<svg viewBox="0 0 68 48" width="68" height="48"><path class="yt-embed-play-bg" d="M66.5 7.5a8 8 0 0 0-5.6-5.7C56 .5 34 .5 34 .5s-22 0-26.9 1.3A8 8 0 0 0 1.5 7.5 83 83 0 0 0 .2 24a83 83 0 0 0 1.3 16.5 8 8 0 0 0 5.6 5.7C12 47.5 34 47.5 34 47.5s22 0 26.9-1.3a8 8 0 0 0 5.6-5.7A83 83 0 0 0 67.8 24a83 83 0 0 0-1.3-16.5z"></path><path d="M27 34l18-10-18-10z" fill="#fff"></path></svg>` +
+    `</span></button>` +
+    `<a class="yt-embed-link" href="https://www.youtube.com/watch?v=${id}" target="_blank" rel="noopener noreferrer" data-i18n="youtube.watch">${watch}</a>` +
+    `</div>`
+  );
+}
+
+function rehypeYouTube() {
+  return (tree: Root) => {
+    visit(tree, "element", (node: Element, index, parent) => {
+      if (node.tagName !== "p" || !parent || index == null) return;
+      const kids = node.children.filter(
+        (c) => !(c.type === "text" && !c.value.trim()),
+      );
+      if (kids.length !== 1) return;
+      const a = kids[0];
+      if (a.type !== "element" || a.tagName !== "a") return;
+      const href = a.properties?.href;
+      if (typeof href !== "string") return;
+      const id = youtubeId(href);
+      if (!id) return;
+      const frag = fromHtml(youtubeFacadeHtml(id), { fragment: true });
+      parent.children.splice(index, 1, ...(frag.children as ElementContent[]));
+      return [SKIP, index];
+    });
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Manim — convert ```manim``` fenced blocks into <figure> with a cached video
 // and a collapsible Python source. The cache file is looked up by SHA-256 of
 // the trimmed source (first 16 hex chars), matching the algorithm used by the
@@ -784,6 +851,7 @@ export async function renderMarkdown(
       content: { type: "text", value: "§" },
     })
     .use(rehypeVaultAssets, dir)
+    .use(rehypeYouTube)
     .use(rehypeSidenotes)
     .use(rehypeStringify, { allowDangerousHtml: true });
 

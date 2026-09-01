@@ -22,6 +22,7 @@ const SCRIPTS = [
   "mermaid-render",
   "comments",
   "ask",
+  "youtube",
 ];
 
 await build({

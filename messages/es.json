@@ -166,5 +166,9 @@
     "empty": "Mazo vacío.",
     "err": "No se pudo cargar el mazo.",
     "hint": "Clic / Espacio: voltear · ← → : navegar"
+  },
+  "youtube": {
+    "play": "Reproducir el vídeo de YouTube",
+    "watch": "Ver en YouTube"
   }
 }

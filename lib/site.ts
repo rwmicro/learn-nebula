@@ -63,7 +63,9 @@ export function buildCSP(): string {
     // 'wasm-unsafe-eval' lets Pagefind's search run its WebAssembly.
     scriptSrc,
     "connect-src 'self' https://cloudflareinsights.com",
-    `frame-src ${turnstile}`,
+    // Turnstile's challenge iframe + the click-to-load YouTube facade (#16),
+    // which swaps in a youtube-nocookie.com player only after a click.
+    `frame-src ${turnstile} https://www.youtube-nocookie.com`,
     "form-action 'none'",
     "frame-ancestors 'none'",
   ];
