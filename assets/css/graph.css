@@ -93,20 +93,29 @@
   stroke: #003366;
   stroke-width: 2;
 }
-.cg-label {
+/* Radial labels for every sub-folder + file (dendrogram style). Halo keeps
+   overlapping text readable; folder names always show, file names only once the
+   svg carries data-zoomed (set when the user has zoomed in enough to read). */
+.cg-labels text {
   font-family: "Alegreya Sans", sans-serif;
-  font-size: 12px;
-  fill: #333;
   paint-order: stroke;
   stroke: #fcfcfc;
-  stroke-width: 3px;
+  stroke-width: 2.5px;
   stroke-linejoin: round;
   pointer-events: none;
   user-select: none;
 }
-.cg-label-2 {
-  font-size: 11px;
+.cg-dlabel {
+  font-size: 9px;
+  font-weight: 600;
+  fill: #222;
+}
+.cg-flabel {
+  font-size: 7px;
   fill: #555;
+}
+.cg-svg:not([data-zoomed]) .cg-flabel {
+  display: none;
 }
 .cg-label-root {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
