@@ -6,7 +6,8 @@
     "home": "Accueil",
     "appliedsciences": "Sciences appliquées",
     "socialsciences": "Sciences sociales",
-    "graph": "Graphe"
+    "graph": "Graphe",
+    "menu": "Menu"
   },
   "sidebar": {
     "searchPlaceholder": "Rechercher dans les notes…",

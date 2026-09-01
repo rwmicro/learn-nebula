@@ -6,7 +6,8 @@
     "home": "首页",
     "appliedsciences": "应用科学",
     "socialsciences": "社会科学",
-    "graph": "图谱"
+    "graph": "图谱",
+    "menu": "菜单"
   },
   "sidebar": {
     "searchPlaceholder": "搜索笔记…",
