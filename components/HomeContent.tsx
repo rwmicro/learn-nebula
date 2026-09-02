@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { HomeTreeNode, PdfRef, DomainGroup, LangGroup } from "@/lib/content";
 import type { GraphData } from "@/lib/graph-data";
-import { Graph } from "@/components/Graph";
+import { CircularGraph } from "@/components/CircularGraph";
 import { t, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import { readAskStream } from "@/lib/ask-stream";
 import { folderAnchor } from "@/lib/slug";
@@ -219,9 +219,8 @@ interface Source {
   url?: string;
 }
 
-// Mount the (heavy) force-graph preview only once its box scrolls near the
-// viewport, so the home page's most-common first paint doesn't pull the
-// force-graph bundle off the critical path.
+// Mount the circular-map preview only once its box scrolls near the viewport,
+// so the home page's most-common first paint isn't weighed down by it.
 function LazyGraph({ graphData }: { graphData: GraphData }) {
   const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
@@ -242,7 +241,7 @@ function LazyGraph({ graphData }: { graphData: GraphData }) {
   }, [show]);
   return (
     <div ref={ref} className="h-full w-full">
-      {show ? <Graph data={graphData} embedded /> : null}
+      {show ? <CircularGraph data={graphData} preview /> : null}
     </div>
   );
 }
