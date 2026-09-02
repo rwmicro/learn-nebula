@@ -138,7 +138,9 @@
     "footerNavAria": "页脚导航",
     "copyright": "Copyright 2026 · The Gardener · 采用知识共享许可协议 (CC BY-NC-SA)，源代码采用 GNU GPL。",
     "inContent": "在内容中",
-    "excerpt": "摘录"
+    "excerpt": "摘录",
+    "pinChat": "固定聊天",
+    "unpinChat": "取消固定"
   },
   "graph": {
     "back": "返回花园",

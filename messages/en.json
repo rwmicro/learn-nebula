@@ -138,7 +138,9 @@
     "footerNavAria": "Footer navigation",
     "copyright": "Copyright 2026 · The Gardener · licensed under Creative Commons (CC BY-NC-SA), source code under the GNU GPL.",
     "inContent": "In the content",
-    "excerpt": "excerpt"
+    "excerpt": "excerpt",
+    "pinChat": "Pin the chat",
+    "unpinChat": "Unpin"
   },
   "graph": {
     "back": "Back to the garden",
