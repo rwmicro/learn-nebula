@@ -1,18 +1,17 @@
 # Fait
-- [x] Icônes dérivées depuis le Pissarro (512/256/192/180 + maskable + favicon.ico)
-- [x] Build : retiré index-notes (Cloudflare) → build-rag-chunks
-- [x] Flashcards : « agrandir » élargit aussi en largeur
-- [x] Cadre en bois autour de l'image d'accueil (au lieu des ornements)
-- [x] Aperçu de recherche riche : extrait du HTML de la note (tables + KaTeX rendus)
-- [x] Aperçu accueil = la map circulaire ; clic → /graph ouvert zoomé au centre
-- [x] Serveur : charge .env automatiquement (fin des warnings EMBED/LLM sans config)
+- [x] #1 Fonts : Newsreader en preload:false → fin des warnings « preloaded but not used »
+- [x] #2 Légende Pissarro traduisible (data-i18n home.imageCaption, fr/en/es/zh/ar)
+- [x] #3 Langue : le graphe suit la locale (useLocale) ; i18n.js émet i18n:change au
+      chargement → le bouton de langue actif est correct (+ <html dir> pour le RTL)
+- [x] #4 Plus de 404 /pagefind/pagefind.js sous next dev (import prod-only)
+- [x] #6 Header mobile : langues visibles, double barre retirée, hamburger dans le
+      coin (sur le côté) → dropdown des 3 liens de section, traduits
+- [x] #7 PinnedAssistant = assistant unique des notes (bouton IA), déplaçable,
+      plus grand, singleton (pas de double)
 
-# Notes
-- « Pourquoi les notes dans public ET data ? » — pas de duplication des notes :
-  content/posts = source (compilée en HTML dans out/) ; public/vault = copie des
-  PIÈCES JOINTES (images/pdf/audio/vidéo), car Next ne sert que public/ ;
-  data/rag-chunks.json = le TEXTE découpé pour le RAG. Trois dérivés, trois usages.
-- Embeddings en ligne : Anthropic ne fait QUE la génération (pas d'endpoint
-  embeddings). Pour ancrer les réponses dans les notes → source d'embeddings
-  séparée (API hébergée type Voyage/OpenAI/Jina, ou LM Studio/Ollama sur le VPS).
-  Sans EMBED_BASE_URL → RAG désactivé (réponses « modèle seul »).
+# Réponse #5 — process des commentaires
+- Si TURNSTILE_SECRET_KEY est configuré ET le token Turnstile est valide → le
+  commentaire est publié DIRECTEMENT (status "approved").
+- Sinon (pas de Turnstile) → il est mis en attente ("pending") pour modération
+  manuelle : un admin le liste/approuve via COMMENTS_ADMIN_TOKEN
+  (GET /api/comments?status=pending puis PATCH). Voir server/routes/comments.ts.
