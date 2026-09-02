@@ -136,8 +136,11 @@ body {
   right: 1rem;
   bottom: 1rem;
   z-index: 1001;
-  width: min(30rem, calc(100vw - 2rem));
-  max-height: 88vh;
+  width: min(36rem, calc(100vw - 2rem));
+  /* Compact by default so a long answer (or a pinned passage) scrolls inside the
+     body instead of growing the panel off-screen; an explicit resize sets its
+     own height + maxHeight inline. */
+  max-height: min(38rem, 82vh);
   display: flex;
   flex-direction: column;
   background: #fcfcfc;
@@ -145,6 +148,7 @@ body {
   border-radius: 6px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
   font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.08rem;
 }
 /* Drag-to-resize handle in the top-left corner (grows the panel into the
    screen, since the panel usually hugs the bottom-right). */
@@ -209,7 +213,7 @@ body {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1.25rem;
 }
 .gk-pinned-close {
   border: none;
@@ -224,9 +228,9 @@ body {
   color: #111;
 }
 .gk-pinned-body {
-  padding: 0.7rem 0.9rem;
+  padding: 0.8rem 1rem;
   flex: 1 1 auto;
-  min-height: 5rem;
+  min-height: 6.5rem;
   overflow-y: auto;
   border-bottom: 1px solid #e4e2dd;
 }
@@ -235,12 +239,12 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 0.4rem;
-  margin-bottom: 0.5rem;
-  padding: 0.3rem 0.5rem;
+  margin-bottom: 0.6rem;
+  padding: 0.35rem 0.6rem;
   background: #eef3ec;
   border-left: 2px solid var(--color-garden);
   border-radius: 3px;
-  font-size: 0.85rem;
+  font-size: 0.98rem;
   color: #333;
 }
 .gk-pinned-chip button {
@@ -278,7 +282,8 @@ body {
 }
 .gk-pinned-answer {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 1.1rem;
+  line-height: 1.45;
   color: #1a1a1a;
   white-space: pre-wrap;
 }
@@ -302,7 +307,7 @@ body {
   background: transparent;
   padding: 0.25rem 0;
   font: inherit;
-  font-size: 0.95rem;
+  font-size: 1.08rem;
   outline: none;
 }
 .gk-pinned-form input::placeholder {
@@ -316,11 +321,11 @@ body {
   border-radius: 3px;
   background: var(--color-garden);
   color: #fcfcfc;
-  padding: 0.35rem 0.8rem;
+  padding: 0.4rem 0.95rem;
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 .gk-pinned-form button:hover {
   background: var(--color-garden-dark);

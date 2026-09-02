@@ -38,7 +38,10 @@ export function PinnedAssistant() {
   const tr = (k: string) => t(k, undefined, locale);
   const [pinned, setPinned] = useState(false);
   const [isNote, setIsNote] = useState(false);
-  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  // Anchored by right/bottom offsets (not left/top) so growing content — a
+  // streamed answer or a pinned passage — extends UPWARD instead of pushing the
+  // panel off the bottom of the screen.
+  const [pos, setPos] = useState<{ right: number; bottom: number } | null>(null);
   const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
@@ -139,9 +142,11 @@ export function PinnedAssistant() {
     const el = panelRef.current;
     const w = el?.offsetWidth ?? 320;
     const h = el?.offsetHeight ?? 200;
+    const left = e.clientX - drag.current.dx;
+    const top = e.clientY - drag.current.dy;
     setPos({
-      left: Math.max(4, Math.min(window.innerWidth - w - 4, e.clientX - drag.current.dx)),
-      top: Math.max(4, Math.min(window.innerHeight - h - 4, e.clientY - drag.current.dy)),
+      right: Math.max(4, Math.min(window.innerWidth - w - 4, window.innerWidth - left - w)),
+      bottom: Math.max(4, Math.min(window.innerHeight - h - 4, window.innerHeight - top - h)),
     });
   }
   function onHeadUp(e: ReactPointerEvent) {
@@ -171,8 +176,9 @@ export function PinnedAssistant() {
     const maxH = window.innerHeight * 0.88;
     const w = Math.max(300, Math.min(maxW, rez.current.right - e.clientX));
     const h = Math.max(180, Math.min(maxH, rez.current.bottom - e.clientY));
+    // Right/bottom-anchored, so a larger size already grows up-left — no
+    // reposition needed.
     setSize({ w, h });
-    if (pos) setPos({ left: rez.current.right - w, top: rez.current.bottom - h });
   }
   function onRezUp(e: ReactPointerEvent) {
     if (rez.current && size) {
@@ -268,8 +274,8 @@ export function PinnedAssistant() {
   }
 
   const style: React.CSSProperties = {
-    ...(pos ? { left: pos.left, top: pos.top, right: "auto", bottom: "auto" } : {}),
-    ...(size ? { width: size.w, height: size.h } : {}),
+    ...(pos ? { right: pos.right, bottom: pos.bottom, left: "auto", top: "auto" } : {}),
+    ...(size ? { width: size.w, height: size.h, maxHeight: "92vh" } : {}),
   };
 
   return (
