@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:fast": "oxlint",
-    "build": "node scripts/fetch-notes.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-anki.mjs && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/index-notes.mjs",
+    "build": "node scripts/fetch-notes.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-anki.mjs && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/build-rag-chunks.mjs",
     "index": "node scripts/index-notes.mjs",
     "start": "npx serve out",
     "format": "prettier --write .",
