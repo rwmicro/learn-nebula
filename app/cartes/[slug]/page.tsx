@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getAnkiManifest, getAnkiDeck } from "@/lib/anki";
 import { Flashcards } from "@/components/Flashcards";
 import { SITE_TITLE } from "@/lib/site";
+import "@/assets/css/cartes.css";
 
 type Params = { params: Promise<{ slug: string }> };
 
