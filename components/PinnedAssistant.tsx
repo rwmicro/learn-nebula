@@ -87,7 +87,6 @@ export function PinnedAssistant() {
     const onPin = () => open();
     window.addEventListener("gk:pin-chat", onPin);
     return () => window.removeEventListener("gk:pin-chat", onPin);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => () => abortRef.current?.abort(), []);
 

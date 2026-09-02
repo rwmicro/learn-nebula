@@ -41,13 +41,10 @@ jobs:
       - name: Type-check (app)
         run: pnpm exec tsc --noEmit
 
-      # functions/ is excluded from the root tsconfig, so the RAG backend
-      # (ask.ts, comments.ts, translate.ts) needs its own typecheck pass.
-      - name: Type-check (Pages Functions)
-        run: pnpm exec tsc -p functions/tsconfig.json
-
-      # server/ (self-hosted Node backend) is likewise excluded from the root
-      # tsconfig and typechecked on its own.
+      # server/ (self-hosted Node backend) is excluded from the root tsconfig and
+      # typechecked on its own. (The legacy Cloudflare functions/ are no longer
+      # typechecked here — they depend on @cloudflare/workers-types, removed when
+      # the project moved to Docker; they live on the cloudflare-deploy branch.)
       - name: Type-check (Node server)
         run: pnpm exec tsc -p server/tsconfig.json
 
