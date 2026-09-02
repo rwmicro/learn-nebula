@@ -106,7 +106,13 @@ function linkPath(sa: number, sr: number, ta: number, tr: number): string {
   return `M${sx.toFixed(1)},${sy.toFixed(1)}C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${ex.toFixed(1)},${ey.toFixed(1)}`;
 }
 
-export function CircularGraph({ data }: { data: GraphData }) {
+export function CircularGraph({
+  data,
+  preview = false,
+}: {
+  data: GraphData;
+  preview?: boolean;
+}) {
   const layout = useMemo(() => buildLayout(data), [data]);
   const palette = useMemo(() => buildPalette(data.nodes), [data.nodes]);
   const rootLabel = useMemo(
@@ -138,11 +144,13 @@ export function CircularGraph({ data }: { data: GraphData }) {
     () => Math.min(size.w, size.h) / (2 * layout.radius * 1.18),
     [size, layout.radius],
   );
-  // Adopt the fit zoom on first measure / data change.
+  // Adopt the fit zoom on first measure / data change. The full graph opens a
+  // little zoomed in on the centre (arriving from the home mini-map); the
+  // preview fits the whole folder ring in its box.
   useEffect(() => {
-    setZoom(fitZoom);
+    setZoom(preview ? fitZoom : fitZoom * 1.6);
     setPan({ x: 0, y: 0 });
-  }, [fitZoom]);
+  }, [fitZoom, preview]);
 
   const cx = size.w / 2;
   const cy = size.h / 2;
@@ -277,39 +285,54 @@ export function CircularGraph({ data }: { data: GraphData }) {
     [palette],
   );
 
+  // The home mini-map is a static, non-interactive teaser: no chrome, no labels,
+  // pointer-events off so the click falls through to the wrapping <a> → /graph.
+  const handlers = preview
+    ? {}
+    : {
+        onWheel,
+        onPointerDown,
+        onPointerMove,
+        onPointerUp,
+        onPointerLeave: onPointerUp,
+        onClick,
+      };
+
   return (
-    <div ref={wrapRef} className="graph-page cg-root">
+    <div ref={wrapRef} className={preview ? "cg-preview" : "graph-page cg-root"}>
       <svg
         className="cg-svg"
         width={size.w}
         height={size.h}
         data-filter={filter ?? undefined}
-        data-zoomed={zoom >= fitZoom * 1.8 ? "" : undefined}
-        onWheel={onWheel}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerLeave={onPointerUp}
-        onClick={onClick}
+        data-zoomed={!preview && zoom >= fitZoom * 1.8 ? "" : undefined}
+        style={preview ? { pointerEvents: "none" } : undefined}
+        {...handlers}
       >
         <g transform={`translate(${cx + pan.x},${cy + pan.y}) scale(${zoom})`}>
           <g transform={`rotate(${(rot * 180) / Math.PI})`}>
             {linksEl}
             {circlesEl}
-            {radialLabelsEl}
+            {!preview && radialLabelsEl}
           </g>
-          <text className="cg-label-root" y="26" textAnchor="middle">
-            {rootLabel}
-          </text>
+          {!preview && (
+            <text className="cg-label-root" y="26" textAnchor="middle">
+              {rootLabel}
+            </text>
+          )}
         </g>
       </svg>
 
-      <a href="/" className="graph-back">
-        ← {t("nav.home")}
-      </a>
+      {preview && <span className="sr-only">{rootLabel}</span>}
 
-      {/* Discipline legend + roulette control */}
-      <div className="cg-panel">
+      {!preview && (
+        <>
+          <a href="/" className="graph-back">
+            ← {t("nav.home")}
+          </a>
+
+          {/* Discipline legend + roulette control */}
+          <div className="cg-panel">
         <div className="cg-roulette">
           <span className="cg-rot-label">{t("graph.rotate")}</span>
           <button
@@ -359,16 +382,18 @@ export function CircularGraph({ data }: { data: GraphData }) {
               </button>
             </li>
           ))}
-        </ul>
-      </div>
+            </ul>
+          </div>
 
-      {tip && (
-        <div className="cg-tip" style={{ left: tip.x + 12, top: tip.y + 12 }}>
-          {tip.label}
-        </div>
+          {tip && (
+            <div className="cg-tip" style={{ left: tip.x + 12, top: tip.y + 12 }}>
+              {tip.label}
+            </div>
+          )}
+
+          <div className="graph-hint">{t("graph.hint")}</div>
+        </>
       )}
-
-      <div className="graph-hint">{t("graph.hint")}</div>
     </div>
   );
 }

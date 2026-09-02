@@ -80,6 +80,29 @@ body {
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.28); /* seat the canvas into the mat */
 }
 
+/* Circular-graph mini-map preview on the home page. The full styling lives in
+   graph.css (loaded only on /graph); these core rendering rules are needed
+   site-wide so the home teaser draws its links/nodes. */
+.cg-preview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.cg-preview .cg-svg {
+  display: block;
+}
+.cg-links path {
+  stroke: #d7d4cd;
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.cg-nodes circle {
+  stroke: #fcfcfc;
+  stroke-width: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+
 ::selection {
   background-color: #ffcf33;
   color: #000000;
