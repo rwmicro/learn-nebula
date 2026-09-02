@@ -39,3 +39,7 @@
 
 # Self-hosted server runtime data (RAG chunks/vectors, comments DB) — generated
 /data/
+
+# Local runtime secrets (docker/pnpm server) — never commit
+.env
+playwright-report/
