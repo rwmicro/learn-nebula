@@ -137,7 +137,8 @@
     "askAria": "你向花园提出的问题",
     "footerNavAria": "页脚导航",
     "copyright": "Copyright 2026 · The Gardener · 采用知识共享许可协议 (CC BY-NC-SA)，源代码采用 GNU GPL。",
-    "inContent": "在内容中"
+    "inContent": "在内容中",
+    "excerpt": "摘录"
   },
   "graph": {
     "back": "返回花园",

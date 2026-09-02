@@ -246,6 +246,92 @@ function LazyGraph({ graphData }: { graphData: GraphData }) {
   );
 }
 
+// KaTeX styles aren't on the home; load them lazily the first time a rich
+// excerpt containing math is opened (the CSS pulls its fonts only when .katex
+// nodes are present, so this stays cheap).
+function ensureKatexCss() {
+  if (typeof document === "undefined" || document.getElementById("katex-css")) return;
+  const l = document.createElement("link");
+  l.id = "katex-css";
+  l.rel = "stylesheet";
+  l.href = "/katex/katex.min.css";
+  document.head.appendChild(l);
+}
+
+// From a note's <div class="article-body">, pull a small, self-contained HTML
+// snippet — the first table (with one line of context) when there is one, else
+// the first blocks up to a character budget. Keeps tables/formulas intact so the
+// preview renders them rather than flattening to text.
+function extractSnippet(body: Element): string {
+  const kids = Array.from(body.children);
+  const out: Element[] = [];
+  const tableIdx = kids.findIndex(
+    (k) => k.tagName === "TABLE" || !!k.querySelector?.("table"),
+  );
+  if (tableIdx >= 0) {
+    const prev = kids[tableIdx - 1];
+    if (prev && /^(P|H2|H3|H4)$/.test(prev.tagName)) out.push(prev);
+    out.push(kids[tableIdx]);
+  } else {
+    let chars = 0;
+    for (const k of kids) {
+      if (!/^(P|UL|OL|BLOCKQUOTE|FIGURE|H2|H3|H4|PRE)$/.test(k.tagName)) continue;
+      out.push(k);
+      chars += (k.textContent || "").length;
+      if (chars > 480) break;
+    }
+  }
+  return out.map((el) => el.outerHTML).join("");
+}
+
+/** On-demand rich preview of a content hit: fetches the note's built HTML and
+ *  renders a snippet so tables and KaTeX show as they do on the note page. */
+function RichExcerpt({ url, label }: { url: string; label: string }) {
+  const [open, setOpen] = useState(false);
+  const [html, setHtml] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  async function toggle() {
+    const next = !open;
+    setOpen(next);
+    if (!next || html !== null || loading) return;
+    setLoading(true);
+    try {
+      const res = await fetch(url);
+      const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+      const body = doc.querySelector(".article-body");
+      const snippet = body ? extractSnippet(body) : "";
+      if (snippet.includes("katex")) ensureKatexCss();
+      setHtml(snippet);
+    } catch {
+      setHtml("");
+    } finally {
+      setLoading(false);
+    }
+  }
+  return (
+    <>
+      <button
+        type="button"
+        onClick={toggle}
+        aria-expanded={open}
+        className="mt-1 cursor-pointer border-0 bg-transparent p-0 text-meta font-semibold uppercase tracking-[0.08em] text-garden underline-offset-[3px] hover:underline"
+      >
+        {open ? "− " : "+ "}
+        {label}
+      </button>
+      {open &&
+        (loading ? (
+          <p className="m-0 mt-1 text-small italic text-[#787369]">…</p>
+        ) : html ? (
+          <div
+            className="rich-excerpt"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
+        ) : null)}
+    </>
+  );
+}
+
 interface PfHit {
   url: string;
   title: string;
@@ -796,6 +882,7 @@ export function HomeContent({
                                   dangerouslySetInnerHTML={{ __html: h.excerpt }}
                                 />
                               )}
+                              <RichExcerpt url={h.url} label={tr("home.excerpt")} />
                             </li>
                           ))}
                         </ul>
