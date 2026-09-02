@@ -1,17 +1,17 @@
-# Self-hosted stack: the site + a local OpenAI-compatible model server (Ollama)
-# for the assistant's generation and RAG embeddings. No Cloudflare, no API cost.
+# Self-hosted stack: the static site + Node backend, with
+#   • embeddings  → LM Studio running ON THE HOST (LM Studio is a desktop app —
+#                   there is no LM Studio Docker image; the container reaches it
+#                   over host.docker.internal, see extra_hosts below)
+#   • generation  → Anthropic (Claude)
 #
-#   1. cp .env.example .env   (uncomment the Ollama LLM_BASE_URL / EMBED_BASE_URL)
-#   2. docker compose up -d
-#   3. Pull the models once:
-#        docker compose exec ollama ollama pull qwen2.5:7b-instruct
-#        docker compose exec ollama ollama pull bge-m3
+# Setup:
+#   1. In LM Studio: download & load "text-embedding-bge-m3@Q8_0", then start the
+#      local server (Developer tab → Start Server) on port 1234.
+#   2. Put your key in .env:   ANTHROPIC_API_KEY=sk-ant-...
+#   3. docker compose up -d
 #
-# First boot embeds every note chunk once (a few minutes for ~5k chunks); the
-# vectors are cached on the gk-data volume, so restarts are instant.
-#
-# Drop the whole `ollama` service and point ANTHROPIC_API_KEY at Claude instead
-# if you'd rather not run a local model.
+# First boot embeds every note chunk once (a few minutes for ~5k chunks) via LM
+# Studio; the vectors are cached on the gk-data volume, so restarts are instant.
 
 services:
   web:
@@ -25,28 +25,25 @@ services:
     # build: .
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "8085:8085"
     env_file:
       - .env
+    environment:
+      PORT: "8085"
+      # --- Embeddings: LM Studio on the host (bge-m3, Q8_0 quant) ---
+      EMBED_BASE_URL: "http://host.docker.internal:1234/v1"
+      EMBED_MODEL: "text-embedding-bge-m3@Q8_0"
+      # --- Generation + translation: Anthropic (best fit for grounded RAG Q&A;
+      #     swap to claude-opus-5 for max quality or claude-haiku-4-5 to save) ---
+      GEN_MODEL: "claude-sonnet-5"
+      TRANSLATE_MODEL: "claude-sonnet-5"
+      # ANTHROPIC_API_KEY is read from .env (env_file above). Leave LLM_BASE_URL
+      # unset so generation goes to Anthropic, not a local chat model.
+    # Let the container reach LM Studio running on the host machine.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - gk-data:/data
-    depends_on:
-      - ollama
-
-  ollama:
-    image: ollama/ollama:latest
-    restart: unless-stopped
-    volumes:
-      - ollama:/root/.ollama
-    # Uncomment to use an NVIDIA GPU:
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: all
-    #           capabilities: [gpu]
 
 volumes:
   gk-data:
-  ollama:
