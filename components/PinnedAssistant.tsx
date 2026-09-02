@@ -2,11 +2,13 @@
 
 // The single "Ask the garden" assistant. Mounted site-wide in the root layout.
 //   • Home: opened (and pinned) from the "Demander au jardin" pushpin button.
-//   • Notes: a floating sprout trigger opens it (the note "AI" button).
-//   • Once open it docks (draggable anywhere) and persists across navigation
-//     (pinned flag + last position in localStorage), so there is only ever ONE
-//     assistant — clicking the note button again never spawns a second.
-// Shares the NDJSON wire format with the home + note assistants via readAskStream.
+//   • Notes: a floating sprout trigger opens it (the note "AI" button), and
+//     selecting text shows an "ask about this" button that opens it with the
+//     passage pinned as context.
+//   • Once open it docks — draggable by its header, resizable by its top-left
+//     corner — and persists across navigation (pinned flag, position and size in
+//     localStorage). There is only ever ONE assistant.
+// Shares the NDJSON wire format with the home assistant via readAskStream.
 
 import {
   useEffect,
@@ -20,6 +22,7 @@ import { readAskStream, type AskSource } from "@/lib/ask-stream";
 
 const KEY = "gkChatPinned";
 const POS_KEY = "gkChatPos";
+const SIZE_KEY = "gkChatSize";
 
 const SPROUT = (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -36,30 +39,19 @@ export function PinnedAssistant() {
   const [pinned, setPinned] = useState(false);
   const [isNote, setIsNote] = useState(false);
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  const [size, setSize] = useState<{ w: number; h: number } | null>(null);
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [sources, setSources] = useState<AskSource[]>([]);
   const [asked, setAsked] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [selection, setSelection] = useState("");
+  const [candidate, setCandidate] = useState<{ text: string; x: number; y: number } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const panelRef = useRef<HTMLElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const drag = useRef<{ dx: number; dy: number } | null>(null);
-
-  useEffect(() => {
-    try {
-      setPinned(localStorage.getItem(KEY) === "1");
-      const raw = localStorage.getItem(POS_KEY);
-      if (raw) setPos(JSON.parse(raw));
-    } catch {
-      /* localStorage unavailable */
-    }
-    setIsNote(location.pathname.startsWith("/posts/"));
-    const onPin = () => open();
-    window.addEventListener("gk:pin-chat", onPin);
-    return () => window.removeEventListener("gk:pin-chat", onPin);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  useEffect(() => () => abortRef.current?.abort(), []);
+  const rez = useRef<{ right: number; bottom: number } | null>(null);
 
   function open() {
     setPinned(true);
@@ -78,25 +70,81 @@ export function PinnedAssistant() {
     }
   }
 
-  // --- drag by the header (like the note assistant) ------------------------
-  function onHeadPointerDown(e: ReactPointerEvent) {
-    if ((e.target as Element).closest("button")) return; // let the × through
+  useEffect(() => {
+    try {
+      setPinned(localStorage.getItem(KEY) === "1");
+      const p = localStorage.getItem(POS_KEY);
+      if (p) setPos(JSON.parse(p));
+      const s = localStorage.getItem(SIZE_KEY);
+      if (s) setSize(JSON.parse(s));
+    } catch {
+      /* localStorage unavailable */
+    }
+    setIsNote(location.pathname.startsWith("/posts/"));
+    const onPin = () => open();
+    window.addEventListener("gk:pin-chat", onPin);
+    return () => window.removeEventListener("gk:pin-chat", onPin);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => () => abortRef.current?.abort(), []);
+
+  // --- "ask about a selection" (notes) -------------------------------------
+  useEffect(() => {
+    function check() {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || sel.rangeCount === 0) return setCandidate(null);
+      const text = sel.toString().trim();
+      if (text.length < 2 || text.length > 4000) return setCandidate(null);
+      const node = sel.anchorNode;
+      const el = node && (node.nodeType === 1 ? (node as Element) : node.parentElement);
+      const main = document.getElementById("main");
+      if (!main || !el || !main.contains(el) || el.closest(".gk-pinned")) {
+        return setCandidate(null);
+      }
+      const r = sel.getRangeAt(0).getBoundingClientRect();
+      if (!r || (r.width === 0 && r.height === 0)) return setCandidate(null);
+      setCandidate({
+        text,
+        x: Math.max(6, Math.min(r.left, window.innerWidth - 170)),
+        y: Math.max(6, r.top - 40),
+      });
+    }
+    const onUp = () => requestAnimationFrame(check);
+    const onSelChange = () => {
+      const s = window.getSelection();
+      if (!s || s.isCollapsed) setCandidate(null);
+    };
+    const onScroll = () => setCandidate(null);
+    document.addEventListener("pointerup", onUp);
+    document.addEventListener("selectionchange", onSelChange);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      document.removeEventListener("pointerup", onUp);
+      document.removeEventListener("selectionchange", onSelChange);
+      window.removeEventListener("scroll", onScroll);
+    };
+  }, []);
+
+  // --- drag by the header --------------------------------------------------
+  function onHeadDown(e: ReactPointerEvent) {
+    if ((e.target as Element).closest("button")) return;
     const el = panelRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
     drag.current = { dx: e.clientX - r.left, dy: e.clientY - r.top };
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
   }
-  function onHeadPointerMove(e: ReactPointerEvent) {
+  function onHeadMove(e: ReactPointerEvent) {
     if (!drag.current) return;
     const el = panelRef.current;
     const w = el?.offsetWidth ?? 320;
     const h = el?.offsetHeight ?? 200;
-    const left = Math.max(4, Math.min(window.innerWidth - w - 4, e.clientX - drag.current.dx));
-    const top = Math.max(4, Math.min(window.innerHeight - h - 4, e.clientY - drag.current.dy));
-    setPos({ left, top });
+    setPos({
+      left: Math.max(4, Math.min(window.innerWidth - w - 4, e.clientX - drag.current.dx)),
+      top: Math.max(4, Math.min(window.innerHeight - h - 4, e.clientY - drag.current.dy)),
+    });
   }
-  function onHeadPointerUp(e: ReactPointerEvent) {
+  function onHeadUp(e: ReactPointerEvent) {
     if (drag.current && pos) {
       try {
         localStorage.setItem(POS_KEY, JSON.stringify(pos));
@@ -105,6 +153,36 @@ export function PinnedAssistant() {
       }
     }
     drag.current = null;
+    (e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
+  }
+
+  // --- resize by the top-left corner (grows into the screen) ---------------
+  function onRezDown(e: ReactPointerEvent) {
+    const el = panelRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    rez.current = { right: r.right, bottom: r.bottom };
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+    e.stopPropagation();
+  }
+  function onRezMove(e: ReactPointerEvent) {
+    if (!rez.current) return;
+    const maxW = Math.min(window.innerWidth * 0.92, 900);
+    const maxH = window.innerHeight * 0.88;
+    const w = Math.max(300, Math.min(maxW, rez.current.right - e.clientX));
+    const h = Math.max(180, Math.min(maxH, rez.current.bottom - e.clientY));
+    setSize({ w, h });
+    if (pos) setPos({ left: rez.current.right - w, top: rez.current.bottom - h });
+  }
+  function onRezUp(e: ReactPointerEvent) {
+    if (rez.current && size) {
+      try {
+        localStorage.setItem(SIZE_KEY, JSON.stringify(size));
+      } catch {
+        /* ignore */
+      }
+    }
+    rez.current = null;
     (e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
   }
 
@@ -122,7 +200,7 @@ export function PinnedAssistant() {
       resp = await fetch("/api/ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question: text, locale }),
+        body: JSON.stringify({ question: text, selection: selection || undefined, locale }),
         signal: ctrl.signal,
       });
     } catch (e) {
@@ -155,83 +233,128 @@ export function PinnedAssistant() {
     if (abortRef.current === ctrl) abortRef.current = null;
   }
 
-  // Note pages get a trigger (the "AI" button) when the assistant isn't open.
+  // The "ask about this passage" button floats near a text selection on notes.
+  const selBtn = candidate && (
+    <button
+      type="button"
+      className="gk-sel-btn"
+      style={{ left: candidate.x, top: candidate.y }}
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => {
+        setSelection(candidate.text);
+        open();
+        setCandidate(null);
+        window.getSelection()?.removeAllRanges();
+        requestAnimationFrame(() => inputRef.current?.focus());
+      }}
+    >
+      {SPROUT}
+      <span>{tr("askAi.selButton")}</span>
+    </button>
+  );
+
   if (!pinned) {
-    if (!isNote) return null;
     return (
-      <button type="button" className="gk-pinned-trigger" onClick={open}>
-        {SPROUT}
-        <span>{tr("askAi.trigger")}</span>
-      </button>
+      <>
+        {selBtn}
+        {isNote && (
+          <button type="button" className="gk-pinned-trigger" onClick={open}>
+            {SPROUT}
+            <span>{tr("askAi.trigger")}</span>
+          </button>
+        )}
+      </>
     );
   }
 
-  const style = pos ? { left: pos.left, top: pos.top, right: "auto", bottom: "auto" } : undefined;
+  const style: React.CSSProperties = {
+    ...(pos ? { left: pos.left, top: pos.top, right: "auto", bottom: "auto" } : {}),
+    ...(size ? { width: size.w, height: size.h } : {}),
+  };
 
   return (
-    <section
-      ref={panelRef}
-      className="gk-pinned"
-      style={style}
-      aria-label={tr("home.askLabel")}
-    >
-      <header
-        className="gk-pinned-head"
-        onPointerDown={onHeadPointerDown}
-        onPointerMove={onHeadPointerMove}
-        onPointerUp={onHeadPointerUp}
-        onPointerLeave={onHeadPointerUp}
-      >
-        <span className="gk-pinned-grip" aria-hidden="true">{SPROUT}</span>
-        <span className="gk-pinned-title">{tr("home.askLabel")}</span>
-        <button
-          type="button"
-          className="gk-pinned-close"
-          onClick={close}
-          aria-label={tr("home.unpinChat")}
-          title={tr("home.unpinChat")}
-        >
-          ×
-        </button>
-      </header>
-
-      {asked && (
-        <div className="gk-pinned-body">
-          <p className="gk-pinned-answer">{answer || (busy ? "…" : "")}</p>
-          {sources.length > 0 && (
-            <ul className="gk-pinned-sources">
-              {sources.map((s) => (
-                <li key={s.url}>
-                  <a href={s.url}>{s.title}</a>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-
-      <form
-        className="gk-pinned-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          const text = question.trim();
-          if (text && !busy) ask(text);
-        }}
-      >
-        <input
-          type="text"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          maxLength={1000}
-          autoComplete="off"
-          disabled={busy}
-          placeholder={tr("home.askPlaceholder")}
-          aria-label={tr("home.askAria")}
+    <>
+      {selBtn}
+      <section ref={panelRef} className="gk-pinned" style={style} aria-label={tr("home.askLabel")}>
+        <span
+          className="gk-pinned-resize"
+          aria-hidden="true"
+          onPointerDown={onRezDown}
+          onPointerMove={onRezMove}
+          onPointerUp={onRezUp}
+          onPointerLeave={onRezUp}
         />
-        <button type="submit" disabled={busy}>
-          {tr("home.askSend")}
-        </button>
-      </form>
-    </section>
+        <header
+          className="gk-pinned-head"
+          onPointerDown={onHeadDown}
+          onPointerMove={onHeadMove}
+          onPointerUp={onHeadUp}
+          onPointerLeave={onHeadUp}
+        >
+          <span className="gk-pinned-grip" aria-hidden="true">{SPROUT}</span>
+          <span className="gk-pinned-title">{tr("home.askLabel")}</span>
+          <button
+            type="button"
+            className="gk-pinned-close"
+            onClick={close}
+            aria-label={tr("home.unpinChat")}
+            title={tr("home.unpinChat")}
+          >
+            ×
+          </button>
+        </header>
+
+        {(asked || selection) && (
+          <div className="gk-pinned-body">
+            {selection && (
+              <div className="gk-pinned-chip">
+                <span>{selection.length > 90 ? selection.slice(0, 90) + "…" : selection}</span>
+                <button
+                  type="button"
+                  onClick={() => setSelection("")}
+                  aria-label={tr("askAi.removeChipAria")}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+            {asked && <p className="gk-pinned-answer">{answer || (busy ? "…" : "")}</p>}
+            {sources.length > 0 && (
+              <ul className="gk-pinned-sources">
+                {sources.map((s) => (
+                  <li key={s.url}>
+                    <a href={s.url}>{s.title}</a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )}
+
+        <form
+          className="gk-pinned-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const text = question.trim();
+            if ((text || selection) && !busy) ask(text);
+          }}
+        >
+          <input
+            ref={inputRef}
+            type="text"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            maxLength={1000}
+            autoComplete="off"
+            disabled={busy}
+            placeholder={selection ? tr("askAi.placeholderWithSelection") : tr("home.askPlaceholder")}
+            aria-label={tr("home.askAria")}
+          />
+          <button type="submit" disabled={busy}>
+            {tr("home.askSend")}
+          </button>
+        </form>
+      </section>
+    </>
   );
 }
