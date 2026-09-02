@@ -1,7 +1,7 @@
 name: CI
 
 # Runs on every push to main and every pull request. Gates merges on the same
-# checks you run locally: TypeScript (app + Pages Functions), ESLint, the vitest
+# checks you run locally: TypeScript (app + server), oxlint + ESLint, the vitest
 # unit suite, and a full static-export build (fetches notes from the public
 # pensine repo; the Cloudflare index + mermaid pre-render self-skip, so no
 # secrets are required).
@@ -80,8 +80,8 @@ jobs:
 
       # Full production build → catches export-time breakage the typecheck can't
       # (bad page imports, invalid generateStaticParams, broken static export).
-      # Fetches notes from the public pensine repo; index-notes (Cloudflare) and
-      # render-mermaid (Chromium) self-skip when their creds/browser are absent.
+      # Fetches notes from the public pensine repo; render-mermaid (Chromium)
+      # self-skips when the browser is absent.
       - name: Build
         env:
           NOTES_REPO_TOKEN: ${{ secrets.NOTES_REPO_TOKEN }}

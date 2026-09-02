@@ -13,9 +13,10 @@ TypeScript, Tailwind v4. Notes are fetched at build from the public repo
 
 **Deployed as a self-hosted Docker image** (a Node/Hono server in front of the
 static `out/`), built for amd64+arm64 and pushed to GHCR. It moved off Cloudflare
-Pages because the vault exceeds Pages' 20,000-file-per-deploy cap. The
-`cloudflare-deploy` branch (+ `functions/`, `deploy.yml`) is the Cloudflare
-fallback; on `main` the backend is `server/`, not `functions/`.
+Pages because the vault exceeds Pages' 20,000-file-per-deploy cap. The backend is
+`server/` (Hono). The old Cloudflare Pages Functions (`functions/`), the CF
+deploy workflow, and `_routes.json`/`_redirects` were removed from `main`; they
+live on the `cloudflare-deploy` branch, the Cloudflare fallback.
 
 ## Commands
 
@@ -108,6 +109,6 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
 
 ## CI
 
-`.github/workflows/ci.yml` (typecheck app **and** `server/`, lint, unit tests on
-push/PR), `docker.yml` (image build/push, above), and `deploy.yml` (legacy
-Cloudflare Pages deploy, opt-in via `ENABLE_CF_DEPLOY=true` — the fallback path).
+`.github/workflows/ci.yml` (typecheck app **and** `server/`, oxlint + ESLint,
+unit tests, and a full static-export build on push/PR) and `docker.yml` (image
+build/push, above). The Cloudflare deploy workflow lives on `cloudflare-deploy`.
