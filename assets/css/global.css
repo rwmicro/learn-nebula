@@ -137,6 +137,7 @@ body {
   bottom: 1rem;
   z-index: 1001;
   width: min(30rem, calc(100vw - 2rem));
+  max-height: 88vh;
   display: flex;
   flex-direction: column;
   background: #fcfcfc;
@@ -144,6 +145,21 @@ body {
   border-radius: 6px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
   font-family: "Alegreya", "Alegreya Fallback", serif;
+}
+/* Drag-to-resize handle in the top-left corner (grows the panel into the
+   screen, since the panel usually hugs the bottom-right). */
+.gk-pinned-resize {
+  position: absolute;
+  left: -2px;
+  top: -2px;
+  width: 16px;
+  height: 16px;
+  cursor: nwse-resize;
+  z-index: 3;
+  touch-action: none;
+  border-left: 2px solid #9a938a;
+  border-top: 2px solid #9a938a;
+  border-top-left-radius: 6px;
 }
 .gk-pinned-head {
   display: flex;
@@ -209,10 +225,56 @@ body {
 }
 .gk-pinned-body {
   padding: 0.7rem 0.9rem;
-  min-height: 6rem;
-  max-height: 55vh;
+  flex: 1 1 auto;
+  min-height: 5rem;
   overflow-y: auto;
   border-bottom: 1px solid #e4e2dd;
+}
+/* Pinned selection chip + the floating "ask about this passage" button. */
+.gk-pinned-chip {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  background: #eef3ec;
+  border-left: 2px solid var(--color-garden);
+  border-radius: 3px;
+  font-size: 0.85rem;
+  color: #333;
+}
+.gk-pinned-chip button {
+  flex: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0;
+}
+.gk-sel-btn {
+  position: fixed;
+  z-index: 1002;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--color-garden);
+  background: var(--color-garden);
+  color: #fcfcfc;
+  border-radius: 999px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+.gk-sel-btn:hover {
+  background: var(--color-garden-dark);
+  border-color: var(--color-garden-dark);
 }
 .gk-pinned-answer {
   margin: 0;
