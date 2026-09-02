@@ -22,20 +22,13 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: "#fcfcfc",
     theme_color: "#fcfcfc",
     icons: [
+      { src: "/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icon-256.png", sizes: "256x256", type: "image/png", purpose: "any" },
+      { src: "/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      // Maskable variant has padding so Android's circle/squircle mask never
+      // clips the painting.
       {
-        src: "/icon-192.png",
-        sizes: "192x192",
-        type: "image/png",
-        purpose: "any",
-      },
-      {
-        src: "/icon-512.png",
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "any",
-      },
-      {
-        src: "/icon-512.png",
+        src: "/icon-maskable-512.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable",
