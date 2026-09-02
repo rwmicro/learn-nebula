@@ -58,7 +58,7 @@ export default async function HomePage() {
                 <img src="/images/eragny.webp" alt="Éragny" width="1200" height="950" fetchPriority="high" decoding="async" />
               </picture>
             </span>
-            <span className="text-sm text-neutral-500"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>
+            <span className="text-sm text-neutral-500" data-i18n="home.imageCaption"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>
           </div>
       </div>
       <main id="main" className={newsreader.variable}>

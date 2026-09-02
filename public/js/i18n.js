@@ -133,4 +133,12 @@
   window.__i18n = i18n;
 
   if (i18n.locale !== i18n.defaultLocale) applyAll();
+  // Announce the resolved locale even on a plain load (not just on switch), so
+  // React widgets that mount before this script runs (e.g. LangSwitcher) sync
+  // their active state instead of showing the default — and so <html dir> is set
+  // for RTL on the very first paint of a stored non-default locale.
+  document.documentElement.setAttribute("dir", RTL[i18n.locale] ? "rtl" : "ltr");
+  document.dispatchEvent(
+    new CustomEvent("i18n:change", { detail: { locale: i18n.locale } }),
+  );
 })();

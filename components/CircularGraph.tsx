@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointer
 import { stratify, cluster, type HierarchyNode } from "d3-hierarchy";
 import type { GraphData, GraphNode } from "@/lib/graph-data";
 import { t } from "@/lib/i18n";
+import { useLocale } from "@/lib/use-locale";
 
 // --- discipline colours (same golden-angle palette as the old force graph) ---
 type Palette = Map<string, string>;
@@ -113,6 +114,8 @@ export function CircularGraph({
   data: GraphData;
   preview?: boolean;
 }) {
+  const locale = useLocale();
+  const tr = (k: string) => t(k, undefined, locale);
   const layout = useMemo(() => buildLayout(data), [data]);
   const palette = useMemo(() => buildPalette(data.nodes), [data.nodes]);
   const rootLabel = useMemo(
@@ -339,17 +342,17 @@ export function CircularGraph({
       {!preview && (
         <>
           <a href="/" className="graph-back">
-            ← {t("nav.home")}
+            ← {tr("nav.home")}
           </a>
 
           {/* Discipline legend + roulette control */}
           <div className="cg-panel">
         <div className="cg-roulette">
-          <span className="cg-rot-label">{t("graph.rotate")}</span>
+          <span className="cg-rot-label">{tr("graph.rotate")}</span>
           <button
             type="button"
             className="cg-rot-btn"
-            aria-label={t("graph.rotateLeft")}
+            aria-label={tr("graph.rotateLeft")}
             onClick={() => setRot((r) => ((r - ROT_STEP) % TAU + TAU) % TAU)}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -359,7 +362,7 @@ export function CircularGraph({
           <button
             type="button"
             className="cg-rot-btn"
-            aria-label={t("graph.rotateRight")}
+            aria-label={tr("graph.rotateRight")}
             onClick={() => setRot((r) => (r + ROT_STEP) % TAU)}
           >
             <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
@@ -376,7 +379,7 @@ export function CircularGraph({
               setFilter(null);
             }}
           >
-            {t("graph.reset")}
+            {tr("graph.reset")}
           </button>
         </div>
         <ul className="cg-legend">
@@ -402,7 +405,7 @@ export function CircularGraph({
             </div>
           )}
 
-          <div className="graph-hint">{t("graph.hint")}</div>
+          <div className="graph-hint">{tr("graph.hint")}</div>
         </>
       )}
     </div>
