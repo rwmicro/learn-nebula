@@ -69,31 +69,32 @@ export default function Header({ doc }: { doc: Doc }) {
       <div className="max-sm:hidden border-t-[1.5px] border-black" />
       <div className="max-sm:hidden mt-0.5 border-t-[1.5px] border-black" />
 
-      {/* Mobile hamburger (#6): opens the section-nav dropdown; the language bar
-          above stays visible. Icon-toggle + focus ring sit on this div (a direct
-          sibling of the peer checkbox) so peer-checked/peer-focus-visible apply. */}
-      <div className="flex justify-center py-1 sm:hidden peer-checked:[&_.gk-ic-open]:hidden peer-checked:[&_.gk-ic-close]:block peer-focus-visible:[&_label]:outline peer-focus-visible:[&_label]:outline-2 peer-focus-visible:[&_label]:outline-offset-2 peer-focus-visible:[&_label]:outline-black">
+      {/* Mobile hamburger (#6): sits in the top-right corner (not under the
+          title); opens the section-nav dropdown. The language bar stays visible.
+          Icon-toggle + focus ring sit on this div (a direct sibling of the peer
+          checkbox) so peer-checked/peer-focus-visible apply. */}
+      <div className="absolute right-2 top-2 z-20 sm:hidden peer-checked:[&_.gk-ic-open]:hidden peer-checked:[&_.gk-ic-close]:block peer-focus-visible:[&_label]:outline peer-focus-visible:[&_label]:outline-2 peer-focus-visible:[&_label]:outline-offset-2 peer-focus-visible:[&_label]:outline-black">
         <label
           htmlFor="gk-menu"
-          className="inline-flex cursor-pointer items-center gap-1.5 rounded-[3px] border border-neutral-300 px-3 py-1.5 text-meta font-semibold uppercase tracking-[0.08em] text-black"
+          aria-label={t("nav.menu")}
+          className="inline-flex cursor-pointer items-center justify-center rounded-[3px] border border-neutral-300 bg-white/85 p-1.5 text-black backdrop-blur-sm"
         >
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
             <path d="M4 7h16M4 12h16M4 17h16" />
           </svg>
-          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-close hidden">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-close hidden">
             <path d="M6 6l12 12M18 6l-12 12" />
           </svg>
-          <span>{t("nav.menu")}</span>
         </label>
       </div>
 
-      {/* 3. section nav — horizontal bar on desktop; a centred dropdown popover
-          on mobile, revealed by the hamburger (#6). */}
+      {/* 3. section nav — horizontal bar on desktop; a right-anchored dropdown
+          popover on mobile, revealed by the hamburger in the corner (#6). */}
       <nav
         aria-label={t("home.footerNavAria")}
         className="relative hidden peer-checked:block sm:block"
       >
-        <ul className="absolute left-1/2 top-1 z-30 m-0 flex w-max -translate-x-1/2 list-none flex-col items-center gap-2.5 rounded-[4px] border border-neutral-300 bg-white px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:translate-x-0 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-7 sm:gap-y-1 sm:border-0 sm:border-b sm:border-neutral-200 sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none">
+        <ul className="absolute right-2 top-1 z-30 m-0 flex w-max list-none flex-col items-end gap-2.5 rounded-[4px] border border-neutral-300 bg-white px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-7 sm:gap-y-1 sm:border-0 sm:border-b sm:border-neutral-200 sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none">
           <li className="m-0">
             <a href="/#applied-sciences" className={navLink} data-i18n="nav.appliedsciences">
               {t("nav.appliedsciences")}
