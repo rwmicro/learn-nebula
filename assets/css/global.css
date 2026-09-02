@@ -137,9 +137,10 @@ body {
   bottom: 1rem;
   z-index: 1001;
   width: min(36rem, calc(100vw - 2rem));
-  /* Compact by default so a long answer (or a pinned passage) scrolls inside the
-     body instead of growing the panel off-screen; an explicit resize sets its
-     own height + maxHeight inline. */
+  /* A comfortable chat window: a conversation area is always visible above the
+     bottom-pinned input. Bounded so a long answer scrolls inside the body
+     instead of growing the panel off-screen; an explicit resize overrides. */
+  min-height: 15rem;
   max-height: min(38rem, 82vh);
   display: flex;
   flex-direction: column;
@@ -279,6 +280,12 @@ body {
 .gk-sel-btn:hover {
   background: var(--color-garden-dark);
   border-color: var(--color-garden-dark);
+}
+.gk-pinned-hint {
+  margin: 0;
+  color: #787369;
+  font-style: italic;
+  font-size: 1.05rem;
 }
 .gk-pinned-answer {
   margin: 0;

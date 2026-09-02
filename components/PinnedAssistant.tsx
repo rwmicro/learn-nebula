@@ -310,32 +310,36 @@ export function PinnedAssistant() {
           </button>
         </header>
 
-        {(asked || selection) && (
-          <div className="gk-pinned-body">
-            {selection && (
-              <div className="gk-pinned-chip">
-                <span>{selection.length > 90 ? selection.slice(0, 90) + "…" : selection}</span>
-                <button
-                  type="button"
-                  onClick={() => setSelection("")}
-                  aria-label={tr("askAi.removeChipAria")}
-                >
-                  ×
-                </button>
-              </div>
-            )}
-            {asked && <p className="gk-pinned-answer">{answer || (busy ? "…" : "")}</p>}
-            {sources.length > 0 && (
-              <ul className="gk-pinned-sources">
-                {sources.map((s) => (
-                  <li key={s.url}>
-                    <a href={s.url}>{s.title}</a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        )}
+        {/* Conversation area — always present so the input stays pinned at the
+            bottom of the panel (chat layout), with answers/sources above it. */}
+        <div className="gk-pinned-body">
+          {selection && (
+            <div className="gk-pinned-chip">
+              <span>{selection.length > 90 ? selection.slice(0, 90) + "…" : selection}</span>
+              <button
+                type="button"
+                onClick={() => setSelection("")}
+                aria-label={tr("askAi.removeChipAria")}
+              >
+                ×
+              </button>
+            </div>
+          )}
+          {asked ? (
+            <p className="gk-pinned-answer">{answer || (busy ? "…" : "")}</p>
+          ) : (
+            !selection && <p className="gk-pinned-hint">{tr("home.askIntro")}</p>
+          )}
+          {sources.length > 0 && (
+            <ul className="gk-pinned-sources">
+              {sources.map((s) => (
+                <li key={s.url}>
+                  <a href={s.url}>{s.title}</a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         <form
           className="gk-pinned-form"
