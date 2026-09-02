@@ -1080,7 +1080,30 @@ export function HomeContent({
           </section>
 
           <section className="rounded-[3px] border border-[#e4e2dd] px-6 py-5">
-            <h2 className={`${labelCls} mb-[0.6rem]`}>{tr("home.askLabel")}</h2>
+            <div className="mb-[0.6rem] flex items-center justify-between gap-2">
+              <h2 className={labelCls}>{tr("home.askLabel")}</h2>
+              {/* Pushpin: dock the assistant at the bottom-right and keep it there
+                  across navigation (PinnedAssistant, mounted site-wide). */}
+              <button
+                type="button"
+                className="shrink-0 cursor-pointer border-0 bg-transparent p-1 text-[#787369] hover:text-garden"
+                aria-label={tr("home.pinChat")}
+                title={tr("home.pinChat")}
+                onClick={() => {
+                  try {
+                    localStorage.setItem("gkChatPinned", "1");
+                  } catch {
+                    /* ignore */
+                  }
+                  window.dispatchEvent(new Event("gk:pin-chat"));
+                }}
+              >
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 17v5" />
+                  <path d="M9 10.76V4h6v6.76a2 2 0 0 0 .55 1.38l1.4 1.47A1 1 0 0 1 16.2 15H7.8a1 1 0 0 1-.75-1.39l1.4-1.47A2 2 0 0 0 9 10.76z" />
+                </svg>
+              </button>
+            </div>
             <p className="m-0 mb-[1.1rem] text-pretty text-body text-[#1a1a1a]">
               {tr("home.askIntro")}
             </p>

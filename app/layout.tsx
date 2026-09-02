@@ -3,6 +3,7 @@ import Script from "next/script";
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, buildCSP } from "@/lib/site";
 import { DEFAULT_LOCALE, LOCALES, getMessages, t } from "@/lib/i18n";
 import { Footer } from "@/components/Footer";
+import { PinnedAssistant } from "@/components/PinnedAssistant";
 import "../assets/css/fonts.css";
 // Global frame only (Tailwind + @theme + html/body/main margins). Article
 // typography lives in main.css, loaded per-route on note pages / 404.
@@ -80,6 +81,9 @@ export default function RootLayout({
         <Script src="/js/i18n.js" strategy="afterInteractive" />
         {children}
         <Footer />
+        {/* Pinnable "Ask the garden" — hidden until pinned from the home chat,
+            then docked bottom-right on every page (persists via localStorage). */}
+        <PinnedAssistant />
         {/* Site-wide enhancers. Note-page-only behaviours (TOC, audio, comments,
             the floating assistant, …) load per-route via <NoteScripts /> so the
             home page no longer pulls scripts it doesn't use. */}

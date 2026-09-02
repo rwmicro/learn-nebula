@@ -138,7 +138,9 @@
     "footerNavAria": "Navigation du pied de page",
     "copyright": "Copyright 2026 · The Gardener · sous licence Creative Commons (CC BY-NC-SA), code source sous GNU GPL.",
     "inContent": "Dans le contenu",
-    "excerpt": "extrait"
+    "excerpt": "extrait",
+    "pinChat": "Épingler le chat",
+    "unpinChat": "Détacher"
   },
   "graph": {
     "back": "Retour au jardin",
