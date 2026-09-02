@@ -103,7 +103,15 @@ export async function openaiEmbed(
     body: JSON.stringify({ model, input }),
     signal,
   });
-  if (!res.ok) throw new Error(`embeddings failed: ${res.status}`);
+  if (!res.ok) {
+    // Surface the server's reason (LM Studio/Ollama return a JSON/text body,
+    // e.g. "model not found" or a context-length error) — a bare status is
+    // useless for debugging a 400.
+    const body = await res.text().catch(() => "");
+    throw new Error(
+      `embeddings failed: ${res.status} ${res.statusText}${body ? ` — ${body.slice(0, 300)}` : ""} (model="${model}")`,
+    );
+  }
   const j = (await res.json()) as { data?: { embedding: number[] }[] };
   const out = (j.data ?? []).map((d) => d.embedding);
   if (out.length !== input.length) {
