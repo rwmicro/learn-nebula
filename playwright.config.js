@@ -5,6 +5,11 @@ export default defineConfig({
   fullyParallel: true,
   workers: process.env.CI ? "100%" : undefined,
   reporter: "html",
+  // Small tolerance so sub-pixel rasterisation differences across chromium
+  // versions / machines don't fail the visual-regression snapshots.
+  expect: {
+    toHaveScreenshot: { maxDiffPixelRatio: 0.02 },
+  },
   use: {
     baseURL: "http://localhost:1313",
     screenshot: "only-on-failure",
