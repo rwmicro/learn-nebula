@@ -88,8 +88,35 @@ async function build() {
     console.log(`rag: embedding ${todo.length}/${chunks.length} chunk(s) via ${env.embedBaseUrl}…`);
     for (let i = 0; i < todo.length; i += EMBED_BATCH) {
       const batch = todo.slice(i, i + EMBED_BATCH);
-      const vecs = await openaiEmbed(env.embedBaseUrl, env.embedModel, batch.map((c) => c.text));
-      batch.forEach((c, j) => cache.set(c.id, { h: hashText(c.text), v: vecs[j] }));
+      // Some endpoints 400 on an empty input; never send a blank string.
+      const texts = batch.map((c) => (c.text.trim() ? c.text : " "));
+      let vecs: (number[] | undefined)[];
+      try {
+        vecs = await openaiEmbed(env.embedBaseUrl, env.embedModel, texts);
+      } catch (batchErr) {
+        // Retry one-by-one: tolerates a per-request batch/token limit or a
+        // single oversized chunk. If the WHOLE fallback batch fails it's a
+        // config error (wrong model, chat model loaded, endpoint down) — rethrow
+        // with the real reason instead of logging thousands of warnings.
+        console.warn(
+          `rag: batch embed failed, retrying individually — ${batchErr instanceof Error ? batchErr.message : batchErr}`,
+        );
+        vecs = new Array(texts.length);
+        let ok = 0;
+        for (let k = 0; k < texts.length; k++) {
+          try {
+            vecs[k] = (await openaiEmbed(env.embedBaseUrl, env.embedModel, [texts[k]]))[0];
+            ok++;
+          } catch (itemErr) {
+            if (k === texts.length - 1 && ok === 0) throw itemErr;
+            console.warn(`rag: skipped chunk ${batch[k].id} (embed failed)`);
+          }
+        }
+      }
+      batch.forEach((c, j) => {
+        const v = vecs[j];
+        if (v) cache.set(c.id, { h: hashText(c.text), v });
+      });
       if (i % (EMBED_BATCH * 20) === 0 && i > 0) {
         console.log(`rag: …${i}/${todo.length}`);
         saveCache(cache); // periodic flush so progress survives a restart
