@@ -349,6 +349,10 @@ function usePagefind(query: string): PfHit[] {
   const failed = useRef(false);
   useEffect(() => {
     const q = query.trim();
+    // Pagefind is only built into /pagefind by `pnpm build`; skip the fetch under
+    // `next dev` so it doesn't log a 404 for /pagefind/pagefind.js (the home
+    // search falls back to the title/folder filter there anyway).
+    if (process.env.NODE_ENV !== "production") return;
     if (q.length < 2 || failed.current) {
       setHits([]);
       return;

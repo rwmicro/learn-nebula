@@ -20,6 +20,10 @@ const newsreader = Newsreader({
   display: "swap",
   variable: "--gk-serif",
   fallback: ["Georgia", "serif"],
+  // The content-zone serif lives below the fold; preloading its 6 files just
+  // triggers "preloaded but not used" console warnings. The swap fallback covers
+  // the brief FOUT.
+  preload: false,
 });
 
 export async function generateMetadata(): Promise<Metadata> {
