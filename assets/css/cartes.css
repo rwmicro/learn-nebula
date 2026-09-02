@@ -1,0 +1,12 @@
+/* Flashcards study view (/cartes/*). The shared <main> inherits the global
+   `main { margin-right: 26rem }` note-aside gutter and lives inside the body's
+   centred 1100px column — together they pinned the card to ~680px, so "enlarge"
+   only ever grew its height. Here the card escapes both so it widens too.
+   Scoped with :has(.flashcards-main) so it only applies on this route (the CSS
+   file stays loaded after a client-side navigation away). */
+body:has(.flashcards-main) {
+  max-width: none;
+}
+.flashcards-main {
+  margin-inline: auto !important;
+}

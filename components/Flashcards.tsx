@@ -125,7 +125,7 @@ export function Flashcards({
   return (
     <main
       id="main"
-      className="mx-auto px-5 py-12 text-[#1a1a1a] transition-[max-width] duration-200"
+      className="flashcards-main mx-auto px-5 py-12 text-[#1a1a1a] transition-[max-width] duration-200"
       style={{ maxWidth: `${60 * SIZES[sizeIdx]}rem` }}
     >
       {deck?.css && <style dangerouslySetInnerHTML={{ __html: deck.css }} />}
