@@ -22,30 +22,6 @@ const newsreader = Newsreader({
   fallback: ["Georgia", "serif"],
 });
 
-// Corner flourish for the home hero image (#10): sepia scrollwork + a few green
-// leaves that hug one corner. Drawn once for the top-left; CSS mirrors it into
-// the other three corners. Purely decorative → aria-hidden.
-function CornerOrnament({ className }: { className: string }) {
-  return (
-    <svg className={className} viewBox="0 0 100 100" fill="none" aria-hidden="true">
-      <g stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-        <path d="M8 8 C 40 10 58 24 60 58" />
-        <path d="M8 8 C 10 40 24 58 58 60" />
-        <path d="M8 8 C 30 12 44 26 46 48" opacity="0.7" />
-        <path d="M8 8 C 12 30 26 44 48 46" opacity="0.7" />
-        <path d="M60 58 c 6 4 12 2 14 -4 c -6 0 -11 1 -14 4" />
-        <path d="M58 60 c 4 6 2 12 -4 14 c 0 -6 1 -11 4 -14" />
-      </g>
-      <g fill="#5f7d4f">
-        <path d="M46 26 c 10 -8 22 -7 30 -1 c -9 5 -20 6 -30 1 z" />
-        <path d="M26 46 c -8 10 -7 22 -1 30 c 5 -9 6 -20 1 -30 z" />
-        <ellipse cx="70" cy="20" rx="6" ry="3.4" transform="rotate(-28 70 20)" />
-        <ellipse cx="20" cy="70" rx="3.4" ry="6" transform="rotate(-28 20 70)" />
-      </g>
-    </svg>
-  );
-}
-
 export async function generateMetadata(): Promise<Metadata> {
   const doc = getIndexDoc();
   return buildMetadata({
@@ -76,15 +52,11 @@ export default async function HomePage() {
       <div className='w-11/12 mx-auto text-center text-lead text-neutral-500 mt-10'>
       <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-neutral-700 mt-10" />
           <div className="w-full md:w-11/12 max-w-11/12 mx-auto">
-            <span className="home-hero mb-2 block">
+            <span className="home-frame mb-2 block">
               <picture>
                 <source type="image/avif" srcSet="/images/eragny.avif" />
                 <img src="/images/eragny.webp" alt="Éragny" width="1200" height="950" fetchPriority="high" decoding="async" />
               </picture>
-              <CornerOrnament className="corner-orn corner-tl" />
-              <CornerOrnament className="corner-orn corner-tr" />
-              <CornerOrnament className="corner-orn corner-bl" />
-              <CornerOrnament className="corner-orn corner-br" />
             </span>
             <span className="text-sm text-neutral-500"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>
           </div>
