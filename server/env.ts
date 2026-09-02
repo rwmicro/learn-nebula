@@ -2,12 +2,13 @@
 // image runs anywhere. Nothing here is secret at import time; secrets are read
 // lazily where used.
 
+import "./load-env.ts"; // load a local .env first (imported before we read process.env)
 import path from "node:path";
 
 const cwd = process.cwd();
 
 export const env = {
-  port: Number(process.env.PORT || 8080),
+  port: Number(process.env.PORT || 8085),
   // Static export served at "/". Built in CI, copied into the image.
   staticDir: process.env.STATIC_DIR || path.join(cwd, "out"),
 
