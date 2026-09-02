@@ -21,9 +21,10 @@ const SCRIPTS = [
   "sticky-header",
   "mermaid-render",
   "comments",
-  "ask",
   "youtube",
 ];
+// Note: "ask" (the old floating note assistant) was removed — the note "AI"
+// button now opens the single, draggable <PinnedAssistant> mounted site-wide.
 
 await build({
   // Synthetic entry that side-effect-imports each enhancer in order.
