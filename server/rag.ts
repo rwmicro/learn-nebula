@@ -50,7 +50,10 @@ function normalize(v: number[]): Float32Array {
   return out;
 }
 
-/** Kick off index construction in the background. Safe to call once at startup. */
+/** Kick off index construction in the background. Safe to call once at startup.
+ *  Retries with backoff so a slow-starting embeddings service (e.g. the TEI
+ *  container still downloading its model on first `docker compose up`) doesn't
+ *  leave retrieval permanently disabled — it comes up on its own once ready. */
 export function initRag(): void {
   if (!env.embedBaseUrl) {
     state = "disabled";
@@ -58,10 +61,20 @@ export function initRag(): void {
     return;
   }
   state = "loading";
-  build().catch((e) => {
-    state = "error";
-    console.error("rag: index build failed —", e instanceof Error ? e.message : e);
-  });
+  let attempt = 0;
+  const run = () => {
+    build().catch((e) => {
+      attempt++;
+      const wait = Math.min(60_000, 5_000 * attempt); // 5s, 10s, … capped at 60s
+      state = "loading";
+      console.warn(
+        `rag: index build failed (attempt ${attempt}) — ${e instanceof Error ? e.message : e}; retrying in ${wait / 1000}s (is ${env.embedBaseUrl} up?)`,
+      );
+      const t = setTimeout(run, wait);
+      if (typeof t.unref === "function") t.unref();
+    });
+  };
+  run();
 }
 
 async function build() {

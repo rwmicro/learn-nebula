@@ -60,7 +60,7 @@ server. Runtime secrets are **not** baked in — pass them at run time.
 ```bash
 cp .env.example .env          # fill in the vars you need (see below)
 docker compose pull
-docker compose up -d          # serves the site on :8080
+docker compose up -d          # serves the site on :8085
 ```
 
 The image is private on GHCR, so `docker login ghcr.io -u <user>` first (with a

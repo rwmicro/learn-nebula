@@ -23,7 +23,7 @@ RUN pnpm install --prod --frozen-lockfile
 FROM node:22-bookworm-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production \
-    PORT=8080 \
+    PORT=8085 \
     STATIC_DIR=/app/out \
     DB_PATH=/data/comments.db \
     RAG_CHUNKS=/app/data/rag-chunks.json \
@@ -50,10 +50,10 @@ VOLUME ["/data"]
 # Drop privileges: the server only ever reads /app and writes /data.
 USER node
 
-EXPOSE 8080
+EXPOSE 8085
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8080)+'/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8085)+'/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 # tsx runs the TypeScript server directly — no compile step, and Shiki's WASM +
 # the native SQLite binding load cleanly under plain Node.

@@ -39,26 +39,22 @@ services:
       # ANTHROPIC_API_KEY comes from .env. Leave LLM_BASE_URL unset so generation
       # goes to Anthropic, not a local chat model.
     depends_on:
-      tei:
-        condition: service_healthy
+      - tei # ordering only; the RAG build retries until TEI is ready
     volumes:
       - gk-data:/data
 
   tei:
-    # Dedicated embeddings server. CPU image by default; for a GPU host use the
-    # CUDA image (e.g. ghcr.io/huggingface/text-embeddings-inference:1.7) plus a
+    # Dedicated embeddings server. CPU image (tag format is cpu-<version>); for a
+    # GPU host use the CUDA image (e.g. text-embeddings-inference:1.6) plus a
     # `deploy.resources.reservations.devices` GPU reservation.
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-latest
+    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
     command: ["--model-id", "BAAI/bge-m3", "--auto-truncate"]
     restart: unless-stopped
     volumes:
       - tei-data:/data # HuggingFace model cache
-    healthcheck:
-      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/80"]
-      interval: 15s
-      timeout: 5s
-      retries: 20
-      start_period: 120s # first run downloads bge-m3 (~2 GB)
+    # No container healthcheck: the TEI image ships no shell/curl to run one, so
+    # web doesn't gate on it — it starts alongside TEI and the RAG index build
+    # retries on its own until TEI has finished downloading bge-m3 (~2 GB).
 
 volumes:
   gk-data:

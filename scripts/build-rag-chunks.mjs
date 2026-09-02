@@ -15,7 +15,7 @@ import * as TOML from "smol-toml";
 
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 const OUT = path.join(process.cwd(), "data", "rag-chunks.json");
-const IGNORE_DIRS = new Set(["sources", ".obsidian", ".trash"]);
+const IGNORE_DIRS = new Set(["sources", ".obsidian", ".trash", 'audio']);
 const INDEX_NOTE = "Garden of Knowledge";
 const CHUNK_CHARS = 900;
 const INCLUDE_DRAFTS = process.env.INCLUDE_DRAFTS === "true";
