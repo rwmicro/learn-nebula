@@ -6,7 +6,7 @@
 import { Hono } from "hono";
 import { stream } from "hono/streaming";
 import { env, canGenerate } from "../env.ts";
-import { Cooldown, InFlight } from "../ratelimit.ts";
+import { Cooldown, InFlight, Quota } from "../ratelimit.ts";
 import { getIp, ndLine } from "../http.ts";
 import { search } from "../rag.ts";
 import { anthropicDeltas, chatConfig, openaiChatDeltas } from "../llm.ts";
@@ -39,6 +39,7 @@ function buildSystem(): string {
 }
 
 const cooldown = new Cooldown(3);
+const quota = new Quota(env.askHourly, 3_600_000);
 const inflight = new InFlight();
 
 export const askRoute = new Hono();
@@ -65,6 +66,9 @@ askRoute.post("/", async (c) => {
   const ip = getIp(c);
   if (ip !== "anon" && cooldown.limited(`ask:${ip}`)) {
     return c.json({ error: "Trop de requêtes — réessaie dans un instant." }, 429);
+  }
+  if (env.askHourly > 0 && ip !== "anon" && quota.exceeded(`ask:${ip}`)) {
+    return c.json({ error: "Limite horaire atteinte — réessaie plus tard." }, 429);
   }
   if (inflight.has(ip)) {
     return c.json({ error: "Une requête est déjà en cours." }, 429);

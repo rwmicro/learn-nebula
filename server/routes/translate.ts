@@ -8,7 +8,7 @@ import { Hono } from "hono";
 import { renderMarkdown } from "../../lib/markdown.ts";
 import { env, canGenerate } from "../env.ts";
 import { getIp } from "../http.ts";
-import { Cooldown, InFlight } from "../ratelimit.ts";
+import { Cooldown, InFlight, Quota } from "../ratelimit.ts";
 import { anthropicClient, chatConfig, openaiChatText } from "../llm.ts";
 import type Anthropic from "@anthropic-ai/sdk";
 
@@ -46,6 +46,7 @@ const fingerprint = (s: string) =>
   crypto.createHash("sha256").update(s).digest("hex").slice(0, 16);
 
 const cooldown = new Cooldown(5);
+const quota = new Quota(env.translateHourly, 3_600_000);
 const inflight = new InFlight();
 
 export const translateRoute = new Hono();
@@ -74,6 +75,9 @@ translateRoute.post("/", async (c) => {
   const ip = getIp(c);
   if (ip !== "anon" && cooldown.limited(`translate:${ip}`)) {
     return c.json({ error: "Trop de requêtes — réessaie dans un instant." }, 429);
+  }
+  if (env.translateHourly > 0 && ip !== "anon" && quota.exceeded(`translate:${ip}`)) {
+    return c.json({ error: "Limite horaire de traduction atteinte — réessaie plus tard." }, 429);
   }
   const key = `${ip}:${fingerprint(markdown)}:${targetLang}`;
   if (inflight.has(key)) return c.json({ error: "Traduction déjà en cours." }, 429);
