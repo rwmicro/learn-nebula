@@ -97,11 +97,15 @@ export async function openaiEmbed(
   input: string[],
   signal?: AbortSignal,
 ): Promise<number[][]> {
+  // Cap the wait: a hung embeddings endpoint would otherwise stall /api/ask
+  // forever (retrieval is awaited before the answer starts streaming), which
+  // looks like "the response never arrives". A timeout surfaces it as an error.
+  const timeout = AbortSignal.timeout(45_000);
   const res = await fetch(`${baseUrl.replace(/\/+$/, "")}/embeddings`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ model, input }),
-    signal,
+    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
   });
   if (!res.ok) {
     // Surface the server's reason (LM Studio/Ollama return a JSON/text body,
