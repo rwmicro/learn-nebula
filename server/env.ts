@@ -41,6 +41,11 @@ export const env = {
 
   // Trust X-Forwarded-For (set true only behind a reverse proxy you control).
   trustProxy: process.env.TRUST_PROXY !== "false",
+
+  // Hard per-IP hourly caps on the paid LLM endpoints (cost guard, on top of the
+  // short cooldown). 0 disables the cap. Per-instance, in-memory, IP-keyed.
+  askHourly: Number(process.env.ASK_HOURLY_LIMIT ?? 40),
+  translateHourly: Number(process.env.TRANSLATE_HOURLY_LIMIT ?? 20),
 };
 
 /** Whether any generation backend is configured. */

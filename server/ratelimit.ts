@@ -26,6 +26,42 @@ export class Cooldown {
   }
 }
 
+/** Per-key rolling quota: a hard cap of `max` requests within `windowMs`. This
+ *  is the cost guard on top of the short Cooldown — a determined caller can't
+ *  just wait out the cooldown to run up the LLM bill. In-memory and per-instance
+ *  (per container) and keyed by IP, so it's best-effort, not a global ledger. */
+export class Quota {
+  private hits = new Map<string, number[]>();
+  private readonly max: number;
+  private readonly windowMs: number;
+  constructor(max: number, windowMs: number) {
+    this.max = max;
+    this.windowMs = windowMs;
+    const t = setInterval(() => this.sweep(), windowMs);
+    if (typeof t.unref === "function") t.unref();
+  }
+  /** True if the key is at/over its quota (reject); otherwise records the hit. */
+  exceeded(key: string): boolean {
+    const now = Date.now();
+    const recent = (this.hits.get(key) ?? []).filter((t) => now - t < this.windowMs);
+    if (recent.length >= this.max) {
+      this.hits.set(key, recent);
+      return true;
+    }
+    recent.push(now);
+    this.hits.set(key, recent);
+    return false;
+  }
+  private sweep() {
+    const now = Date.now();
+    for (const [k, arr] of this.hits) {
+      const kept = arr.filter((t) => now - t < this.windowMs);
+      if (kept.length) this.hits.set(k, kept);
+      else this.hits.delete(k);
+    }
+  }
+}
+
 /** Refuses a second concurrent request for the same key until the first frees it. */
 export class InFlight {
   private set = new Set<string>();
