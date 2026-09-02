@@ -28,32 +28,17 @@ export default function Header({ doc }: { doc: Doc }) {
 
   return (
     <header className="relative mx-auto max-w-300 px-4 text-black @container">
-      {/* Mobile-only hamburger (#13): on phones the masthead keeps only the
-          wordmark; the language editions and the section nav collapse behind
-          this toggle. CSS-only (a visually-hidden peer checkbox) so it works in
-          the static export with no JS; peer-focus-visible surfaces a focus ring
-          on the label since the real control is the sr-only checkbox. */}
+      {/* Peer checkbox drives the mobile section-nav dropdown (#6). CSS-only, so
+          it works in the static export with no JS. */}
       <input
         id="gk-menu"
         type="checkbox"
         className="peer sr-only"
         aria-label={t("nav.menu")}
       />
-      <label
-        htmlFor="gk-menu"
-        className="absolute right-2 top-3 z-20 inline-flex cursor-pointer items-center justify-center rounded-[3px] p-1.5 text-black peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-black peer-checked:[&_.gk-ic-open]:hidden peer-checked:[&_.gk-ic-close]:block sm:hidden"
-      >
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
-          <path d="M4 7h16M4 12h16M4 17h16" />
-        </svg>
-        <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-close hidden">
-          <path d="M6 6l12 12M18 6l-12 12" />
-        </svg>
-      </label>
 
-      {/* 1. utility bar: language "editions" — hidden on mobile until the
-          hamburger is toggled, always shown from sm up. */}
-      <div className="hidden py-2 text-center peer-checked:block sm:block">
+      {/* 1. utility bar: language "editions" — always visible, mobile included. */}
+      <div className="py-2 text-center">
         <LangSwitcher />
       </div>
 
@@ -80,29 +65,47 @@ export default function Header({ doc }: { doc: Doc }) {
             </h1>
           </a>
       </div>
-      <div className="border-t-[1.5px] border-black" />
-      <div className="mt-0.5 border-t-[1.5px] border-black" />
-      
-      {/* 3. section nav between a hairline and a thick double rule — also folded
-          into the mobile hamburger (#13). */}
-      <nav aria-label={t("home.footerNavAria")} className="hidden peer-checked:block sm:block">
-        <ul className="m-0 flex list-none flex-wrap justify-center gap-x-7 gap-y-1 px-0 py-2 text-small font-semibold uppercase tracking-[0.08em] border-b border-neutral-200">
+      {/* Double rule under the masthead — desktop only (#6: dropped on phones). */}
+      <div className="max-sm:hidden border-t-[1.5px] border-black" />
+      <div className="max-sm:hidden mt-0.5 border-t-[1.5px] border-black" />
+
+      {/* Mobile hamburger (#6): opens the section-nav dropdown; the language bar
+          above stays visible. Icon-toggle + focus ring sit on this div (a direct
+          sibling of the peer checkbox) so peer-checked/peer-focus-visible apply. */}
+      <div className="flex justify-center py-1 sm:hidden peer-checked:[&_.gk-ic-open]:hidden peer-checked:[&_.gk-ic-close]:block peer-focus-visible:[&_label]:outline peer-focus-visible:[&_label]:outline-2 peer-focus-visible:[&_label]:outline-offset-2 peer-focus-visible:[&_label]:outline-black">
+        <label
+          htmlFor="gk-menu"
+          className="inline-flex cursor-pointer items-center gap-1.5 rounded-[3px] border border-neutral-300 px-3 py-1.5 text-meta font-semibold uppercase tracking-[0.08em] text-black"
+        >
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-close hidden">
+            <path d="M6 6l12 12M18 6l-12 12" />
+          </svg>
+          <span>{t("nav.menu")}</span>
+        </label>
+      </div>
+
+      {/* 3. section nav — horizontal bar on desktop; a centred dropdown popover
+          on mobile, revealed by the hamburger (#6). */}
+      <nav
+        aria-label={t("home.footerNavAria")}
+        className="relative hidden peer-checked:block sm:block"
+      >
+        <ul className="absolute left-1/2 top-1 z-30 m-0 flex w-max -translate-x-1/2 list-none flex-col items-center gap-2.5 rounded-[4px] border border-neutral-300 bg-white px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:translate-x-0 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-x-7 sm:gap-y-1 sm:border-0 sm:border-b sm:border-neutral-200 sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none">
           <li className="m-0">
             <a href="/#applied-sciences" className={navLink} data-i18n="nav.appliedsciences">
               {t("nav.appliedsciences")}
             </a>
           </li>
-          <li className="m-0">
-           ·
-          </li>
+          <li className="m-0 hidden sm:block">·</li>
           <li className="m-0">
             <a href="/#social-sciences" className={navLink} data-i18n="nav.socialsciences">
               {t("nav.socialsciences")}
             </a>
           </li>
-                    <li className="m-0">
-           ·
-          </li>
+          <li className="m-0 hidden sm:block">·</li>
           <li className="m-0">
             <a href="/graph/" className={navLink} data-i18n="nav.graph">
               {t("nav.graph")}
@@ -110,7 +113,6 @@ export default function Header({ doc }: { doc: Doc }) {
           </li>
         </ul>
       </nav>
-
     </header>
   );
 }
