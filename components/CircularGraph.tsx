@@ -148,7 +148,7 @@ export function CircularGraph({
   // little zoomed in on the centre (arriving from the home mini-map); the
   // preview fits the whole folder ring in its box.
   useEffect(() => {
-    setZoom(preview ? fitZoom : fitZoom * 2.2);
+    setZoom(preview ? fitZoom : fitZoom * 2.8);
     setPan({ x: 0, y: 0 });
   }, [fitZoom, preview]);
 
