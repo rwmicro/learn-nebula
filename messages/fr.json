@@ -137,7 +137,8 @@
     "askAria": "Votre question pour le jardin",
     "footerNavAria": "Navigation du pied de page",
     "copyright": "Copyright 2026 · The Gardener · sous licence Creative Commons (CC BY-NC-SA), code source sous GNU GPL.",
-    "inContent": "Dans le contenu"
+    "inContent": "Dans le contenu",
+    "excerpt": "extrait"
   },
   "graph": {
     "back": "Retour au jardin",
