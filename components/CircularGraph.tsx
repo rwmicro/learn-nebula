@@ -204,25 +204,34 @@ export function CircularGraph({
 
   // Radial labels for EVERY sub-folder and file (classic dendrogram treatment:
   // text runs along the spoke, flipped on the left half so it always reads
-  // outward). Rendered inside the rotating group so spinning the roulette never
-  // re-renders the ~1300 labels. To stay legible, folder names show at every
-  // zoom while file names only appear once zoomed in (CSS, driven by the svg's
-  // data-zoomed flag) — otherwise the rim is an illegible pile of text.
-  const radialLabelsEl = useMemo(
+  // outward). Kept OUTSIDE the rotating group and positioned at (angle + rot) so
+  // the flip is recomputed for the label's CURRENT position — otherwise text
+  // ends up upside-down once the ring is spun past ~90°. Each label carries the
+  // same data-* as its node so clicking the text opens the note (or spins the
+  // folder) just like clicking the dot. File names only show once zoomed in
+  // (CSS, via the svg's data-zoomed flag) — else the rim is an illegible pile.
+  const labelsLayer = useMemo(
     () => (
       <g className="cg-labels">
         {layout.nodes.map((p) => {
           if (p.node.kind === "root") return null;
-          const deg = (p.angle * 180) / Math.PI - 90;
-          const flip = p.angle >= Math.PI;
+          const a = ((p.angle + rot) % TAU + TAU) % TAU;
+          const deg = (a * 180) / Math.PI - 90;
+          const flip = a >= Math.PI;
           const isDir = p.node.kind === "dir";
           return (
             <text
               key={p.id}
               className={isDir ? "cg-dlabel" : "cg-flabel"}
+              data-node
+              data-kind={p.node.kind}
+              data-href={p.node.href ?? ""}
+              data-angle={p.angle}
+              data-label={p.node.label}
               transform={`rotate(${deg.toFixed(2)}) translate(${(p.radius + 5).toFixed(1)},0)${flip ? " rotate(180)" : ""}`}
               textAnchor={flip ? "end" : "start"}
               dominantBaseline="central"
+              style={p.node.href ? { cursor: "pointer" } : undefined}
             >
               {p.node.label}
             </text>
@@ -230,7 +239,7 @@ export function CircularGraph({
         })}
       </g>
     ),
-    [layout.nodes],
+    [layout.nodes, rot],
   );
 
   // --- interaction ---------------------------------------------------------
@@ -313,8 +322,10 @@ export function CircularGraph({
           <g transform={`rotate(${(rot * 180) / Math.PI})`}>
             {linksEl}
             {circlesEl}
-            {!preview && radialLabelsEl}
           </g>
+          {/* Labels live outside the rotating group so their flip tracks the
+              current (rotated) position instead of going upside-down. */}
+          {!preview && labelsLayer}
           {!preview && (
             <text className="cg-label-root" y="26" textAnchor="middle">
               {rootLabel}
