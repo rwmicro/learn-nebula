@@ -64,7 +64,7 @@
     "next": "^16.3.3",
     "oxlint": "^1.81.0",
     "pagefind": "^1.5.2",
-    "postcss": "^8.5.15",
+    "postcss": "^8.5.23",
     "prettier": "^3.8.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
