@@ -102,8 +102,11 @@
   stroke: #fcfcfc;
   stroke-width: 2.5px;
   stroke-linejoin: round;
-  pointer-events: none;
   user-select: none;
+}
+/* Clicking a label opens the note / spins the folder, like clicking the dot. */
+.cg-labels text:hover {
+  fill: #003366;
 }
 .cg-dlabel {
   font-size: 9px;
