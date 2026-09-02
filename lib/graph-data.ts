@@ -1,4 +1,5 @@
 import { getPostTree, getWikiLinkEdges, type TreeNode } from "./content";
+import { folderAnchor } from "./slug";
 
 export type GraphKind = "root" | "dir" | "note" | "asset";
 
@@ -73,6 +74,9 @@ export function buildGraph(opts: { foldersOnly?: boolean } = {}): GraphData {
           id,
           label: node.name,
           kind: "dir",
+          // Clicking a folder opens its note list on the home browse tree —
+          // same target as the note-page breadcrumb (/#<folderAnchor>).
+          href: `/#${folderAnchor(path)}`,
           group: parentPath || node.name,
           theme: nodeTheme,
           depth,
