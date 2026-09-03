@@ -95,7 +95,9 @@
     "submit": "发送",
     "selButton": "询问 AI",
     "searching": "正在检索笔记…",
-    "placeholderEmpty": "就花园的笔记提问。"
+    "placeholderEmpty": "就花园的笔记提问。",
+    "scopeLabel": "搜索范围：",
+    "scopeAll": "全部笔记"
   },
   "lang": {
     "switcherAria": "切换界面语言",

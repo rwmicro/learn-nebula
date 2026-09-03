@@ -89,7 +89,6 @@ const IGNORE_DIRS = new Set([
   ".trash",
   "audio", // per-word pronunciation clips (thousands of ![word](audio/*.mp3))
   "_manim", // obsidian-manim render cache (_manim/*.mp4)
-  "audio"
 ]);
 // The note used as the site index (rendered on the home page, not as a post).
 export const INDEX_NOTE = "Garden of Knowledge";
@@ -304,6 +303,66 @@ export function getLangs(): LangGroup[] {
       notes: notes.sort((a, b) => a.title.localeCompare(b.title)),
     }))
     .sort((a, b) => a.name.localeCompare(b.name, "fr", { numeric: true }));
+}
+
+export interface ScopeOption {
+  /** Slug path under /posts/, e.g. "social-sciences/languages-dialects/kabyle". */
+  slug: string;
+  /** Folder name as it stands in the vault, e.g. "Kabyle". */
+  label: string;
+}
+
+// Vault folder holding one sub-folder per studied language.
+const LANGUAGES_DIR = "Languages - Dialects";
+
+/** First directory named `name` within `depth` levels, as a path relative to
+ *  content/posts (forward slashes), or null. */
+function findDir(name: string, dir = POSTS_DIR, base = "", depth = 2): string | null {
+  if (!fs.existsSync(dir)) return null;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (!entry.isDirectory() || IGNORE_DIRS.has(entry.name)) continue;
+    const rel = base ? `${base}/${entry.name}` : entry.name;
+    if (entry.name === name) return rel;
+    if (depth > 1) {
+      const found = findDir(name, path.join(dir, entry.name), rel, depth - 1);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function hasNotes(dir: string): boolean {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (!IGNORE_DIRS.has(entry.name) && hasNotes(path.join(dir, entry.name))) return true;
+    } else if (entry.name.endsWith(".md")) return true;
+  }
+  return false;
+}
+
+let languageScopesCache: ScopeOption[] | null = null;
+
+/** The studied-language folders, for the assistant's retrieval scope selector.
+ *  Unscoped retrieval is a cosine search over the WHOLE vault, so a question
+ *  like "comment se forme la négation ?" happily mixes Hindi and Kabyle chunks
+ *  in one answer. That hurts most for the rare languages these notes are the
+ *  only trustworthy source on, hence the per-language scope. Empty when the
+ *  vault has no such folder (e.g. a partial checkout) — the UI then hides it. */
+export function getLanguageScopes(): ScopeOption[] {
+  if (languageScopesCache) return languageScopesCache;
+  const rel = findDir(LANGUAGES_DIR);
+  const out: ScopeOption[] = [];
+  if (rel) {
+    const abs = path.join(POSTS_DIR, rel);
+    for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {
+      if (!entry.isDirectory() || IGNORE_DIRS.has(entry.name)) continue;
+      if (!hasNotes(path.join(abs, entry.name))) continue;
+      out.push({ slug: slugifyPath(`${rel}/${entry.name}`), label: entry.name });
+    }
+    out.sort((a, b) => a.label.localeCompare(b.label, "fr", { numeric: true }));
+  }
+  languageScopesCache = out;
+  return out;
 }
 
 export interface TreeFile {

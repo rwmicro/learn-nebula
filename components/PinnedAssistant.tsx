@@ -19,10 +19,13 @@ import {
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { readAskStream, type AskSource } from "@/lib/ask-stream";
+// Type-only: erased at build, so lib/content.ts (node:fs) never reaches the bundle.
+import type { ScopeOption } from "@/lib/content";
 
 const KEY = "gkChatPinned";
 const POS_KEY = "gkChatPos";
 const SIZE_KEY = "gkChatSize";
+const SCOPE_KEY = "gkChatScope";
 
 const SPROUT = (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -33,7 +36,7 @@ const SPROUT = (
   </svg>
 );
 
-export function PinnedAssistant() {
+export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const locale = useLocale();
   const tr = (k: string) => t(k, undefined, locale);
   const [pinned, setPinned] = useState(false);
@@ -49,6 +52,8 @@ export function PinnedAssistant() {
   const [asked, setAsked] = useState(false);
   const [busy, setBusy] = useState(false);
   const [selection, setSelection] = useState("");
+  // Retrieval scope: "" = the whole garden, else a language folder slug.
+  const [scope, setScope] = useState("");
   const [candidate, setCandidate] = useState<{ text: string; x: number; y: number } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const panelRef = useRef<HTMLElement>(null);
@@ -89,6 +94,29 @@ export function PinnedAssistant() {
     return () => window.removeEventListener("gk:pin-chat", onPin);
   }, []);
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  // Pick the retrieval scope: the language folder of the note being read wins
+  // (asking "comment se forme la négation ?" inside a Kabyle note should search
+  // Kabyle, not all 18 languages), otherwise the last explicit choice.
+  useEffect(() => {
+    let stored = "";
+    try {
+      stored = localStorage.getItem(SCOPE_KEY) ?? "";
+    } catch {
+      /* localStorage unavailable */
+    }
+    const here = scopes.find((s) => location.pathname.startsWith(`/posts/${s.slug}/`));
+    setScope(here ? here.slug : scopes.some((s) => s.slug === stored) ? stored : "");
+  }, [scopes]);
+
+  function chooseScope(value: string) {
+    setScope(value);
+    try {
+      localStorage.setItem(SCOPE_KEY, value);
+    } catch {
+      /* ignore */
+    }
+  }
 
   // --- "ask about a selection" (notes) -------------------------------------
   useEffect(() => {
@@ -205,7 +233,12 @@ export function PinnedAssistant() {
       resp = await fetch("/api/ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question: text, selection: selection || undefined, locale }),
+        body: JSON.stringify({
+          question: text,
+          selection: selection || undefined,
+          locale,
+          scope: scope || undefined,
+        }),
         signal: ctrl.signal,
       });
     } catch (e) {
@@ -339,6 +372,27 @@ export function PinnedAssistant() {
             </ul>
           )}
         </div>
+
+        {/* Retrieval scope. Sits just above the input: it qualifies the question
+            you're about to ask, and keeps a query about one language from
+            retrieving chunks of the seventeen others. */}
+        {scopes.length > 0 && (
+          <div className="gk-pinned-scope">
+            <label htmlFor="gk-chat-scope">{tr("askAi.scopeLabel")}</label>
+            <select
+              id="gk-chat-scope"
+              value={scope}
+              onChange={(e) => chooseScope(e.target.value)}
+            >
+              <option value="">{tr("askAi.scopeAll")}</option>
+              {scopes.map((s) => (
+                <option key={s.slug} value={s.slug}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
 
         <form
           className="gk-pinned-form"

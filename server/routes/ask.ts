@@ -8,7 +8,7 @@ import { stream } from "hono/streaming";
 import { env, canGenerate } from "../env.ts";
 import { Cooldown, InFlight, Quota } from "../ratelimit.ts";
 import { getIp, ndLine } from "../http.ts";
-import { search } from "../rag.ts";
+import { search, scopePrefix } from "../rag.ts";
 import { anthropicDeltas, chatConfig, openaiChatDeltas } from "../llm.ts";
 
 const TOP_K = 5;
@@ -25,11 +25,24 @@ const DEFAULT_Q: Record<string, string> = {
   zh: "解释这段内容。",
 };
 
-function buildSystem(): string {
+/** Human label for a scope slug, for the prompt. The slug charset is validated
+ *  by scopePrefix(), so this can't smuggle instructions into the system prompt. */
+function scopeName(prefix: string): string {
+  const seg = prefix.replace(/^\/posts\/|\/$/g, "").split("/").pop() ?? "";
+  return seg.replace(/-/g, " ");
+}
+
+function buildSystem(scope: string): string {
   return [
     "Tu es l'assistant de « The Gardener », un jardin de notes personnel.",
     "Règles :",
     "- Réponds UNIQUEMENT à partir des extraits de notes fournis dans le message de l'utilisateur.",
+    ...(scope
+      ? [
+          `- La recherche est restreinte aux notes du dossier « ${scopeName(scope)} » : n'utilise rien d'autre, et si ces notes ne contiennent pas la réponse, dis-le plutôt que de puiser dans tes connaissances générales (elles sont peu fiables sur les langues rares).`,
+          "- Cite les formes de la langue étudiée telles qu'elles apparaissent dans les notes (graphie, translittération, exemples), sans les corriger ni les compléter de toi-même.",
+        ]
+      : []),
     "- Si un « passage sélectionné » est fourni, c'est l'extrait que l'utilisateur veut comprendre : appuie-toi dessus en priorité.",
     "- Si la réponse n'y figure pas, dis-le clairement (« Je ne trouve pas cela dans les notes ») — n'invente rien et n'utilise pas de connaissances générales extérieures aux notes.",
     "- Quand c'est utile, cite le titre des notes que tu utilises.",
@@ -49,7 +62,7 @@ askRoute.post("/", async (c) => {
     return c.json({ error: "Assistant non configuré (aucun backend LLM)." }, 503);
   }
 
-  let payload: { question?: string; selection?: string; locale?: string };
+  let payload: { question?: string; selection?: string; locale?: string; scope?: string };
   try {
     payload = await c.req.json();
   } catch {
@@ -76,11 +89,14 @@ askRoute.post("/", async (c) => {
   inflight.add(ip);
 
   // Retrieval (skipped/empty when EMBED_BASE_URL is unset or not ready yet).
+  // `scope` narrows it to one folder — the language picker in the assistant —
+  // so a query doesn't pull chunks from 18 other languages at once.
+  const prefix = scopePrefix(payload.scope);
   const sources: { title: string; url: string }[] = [];
   let context = "";
   try {
     const queryText = selection ? `${question}\n${selection}` : question;
-    const hits = await search(queryText, TOP_K, MIN_SCORE);
+    const hits = await search(queryText, TOP_K, MIN_SCORE, prefix);
     const seen = new Set<string>();
     const blocks: string[] = [];
     for (const h of hits) {
@@ -104,10 +120,13 @@ askRoute.post("/", async (c) => {
     .filter(Boolean)
     .join("\n\n");
 
-  const system = buildSystem();
+  const system = buildSystem(prefix);
+  const noHits = prefix
+    ? `(Aucune note pertinente dans « ${scopeName(prefix)} » pour cette question.)`
+    : "(Aucune note pertinente n'a été trouvée pour cette question.)";
   const userContent = noteContext
     ? `${noteContext}\n\n---\nQuestion : ${question}`
-    : `(Aucune note pertinente n'a été trouvée pour cette question.)\n\nQuestion : ${question}`;
+    : `${noHits}\n\nQuestion : ${question}`;
 
   const ac = new AbortController();
   const llm = chatConfig(env.llmBaseUrl, env.llmModel);

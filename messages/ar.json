@@ -95,7 +95,9 @@
     "submit": "إرسال",
     "selButton": "اسأل الذكاء الاصطناعي",
     "searching": "جارٍ البحث في الملاحظات…",
-    "placeholderEmpty": "اطرح سؤالاً حول ملاحظات الحديقة."
+    "placeholderEmpty": "اطرح سؤالاً حول ملاحظات الحديقة.",
+    "scopeLabel": "ابحث في:",
+    "scopeAll": "كل الملاحظات"
   },
   "lang": {
     "switcherAria": "تغيير لغة الواجهة",

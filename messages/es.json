@@ -95,7 +95,9 @@
     "submit": "enviar",
     "selButton": "Preguntar a la IA",
     "searching": "Buscando en las notas…",
-    "placeholderEmpty": "Haz una pregunta sobre las notas del jardín."
+    "placeholderEmpty": "Haz una pregunta sobre las notas del jardín.",
+    "scopeLabel": "Buscar en:",
+    "scopeAll": "Todas las notas"
   },
   "lang": {
     "switcherAria": "Cambiar el idioma de la interfaz",

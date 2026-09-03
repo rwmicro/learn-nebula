@@ -95,7 +95,9 @@
     "submit": "send",
     "selButton": "Ask the AI",
     "searching": "Searching the notes…",
-    "placeholderEmpty": "Ask a question about the garden’s notes."
+    "placeholderEmpty": "Ask a question about the garden’s notes.",
+    "scopeLabel": "Search in:",
+    "scopeAll": "All notes"
   },
   "lang": {
     "switcherAria": "Change interface language",

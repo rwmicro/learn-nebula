@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, buildCSP } from "@/lib/site";
 import { DEFAULT_LOCALE, LOCALES, getMessages, t } from "@/lib/i18n";
+import { getLanguageScopes } from "@/lib/content";
 import { Footer } from "@/components/Footer";
 import { PinnedAssistant } from "@/components/PinnedAssistant";
 import "../assets/css/fonts.css";
@@ -82,8 +83,9 @@ export default function RootLayout({
         {children}
         <Footer />
         {/* Pinnable "Ask the garden" — hidden until pinned from the home chat,
-            then docked bottom-right on every page (persists via localStorage). */}
-        <PinnedAssistant />
+            then docked bottom-right on every page (persists via localStorage).
+            The language folders feed its retrieval-scope picker (read at build). */}
+        <PinnedAssistant scopes={getLanguageScopes()} />
         {/* Site-wide enhancers. Note-page-only behaviours (TOC, audio, comments,
             the floating assistant, …) load per-route via <NoteScripts /> so the
             home page no longer pulls scripts it doesn't use. */}
