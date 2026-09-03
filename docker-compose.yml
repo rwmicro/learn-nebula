@@ -16,9 +16,13 @@
 services:
   web:
     # Pull the CI-built image (multi-arch: amd64 + arm64). The GHCR package is
-    # private by default — authenticate once on the host:
-    #   echo $GHCR_PAT | docker login ghcr.io -u <github-user> --password-stdin
-    # (PAT with read:packages), or make the package public in its GitHub settings.
+    # private by default, and an anonymous pull then fails with a misleading
+    # "unauthorized" (GHCR never says "not found") — authenticate once per host:
+    #   gh auth refresh -h github.com -s read:packages
+    #   gh auth token | docker login ghcr.io -u <github-user> --password-stdin
+    # (or a PAT with read:packages instead of the gh token), or make the package
+    # public in its GitHub settings — the image bakes in no secrets, only out/,
+    # server/ and the chunks of the already-public vault.
     image: ghcr.io/rwmicro/learn-nebula:latest
     # …or build locally instead (requires `pnpm build:docker` first):
     # build: .
