@@ -36,10 +36,9 @@ services:
       # --- Embeddings: the TEI service below (in-cluster, high throughput) ---
       EMBED_BASE_URL: "http://tei:80/v1"
       EMBED_MODEL: "BAAI/bge-m3"
-      # --- Generation + translation: Anthropic (best fit for grounded RAG Q&A;
-      #     swap to claude-opus-5 for max quality or claude-haiku-4-5 to save) ---
-      GEN_MODEL: "claude-sonnet-5"
-      TRANSLATE_MODEL: "claude-sonnet-5"
+      # --- Generation + translation: Anthropic, both on haiku (cheap/fast) ---
+      GEN_MODEL: "claude-haiku-4-5-20251001"
+      TRANSLATE_MODEL: "claude-haiku-4-5-20251001"
       # ANTHROPIC_API_KEY comes from .env. Leave LLM_BASE_URL unset so generation
       # goes to Anthropic, not a local chat model.
     depends_on:
@@ -69,8 +68,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "16"
-          memory: 16g
+          cpus: "4"
+          memory: 4g
 
 volumes:
   gk-data:

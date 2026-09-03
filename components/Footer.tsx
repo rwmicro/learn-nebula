@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer
       data-pagefind-ignore
-      className="mt-10 border-t border-[#ccc] pt-4 text-small leading-relaxed text-[#555] [container-type:inline-size]"
+      className="mt-10 border-t border-[#ccc] pt-4 pb-4 xl:pb-0 text-small leading-relaxed text-[#555] [container-type:inline-size]"
     >
       <div className="flex flex-col gap-3 min-[480px]:flex-row min-[480px]:items-start min-[480px]:gap-5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -32,7 +32,7 @@ export function Footer() {
             </a>
             , and the source code under the{" "}
             <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU GPL</a>.
-            Originally created by{" "}
+            Originally designed by{" "}
             <a href={ORIGINAL_AUTHOR_URL}>{ORIGINAL_AUTHOR}</a>.
           </p>
         </div>
