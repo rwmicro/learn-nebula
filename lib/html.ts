@@ -323,7 +323,7 @@ export function buildToc(html: string, tags?: unknown[]): string {
 export function commentsHtml(slug: string): string {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY ?? "";
   const turnstile = siteKey
-    ? `<div class="cf-turnstile" data-sitekey="${escapeHtml(siteKey)}" data-theme="light" data-size="flexible"></div>`
+    ? `<div class="cf-turnstile" data-sitekey="${escapeHtml(siteKey)}" data-theme="light" data-size="flexible" data-action="turnstile-spin-v1"></div>`
     : "";
   return (
     `<section class="comments" data-pagefind-ignore data-slug="${escapeHtml(slug)}">` +
