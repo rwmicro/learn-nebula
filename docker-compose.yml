@@ -59,6 +59,18 @@ services:
     # No container healthcheck: the TEI image ships no shell/curl to run one, so
     # web doesn't gate on it — it starts alongside TEI and the RAG index build
     # retries on its own until TEI has finished downloading bge-m3 (~2 GB).
+    #
+    # TEI defaults its tokenization workers to nproc and has no built-in memory
+    # cap, so on a host that's also your interactive desktop (not a dedicated
+    # server) the one-time index build pegs every core and can swap the machine
+    # into unresponsiveness. Cap it (adjust to your host — leave a few cores and
+    # a few GB free for everything else); the RAG index build just takes longer
+    # via web's own retry/backoff, it doesn't fail.
+    deploy:
+      resources:
+        limits:
+          cpus: "16"
+          memory: 16g
 
 volumes:
   gk-data:
