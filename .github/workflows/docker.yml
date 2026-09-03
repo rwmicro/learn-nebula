@@ -11,6 +11,14 @@ name: Docker image (GHCR)
 # Runtime secrets (ANTHROPIC_API_KEY / LLM_BASE_URL, EMBED_BASE_URL,
 # TURNSTILE_SECRET_KEY, COMMENTS_ADMIN_TOKEN, …) are NOT baked in — pass them at
 # `docker run` on your server (see .env.example).
+#
+# NEXT_PUBLIC_TURNSTILE_SITE_KEY is the one exception: it's a public Turnstile
+# *site* key (meant to ship in client HTML, unlike the secret key above), and
+# Next.js inlines NEXT_PUBLIC_* vars into the static export at build time, so
+# it can't be supplied at `docker run` like the others — it must be set here,
+# as the repo variable of the same name (Settings → Actions → Variables), not
+# a secret. Pairs with the runtime TURNSTILE_SECRET_KEY for comments to
+# auto-approve instead of queuing for manual moderation.
 
 on:
   workflow_run:
@@ -60,6 +68,7 @@ jobs:
       - name: Build static site + RAG chunks
         env:
           NOTES_REPO_TOKEN: ${{ secrets.NOTES_REPO_TOKEN }} # only if the vault is private
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
         run: pnpm build:docker
 
       # The multi-arch buildx (two image filesystems) + gha cache export needs
