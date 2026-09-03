@@ -25,8 +25,8 @@ export const env = {
   // Generation: Anthropic when a key is present, otherwise an OpenAI-compatible
   // chat endpoint (Ollama / llama.cpp / LM Studio).
   anthropicKey: process.env.ANTHROPIC_API_KEY || "",
-  genModel: process.env.GEN_MODEL || "claude-haiku-4-5",
-  translateModel: process.env.TRANSLATE_MODEL || "claude-sonnet-4-6",
+  genModel: process.env.GEN_MODEL || "claude-haiku-4-5-20251001",
+  translateModel: process.env.TRANSLATE_MODEL || "claude-haiku-4-5-20251001",
   llmBaseUrl: process.env.LLM_BASE_URL || "",
   llmModel: process.env.LLM_MODEL || "",
 
