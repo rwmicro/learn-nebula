@@ -47,10 +47,16 @@ services:
       - gk-data:/data
 
   tei:
-    # Dedicated embeddings server. CPU image (tag format is cpu-<version>); for a
-    # GPU host use the CUDA image (e.g. text-embeddings-inference:1.6) plus a
-    # `deploy.resources.reservations.devices` GPU reservation.
-    image: ghcr.io/huggingface/text-embeddings-inference:cpu-1.6
+    # Dedicated embeddings server. Unlike our own web image, HuggingFace ships
+    # NO combined multi-arch manifest for TEI's CPU build — amd64 and arm64 are
+    # two entirely separate tag families (cpu-<version> vs cpu-arm64-<version>),
+    # so one tag can't cover both. Default below is amd64; on an arm64 host
+    # (Raspberry Pi, AWS Graviton, Apple Silicon VM…) set in .env:
+    #   TEI_IMAGE=ghcr.io/huggingface/text-embeddings-inference:cpu-arm64-latest
+    # (no arm64 version-pinned tag exists yet, only `-latest`).
+    # For a GPU host use the CUDA image (e.g. text-embeddings-inference:1.6)
+    # plus a `deploy.resources.reservations.devices` GPU reservation instead.
+    image: ${TEI_IMAGE:-ghcr.io/huggingface/text-embeddings-inference:cpu-1.6}
     command: ["--model-id", "BAAI/bge-m3", "--auto-truncate"]
     restart: unless-stopped
     volumes:
