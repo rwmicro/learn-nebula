@@ -170,8 +170,28 @@ export interface RagHit {
   score: number;
 }
 
-/** Embed the query and return the top-K chunks above `minScore` (cosine). */
-export async function search(query: string, topK: number, minScore: number): Promise<RagHit[]> {
+// A scope slug is a slugified folder path (lib/content.ts slugifyPath), so it is
+// strictly [a-z0-9-] segments — which also makes it safe to echo into the LLM
+// prompt. Anything else is treated as "no scope" rather than rejected, so a
+// stale client can never break asking.
+const SCOPE_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/;
+
+/** Validate a folder scope slug and turn it into a chunk-URL prefix ("" = all). */
+export function scopePrefix(scope: unknown): string {
+  if (typeof scope !== "string") return "";
+  const s = scope.trim().replace(/^\/+|\/+$/g, "");
+  if (!s || s.length > 120 || !SCOPE_RE.test(s)) return "";
+  return `/posts/${s}/`;
+}
+
+/** Embed the query and return the top-K chunks above `minScore` (cosine),
+ *  restricted to chunks whose URL starts with `prefix` when one is given. */
+export async function search(
+  query: string,
+  topK: number,
+  minScore: number,
+  prefix = "",
+): Promise<RagHit[]> {
   if (state !== "ready" || !metas.length || !dim) return [];
   const [qv] = await openaiEmbed(env.embedBaseUrl, env.embedModel, [query.slice(0, 2000)]);
   const q = normalize(qv);
@@ -179,6 +199,7 @@ export async function search(query: string, topK: number, minScore: number): Pro
   const n = metas.length;
   const scored: { i: number; s: number }[] = [];
   for (let i = 0; i < n; i++) {
+    if (prefix && !metas[i].url.startsWith(prefix)) continue;
     let dot = 0;
     const off = i * dim;
     for (let d = 0; d < dim; d++) dot += matrix[off + d] * q[d];

@@ -300,6 +300,30 @@ body {
   font-size: 0.82rem;
   color: #555;
 }
+.gk-pinned-scope {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.35rem 0.8rem 0;
+  font-size: 0.82rem;
+  color: #787369;
+}
+.gk-pinned-scope select {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  border-bottom: 1px dotted #a8a49c;
+  background: transparent;
+  padding: 0.1rem 0;
+  font: inherit;
+  font-size: 0.86rem;
+  color: #1a1a1a;
+  cursor: pointer;
+  outline: none;
+}
+.gk-pinned-scope select:focus-visible {
+  border-bottom-color: var(--color-garden);
+}
 .gk-pinned-form {
   display: flex;
   align-items: center;

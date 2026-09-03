@@ -70,6 +70,13 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   (SQLite via better-sqlite3, Turnstile), `routes/translate.ts`. Config is
   centralised in `server/env.ts` (all `process.env`); everything degrades to
   "disabled" when its vars are unset.
+- **Retrieval scope**: `/api/ask` takes an optional `scope` — a slugified folder
+  path validated by `scopePrefix()` (`server/rag.ts`), which filters the cosine
+  search to chunks whose URL starts with `/posts/<scope>/`. It feeds the
+  assistant's language picker (`getLanguageScopes()` in `lib/content.ts` lists
+  the `Languages - Dialects` sub-folders at build), so a question about one
+  language stops retrieving chunks from the seventeen others. The slug charset
+  is what makes it safe to echo the folder name into the system prompt.
 
 ## Conventions that bite
 
