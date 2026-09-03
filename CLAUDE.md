@@ -111,6 +111,12 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
 - Runtime secrets are passed at `docker run` / compose (`.env.example`), never
   baked into the image. Comments + the RAG vector cache live on the `gk-data`
   volume (`/data`), so they survive rebuilds — don't drop that volume.
+- Our own image is multi-arch, but the `tei` embeddings service in
+  `docker-compose.yml` is NOT: HuggingFace ships amd64 and arm64 as two
+  separate tag families for TEI's CPU build (`cpu-<version>` vs
+  `cpu-arm64-<version>`, no combined manifest), so `tei`'s `image:` reads
+  `${TEI_IMAGE:-…cpu-1.6}` — override `TEI_IMAGE` in `.env` on an arm64 host
+  (see `.env.example`).
 - The tracked lockfile is **`pnpm-lock.yaml`** (what Docker/CI use). A stale,
   untracked npm `package-lock.json` may linger locally; it's unused — safe to delete.
 
