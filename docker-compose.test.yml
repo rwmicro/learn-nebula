@@ -1,0 +1,63 @@
+# Dev/test stack: builds the image locally instead of pulling from GHCR, and
+# uses LM Studio running on the HOST for generation instead of Anthropic.
+#
+# Setup:
+#   1. Start LM Studio, load a chat model, start its local server (default
+#      port 1234). Set LLM_MODEL below (or in .env) to that model's exact id
+#      (LM Studio shows it, e.g. "qwen/qwen3.5-9b").
+#   2. docker compose -f docker-compose.test.yml up -d --build
+#
+# TEI here uses the CUDA image (GPU) — requires the NVIDIA Container Toolkit
+# on the host (`nvidia-smi` working through Docker). For a CPU-only host, swap
+# the `tei.image` for the one in docker-compose.yml and drop `reservations`.
+
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    # `localhost` inside the container is the container itself, not this host —
+    # LM Studio (on the host) is only reachable via host.docker.internal, which
+    # needs this explicit gateway mapping on Linux (Docker Desktop adds it
+    # automatically; a plain Docker Engine host does not).
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
+    environment:
+      PORT: "8085"
+      # No reverse proxy in front of this dev stack — don't trust a
+      # (spoofable) X-Forwarded-For from whoever hits the port directly.
+      TRUST_PROXY: "false"
+      EMBED_BASE_URL: "http://tei:80/v1"
+      EMBED_MODEL: "BAAI/bge-m3"
+      # Generation: LM Studio on the host, not Anthropic — leave
+      # ANTHROPIC_API_KEY unset (or empty) in .env so this path is used.
+      LLM_BASE_URL: "http://host.docker.internal:1234/v1"
+      LLM_MODEL: "${LLM_MODEL:-qwen/qwen3.5-9b}"
+    depends_on:
+      - tei # ordering only; the RAG build retries until TEI is ready
+    volumes:
+      - gk-data:/data
+
+  tei:
+    image: ghcr.io/huggingface/text-embeddings-inference:cuda-latest
+    command: ["--model-id", "BAAI/bge-m3", "--auto-truncate"]
+    restart: unless-stopped
+    volumes:
+      - tei-data:/data # HuggingFace model cache
+    deploy:
+      resources:
+        limits:
+          cpus: "8"
+          memory: 8g
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+volumes:
+  gk-data:
+  tei-data:

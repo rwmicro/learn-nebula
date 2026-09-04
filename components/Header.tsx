@@ -45,7 +45,7 @@ export default function Header({ doc }: { doc: Doc }) {
       {/* 2. masthead: dateline · wordmark · tagline. On mobile the dateline is
           hidden, so collapse to a single centred column (otherwise the title
           lands in the empty left 1fr and reads off-centre). */}
-      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4 py-4">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-4 pt-4 md:py-4">
           <EditionDate
             iso={editionIso}
             // pr-4 keeps a gutter between the (left-aligned, wrapping) dateline
@@ -65,29 +65,6 @@ export default function Header({ doc }: { doc: Doc }) {
             </h1>
           </a>
       </div>
-      {/* Double rule under the masthead — desktop only (#6: dropped on phones). */}
-      <div className="max-sm:hidden border-t-[1.5px] border-black" />
-      <div className="max-sm:hidden mt-0.5 border-t-[1.5px] border-black" />
-
-      {/* Mobile hamburger (#6): sits in the top-right corner (not under the
-          title); opens the section-nav dropdown. The language bar stays visible.
-          Icon-toggle + focus ring sit on this div (a direct sibling of the peer
-          checkbox) so peer-checked/peer-focus-visible apply. */}
-      <div className="absolute right-2 top-2 z-20 sm:hidden peer-checked:[&_.gk-ic-open]:hidden peer-checked:[&_.gk-ic-close]:block peer-focus-visible:[&_label]:outline peer-focus-visible:[&_label]:outline-2 peer-focus-visible:[&_label]:outline-offset-2 peer-focus-visible:[&_label]:outline-black">
-        <label
-          htmlFor="gk-menu"
-          aria-label={t("nav.menu")}
-          className="inline-flex cursor-pointer items-center justify-center rounded-[3px] border border-neutral-300 bg-white/85 p-1.5 text-black backdrop-blur-sm"
-        >
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
-            <path d="M4 7h16M4 12h16M4 17h16" />
-          </svg>
-          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-close hidden">
-            <path d="M6 6l12 12M18 6l-12 12" />
-          </svg>
-        </label>
-      </div>
-
       {/* 3. section nav — horizontal bar on desktop; a right-anchored dropdown
           popover on mobile, revealed by the hamburger in the corner (#6). */}
       <nav
