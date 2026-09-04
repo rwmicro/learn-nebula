@@ -804,12 +804,12 @@ body[data-text-size="lg"] main ol li {
   display: none;
 }
 
-.note-aside .pf-search,
+.note-aside #search,
 .note-aside .note-search {
   margin-bottom: 0;
 }
 
-.note-aside .pf-search .pagefind-ui__form,
+.note-aside #search .pagefind-ui__form,
 .note-aside .note-search {
   max-width: none;
 }
@@ -818,7 +818,7 @@ body[data-text-size="lg"] main ol li {
   font-size: 1.05rem;
   padding: 0.3rem 0.5rem;
 }
-.note-aside .pf-search .pagefind-ui__search-input {
+.note-aside #search .pagefind-ui__search-input {
   font-size: 1.05rem;
   /* Extra left padding so the placeholder/text clears Pagefind's magnifier
      (which sits on the form background) instead of colliding with it. */
@@ -998,14 +998,14 @@ a.theme-pill:focus-visible {
   outline-offset: 0;
 }
 
-.pf-search {
+#search {
   margin-bottom: 1.6rem;
 }
 
 /* Align the whole Pagefind widget (input + results) with the site theme via its
    own custom properties. Set on `.pagefind-ui` so these beat Pagefind's default
    declarations on that same element. */
-.pf-search .pagefind-ui {
+#search .pagefind-ui {
   --pagefind-ui-font: "Alegreya Sans", sans-serif;
   --pagefind-ui-primary: #003366; /* links/accents — matches site `a` colour */
   --pagefind-ui-text: #111; /* body text */
@@ -1017,11 +1017,11 @@ a.theme-pill:focus-visible {
 }
 
 /* Sober styling for the search bar; results inherit the site font set above. */
-.pf-search .pagefind-ui__form {
+#search .pagefind-ui__form {
   max-width: 32rem;
 }
 
-.pf-search .pagefind-ui__search-input {
+#search .pagefind-ui__search-input {
   font-family: "Alegreya Sans", sans-serif;
   font-size: 1.3rem;
   font-weight: 400;
@@ -1036,17 +1036,17 @@ a.theme-pill:focus-visible {
   box-shadow: none;
 }
 
-.pf-search .pagefind-ui__search-input::placeholder {
+#search .pagefind-ui__search-input::placeholder {
   color: #6f6f6f;
   font-style: italic;
 }
 
-.pf-search .pagefind-ui__search-input:focus {
+#search .pagefind-ui__search-input:focus {
   outline: 1px solid #003366;
   outline-offset: 0;
 }
 
-.pf-search .pagefind-ui__search-clear {
+#search .pagefind-ui__search-clear {
   background: transparent;
   box-shadow: none;
   color: #6f6f6f;
@@ -1309,13 +1309,13 @@ a.theme-pill:focus-visible {
   color: #660000;
 }
 
-/* Below 1400px there isn't room for the reading column AND the 30rem fixed
+/* Below 1500px there isn't room for the reading column AND the 30rem fixed
    aside (search + themes + TOC) without them colliding (#11 — the justified
-   body text used to run under the sidebar between ~1080 and ~1400px). So below
+   body text used to run under the sidebar between ~1080 and ~1500px). So below
    that width we collapse to a single centred column and the aside becomes a
    right-hand drawer opened by the toggle pill. Covers phones, tablets and
    narrow laptops. */
-@media screen and (max-width: 1400px) {
+@media screen and (max-width: 1500px) {
   /* Body text & headings are fluid via clamp() — no global rem rebase here.
      Only the layout (margins, max-width) collapses to the single-column
      Tufte fallback. */
@@ -1515,7 +1515,7 @@ a.theme-pill:focus-visible {
 
   /* The aside is now a vertical stack with comfortable spacing — same
      children as desktop, just laid out for a drawer. */
-  .note-aside .pf-search,
+  .note-aside #search,
   .note-aside .note-search {
     margin-bottom: 1rem;
   }
