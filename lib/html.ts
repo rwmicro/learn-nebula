@@ -291,7 +291,7 @@ export function buildToc(html: string, tags?: unknown[]): string {
   }
   const search =
     process.env.NODE_ENV === "production"
-      ? `<div id="search" class="pf-search" data-pagefind-ignore></div>`
+      ? `<div id="search" class="note-search" data-pagefind-ignore></div>`
       : `<input type="search" class="note-search" placeholder="${escapeHtml(t("sidebar.searchPlaceholder"))}"` +
         i18nAttr("placeholder", "sidebar.searchPlaceholder") +
         ` autocomplete="off" aria-label="${escapeHtml(t("sidebar.searchAriaLabel"))}"` +

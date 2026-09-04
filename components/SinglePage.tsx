@@ -16,7 +16,6 @@ import {
   commentsHtml,
   asideToggleHtml,
 } from "@/lib/html";
-import { AUTHOR } from "@/lib/site";
 import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
 import { JsonLd } from "@/components/JsonLd";
 import { PagefindAssets } from "@/components/PagefindAssets";

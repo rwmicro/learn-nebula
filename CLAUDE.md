@@ -125,3 +125,13 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
 `.github/workflows/ci.yml` (typecheck app **and** `server/`, oxlint + ESLint,
 unit tests, and a full static-export build on push/PR) and `docker.yml` (image
 build/push, above). The Cloudflare deploy workflow lives on `cloudflare-deploy`.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
