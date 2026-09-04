@@ -53,8 +53,8 @@ export default async function HomePage() {
     <>
       <div dangerouslySetInnerHTML={{ __html: masthead }} />
       <Header doc={doc} />
-      <div className='w-11/12 mx-auto text-center text-lead text-neutral-500 mt-10'>
-      <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-neutral-700 mt-10" />
+      <div className='w-11/12 mx-auto text-center text-lead text-neutral-500 mt-5 md:mt-10'>
+      <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-neutral-700 mt-5 md:mt-10" />
           <div className="w-full md:w-11/12 max-w-11/12 mx-auto">
             <span className="home-frame mb-2 block">
               <picture>
