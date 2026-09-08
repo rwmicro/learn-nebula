@@ -13,12 +13,13 @@
 //
 // The clone is kept (not thrown away) at NOTES_CACHE_DIR and updated in place
 // on every run instead of re-cloned from scratch: the vault stores pronunciation
-// audio (.mp3, ~10k files / ~220MB) via git-lfs, and a throwaway clone re-pulls
+// audio + Anki decks (~900MB total) via git-lfs, and a throwaway clone re-pulls
 // ALL of it on every single build — local, every CI run, every image build —
 // which is what actually exhausts a GitHub account's (shared, finite) LFS
 // bandwidth quota. Reusing the clone means git-lfs's own content-addressed
-// object store only downloads audio that's new or changed since last time. CI
-// persists NOTES_CACHE_DIR across runs via actions/cache (see ci.yml/docker.yml).
+// object store only downloads what's new or changed since last time (near-zero
+// on an unchanged vault). CI persists NOTES_CACHE_DIR across runs via
+// actions/cache (see ci.yml/docker.yml).
 
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -71,11 +72,14 @@ if (fs.existsSync(path.join(cache, ".git"))) {
   );
 }
 
-// Pronunciation audio (.mp3) is stored in the vault via git-lfs. A plain
-// clone/fetch only fetches LFS *pointer* files unless git-lfs smudges them,
-// which would leave broken audio players on the site. Pull the real objects
-// explicitly, scoped to *.mp3: the vault also keeps large Anki decks (.apkg)
-// in LFS that the build doesn't need, so --include avoids downloading them.
+// Pronunciation audio (.mp3) AND Anki decks (.apkg) are stored in the vault
+// via git-lfs (its only two tracked patterns — see .gitattributes there) and
+// the build genuinely needs both: build-anki.mjs unzips the decks, and audio
+// clips are embedded in notes. A plain clone/fetch (GIT_LFS_SKIP_SMUDGE=1
+// above) only leaves LFS *pointer* files, so pull the real objects explicitly
+// — no --include scoping: everything git-lfs tracks here is actually used, and
+// scoping it previously (wrongly assuming decks were unneeded) left .apkg as
+// unreadable pointer stubs, breaking build-anki.mjs ("invalid zip data").
 // Objects already present locally (from a previous run) are skipped by
 // git-lfs itself. Requires git-lfs in the build image; failure is warned
 // (text notes still deploy).
@@ -83,7 +87,7 @@ try {
   execFileSync("git", ["-C", cache, "lfs", "install", "--local"], {
     stdio: ["ignore", "inherit", "inherit"],
   });
-  execFileSync("git", ["-C", cache, "lfs", "pull", "--include=*.mp3"], {
+  execFileSync("git", ["-C", cache, "lfs", "pull"], {
     stdio: ["ignore", "inherit", "inherit"],
   });
 } catch (err) {
