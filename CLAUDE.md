@@ -47,6 +47,14 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   never edit it; edit the source `public/js/*.js` and re-run bundle-js.
 - Verify UI changes **visually** (Playwright screenshots, desktop+mobile) — much
   of this codebase is layout/canvas that tsc can't validate.
+- **`scripts/fetch-notes.mjs` keeps a persistent clone at `.cache/pensine`**
+  (gitignored; CI restores/saves it via `actions/cache`, key `pensine-vault-*`),
+  updated in place rather than re-cloned. The vault's ~10k pronunciation clips
+  are git-lfs objects (`GIT_LFS_SKIP_SMUDGE=1` + a scoped `lfs pull
+  --include=*.mp3` keep the ~700MB of Anki `.apkg` decks from being fetched
+  too) — a throwaway clone re-pulling everything on every build/CI run is what
+  exhausts the GitHub account's shared LFS bandwidth quota. Don't reintroduce
+  a fresh-clone-per-run pattern here.
 
 ## Architecture map
 
