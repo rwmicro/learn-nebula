@@ -5,7 +5,10 @@
 #   1. Start LM Studio, load a chat model, start its local server (default
 #      port 1234). Set LLM_MODEL below (or in .env) to that model's exact id
 #      (LM Studio shows it, e.g. "qwen/qwen3.5-9b").
-#   2. docker compose -f docker-compose.test.yml up -d --build
+#   2. pnpm dev:docker   — builds the static export + RAG chunks, then this
+#      compose file (the image's Dockerfile only COPIES out/, it doesn't build
+#      the site itself, so skipping straight to `docker compose up --build`
+#      without this bakes in whatever out/ happened to contain last).
 #
 # TEI here uses the CUDA image (GPU) — requires the NVIDIA Container Toolkit
 # on the host (`nvidia-smi` working through Docker). For a CPU-only host, swap
