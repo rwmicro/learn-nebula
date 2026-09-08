@@ -65,6 +65,10 @@ export default function Header({ doc }: { doc: Doc }) {
             </h1>
           </a>
       </div>
+            {/* Double rule under the masthead — desktop only (#6: dropped on phones). */}
+      <div className="max-sm:hidden border-t-[1.5px] border-black" />
+      <div className="max-sm:hidden mt-0.5 border-t-[1.5px] border-black" />
+      
       {/* 3. section nav — horizontal bar on desktop; a right-anchored dropdown
           popover on mobile, revealed by the hamburger in the corner (#6). */}
       <nav
