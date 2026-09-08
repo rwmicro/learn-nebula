@@ -78,6 +78,20 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      # Persists the pensine clone (scripts/fetch-notes.mjs) across runs. Its
+      # ~10k pronunciation audio clips are git-lfs objects — a throwaway clone
+      # re-pulls every single one on every run, which is what actually burns a
+      # GitHub account's (shared, finite) LFS bandwidth quota. A unique key
+      # every run + a prefix restore-key means each run both starts warm AND
+      # saves its own state, so git-lfs only ever fetches new/changed clips.
+      - name: Cache notes vault clone
+        uses: actions/cache@v4
+        with:
+          path: .cache/pensine
+          key: pensine-vault-${{ github.run_id }}
+          restore-keys: |
+            pensine-vault-
+
       # Full production build → catches export-time breakage the typecheck can't
       # (bad page imports, invalid generateStaticParams, broken static export).
       # Fetches notes from the public pensine repo; render-mermaid (Chromium)
