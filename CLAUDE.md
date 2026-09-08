@@ -47,6 +47,14 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   never edit it; edit the source `public/js/*.js` and re-run bundle-js.
 - Verify UI changes **visually** (Playwright screenshots, desktop+mobile) — much
   of this codebase is layout/canvas that tsc can't validate.
+- **`scripts/fetch-notes.mjs` keeps a persistent clone at `.cache/pensine`**
+  (gitignored; CI restores/saves it via `actions/cache`, key `pensine-vault-*`),
+  updated in place rather than re-cloned. The vault's ~10k pronunciation clips
+  are git-lfs objects (`GIT_LFS_SKIP_SMUDGE=1` + a scoped `lfs pull
+  --include=*.mp3` keep the ~700MB of Anki `.apkg` decks from being fetched
+  too) — a throwaway clone re-pulling everything on every build/CI run is what
+  exhausts the GitHub account's shared LFS bandwidth quota. Don't reintroduce
+  a fresh-clone-per-run pattern here.
 
 ## Architecture map
 
@@ -108,15 +116,18 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   site + RAG chunks and pushes a multi-arch image to
   `ghcr.io/rwmicro/learn-nebula:latest`. A "Free disk space" step is required or
   the multi-arch buildx runs the runner out of disk.
-- Runtime secrets are passed at `docker run` / compose (`.env.example`), never
-  baked into the image. Comments + the RAG vector cache live on the `gk-data`
-  volume (`/data`), so they survive rebuilds — don't drop that volume.
-- Our own image is multi-arch, but the `tei` embeddings service in
-  `docker-compose.yml` is NOT: HuggingFace ships amd64 and arm64 as two
-  separate tag families for TEI's CPU build (`cpu-<version>` vs
-  `cpu-arm64-<version>`, no combined manifest), so `tei`'s `image:` reads
-  `${TEI_IMAGE:-…cpu-1.6}` — override `TEI_IMAGE` in `.env` on an arm64 host
-  (see `.env.example`).
+- Runtime secrets are passed at `docker run` / compose (`.env.example` is the
+  canonical list — every var, what it enables, what it degrades to when unset),
+  never baked into the image. Comments + the RAG vector cache live on a `/data`
+  volume, so they survive rebuilds — don't drop that volume.
+- **Production deployment lives OUTSIDE this repo**, in a separate private
+  infra project (`soc-infrastructure`, Ansible + podman-compose) that pulls
+  `ghcr.io/rwmicro/learn-nebula:latest` and renders its own `.env` from
+  `.env.example`'s contract, plus its own TEI sidecar (with the same amd64 vs
+  `cpu-arm64-*` split noted above, under its own var name). This repo's
+  `docker-compose.test.yml` is **local dev/test only** (`build: .`, e.g. a local
+  LM Studio as the generation backend) — don't treat it as prod config, and
+  don't assume a change here needs to be mirrored there or vice versa.
 - The tracked lockfile is **`pnpm-lock.yaml`** (what Docker/CI use). A stale,
   untracked npm `package-lock.json` may linger locally; it's unused — safe to delete.
 

@@ -55,16 +55,28 @@ canonical URLs, Open Graph, the sitemap and robots.
 
 A multi-arch image (amd64 + arm64) is built from `main` and pushed to GHCR:
 `ghcr.io/rwmicro/learn-nebula:latest`. It bundles the pre-built site + the Node
-server. Runtime secrets are **not** baked in — pass them at run time.
-
-```bash
-cp .env.example .env          # fill in the vars you need (see below)
-docker compose pull
-docker compose up -d          # serves the site on :8085
-```
+server. Runtime secrets are **not** baked in — pass them at run time (see
+`.env.example` for the full list of vars, what each enables, and what it
+degrades to when unset).
 
 The image is private on GHCR, so `docker login ghcr.io -u <user>` first (with a
 `read:packages` token), or make the package public.
+
+Production deployment (this repo doesn't ship a prod compose file) is managed
+by a separate infrastructure project that pulls the image above and renders
+its own `.env` from `.env.example`'s contract.
+
+For **local dev/testing** against a real build instead of `next dev`:
+
+```bash
+cp .env.example .env                              # fill in the vars you need
+pnpm build:docker                                  # static export + RAG chunks
+docker compose -f docker-compose.test.yml up -d --build
+```
+
+`docker-compose.test.yml` builds the image locally (rather than pulling from
+GHCR) and defaults its embeddings service to CPU; see the file's own comments
+for pointing generation at a local LM Studio instead of Anthropic.
 
 ### Environment
 
@@ -79,12 +91,9 @@ Everything is optional — leave a group blank to disable that feature.
 | `COMMENTS_ADMIN_TOKEN` | bearer token to moderate comments |
 | `TRUST_PROXY` | `true` when behind nginx/Caddy (reads `X-Forwarded-For`) |
 
-`docker-compose.yml` also ships an optional **Ollama** service so the assistant
-and embeddings can run locally with no API key.
-
-**Comments persist across rebuilds:** the SQLite DB and the RAG vector cache live
-in `/data`, mounted as the named volume `gk-data`. Don't remove that volume and
-your comments survive `docker compose pull && up -d`.
+**Comments persist across rebuilds:** the SQLite DB and the RAG vector cache
+live in `/data` — mount it as a named volume and don't remove it, and your
+comments survive an image update.
 
 ## How it fits together
 
