@@ -154,12 +154,12 @@
     "disciplines": "Disciplines",
     "langs": "Languages",
     "all": "all",
-    "hint": "drag · scroll to zoom · click a note = open · click a folder = spin it up",
+    "hint": "drag · scroll to zoom · click to open",
     "rotate": "Rotate",
     "reset": "Reset",
     "rotateLeft": "Rotate left",
     "rotateRight": "Rotate right",
-    "hintTouch": "drag · pinch to zoom · tap a note = open · tap a folder = spin it up"
+    "hintTouch": "drag · pinch to zoom · twist with two fingers to rotate · tap to open"
   },
   "lightbox": {
     "close": "Close",
