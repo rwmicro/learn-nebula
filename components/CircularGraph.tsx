@@ -257,15 +257,26 @@ export function CircularGraph({
     dist: number;
     midX: number;
     midY: number;
+    angle: number; // atan2 of the vector between the two fingers — drives 2-finger rotate
     zoom: number;
     panX: number;
     panY: number;
+    rot: number;
   } | null>(null);
 
+  // Anchored on the cursor (not the viewport centre): the content point under
+  // the pointer stays under it as zoom changes, like any map/canvas tool.
   const onWheel = (e: ReactWheelEvent) => {
     e.preventDefault();
     const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
-    setZoom((z) => Math.min(8, Math.max(0.05, z * factor)));
+    const newZoom = Math.min(8, Math.max(0.05, zoom * factor));
+    const rect = wrapRef.current!.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+    const localX = (px - cx - pan.x) / zoom;
+    const localY = (py - cy - pan.y) / zoom;
+    setZoom(newZoom);
+    setPan({ x: px - cx - newZoom * localX, y: py - cy - newZoom * localY });
   };
   const onPointerDown = (e: ReactPointerEvent) => {
     pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -277,9 +288,11 @@ export function CircularGraph({
         dist: Math.hypot(b.x - a.x, b.y - a.y) || 1,
         midX: (a.x + b.x) / 2 - rect.left,
         midY: (a.y + b.y) / 2 - rect.top,
+        angle: Math.atan2(b.y - a.y, b.x - a.x),
         zoom,
         panX: pan.x,
         panY: pan.y,
+        rot,
       };
       return;
     }
@@ -298,6 +311,7 @@ export function CircularGraph({
       const dist = Math.hypot(b.x - a.x, b.y - a.y) || 1;
       const midX = (a.x + b.x) / 2 - rect.left;
       const midY = (a.y + b.y) / 2 - rect.top;
+      const angle = Math.atan2(b.y - a.y, b.x - a.x);
       const p = pinch.current;
       const newZoom = Math.min(8, Math.max(0.05, p.zoom * (dist / p.dist)));
       // The content point that sat under the pinch's starting midpoint, kept
@@ -306,6 +320,10 @@ export function CircularGraph({
       const localY = (p.midY - cy - p.panY) / p.zoom;
       setZoom(newZoom);
       setPan({ x: midX - cx - newZoom * localX, y: midY - cy - newZoom * localY });
+      // Twist the two fingers around each other to rotate the ring — folder
+      // clicks used to do this but now always navigate (see onClick), so this
+      // is the only rotate affordance left on touch besides the locate field.
+      setRot((((p.rot + (angle - p.angle)) % TAU) + TAU) % TAU);
       return;
     }
     if (drag.current) {
@@ -338,10 +356,36 @@ export function CircularGraph({
       window.location.href = href;
       return;
     }
-    // A folder: spin it up to 12 o'clock (the roulette).
+    // Every folder/note now carries an href (folders → their note list), so
+    // only the root ever reaches here — recentring it is a harmless no-op.
     const a = parseFloat(hit.getAttribute("data-angle") || "0");
     setRot(((-a % TAU) + TAU) % TAU);
   };
+
+  // --- locate: search box that spins+zooms to a match without navigating,
+  // so you can see it in context before deciding to open it (opening it is
+  // still just a click away, same as any other node). ---
+  const [query, setQuery] = useState("");
+  const normalize = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const matches = useMemo(() => {
+    const q = normalize(query.trim());
+    if (!q) return [];
+    return layout.nodes
+      .filter((n) => n.node.kind !== "root" && normalize(n.node.label).includes(q))
+      .sort((a, b) => {
+        const ad = a.node.kind === "dir" ? 0 : 1;
+        const bd = b.node.kind === "dir" ? 0 : 1;
+        if (ad !== bd) return ad - bd;
+        return a.node.label.localeCompare(b.node.label, undefined, { numeric: true });
+      })
+      .slice(0, 8);
+  }, [layout.nodes, query]);
+  function locate(n: Positioned) {
+    setRot(((-n.angle % TAU) + TAU) % TAU);
+    setZoom(fitZoom * 2.8);
+    setPan({ x: 0, y: 0 });
+    setQuery("");
+  }
 
   const disciplines = useMemo(
     () => [...palette.keys()].sort((a, b) => a.localeCompare(b)),
@@ -395,6 +439,46 @@ export function CircularGraph({
           <a href="/" className="graph-back">
             ← {tr("nav.home")}
           </a>
+
+          <div className="cg-locate">
+            <input
+              type="search"
+              className="cg-locate-input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={tr("graph.locatePlaceholder")}
+              aria-label={tr("graph.locateAria")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && matches[0]) {
+                  locate(matches[0]);
+                  (e.currentTarget as HTMLInputElement).blur();
+                } else if (e.key === "Escape") {
+                  setQuery("");
+                }
+              }}
+            />
+            {matches.length > 0 && (
+              <ul className="cg-locate-results">
+                {matches.map((m) => (
+                  <li key={m.id}>
+                    <button type="button" onClick={() => locate(m)}>
+                      <span
+                        className="cg-swatch"
+                        style={{
+                          background: themeColor(
+                            m.node.theme,
+                            palette,
+                            m.node.kind === "dir" ? 1 : 0.6,
+                          ),
+                        }}
+                      />
+                      {m.node.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
 
           {/* Discipline legend + roulette control */}
           <div className="cg-panel">
