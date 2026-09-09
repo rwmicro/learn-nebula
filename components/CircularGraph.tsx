@@ -130,6 +130,7 @@ export function CircularGraph({
   const [rot, setRot] = useState(0); // radians — the "roulette"
   const [filter, setFilter] = useState<string | null>(null);
   const [tip, setTip] = useState<{ x: number; y: number; label: string } | null>(null);
+  const [legendOpen, setLegendOpen] = useState(false);
 
   // Fit the ring to the viewport once we know the container size.
   useEffect(() => {
@@ -247,6 +248,19 @@ export function CircularGraph({
 
   // --- interaction ---------------------------------------------------------
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
+  // Pinch-to-zoom (touch): tracks every active pointer so a 2nd finger down is
+  // detected, then anchors zoom+pan to the pinch's ORIGINAL midpoint (not
+  // frame-to-frame) so the content under the fingers stays under the fingers —
+  // covers a plain pinch, a 2-finger pan, or both at once, the way map apps do.
+  const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinch = useRef<{
+    dist: number;
+    midX: number;
+    midY: number;
+    zoom: number;
+    panX: number;
+    panY: number;
+  } | null>(null);
 
   const onWheel = (e: ReactWheelEvent) => {
     e.preventDefault();
@@ -254,11 +268,46 @@ export function CircularGraph({
     setZoom((z) => Math.min(8, Math.max(0.05, z * factor)));
   };
   const onPointerDown = (e: ReactPointerEvent) => {
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 2) {
+      drag.current = null; // a 2nd finger always takes over from a single-finger pan
+      const rect = wrapRef.current!.getBoundingClientRect();
+      const [a, b] = [...pointers.current.values()];
+      pinch.current = {
+        dist: Math.hypot(b.x - a.x, b.y - a.y) || 1,
+        midX: (a.x + b.x) / 2 - rect.left,
+        midY: (a.y + b.y) / 2 - rect.top,
+        zoom,
+        panX: pan.x,
+        panY: pan.y,
+      };
+      return;
+    }
+    if (pointers.current.size > 2) return; // ignore a 3rd+ finger
     if ((e.target as Element).closest("[data-node]")) return; // let clicks through
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
     drag.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y };
   };
   const onPointerMove = (e: ReactPointerEvent) => {
+    if (pointers.current.has(e.pointerId)) {
+      pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+    if (pinch.current && pointers.current.size >= 2) {
+      const rect = wrapRef.current!.getBoundingClientRect();
+      const [a, b] = [...pointers.current.values()];
+      const dist = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+      const midX = (a.x + b.x) / 2 - rect.left;
+      const midY = (a.y + b.y) / 2 - rect.top;
+      const p = pinch.current;
+      const newZoom = Math.min(8, Math.max(0.05, p.zoom * (dist / p.dist)));
+      // The content point that sat under the pinch's starting midpoint, kept
+      // under the CURRENT midpoint as zoom/pan both update.
+      const localX = (p.midX - cx - p.panX) / p.zoom;
+      const localY = (p.midY - cy - p.panY) / p.zoom;
+      setZoom(newZoom);
+      setPan({ x: midX - cx - newZoom * localX, y: midY - cy - newZoom * localY });
+      return;
+    }
     if (drag.current) {
       setPan({
         x: drag.current.px + (e.clientX - drag.current.x),
@@ -276,6 +325,8 @@ export function CircularGraph({
     }
   };
   const onPointerUp = (e: ReactPointerEvent) => {
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size < 2) pinch.current = null;
     drag.current = null;
     (e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
   };
@@ -382,7 +433,18 @@ export function CircularGraph({
             {tr("graph.reset")}
           </button>
         </div>
-        <ul className="cg-legend">
+        {/* Below 640px this becomes a collapse toggle (CSS-only above that
+            width — the button stays hidden and the list stays open). */}
+        <button
+          type="button"
+          className="cg-legend-toggle"
+          aria-expanded={legendOpen}
+          onClick={() => setLegendOpen((v) => !v)}
+        >
+          {tr("graph.disciplines")}
+          <span aria-hidden="true">{legendOpen ? "▲" : "▼"}</span>
+        </button>
+        <ul className="cg-legend" data-open={legendOpen || undefined}>
           {disciplines.map((d) => (
             <li key={d}>
               <button
@@ -405,7 +467,8 @@ export function CircularGraph({
             </div>
           )}
 
-          <div className="graph-hint">{tr("graph.hint")}</div>
+          <div className="graph-hint graph-hint-desktop">{tr("graph.hint")}</div>
+          <div className="graph-hint graph-hint-touch">{tr("graph.hintTouch")}</div>
         </>
       )}
     </div>

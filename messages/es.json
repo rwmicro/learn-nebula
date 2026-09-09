@@ -158,7 +158,8 @@
     "rotate": "Girar",
     "reset": "Restablecer",
     "rotateLeft": "Girar a la izquierda",
-    "rotateRight": "Girar a la derecha"
+    "rotateRight": "Girar a la derecha",
+    "hintTouch": "arrastrar · pellizcar para ampliar · tocar una nota = abrir · tocar una carpeta = girar"
   },
   "lightbox": {
     "close": "Cerrar",

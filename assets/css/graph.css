@@ -231,6 +231,63 @@
   border-radius: 999px;
   flex: none;
 }
+/* Collapse toggle for the discipline legend — a no-op on desktop, where the
+   legend is always visible and this button stays hidden (see below). */
+.cg-legend-toggle {
+  display: none;
+}
+.graph-hint-touch {
+  display: none;
+}
+
+/* Mobile: the desktop panel (rotate buttons + always-open legend + a hint
+   line) eats most of a phone screen and leaves almost nothing of the ring
+   itself visible. Pinch-to-zoom and one-finger drag (CircularGraph.tsx) cover
+   rotate/zoom/pan by touch, so the arrow buttons are redundant here — drop
+   them, and fold the legend behind a tap toggle so the graph gets the space
+   back by default. */
+@media (max-width: 640px) {
+  .cg-panel {
+    max-width: calc(100vw - 2rem);
+    max-height: 45vh;
+  }
+  .cg-rot-label,
+  .cg-rot-btn {
+    display: none;
+  }
+  .cg-legend-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0.1rem 0;
+    font: inherit;
+    font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+    text-transform: lowercase;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #333;
+    cursor: pointer;
+  }
+  /* Tailwind's Preflight sets [hidden] to display:none !important — too
+     absolute to use for something that must stay visible above this
+     breakpoint, hence a plain data attribute instead of the hidden attribute. */
+  .cg-legend:not([data-open]) {
+    display: none;
+  }
+  .cg-legend {
+    margin-top: 0.4rem;
+  }
+  .graph-hint-desktop {
+    display: none;
+  }
+  .graph-hint-touch {
+    display: block;
+    max-width: calc(100vw - 2.4rem);
+  }
+}
 .cg-tip {
   position: absolute;
   z-index: 3;

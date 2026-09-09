@@ -158,7 +158,8 @@
     "rotate": "旋转",
     "reset": "重置",
     "rotateLeft": "向左旋转",
-    "rotateRight": "向右旋转"
+    "rotateRight": "向右旋转",
+    "hintTouch": "拖动 · 双指缩放 · 点击笔记=打开 · 点击文件夹=转到顶部"
   },
   "lightbox": {
     "close": "关闭",
