@@ -130,6 +130,7 @@ export function CircularGraph({
   const [rot, setRot] = useState(0); // radians — the "roulette"
   const [filter, setFilter] = useState<string | null>(null);
   const [tip, setTip] = useState<{ x: number; y: number; label: string } | null>(null);
+  const [legendOpen, setLegendOpen] = useState(false);
 
   // Fit the ring to the viewport once we know the container size.
   useEffect(() => {
@@ -247,18 +248,84 @@ export function CircularGraph({
 
   // --- interaction ---------------------------------------------------------
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
+  // Pinch-to-zoom (touch): tracks every active pointer so a 2nd finger down is
+  // detected, then anchors zoom+pan to the pinch's ORIGINAL midpoint (not
+  // frame-to-frame) so the content under the fingers stays under the fingers —
+  // covers a plain pinch, a 2-finger pan, or both at once, the way map apps do.
+  const pointers = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinch = useRef<{
+    dist: number;
+    midX: number;
+    midY: number;
+    angle: number; // atan2 of the vector between the two fingers — drives 2-finger rotate
+    zoom: number;
+    panX: number;
+    panY: number;
+    rot: number;
+  } | null>(null);
 
+  // Anchored on the cursor (not the viewport centre): the content point under
+  // the pointer stays under it as zoom changes, like any map/canvas tool.
   const onWheel = (e: ReactWheelEvent) => {
     e.preventDefault();
     const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12;
-    setZoom((z) => Math.min(8, Math.max(0.05, z * factor)));
+    const newZoom = Math.min(8, Math.max(0.05, zoom * factor));
+    const rect = wrapRef.current!.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+    const localX = (px - cx - pan.x) / zoom;
+    const localY = (py - cy - pan.y) / zoom;
+    setZoom(newZoom);
+    setPan({ x: px - cx - newZoom * localX, y: py - cy - newZoom * localY });
   };
   const onPointerDown = (e: ReactPointerEvent) => {
+    pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointers.current.size === 2) {
+      drag.current = null; // a 2nd finger always takes over from a single-finger pan
+      const rect = wrapRef.current!.getBoundingClientRect();
+      const [a, b] = [...pointers.current.values()];
+      pinch.current = {
+        dist: Math.hypot(b.x - a.x, b.y - a.y) || 1,
+        midX: (a.x + b.x) / 2 - rect.left,
+        midY: (a.y + b.y) / 2 - rect.top,
+        angle: Math.atan2(b.y - a.y, b.x - a.x),
+        zoom,
+        panX: pan.x,
+        panY: pan.y,
+        rot,
+      };
+      return;
+    }
+    if (pointers.current.size > 2) return; // ignore a 3rd+ finger
     if ((e.target as Element).closest("[data-node]")) return; // let clicks through
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
     drag.current = { x: e.clientX, y: e.clientY, px: pan.x, py: pan.y };
   };
   const onPointerMove = (e: ReactPointerEvent) => {
+    if (pointers.current.has(e.pointerId)) {
+      pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    }
+    if (pinch.current && pointers.current.size >= 2) {
+      const rect = wrapRef.current!.getBoundingClientRect();
+      const [a, b] = [...pointers.current.values()];
+      const dist = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+      const midX = (a.x + b.x) / 2 - rect.left;
+      const midY = (a.y + b.y) / 2 - rect.top;
+      const angle = Math.atan2(b.y - a.y, b.x - a.x);
+      const p = pinch.current;
+      const newZoom = Math.min(8, Math.max(0.05, p.zoom * (dist / p.dist)));
+      // The content point that sat under the pinch's starting midpoint, kept
+      // under the CURRENT midpoint as zoom/pan both update.
+      const localX = (p.midX - cx - p.panX) / p.zoom;
+      const localY = (p.midY - cy - p.panY) / p.zoom;
+      setZoom(newZoom);
+      setPan({ x: midX - cx - newZoom * localX, y: midY - cy - newZoom * localY });
+      // Twist the two fingers around each other to rotate the ring — folder
+      // clicks used to do this but now always navigate (see onClick), so this
+      // is the only rotate affordance left on touch besides the locate field.
+      setRot((((p.rot + (angle - p.angle)) % TAU) + TAU) % TAU);
+      return;
+    }
     if (drag.current) {
       setPan({
         x: drag.current.px + (e.clientX - drag.current.x),
@@ -276,6 +343,8 @@ export function CircularGraph({
     }
   };
   const onPointerUp = (e: ReactPointerEvent) => {
+    pointers.current.delete(e.pointerId);
+    if (pointers.current.size < 2) pinch.current = null;
     drag.current = null;
     (e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
   };
@@ -287,10 +356,42 @@ export function CircularGraph({
       window.location.href = href;
       return;
     }
-    // A folder: spin it up to 12 o'clock (the roulette).
+    // Every folder/note now carries an href (folders → their note list), so
+    // only the root ever reaches here — recentring it is a harmless no-op.
     const a = parseFloat(hit.getAttribute("data-angle") || "0");
     setRot(((-a % TAU) + TAU) % TAU);
   };
+
+  // --- locate: search box that spins+zooms to a match without navigating,
+  // so you can see it in context before deciding to open it (opening it is
+  // still just a click away, same as any other node). ---
+  const [query, setQuery] = useState("");
+  const normalize = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  const matches = useMemo(() => {
+    const q = normalize(query.trim());
+    if (!q) return [];
+    return layout.nodes
+      .filter((n) => n.node.kind !== "root" && normalize(n.node.label).includes(q))
+      .sort((a, b) => {
+        const ad = a.node.kind === "dir" ? 0 : 1;
+        const bd = b.node.kind === "dir" ? 0 : 1;
+        if (ad !== bd) return ad - bd;
+        return a.node.label.localeCompare(b.node.label, undefined, { numeric: true });
+      })
+      .slice(0, 8);
+  }, [layout.nodes, query]);
+  function locate(n: Positioned) {
+    // Rotating the match to angle 0 (12 o'clock) puts it at local (0, -radius)
+    // — straight up from the origin, NOT at the origin. pan:{0,0} only
+    // recentres the origin, so anything but a near-root node (most searches:
+    // files sit at the rim) landed far off-screen. Pan by zoom*radius to bring
+    // the MATCH itself to the viewport centre instead.
+    const z = fitZoom * 2.8;
+    setRot(((-n.angle % TAU) + TAU) % TAU);
+    setZoom(z);
+    setPan({ x: 0, y: z * n.radius });
+    setQuery("");
+  }
 
   const disciplines = useMemo(
     () => [...palette.keys()].sort((a, b) => a.localeCompare(b)),
@@ -345,6 +446,46 @@ export function CircularGraph({
             ← {tr("nav.home")}
           </a>
 
+          <div className="cg-locate">
+            <input
+              type="search"
+              className="cg-locate-input"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={tr("graph.locatePlaceholder")}
+              aria-label={tr("graph.locateAria")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && matches[0]) {
+                  locate(matches[0]);
+                  (e.currentTarget as HTMLInputElement).blur();
+                } else if (e.key === "Escape") {
+                  setQuery("");
+                }
+              }}
+            />
+            {matches.length > 0 && (
+              <ul className="cg-locate-results">
+                {matches.map((m) => (
+                  <li key={m.id}>
+                    <button type="button" onClick={() => locate(m)}>
+                      <span
+                        className="cg-swatch"
+                        style={{
+                          background: themeColor(
+                            m.node.theme,
+                            palette,
+                            m.node.kind === "dir" ? 1 : 0.6,
+                          ),
+                        }}
+                      />
+                      {m.node.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
           {/* Discipline legend + roulette control */}
           <div className="cg-panel">
         <div className="cg-roulette">
@@ -382,7 +523,18 @@ export function CircularGraph({
             {tr("graph.reset")}
           </button>
         </div>
-        <ul className="cg-legend">
+        {/* Below 640px this becomes a collapse toggle (CSS-only above that
+            width — the button stays hidden and the list stays open). */}
+        <button
+          type="button"
+          className="cg-legend-toggle"
+          aria-expanded={legendOpen}
+          onClick={() => setLegendOpen((v) => !v)}
+        >
+          {tr("graph.disciplines")}
+          <span aria-hidden="true">{legendOpen ? "▲" : "▼"}</span>
+        </button>
+        <ul className="cg-legend" data-open={legendOpen || undefined}>
           {disciplines.map((d) => (
             <li key={d}>
               <button
@@ -405,7 +557,8 @@ export function CircularGraph({
             </div>
           )}
 
-          <div className="graph-hint">{tr("graph.hint")}</div>
+          <div className="graph-hint graph-hint-desktop">{tr("graph.hint")}</div>
+          <div className="graph-hint graph-hint-touch">{tr("graph.hintTouch")}</div>
         </>
       )}
     </div>
