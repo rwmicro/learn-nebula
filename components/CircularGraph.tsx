@@ -381,9 +381,15 @@ export function CircularGraph({
       .slice(0, 8);
   }, [layout.nodes, query]);
   function locate(n: Positioned) {
+    // Rotating the match to angle 0 (12 o'clock) puts it at local (0, -radius)
+    // — straight up from the origin, NOT at the origin. pan:{0,0} only
+    // recentres the origin, so anything but a near-root node (most searches:
+    // files sit at the rim) landed far off-screen. Pan by zoom*radius to bring
+    // the MATCH itself to the viewport centre instead.
+    const z = fitZoom * 2.8;
     setRot(((-n.angle % TAU) + TAU) % TAU);
-    setZoom(fitZoom * 2.8);
-    setPan({ x: 0, y: 0 });
+    setZoom(z);
+    setPan({ x: 0, y: z * n.radius });
     setQuery("");
   }
 
