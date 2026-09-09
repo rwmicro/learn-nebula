@@ -158,7 +158,8 @@
     "rotate": "Rotate",
     "reset": "Reset",
     "rotateLeft": "Rotate left",
-    "rotateRight": "Rotate right"
+    "rotateRight": "Rotate right",
+    "hintTouch": "drag · pinch to zoom · tap a note = open · tap a folder = spin it up"
   },
   "lightbox": {
     "close": "Close",

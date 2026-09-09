@@ -158,7 +158,8 @@
     "rotate": "Pivoter",
     "reset": "Réinitialiser",
     "rotateLeft": "Pivoter vers la gauche",
-    "rotateRight": "Pivoter vers la droite"
+    "rotateRight": "Pivoter vers la droite",
+    "hintTouch": "glisser · pincer pour zoomer · toucher une note = ouvrir · toucher un dossier = pivoter"
   },
   "lightbox": {
     "close": "Fermer",
