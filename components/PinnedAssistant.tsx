@@ -19,6 +19,7 @@ import {
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { readAskStream, type AskSource } from "@/lib/ask-stream";
+import { markdownToHtml } from "@/lib/markdown-lite";
 // Type-only: erased at build, so lib/content.ts (node:fs) never reaches the bundle.
 import type { ScopeOption } from "@/lib/content";
 
@@ -358,7 +359,22 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
             </div>
           )}
           {asked ? (
-            <p className="gk-pinned-answer">{answer || (busy ? "…" : "")}</p>
+            busy ? (
+              // Plain text while streaming: a partial, unbalanced `**` or `[`
+              // would render wrong mid-stream. Muted live region so screen
+              // readers don't re-announce every chunk.
+              <p className="gk-pinned-answer" aria-live="off">
+                {answer || "…"}
+              </p>
+            ) : (
+              // A <div>, not <p>: markdownToHtml emits block-level tags
+              // (<p>, <ul>, <ol>) — nesting those inside a <p> is invalid HTML.
+              <div
+                className="gk-pinned-answer"
+                aria-live="polite"
+                dangerouslySetInnerHTML={{ __html: markdownToHtml(answer) }}
+              />
+            )
           ) : (
             !selection && <p className="gk-pinned-hint">{tr("home.askIntro")}</p>
           )}
