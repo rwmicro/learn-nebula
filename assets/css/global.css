@@ -294,6 +294,33 @@ body {
   color: #1a1a1a;
   white-space: pre-wrap;
 }
+/* Markdown rendered from the finished answer (markdownToHtml): reset the
+   nested block elements' default margins/indent to the same rhythm the plain
+   <p> version had, and match code/link colour to the rest of the site. */
+.gk-pinned-answer p {
+  margin: 0 0 0.6rem;
+}
+.gk-pinned-answer p:last-child {
+  margin-bottom: 0;
+}
+.gk-pinned-answer ul,
+.gk-pinned-answer ol {
+  margin: 0 0 0.6rem;
+  padding-left: 1.3rem;
+  list-style: revert; /* Tailwind's preflight resets ul/ol to list-style: none */
+}
+.gk-pinned-answer li + li {
+  margin-top: 0.2rem;
+}
+.gk-pinned-answer code {
+  background: #f0f7ff;
+  border-radius: 2px;
+  padding: 0.05rem 0.3rem;
+  font-size: 0.95em;
+}
+.gk-pinned-answer a {
+  color: var(--color-garden);
+}
 .gk-pinned-sources {
   margin: 0.5rem 0 0;
   padding-left: 1rem;

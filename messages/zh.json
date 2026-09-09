@@ -154,11 +154,12 @@
     "disciplines": "学科",
     "langs": "语言",
     "all": "全部",
-    "hint": "拖动 · 滚轮缩放 · 点击笔记=打开 · 点击文件夹=转到顶部",
+    "hint": "拖动 · 滚轮缩放 · 点击打开",
     "rotate": "旋转",
     "reset": "重置",
     "rotateLeft": "向左旋转",
-    "rotateRight": "向右旋转"
+    "rotateRight": "向右旋转",
+    "hintTouch": "拖动 · 双指缩放 · 双指旋转 · 点击打开"
   },
   "lightbox": {
     "close": "关闭",

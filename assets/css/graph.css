@@ -40,6 +40,65 @@
   background: #f0f7ff;
 }
 
+/* Locate-a-note search, top-right (mirrors .graph-back top-left). */
+.cg-locate {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 2;
+  width: min(16rem, 40vw);
+  font-family: "Alegreya Sans", sans-serif;
+}
+.cg-locate-input {
+  width: 100%;
+  border: 1px solid #e4e2dd;
+  border-radius: 4px;
+  background: rgba(252, 252, 252, 0.92);
+  padding: 0.35rem 0.6rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: #111;
+}
+.cg-locate-input::placeholder {
+  color: #888;
+  font-style: italic;
+}
+.cg-locate-input:focus-visible {
+  outline: 2px solid var(--color-garden, #3f6b4a);
+  outline-offset: 1px;
+}
+.cg-locate-results {
+  list-style: none;
+  margin: 0.3rem 0 0;
+  padding: 0.3rem;
+  max-height: 50vh;
+  overflow-y: auto;
+  background: rgba(252, 252, 252, 0.97);
+  border: 1px solid #e4e2dd;
+  border-radius: 4px;
+}
+.cg-locate-results li {
+  margin: 0;
+}
+.cg-locate-results button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  padding: 0.3rem 0.4rem;
+  border-radius: 3px;
+  font: inherit;
+  font-size: 0.88rem;
+  color: #222;
+  cursor: pointer;
+}
+.cg-locate-results button:hover {
+  background: #f0f0ec;
+}
+
 .graph-hint {
   position: absolute;
   bottom: 1rem;
@@ -230,6 +289,71 @@
   height: 0.7rem;
   border-radius: 999px;
   flex: none;
+}
+/* Collapse toggle for the discipline legend — a no-op on desktop, where the
+   legend is always visible and this button stays hidden (see below). */
+.cg-legend-toggle {
+  display: none;
+}
+.graph-hint-touch {
+  display: none;
+}
+
+/* Mobile: the desktop panel (rotate buttons + always-open legend + a hint
+   line) eats most of a phone screen and leaves almost nothing of the ring
+   itself visible. Pinch-to-zoom and one-finger drag (CircularGraph.tsx) cover
+   rotate/zoom/pan by touch, so the arrow buttons are redundant here — drop
+   them, and fold the legend behind a tap toggle so the graph gets the space
+   back by default. */
+@media (max-width: 640px) {
+  /* Stacked below .graph-back, full width, instead of squeezed to its right —
+     avoids collision and gives the input a real tap target. */
+  .cg-locate {
+    top: 3.4rem;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+  }
+  .cg-panel {
+    max-width: calc(100vw - 2rem);
+    max-height: 45vh;
+  }
+  .cg-rot-label,
+  .cg-rot-btn {
+    display: none;
+  }
+  .cg-legend-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0.1rem 0;
+    font: inherit;
+    font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+    text-transform: lowercase;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #333;
+    cursor: pointer;
+  }
+  /* Tailwind's Preflight sets [hidden] to display:none !important — too
+     absolute to use for something that must stay visible above this
+     breakpoint, hence a plain data attribute instead of the hidden attribute. */
+  .cg-legend:not([data-open]) {
+    display: none;
+  }
+  .cg-legend {
+    margin-top: 0.4rem;
+  }
+  .graph-hint-desktop {
+    display: none;
+  }
+  .graph-hint-touch {
+    display: block;
+    max-width: calc(100vw - 2.4rem);
+  }
 }
 .cg-tip {
   position: absolute;

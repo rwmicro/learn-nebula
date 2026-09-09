@@ -154,11 +154,12 @@
     "disciplines": "Disciplinas",
     "langs": "Idiomas",
     "all": "todo",
-    "hint": "arrastrar · rueda para ampliar · clic en una nota = abrir · clic en una carpeta = girar",
+    "hint": "arrastrar · rueda para ampliar · clic para abrir",
     "rotate": "Girar",
     "reset": "Restablecer",
     "rotateLeft": "Girar a la izquierda",
-    "rotateRight": "Girar a la derecha"
+    "rotateRight": "Girar a la derecha",
+    "hintTouch": "arrastrar · pellizcar para ampliar · girar con dos dedos para rotar · tocar para abrir"
   },
   "lightbox": {
     "close": "Cerrar",
