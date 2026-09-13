@@ -20,6 +20,7 @@ const SCRIPTS = [
   "aside-toggle",
   "sticky-header",
   "mermaid-render",
+  "related",
   "comments",
   "youtube",
 ];

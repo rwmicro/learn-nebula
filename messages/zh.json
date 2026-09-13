@@ -75,7 +75,8 @@
   "siblings": {
     "moreIn": "{folder} 中的更多内容",
     "more": "更多笔记",
-    "backlinks": "指向这里的笔记"
+    "backlinks": "指向这里的笔记",
+    "related": "相关笔记"
   },
   "askAi": {
     "trigger": "问 ai",

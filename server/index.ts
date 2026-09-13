@@ -13,6 +13,8 @@ import { initRag, ragState } from "./rag.ts";
 import { askRoute } from "./routes/ask.ts";
 import { commentsRoute } from "./routes/comments.ts";
 import { translateRoute } from "./routes/translate.ts";
+import { relatedRoute } from "./routes/related.ts";
+import { questionsRoute } from "./routes/questions.ts";
 
 const app = new Hono();
 
@@ -24,6 +26,8 @@ app.get("/healthz", (c) =>
 app.route("/api/ask", askRoute);
 app.route("/api/comments", commentsRoute);
 app.route("/api/translate", translateRoute);
+app.route("/api/related", relatedRoute);
+app.route("/api/questions", questionsRoute);
 
 // serveStatic sends no Cache-Control at all, so every response — HTML pages
 // included — is subject to the browser's own heuristic caching (freshness ≈
