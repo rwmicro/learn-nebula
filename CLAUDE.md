@@ -78,6 +78,11 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   (SQLite via better-sqlite3, Turnstile), `routes/translate.ts`. Config is
   centralised in `server/env.ts` (all `process.env`); everything degrades to
   "disabled" when its vars are unset.
+- **`/admin/`** (`components/AdminPanel.tsx`, `robots: {index:false}`): owner-only
+  comment moderation (approve/delete the pending queue) + RAG health from
+  `GET /healthz`, gated client-side by pasting `COMMENTS_ADMIN_TOKEN` — no
+  server-side session, it just calls the already-token-checked endpoints.
+  Not linked from the public nav.
 - **Retrieval scope**: `/api/ask` takes an optional `scope` — a slugified folder
   path validated by `scopePrefix()` (`server/rag.ts`), which filters the cosine
   search to chunks whose URL starts with `/posts/<scope>/`. It feeds the
