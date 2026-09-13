@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AdminPanel } from "@/components/AdminPanel";
 import { SITE_TITLE } from "@/lib/site";
+import "@/assets/css/admin.css";
 
 export const metadata: Metadata = {
   title: `Administration · ${SITE_TITLE}`,
