@@ -367,7 +367,7 @@ export function AdminPanel() {
               )}
             </div>
 
-            {pending && pending.length > 3 && (
+            {pending && pending.length > 0 && (
               <input
                 type="search"
                 value={query}
