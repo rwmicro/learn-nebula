@@ -379,6 +379,20 @@ export function siblingNavHtml(nav: SiblingNav): string {
   );
 }
 
+/** Mount point for "notes proches" — semantically related notes, fetched
+ *  client-side from /api/related (server/rag.ts's embedding index) since
+ *  that index only exists at server runtime, not at this static build. Empty
+ *  when RAG isn't configured/ready or the request fails — the enhancer
+ *  (/js/related.js) just leaves the section out of the DOM in that case. */
+export function relatedNotesHtml(slug: string): string {
+  return (
+    `<nav class="related-notes" data-pagefind-ignore data-url="/posts/${escapeHtml(slug)}/">` +
+    `<p class="related-notes-title"${i18nAttrs("siblings.related")}>${escapeHtml(t("siblings.related"))}</p>` +
+    `<ul class="related-notes-list"></ul>` +
+    `</nav>`
+  );
+}
+
 /** "Notes that link here" — the reverse [[wikilink]] index for a note. */
 export function backlinksHtml(backlinks: SiblingRef[]): string {
   if (!backlinks.length) return "";

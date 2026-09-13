@@ -75,7 +75,8 @@
   "siblings": {
     "moreIn": "More in {folder}",
     "more": "More notes",
-    "backlinks": "Notes that link here"
+    "backlinks": "Notes that link here",
+    "related": "Related notes"
   },
   "askAi": {
     "trigger": "ask ai",

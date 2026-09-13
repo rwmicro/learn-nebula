@@ -24,6 +24,13 @@ interface PendingComment {
   body: string;
   created_at: number;
 }
+interface QuestionLogEntry {
+  id: number;
+  question: string;
+  scope: string | null;
+  locale: string | null;
+  created_at: number;
+}
 interface Health {
   ok: boolean;
   generate: boolean;
@@ -60,6 +67,10 @@ export function AdminPanel() {
   const [busyIds, setBusyIds] = useState<Set<number>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [query, setQuery] = useState("");
+  const [questions, setQuestions] = useState<QuestionLogEntry[] | null>(null);
+  const [questionsError, setQuestionsError] = useState<string | null>(null);
+  const [questionsBusy, setQuestionsBusy] = useState(false);
+  const [questionsQuery, setQuestionsQuery] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -127,6 +138,7 @@ export function AdminPanel() {
       } catch {
         /* ignore */
       }
+      refreshQuestions(tok, { silent: true });
     } catch {
       setPendingError("Impossible de charger les commentaires en attente.");
       setConnected(false);
@@ -161,15 +173,37 @@ export function AdminPanel() {
     }
   }, []);
 
-  // Re-poll the queue while connected, so a comment submitted while this tab
-  // is open shows up without a manual reload. Silent: no loading flicker.
-  // (Below refreshPending's own declaration — a `const`, not hoisted like a
-  // function declaration, so this must come after it.)
+  /** Same shape as refreshPending, for the read-only questions log. */
+  const refreshQuestions = useCallback(async (tok: string, opts: { silent?: boolean } = {}) => {
+    if (!opts.silent) setQuestionsBusy(true);
+    try {
+      const r = await fetch("/api/questions", {
+        headers: { authorization: `Bearer ${tok}` },
+      });
+      if (r.status === 401) return; // tryConnect/refreshPending already surface this
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data = await r.json();
+      setQuestions(data.questions ?? []);
+      if (!opts.silent) setQuestionsError(null);
+    } catch {
+      if (!opts.silent) setQuestionsError("Impossible de charger le journal des questions.");
+    } finally {
+      if (!opts.silent) setQuestionsBusy(false);
+    }
+  }, []);
+
+  // Re-poll while connected, so activity from another tab/visitor shows up
+  // without a manual reload. Silent: no loading flicker.
+  // (Below refreshPending/refreshQuestions's own declarations — `const`s, not
+  // hoisted like a function declaration, so this must come after them.)
   useEffect(() => {
     if (!connected) return;
-    const id = setInterval(() => refreshPending(token, { silent: true }), POLL_MS);
+    const id = setInterval(() => {
+      refreshPending(token, { silent: true });
+      refreshQuestions(token, { silent: true });
+    }, POLL_MS);
     return () => clearInterval(id);
-  }, [connected, token, refreshPending]);
+  }, [connected, token, refreshPending, refreshQuestions]);
 
   function disconnect() {
     try {
@@ -183,6 +217,9 @@ export function AdminPanel() {
     setPendingError(null);
     setTokenInput("");
     setQuery("");
+    setQuestions(null);
+    setQuestionsError(null);
+    setQuestionsQuery("");
   }
 
   async function act(id: number, action: "approve" | "delete", opts: { silent?: boolean } = {}) {
@@ -216,6 +253,14 @@ export function AdminPanel() {
       c.slug.toLowerCase().includes(q) ||
       (c.name ?? "").toLowerCase().includes(q) ||
       c.body.toLowerCase().includes(q),
+  );
+
+  const qq = questionsQuery.trim().toLowerCase();
+  const filteredQuestions = questions?.filter(
+    (r) =>
+      !qq ||
+      r.question.toLowerCase().includes(qq) ||
+      (r.scope ?? "").toLowerCase().includes(qq),
   );
 
   async function approveAllShown() {
@@ -254,8 +299,26 @@ export function AdminPanel() {
         administration
       </h1>
 
+      {connected && (
+        <div className="mb-6 flex items-center gap-2 text-small text-[#787369]">
+          <span
+            aria-hidden="true"
+            className="inline-block h-2 w-2 rounded-full"
+            style={{ background: "#3f6b4a" }}
+          />
+          connecté
+          <button
+            type="button"
+            onClick={disconnect}
+            className={`rounded underline underline-offset-2 hover:text-black ${FOCUS_RING}`}
+          >
+            se déconnecter
+          </button>
+        </div>
+      )}
+
       {/* --- RAG health: no token required, GET /healthz is public. --- */}
-      <section className="mb-8 rounded border border-[#e4e2dd] p-4">
+      <section className="admin-card">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="admin-eyebrow m-0 text-small font-semibold text-[#787369]">
             état de l&apos;assistant
@@ -293,88 +356,87 @@ export function AdminPanel() {
         )}
       </section>
 
-      {/* --- Comment moderation: gated by the admin token. --- */}
-      <section>
-        <div className="mb-2 flex items-center gap-2">
-          <h2 className="admin-eyebrow m-0 text-small font-semibold text-[#787369]">
-            commentaires en attente
+      {!connected ? (
+        /* --- Single auth step: unlocks both cards below. --- */
+        <section className="admin-card mt-6">
+          <h2 className="admin-eyebrow m-0 mb-2 text-small font-semibold text-[#787369]">
+            connexion
           </h2>
-          {connected && pending && pending.length > 0 && (
-            <span className="rounded-full bg-[#f0f0ec] px-2 py-px text-micro font-semibold text-[#555]">
-              {/* Reflects what's actually on screen, not the unfiltered total
-                  — showing "4" while a search narrows the list to 1 card
-                  would read as a bug, not a filter. */}
-              {q && filtered?.length !== pending.length
-                ? `${filtered?.length ?? 0}/${pending.length}`
-                : pending.length}
-            </span>
-          )}
-        </div>
-
-        {!connected ? (
-          <>
-            <form
-              className="flex gap-2"
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (tokenInput.trim()) tryConnect(tokenInput.trim());
-              }}
+          <form
+            className="flex gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (tokenInput.trim()) tryConnect(tokenInput.trim());
+            }}
+          >
+            <input
+              type="password"
+              value={tokenInput}
+              onChange={(e) => setTokenInput(e.target.value)}
+              placeholder="Jeton admin (COMMENTS_ADMIN_TOKEN)"
+              autoComplete="off"
+              className={`min-w-0 flex-1 rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
+            />
+            <button
+              type="submit"
+              className={`shrink-0 rounded bg-garden px-3 py-1 text-small font-semibold text-[#fcfcfc] hover:bg-garden-dark ${FOCUS_RING}`}
             >
-              <input
-                type="password"
-                value={tokenInput}
-                onChange={(e) => setTokenInput(e.target.value)}
-                placeholder="Jeton admin (COMMENTS_ADMIN_TOKEN)"
-                autoComplete="off"
-                className={`min-w-0 flex-1 rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
-              />
-              <button
-                type="submit"
-                className={`shrink-0 rounded bg-garden px-3 py-1 text-small font-semibold text-[#fcfcfc] hover:bg-garden-dark ${FOCUS_RING}`}
-              >
-                Se connecter
-              </button>
-            </form>
-            {pendingError && <p className="m-0 mt-2 text-small text-[#c0392b]">{pendingError}</p>}
-          </>
-        ) : (
-          <>
-            <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <button
-                type="button"
-                onClick={disconnect}
-                className={`rounded text-small text-[#787369] underline underline-offset-2 hover:text-black ${FOCUS_RING}`}
-              >
-                se déconnecter
-              </button>
+              Se connecter
+            </button>
+          </form>
+          {pendingError && <p className="m-0 mt-2 text-small text-[#c0392b]">{pendingError}</p>}
+        </section>
+      ) : (
+        <>
+          {/* --- Comment moderation: things to decide. --- */}
+          <section className="admin-card mt-6">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <h2 className="admin-eyebrow m-0 text-small font-semibold text-[#787369]">
+                  commentaires en attente
+                </h2>
+                {pending && pending.length > 0 && (
+                  <span className="rounded-full bg-[#f0f0ec] px-2 py-px text-micro font-semibold text-[#555]">
+                    {/* Reflects what's actually on screen, not the unfiltered total
+                        — showing "4" while a search narrows the list to 1 card
+                        would read as a bug, not a filter. */}
+                    {q && filtered?.length !== pending.length
+                      ? `${filtered?.length ?? 0}/${pending.length}`
+                      : pending.length}
+                  </span>
+                )}
+              </div>
               <button
                 type="button"
                 onClick={() => refreshPending(token)}
                 disabled={pendingBusy}
-                className={`rounded text-small text-[#787369] underline underline-offset-2 hover:text-black disabled:opacity-40 ${FOCUS_RING}`}
+                aria-label="Actualiser les commentaires en attente"
+                className={`rounded text-small text-[#787369] hover:text-black disabled:opacity-40 ${FOCUS_RING}`}
               >
-                {pendingBusy ? "actualisation…" : "actualiser"}
+                {pendingBusy ? "…" : "↻"}
               </button>
-              {pending && pending.length > 1 && (
-                <button
-                  type="button"
-                  onClick={approveAllShown}
-                  disabled={bulkBusy || !filtered?.length}
-                  className={`ml-auto rounded border border-[#ccc] px-2 py-0.5 text-small hover:bg-[#f0f0ec] disabled:opacity-40 ${FOCUS_RING}`}
-                >
-                  {bulkBusy ? "…" : `tout approuver${query ? " (filtré)" : ""}`}
-                </button>
-              )}
             </div>
 
             {pending && pending.length > 0 && (
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Filtrer par nom, note ou texte…"
-                className={`mb-3 w-full rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
-              />
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                <input
+                  type="search"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Filtrer par nom, note ou texte…"
+                  className={`min-w-0 flex-1 rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
+                />
+                {pending.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={approveAllShown}
+                    disabled={bulkBusy || !filtered?.length}
+                    className={`shrink-0 rounded border border-[#ccc] px-2 py-1 text-small hover:bg-[#f0f0ec] disabled:opacity-40 ${FOCUS_RING}`}
+                  >
+                    {bulkBusy ? "…" : `tout approuver${query ? " (filtré)" : ""}`}
+                  </button>
+                )}
+              </div>
             )}
 
             {pendingError && <p className="m-0 mb-3 text-small text-[#c0392b]">{pendingError}</p>}
@@ -427,9 +489,77 @@ export function AdminPanel() {
                 </li>
               ))}
             </ul>
-          </>
-        )}
-      </section>
+          </section>
+
+          {/* --- Questions log: an append-only record, nothing to decide. --- */}
+          <section className="admin-card mt-6">
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <h2 className="admin-eyebrow m-0 text-small font-semibold text-[#787369]">
+                  questions récentes
+                </h2>
+                {questions && questions.length > 0 && (
+                  <span className="rounded-full bg-[#f0f0ec] px-2 py-px text-micro font-semibold text-[#555]">
+                    {qq && filteredQuestions?.length !== questions.length
+                      ? `${filteredQuestions?.length ?? 0}/${questions.length}`
+                      : questions.length}
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => refreshQuestions(token)}
+                disabled={questionsBusy}
+                aria-label="Actualiser le journal des questions"
+                className={`rounded text-small text-[#787369] hover:text-black disabled:opacity-40 ${FOCUS_RING}`}
+              >
+                {questionsBusy ? "…" : "↻"}
+              </button>
+            </div>
+            <p className="m-0 mb-3 text-small text-[#787369]">
+              Ce que les visiteurs demandent à l&apos;assistant — utile pour repérer les
+              sujets mal couverts par le jardin.
+            </p>
+
+            {questions && questions.length > 3 && (
+              <input
+                type="search"
+                value={questionsQuery}
+                onChange={(e) => setQuestionsQuery(e.target.value)}
+                placeholder="Filtrer par texte ou dossier…"
+                className={`mb-3 w-full rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
+              />
+            )}
+
+            {questionsError && <p className="m-0 mb-3 text-small text-[#c0392b]">{questionsError}</p>}
+            {questions === null && !questionsError && (
+              <p className="m-0 text-small italic text-[#787369]">Chargement…</p>
+            )}
+            {questions?.length === 0 && (
+              <p className="m-0 text-small italic text-[#787369]">Aucune question pour l&apos;instant.</p>
+            )}
+            {questions && questions.length > 0 && filteredQuestions?.length === 0 && (
+              <p className="m-0 text-small italic text-[#787369]">
+                Aucune question ne correspond à « {questionsQuery} ».
+              </p>
+            )}
+
+            <ul className="admin-log text-small">
+              {filteredQuestions?.map((r) => (
+                <li key={r.id}>
+                  <time>{new Date(r.created_at).toLocaleString()}</time>
+                  {r.scope && (
+                    <span className="admin-log-scope rounded-full bg-[#f0f0ec] px-2 py-px text-micro text-[#555]">
+                      {r.scope}
+                    </span>
+                  )}
+                  <span className="admin-log-question text-black">{r.question}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </>
+      )}
 
       {toast && (
         <div

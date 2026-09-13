@@ -10,6 +10,7 @@ import { Cooldown, InFlight, Quota } from "../ratelimit.ts";
 import { getIp, ndLine } from "../http.ts";
 import { search, scopePrefix } from "../rag.ts";
 import { anthropicDeltas, chatConfig, openaiChatDeltas } from "../llm.ts";
+import { logQuestion } from "../db.ts";
 
 const TOP_K = 5;
 const MIN_SCORE = 0.4;
@@ -92,6 +93,14 @@ askRoute.post("/", async (c) => {
   // `scope` narrows it to one folder — the language picker in the assistant —
   // so a query doesn't pull chunks from 18 other languages at once.
   const prefix = scopePrefix(payload.scope);
+  // "What do people ask" log for /admin — no IP, keyed on nothing that
+  // identifies who asked. Logged past the rate-limit gate above so a
+  // rejected flood doesn't fill the log with duplicates.
+  try {
+    logQuestion(question, prefix ? scopeName(prefix) : null, replyLang);
+  } catch (e) {
+    console.warn("ask: question log failed", e);
+  }
   const sources: { title: string; url: string }[] = [];
   let context = "";
   try {
