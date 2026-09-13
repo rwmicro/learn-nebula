@@ -124,9 +124,15 @@ askRoute.post("/", async (c) => {
   const noHits = prefix
     ? `(Aucune note pertinente dans « ${scopeName(prefix)} » pour cette question.)`
     : "(Aucune note pertinente n'a été trouvée pour cette question.)";
+  // Repeated right next to the question (not just once, earlier, in the system
+  // prompt) since a model attends more reliably to instructions close to the
+  // point of generation — cheaper/faster models like Haiku otherwise sometimes
+  // drift toward French, the language every other rule here is written in and
+  // that most of the vault's notes are in, despite an English question.
+  const langReminder = "\n\n(Réponds dans la même langue que la question ci-dessus.)";
   const userContent = noteContext
-    ? `${noteContext}\n\n---\nQuestion : ${question}`
-    : `${noHits}\n\nQuestion : ${question}`;
+    ? `${noteContext}\n\n---\nQuestion : ${question}${langReminder}`
+    : `${noHits}\n\nQuestion : ${question}${langReminder}`;
 
   const ac = new AbortController();
   const llm = chatConfig(env.llmBaseUrl, env.llmModel);
