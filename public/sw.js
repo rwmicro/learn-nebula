@@ -12,7 +12,7 @@
  * are content-hashed, so their URLs change on their own.
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const DOC_CACHE = `gk-doc-${VERSION}`;
 const ASSET_CACHE = `gk-asset-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
