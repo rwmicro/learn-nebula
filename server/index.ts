@@ -25,6 +25,16 @@ app.route("/api/ask", askRoute);
 app.route("/api/comments", commentsRoute);
 app.route("/api/translate", translateRoute);
 
+// The service worker script must always be revalidated: browsers apply
+// heuristic HTTP caching to it like any other file when no Cache-Control is
+// set, so a bumped VERSION inside sw.js can sit unseen in the browser cache
+// for a while. no-cache forces a conditional GET on every fetch — the update
+// itself still relies on skipWaiting()/clients.claim() in sw.js.
+app.get("/sw.js", async (c, next) => {
+  await next();
+  c.header("Cache-Control", "no-cache");
+});
+
 // Static export. trailingSlash:true means URLs are "/foo/" → out/foo/index.html,
 // which serveStatic maps automatically.
 app.get("*", serveStatic({ root: env.staticDir }));
