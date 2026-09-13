@@ -42,8 +42,11 @@ pnpm dev      # dev server (http://localhost:3000)
 pnpm build    # static export → out/ (+ Pagefind index)
 pnpm lint     # ESLint
 pnpm test     # unit tests (vitest) + Playwright
-pnpm server   # run the Node backend against a built out/
+pnpm run --stream server  # run the Node backend against a built out/
 ```
+
+`--stream` matters: bare `pnpm server` currently exits instantly with no output
+on pnpm 10.28.0 (a pnpm quirk, not this project) — `--stream` reliably avoids it.
 
 Two things only work after a full build: **full-text search** (Pagefind indexes
 `out/`) and the **/api/** routes (served by the Node backend, not `next dev`).
