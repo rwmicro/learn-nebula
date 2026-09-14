@@ -14,9 +14,12 @@ RUN corepack enable && corepack prepare pnpm@10.28.0 --activate
 RUN apt-get update \
  && apt-get install -y --no-install-recommends python3 make g++ ca-certificates \
  && rm -rf /var/lib/apt/lists/*
-COPY package.json pnpm-lock.yaml ./
-# --prod skips next/react/eslint/…; onlyBuiltDependencies (package.json) lets
-# better-sqlite3's native build run under pnpm 10.
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+# --prod skips next/react/eslint/…; onlyBuiltDependencies (pnpm-workspace.yaml)
+# lets better-sqlite3's native build run under pnpm 10. pnpm-workspace.yaml
+# must be copied in: without it pnpm sees no `overrides` at all and refuses
+# --frozen-lockfile with ERR_PNPM_LOCKFILE_CONFIG_MISMATCH against the
+# overrides recorded in pnpm-lock.yaml.
 RUN pnpm install --prod --frozen-lockfile
 
 ########################  runtime  ########################
