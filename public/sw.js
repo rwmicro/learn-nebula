@@ -12,7 +12,7 @@
  * are content-hashed, so their URLs change on their own.
  */
 
-const VERSION = "v1";
+const VERSION = "v2";
 const DOC_CACHE = `gk-doc-${VERSION}`;
 const ASSET_CACHE = `gk-asset-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
@@ -82,7 +82,12 @@ self.addEventListener("fetch", (event) => {
 async function networkFirst(request) {
   const cache = await caches.open(DOC_CACHE);
   try {
-    const fresh = await fetch(request);
+    // no-store: a bare fetch() still honours the browser's own HTTP cache
+    // (its default "default" cache mode), so without this a "network-first"
+    // fetch can be silently satisfied from a stale disk-cached response and
+    // never actually reach the server — defeating this whole cache layer,
+    // which is meant to be the only source of truth for staleness.
+    const fresh = await fetch(request, { cache: "no-store" });
     if (fresh && fresh.ok) {
       cache.put(request, fresh.clone()).then(() => trim(DOC_CACHE, MAX_DOCS));
     }
@@ -99,7 +104,10 @@ async function networkFirst(request) {
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(ASSET_CACHE);
   const cached = await cache.match(request);
-  const fetching = fetch(request)
+  // Same no-store rationale as networkFirst() above — the "revalidate" half
+  // of this strategy must actually reach the server, not bounce off the
+  // browser's own HTTP cache.
+  const fetching = fetch(request, { cache: "no-store" })
     .then((res) => {
       if (res && res.ok) {
         cache

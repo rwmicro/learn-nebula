@@ -13,8 +13,36 @@ import { initRag, ragState } from "./rag.ts";
 import { askRoute } from "./routes/ask.ts";
 import { commentsRoute } from "./routes/comments.ts";
 import { translateRoute } from "./routes/translate.ts";
+import { relatedRoute } from "./routes/related.ts";
+import { questionsRoute } from "./routes/questions.ts";
+import { buildCSP, SITE_URL } from "../lib/site.ts";
 
 const app = new Hono();
+
+// Security headers on every response. These used to ship via a Cloudflare
+// Pages `_headers` file (removed with the rest of the CF config when this
+// site moved to a self-hosted Node server — see CLAUDE.md) and were never
+// re-added here, so the site has been running without them since. The <meta
+// http-equiv="Content-Security-Policy"> in app/layout.tsx (lib/site.ts's
+// buildCSP()) covers most of the policy for anyone who somehow gets the HTML
+// without this server (there isn't a supported way to), but browsers ignore
+// frame-ancestors/report-to in <meta> form — only a real header enforces
+// those, hence this middleware sends the same policy again as one.
+const csp = buildCSP();
+app.use("*", async (c, next) => {
+  await next();
+  c.header("Content-Security-Policy", csp);
+  c.header("X-Content-Type-Options", "nosniff");
+  c.header("X-Frame-Options", "DENY");
+  c.header("Referrer-Policy", "strict-origin-when-cross-origin");
+  c.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  // Skip on a non-HTTPS SITE_URL (e.g. a Tor .onion build, per lib/site.ts) —
+  // HSTS pins the browser to HTTPS-only for this host, which would be wrong
+  // for a deployment that's intentionally plain HTTP.
+  if (SITE_URL.startsWith("https://")) {
+    c.header("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  }
+});
 
 app.get("/healthz", (c) =>
   c.json({ ok: true, generate: canGenerate(), rag: ragState() }),
@@ -24,6 +52,28 @@ app.get("/healthz", (c) =>
 app.route("/api/ask", askRoute);
 app.route("/api/comments", commentsRoute);
 app.route("/api/translate", translateRoute);
+app.route("/api/related", relatedRoute);
+app.route("/api/questions", questionsRoute);
+
+// serveStatic sends no Cache-Control at all, so every response — HTML pages
+// included — is subject to the browser's own heuristic caching (freshness ≈
+// 10% of file age). That's what made rebuilt pages/JS intermittently keep
+// showing old content regardless of the service worker: sw.js's own fetch()
+// calls default to honouring that same HTTP cache (see public/sw.js's
+// `cache: "no-store"` fix), and a browser with no active service worker at
+// all (private mode, first load, disabled) had nothing else in front of it.
+// Content-hashed build output (/_next/static/**) is the one exception: its
+// URL changes whenever its content does, so it's safe — and worth it, this
+// is the bulk of page weight — to cache for a year.
+app.use("*", async (c, next) => {
+  await next();
+  if (c.res.headers.has("Cache-Control")) return;
+  if (c.req.path.startsWith("/_next/static/")) {
+    c.header("Cache-Control", "public, max-age=31536000, immutable");
+  } else if (!c.req.path.startsWith("/api/")) {
+    c.header("Cache-Control", "no-cache");
+  }
+});
 
 // Static export. trailingSlash:true means URLs are "/foo/" → out/foo/index.html,
 // which serveStatic maps automatically.

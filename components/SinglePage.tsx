@@ -9,6 +9,7 @@ import {
   buildToc,
   siblingNavHtml,
   backlinksHtml,
+  relatedNotesHtml,
   audioButtonHtml,
   fontSizeButtonHtml,
   wideTextButtonHtml,
@@ -82,6 +83,7 @@ export async function SinglePage({
 
   const siblings = note ? siblingNavHtml(getSiblings(doc.slug)) : "";
   const backlinks = note ? backlinksHtml(getBacklinks(doc.slug)) : "";
+  const related = note ? relatedNotesHtml(doc.slug) : "";
 
   // Inline raw Markdown + folder context so /js/translate.js can ship it to
   // /api/translate without a separate fetch. Reading via JSON.parse keeps the
@@ -126,6 +128,7 @@ export async function SinglePage({
     `<div class="article-body">${html}</div>` +
     articleSource +
     backlinks +
+    related +
     (note ? commentsHtml(doc.slug) : "") +
     siblings +
     navHtml();

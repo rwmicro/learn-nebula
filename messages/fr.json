@@ -75,7 +75,8 @@
   "siblings": {
     "moreIn": "Plus dans {folder}",
     "more": "Autres notes",
-    "backlinks": "Notes qui pointent ici"
+    "backlinks": "Notes qui pointent ici",
+    "related": "Notes proches"
   },
   "askAi": {
     "trigger": "demander à l'ia",

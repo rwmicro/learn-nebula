@@ -956,6 +956,30 @@ a.theme-pill:focus-visible {
   font-size: clamp(1.1rem, 1rem + 0.4vw, 1.25rem);
 }
 
+/* Related notes: semantic neighbours from the RAG embedding index, filled in
+   client-side (see /js/related.js — the index only exists at server runtime). */
+.related-notes {
+  border-top: 1px solid #ccc;
+  margin-top: 2.4rem;
+  padding-top: 0.8rem;
+}
+.related-notes-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: clamp(1.15rem, 1rem + 0.5vw, 1.3rem);
+  margin: 0 0 0.4rem;
+}
+.related-notes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.related-notes-list li {
+  margin: 0.2rem 0;
+  font-size: clamp(1.1rem, 1rem + 0.4vw, 1.25rem);
+}
+
 .siblings ul {
   list-style: none;
   margin: 0;

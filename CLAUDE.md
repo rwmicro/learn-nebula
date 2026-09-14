@@ -31,13 +31,24 @@ node_modules/.bin/vitest run            # unit tests (lib/*.test.ts, server/*.te
 node scripts/bundle-js.mjs              # rebuild public/js/note.bundle.js after editing public/js/*.js
 npx pnpm@10.28.0 dev                    # dev server (runs predev: bundle-js, copy-images, build-anki)
 npx pnpm@10.28.0 build                  # full static export → out/
-npx pnpm@10.28.0 server                 # run the Node backend against a built out/
+npx pnpm@10.28.0 run --stream server    # run the Node backend against a built out/ — see gotcha below
 ```
 
 Also: `pnpm format` (prettier), `pnpm test` (build + Playwright), `pnpm
 build:docker` (site + RAG chunks, what the Docker CI runs).
 
 ### Big gotchas
+- **Bare `pnpm server` / `pnpm run server` silently does nothing** — pnpm
+  10.28.0's default (non-streamed) reporter exits in ~1.3s with zero output,
+  before the script ever prints a line, no error, exit code 0. Confirmed not a
+  one-off: reproduced repeatedly, while `pnpm exec tsx server/index.ts` (same
+  effective command, bypassing the `run` lifecycle) always works. Fix: add
+  `--stream` **between `run` and the script name** —
+  `pnpm run --stream server` — which reliably keeps it alive; the bare
+  `pnpm --stream server` shorthand does NOT fix it (the flag lands somewhere
+  `run`'s shorthand parser doesn't honour the same way). If a future pnpm
+  version fixes this upstream, this note (and the `--stream` in the command
+  above) can go.
 - **`/api/*` do NOT run under `next dev`** — they're served by the Node backend
   in `server/`. To exercise the assistant / comments / translate, build (`out/`)
   then `pnpm server` with the relevant env vars (see `.env.example`).
@@ -78,6 +89,11 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   (SQLite via better-sqlite3, Turnstile), `routes/translate.ts`. Config is
   centralised in `server/env.ts` (all `process.env`); everything degrades to
   "disabled" when its vars are unset.
+- **`/admin/`** (`components/AdminPanel.tsx`, `robots: {index:false}`): owner-only
+  comment moderation (approve/delete the pending queue) + RAG health from
+  `GET /healthz`, gated client-side by pasting `COMMENTS_ADMIN_TOKEN` — no
+  server-side session, it just calls the already-token-checked endpoints.
+  Not linked from the public nav.
 - **Retrieval scope**: `/api/ask` takes an optional `scope` — a slugified folder
   path validated by `scopePrefix()` (`server/rag.ts`), which filters the cosine
   search to chunks whose URL starts with `/posts/<scope>/`. It feeds the
