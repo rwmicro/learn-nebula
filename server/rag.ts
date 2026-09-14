@@ -213,3 +213,53 @@ export async function search(
     score: s,
   }));
 }
+
+export interface RelatedHit {
+  title: string;
+  url: string;
+  score: number;
+}
+
+/** Semantically similar notes for a note page's "notes proches" — same index
+ *  as search(), just aggregated per note (a note is several chunks) instead of
+ *  per chunk, and compared against every OTHER note's centroid. No separate
+ *  index is kept for this: N notes × dim is a few MB, cheap to recompute per
+ *  request at this site's scale (thousands of chunks, one owner). */
+export function relatedNotes(url: string, topK: number): RelatedHit[] {
+  if (state !== "ready" || !metas.length || !dim) return [];
+
+  const centroid = new Float32Array(dim);
+  let ownChunks = 0;
+  for (let i = 0; i < metas.length; i++) {
+    if (metas[i].url !== url) continue;
+    const off = i * dim;
+    for (let d = 0; d < dim; d++) centroid[d] += matrix[off + d];
+    ownChunks++;
+  }
+  if (!ownChunks) return []; // note not in the index (e.g. embeddings still building)
+  const q = normalize(Array.from(centroid, (x) => x / ownChunks));
+
+  const sums = new Map<string, { vec: Float32Array; title: string; n: number }>();
+  for (let i = 0; i < metas.length; i++) {
+    const m = metas[i];
+    if (m.url === url) continue;
+    let e = sums.get(m.url);
+    if (!e) {
+      e = { vec: new Float32Array(dim), title: m.title, n: 0 };
+      sums.set(m.url, e);
+    }
+    const off = i * dim;
+    for (let d = 0; d < dim; d++) e.vec[d] += matrix[off + d];
+    e.n++;
+  }
+
+  const scored: RelatedHit[] = [];
+  for (const [otherUrl, e] of sums) {
+    const nv = normalize(Array.from(e.vec, (x) => x / e.n));
+    let dot = 0;
+    for (let d = 0; d < dim; d++) dot += nv[d] * q[d];
+    scored.push({ title: e.title, url: otherUrl, score: dot });
+  }
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, topK);
+}

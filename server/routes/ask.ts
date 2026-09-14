@@ -10,6 +10,7 @@ import { Cooldown, InFlight, Quota } from "../ratelimit.ts";
 import { getIp, ndLine } from "../http.ts";
 import { search, scopePrefix } from "../rag.ts";
 import { anthropicDeltas, chatConfig, openaiChatDeltas } from "../llm.ts";
+import { logQuestion } from "../db.ts";
 
 const TOP_K = 5;
 const MIN_SCORE = 0.4;
@@ -92,6 +93,14 @@ askRoute.post("/", async (c) => {
   // `scope` narrows it to one folder — the language picker in the assistant —
   // so a query doesn't pull chunks from 18 other languages at once.
   const prefix = scopePrefix(payload.scope);
+  // "What do people ask" log for /admin — no IP, keyed on nothing that
+  // identifies who asked. Logged past the rate-limit gate above so a
+  // rejected flood doesn't fill the log with duplicates.
+  try {
+    logQuestion(question, prefix ? scopeName(prefix) : null, replyLang);
+  } catch (e) {
+    console.warn("ask: question log failed", e);
+  }
   const sources: { title: string; url: string }[] = [];
   let context = "";
   try {
@@ -124,9 +133,15 @@ askRoute.post("/", async (c) => {
   const noHits = prefix
     ? `(Aucune note pertinente dans « ${scopeName(prefix)} » pour cette question.)`
     : "(Aucune note pertinente n'a été trouvée pour cette question.)";
+  // Repeated right next to the question (not just once, earlier, in the system
+  // prompt) since a model attends more reliably to instructions close to the
+  // point of generation — cheaper/faster models like Haiku otherwise sometimes
+  // drift toward French, the language every other rule here is written in and
+  // that most of the vault's notes are in, despite an English question.
+  const langReminder = "\n\n(Réponds dans la même langue que la question ci-dessus.)";
   const userContent = noteContext
-    ? `${noteContext}\n\n---\nQuestion : ${question}`
-    : `${noHits}\n\nQuestion : ${question}`;
+    ? `${noteContext}\n\n---\nQuestion : ${question}${langReminder}`
+    : `${noHits}\n\nQuestion : ${question}${langReminder}`;
 
   const ac = new AbortController();
   const llm = chatConfig(env.llmBaseUrl, env.llmModel);

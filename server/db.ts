@@ -28,6 +28,18 @@ export function initDb(): Database.Database {
     ? fs.readFileSync(schemaPath, "utf8")
     : DEFAULT_SCHEMA;
   db.exec(schema);
+  // Questions log: self-hosted-only (no Cloudflare/D1 legacy to mirror), so it
+  // isn't in schema/comments.sql — created here instead.
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS questions (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      question TEXT NOT NULL,
+      scope TEXT,
+      locale TEXT,
+      created_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_questions_created ON questions(created_at DESC);
+  `);
   return db;
 }
 
@@ -74,6 +86,36 @@ export function setStatus(id: number, status: "approved"): void {
 
 export function deleteComment(id: number): void {
   get().prepare("DELETE FROM comments WHERE id = ?").run(id);
+}
+
+export interface QuestionRow {
+  id: number;
+  question: string;
+  scope: string | null;
+  locale: string | null;
+  created_at: number;
+}
+
+const MAX_QUESTIONS = 300;
+
+/** No IP, no session — this is a "what do people ask" log for prioritising
+ *  what to write next, not analytics on who asked. Self-trims to MAX_QUESTIONS
+ *  on every insert (personal-scale traffic, so a query per submission is fine —
+ *  no separate cron/sweep needed). */
+export function logQuestion(question: string, scope: string | null, locale: string | null): void {
+  const d = get();
+  d.prepare(
+    "INSERT INTO questions (question, scope, locale, created_at) VALUES (?, ?, ?, ?)",
+  ).run(question, scope, locale, Date.now());
+  d.prepare(
+    "DELETE FROM questions WHERE id NOT IN (SELECT id FROM questions ORDER BY created_at DESC LIMIT ?)",
+  ).run(MAX_QUESTIONS);
+}
+
+export function recentQuestions(limit = 100): QuestionRow[] {
+  return get()
+    .prepare("SELECT id, question, scope, locale, created_at FROM questions ORDER BY created_at DESC LIMIT ?")
+    .all(Math.min(limit, MAX_QUESTIONS)) as QuestionRow[];
 }
 
 // Fallback if schema/comments.sql isn't shipped (kept in sync with that file).

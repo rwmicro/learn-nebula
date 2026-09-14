@@ -220,6 +220,24 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
     (e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
   }
 
+  // Only for the default "Explain this passage." filler question (asked with
+  // no typed text — see ask()'s call site): picking it from `locale` (the
+  // site's UI language) meant a reader who never touched the language switcher
+  // — so `locale` sits at its French build default — got a French filler
+  // regardless of what language they actually read in. A saved locale choice
+  // is a real signal and wins; absent that, the browser/OS language is a much
+  // better guess than always falling back to French. Doesn't affect `locale`
+  // itself, which still (correctly) drives this component's own UI strings.
+  function preferredReplyLocale(): string {
+    try {
+      const saved = localStorage.getItem("locale");
+      if (saved) return saved;
+    } catch {
+      /* localStorage unavailable */
+    }
+    return (navigator.language || "fr").slice(0, 2).toLowerCase();
+  }
+
   async function ask(text: string) {
     abortRef.current?.abort();
     const ctrl = new AbortController();
@@ -237,7 +255,7 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
         body: JSON.stringify({
           question: text,
           selection: selection || undefined,
-          locale,
+          locale: preferredReplyLocale(),
           scope: scope || undefined,
         }),
         signal: ctrl.signal,

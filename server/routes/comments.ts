@@ -9,6 +9,7 @@
 import { Hono } from "hono";
 import { env } from "../env.ts";
 import { getIp } from "../http.ts";
+import { isAdmin } from "../auth.ts";
 import { Cooldown } from "../ratelimit.ts";
 import {
   approvedForSlug,
@@ -38,21 +39,19 @@ function clean(s: string, max: number): string {
   );
 }
 
-function timingSafeEqual(a: string, b: string): boolean {
-  const enc = new TextEncoder();
-  const ab = enc.encode(a);
-  const bb = enc.encode(b);
-  if (ab.length !== bb.length) return false;
-  let diff = 0;
-  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i];
-  return diff === 0;
-}
-
-function isAdmin(auth: string | undefined): boolean {
-  if (!env.adminToken) return false;
-  const prefix = "Bearer ";
-  if (!auth || !auth.startsWith(prefix)) return false;
-  return timingSafeEqual(auth.slice(prefix.length), env.adminToken);
+/** Best-effort ping so moderation doesn't rely on remembering to check /admin.
+ *  Fire-and-forget: a broken/unreachable webhook must never affect the comment
+ *  submission itself. */
+function notifyWebhook(slug: string, name: string | null, body: string): void {
+  if (!env.commentWebhookUrl) return;
+  const preview = body.length > 200 ? `${body.slice(0, 200)}…` : body;
+  fetch(env.commentWebhookUrl, {
+    method: "POST",
+    headers: { "content-type": "text/plain; charset=utf-8" },
+    body: `Nouveau commentaire en attente sur ${slug} — ${name || "anonyme"} : « ${preview} »`,
+  }).catch((e) => {
+    console.warn("comments: webhook notify failed", e instanceof Error ? e.message : e);
+  });
 }
 
 async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
@@ -79,7 +78,7 @@ commentsRoute.get("/", (c) => {
   const status = c.req.query("status");
   try {
     if (status === "pending") {
-      if (!isAdmin(c.req.header("authorization"))) {
+      if (!isAdmin(c.req.header("authorization"), getIp(c))) {
         return c.json({ error: "Non autorisé." }, 401);
       }
       return c.json({ comments: pending() });
@@ -129,11 +128,12 @@ commentsRoute.post("/", async (c) => {
     console.error("comments: insert failed", e);
     return c.json({ error: "Base de commentaires indisponible." }, 503);
   }
+  if (status === "pending") notifyWebhook(slug, name || null, body);
   return c.json({ ok: true, status }, 201);
 });
 
 commentsRoute.patch("/", async (c) => {
-  if (!isAdmin(c.req.header("authorization"))) {
+  if (!isAdmin(c.req.header("authorization"), getIp(c))) {
     return c.json({ error: "Non autorisé." }, 401);
   }
   let payload: { id?: number; action?: "approve" | "delete" };

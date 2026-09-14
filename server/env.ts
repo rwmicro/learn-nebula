@@ -38,6 +38,10 @@ export const env = {
   // Comments moderation / anti-spam (optional).
   turnstileSecret: process.env.TURNSTILE_SECRET_KEY || "",
   adminToken: process.env.COMMENTS_ADMIN_TOKEN || "",
+  // Fired (fire-and-forget) when a comment lands in the moderation queue, so
+  // checking /admin doesn't have to be a polling habit. Any URL that accepts a
+  // plain-text POST body works — e.g. an ntfy.sh topic.
+  commentWebhookUrl: process.env.COMMENT_WEBHOOK_URL || "",
 
   // Trust X-Forwarded-For (set true only behind a reverse proxy you control).
   trustProxy: process.env.TRUST_PROXY !== "false",
