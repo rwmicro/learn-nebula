@@ -36,7 +36,7 @@ export function absoluteURL(path: string): string {
 /**
  * Content-Security-Policy delivered as a <meta> tag. `frame-ancestors` and a few
  * other directives are ignored in meta form, so the same policy is also shipped
- * as real response headers (see SECURITY.md).
+ * as a real response header by server/index.ts.
  *
  * `script-src` keeps 'unsafe-inline' because a static export cannot emit a
  * per-request nonce for Next.js's inline bootstrap; the attack surface is small

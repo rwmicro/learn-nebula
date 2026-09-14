@@ -78,7 +78,7 @@ commentsRoute.get("/", (c) => {
   const status = c.req.query("status");
   try {
     if (status === "pending") {
-      if (!isAdmin(c.req.header("authorization"))) {
+      if (!isAdmin(c.req.header("authorization"), getIp(c))) {
         return c.json({ error: "Non autorisé." }, 401);
       }
       return c.json({ comments: pending() });
@@ -133,7 +133,7 @@ commentsRoute.post("/", async (c) => {
 });
 
 commentsRoute.patch("/", async (c) => {
-  if (!isAdmin(c.req.header("authorization"))) {
+  if (!isAdmin(c.req.header("authorization"), getIp(c))) {
     return c.json({ error: "Non autorisé." }, 401);
   }
   let payload: { id?: number; action?: "approve" | "delete" };

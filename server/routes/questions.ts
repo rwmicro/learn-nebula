@@ -4,12 +4,13 @@
 
 import { Hono } from "hono";
 import { isAdmin } from "../auth.ts";
+import { getIp } from "../http.ts";
 import { recentQuestions } from "../db.ts";
 
 export const questionsRoute = new Hono();
 
 questionsRoute.get("/", (c) => {
-  if (!isAdmin(c.req.header("authorization"))) {
+  if (!isAdmin(c.req.header("authorization"), getIp(c))) {
     return c.json({ error: "Non autorisé." }, 401);
   }
   try {
