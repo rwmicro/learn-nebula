@@ -18,7 +18,7 @@ const I18N_BOOTSTRAP = `window.__i18n = {
   bundles: ${JSON.stringify(Object.fromEntries(LOCALES.map((l) => [l, getMessages(l)]))).replace(/</g, "\\u003c")}
 };
 /* Shared helpers, defined synchronously so every afterInteractive module
-   (audio.js, comments.js, ask.js, translate.js…) can use them without
+   (audio.js, comments.js, translate.js…) can use them without
    redefining their own copy or racing /js/i18n.js. */
 window.__i18n.escapeHtml = function (s) {
   return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");

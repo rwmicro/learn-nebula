@@ -9,6 +9,11 @@ import { getAnkiManifest } from "./anki";
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const POSTS_DIR = path.join(CONTENT_DIR, "posts");
 
+/** Growth stages, seedling → budding → evergreen (Maggie Appleton's
+ *  convention, now the common vocabulary across digital gardens). */
+export const NOTE_STAGES = ["seedling", "budding", "evergreen"] as const;
+export type NoteStage = (typeof NOTE_STAGES)[number];
+
 export interface Frontmatter {
   title: string;
   author?: string[];
@@ -23,6 +28,16 @@ export interface Frontmatter {
   /** Taxonomy from the Obsidian frontmatter (see sources/YAML_TAGS_GUIDE). */
   domain?: string;
   subdomain?: string;
+  /** When the note was last meaningfully revised ("last tended"). Read from
+   *  `updated` / `modified` / `lastmod` / `last-tended`, whichever the vault
+   *  note carries — Obsidian plugins disagree on the name. The vault clone is
+   *  shallow (`git clone --depth 1` in scripts/fetch-notes.mjs), so per-file
+   *  git history is not available to derive this instead. */
+  updated?: Date;
+  /** Growth stage, the digital-garden convention: a note is published early
+   *  as a `seedling` and matures in public. Read from `stage` / `growth` /
+   *  `maturity`; absent means the note simply doesn't declare one. */
+  stage?: NoteStage;
   /** BCP-47-ish language code (e.g. "es", "de") for a note whose content is
    *  substantially in that language — a full-immersion or reading-practice
    *  note, say, as opposed to a French note that just embeds a few foreign
@@ -64,6 +79,39 @@ function toDate(value: unknown): Date | undefined {
     if (!Number.isNaN(d.getTime())) return d;
   }
   return undefined;
+}
+
+// Authors write the stage in whatever vocabulary their vault settled on; map
+// the common synonyms onto the three canonical stages and ignore anything else
+// rather than inventing a stage the author never claimed.
+const STAGE_ALIAS: Record<string, NoteStage> = {
+  seed: "seedling",
+  seeds: "seedling",
+  seedling: "seedling",
+  sprout: "seedling",
+  graine: "seedling",
+  semis: "seedling",
+  bud: "budding",
+  budding: "budding",
+  growing: "budding",
+  sapling: "budding",
+  bourgeon: "budding",
+  pousse: "budding",
+  evergreen: "evergreen",
+  mature: "evergreen",
+  grown: "evergreen",
+  ripe: "evergreen",
+  perenne: "evergreen",
+};
+
+function toStage(value: unknown): NoteStage | undefined {
+  if (typeof value !== "string") return undefined;
+  const key = value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  return STAGE_ALIAS[key];
 }
 
 function slugifySegment(s: string): string {
@@ -198,6 +246,10 @@ function parse(file: string, slug: string, rawPath: string): Doc {
       ...(fm as unknown as Frontmatter),
       title,
       date: toDate(fm.date),
+      updated: toDate(
+        fm.updated ?? fm.modified ?? fm.lastmod ?? fm["last-tended"],
+      ),
+      stage: toStage(fm.stage ?? fm.growth ?? fm.maturity),
     },
   };
 }
@@ -236,6 +288,38 @@ export function getAllPosts(): Doc[] {
 
 function dateValue(d: Doc): number {
   return d.frontmatter.date ? d.frontmatter.date.getTime() : 0;
+}
+
+export interface RecentNote {
+  title: string;
+  href: string;
+  /** Whichever of `updated`/`date` this note was ranked on. */
+  at: Date;
+  /** True when `at` came from `updated`, i.e. the note was re-tended rather
+   *  than freshly planted — the two read differently to a gardener. */
+  tended: boolean;
+  stage?: NoteStage;
+}
+
+/** The most recently touched notes, newest first. A garden is not a blog, so
+ *  "recent" means last *tended* where the note says so (frontmatter `updated`),
+ *  falling back to its planting date. Notes carrying neither are skipped
+ *  rather than being pinned to the epoch at the bottom of the list. */
+export function getRecentNotes(limit = 6): RecentNote[] {
+  const out: RecentNote[] = [];
+  for (const d of getAllPosts()) {
+    const { date, updated, title, stage } = d.frontmatter;
+    const at = updated ?? date;
+    if (!at) continue;
+    out.push({
+      title,
+      href: `/posts/${d.slug}/`,
+      at,
+      tended: Boolean(updated),
+      stage,
+    });
+  }
+  return out.sort((a, b) => b.at.getTime() - a.at.getTime()).slice(0, limit);
 }
 
 export interface DomainGroup {
@@ -290,7 +374,9 @@ export function getLangs(): LangGroup[] {
   const map = new Map<string, { title: string; href: string }[]>();
   for (const doc of getAllPosts()) {
     const code =
-      typeof doc.frontmatter.lang === "string" ? doc.frontmatter.lang.trim().toLowerCase() : "";
+      typeof doc.frontmatter.lang === "string"
+        ? doc.frontmatter.lang.trim().toLowerCase()
+        : "";
     if (!code) continue;
     const list = map.get(code) ?? [];
     list.push({ title: doc.frontmatter.title, href: `/posts/${doc.slug}/` });
@@ -317,7 +403,12 @@ const LANGUAGES_DIR = "Languages - Dialects";
 
 /** First directory named `name` within `depth` levels, as a path relative to
  *  content/posts (forward slashes), or null. */
-function findDir(name: string, dir = POSTS_DIR, base = "", depth = 2): string | null {
+function findDir(
+  name: string,
+  dir = POSTS_DIR,
+  base = "",
+  depth = 2,
+): string | null {
   if (!fs.existsSync(dir)) return null;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (!entry.isDirectory() || IGNORE_DIRS.has(entry.name)) continue;
@@ -334,7 +425,8 @@ function findDir(name: string, dir = POSTS_DIR, base = "", depth = 2): string | 
 function hasNotes(dir: string): boolean {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (entry.isDirectory()) {
-      if (!IGNORE_DIRS.has(entry.name) && hasNotes(path.join(dir, entry.name))) return true;
+      if (!IGNORE_DIRS.has(entry.name) && hasNotes(path.join(dir, entry.name)))
+        return true;
     } else if (entry.name.endsWith(".md")) return true;
   }
   return false;
@@ -357,7 +449,10 @@ export function getLanguageScopes(): ScopeOption[] {
     for (const entry of fs.readdirSync(abs, { withFileTypes: true })) {
       if (!entry.isDirectory() || IGNORE_DIRS.has(entry.name)) continue;
       if (!hasNotes(path.join(abs, entry.name))) continue;
-      out.push({ slug: slugifyPath(`${rel}/${entry.name}`), label: entry.name });
+      out.push({
+        slug: slugifyPath(`${rel}/${entry.name}`),
+        label: entry.name,
+      });
     }
     out.sort((a, b) => a.label.localeCompare(b.label, "fr", { numeric: true }));
   }
@@ -508,7 +603,13 @@ function pruneToNotes(node: TreeNode, parentPath: string): HomeTreeNode | null {
     (n, c) => n + (c.type === "note" ? 1 : c.count),
     0,
   );
-  return { type: "dir", name: homeDisplayName(node.name), path, count, children };
+  return {
+    type: "dir",
+    name: homeDisplayName(node.name),
+    path,
+    count,
+    children,
+  };
 }
 
 /** Full notes tree for the home page (assets pruned); top level is the two top
@@ -614,6 +715,40 @@ function backlinkIndex(): Map<string, Set<string>> {
   }
   backlinkCache = inbound;
   return inbound;
+}
+
+export interface LocalGraph {
+  /** Notes that link to this one. */
+  incoming: SiblingRef[];
+  /** Notes this one links to. */
+  outgoing: SiblingRef[];
+}
+
+/** The immediate [[wikilink]] neighbourhood of a note, both directions. The
+ *  /graph page shows the whole vault; this is the part a reader can actually
+ *  act on from the note they are reading. */
+export function getLocalGraph(slug: string): LocalGraph {
+  const titleOf = (s: string): string | null => {
+    try {
+      return getPost(s).frontmatter.title;
+    } catch {
+      return null; // slug no longer resolvable
+    }
+  };
+  const incoming: SiblingRef[] = [];
+  const outgoing: SiblingRef[] = [];
+  for (const [source, target] of getWikiLinkEdges()) {
+    if (source === slug) {
+      const title = titleOf(target);
+      if (title) outgoing.push({ title, slug: target });
+    } else if (target === slug) {
+      const title = titleOf(source);
+      if (title) incoming.push({ title, slug: source });
+    }
+  }
+  const byTitle = (a: SiblingRef, b: SiblingRef) =>
+    a.title.localeCompare(b.title);
+  return { incoming: incoming.sort(byTitle), outgoing: outgoing.sort(byTitle) };
 }
 
 /** All note→note [[wikilink]] edges as [sourceSlug, targetSlug] pairs. */
