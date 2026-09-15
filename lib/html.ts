@@ -375,10 +375,15 @@ function themePillsHtml(tags: unknown[] | undefined): string {
 }
 
 /** Build a right-margin sidebar with a Pagefind search bar, the note's themes
- * (frontmatter `tags`), and the table of contents. The TOC lists rendered
- * h2/h3 headings; in dev (no Pagefind bundle) the search box becomes a plain
- * placeholder input. */
-export function buildToc(html: string, tags?: unknown[]): string {
+ * (frontmatter `tags`), the table of contents, and — below it — the local
+ * graph (see {@link localGraphHtml}). The TOC lists rendered h2/h3 headings;
+ * in dev (no Pagefind bundle) the search box becomes a plain placeholder
+ * input. */
+export function buildToc(
+  html: string,
+  tags?: unknown[],
+  localGraph = "",
+): string {
   // Match any h2/h3 regardless of attribute order, then pull `id` out of the
   // opening tag — so a heading that ever carries a class (e.g. raw HTML in a
   // note) isn't silently dropped from the TOC. Headings without an id can't be
@@ -423,7 +428,7 @@ export function buildToc(html: string, tags?: unknown[]): string {
   // The trigger pill itself lives in noteHeaderHtml so the sticky header can
   // host it directly — kept out of the aside so it stays visible while the
   // aside is hidden behind its drawer transform.
-  return `<aside class="note-aside" data-pagefind-ignore>${close}${search}${themePillsHtml(tags)}${toc}</aside>`;
+  return `<aside class="note-aside" data-pagefind-ignore>${close}${search}${themePillsHtml(tags)}${toc}${localGraph}</aside>`;
 }
 
 /** Comments section mount point; data fetching and form handling live in
@@ -511,16 +516,25 @@ export function relatedNotesHtml(slug: string): string {
 // neighbours, and there is no room to run a simulation in a static export
 // anyway — this renders at build time, ships as plain SVG and needs no JS.
 const LG_MAX_PER_SIDE = 8;
-const LG_WIDTH = 640;
-const LG_ROW = 28;
-const LG_PAD = 26;
-// How far the two columns sit from the centre node. Wide enough that the fan
-// reads as a fan and the labels get most of the width, rather than huddling
-// around the middle with the column's whole margin left empty.
-const LG_ARM = 150;
+// Sized for the sidebar it lives in (.note-aside is 30rem ≈ 450px), not for the
+// article column: a wider viewBox would just be scaled down, shrinking every
+// label with it. Labels stay inside the viewBox — the SVG no longer paints
+// outside its box, so a long title can't spill into the aside and give it a
+// horizontal scrollbar.
+const LG_WIDTH = 460;
+const LG_ROW = 26;
+const LG_PAD = 24;
+// How far the two columns sit from the centre node. The rest of the half-width
+// (LG_WIDTH / 2 - LG_ARM) is the room a label has, which is what LG_MAX_CHARS
+// below is derived from.
+const LG_ARM = 80;
+// ~7.5px per character at the 15px label size, against 150 units of room.
+const LG_MAX_CHARS = 20;
 
 function lgTruncate(title: string): string {
-  return title.length > 30 ? `${title.slice(0, 29)}…` : title;
+  return title.length > LG_MAX_CHARS
+    ? `${title.slice(0, LG_MAX_CHARS - 1)}…`
+    : title;
 }
 
 function lgColumn(
