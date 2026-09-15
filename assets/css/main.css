@@ -86,6 +86,45 @@ h3 {
   text-transform: lowercase;
 }
 
+/* h4–h6 had been left to the same Preflight reset h3 above escapes, which put
+   them at 15px/440 — *smaller and lighter than the 21px body text they
+   introduce*. Continue the scale instead: each level steps down but none ever
+   falls below the body. */
+h4 {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  /* ~19px @ 320 → ~26px @ ≥1080: above the body, a step below h3. */
+  font-size: clamp(1.2rem, 1.05rem + 0.6vw, 1.6rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.4rem;
+  margin-top: 1.6rem;
+  text-transform: lowercase;
+}
+
+h5 {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  /* ~18px @ 320 → ~23px @ ≥1080 — still at or above the body. */
+  font-size: clamp(1.15rem, 1.05rem + 0.4vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.25;
+  margin-bottom: 0.35rem;
+  margin-top: 1.4rem;
+  text-transform: lowercase;
+}
+
+/* Deepest level: a tracked label rather than another size step, so it stays
+   legible as a heading without competing with h5. */
+h6 {
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: clamp(1.05rem, 1rem + 0.25vw, 1.2rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  line-height: 1.3;
+  margin-bottom: 0.3rem;
+  margin-top: 1.3rem;
+  text-transform: uppercase;
+}
+
 .subtitle {
   font-style: italic;
   margin-bottom: 0.4rem;
@@ -138,6 +177,123 @@ main ol li {
 
 figcaption p {
   margin-bottom: 0;
+}
+
+/* Article lists — Tailwind's preflight (`@import "tailwindcss"` in global.css)
+   resets every ul/ol to `list-style: none` and strips their padding, so a
+   Markdown list (`- courses`, `1. étapes`) rendered as flush-left lines with
+   no bullet and no number: indistinguishable from a run of paragraphs. Restore
+   markers + indent inside the article body only. The site's own lists (.toc,
+   .backlinks, .siblings, .related-notes-list, .ask-sources, .site-nav) set
+   their own `list-style: none; padding: 0` and are unaffected. */
+.article-body ul,
+.article-body ol {
+  padding-left: 1.6rem;
+  margin: 0 0 1.2rem;
+}
+.article-body ul {
+  list-style: disc;
+}
+.article-body ol {
+  list-style: decimal;
+}
+/* Nesting levels get their own marker, as a browser default would. */
+.article-body ul ul {
+  list-style: circle;
+}
+.article-body ul ul ul {
+  list-style: square;
+}
+.article-body ol ol {
+  list-style: lower-alpha;
+}
+.article-body ol ol ol {
+  list-style: lower-roman;
+}
+
+/* `main ul li` above gives every item the paragraph rhythm (1.2rem), which
+   spaces a shopping list like a sequence of essays. Items are a tighter block;
+   the list as a whole keeps the paragraph margin (set above). */
+.article-body li {
+  margin-bottom: 0.3rem;
+}
+.article-body li:last-child {
+  margin-bottom: 0;
+}
+/* A nested list hugs its parent item instead of restarting the rhythm. */
+.article-body li > ul,
+.article-body li > ol {
+  margin-block: 0.3rem;
+}
+/* Loose lists (a blank line between items) wrap each item's text in <p>. */
+.article-body li > p {
+  margin-bottom: 0.3rem;
+}
+.article-body li > p:last-child {
+  margin-bottom: 0;
+}
+
+/* GFM task lists (`- [ ] …`) carry their own checkbox — a bullet on top of it
+   reads as noise, so keep those unmarked and align them with the text column. */
+.article-body ul.contains-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+.article-body li.task-list-item {
+  padding-left: 0.1rem;
+}
+.article-body li.task-list-item input[type="checkbox"] {
+  margin-right: 0.45rem;
+}
+
+/* Plain `> quotation` — the callout transform (rehypeCallouts) only claims a
+   blockquote whose first line is `[!type]`, so an ordinary quote reached the
+   page as a bare <blockquote>: Preflight-sized at 15px, no indent, no rule,
+   no margin — indistinguishable from a paragraph, and smaller than one.
+   Typographic treatment (rule + italic), deliberately unlike the boxed,
+   tinted .callout so the two never read as the same thing. Logical
+   properties so the rule sits on the reading edge in RTL too. */
+blockquote {
+  margin: 1.5rem 0;
+  padding-inline-start: 1.15rem;
+  border-inline-start: 2px solid #111;
+  font-style: italic;
+}
+blockquote > :last-child {
+  margin-bottom: 0;
+}
+/* A quote inside a quote steps in again but drops to a hairline, so the
+   nesting is legible without a second heavy rule. */
+blockquote blockquote {
+  margin: 0.8rem 0;
+  border-inline-start-color: #bbb;
+}
+/* The attribution line authors write as a trailing `— Someone`. */
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* Thematic break (`---`). Preflight leaves it with zero margin, glued between
+   the paragraphs it is meant to separate. A short centred rule rather than a
+   full-width one: the full-width 1px hairline already means "end of article
+   body" here (.backlinks, .related-notes, .siblings). */
+main hr {
+  width: 38%;
+  margin: 2.4rem auto;
+  border: 0;
+  border-top: 1px solid #ccc;
+}
+
+/* Definition lists: `dd` was in the body-type rule above but `dt` never was,
+   so the term rendered smaller than its own definition. */
+main dt {
+  font-size: clamp(1.15rem, 1rem + 0.7vw, 1.4rem);
+  font-weight: 700;
+  line-height: 1.55;
+  margin-bottom: 0.2rem;
+}
+main dd {
+  padding-inline-start: 1.6rem;
 }
 
 .site-nav ul {
@@ -727,6 +883,26 @@ body[data-text-size="lg"] main ol li {
   line-height: 2.3rem;
 }
 
+/* Growth line under the title: stage badge + "last tended" date. The garden
+   metaphor is the point of the site, so the stages are coloured from sprout
+   green to settled ink rather than given icons. */
+.note-growth {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  margin: -0.2rem 0 0.9rem;
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 1.02rem;
+  color: #6f6f6f;
+}
+.growth-sep {
+  color: #bbb;
+}
+.growth-tended time {
+  font-style: italic;
+}
+
 .note-header {
   font-size: 1.05rem;
   border-bottom: 1px solid #ccc;
@@ -954,6 +1130,99 @@ a.theme-pill:focus-visible {
 .backlinks li {
   margin: 0.2rem 0;
   font-size: clamp(1.1rem, 1rem + 0.4vw, 1.25rem);
+}
+
+/* Hover preview card for internal note links (/js/popover.js). Positioned in
+   page coordinates by the script, so it needs `position: absolute` and a layer
+   above the article but below the assistant bar (z-index 1001). */
+.note-popover {
+  position: absolute;
+  z-index: 900;
+  width: min(26rem, calc(100vw - 2rem));
+  padding: 0.6rem 0.75rem;
+  background: #fcfcfc;
+  border: 1px solid #111;
+  box-shadow: 0 3px 16px rgba(0, 0, 0, 0.14);
+  /* The card is decoration over the text; a reader chasing the link should
+     never have to route the pointer around it. */
+  pointer-events: auto;
+}
+.note-popover[hidden] {
+  display: none;
+}
+.note-popover-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  margin: 0 0 0.25rem;
+  color: #111;
+}
+.note-popover-excerpt {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.02rem;
+  line-height: 1.4;
+  margin: 0;
+  color: #333;
+}
+.note-popover-title[hidden],
+.note-popover-excerpt[hidden] {
+  display: none;
+}
+
+/* Local graph: the note's immediate [[wikilink]] neighbourhood, drawn as a
+   static SVG at build time (lib/html.ts). Lives in the aside under the TOC, so
+   it takes that column's treatment — the same hairline rule as .toc — rather
+   than the full-width border the end-of-article apparatus uses. */
+.local-graph {
+  padding-left: 0.6rem;
+  border-left: 1px solid #ccc;
+}
+.local-graph-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  margin: 0 0 0.3rem 0;
+}
+.lg-svg {
+  width: 100%;
+  height: auto;
+  /* Not `overflow: visible`: a long label spilling past the viewBox would give
+     the scrollable aside a horizontal scrollbar. Titles are truncated to fit
+     instead (LG_MAX_CHARS in lib/html.ts). */
+}
+.lg-edge {
+  stroke: #ccc;
+  stroke-width: 1;
+}
+.lg-dot,
+.lg-self {
+  fill: #111;
+}
+.lg-self {
+  stroke: #fcfcfc;
+  stroke-width: 2;
+}
+.lg-label {
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 15px;
+  fill: #111;
+}
+.lg-svg a:hover .lg-label,
+.lg-svg a:focus-visible .lg-label {
+  text-decoration: underline;
+}
+.lg-svg a:focus-visible {
+  outline: 2px solid #003366;
+  outline-offset: 2px;
+}
+.lg-head,
+.lg-more {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-size: 12px;
+  fill: #6f6f6f;
 }
 
 /* Related notes: semantic neighbours from the RAG embedding index, filled in
@@ -1544,6 +1813,9 @@ a.theme-pill:focus-visible {
     margin-bottom: 1rem;
   }
   .note-aside .toc {
+    margin-top: 0.6rem;
+  }
+  .note-aside .local-graph {
     margin-top: 0.6rem;
   }
 

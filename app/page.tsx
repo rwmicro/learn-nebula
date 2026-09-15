@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import { getIndexDoc, getHomeTree, getPdfAssets, getDomains, getLangs } from "@/lib/content";
+import {
+  getIndexDoc,
+  getHomeTree,
+  getPdfAssets,
+  getDomains,
+  getLangs,
+  getRecentNotes,
+} from "@/lib/content";
 import { renderMarkdown } from "@/lib/markdown";
 import { buildGraph } from "@/lib/graph-data";
 import { buildMetadata } from "@/lib/seo";
@@ -8,6 +15,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { graph, personJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import Header from "@/components/Header";
 import { HomeContent } from "@/components/HomeContent";
+import { RecentNotes } from "@/components/RecentNotes";
 
 // Editorial serif for the content zone. next/font self-hosts the files at build
 // time, so they are served from our own origin — no Google CDN request, and the
@@ -66,6 +74,7 @@ export default async function HomePage() {
           </div>
       </div>
       <main id="main" className={newsreader.variable}>
+        <RecentNotes notes={getRecentNotes()} />
         <HomeContent
           tree={getHomeTree()}
           pdfs={getPdfAssets()}

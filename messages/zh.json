@@ -51,6 +51,14 @@
     "translateFilter": "筛选语言…",
     "translateNoMatch": "无匹配语言"
   },
+  "growth": {
+    "tended": "最近修订",
+    "planted": "种下于",
+    "seedling": "幼苗",
+    "budding": "成长中",
+    "evergreen": "成熟",
+    "stageAria": "笔记成熟度"
+  },
   "pronunciation": {
     "playAria": "收听发音",
     "pauseAria": "暂停",
@@ -144,7 +152,10 @@
     "excerpt": "摘录",
     "pinChat": "固定聊天",
     "unpinChat": "取消固定",
-    "imageCaption": "卡米耶·毕沙罗，《埃拉尼的菜园》，1897年。— 知识如花园，需精心培育、代代相传。"
+    "imageCaption": "卡米耶·毕沙罗，《埃拉尼的菜园》，1897年。— 知识如花园，需精心培育、代代相传。",
+    "recentTitle": "最新生长",
+    "recentPlanted": "种下",
+    "recentTended": "修订"
   },
   "graph": {
     "back": "返回花园",
@@ -160,7 +171,11 @@
     "reset": "重置",
     "rotateLeft": "向左旋转",
     "rotateRight": "向右旋转",
-    "hintTouch": "拖动 · 双指缩放 · 双指旋转 · 点击打开"
+    "hintTouch": "拖动 · 双指缩放 · 双指旋转 · 点击打开",
+    "localTitle": "邻近笔记",
+    "localIn": "链接到此",
+    "localOut": "链接至",
+    "localMore": "另有 {n} 条"
   },
   "lightbox": {
     "close": "关闭",
