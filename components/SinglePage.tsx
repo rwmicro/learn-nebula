@@ -92,6 +92,7 @@ export async function SinglePage({
 
   const siblings = note ? siblingNavHtml(getSiblings(doc.slug)) : "";
   const backlinks = note ? backlinksHtml(getBacklinks(doc.slug)) : "";
+  // Rendered inside the aside, under the TOC — see buildToc below.
   const localGraph = note ? localGraphHtml(getLocalGraph(doc.slug)) : "";
   const related = note ? relatedNotesHtml(doc.slug) : "";
 
@@ -113,7 +114,7 @@ export async function SinglePage({
 
   const main =
     (note ? noteHeaderHtml(doc.rawPath, headerTitle, headerDate) : "") +
-    (note ? buildToc(html, fm.tags) : "") +
+    (note ? buildToc(html, fm.tags, localGraph) : "") +
     katex +
     dropcapHtml(plain, fm.dropcap) +
     // On notes, the date sits on a row with the TOC/sidebar toggle (mobile).
@@ -140,7 +141,6 @@ export async function SinglePage({
     `<div class="article-body">${html}</div>` +
     articleSource +
     backlinks +
-    localGraph +
     related +
     (note ? commentsHtml(doc.slug) : "") +
     siblings +

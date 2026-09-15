@@ -1172,24 +1172,25 @@ a.theme-pill:focus-visible {
 }
 
 /* Local graph: the note's immediate [[wikilink]] neighbourhood, drawn as a
-   static SVG at build time (lib/html.ts). Hairlines and ink only, like the
-   rest of the apparatus at the foot of a note. */
+   static SVG at build time (lib/html.ts). Lives in the aside under the TOC, so
+   it takes that column's treatment — the same hairline rule as .toc — rather
+   than the full-width border the end-of-article apparatus uses. */
 .local-graph {
-  border-top: 1px solid #ccc;
-  margin-top: 2.4rem;
-  padding-top: 0.8rem;
+  padding-left: 0.6rem;
+  border-left: 1px solid #ccc;
 }
 .local-graph-title {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
   font-weight: 700;
-  font-size: clamp(1.15rem, 1rem + 0.5vw, 1.3rem);
-  margin: 0 0 0.4rem;
+  margin: 0 0 0.3rem 0;
 }
 .lg-svg {
   width: 100%;
   height: auto;
-  overflow: visible;
+  /* Not `overflow: visible`: a long label spilling past the viewBox would give
+     the scrollable aside a horizontal scrollbar. Titles are truncated to fit
+     instead (LG_MAX_CHARS in lib/html.ts). */
 }
 .lg-edge {
   stroke: #ccc;
@@ -1222,20 +1223,6 @@ a.theme-pill:focus-visible {
   text-transform: lowercase;
   font-size: 12px;
   fill: #6f6f6f;
-}
-
-/* Phones: the SVG scales to its container, so a 640-unit viewBox squeezed into
-   a ~360px column renders every label at about half the size it was authored
-   at — raising the font-size in viewBox units cannot win that back, it just
-   overflows the columns. Put a floor under the scale instead and let the
-   diagram scroll the last few pixels, as the code blocks already do. */
-@media screen and (max-width: 640px) {
-  .local-graph {
-    overflow-x: auto;
-  }
-  .lg-svg {
-    min-width: 32rem;
-  }
 }
 
 /* Related notes: semantic neighbours from the RAG embedding index, filled in
@@ -1826,6 +1813,9 @@ a.theme-pill:focus-visible {
     margin-bottom: 1rem;
   }
   .note-aside .toc {
+    margin-top: 0.6rem;
+  }
+  .note-aside .local-graph {
     margin-top: 0.6rem;
   }
 
