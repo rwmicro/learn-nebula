@@ -1,5 +1,10 @@
 import type { Doc } from "@/lib/content";
-import { formatDateLong, getSiblings, getBacklinks } from "@/lib/content";
+import {
+  formatDateLong,
+  getSiblings,
+  getBacklinks,
+  getLocalGraph,
+} from "@/lib/content";
 import { renderMarkdown } from "@/lib/markdown";
 import {
   dropcapHtml,
@@ -16,6 +21,8 @@ import {
   translateButtonHtml,
   commentsHtml,
   asideToggleHtml,
+  growthHtml,
+  localGraphHtml,
 } from "@/lib/html";
 import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
 import { JsonLd } from "@/components/JsonLd";
@@ -72,7 +79,9 @@ export async function SinglePage({
   // since a French note can embed a few foreign words without being written
   // in that language.
   const detectedLang =
-    franc(plain, { only: ["fra", "eng"], minLength: 30 }) === "eng" ? "en" : "fr";
+    franc(plain, { only: ["fra", "eng"], minLength: 30 }) === "eng"
+      ? "en"
+      : "fr";
   // `<main lang>`: a note tagged `lang` (substantially written in that
   // language — full immersion/reading practice, as opposed to a French note
   // that just embeds a few foreign vocabulary words) wins; otherwise fall
@@ -83,6 +92,8 @@ export async function SinglePage({
 
   const siblings = note ? siblingNavHtml(getSiblings(doc.slug)) : "";
   const backlinks = note ? backlinksHtml(getBacklinks(doc.slug)) : "";
+  // Rendered inside the aside, under the TOC — see buildToc below.
+  const localGraph = note ? localGraphHtml(getLocalGraph(doc.slug)) : "";
   const related = note ? relatedNotesHtml(doc.slug) : "";
 
   // Inline raw Markdown + folder context so /js/translate.js can ship it to
@@ -103,7 +114,7 @@ export async function SinglePage({
 
   const main =
     (note ? noteHeaderHtml(doc.rawPath, headerTitle, headerDate) : "") +
-    (note ? buildToc(html, fm.tags) : "") +
+    (note ? buildToc(html, fm.tags, localGraph) : "") +
     katex +
     dropcapHtml(plain, fm.dropcap) +
     // On notes, the date sits on a row with the TOC/sidebar toggle (mobile).
@@ -111,6 +122,8 @@ export async function SinglePage({
       ? `<div class="subtitle-row">${subtitle}${asideToggleHtml()}</div>`
       : subtitle) +
     `<h1 class='title-note'>${escapeHtml(fm.title)}</h1>` +
+    // Growth stage + "last tended", when the note declares them.
+    (note ? growthHtml(fm.stage, fm.date, fm.updated) : "") +
     (note
       ? `<div class="note-actions" data-pagefind-ignore>` +
         // Display preferences first (visual settings — set once per session)

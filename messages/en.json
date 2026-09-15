@@ -51,6 +51,14 @@
     "translateFilter": "Filter languages…",
     "translateNoMatch": "No language"
   },
+  "growth": {
+    "tended": "last tended",
+    "planted": "planted",
+    "seedling": "seedling",
+    "budding": "budding",
+    "evergreen": "evergreen",
+    "stageAria": "Note growth stage"
+  },
   "pronunciation": {
     "playAria": "Listen to the pronunciation",
     "pauseAria": "Pause",
@@ -144,7 +152,10 @@
     "excerpt": "excerpt",
     "pinChat": "Pin the chat",
     "unpinChat": "Unpin",
-    "imageCaption": "Camille Pissarro, The Vegetable Garden at Éragny, 1897. — Knowledge, like a garden, is cultivated and passed on."
+    "imageCaption": "Camille Pissarro, The Vegetable Garden at Éragny, 1897. — Knowledge, like a garden, is cultivated and passed on.",
+    "recentTitle": "latest growth",
+    "recentPlanted": "planted",
+    "recentTended": "tended"
   },
   "graph": {
     "back": "Back to the garden",
@@ -160,7 +171,11 @@
     "reset": "Reset",
     "rotateLeft": "Rotate left",
     "rotateRight": "Rotate right",
-    "hintTouch": "drag · pinch to zoom · twist with two fingers to rotate · tap to open"
+    "hintTouch": "drag · pinch to zoom · twist with two fingers to rotate · tap to open",
+    "localTitle": "neighbourhood",
+    "localIn": "link here",
+    "localOut": "links to",
+    "localMore": "+{n} more"
   },
   "lightbox": {
     "close": "Close",

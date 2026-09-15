@@ -7,7 +7,7 @@
 // Escapes first, so every tag in the output comes from a pattern this function
 // recognises itself — the input text (LLM-generated, echoing retrieved note
 // content) can never inject arbitrary markup. Ported from the pre-React note
-// assistant (public/js/ask.js), which solved this once already.
+// assistant, which solved this once already; this is now the only copy.
 import { escapeHtml } from "./escape";
 
 export function markdownToHtml(text: string): string {

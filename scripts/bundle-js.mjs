@@ -1,6 +1,6 @@
 // Bundle the note-page enhancer scripts into a single request (note.bundle.js).
-// esbuild resolves ES imports, so scripts can share modules (e.g. ask.js pulls
-// readAskStream from lib/ask-stream.ts, shared with the React home assistant).
+// esbuild resolves ES imports, so scripts can share modules from lib/ with the
+// React side rather than keeping a second copy here.
 // Each source stays a self-contained IIFE; esbuild scopes them per-module and
 // runs them in the order below. Regenerated on `predev`/`build`; output is
 // git-ignored.
@@ -23,9 +23,11 @@ const SCRIPTS = [
   "related",
   "comments",
   "youtube",
+  "popover",
 ];
 // Note: "ask" (the old floating note assistant) was removed — the note "AI"
 // button now opens the single, draggable <PinnedAssistant> mounted site-wide.
+// public/js/ask.js went with it; its .ask-* rules in main.css are now dead.
 
 await build({
   // Synthetic entry that side-effect-imports each enhancer in order.

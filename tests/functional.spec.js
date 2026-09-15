@@ -36,3 +36,99 @@ test.describe("Security", () => {
     expect(html).toContain("/katex/katex.min.css");
   });
 });
+
+test.describe("Typography", () => {
+  // Tailwind's preflight resets every ul/ol to `list-style: none` with no
+  // padding, which silently flattened Markdown lists in notes into a run of
+  // unmarked, flush-left lines. main.css restores markers + indent inside
+  // .article-body; this guards that rescue against the next preflight bump.
+  test("article lists keep their bullets, numbers and indent", async ({
+    page,
+    request,
+  }) => {
+    const xml = await (await request.get("/sitemap.xml")).text();
+    const m = xml.match(/<loc>([^<]*\/posts\/[^<]*)<\/loc>/);
+    test.skip(!m, "no note in sitemap");
+    await page.goto(new URL(m[1]).pathname);
+
+    const styles = await page.evaluate(() => {
+      const body = document.querySelector(".article-body");
+      if (!body) return null;
+      const probe = document.createElement("div");
+      probe.innerHTML =
+        "<ul><li>a<ul><li>b</li></ul></li></ul>" +
+        "<ol><li>c</li></ol>" +
+        '<ul class="contains-task-list"><li class="task-list-item">d</li></ul>';
+      body.append(probe);
+      const read = (sel) => {
+        const cs = getComputedStyle(probe.querySelector(sel));
+        return { type: cs.listStyleType, padLeft: parseFloat(cs.paddingLeft) };
+      };
+      const out = {
+        ul: read("ul"),
+        nested: read("ul ul"),
+        ol: read("ol"),
+        tasks: read("ul.contains-task-list"),
+      };
+      probe.remove();
+      return out;
+    });
+
+    expect(styles).not.toBeNull();
+    expect(styles.ul.type).toBe("disc");
+    expect(styles.ul.padLeft).toBeGreaterThan(0);
+    expect(styles.nested.type).toBe("circle");
+    expect(styles.ol.type).toBe("decimal");
+    expect(styles.ol.padLeft).toBeGreaterThan(0);
+    // Task lists carry their own checkbox — a bullet on top would be noise.
+    expect(styles.tasks.type).toBe("none");
+  });
+});
+
+test.describe("Hover previews", () => {
+  // /js/popover.js: hovering an internal note link fetches the target and shows
+  // its title + opening prose, so a reader can judge a [[wikilink]] without
+  // leaving the page. Text is injected with textContent, never innerHTML.
+  test("previews an internal note link on hover", async ({
+    page,
+    request,
+    isMobile,
+  }) => {
+    // popover.js deliberately stands down where `(hover: hover)` is false: on
+    // touch, a tap should just follow the link.
+    test.skip(Boolean(isMobile), "pointer-only affordance");
+
+    const xml = await (await request.get("/sitemap.xml")).text();
+    const locs = [...xml.matchAll(/<loc>([^<]*\/posts\/[^<]*)<\/loc>/g)].map(
+      (m) => new URL(m[1]).pathname,
+    );
+    test.skip(locs.length < 2, "need at least two notes");
+
+    // Find a note that links to another note; notes with no outgoing links
+    // have nothing to preview.
+    let found = null;
+    for (const path of locs.slice(0, 12)) {
+      await page.goto(path);
+      const link = page
+        .locator(
+          '.article-body a[href^="/posts/"], .backlinks a[href^="/posts/"]',
+        )
+        .first();
+      if (await link.count()) {
+        found = link;
+        break;
+      }
+    }
+    test.skip(!found, "no note-to-note link in the sampled notes");
+
+    await found.scrollIntoViewIfNeeded();
+    await found.hover();
+    const card = page.locator(".note-popover");
+    await expect(card).toBeVisible({ timeout: 5000 });
+    await expect(card).not.toBeEmpty();
+
+    // Escape dismisses it.
+    await page.keyboard.press("Escape");
+    await expect(card).toBeHidden();
+  });
+});

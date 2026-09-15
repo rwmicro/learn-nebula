@@ -51,6 +51,14 @@
     "translateFilter": "Filtrar idiomas…",
     "translateNoMatch": "Ningún idioma"
   },
+  "growth": {
+    "tended": "retocada el",
+    "planted": "plantada el",
+    "seedling": "brote",
+    "budding": "en crecimiento",
+    "evergreen": "madura",
+    "stageAria": "Estado de madurez de la nota"
+  },
   "pronunciation": {
     "playAria": "Escuchar la pronunciación",
     "pauseAria": "Pausar",
@@ -144,7 +152,10 @@
     "excerpt": "extracto",
     "pinChat": "Fijar el chat",
     "unpinChat": "Soltar",
-    "imageCaption": "Camille Pissarro, El huerto en Éragny, 1897. — El conocimiento, como un jardín, se cultiva y se transmite."
+    "imageCaption": "Camille Pissarro, El huerto en Éragny, 1897. — El conocimiento, como un jardín, se cultiva y se transmite.",
+    "recentTitle": "últimos brotes",
+    "recentPlanted": "plantada",
+    "recentTended": "retocada"
   },
   "graph": {
     "back": "Volver al jardín",
@@ -160,7 +171,11 @@
     "reset": "Restablecer",
     "rotateLeft": "Girar a la izquierda",
     "rotateRight": "Girar a la derecha",
-    "hintTouch": "arrastrar · pellizcar para ampliar · girar con dos dedos para rotar · tocar para abrir"
+    "hintTouch": "arrastrar · pellizcar para ampliar · girar con dos dedos para rotar · tocar para abrir",
+    "localTitle": "vecindario",
+    "localIn": "enlazan aquí",
+    "localOut": "enlaza con",
+    "localMore": "+{n} más"
   },
   "lightbox": {
     "close": "Cerrar",

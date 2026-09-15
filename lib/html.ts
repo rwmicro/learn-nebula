@@ -1,5 +1,12 @@
 import { NAV } from "./site";
-import { INDEX_NOTE, type SiblingNav, type SiblingRef } from "./content";
+import {
+  INDEX_NOTE,
+  formatDateLong,
+  type LocalGraph,
+  type NoteStage,
+  type SiblingNav,
+  type SiblingRef,
+} from "./content";
 import { folderAnchor } from "./slug";
 import { escapeHtml } from "./escape";
 import { t, i18nAttrs, i18nAttr } from "./i18n";
@@ -27,10 +34,16 @@ export function navHtml(): string {
  * Dropcap setup for single pages (layouts/single.html): the ::first-letter rule
  * plus, when enabled and the first letter is A–Z, the matching Goudy font.
  */
-export function dropcapHtml(plain: string, dropcap: boolean | undefined): string {
+export function dropcapHtml(
+  plain: string,
+  dropcap: boolean | undefined,
+): string {
   // Dropcap is fluid too: 60px @ 320px viewport → 99px @ ≥1080. The
   // tight line-height and small padding stay constant; only the cap scales.
-  const base = `<style>.article-body > p:first-of-type::first-letter, main > p:first-of-type::first-letter { font-family: "GoudyInitialen", "Alegreya", "Alegreya Fallback", serif; float: left; font-size: clamp(3.8rem, 2.2rem + 5vw, 6.6rem); line-height: 0.8; padding: 0.4rem 0.5rem 0.08rem 0; }</style>`;
+  // `float`/`padding` are logical, not physical: /js/i18n.js sets <html dir="rtl">
+  // for Arabic, and a `float: left` cap would sit at the end of the first line
+  // instead of where reading starts, detached from its own paragraph.
+  const base = `<style>.article-body > p:first-of-type::first-letter, main > p:first-of-type::first-letter { font-family: "GoudyInitialen", "Alegreya", "Alegreya Fallback", serif; float: inline-start; font-size: clamp(3.8rem, 2.2rem + 5vw, 6.6rem); line-height: 0.8; padding-block: 0.4rem 0.08rem; padding-inline: 0 0.5rem; }</style>`;
   const first = plain
     .replace(/^[^A-Za-z]*/, "")
     .charAt(0)
@@ -97,20 +110,69 @@ export function wideTextButtonHtml(): string {
  * /js/translate.js sorts the menu by display name in that locale. */
 export const TRANSLATE_LANGS = [
   // Western Europe
-  "en", "es", "fr", "de", "it", "pt", "nl", "ca", "ga", "cy", "eu",
+  "en",
+  "es",
+  "fr",
+  "de",
+  "it",
+  "pt",
+  "nl",
+  "ca",
+  "ga",
+  "cy",
+  "eu",
   // Nordic
-  "sv", "da", "no", "fi", "is",
+  "sv",
+  "da",
+  "no",
+  "fi",
+  "is",
   // Central / Eastern Europe
-  "pl", "cs", "sk", "hu", "ro", "bg", "hr", "sr", "sl", "el", "uk", "ru", "be",
-  "lv", "lt", "et",
+  "pl",
+  "cs",
+  "sk",
+  "hu",
+  "ro",
+  "bg",
+  "hr",
+  "sr",
+  "sl",
+  "el",
+  "uk",
+  "ru",
+  "be",
+  "lv",
+  "lt",
+  "et",
   // Middle East
-  "tr", "ar", "he", "fa",
+  "tr",
+  "ar",
+  "he",
+  "fa",
   // South Asia
-  "hi", "bn", "ur", "ta", "te", "mr", "gu", "pa", "ml", "kn",
+  "hi",
+  "bn",
+  "ur",
+  "ta",
+  "te",
+  "mr",
+  "gu",
+  "pa",
+  "ml",
+  "kn",
   // East / Southeast Asia
-  "ja", "zh", "ko", "vi", "th", "id", "ms", "tl",
+  "ja",
+  "zh",
+  "ko",
+  "vi",
+  "th",
+  "id",
+  "ms",
+  "tl",
   // Africa
-  "sw", "am", "yo",
+  "sw",
+  "am",
+  "yo",
 ] as const;
 
 /** Translate-this-note widget: a typographic button that toggles a dropdown
@@ -195,6 +257,51 @@ export function asideToggleHtml(): string {
  *      only on mobile/tablet (≤ 1080 px) and only once the original header
  *      has scrolled out of view (handled by /js/sticky-header.js).
  * The toggle pill is duplicated so it's reachable in both states. */
+/** Growth line: the digital-garden convention that a note is published early
+ * and matures in public, so the reader can tell a sketch from a settled piece.
+ * Renders only what the note actually declares — a vault that sets neither
+ * `stage` nor `updated` gets nothing rather than an invented default.
+ *
+ * The "planted" date is already the article's subtitle, so only the tending
+ * date is repeated here, and only when it differs from the planting date. The
+ * <time> carries `data-i18n-date` so /js/i18n.js reformats it on a locale
+ * switch, exactly like the subtitle. */
+export function growthHtml(
+  stage: NoteStage | undefined,
+  planted: Date | undefined,
+  tended: Date | undefined,
+): string {
+  const sameDay =
+    planted &&
+    tended &&
+    planted.toISOString().slice(0, 10) === tended.toISOString().slice(0, 10);
+  const showTended = tended && !sameDay;
+  if (!stage && !showTended) return "";
+
+  const badge = stage
+    ? `<span class="growth-stage growth-${stage}"` +
+      ` title="${escapeHtml(t("growth.stageAria"))}"` +
+      i18nAttr("title", "growth.stageAria") +
+      `>` +
+      `<span class="growth-dot" aria-hidden="true"></span>` +
+      `<span${i18nAttrs(`growth.${stage}`)}>${escapeHtml(t(`growth.${stage}`))}</span>` +
+      `</span>`
+    : "";
+
+  const tendedHtml = showTended
+    ? `<span class="growth-tended">` +
+      `<span${i18nAttrs("growth.tended")}>${escapeHtml(t("growth.tended"))}</span> ` +
+      `<time datetime="${tended.toISOString()}" data-i18n-date>${escapeHtml(formatDateLong(tended))}</time>` +
+      `</span>`
+    : "";
+
+  const sep =
+    badge && tendedHtml
+      ? `<span class="growth-sep" aria-hidden="true">·</span>`
+      : "";
+  return `<div class="note-growth">${badge}${sep}${tendedHtml}</div>`;
+}
+
 export function noteHeaderHtml(
   rawPath: string,
   title?: string,
@@ -268,10 +375,15 @@ function themePillsHtml(tags: unknown[] | undefined): string {
 }
 
 /** Build a right-margin sidebar with a Pagefind search bar, the note's themes
- * (frontmatter `tags`), and the table of contents. The TOC lists rendered
- * h2/h3 headings; in dev (no Pagefind bundle) the search box becomes a plain
- * placeholder input. */
-export function buildToc(html: string, tags?: unknown[]): string {
+ * (frontmatter `tags`), the table of contents, and — below it — the local
+ * graph (see {@link localGraphHtml}). The TOC lists rendered h2/h3 headings;
+ * in dev (no Pagefind bundle) the search box becomes a plain placeholder
+ * input. */
+export function buildToc(
+  html: string,
+  tags?: unknown[],
+  localGraph = "",
+): string {
   // Match any h2/h3 regardless of attribute order, then pull `id` out of the
   // opening tag — so a heading that ever carries a class (e.g. raw HTML in a
   // note) isn't silently dropped from the TOC. Headings without an id can't be
@@ -300,7 +412,10 @@ export function buildToc(html: string, tags?: unknown[]): string {
   const toc =
     items.length >= 2
       ? `<nav class="toc" aria-label="${escapeHtml(t("sidebar.tocTitle"))}"${i18nAttr("aria-label", "sidebar.tocTitle")}><p class="toc-title"${i18nAttrs("sidebar.tocTitle")}>${escapeHtml(t("sidebar.tocTitle"))}</p><ul>${items
-          .map((i) => `<li class="toc-h${i.level}"><a href="#${i.id}">${i.text}</a></li>`)
+          .map(
+            (i) =>
+              `<li class="toc-h${i.level}"><a href="#${i.id}">${i.text}</a></li>`,
+          )
           .join("")}</ul></nav>`
       : "";
   // Mobile/tablet close button (lives inside the aside but is hidden by CSS
@@ -313,7 +428,7 @@ export function buildToc(html: string, tags?: unknown[]): string {
   // The trigger pill itself lives in noteHeaderHtml so the sticky header can
   // host it directly — kept out of the aside so it stays visible while the
   // aside is hidden behind its drawer transform.
-  return `<aside class="note-aside" data-pagefind-ignore>${close}${search}${themePillsHtml(tags)}${toc}</aside>`;
+  return `<aside class="note-aside" data-pagefind-ignore>${close}${search}${themePillsHtml(tags)}${toc}${localGraph}</aside>`;
 }
 
 /** Comments section mount point; data fetching and form handling live in
@@ -362,7 +477,9 @@ export function siblingNavHtml(nav: SiblingNav): string {
     `</div>`;
   const folderName = nav.folder.split("/").pop() ?? "";
   const headingKey = folderName ? "siblings.moreIn" : "siblings.more";
-  const headingVars = folderName ? { folder: prettyFolder(folderName) } : undefined;
+  const headingVars = folderName
+    ? { folder: prettyFolder(folderName) }
+    : undefined;
   const items = nav.siblings
     .map((s) =>
       s.current
@@ -389,6 +506,132 @@ export function relatedNotesHtml(slug: string): string {
     `<nav class="related-notes" data-pagefind-ignore data-url="/posts/${escapeHtml(slug)}/">` +
     `<p class="related-notes-title"${i18nAttrs("siblings.related")}>${escapeHtml(t("siblings.related"))}</p>` +
     `<ul class="related-notes-list"></ul>` +
+    `</nav>`
+  );
+}
+
+// Local-graph geometry. A bipartite fan, not a force layout: inbound notes on
+// the reading-start side, outbound on the other, the current note between them.
+// Radial placement collides labels as soon as a note has more than a handful of
+// neighbours, and there is no room to run a simulation in a static export
+// anyway — this renders at build time, ships as plain SVG and needs no JS.
+const LG_MAX_PER_SIDE = 8;
+// Sized for the sidebar it lives in (.note-aside is 30rem ≈ 450px), not for the
+// article column: a wider viewBox would just be scaled down, shrinking every
+// label with it. Labels stay inside the viewBox — the SVG no longer paints
+// outside its box, so a long title can't spill into the aside and give it a
+// horizontal scrollbar.
+const LG_WIDTH = 460;
+const LG_ROW = 26;
+const LG_PAD = 24;
+// How far the two columns sit from the centre node. The rest of the half-width
+// (LG_WIDTH / 2 - LG_ARM) is the room a label has, which is what LG_MAX_CHARS
+// below is derived from.
+const LG_ARM = 80;
+// ~7.5px per character at the 15px label size, against 150 units of room.
+const LG_MAX_CHARS = 20;
+
+function lgTruncate(title: string): string {
+  return title.length > LG_MAX_CHARS
+    ? `${title.slice(0, LG_MAX_CHARS - 1)}…`
+    : title;
+}
+
+function lgColumn(
+  refs: SiblingRef[],
+  x: number,
+  cx: number,
+  cy: number,
+  top: number,
+  anchor: "start" | "end",
+): string {
+  return refs
+    .map((r, i) => {
+      const y = top + i * LG_ROW;
+      const dot = anchor === "end" ? x + 10 : x - 10;
+      return (
+        `<line class="lg-edge" x1="${dot}" y1="${y}" x2="${cx}" y2="${cy}"/>` +
+        `<circle class="lg-dot" cx="${dot}" cy="${y}" r="3"/>` +
+        `<a href="/posts/${encodeSlug(r.slug)}/">` +
+        `<title>${escapeHtml(r.title)}</title>` +
+        `<text class="lg-label" x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="middle">` +
+        `${escapeHtml(lgTruncate(r.title))}</text>` +
+        `</a>`
+      );
+    })
+    .join("");
+}
+
+/** The note's immediate [[wikilink]] neighbourhood, drawn at build time as a
+ * static SVG. The /graph page holds the whole vault; this is the slice a reader
+ * can act on without leaving the note. Rendered only when the note actually has
+ * neighbours — an isolated note gets nothing rather than an empty frame. */
+export function localGraphHtml(g: LocalGraph): string {
+  const incoming = g.incoming.slice(0, LG_MAX_PER_SIDE);
+  const outgoing = g.outgoing.slice(0, LG_MAX_PER_SIDE);
+  if (!incoming.length && !outgoing.length) return "";
+
+  const rows = Math.max(incoming.length, outgoing.length);
+  const height = LG_PAD * 2 + Math.max(1, rows) * LG_ROW;
+  const cx = LG_WIDTH / 2;
+  const cy = height / 2;
+  const topFor = (n: number) => cy - ((n - 1) * LG_ROW) / 2;
+
+  // Labels are laid out with `direction` on the <svg>, so in RTL the inbound
+  // column mirrors to the other side along with everything else.
+  const left = lgColumn(
+    incoming,
+    cx - LG_ARM,
+    cx,
+    cy,
+    topFor(incoming.length),
+    "end",
+  );
+  const right = lgColumn(
+    outgoing,
+    cx + LG_ARM,
+    cx,
+    cy,
+    topFor(outgoing.length),
+    "start",
+  );
+
+  const more = (
+    all: number,
+    shown: number,
+    x: number,
+    anchor: "start" | "end",
+  ) =>
+    all > shown
+      ? `<text class="lg-more" x="${x}" y="${height - 8}" text-anchor="${anchor}"` +
+        i18nAttrs("graph.localMore", { n: all - shown }) +
+        `>${escapeHtml(t("graph.localMore", { n: all - shown }))}</text>`
+      : "";
+
+  const headings =
+    (incoming.length
+      ? `<text class="lg-head" x="${cx - LG_ARM}" y="14" text-anchor="end"${i18nAttrs("graph.localIn")}>` +
+        `${escapeHtml(t("graph.localIn"))}</text>`
+      : "") +
+    (outgoing.length
+      ? `<text class="lg-head" x="${cx + LG_ARM}" y="14" text-anchor="start"${i18nAttrs("graph.localOut")}>` +
+        `${escapeHtml(t("graph.localOut"))}</text>`
+      : "");
+
+  return (
+    `<nav class="local-graph" data-pagefind-ignore>` +
+    `<p class="local-graph-title"${i18nAttrs("graph.localTitle")}>${escapeHtml(t("graph.localTitle"))}</p>` +
+    `<svg class="lg-svg" viewBox="0 0 ${LG_WIDTH} ${height}" role="group"` +
+    ` aria-label="${escapeHtml(t("graph.localTitle"))}"` +
+    i18nAttr("aria-label", "graph.localTitle") +
+    `>` +
+    headings +
+    left +
+    right +
+    `<circle class="lg-self" cx="${cx}" cy="${cy}" r="5"/>` +
+    more(g.incoming.length, incoming.length, cx - LG_ARM, "end") +
+    more(g.outgoing.length, outgoing.length, cx + LG_ARM, "start") +
+    `</svg>` +
     `</nav>`
   );
 }
