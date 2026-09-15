@@ -140,6 +140,73 @@ figcaption p {
   margin-bottom: 0;
 }
 
+/* Article lists — Tailwind's preflight (`@import "tailwindcss"` in global.css)
+   resets every ul/ol to `list-style: none` and strips their padding, so a
+   Markdown list (`- courses`, `1. étapes`) rendered as flush-left lines with
+   no bullet and no number: indistinguishable from a run of paragraphs. Restore
+   markers + indent inside the article body only. The site's own lists (.toc,
+   .backlinks, .siblings, .related-notes-list, .ask-sources, .site-nav) set
+   their own `list-style: none; padding: 0` and are unaffected. */
+.article-body ul,
+.article-body ol {
+  padding-left: 1.6rem;
+  margin: 0 0 1.2rem;
+}
+.article-body ul {
+  list-style: disc;
+}
+.article-body ol {
+  list-style: decimal;
+}
+/* Nesting levels get their own marker, as a browser default would. */
+.article-body ul ul {
+  list-style: circle;
+}
+.article-body ul ul ul {
+  list-style: square;
+}
+.article-body ol ol {
+  list-style: lower-alpha;
+}
+.article-body ol ol ol {
+  list-style: lower-roman;
+}
+
+/* `main ul li` above gives every item the paragraph rhythm (1.2rem), which
+   spaces a shopping list like a sequence of essays. Items are a tighter block;
+   the list as a whole keeps the paragraph margin (set above). */
+.article-body li {
+  margin-bottom: 0.3rem;
+}
+.article-body li:last-child {
+  margin-bottom: 0;
+}
+/* A nested list hugs its parent item instead of restarting the rhythm. */
+.article-body li > ul,
+.article-body li > ol {
+  margin-block: 0.3rem;
+}
+/* Loose lists (a blank line between items) wrap each item's text in <p>. */
+.article-body li > p {
+  margin-bottom: 0.3rem;
+}
+.article-body li > p:last-child {
+  margin-bottom: 0;
+}
+
+/* GFM task lists (`- [ ] …`) carry their own checkbox — a bullet on top of it
+   reads as noise, so keep those unmarked and align them with the text column. */
+.article-body ul.contains-task-list {
+  list-style: none;
+  padding-left: 0;
+}
+.article-body li.task-list-item {
+  padding-left: 0.1rem;
+}
+.article-body li.task-list-item input[type="checkbox"] {
+  margin-right: 0.45rem;
+}
+
 .site-nav ul {
   list-style: none;
   padding: 0;
@@ -1647,6 +1714,18 @@ a.theme-pill:focus-visible {
 }
 .ask-answer[data-busy="true"] .ask-output:empty::before {
   content: "";
+}
+/* The finished answer is re-rendered from Markdown (markdownToHtml in
+   /js/ask.js), so its lists need the same preflight rescue as the article body
+   — mirrors .gk-pinned-answer, the home assistant's answer pane. */
+.ask-output ul,
+.ask-output ol {
+  margin: 0 0 0.6rem;
+  padding-left: 1.3rem;
+  list-style: revert; /* Tailwind's preflight resets ul/ol to list-style: none */
+}
+.ask-output li + li {
+  margin-top: 0.2rem;
 }
 .ask-answer[data-busy="true"] .ask-output::after {
   content: "▎";
