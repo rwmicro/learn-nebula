@@ -51,6 +51,14 @@
     "translateFilter": "Filtrer les langues…",
     "translateNoMatch": "Aucune langue"
   },
+  "growth": {
+    "tended": "retouché le",
+    "planted": "planté le",
+    "seedling": "pousse",
+    "budding": "en croissance",
+    "evergreen": "établie",
+    "stageAria": "Stade de maturité de la note"
+  },
   "pronunciation": {
     "playAria": "Écouter la prononciation",
     "pauseAria": "Mettre en pause",
@@ -144,7 +152,10 @@
     "excerpt": "extrait",
     "pinChat": "Épingler le chat",
     "unpinChat": "Détacher",
-    "imageCaption": "Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet."
+    "imageCaption": "Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.",
+    "recentTitle": "dernières pousses",
+    "recentPlanted": "planté",
+    "recentTended": "retouché"
   },
   "graph": {
     "back": "Retour au jardin",
@@ -160,7 +171,11 @@
     "reset": "Réinitialiser",
     "rotateLeft": "Pivoter vers la gauche",
     "rotateRight": "Pivoter vers la droite",
-    "hintTouch": "glisser · pincer pour zoomer · tordre à deux doigts pour pivoter · toucher pour ouvrir"
+    "hintTouch": "glisser · pincer pour zoomer · tordre à deux doigts pour pivoter · toucher pour ouvrir",
+    "localTitle": "voisinage",
+    "localIn": "mènent ici",
+    "localOut": "mène vers",
+    "localMore": "+{n} autres"
   },
   "lightbox": {
     "close": "Fermer",

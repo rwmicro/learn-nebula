@@ -50,6 +50,93 @@ body {
   }
 }
 
+/* Growth-stage badge — the digital-garden convention that a note is published
+   as a seedling and matures in public. Lives here, not in main.css: it appears
+   on note pages *and* in the home "latest growth" list, and main.css only loads
+   on /posts/*. Coloured sprout-green → settled ink rather than given icons. */
+.growth-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+  color: var(--growth-c, #6f6f6f);
+}
+.growth-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+/* Sprout → settled, all three ≥ 4.5:1 against the #fcfcfc page (WCAG 2.1 AA
+   for normal text). The first pass used a brighter #6a9b4f for seedling; it
+   read nicely but measured 3.19:1, which axe caught. Keep the progression
+   legible by darkening the whole ramp rather than only the failing end. */
+.growth-seedling {
+  --growth-c: #4e7a36; /* 4.92:1 */
+}
+.growth-budding {
+  --growth-c: #3f6b4a; /* 6.00:1 — the site's --color-garden */
+}
+.growth-evergreen {
+  --growth-c: #2f5d3a; /* 7.45:1 */
+}
+
+/* Home "latest growth": a short way back into what is being worked on, not a
+   reverse-chronological feed — a garden deliberately has no front page of
+   newest-first posts. */
+.recent-notes {
+  max-width: 44rem;
+  margin: 2.4rem auto 0;
+  padding: 0 1rem;
+  text-align: start;
+}
+.recent-notes-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: clamp(1.15rem, 1rem + 0.5vw, 1.35rem);
+  margin: 0 0 0.5rem;
+  color: #111;
+}
+.recent-notes .recent-notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.recent-notes .recent-notes-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.6rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #eee;
+}
+.recent-notes .recent-notes-list li:last-child {
+  border-bottom: 0;
+}
+.recent-notes-list a {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.15rem;
+  color: #111;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.recent-meta {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-inline-start: auto;
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 0.92rem;
+  color: #6f6f6f;
+}
+.recent-meta time {
+  font-style: italic;
+}
 
 /* Home hero image (#10): a plain brown border (no wood effect). */
 .home-frame {
@@ -596,8 +683,13 @@ footer {
 }
 
 @keyframes pron-pulse {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 1; }
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
 }
 
 /* Loading: same pulse on the whole icon while the clip buffers. */

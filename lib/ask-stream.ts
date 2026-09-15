@@ -2,9 +2,10 @@
 // object per line — {sources} first, then {chunk} text deltas, then an optional
 // {error} — and this drives the caller's handlers with the accumulated answer.
 //
-// Imported by BOTH assistants so the wire format lives in one place: the home
-// one (React, HomeContent.tsx) and the note-page one (vanilla public/js/ask.js,
-// bundled through esbuild by scripts/bundle-js.mjs).
+// Lives apart from its single caller (the React assistant, HomeContent.tsx /
+// PinnedAssistant.tsx) so the wire format stays one shared definition: the
+// vanilla note bundle can import it through esbuild the same way, as the
+// note-page assistant used to.
 
 export interface AskSource {
   title?: string;
