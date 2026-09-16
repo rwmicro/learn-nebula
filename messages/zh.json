@@ -7,6 +7,7 @@
     "appliedsciences": "应用科学",
     "socialsciences": "社会科学",
     "graph": "图谱",
+    "frise": "时间线",
     "menu": "菜单"
   },
   "sidebar": {
@@ -197,5 +198,11 @@
   "youtube": {
     "play": "播放 YouTube 视频",
     "watch": "在 YouTube 上观看"
+  },
+  "frise": {
+    "title": "时间线",
+    "intro": "花园中与历史事件相关的笔记，按日期排序。",
+    "empty": "还没有笔记标注历史日期。",
+    "bce": "公元前 {year} 年"
   }
 }

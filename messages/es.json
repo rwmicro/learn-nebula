@@ -7,6 +7,7 @@
     "appliedsciences": "Ciencias aplicadas",
     "socialsciences": "Ciencias sociales",
     "graph": "Grafo",
+    "frise": "Cronología",
     "menu": "Menú"
   },
   "sidebar": {
@@ -197,5 +198,11 @@
   "youtube": {
     "play": "Reproducir el vídeo de YouTube",
     "watch": "Ver en YouTube"
+  },
+  "frise": {
+    "title": "Cronología",
+    "intro": "Las notas del jardín sobre un acontecimiento histórico, ordenadas por fecha.",
+    "empty": "Ninguna nota tiene todavía una fecha histórica.",
+    "bce": "{year} a. C."
   }
 }
