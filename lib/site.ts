@@ -20,6 +20,7 @@ export const ORIGINAL_AUTHOR_URL = "https://david.alvarezrosa.com";
 export const NAV = [
   { name: "nav.home", href: "/" },
   { name: "nav.graph", href: "/graph/" },
+  { name: "nav.frise", href: "/frise/" },
 ];
 
 // Social profiles for the Person JSON-LD (none yet).
