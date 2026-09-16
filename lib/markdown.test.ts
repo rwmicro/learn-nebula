@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderMarkdown, extractPlain, truncate } from "./markdown";
+import { listVaultAssets } from "./vault-assets";
 
 describe("truncate", () => {
   it("leaves short strings untouched", () => {
@@ -140,7 +141,9 @@ describe("renderMarkdown", () => {
   });
 
   it("converts ![](video.mp4) to a <video> element", async () => {
-    const { html } = await renderMarkdown("![clip](https://example.com/demo.mp4)");
+    const { html } = await renderMarkdown(
+      "![clip](https://example.com/demo.mp4)",
+    );
     expect(html).toContain("<video");
     expect(html).toContain("controls");
     expect(html).toContain("https://example.com/demo.mp4");
@@ -154,7 +157,9 @@ describe("renderMarkdown", () => {
     );
     expect(html).toContain('class="pron"');
     expect(html).toContain('class="pron-btn"');
-    expect(html).toContain('data-pron-src="https://example.com/bonjour-fr.mp3"');
+    expect(html).toContain(
+      'data-pron-src="https://example.com/bonjour-fr.mp3"',
+    );
     expect(html).toContain('class="pron-label"');
     expect(html).toContain("bonjour");
     // No broken <img> for the same src.
@@ -180,9 +185,118 @@ describe("renderMarkdown", () => {
   });
 
   it("keeps KaTeX and math placeholders intact through the sanitizer", async () => {
-    const { html, hasMath } = await renderMarkdown(String.raw`Inline $a^2+b^2$ math.`);
+    const { html, hasMath } = await renderMarkdown(
+      String.raw`Inline $a^2+b^2$ math.`,
+    );
     expect(hasMath).toBe(true);
     expect(html).toContain("katex");
     expect(html).not.toContain("data-ph");
   });
+});
+
+describe("figures", () => {
+  // Remote URLs keep these independent of content/posts, which is fetched at
+  // build time and absent from the unit-test job.
+  const IMG = "https://example.com/photo.png";
+
+  it("wraps a standalone image in a figure", async () => {
+    const { html } = await renderMarkdown(`![Un schéma](${IMG})`);
+    expect(html).toContain('<figure class="note-figure">');
+    expect(html).not.toMatch(/<p>\s*<img/);
+  });
+
+  it("captions from the title, keeping alt for screen readers", async () => {
+    const { html } = await renderMarkdown(
+      `![texte alternatif](${IMG} "La légende")`,
+    );
+    expect(html).toContain("<figcaption>La légende</figcaption>");
+    expect(html).toContain('alt="texte alternatif"');
+    // The title would otherwise also show as a browser tooltip over the image.
+    expect(html).not.toContain('title="La légende"');
+  });
+
+  it("falls back to the alt text when there is no title", async () => {
+    const { html } = await renderMarkdown(`![Le potager](${IMG})`);
+    expect(html).toContain("<figcaption>Le potager</figcaption>");
+  });
+
+  it("gives a decorative image no caption", async () => {
+    const { html } = await renderMarkdown(`![](${IMG})`);
+    expect(html).toContain('<figure class="note-figure">');
+    expect(html).not.toContain("<figcaption>");
+  });
+
+  it("leaves an image inside a sentence inline", async () => {
+    const { html } = await renderMarkdown(`Du texte ![alt](${IMG}) au milieu.`);
+    expect(html).not.toContain("<figure");
+    expect(html).toContain("<p>");
+  });
+
+  it("leaves a paragraph holding two images alone", async () => {
+    const { html } = await renderMarkdown(`![a](${IMG}) ![b](${IMG})`);
+    expect(html).not.toContain("<figure");
+  });
+
+  it("captions a promoted video from its aria-label", async () => {
+    const { html } = await renderMarkdown(
+      "![Une animation](https://example.com/clip.mp4)",
+    );
+    expect(html).toContain("<video");
+    expect(html).toContain("<figcaption>Une animation</figcaption>");
+  });
+
+  it("does not turn a pronunciation clip into a figure", async () => {
+    const { html } = await renderMarkdown(
+      "![mot](https://example.com/clip.mp3)",
+    );
+    expect(html).toContain('class="pron"');
+    expect(html).not.toContain("<figure");
+  });
+});
+
+describe("Obsidian embeds", () => {
+  it("never leaves the embed's bang loose in the prose", async () => {
+    // The old behaviour emitted `!` + a link, so an embedded image read as
+    // "!photo.png" in the text. An unresolved target stays fully literal.
+    const { html } = await renderMarkdown("![[some-missing-file.png]]");
+    expect(html).not.toMatch(/>!<a /);
+  });
+
+  // `![[file.png]]` resolves against the real vault (content/posts), fetched at
+  // build time and absent from the unit-test job — so assert against whatever
+  // image the vault actually has, and skip when there is none.
+  const asset = listVaultAssets().find((a) =>
+    /\.(png|jpe?g|gif|webp|avif)$/i.test(a.rel),
+  );
+
+  it.skipIf(!asset)("embeds a vault image as a captioned figure", async () => {
+    const name = asset!.rel.split("/").pop()!;
+    const { html } = await renderMarkdown(`![[${name}|Une légende]]`);
+    expect(html).toContain('<figure class="note-figure">');
+    expect(html).toContain(`src="${asset!.url}"`);
+    expect(html).toContain("<figcaption>Une légende</figcaption>");
+  });
+
+  it.skipIf(!asset)(
+    "uses the file name as alt but not as a caption",
+    async () => {
+      const name = asset!.rel.split("/").pop()!;
+      const { html } = await renderMarkdown(`![[${name}]]`);
+      expect(html).toContain('<figure class="note-figure">');
+      expect(html).toContain(`alt="${name}"`);
+      expect(html).not.toContain("<figcaption>");
+      // The internal marker must never reach the page.
+      expect(html).not.toContain("alt-is-filename");
+    },
+  );
+
+  it.skipIf(!asset)(
+    "reads a numeric alias as a width, not a caption",
+    async () => {
+      const name = asset!.rel.split("/").pop()!;
+      const { html } = await renderMarkdown(`![[${name}|300]]`);
+      expect(html).toContain('width="300"');
+      expect(html).not.toContain("<figcaption>300</figcaption>");
+    },
+  );
 });
