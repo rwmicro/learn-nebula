@@ -7,6 +7,7 @@
     "appliedsciences": "Applied Sciences",
     "socialsciences": "Social Sciences",
     "graph": "Graph",
+    "frise": "Timeline",
     "menu": "Menu"
   },
   "sidebar": {
@@ -197,5 +198,11 @@
   "youtube": {
     "play": "Play the YouTube video",
     "watch": "Watch on YouTube"
+  },
+  "frise": {
+    "title": "Timeline",
+    "intro": "The garden's notes about a historical event, sorted by date.",
+    "empty": "No note carries a historical date yet.",
+    "bce": "{year} BCE"
   }
 }

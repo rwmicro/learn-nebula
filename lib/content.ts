@@ -46,6 +46,18 @@ export interface Frontmatter {
    *  "Langues" search facet / /graph language filter. Independent of the
    *  site's own UI locale (lib/i18n.ts). */
   lang?: string;
+  /** The historical year this note is ABOUT — e.g. a note on the French
+   *  Revolution sets `year: 1789`, not today's date (that's `date` above).
+   *  Negative for BCE (`year: -509` for 509 BCE). Powers /frise/; a note
+   *  without it just doesn't appear there. */
+  year?: number;
+  /** For a note covering a span rather than a single year (e.g. 1789–1799):
+   *  draws a bar instead of a point on the timeline. */
+  yearEnd?: number;
+  /** Display label when the bare year doesn't read naturally on its own
+   *  ("Antiquité tardive" rather than "476") — cosmetic only, sorting always
+   *  goes by `year`. */
+  period?: string;
 }
 
 export interface Doc {
@@ -77,6 +89,18 @@ function toDate(value: unknown): Date | undefined {
   if (typeof value === "string") {
     const d = new Date(value);
     if (!Number.isNaN(d.getTime())) return d;
+  }
+  return undefined;
+}
+
+// YAML/TOML parse an unquoted `year: -509` as a number already; this only
+// exists to tolerate a quoted `year: "1789"` (a string) without silently
+// dropping the note from the timeline.
+function toNumber(value: unknown): number | undefined {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "string" && value.trim()) {
+    const n = Number(value);
+    if (Number.isFinite(n)) return n;
   }
   return undefined;
 }
@@ -250,6 +274,9 @@ function parse(file: string, slug: string, rawPath: string): Doc {
         fm.updated ?? fm.modified ?? fm.lastmod ?? fm["last-tended"],
       ),
       stage: toStage(fm.stage ?? fm.growth ?? fm.maturity),
+      year: toNumber(fm.year),
+      yearEnd: toNumber(fm.yearEnd ?? fm["year-end"]),
+      period: typeof fm.period === "string" ? fm.period.trim() || undefined : undefined,
     },
   };
 }
@@ -320,6 +347,32 @@ export function getRecentNotes(limit = 6): RecentNote[] {
     });
   }
   return out.sort((a, b) => b.at.getTime() - a.at.getTime()).slice(0, limit);
+}
+
+export interface TimelineEntry {
+  title: string;
+  href: string;
+  /** Historical year the note is about (frontmatter `year`), not when it was
+   *  written. Negative for BCE. */
+  year: number;
+  yearEnd?: number;
+  /** Display label; falls back to the bare year when absent. */
+  period?: string;
+  domain?: string;
+}
+
+/** Every note that declares a historical `year`, oldest first. Powers
+ *  /frise/. A note without `year` simply never appears — there is no
+ *  fallback to `date` (when the note was written) or `updated`, since those
+ *  answer a completely different question. */
+export function getTimeline(): TimelineEntry[] {
+  const out: TimelineEntry[] = [];
+  for (const d of getAllPosts()) {
+    const { year, yearEnd, period, title, domain } = d.frontmatter;
+    if (year === undefined) continue;
+    out.push({ title, href: `/posts/${d.slug}/`, year, yearEnd, period, domain });
+  }
+  return out.sort((a, b) => a.year - b.year);
 }
 
 export interface DomainGroup {
