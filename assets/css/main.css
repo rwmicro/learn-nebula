@@ -1275,9 +1275,17 @@ a.theme-pill:focus-visible {
   max-width: 24rem;
   margin-bottom: 1rem;
   display: block;
-  /* Match the home search bar (#3): transparent field with a single bottom
-     rule, italic placeholder — same look as the Pagefind input in prod. */
   background: transparent;
+}
+/* Same pattern as the home search bar (components/HomeContent.tsx): the
+   OUTER element carries the single bottom rule, the field itself has none —
+   here that's .note-search itself, whether it's the bare dev-mode <input>
+   (no wrapper exists, so it draws its own rule directly) or, in production,
+   the <div id="search" class="note-search"> Pagefind mounts its real input
+   into (#search .pagefind-ui__search-input below is deliberately border:none,
+   so only this one line ever shows — it used to also draw its own matching
+   border-bottom, stacking two hairlines under the search box). */
+.note-search {
   border: none;
   border-bottom: 1px solid #1a1a1a;
   border-radius: 0;
@@ -1319,12 +1327,12 @@ a.theme-pill:focus-visible {
   font-size: 1.3rem;
   font-weight: 400;
   color: #111;
-  /* Match the home search bar: a transparent field with a single bottom rule,
-     not a full box. Pagefind keeps drawing its magnifier on the form. */
+  /* Match the home search bar: a transparent field with NO border of its own —
+     .note-search on the wrapping #search div (above) draws the single bottom
+     rule instead, same split as home's <label border-b> / <input border-0>. */
   background-color: transparent;
   background-image: none;
   border: none;
-  border-bottom: 1px solid #1a1a1a;
   border-radius: 0;
   box-shadow: none;
 }
