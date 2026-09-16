@@ -7,6 +7,7 @@
     "appliedsciences": "Sciences appliquées",
     "socialsciences": "Sciences sociales",
     "graph": "Graphe",
+    "frise": "Frise",
     "menu": "Menu"
   },
   "sidebar": {
@@ -197,5 +198,11 @@
   "youtube": {
     "play": "Lire la vidéo YouTube",
     "watch": "Voir sur YouTube"
+  },
+  "frise": {
+    "title": "Frise chronologique",
+    "intro": "Les notes du jardin qui portent sur un événement historique, triées par date.",
+    "empty": "Aucune note ne porte encore de date historique.",
+    "bce": "{year} av. J.-C."
   }
 }

@@ -1,0 +1,87 @@
+/* Scoped to /frise — same per-route pattern as graph.css/admin.css. A plain
+   document-flow page (no full-bleed canvas), so it needs none of graph.css's
+   position:fixed scaffolding. */
+
+.frise-page {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.2rem 4rem;
+}
+
+.frise-back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #111;
+  text-decoration: none;
+}
+.frise-back:hover {
+  text-decoration: underline;
+}
+
+.frise-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  letter-spacing: -0.01rem;
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+}
+
+.frise-intro {
+  color: #555;
+  margin: 0 0 2.5rem;
+  font-size: 1.1rem;
+}
+
+.frise-empty {
+  font-style: italic;
+  color: #787369;
+}
+
+.frise-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #ccc;
+}
+
+.frise-entry {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: 1rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #e4e2dd;
+}
+
+.frise-year {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  color: #3f6b4a; /* --color-garden — the site's one accent */
+  white-space: nowrap;
+}
+
+.frise-content a {
+  font-size: 1.15rem;
+  color: #111;
+  text-decoration: none;
+}
+.frise-content a:hover {
+  text-decoration: underline;
+}
+
+.frise-period {
+  display: block;
+  color: #787369;
+  font-size: 0.95rem;
+  margin-top: 0.15rem;
+}
+
+@media (max-width: 480px) {
+  .frise-entry {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+}
