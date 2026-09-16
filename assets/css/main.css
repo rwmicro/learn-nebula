@@ -392,12 +392,23 @@ a:hover {
   flex-direction: column;
   align-items: center;
 }
+/* The image sits on a cream mount with a hairline and a soft shadow, so it
+   reads as a plate laid on the page rather than as a picture pasted into the
+   text column. Same idiom as .lb-img in global.css (cream ground, the 2px
+   radius .home-frame established, a lifting shadow) with values adapted for a
+   light page: the lightbox's translucent border and 0.4-alpha shadow are sized
+   for a dark overlay and would be invisible, then far too heavy, here. */
 .note-figure img,
 .note-figure video {
   display: block;
   max-width: 100%;
   height: auto;
   margin: 0;
+  padding: 0.55rem;
+  background: #fcfcfc;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.13);
 }
 .note-figure > figcaption {
   float: none;
