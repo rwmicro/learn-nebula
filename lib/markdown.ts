@@ -476,6 +476,83 @@ function rehypeVaultAssets(dir: string) {
 }
 
 // ---------------------------------------------------------------------------
+// Figures — a paragraph whose sole content is an image (or a clip promoted to
+// <video> above) becomes a real <figure> with a caption, instead of an <img>
+// loose inside a <p> with no visual treatment of its own.
+//
+// Only *standalone* media is promoted: an image sitting in a sentence stays
+// inline, where a block-level figure would break the prose. The class is
+// deliberately specific — plain `figcaption` is styled as a Tufte margin note
+// (shared with .side), and .manim-figure / .mermaid-diagram / .fullwidth have
+// their own treatments; none of them should inherit this one.
+// ---------------------------------------------------------------------------
+
+/** Is this node whitespace-only text (so it doesn't count as "content")? */
+function isBlank(node: ElementContent): boolean {
+  return node.type === "text" && node.value.trim() === "";
+}
+
+function rehypeFigures() {
+  return (tree: Root) => {
+    visit(tree, "element", (node: Element, index, parent) => {
+      if (node.tagName !== "p" || !parent || index == null) return;
+      // Never inside a margin note or an existing figure: both already give
+      // their content a layout, and nesting <figure> is invalid anyway.
+      if (parent.type === "element") {
+        const p = parent as Element;
+        const cls = (p.properties?.className as string[] | undefined) ?? [];
+        if (p.tagName === "figure" || cls.includes("side")) return;
+      }
+      const content = node.children.filter((c) => !isBlank(c));
+      if (content.length !== 1) return;
+      const media = content[0];
+      if (media.type !== "element") return;
+      if (media.tagName !== "img" && media.tagName !== "video") return;
+
+      // Caption: the author's `title` first (written to be read), falling back
+      // to `alt` (written for screen readers, but better than nothing).
+      const props = media.properties ?? {};
+      const title = typeof props.title === "string" ? props.title.trim() : "";
+      const alt = typeof props.alt === "string" ? props.alt.trim() : "";
+      // A promoted <video> carries its text as aria-label; rehypeVaultAssets
+      // sets the literal hyphenated key, hast's own camelCase form is what a
+      // hand-written `<video aria-label>` in a note parses to. Accept both.
+      const ariaRaw = props["aria-label"] ?? props.ariaLabel;
+      const ariaLabel = typeof ariaRaw === "string" ? ariaRaw.trim() : "";
+      // An alt that is only the embedded file's name is not a caption. hast
+      // normalises the data-* marker to its camelCase property name, so drop
+      // both spellings rather than betting on which one survived.
+      const altIsFilename =
+        props.dataAltIsFilename !== undefined || props["data-alt-is-filename"] !== undefined;
+      delete props.dataAltIsFilename;
+      delete props["data-alt-is-filename"];
+      const caption = title || (altIsFilename ? "" : alt) || ariaLabel;
+      // A title that is also the caption would be shown twice (once as the
+      // browser's tooltip); the caption is the visible one.
+      if (title) delete props.title;
+
+      const children: ElementContent[] = [media];
+      if (caption) {
+        children.push({
+          type: "element",
+          tagName: "figcaption",
+          properties: {},
+          children: [{ type: "text", value: caption }],
+        });
+      }
+      const figure: Element = {
+        type: "element",
+        tagName: "figure",
+        properties: { className: ["note-figure"] },
+        children,
+      };
+      (parent.children as ElementContent[]).splice(index, 1, figure);
+      return SKIP;
+    });
+  };
+}
+
+// ---------------------------------------------------------------------------
 // YouTube — a paragraph whose sole content is a YouTube link becomes a
 // privacy-friendly facade (#16): the video thumbnail + a play button styled
 // like the rest of the site. public/js/youtube.js swaps in a youtube-nocookie
@@ -768,15 +845,26 @@ function rehypeSidenotes() {
  * Convert Obsidian wikilinks to real links, operating on mdast text nodes only
  * so that `[[ … ]]` inside (bash) code blocks is left untouched. Unresolved
  * targets are left as literal text.
+ *
+ * A leading `!` is Obsidian's embed marker. When the target resolves to a vault
+ * asset, `![[photo.png]]` becomes a real image node — it used to emit a link
+ * with the bang left behind as literal text, so an embedded image rendered as
+ * "!photo.png" in the prose. (lib/seo.ts already treated `![[file.png]]` as an
+ * image when picking a note's OG image, so the two halves disagreed.)
+ * Note *transclusion* — `![[Some Note]]` pulling in another note's body — is
+ * not implemented; that target still becomes a plain link, just without the
+ * stray bang.
  */
 function splitWikiLinks(value: string): unknown[] | null {
-  const re = /\[\[([^[\]\n]+?)\]\]/g;
+  // The optional `!` is captured so an embed can be told from a plain link.
+  const re = /(!?)\[\[([^[\]\n]+?)\]\]/g;
   const out: unknown[] = [];
   let last = 0;
   let found = false;
   let m: RegExpExecArray | null;
   while ((m = re.exec(value)) !== null) {
-    const inner = m[1];
+    const embed = m[1] === "!";
+    const inner = m[2];
     const pipe = inner.indexOf("|");
     const alias = pipe >= 0 ? inner.slice(pipe + 1).trim() : null;
     const beforePipe = pipe >= 0 ? inner.slice(0, pipe) : inner;
@@ -788,11 +876,32 @@ function splitWikiLinks(value: string): unknown[] | null {
     if (m.index > last)
       out.push({ type: "text", value: value.slice(last, m.index) });
     const display = (alias ?? target.split("/").pop() ?? target).trim();
-    out.push({
-      type: "link",
-      url,
-      children: [{ type: "text", value: display }],
-    });
+    // Only an asset can be embedded: resolveWikiLink sends notes to /posts/.
+    if (embed && url.startsWith("/vault/")) {
+      // `![[photo.png|300]]` is Obsidian's width syntax, not a caption.
+      const width = alias && /^\d+$/.test(alias) ? alias : null;
+      // With no alias (or a numeric one, which is a width) the only text we
+      // have is the file name: fine as an alt fallback, not a caption. The
+      // marker tells rehypeFigures not to print it; it is stripped there.
+      const named = Boolean(alias) && !width;
+      out.push({
+        type: "image",
+        url,
+        alt: named ? display : target.split("/").pop(),
+        data: {
+          hProperties: {
+            ...(width ? { width } : {}),
+            ...(named ? {} : { "data-alt-is-filename": "" }),
+          },
+        },
+      });
+    } else {
+      out.push({
+        type: "link",
+        url,
+        children: [{ type: "text", value: display }],
+      });
+    }
     last = re.lastIndex;
   }
   if (!found) return null;
@@ -853,6 +962,10 @@ export async function renderMarkdown(
     .use(rehypeVaultAssets, dir)
     .use(rehypeYouTube)
     .use(rehypeSidenotes)
+    // After rehypeVaultAssets (src resolved, clips promoted to <video>) and
+    // after rehypeSidenotes, so an image pulled into a margin note is left
+    // alone rather than boxed into a figure inside the margin.
+    .use(rehypeFigures)
     .use(rehypeStringify, { allowDangerousHtml: true });
 
   const html = String(await processor.process(text));

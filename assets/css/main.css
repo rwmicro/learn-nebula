@@ -372,6 +372,67 @@ a:hover {
   text-decoration-color: currentColor;
 }
 
+/* Note figures — a standalone image in a note (lib/markdown.ts's rehypeFigures)
+   rather than an <img> loose in a <p>. Museum-plate caption: centred under the
+   image, hairline above, serif italic — the register of the Pissarro caption on
+   the home page and of the lightbox's caption plate.
+
+   The bare `figcaption` rule further down floats captions into the right margin
+   (Tufte style, shared with .side); these need the opposite, so every part of
+   that float is unset here. .manim-figure, .mermaid-diagram, .fullwidth and any
+   hand-written <figure> in a note keep the margin treatment untouched. */
+.note-figure {
+  /* fit-content, so the figure is exactly as wide as its image: the caption
+     can then stretch to that width and its rule stays tied to the subject
+     instead of running the full text column under a narrow diagram. */
+  width: fit-content;
+  max-width: 100%;
+  margin: 1.8rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* The image sits on a cream mount with a hairline and a soft shadow, so it
+   reads as a plate laid on the page rather than as a picture pasted into the
+   text column. Same idiom as .lb-img in global.css (cream ground, the 2px
+   radius .home-frame established, a lifting shadow) with values adapted for a
+   light page: the lightbox's translucent border and 0.4-alpha shadow are sized
+   for a dark overlay and would be invisible, then far too heavy, here. */
+.note-figure img,
+.note-figure video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0;
+  padding: 0.55rem;
+  background: #fcfcfc;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.13);
+}
+.note-figure > figcaption {
+  float: none;
+  clear: none;
+  position: static;
+  align-self: stretch;
+  width: auto;
+  margin: 0.7rem 0 0;
+  /* `border: 0` first, on purpose: below ~1650px the responsive rule further
+     down turns every figcaption into a bordered box (a margin note with no
+     margin left to sit in), and setting only border-top here would leave its
+     other three sides — including a 3px left rule — drawing a frame around the
+     plate. Same for the padding and width it sets there. */
+  border: 0;
+  border-top: 1px solid #ccc;
+  padding: 0.5rem 0 0;
+  text-align: center;
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.4;
+  color: #555;
+}
+
 main img {
   max-width: 100%;
   height: auto;
