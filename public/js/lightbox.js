@@ -75,6 +75,10 @@
     const multiple = items.length > 1;
     countEl.textContent = multiple ? `${index + 1} / ${items.length}` : "";
     prevBtn.hidden = nextBtn.hidden = !multiple;
+    // The bar is a solid wall-label plate now, not a fade-to-transparent
+    // gradient — an empty one would show as a blank bordered box rather than
+    // just quietly not being there.
+    overlay.querySelector(".lb-bar").hidden = !it.alt && !multiple;
   }
 
   function open(list, i) {

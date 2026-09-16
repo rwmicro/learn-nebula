@@ -527,12 +527,21 @@ footer {
 
 /* Image lightbox (public/js/lightbox.js). Loaded site-wide from layout.tsx, so
    these live in global.css (not main.css, which is note-only) — otherwise the
-   overlay is unstyled off /posts/* and the image renders inline at the bottom. */
+   overlay is unstyled off /posts/* and the image renders inline at the bottom.
+   Styled like the rest of the site (warm cream, hairlines, the one garden-green
+   accent, Alegreya) rather than a generic dark-glass viewer — a print set down
+   on a dark table, with a museum wall-label plate underneath, not a glowing
+   tech overlay. The backdrop stays near-black (any lighter and photos lose
+   contrast), but tinted with the site's own ink (#1a1a1a) instead of pure
+   black so it still reads as "this site", not a bolted-on widget. No thick
+   picture-frame border here (unlike .home-frame): most lightbox images are
+   diagrams/screenshots, and a wooden gallery frame around a UML chart would
+   look absurd — a thin hairline + soft shadow works for anything. */
 .lightbox {
   position: fixed;
   inset: 0;
   z-index: 1000;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgba(26, 26, 26, 0.96);
 }
 
 .lightbox[hidden] {
@@ -555,25 +564,36 @@ footer {
   max-width: 92vw;
   max-height: 88vh;
   margin: 0;
-  background: #fff;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  background: #fcfcfc;
+  border: 1px solid rgba(252, 252, 252, 0.25);
+  border-radius: 2px; /* same value as .home-frame — the one other framed image */
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
   cursor: zoom-in;
   touch-action: none;
 }
 
 .lb-btn {
   position: absolute;
-  background: rgba(0, 0, 0, 0.4);
-  color: #fff;
-  border: none;
-  border-radius: 4px;
+  background: rgba(26, 26, 26, 0.3);
+  border: 1px solid rgba(252, 252, 252, 0.35);
+  color: #fcfcfc;
+  border-radius: 50%;
   cursor: pointer;
   line-height: 1;
   font-family: "Alegreya Sans", sans-serif;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .lb-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(252, 252, 252, 0.14);
+  border-color: rgba(252, 252, 252, 0.6);
+}
+
+.lb-btn:focus-visible {
+  outline: 2px solid #3f6b4a; /* --color-garden — same focus ring as the rest of the site */
+  outline-offset: 2px;
 }
 
 .lb-close {
@@ -600,27 +620,34 @@ footer {
   right: 0.6rem;
 }
 
+/* A wall-label plate, not a dark gradient scrim: solid cream, hairline top
+   rule, serif italic caption — the same register as the home hero's
+   "Camille Pissarro, Le Jardin potager…" line under its framed image. */
 .lb-bar {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
   display: flex;
-  gap: 1rem;
+  gap: 0.9rem;
   align-items: baseline;
-  padding: 0.6rem 1.2rem;
-  color: #eee;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
-  font-family: "Alegreya Sans", sans-serif;
-  font-size: 1.1rem;
+  padding: 0.7rem 1.2rem;
+  color: #555;
+  background: #fcfcfc;
+  border-top: 1px solid #e4e2dd;
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.05rem;
 }
 
 .lb-count {
   flex: none;
-  color: #bbb;
+  color: #a8a49c;
+  font-family: "Alegreya Sans", sans-serif;
+  font-size: 0.9rem;
 }
 .lb-caption {
   flex: 1;
+  font-style: italic;
 }
 
 /* ---------------------------------------------------------------------------
