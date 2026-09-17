@@ -504,10 +504,26 @@ function rehypeFigures() {
         if (p.tagName === "figure" || cls.includes("side")) return;
       }
       const content = node.children.filter((c) => !isBlank(c));
-      if (content.length !== 1) return;
+      if (content.length !== 1 && content.length !== 2) return;
       const media = content[0];
       if (media.type !== "element") return;
       if (media.tagName !== "img" && media.tagName !== "video") return;
+
+      // The vault's older, hand-written way of captioning an image: the
+      // image line followed with NO blank line by `*a caption*` — markdown
+      // reads that as one paragraph (a soft line break), not two, since a
+      // blank line is what actually separates paragraphs. Recognise it
+      // explicitly instead of requiring every existing note to be rewritten
+      // for the figure treatment below. The italic run's own children (not
+      // just its text) become the figcaption, so an inline link or bold
+      // inside the caption survives; it wins over alt/title unconditionally
+      // since it's what the author actually wrote to be read, not a fallback.
+      let figcaptionChildren: ElementContent[] | null = null;
+      if (content.length === 2) {
+        const second = content[1];
+        if (second.type !== "element" || second.tagName !== "em") return;
+        figcaptionChildren = second.children as ElementContent[];
+      }
 
       // Caption: the author's `title` first (written to be read), falling back
       // to `alt` (written for screen readers, but better than nothing).
@@ -526,18 +542,21 @@ function rehypeFigures() {
         props.dataAltIsFilename !== undefined || props["data-alt-is-filename"] !== undefined;
       delete props.dataAltIsFilename;
       delete props["data-alt-is-filename"];
-      const caption = title || (altIsFilename ? "" : alt) || ariaLabel;
+      if (!figcaptionChildren) {
+        const caption = title || (altIsFilename ? "" : alt) || ariaLabel;
+        if (caption) figcaptionChildren = [{ type: "text", value: caption }];
+      }
       // A title that is also the caption would be shown twice (once as the
       // browser's tooltip); the caption is the visible one.
       if (title) delete props.title;
 
       const children: ElementContent[] = [media];
-      if (caption) {
+      if (figcaptionChildren) {
         children.push({
           type: "element",
           tagName: "figcaption",
           properties: {},
-          children: [{ type: "text", value: caption }],
+          children: figcaptionChildren,
         });
       }
       const figure: Element = {
