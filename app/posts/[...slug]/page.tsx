@@ -34,7 +34,12 @@ export default async function PostPage({ params }: Params) {
   const doc = getPost(slugPath);
   const fm = doc.frontmatter;
   const url = absoluteURL(`/posts/${slugPath}/`);
-  const iso = fm.date?.toISOString();
+  const published = fm.date?.toISOString();
+  // Fall back to datePublished when the note has never been re-tended — but
+  // never the other way around: a dateModified that's actually earlier than
+  // datePublished (a stale build vs. a since-edited note) would be a worse
+  // signal to send than omitting it.
+  const modified = (fm.updated ?? fm.date)?.toISOString();
 
   const article = {
     "@type": "Article",
@@ -43,7 +48,11 @@ export default async function PostPage({ params }: Params) {
     url,
     mainEntityOfPage: url,
     image: firstImage(doc.body),
-    ...(iso ? { datePublished: iso, dateModified: iso } : {}),
+    inLanguage: fm.lang || "fr",
+    isPartOf: { "@type": "WebSite", url: `${SITE_URL}/` },
+    ...(fm.tags?.length ? { keywords: fm.tags.join(", ") } : {}),
+    ...(published ? { datePublished: published } : {}),
+    ...(modified ? { dateModified: modified } : {}),
     author: { "@type": "Person", name: AUTHOR },
     publisher: { "@type": "Person", name: AUTHOR, url: `${SITE_URL}/` },
   };
