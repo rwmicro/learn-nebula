@@ -237,6 +237,37 @@ describe("figures", () => {
     expect(html).not.toContain("<figure");
   });
 
+  it("treats an italic line right under the image (no blank line) as its caption", async () => {
+    const { html } = await renderMarkdown(
+      `![Un schéma](${IMG})\n*La légende écrite à la main.*`,
+    );
+    expect(html).toContain('<figure class="note-figure">');
+    expect(html).toContain("<figcaption>La légende écrite à la main.</figcaption>");
+    expect(html).not.toMatch(/<p>\s*<img/);
+  });
+
+  it("keeps a link inside the hand-written caption clickable", async () => {
+    const { html } = await renderMarkdown(
+      `![Un schéma](${IMG})\n*Source : [Wikimedia](https://example.com/wiki).*`,
+    );
+    expect(html).toContain(
+      '<figcaption>Source : <a href="https://example.com/wiki">Wikimedia</a>.</figcaption>',
+    );
+  });
+
+  it("prefers the hand-written caption over alt text", async () => {
+    const { html } = await renderMarkdown(
+      `![Texte alternatif](${IMG})\n*La vraie légende.*`,
+    );
+    expect(html).toContain("<figcaption>La vraie légende.</figcaption>");
+    expect(html).not.toContain("<figcaption>Texte alternatif</figcaption>");
+  });
+
+  it("does not treat a paragraph with unrelated trailing text as a caption", async () => {
+    const { html } = await renderMarkdown(`![alt](${IMG})\nDu texte normal.`);
+    expect(html).not.toContain("<figure");
+  });
+
   it("captions a promoted video from its aria-label", async () => {
     const { html } = await renderMarkdown(
       "![Une animation](https://example.com/clip.mp4)",
