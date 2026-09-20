@@ -570,11 +570,48 @@ h2:focus-within .anchor {
 .mermaid-diagram {
   margin: 1.6rem auto;
   text-align: center;
+  overflow-x: auto;
 }
 
+/* A wide diagram must keep its natural size and let the figure scroll, the way
+   .chroma, main table and .katex-display already do — not shrink to fit. An
+   `<svg>` sized `width="100%"` with a 23:1 viewBox (a `flowchart LR` reaches
+   that by its fifth node) collapsed to 561×28 on a 1400px screen and 363×18 on
+   a phone, putting its 16px labels at roughly 5px and 3px. The fallback source
+   box (.mermaid below) had the scroll escape; the diagram that renders did not.
+
+   Mermaid writes the natural width into an inline `style="max-width: <W>px"`,
+   and that is the only handle on it: max-content, fit-content and auto all
+   resolve to the container instead, because an svg carrying just a viewBox has
+   an aspect ratio but no intrinsic width (measured, all three). So ask for more
+   width than any diagram could want and let mermaid's own inline cap settle it
+   on W. The `max-width` here loses to that inline style whenever it is present,
+   and takes over — back to today's shrink-to-fit — if mermaid ever stops
+   emitting it, rather than leaving a 10000px-wide figure behind. */
 .mermaid-diagram svg {
+  width: 10000px;
   max-width: 100%;
   height: auto;
+}
+
+/* Mermaid draws its node labels as HTML inside <foreignObject>, and sizes each
+   box from measuring them at its own 16px/24px. But that HTML is a descendant
+   of <main>, so the article body-type rule up top (`main p …`, 21px/32.55px)
+   applied to the <p> mermaid puts inside every label: the text rendered 31%
+   larger than the box it was measured for, wrapped, and had everything past
+   the first line clipped by the foreignObject's fixed height — "Collecte des
+   sources" read "Collecte des". Both render paths were affected, the
+   build-time pre-render included.
+
+   Hand the label back to mermaid's own sizing. `inherit` rather than fixed
+   values so it keeps following whatever mermaid set on the wrapper. */
+.mermaid-diagram foreignObject p {
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+  hyphens: none;
+  text-wrap: wrap;
 }
 
 /* Diagram source mermaid couldn't parse (e.g. unquoted labels): shown flagged
