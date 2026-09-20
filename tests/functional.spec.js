@@ -132,3 +132,57 @@ test.describe("Hover previews", () => {
     await expect(card).toBeHidden();
   });
 });
+
+test.describe("Diagrams", () => {
+  // Two regressions that only show on a real page, both guarded here by
+  // probing the CSS contract rather than by needing a vault note that happens
+  // to contain a diagram.
+  test("a mermaid diagram keeps its size and its labels", async ({
+    page,
+    request,
+  }) => {
+    const xml = await (await request.get("/sitemap.xml")).text();
+    const m = xml.match(/<loc>([^<]*\/posts\/[^<]*)<\/loc>/);
+    test.skip(!m, "no note in sitemap");
+    await page.goto(new URL(m[1]).pathname);
+
+    const probe = await page.evaluate(() => {
+      const body = document.querySelector(".article-body");
+      if (!body) return null;
+      // Mermaid's own shape: a figure holding an svg whose node labels are
+      // HTML inside <foreignObject>, sized by mermaid at 16px/24px.
+      const host = document.createElement("div");
+      host.innerHTML =
+        '<figure class="mermaid-diagram">' +
+        '<svg viewBox="0 0 1600 70" style="max-width: 1600px;" width="100%">' +
+        '<foreignObject width="124" height="24">' +
+        '<div style="font-size:16px;line-height:24px">' +
+        '<span class="nodeLabel"><p>Collecte des sources</p></span>' +
+        "</div></foreignObject></svg></figure>";
+      body.append(host);
+      const fig = host.querySelector(".mermaid-diagram");
+      const svg = host.querySelector("svg");
+      const label = host.querySelector("foreignObject p");
+      const cs = getComputedStyle(label);
+      const out = {
+        // The article body-type rule must not reach inside the diagram: a 21px
+        // label in a box mermaid measured at 16px overflows and gets clipped.
+        labelFontSize: cs.fontSize,
+        // A wide diagram keeps its natural width and the figure scrolls,
+        // instead of being squashed to the column (a 23:1 viewBox became 28px
+        // tall).
+        svgWidth: Math.round(svg.getBoundingClientRect().width),
+        figScrolls: fig.scrollWidth > fig.clientWidth,
+        figOverflowX: getComputedStyle(fig).overflowX,
+      };
+      host.remove();
+      return out;
+    });
+
+    expect(probe).not.toBeNull();
+    expect(probe.labelFontSize).toBe("16px");
+    expect(probe.svgWidth).toBe(1600);
+    expect(probe.figScrolls).toBe(true);
+    expect(probe.figOverflowX).toBe("auto");
+  });
+});
