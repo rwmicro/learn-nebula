@@ -79,6 +79,18 @@ jobs:
           restore-keys: |
             pensine-vault-
 
+      # Derived AVIF/WebP variants, keyed by source content hash
+      # (scripts/build-image-variants.mjs). Encoding a few thousand vault
+      # images from scratch takes hours; restoring this makes it near-free,
+      # and a changed image simply misses its own key.
+      - name: Cache derived image variants
+        uses: actions/cache@v4
+        with:
+          path: .cache/vault-images
+          key: vault-images-${{ github.run_id }}
+          restore-keys: |
+            vault-images-
+
       - name: Build static site + RAG chunks
         env:
           NOTES_REPO_TOKEN: ${{ secrets.NOTES_REPO_TOKEN }} # only if the vault is private
