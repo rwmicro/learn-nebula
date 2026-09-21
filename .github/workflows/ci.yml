@@ -78,6 +78,16 @@ jobs:
       - name: Install
         run: pnpm install --frozen-lockfile
 
+      # scripts/render-mermaid.mjs needs a real DOM to turn ```mermaid blocks
+      # into SVG, and now fails the build rather than skipping — a block left
+      # unrendered makes every reader of that page fetch mermaid.min.js (3.4 MB)
+      # in the browser. Without this step CI never exercised that path at all,
+      # so a pre-render regression could only ever surface in docker.yml.
+      # No `|| true` here on purpose: if the browser can't be installed, the
+      # build this job is meant to validate isn't the build that ships.
+      - name: Install Chromium (mermaid pre-render, Playwright specs)
+        run: pnpm exec playwright install --with-deps chromium
+
       # Persists the pensine clone (scripts/fetch-notes.mjs) across runs. Its
       # ~10k pronunciation audio clips are git-lfs objects — a throwaway clone
       # re-pulls every single one on every run, which is what actually burns a
@@ -106,9 +116,28 @@ jobs:
 
       # Full production build → catches export-time breakage the typecheck can't
       # (bad page imports, invalid generateStaticParams, broken static export).
-      # Fetches notes from the public pensine repo; render-mermaid (Chromium)
-      # self-skips when the browser is absent.
+      # Fetches notes from the public pensine repo and pre-renders every mermaid
+      # diagram with the Chromium installed above.
       - name: Build
         env:
           NOTES_REPO_TOKEN: ${{ secrets.NOTES_REPO_TOKEN }}
         run: pnpm build
+
+      # Browser checks against the export this job just produced. Only the specs
+      # that assert behaviour: tests/style.spec.js compares screenshots, and its
+      # baselines aren't tracked, so in CI it would either write them fresh and
+      # compare a run to itself or fail on a Chromium revision bump. It stays a
+      # local tool until those baselines are pinned to a container image.
+      #
+      # This is where the WCAG contrast failure in .callout-warning would have
+      # been caught — axe covers the whole page, not just what changed.
+      - name: Browser tests (functional + accessibility)
+        run: pnpm exec playwright test tests/functional.spec.js tests/a11y.spec.js
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
