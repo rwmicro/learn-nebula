@@ -24,6 +24,7 @@ import sharp from "sharp";
 
 const ROOT = process.cwd();
 const VAULT = path.join(ROOT, "public", "vault");
+const POSTS = path.join(ROOT, "content", "posts");
 const CACHE = path.join(ROOT, ".cache", "vault-images");
 const MANIFEST = path.join(ROOT, "content", "vault-images.json");
 
@@ -49,6 +50,53 @@ const ENCODERS = {
   webp: (p) => p.webp({ quality: 78 }),
 };
 
+// File names any note actually points at. The vault carries working material no
+// note embeds — earlier drafts, scratch exports — and encoding three AVIF and
+// three WebP sizes for each of those is build time and image weight spent on
+// bytes nobody requests. Matching on the bare basename is the same rule
+// lib/vault-assets.ts's resolveVaultAssetByName uses for Obsidian wikilinks, so
+// a reference by any spelling (`![[x.png]]`, `![](sub/x.png)`, an <img src>)
+// puts the name in this set.
+//
+// A miss here is cheap on purpose: the image still gets its manifest entry with
+// intrinsic width/height, so the page keeps its <img> and its reserved space —
+// it just loads the original, exactly as before this script existed.
+const REFERENCE = /!?\[\[([^[\]\n|]+)/g; // ![[asset]] / [[asset|alias]]
+const MD_LINK = /!?\[[^\]]*\]\(([^)\s]+)/g; // ![alt](path) / [text](path)
+const HTML_SRC = /\b(?:src|href)=["']([^"']+)["']/g;
+
+function basename(ref) {
+  try {
+    ref = decodeURIComponent(ref);
+  } catch {
+    /* leave as written */
+  }
+  return (ref.split(/[?#]/)[0].split("/").pop() || "").trim().toLowerCase();
+}
+
+function referencedNames() {
+  const names = new Set();
+  const walkMd = (dir) => {
+    if (!fs.existsSync(dir)) return;
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) walkMd(full);
+      else if (entry.name.endsWith(".md")) {
+        const src = fs.readFileSync(full, "utf8");
+        for (const re of [REFERENCE, MD_LINK, HTML_SRC]) {
+          re.lastIndex = 0;
+          for (const m of src.matchAll(re)) {
+            const b = basename(m[1]);
+            if (b) names.add(b);
+          }
+        }
+      }
+    }
+  };
+  walkMd(POSTS);
+  return names;
+}
+
 function walk(dir, base = "", out = []) {
   if (!fs.existsSync(dir)) return out;
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -61,7 +109,7 @@ function walk(dir, base = "", out = []) {
 
 const encodePath = (p) => p.split("/").map(encodeURIComponent).join("/");
 
-async function variantsFor(rel) {
+async function variantsFor(rel, referenced) {
   const src = path.join(VAULT, rel);
   const stat = fs.statSync(src);
 
@@ -75,6 +123,10 @@ async function variantsFor(rel) {
 
   const entry = { w: meta.width, h: meta.height, avif: [], webp: [] };
   if (stat.size < MIN_SOURCE_BYTES) return entry; // dimensions only
+  if (!referenced.has(path.basename(rel).toLowerCase())) {
+    entry.unused = true; // dimensions only — see referencedNames()
+    return entry;
+  }
 
   const hash = crypto
     .createHash("sha1")
@@ -141,13 +193,21 @@ if (!files.length) {
 }
 
 const started = Date.now();
-const results = await pool(files, Math.max(1, os.cpus().length), variantsFor);
+const referenced = referencedNames();
+const results = await pool(files, Math.max(1, os.cpus().length), (rel) =>
+  variantsFor(rel, referenced),
+);
 
 const manifest = {};
 let variants = 0;
+let unused = 0;
 for (const rel of files.sort()) {
   const e = results.get(rel);
   if (!e) continue;
+  if (e.unused) {
+    unused++;
+    delete e.unused;
+  }
   manifest[rel] = e;
   variants += e.avif.length + e.webp.length;
 }
@@ -156,5 +216,6 @@ fs.writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 0)}\n`);
 
 console.log(
   `build-image-variants: ${files.length} image(s), ${variants} variant(s) in ` +
-    `${((Date.now() - started) / 1000).toFixed(1)}s → content/vault-images.json`,
+    `${((Date.now() - started) / 1000).toFixed(1)}s → content/vault-images.json` +
+    (unused ? ` (${unused} unreferenced, sized but not re-encoded)` : ""),
 );
