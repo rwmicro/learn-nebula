@@ -43,5 +43,8 @@
 # Local runtime secrets (docker/pnpm server) — never commit
 .env
 playwright-report/
+# Playwright's per-failure artefacts, and the baselines toHaveScreenshot writes
+# on a first run (none are tracked, so every fresh checkout regenerates them).
+test-results/
 
 content/vault-images.json
