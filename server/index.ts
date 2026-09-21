@@ -16,6 +16,7 @@ import { translateRoute } from "./routes/translate.ts";
 import { relatedRoute } from "./routes/related.ts";
 import { questionsRoute } from "./routes/questions.ts";
 import { buildCSP, SITE_URL } from "../lib/site.ts";
+import { staticEntry, isFresh, cacheControlFor } from "./static-cache.ts";
 
 const app = new Hono();
 
@@ -62,22 +63,47 @@ app.route("/api/questions", questionsRoute);
 // calls default to honouring that same HTTP cache (see public/sw.js's
 // `cache: "no-store"` fix), and a browser with no active service worker at
 // all (private mode, first load, disabled) had nothing else in front of it.
-// Content-hashed build output (/_next/static/**) is the one exception: its
-// URL changes whenever its content does, so it's safe — and worth it, this
-// is the bulk of page weight — to cache for a year.
+// What each path gets, and why, is in server/static-cache.ts.
 app.use("*", async (c, next) => {
   await next();
   if (c.res.headers.has("Cache-Control")) return;
-  if (c.req.path.startsWith("/_next/static/")) {
-    c.header("Cache-Control", "public, max-age=31536000, immutable");
-  } else if (!c.req.path.startsWith("/api/")) {
-    c.header("Cache-Control", "no-cache");
+  const value = cacheControlFor(c.req.path);
+  if (value) c.header("Cache-Control", value);
+});
+
+// Conditional requests. serveStatic sends Last-Modified but never reads the
+// client's validators back, so every `no-cache` revalidation used to cost a
+// full body. Answering 304 here — before serveStatic opens a read stream —
+// keeps the response to its headers.
+app.use("*", async (c, next) => {
+  if (c.req.method !== "GET" && c.req.method !== "HEAD") return next();
+  const entry = staticEntry(
+    env.staticDir,
+    c.req.path,
+    c.req.header("Accept-Encoding") || "",
+  );
+  if (!entry) return next();
+
+  if (isFresh(entry, c.req.header("If-None-Match"), c.req.header("If-Modified-Since"))) {
+    c.header("ETag", entry.etag);
+    c.header("Last-Modified", entry.mtime.toUTCString());
+    if (entry.negotiated) c.header("Vary", "Accept-Encoding");
+    return c.body(null, 304);
   }
+
+  await next();
+  c.header("ETag", entry.etag);
 });
 
 // Static export. trailingSlash:true means URLs are "/foo/" → out/foo/index.html,
 // which serveStatic maps automatically.
-app.get("*", serveStatic({ root: env.staticDir }));
+//
+// `precompressed` makes it prefer the .br/.gz that scripts/precompress.mjs
+// wrote next to each file at build time. Those were added for an nginx serving
+// out/ directly with `brotli_static`; in the deployment that actually ships,
+// nginx is a reverse proxy with no view of the filesystem, so without this the
+// pre-built brotli was never reaching anyone.
+app.get("*", serveStatic({ root: env.staticDir, precompressed: true }));
 
 // Custom 404 (Next emits out/404.html).
 let cached404: string | null = null;

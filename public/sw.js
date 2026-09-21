@@ -82,12 +82,14 @@ self.addEventListener("fetch", (event) => {
 async function networkFirst(request) {
   const cache = await caches.open(DOC_CACHE);
   try {
-    // no-store: a bare fetch() still honours the browser's own HTTP cache
-    // (its default "default" cache mode), so without this a "network-first"
-    // fetch can be silently satisfied from a stale disk-cached response and
-    // never actually reach the server — defeating this whole cache layer,
-    // which is meant to be the only source of truth for staleness.
-    const fresh = await fetch(request, { cache: "no-store" });
+    // "no-cache", not "no-store": both bypass the browser's HTTP cache as a
+    // source of truth (a bare fetch() defaults to honouring it, which would let
+    // a stale disk-cached page satisfy a "network-first" request without ever
+    // reaching the server). But no-store also strips the validators, so the
+    // server had to send the whole page back every time. no-cache revalidates
+    // instead — server/static-cache.ts answers 304 for an unchanged page — so
+    // freshness is guaranteed exactly as before at a fraction of the bytes.
+    const fresh = await fetch(request, { cache: "no-cache" });
     if (fresh && fresh.ok) {
       cache.put(request, fresh.clone()).then(() => trim(DOC_CACHE, MAX_DOCS));
     }
@@ -104,10 +106,15 @@ async function networkFirst(request) {
 async function staleWhileRevalidate(request) {
   const cache = await caches.open(ASSET_CACHE);
   const cached = await cache.match(request);
-  // Same no-store rationale as networkFirst() above — the "revalidate" half
-  // of this strategy must actually reach the server, not bounce off the
-  // browser's own HTTP cache.
-  const fetching = fetch(request, { cache: "no-store" })
+  // Assets, unlike documents, are exactly where the HTTP cache should win: the
+  // server now declares a lifetime for each of them (server/static-cache.ts) —
+  // a year and immutable for content-hashed /_next/static/**, a month for the
+  // font subsets, revalidate-always for the rest. A default-mode fetch honours
+  // those, so the background half of this strategy costs nothing for a hashed
+  // chunk and a 304 for everything else. Forcing no-store here re-downloaded
+  // every chunk, font and image on every page view to store bytes the browser
+  // already had.
+  const fetching = fetch(request)
     .then((res) => {
       if (res && res.ok) {
         cache
