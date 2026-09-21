@@ -137,6 +137,31 @@ test.describe("Diagrams", () => {
   // Two regressions that only show on a real page, both guarded here by
   // probing the CSS contract rather than by needing a vault note that happens
   // to contain a diagram.
+  // The pre-rendered figure is an overflow-x:auto box, so it has to be
+  // reachable from the keyboard — a scrollable region that isn't focusable
+  // can't be scrolled without a mouse (WCAG 2.1.1; axe's
+  // scrollable-region-focusable). Asserted on the real export, because the
+  // attribute is written by scripts/render-mermaid.mjs, not by CSS.
+  test("a pre-rendered diagram is reachable from the keyboard", async ({
+    page,
+    request,
+  }) => {
+    const xml = await (await request.get("/sitemap.xml")).text();
+    const notes = [...xml.matchAll(/<loc>([^<]*\/posts\/[^<]*)<\/loc>/g)].map(
+      (m) => new URL(m[1]).pathname,
+    );
+    let found = false;
+    for (const path of notes.slice(0, 40)) {
+      await page.goto(path);
+      const fig = page.locator("figure.mermaid-diagram").first();
+      if ((await fig.count()) === 0) continue;
+      found = true;
+      await expect(fig).toHaveAttribute("tabindex", "0");
+      break;
+    }
+    test.skip(!found, "no pre-rendered diagram in the first 40 notes");
+  });
+
   test("a mermaid diagram keeps its size and its labels", async ({
     page,
     request,
