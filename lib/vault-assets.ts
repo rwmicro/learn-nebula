@@ -141,12 +141,25 @@ export function resolveVaultAsset(src: string, noteDir: string): string | null {
   return null;
 }
 
-/** All vault assets as { relative path, served URL } pairs. */
-export function listVaultAssets(): { rel: string; url: string }[] {
-  return [...index().values()].map((rel) => ({
-    rel,
-    url: `/vault/${encodePath(rel)}`,
-  }));
+/**
+ * All vault assets as { relative path, served URL, size } triples.
+ *
+ * The size is what makes the browse tree able to warn before a click. These
+ * links go straight to the original file on purpose — a 12022x8364 history
+ * timeline is *meant* to be opened and zoomed, so swapping in the 1440px
+ * variant would defeat the asset — but 15 MB with no warning is not a choice
+ * the reader got to make.
+ */
+export function listVaultAssets(): { rel: string; url: string; bytes: number }[] {
+  return [...index().values()].map((rel) => {
+    let bytes = 0;
+    try {
+      bytes = fs.statSync(path.join(POSTS_DIR, rel)).size;
+    } catch {
+      /* listed from the index but gone from disk — treat as unknown */
+    }
+    return { rel, url: `/vault/${encodePath(rel)}`, bytes };
+  });
 }
 
 /** Served URL for an asset matched by file name only (Obsidian wikilinks). */
