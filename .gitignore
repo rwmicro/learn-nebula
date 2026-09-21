@@ -43,3 +43,5 @@
 # Local runtime secrets (docker/pnpm server) — never commit
 .env
 playwright-report/
+
+content/vault-images.json

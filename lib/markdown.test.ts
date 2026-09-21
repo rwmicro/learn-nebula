@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderMarkdown, extractPlain, truncate } from "./markdown";
-import { listVaultAssets } from "./vault-assets";
+import { listVaultAssets, getVaultImage } from "./vault-assets";
 
 describe("truncate", () => {
   it("leaves short strings untouched", () => {
@@ -242,7 +242,9 @@ describe("figures", () => {
       `![Un schéma](${IMG})\n*La légende écrite à la main.*`,
     );
     expect(html).toContain('<figure class="note-figure">');
-    expect(html).toContain("<figcaption>La légende écrite à la main.</figcaption>");
+    expect(html).toContain(
+      "<figcaption>La légende écrite à la main.</figcaption>",
+    );
     expect(html).not.toMatch(/<p>\s*<img/);
   });
 
@@ -328,6 +330,44 @@ describe("Obsidian embeds", () => {
       const { html } = await renderMarkdown(`![[${name}|300]]`);
       expect(html).toContain('width="300"');
       expect(html).not.toContain("<figcaption>300</figcaption>");
+    },
+  );
+});
+
+describe("responsive images", () => {
+  // Variants come from content/vault-images.json, written by
+  // build-image-variants.mjs — absent in the unit-test job, so assert the
+  // contract in both states rather than requiring a built vault.
+  const asset = listVaultAssets().find((a) =>
+    /\.(png|jpe?g|webp)$/i.test(a.rel),
+  );
+  const meta = asset ? getVaultImage(asset.url) : null;
+
+  it("falls back to a plain <img> when there is no manifest entry", async () => {
+    const { html } = await renderMarkdown(
+      "![alt](https://example.com/photo.png)",
+    );
+    // A remote image is never in the manifest: no <picture>, and it must still
+    // render rather than disappear.
+    expect(html).toContain("<img");
+    expect(html).not.toContain("<picture>");
+  });
+
+  it.skipIf(!meta)(
+    "wraps a vault image in a <picture> with intrinsic size",
+    async () => {
+      const name = asset!.rel.split("/").pop()!;
+      const { html } = await renderMarkdown(`![[${name}|Une légende]]`);
+      expect(html).toContain(`width="${meta!.w}"`);
+      expect(html).toContain(`height="${meta!.h}"`);
+      if (meta!.avif.length) {
+        expect(html).toContain("<picture>");
+        expect(html).toContain('type="image/avif"');
+        expect(html).toContain("srcset=");
+        // The figure still forms around the picture, caption included.
+        expect(html).toContain('<figure class="note-figure">');
+        expect(html).toContain("<figcaption>Une légende</figcaption>");
+      }
     },
   );
 });
