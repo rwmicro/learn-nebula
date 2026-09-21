@@ -15,7 +15,12 @@ import type { Root, Element, ElementContent, RootContent } from "hast";
 import { createHash } from "node:crypto";
 import { rehypeShiki } from "./highlight";
 import { resolveWikiLink } from "./content";
-import { resolveVaultAsset, isVideoSrc, isAudioSrc } from "./vault-assets";
+import {
+  resolveVaultAsset,
+  isVideoSrc,
+  isAudioSrc,
+  getVaultImage,
+} from "./vault-assets";
 import { t } from "./i18n";
 
 // ---------------------------------------------------------------------------
@@ -440,17 +445,71 @@ function rehypeVaultAssets(dir: string) {
         }
         if (isAudioSrc(finalSrc) && parent && index != null) {
           const alt =
-            typeof node.properties.alt === "string" ? node.properties.alt.trim() : "";
+            typeof node.properties.alt === "string"
+              ? node.properties.alt.trim()
+              : "";
           const player = pronPlayer(finalSrc, alt, ++pronId);
-          const siblings = parent.children as unknown as Array<RootContent | ElementContent>;
+          const siblings = parent.children as unknown as Array<
+            RootContent | ElementContent
+          >;
           siblings.splice(index, 1, player);
           return SKIP;
+        }
+        // Responsive variants, when build-image-variants.mjs made some. The
+        // intrinsic width/height matter as much as the srcset: without them
+        // the browser cannot reserve the image's box and every picture shifts
+        // the page as it lands.
+        const meta = getVaultImage(finalSrc);
+        if (meta && parent && index != null && !isVideoSrc(finalSrc)) {
+          // `![[photo.png|300]]` already set a width the author asked for —
+          // keep it and derive the height from the real aspect ratio, so the
+          // box is still reserved without overriding their intent.
+          const asked = Number(node.properties.width);
+          if (Number.isFinite(asked) && asked > 0) {
+            node.properties.height = Math.round((asked * meta.h) / meta.w);
+          } else {
+            node.properties.width = meta.w;
+            node.properties.height = meta.h;
+          }
+          if (meta.avif.length || meta.webp.length) {
+            const sources: ElementContent[] = [];
+            for (const [type, list] of [
+              ["image/avif", meta.avif],
+              ["image/webp", meta.webp],
+            ] as const) {
+              if (!list.length) continue;
+              sources.push({
+                type: "element",
+                tagName: "source",
+                properties: {
+                  type,
+                  srcSet: list.map(([w, url]) => `${url} ${w}w`).join(", "),
+                  // Figures are capped at the text column; below that the
+                  // image fills the viewport minus the page gutter.
+                  sizes: "(max-width: 40rem) 100vw, 40rem",
+                },
+                children: [],
+              });
+            }
+            const picture: Element = {
+              type: "element",
+              tagName: "picture",
+              properties: {},
+              children: [...sources, { ...node }],
+            };
+            const siblings = parent.children as unknown as Array<
+              RootContent | ElementContent
+            >;
+            siblings.splice(index, 1, picture);
+            return SKIP;
+          }
         }
         // Promote video files to a real <video> element. The HTML spec doesn't
         // let <img> render mp4/webm, so a literal Markdown image link to a
         // video would otherwise show a broken-image icon.
         if (isVideoSrc(finalSrc)) {
-          const alt = typeof node.properties.alt === "string" ? node.properties.alt : "";
+          const alt =
+            typeof node.properties.alt === "string" ? node.properties.alt : "";
           node.tagName = "video";
           node.properties = {
             src: finalSrc,
@@ -507,7 +566,7 @@ function rehypeFigures() {
       if (content.length !== 1 && content.length !== 2) return;
       const media = content[0];
       if (media.type !== "element") return;
-      if (media.tagName !== "img" && media.tagName !== "video") return;
+      if (!["img", "video", "picture"].includes(media.tagName)) return;
 
       // The vault's older, hand-written way of captioning an image: the
       // image line followed with NO blank line by `*a caption*` — markdown
@@ -527,7 +586,14 @@ function rehypeFigures() {
 
       // Caption: the author's `title` first (written to be read), falling back
       // to `alt` (written for screen readers, but better than nothing).
-      const props = media.properties ?? {};
+      // A <picture> carries nothing itself; its <img> holds alt and title.
+      const captioned =
+        media.tagName === "picture"
+          ? ((media.children.find(
+              (c): c is Element => c.type === "element" && c.tagName === "img",
+            ) ?? media) as Element)
+          : media;
+      const props = captioned.properties ?? {};
       const title = typeof props.title === "string" ? props.title.trim() : "";
       const alt = typeof props.alt === "string" ? props.alt.trim() : "";
       // A promoted <video> carries its text as aria-label; rehypeVaultAssets
@@ -539,7 +605,8 @@ function rehypeFigures() {
       // normalises the data-* marker to its camelCase property name, so drop
       // both spellings rather than betting on which one survived.
       const altIsFilename =
-        props.dataAltIsFilename !== undefined || props["data-alt-is-filename"] !== undefined;
+        props.dataAltIsFilename !== undefined ||
+        props["data-alt-is-filename"] !== undefined;
       delete props.dataAltIsFilename;
       delete props["data-alt-is-filename"];
       if (!figcaptionChildren) {
@@ -594,9 +661,12 @@ function youtubeId(url: string): string | null {
     id = u.pathname.slice(1).split("/")[0];
   } else if (host === "youtube.com" || host === "youtube-nocookie.com") {
     if (u.pathname === "/watch") id = u.searchParams.get("v") ?? "";
-    else if (u.pathname.startsWith("/embed/")) id = u.pathname.slice(7).split("/")[0];
-    else if (u.pathname.startsWith("/shorts/")) id = u.pathname.slice(8).split("/")[0];
-    else if (u.pathname.startsWith("/live/")) id = u.pathname.slice(6).split("/")[0];
+    else if (u.pathname.startsWith("/embed/"))
+      id = u.pathname.slice(7).split("/")[0];
+    else if (u.pathname.startsWith("/shorts/"))
+      id = u.pathname.slice(8).split("/")[0];
+    else if (u.pathname.startsWith("/live/"))
+      id = u.pathname.slice(6).split("/")[0];
   }
   return YT_ID.test(id) ? id : null;
 }
@@ -647,7 +717,10 @@ function rehypeYouTube() {
 // ---------------------------------------------------------------------------
 
 function manimHash(code: string): string {
-  return createHash("sha256").update(code.trim(), "utf-8").digest("hex").slice(0, 16);
+  return createHash("sha256")
+    .update(code.trim(), "utf-8")
+    .digest("hex")
+    .slice(0, 16);
 }
 
 function findManimCacheUrl(hash: string, dir: string): string | null {
@@ -675,7 +748,8 @@ function rehypeManim(dir: string) {
         (c): c is Element => c.type === "element" && c.tagName === "code",
       );
       if (!code) return;
-      const classes = (code.properties?.className as string[] | undefined) ?? [];
+      const classes =
+        (code.properties?.className as string[] | undefined) ?? [];
       const isManim = classes.some(
         (c) => typeof c === "string" && c === "language-manim",
       );
@@ -771,7 +845,9 @@ function rehypeManim(dir: string) {
       // Replace the <pre> in its parent with the <figure>. `parent.children`
       // may be RootContent[] or ElementContent[] depending on context; the
       // figure is a valid member of both so the cast is sound.
-      const siblings = parent.children as unknown as Array<RootContent | ElementContent>;
+      const siblings = parent.children as unknown as Array<
+        RootContent | ElementContent
+      >;
       const i = siblings.indexOf(node as unknown as RootContent);
       if (i !== -1) siblings.splice(i, 1, figure);
       return SKIP;
