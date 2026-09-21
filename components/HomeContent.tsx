@@ -405,6 +405,11 @@ export function HomeContent({
 }) {
   const locale = useLocale();
   const tr = (k: string) => t(k, undefined, locale);
+  // Heavy attachments link straight to the original file (zooming into a
+  // 12022px timeline is the whole point of it), so the tree says what it costs
+  // before the click rather than picking a smaller file on the reader's behalf.
+  const assetSize = (bytes: number) =>
+    t("home.assetSize", { size: Math.round(bytes / 1048576) }, locale);
   // Localise only the two top-level "grands thèmes"; deeper folder names stay as
   // authored on disk. Reuses the existing nav translations.
   const themeLabel = (name: string) =>
@@ -606,6 +611,13 @@ export function HomeContent({
               {node.deck && (
                 <span className="ml-2 shrink-0 text-micro uppercase tracking-[0.08em] text-[#787369]">
                   cartes
+                </span>
+              )}
+              {node.bytes != null && (
+                // No `uppercase` here, unlike the "cartes" tag next to it: Mo is
+                // a unit symbol, and MO is a different thing.
+                <span className="ml-2 shrink-0 text-micro tracking-[0.08em] text-[#787369]">
+                  {assetSize(node.bytes)}
                 </span>
               )}
             </li>

@@ -139,6 +139,7 @@
     "scopeLangs": "Languages",
     "scopeHint": "Pick a type, then type your search.",
     "notesLabel": "Notes",
+    "assetSize": "{size} MB",
     "empty": "No note matches.",
     "mapLabel": "Map of knowledge",
     "mapCaption": "An overview of the links between notes — click to open the graph.",
