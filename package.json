@@ -9,14 +9,14 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:fast": "oxlint",
-    "build": "node scripts/fetch-notes.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-anki.mjs && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/build-rag-chunks.mjs && node scripts/precompress.mjs",
+    "build": "node scripts/fetch-notes.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-anki.mjs && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/build-rag-chunks.mjs && node scripts/prune-rsc.mjs && node scripts/precompress.mjs",
     "start": "npx serve out",
     "format": "prettier --write .",
     "test:unit": "vitest run",
     "test": "scripts/test.sh",
     "server": "tsx server/index.ts",
     "build:rag-chunks": "node scripts/build-rag-chunks.mjs",
-    "build:docker": "node scripts/fetch-notes.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-anki.mjs && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/build-rag-chunks.mjs && node scripts/precompress.mjs",
+    "build:docker": "node scripts/fetch-notes.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-anki.mjs && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/build-rag-chunks.mjs && node scripts/prune-rsc.mjs && node scripts/precompress.mjs",
     "dev:docker": "pnpm build:docker && docker compose -f docker-compose.test.yml up -d --build"
   },
   "dependencies": {
