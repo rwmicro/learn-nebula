@@ -50,9 +50,14 @@ export function dropcapHtml(
     .toUpperCase();
   const enabled = dropcap !== false && first >= "A" && first <= "Z";
   if (!enabled) return base;
+  // `block`, not `swap`: this letter is rendered at 3.8–6.6rem, so showing it
+  // first in a fallback and then swapping reflows the whole opening paragraph
+  // (article-body was a measured source of the note pages' CLS). The face is
+  // preloaded on the next line, so the short block period costs nothing —
+  // and a dropcap that arrives a frame late is better than one that jumps.
   const font =
     `<link rel="preload" href="/fonts/GoudyInitialen-${first}.woff2" as="font" type="font/woff2" crossorigin>` +
-    `<style>@font-face { font-family: "GoudyInitialen"; src: url("/fonts/GoudyInitialen-${first}.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: swap; }</style>`;
+    `<style>@font-face { font-family: "GoudyInitialen"; src: url("/fonts/GoudyInitialen-${first}.woff2") format("woff2"); font-weight: 400; font-style: normal; font-display: block; }</style>`;
   return font + base;
 }
 
