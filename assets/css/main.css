@@ -2395,7 +2395,10 @@ a.theme-pill:focus-visible {
   --c: #b8740f;
 }
 .callout-warning {
-  --c: #c08a00;
+  /* Was #c08a00: 2.78:1 against its own 7% tint, the one callout that failed
+     even the large-text 3:1 floor (axe flags it in tests/a11y.spec.js). Same
+     hue, walked down until the title clears normal-text AA at 4.59:1. */
+  --c: #8f6600;
 }
 .callout-failure,
 .callout-danger,
