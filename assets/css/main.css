@@ -115,7 +115,7 @@ h5 {
 /* Deepest level: a tracked label rather than another size step, so it stays
    legible as a heading without competing with h5. */
 h6 {
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: clamp(1.05rem, 1rem + 0.25vw, 1.2rem);
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -328,7 +328,7 @@ figure {
 }
 
 table {
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   border: none;
   border-collapse: collapse;
   font-size: 1.2rem;
@@ -570,11 +570,48 @@ h2:focus-within .anchor {
 .mermaid-diagram {
   margin: 1.6rem auto;
   text-align: center;
+  overflow-x: auto;
 }
 
+/* A wide diagram must keep its natural size and let the figure scroll, the way
+   .chroma, main table and .katex-display already do — not shrink to fit. An
+   `<svg>` sized `width="100%"` with a 23:1 viewBox (a `flowchart LR` reaches
+   that by its fifth node) collapsed to 561×28 on a 1400px screen and 363×18 on
+   a phone, putting its 16px labels at roughly 5px and 3px. The fallback source
+   box (.mermaid below) had the scroll escape; the diagram that renders did not.
+
+   Mermaid writes the natural width into an inline `style="max-width: <W>px"`,
+   and that is the only handle on it: max-content, fit-content and auto all
+   resolve to the container instead, because an svg carrying just a viewBox has
+   an aspect ratio but no intrinsic width (measured, all three). So ask for more
+   width than any diagram could want and let mermaid's own inline cap settle it
+   on W. The `max-width` here loses to that inline style whenever it is present,
+   and takes over — back to today's shrink-to-fit — if mermaid ever stops
+   emitting it, rather than leaving a 10000px-wide figure behind. */
 .mermaid-diagram svg {
+  width: 10000px;
   max-width: 100%;
   height: auto;
+}
+
+/* Mermaid draws its node labels as HTML inside <foreignObject>, and sizes each
+   box from measuring them at its own 16px/24px. But that HTML is a descendant
+   of <main>, so the article body-type rule up top (`main p …`, 21px/32.55px)
+   applied to the <p> mermaid puts inside every label: the text rendered 31%
+   larger than the box it was measured for, wrapped, and had everything past
+   the first line clipped by the foreignObject's fixed height — "Collecte des
+   sources" read "Collecte des". Both render paths were affected, the
+   build-time pre-render included.
+
+   Hand the label back to mermaid's own sizing. `inherit` rather than fixed
+   values so it keeps following whatever mermaid set on the wrapper. */
+.mermaid-diagram foreignObject p {
+  font-size: inherit;
+  line-height: inherit;
+  margin: 0;
+  padding: 0;
+  hyphens: none;
+  text-wrap: wrap;
 }
 
 /* Diagram source mermaid couldn't parse (e.g. unquoted labels): shown flagged
@@ -699,7 +736,7 @@ h2:focus-within .anchor {
   flex: none;
   margin: 0;
   padding: 0.45rem 0.9rem;
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1rem;
   color: #111;
   background: transparent;
@@ -733,7 +770,7 @@ h2:focus-within .anchor {
 /* "No match" hint when the filter empties the list. */
 .translate-menu-empty {
   padding: 0.5rem 0.9rem;
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.95rem;
   font-style: italic;
   color: #787369;
@@ -746,7 +783,7 @@ h2:focus-within .anchor {
   display: block;
   width: 100%;
   text-align: left;
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1rem;
   font-weight: 400;
   text-transform: none;
@@ -953,7 +990,7 @@ body[data-text-size="lg"] main ol li {
   align-items: center;
   gap: 0.45rem;
   margin: -0.2rem 0 0.9rem;
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1.02rem;
   color: #6f6f6f;
 }
@@ -1073,7 +1110,7 @@ body[data-text-size="lg"] main ol li {
    (set inline by themePillsHtml). Saturation/lightness stay fixed so every
    pill reads as a sober pastel; the text is a darker tone of the same hue. */
 .theme-pill {
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.9rem;
   letter-spacing: 0.01rem;
   padding: 0.1rem 0.6rem;
@@ -1153,7 +1190,7 @@ a.theme-pill:focus-visible {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.6rem;
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1.15rem;
 }
 
@@ -1266,7 +1303,7 @@ a.theme-pill:focus-visible {
   stroke-width: 2;
 }
 .lg-label {
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 15px;
   fill: #111;
 }
@@ -1329,7 +1366,7 @@ a.theme-pill:focus-visible {
 }
 
 .note-search {
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1.3rem;
   padding: 0.35rem 0.2rem 0.45rem;
   width: 100%;
@@ -1368,7 +1405,7 @@ a.theme-pill:focus-visible {
    own custom properties. Set on `.pagefind-ui` so these beat Pagefind's default
    declarations on that same element. */
 #search .pagefind-ui {
-  --pagefind-ui-font: "Alegreya Sans", sans-serif;
+  --pagefind-ui-font: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   --pagefind-ui-primary: #003366; /* links/accents — matches site `a` colour */
   --pagefind-ui-text: #111; /* body text */
   --pagefind-ui-background: #fcfcfc; /* page background */
@@ -1384,7 +1421,7 @@ a.theme-pill:focus-visible {
 }
 
 #search .pagefind-ui__search-input {
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1.3rem;
   font-weight: 400;
   color: #111;
@@ -1412,7 +1449,7 @@ a.theme-pill:focus-visible {
   background: transparent;
   box-shadow: none;
   color: #6f6f6f;
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-weight: 400;
 }
 
@@ -1492,7 +1529,7 @@ a.theme-pill:focus-visible {
 .yt-embed-link {
   display: inline-block;
   margin-top: 0.4rem;
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.95rem;
   color: #6f6f6f;
 }
@@ -1519,6 +1556,14 @@ a.theme-pill:focus-visible {
 
 .comments-list {
   margin: 0 0 1.6rem 0;
+  /* /js/comments.js fills this from /api/comments, so it paints empty and then
+     grows — pushing the form, the sibling nav and the footer down. Reserve the
+     height of the one-line placeholder it shows first (.comments-loading /
+     .comments-empty, 1.15rem italic) so that step costs nothing. A note with
+     no comments — the common case — then never shifts at all; a note that does
+     have some still grows from the placeholder to its real height, which no
+     static build can know ahead of time. */
+  min-height: 2rem;
 }
 
 .comments-loading,
@@ -1557,7 +1602,7 @@ a.theme-pill:focus-visible {
 }
 
 .comment-date {
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.95rem;
   color: #6f6f6f;
   font-style: italic;
@@ -1657,7 +1702,7 @@ a.theme-pill:focus-visible {
 }
 
 .comments-status {
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1rem;
   color: #555;
   min-height: 1.1em;
@@ -2111,7 +2156,7 @@ a.theme-pill:focus-visible {
 .ask-input {
   flex: 1;
   min-width: 0;
-  font-family: "Alegreya Sans", sans-serif;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1.2rem;
   padding: 0.35rem 0.3rem;
   border: none;
@@ -2350,7 +2395,10 @@ a.theme-pill:focus-visible {
   --c: #b8740f;
 }
 .callout-warning {
-  --c: #c08a00;
+  /* Was #c08a00: 2.78:1 against its own 7% tint, the one callout that failed
+     even the large-text 3:1 floor (axe flags it in tests/a11y.spec.js). Same
+     hue, walked down until the title clears normal-text AA at 4.59:1. */
+  --c: #8f6600;
 }
 .callout-failure,
 .callout-danger,

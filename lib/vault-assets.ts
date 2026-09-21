@@ -8,13 +8,29 @@ import path from "node:path";
 const POSTS_DIR = path.join(process.cwd(), "content", "posts");
 const EXTS = new Set([
   // Images
-  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg", ".avif",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".svg",
+  ".avif",
   // Documents
   ".pdf",
   // Video — Manim cache outputs (_manim/*.mp4) and direct ![](clip.mp4) embeds.
-  ".mp4", ".webm", ".mov", ".ogv",
+  ".mp4",
+  ".webm",
+  ".mov",
+  ".ogv",
   // Audio — pronunciation clips embedded as ![word](clip.mp3).
-  ".mp3", ".wav", ".ogg", ".oga", ".m4a", ".opus", ".flac", ".aac",
+  ".mp3",
+  ".wav",
+  ".ogg",
+  ".oga",
+  ".m4a",
+  ".opus",
+  ".flac",
+  ".aac",
 ]);
 
 export const VIDEO_EXTS = new Set([".mp4", ".webm", ".mov", ".ogv"]);
@@ -26,7 +42,14 @@ export function isVideoSrc(src: string): boolean {
 }
 
 export const AUDIO_EXTS = new Set([
-  ".mp3", ".wav", ".ogg", ".oga", ".m4a", ".opus", ".flac", ".aac",
+  ".mp3",
+  ".wav",
+  ".ogg",
+  ".oga",
+  ".m4a",
+  ".opus",
+  ".flac",
+  ".aac",
 ]);
 /** True for the pronunciation-clip extensions rehypeVaultAssets promotes
  * `![word](clip.mp3)` into the `.pron` player instead of a broken `<img>`. */
@@ -37,6 +60,42 @@ export function isAudioSrc(src: string): boolean {
   return AUDIO_EXTS.has(ext);
 }
 
+/** One vault raster image, as build-image-variants.mjs recorded it. */
+export interface VaultImage {
+  /** Intrinsic pixel size, so the <img> can reserve its box and not shift. */
+  w: number;
+  h: number;
+  /** [width, url] pairs, ascending; empty when the source was too small to
+   *  be worth re-encoding. */
+  avif: [number, string][];
+  webp: [number, string][];
+}
+
+const MANIFEST = path.join(process.cwd(), "content", "vault-images.json");
+let imageCache: Record<string, VaultImage> | null = null;
+
+function imageManifest(): Record<string, VaultImage> {
+  if (imageCache) return imageCache;
+  try {
+    imageCache = JSON.parse(fs.readFileSync(MANIFEST, "utf8")) as Record<
+      string,
+      VaultImage
+    >;
+  } catch {
+    // No manifest yet (a `next dev` before the build step, or a runtime that
+    // has no vault on disk): every image simply renders as a plain <img>.
+    imageCache = {};
+  }
+  return imageCache;
+}
+
+/** Variants and intrinsic size for a served URL like `/vault/a/b.png`. */
+export function getVaultImage(url: string): VaultImage | null {
+  if (!url.startsWith("/vault/")) return null;
+  const rel = decodeURIComponent(url.slice("/vault/".length));
+  return imageManifest()[rel] ?? null;
+}
+
 let cache: Map<string, string> | null = null;
 function index(): Map<string, string> {
   if (cache) return cache;
@@ -45,7 +104,8 @@ function index(): Map<string, string> {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
       const rel = base ? `${base}/${entry.name}` : entry.name;
       if (entry.isDirectory()) walk(path.join(dir, entry.name), rel);
-      else if (EXTS.has(path.extname(entry.name).toLowerCase())) map.set(rel.toLowerCase(), rel);
+      else if (EXTS.has(path.extname(entry.name).toLowerCase()))
+        map.set(rel.toLowerCase(), rel);
     }
   };
   if (fs.existsSync(POSTS_DIR)) walk(POSTS_DIR);
@@ -63,7 +123,8 @@ function normalize(p: string): string {
   return parts.join("/");
 }
 
-const encodePath = (p: string) => p.split("/").map(encodeURIComponent).join("/");
+const encodePath = (p: string) =>
+  p.split("/").map(encodeURIComponent).join("/");
 
 /** Served URL for a relative asset reference, or null if no such file exists. */
 export function resolveVaultAsset(src: string, noteDir: string): string | null {
@@ -82,7 +143,10 @@ export function resolveVaultAsset(src: string, noteDir: string): string | null {
 
 /** All vault assets as { relative path, served URL } pairs. */
 export function listVaultAssets(): { rel: string; url: string }[] {
-  return [...index().values()].map((rel) => ({ rel, url: `/vault/${encodePath(rel)}` }));
+  return [...index().values()].map((rel) => ({
+    rel,
+    url: `/vault/${encodePath(rel)}`,
+  }));
 }
 
 /** Served URL for an asset matched by file name only (Obsidian wikilinks). */
@@ -90,7 +154,8 @@ export function resolveVaultAssetByName(name: string): string | null {
   const base = (name.split("/").pop() ?? "").toLowerCase();
   if (!base) return null;
   for (const [rel, actual] of index()) {
-    if ((rel.split("/").pop() ?? "") === base) return `/vault/${encodePath(actual)}`;
+    if ((rel.split("/").pop() ?? "") === base)
+      return `/vault/${encodePath(actual)}`;
   }
   return null;
 }
