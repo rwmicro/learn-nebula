@@ -2652,3 +2652,227 @@ main video {
     max-width: 100%;
   }
 }
+
+/* Controls and surfaces shared by the later widgets. */
+.w-range {
+  width: 12rem;
+  accent-color: #003366;
+  vertical-align: middle;
+}
+.w-area {
+  font: inherit;
+  font-size: var(--text-small);
+  width: 100%;
+  border: 1px solid #ccc;
+  background: #fcfcfc;
+  color: #111;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0;
+  resize: vertical;
+  margin-bottom: 0.7rem;
+}
+.w-mono {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+.w-warn {
+  margin: 0;
+  color: #b3322f;
+  font-size: var(--text-small);
+}
+.w-note {
+  margin: 0.7rem 0 0;
+  font-size: var(--text-small);
+  color: #555;
+}
+
+/* Hash avalanche: one square per output bit, filled when the bit flipped. */
+.w-hashbits {
+  display: grid;
+  grid-template-columns: repeat(64, 1fr);
+  gap: 1px;
+  max-width: 24rem;
+  margin-bottom: 0.9rem;
+}
+.w-hbit {
+  aspect-ratio: 1;
+  background: #eee;
+  display: block;
+}
+.w-hbit.is-flip {
+  background: #003366;
+}
+
+/* Endianness: byte boxes carrying their offset. */
+.w-byte {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ccc;
+  background: #f0f7ff;
+  padding: 0.2rem 0.45rem;
+  font: 500 var(--text-meta) / 1.3 ui-monospace, Menlo, monospace;
+}
+.w-byte em {
+  font-style: normal;
+  font-size: var(--text-micro);
+  color: #6f6f6f;
+}
+
+/* Regex: the sample text with matches marked. */
+.w-highlight {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: var(--text-meta);
+  white-space: pre-wrap;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  margin-bottom: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.w-highlight mark {
+  background: #f0f7ff;
+  outline: 1px solid #003366;
+  color: #003366;
+}
+
+/* Threshold plot. */
+.w-plot {
+  margin-bottom: 0.9rem;
+}
+.w-legend {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  font-size: var(--text-meta);
+  color: #6f6f6f;
+}
+.w-key::before {
+  content: "";
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.3em;
+}
+.w-key-neg::before {
+  background: #ccc;
+}
+.w-key-pos::before {
+  background: #9fc0dd;
+}
+
+.w-table-3 td:first-of-type {
+  width: 10em;
+}
+.w-truth td,
+.w-truth th {
+  text-align: center;
+  padding: 0.2rem 0.5rem;
+}
+.w-truth th:first-child,
+.w-truth td:first-child {
+  text-align: left;
+}
+.w-truth td.is-true {
+  color: #003366;
+  font-weight: 700;
+}
+
+/* Stack frame: program listing beside the stack itself. */
+.w-split {
+  display: flex;
+  gap: 1.4rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.w-prog {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--text-meta) / 1.7 ui-monospace, Menlo, monospace;
+  flex: 1 1 18rem;
+}
+.w-prog li {
+  white-space: pre;
+  color: #6f6f6f;
+}
+.w-prog li.is-now {
+  color: #003366;
+  background: #f0f7ff;
+  font-weight: 700;
+}
+.w-stack {
+  flex: 1 1 16rem;
+}
+.w-slot {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  padding: 0.25rem 0.5rem;
+  font-size: var(--text-meta);
+}
+.w-slot:last-child {
+  border-bottom: 1px solid #ccc;
+}
+.w-addr {
+  font-family: ui-monospace, Menlo, monospace;
+  color: #6f6f6f;
+  font-size: var(--text-micro);
+}
+.w-slot-v {
+  flex: 1;
+}
+.w-reg {
+  background: #003366;
+  color: #fcfcfc;
+  padding: 0 0.35em;
+  font: 700 var(--text-micro) / 1.6 ui-monospace, Menlo, monospace;
+  margin-left: 0.25em;
+}
+
+/* Pipeline: instructions down, cycles across. */
+.w-pipe {
+  overflow-x: auto;
+  margin-bottom: 0.9rem;
+}
+.w-pipe-row {
+  display: flex;
+  align-items: stretch;
+}
+.w-pipe-label {
+  flex: 0 0 11rem;
+  font: var(--text-meta) / 1.9 ui-monospace, Menlo, monospace;
+  color: #555;
+  white-space: pre;
+}
+.w-pipe-c {
+  flex: 0 0 2.6rem;
+  text-align: center;
+  font: 500 var(--text-micro) / 1.9 ui-monospace, Menlo, monospace;
+  color: #6f6f6f;
+  border: 1px solid transparent;
+}
+.w-pipe-c.is-if,
+.w-pipe-c.is-id,
+.w-pipe-c.is-ex,
+.w-pipe-c.is-mem,
+.w-pipe-c.is-wb {
+  border-color: #ccc;
+  background: #f0f7ff;
+  color: #003366;
+}
+.w-pipe-c.is-ex {
+  background: #003366;
+  color: #fcfcfc;
+}
+
+@media (max-width: 640px) {
+  .w-hashbits {
+    grid-template-columns: repeat(32, 1fr);
+  }
+  .w-pipe-label {
+    flex-basis: 8rem;
+  }
+}

@@ -856,7 +856,21 @@ function rehypeManim(dir: string) {
 }
 
 /** Widgets the site knows how to mount; anything else stays a code block. */
-const WIDGETS = new Set(["ieee754", "complement2", "cache-locality"]);
+const WIDGETS = new Set([
+  "ieee754",
+  "complement2",
+  "cache-locality",
+  "subnet",
+  "hash-avalanche",
+  "encodage",
+  "boutisme",
+  "regex",
+  "seuil",
+  "complexite",
+  "table-verite",
+  "cadre-pile",
+  "pipeline",
+]);
 
 /** Text shown before hydration and to readers without JavaScript. */
 const WIDGET_FALLBACK: Record<string, string> = {
@@ -864,6 +878,20 @@ const WIDGET_FALLBACK: Record<string, string> = {
   complement2: "Représentation en complément à deux (nécessite JavaScript).",
   "cache-locality":
     "Parcours d'un tableau et défauts de cache (nécessite JavaScript).",
+  subnet: "Découpage d'une adresse IPv4 en réseau et hôte (nécessite JavaScript).",
+  "hash-avalanche":
+    "Effet d'avalanche d'une fonction de hachage (nécessite JavaScript).",
+  encodage:
+    "Un même texte dans ses différents encodages (nécessite JavaScript).",
+  boutisme: "Disposition d'une valeur en mémoire (nécessite JavaScript).",
+  regex: "Test d'une expression régulière (nécessite JavaScript).",
+  seuil:
+    "Seuil de décision, précision et rappel d'un classifieur (nécessite JavaScript).",
+  complexite:
+    "Croissance comparée des classes de complexité (nécessite JavaScript).",
+  "table-verite": "Table de vérité d'une expression booléenne (nécessite JavaScript).",
+  "cadre-pile": "Cadre de pile au fil d'un appel de fonction (nécessite JavaScript).",
+  pipeline: "Pipeline d'instructions et aléas de données (nécessite JavaScript).",
 };
 
 /** Parses the `key: value` body of a widget block into a flat record. */
