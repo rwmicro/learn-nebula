@@ -877,6 +877,11 @@ const WIDGETS = new Set([
   "matrice-2d",
   "logistique",
   "theorie-jeux",
+  "harmonie-vocalique",
+  "ton",
+  "racine-arabe",
+  "abugida",
+  "ordre-des-mots",
 ]);
 
 /** Text shown before hydration and to readers without JavaScript. */
@@ -909,6 +914,15 @@ const WIDGET_FALLBACK: Record<string, string> = {
     "Une matrice 2×2 comme transformation du plan (nécessite JavaScript).",
   logistique: "Suite logistique et diagramme de bifurcation (nécessite JavaScript).",
   "theorie-jeux": "Matrice de gains et équilibres de Nash (nécessite JavaScript).",
+  "harmonie-vocalique":
+    "Harmonie vocalique turque appliquée aux suffixes (nécessite JavaScript).",
+  ton: "Contours de hauteur et sandhi tonal (nécessite JavaScript).",
+  "racine-arabe":
+    "Famille de mots dérivés d'une racine trilitère (nécessite JavaScript).",
+  abugida:
+    "Composition d'une syllabe devanagari, consonne et signe vocalique (nécessite JavaScript).",
+  "ordre-des-mots":
+    "Ordre des constituants selon la langue (nécessite JavaScript).",
 };
 
 /** Parses the `key: value` body of a widget block into a flat record. */
