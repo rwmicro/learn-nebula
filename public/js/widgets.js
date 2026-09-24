@@ -1823,6 +1823,400 @@
     ]);
   }
 
+  // ------------------------------------------------ Turkish vowel harmony
+
+  /**
+   * Turkish suffixes have no fixed vowel: it is derived from the stem. The
+   * note states the rule as two lookup tables; here it runs, so the reader
+   * sees one suffix take four shapes rather than memorising four suffixes.
+   */
+  function harmonieVocalique(props) {
+    const BACK = "aıou", FRONT = "eiöü", VOWELS = BACK + FRONT;
+    const VOICELESS = "çfhkpsşt"; // consonnes sourdes : d → t
+    const lastVowel = (w) => {
+      for (let i = w.length - 1; i >= 0; i--) if (VOWELS.includes(w[i])) return w[i];
+      return null;
+    };
+    const isVowel = (c) => VOWELS.includes(c);
+    // Two-way harmony (a/e) and four-way harmony (ı/i/u/ü).
+    const A = (v) => (BACK.includes(v) ? "a" : "e");
+    const I = (v) => ({ a: "ı", "ı": "ı", e: "i", i: "i", o: "u", u: "u", "ö": "ü", "ü": "ü" })[v];
+
+    // Each suffix declares how to build itself from the current form.
+    const SUF = [
+      { id: "pluriel", nom: "pluriel", build: (w) => ({ add: "l" + A(lastVowel(w)) + "r", rule: "harmonie en deux temps : a/e" }) },
+      { id: "poss1", nom: "possessif 1ʳᵉ pers.", build: (w) => {
+          const v = lastVowel(w);
+          return isVowel(w.slice(-1))
+            ? { add: "m", rule: "radical en voyelle : pas de voyelle de liaison" }
+            : { add: I(v) + "m", rule: "harmonie en quatre temps : ı/i/u/ü" };
+        } },
+      { id: "locatif", nom: "locatif (« dans »)", build: (w) => {
+          const v = lastVowel(w);
+          const d = VOICELESS.includes(w.slice(-1)) ? "t" : "d";
+          return { add: d + A(v), rule: d === "t" ? "harmonie a/e + assourdissement d → t" : "harmonie a/e" };
+        } },
+      { id: "ablatif", nom: "ablatif (« depuis »)", build: (w) => {
+          const v = lastVowel(w);
+          const d = VOICELESS.includes(w.slice(-1)) ? "t" : "d";
+          return { add: d + A(v) + "n", rule: d === "t" ? "harmonie a/e + assourdissement" : "harmonie a/e" };
+        } },
+      { id: "genitif", nom: "génitif (« de »)", build: (w) => {
+          const v = lastVowel(w);
+          return isVowel(w.slice(-1))
+            ? { add: "n" + I(v) + "n", rule: "radical en voyelle : consonne de liaison n" }
+            : { add: I(v) + "n", rule: "harmonie en quatre temps" };
+        } },
+      { id: "accusatif", nom: "accusatif (défini)", build: (w) => {
+          const v = lastVowel(w);
+          return isVowel(w.slice(-1))
+            ? { add: "y" + I(v), rule: "radical en voyelle : consonne de liaison y" }
+            : { add: I(v), rule: "harmonie en quatre temps" };
+        } },
+    ];
+
+    let stem = String(props.stem ?? "ev");
+    let chain = [];
+    const input = el("input", { type: "text", class: "w-input", value: stem });
+    input.style.width = "10ch";
+    const out = el("div", { class: "w-out" });
+    const steps = el("div", { class: "w-steps" });
+
+    function draw() {
+      let w = input.value.trim().toLowerCase() || "ev";
+      const lines = [];
+      for (const id of chain) {
+        const s = SUF.find((x) => x.id === id);
+        const { add, rule } = s.build(w);
+        lines.push({ before: w, add, after: w + add, nom: s.nom, rule });
+        w += add;
+      }
+      steps.replaceChildren(...lines.map((l) =>
+        el("div", { class: "w-step" }, [
+          el("code", {}, [l.before + " + " + l.add + " → " + l.after]),
+          el("em", {}, [l.nom + " · " + l.rule]),
+        ])));
+      const v = lastVowel(w);
+      out.replaceChildren(
+        el("p", { class: "w-result" }, [w]),
+        el("table", { class: "w-table" }, [
+          ["Dernière voyelle", v ? v + (BACK.includes(v) ? "  (postérieure)" : "  (antérieure)") : "—"],
+          ["Prochain suffixe en a/e", v ? A(v) : "—"],
+          ["Prochain suffixe en ı/i/u/ü", v ? I(v) : "—"],
+        ].map((r) => el("tr", {}, [el("th", {}, [r[0]]), el("td", {}, [r[1]])]))),
+      );
+    }
+
+    input.addEventListener("input", draw);
+    const btns = SUF.map((s) => el("button", { type: "button", class: "w-btn",
+      onclick: () => { chain.push(s.id); draw(); } }, ["+ " + s.nom]));
+    const reset = el("button", { type: "button", class: "w-btn",
+      onclick: () => { chain = []; draw(); } }, ["Effacer"]);
+    const presets = ["ev", "araba", "göz", "kitap", "yol"].map((w) =>
+      el("button", { type: "button", class: "w-btn", onclick: () => { input.value = w; chain = []; draw(); } }, [w]));
+
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, [el("label", {}, ["Radical ", input]), ...presets]),
+      el("div", { class: "w-controls" }, [...btns, reset]),
+      steps,
+      out,
+    ]);
+  }
+
+  // -------------------------------------------------------- tone contours
+
+  /**
+   * Pitch contours drawn from Chao tone letters, plus the sandhi rules the
+   * tables cannot express: a rule that rewrites a tone in context.
+   */
+  function ton(props) {
+    const TONES = {
+      1: { chao: [5, 5], nom: "haut et soutenu", mark: "ā" },
+      2: { chao: [3, 5], nom: "montant", mark: "á" },
+      3: { chao: [2, 1, 4], nom: "descendant puis montant", mark: "ǎ" },
+      4: { chao: [5, 1], nom: "descendant bref", mark: "à" },
+      0: { chao: [3], nom: "neutre, atone", mark: "a" },
+    };
+    const input = el("input", { type: "text", class: "w-input",
+      value: String(props.syllables ?? "ni3 hao3") });
+    input.style.width = "18ch";
+    const plot = el("div", { class: "w-plot" });
+    const out = el("div", { class: "w-out" });
+
+    function parse() {
+      return input.value.trim().split(/\s+/).filter(Boolean).map((t) => {
+        const m = /^([a-züÜ]+)([0-4]?)$/i.exec(t);
+        return m ? { syl: m[1], tone: Number(m[2] || 0) } : { syl: t, tone: 0 };
+      });
+    }
+
+    /** Sandhi: 3+3 -> 2+3, and 不/一 before a fourth tone. */
+    function sandhi(list) {
+      const out = list.map((x) => ({ ...x, changed: false }));
+      for (let i = 0; i < out.length - 1; i++) {
+        if (out[i].tone === 3 && out[i + 1].tone === 3) {
+          out[i] = { ...out[i], tone: 2, changed: true, why: "troisième ton suivi d'un troisième → deuxième" };
+        }
+        if (out[i].syl.toLowerCase() === "bu" && out[i + 1].tone === 4) {
+          out[i] = { ...out[i], tone: 2, changed: true, why: "bù devant un quatrième ton → bú" };
+        }
+        if (out[i].syl.toLowerCase() === "yi" && out[i + 1].tone === 4) {
+          out[i] = { ...out[i], tone: 2, changed: true, why: "yī devant un quatrième ton → yí" };
+        }
+      }
+      return out;
+    }
+
+    function contour(list, label) {
+      const W = 90 * Math.max(1, list.length), H = 120, P = 16;
+      const kids = [];
+      for (let lvl = 1; lvl <= 5; lvl++) {
+        const y = H - P - ((lvl - 1) / 4) * (H - 2 * P);
+        kids.push(svg("line", { x1: 0, y1: y, x2: W, y2: y,
+          stroke: lvl === 1 || lvl === 5 ? "#ccc" : "#eee" }));
+      }
+      list.forEach((t, i) => {
+        const c = TONES[t.tone] || TONES[0];
+        const x0 = i * 90 + 14, span = 62;
+        const pts = c.chao.map((lvl, k) => {
+          const x = x0 + (c.chao.length === 1 ? span / 2 : (k / (c.chao.length - 1)) * span);
+          const y = H - P - ((lvl - 1) / 4) * (H - 2 * P);
+          return x + "," + y;
+        }).join(" ");
+        kids.push(svg(c.chao.length === 1 ? "circle" : "polyline",
+          c.chao.length === 1
+            ? { cx: x0 + span / 2, cy: H - P - 0.5 * (H - 2 * P), r: 4, fill: "#6f6f6f" }
+            : { points: pts, fill: "none", stroke: t.changed ? "#b8740f" : "#003366", "stroke-width": 3 }));
+        const lab = svg("text", { x: x0 + span / 2, y: H - 2, "text-anchor": "middle",
+          "font-size": "12", fill: t.changed ? "#b8740f" : "#111" }, []);
+        lab.textContent = t.syl + (t.tone || "");
+        kids.push(lab);
+      });
+      // A <figure>/<figcaption> here would inherit the article's figure rules
+      // (border, centring) and read as an input box; a plain caption avoids it.
+      return el("div", { class: "w-tone" }, [
+        el("p", { class: "w-hint" }, [label]),
+        svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img", "aria-label": label }, kids),
+      ]);
+    }
+
+    function draw() {
+      const base = parse();
+      const after = sandhi(base);
+      const changed = after.filter((t) => t.changed);
+      plot.replaceChildren(
+        contour(base, "Tons écrits"),
+        changed.length ? contour(after, "Tons réellement prononcés") : el("span", {}, []),
+      );
+      out.replaceChildren(
+        el("table", { class: "w-table" }, [
+          ...base.map((t, i) => el("tr", {}, [
+            el("th", {}, [t.syl + (t.tone || "")]),
+            el("td", {}, [(TONES[t.tone] || TONES[0]).nom +
+              (after[i].changed ? "  →  prononcé " + after[i].tone + " : " + after[i].why : "")]),
+          ])),
+        ]),
+        changed.length
+          ? el("p", { class: "w-note" }, ["Le ton écrit n'est pas le ton prononcé : c'est le sandhi, et il ne s'entend que dans la chaîne."])
+          : el("p", { class: "w-note" }, ["Aucun sandhi ici. Essayer « ni3 hao3 » ou « bu4 shi4 »."]),
+      );
+    }
+
+    input.addEventListener("input", draw);
+    const ex = ["ni3 hao3", "bu4 shi4", "ma1 ma2 ma3 ma4", "yi4 qi3"].map((e) =>
+      el("button", { type: "button", class: "w-btn", onclick: () => { input.value = e; draw(); } }, [e]));
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, [el("label", {}, ["Syllabes ", input]), ...ex]),
+      plot,
+      out,
+    ]);
+  }
+
+  // ------------------------------------------------------ Arabic root widget
+
+  /**
+   * Arabic derives a whole family of words by threading three root consonants
+   * through fixed patterns. The note says recognising a root lets you guess an
+   * unknown word; here the derivation runs, so the mechanism is visible rather
+   * than the result listed.
+   */
+  function racineArabe(props) {
+    const PATTERNS = [
+      { ar: "{1}َ{2}َ{3}َ", tr: "{1}a{2}a{3}a", nom: "فَعَلَ", sens: "verbe accompli — « il a … »" },
+      { ar: "يَ{1}ْ{2}ُ{3}ُ", tr: "ya{1}{2}u{3}u", nom: "يَفْعُلُ", sens: "verbe inaccompli — « il fait »" },
+      { ar: "{1}َا{2}ِ{3}", tr: "{1}ā{2}i{3}", nom: "فَاعِل", sens: "celui qui fait — agent" },
+      { ar: "مَ{1}ْ{2}ُو{3}", tr: "ma{1}{2}ū{3}", nom: "مَفْعُول", sens: "ce qui est fait — patient" },
+      { ar: "مَ{1}ْ{2}َ{3}", tr: "ma{1}{2}a{3}", nom: "مَفْعَل", sens: "lieu où l'on fait" },
+      { ar: "{1}ِ{2}َا{3}", tr: "{1}i{2}ā{3}", nom: "فِعَال", sens: "nom concret, souvent l'objet" },
+      { ar: "{1}َ{2}َّا{3}", tr: "{1}a{2}{2}ā{3}", nom: "فَعَّال", sens: "métier, ou sens intensif" },
+      { ar: "تَ{1}ْ{2}ِي{3}", tr: "ta{1}{2}ī{3}", nom: "تَفْعِيل", sens: "nom d'action, forme II" },
+      { ar: "اِسْتِ{1}ْ{2}َا{3}", tr: "isti{1}{2}ā{3}", nom: "اِسْتِفْعَال", sens: "nom d'action, forme X — « demander à »" },
+    ];
+    const PRESETS = [
+      ["كتب", "k t b", "écrire"], ["درس", "d r s", "étudier"],
+      ["علم", "ʿ l m", "savoir"], ["حكم", "ḥ k m", "juger"], ["فتح", "f t ḥ", "ouvrir"],
+    ];
+    let ar = String(props.root ?? "كتب");
+    let tr = String(props.translit ?? "k t b");
+
+    const inAr = el("input", { type: "text", class: "w-input", value: ar, dir: "rtl" });
+    const inTr = el("input", { type: "text", class: "w-input", value: tr });
+    inAr.style.width = "7ch"; inTr.style.width = "9ch";
+    const out = el("div", { class: "w-out" });
+
+    const fill = (tpl, parts) => tpl.replace(/\{([123])\}/g, (_, k) => parts[Number(k) - 1] ?? "?");
+
+    function draw() {
+      const A = [...inAr.value.trim()].filter((c) => /\p{L}/u.test(c)).slice(0, 3);
+      const T = inTr.value.trim().split(/[\s-]+/).filter(Boolean).slice(0, 3);
+      if (A.length < 3) {
+        out.replaceChildren(el("p", { class: "w-warn" }, ["Trois consonnes attendues, par exemple كتب."]));
+        return;
+      }
+      out.replaceChildren(
+        el("table", { class: "w-table w-roots" }, PATTERNS.map((p) =>
+          el("tr", {}, [
+            el("th", { class: "w-ar" }, [p.nom]),
+            el("td", { class: "w-ar w-ar-big", dir: "rtl" }, [fill(p.ar, A)]),
+            el("td", { class: "w-mono" }, [T.length === 3 ? fill(p.tr, T) : "—"]),
+            el("td", {}, [p.sens]),
+          ]))),
+        el("p", { class: "w-note" }, [
+          "Les trois mêmes consonnes, dans le même ordre, traversées par des schèmes différents : " +
+          "c'est ce qui permet de deviner qu'un mot inconnu bâti sur " + A.join("") +
+          " a quelque chose à voir avec le sens de la racine.",
+        ]),
+      );
+    }
+
+    for (const n of [inAr, inTr]) n.addEventListener("input", draw);
+    const presets = PRESETS.map(([a, t, sens]) =>
+      el("button", { type: "button", class: "w-btn",
+        onclick: () => { inAr.value = a; inTr.value = t; draw(); } }, [a + " · " + sens]));
+
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, [
+        el("label", {}, ["Racine ", inAr]),
+        el("label", {}, ["Translittération ", inTr]),
+      ]),
+      el("div", { class: "w-controls" }, presets),
+      out,
+    ]);
+  }
+
+  // ---------------------------------------------------------- abugida widget
+
+  /**
+   * In an abugida a consonant already carries an inherent /a/; a vowel sign
+   * replaces it. A table lists the resulting forms, which hides that they are
+   * assembled — so here the two pieces are picked and the glyph is composed.
+   */
+  function abugida(props) {
+    const CONS = [
+      ["क", "ka"], ["ख", "kha"], ["ग", "ga"], ["च", "ca"], ["छ", "cha"],
+      ["ज", "ja"], ["ट", "ṭa"], ["त", "ta"], ["थ", "tha"], ["द", "da"],
+      ["न", "na"], ["प", "pa"], ["फ", "pha"], ["ब", "ba"], ["म", "ma"],
+      ["य", "ya"], ["र", "ra"], ["ल", "la"], ["व", "va"], ["स", "sa"],
+      ["ह", "ha"],
+    ];
+    const MATRA = [
+      ["", "a", "voyelle inhérente, aucun signe"],
+      ["ा", "ā", "mātrā ा"], ["ि", "i", "mātrā ि, écrite à gauche"],
+      ["ी", "ī", "mātrā ी"], ["ु", "u", "mātrā ु, sous la consonne"],
+      ["ू", "ū", "mātrā ू"], ["े", "e", "mātrā े, au-dessus"],
+      ["ै", "ai", "mātrā ै"], ["ो", "o", "mātrā ो"], ["ौ", "au", "mātrā ौ"],
+      ["्", "∅", "virāma ्, supprime la voyelle"],
+    ];
+    let ci = 0, mi = 0;
+    const view = el("div", { class: "w-glyph" });
+    const gridC = el("div", { class: "w-chars" });
+    const gridM = el("div", { class: "w-chars" });
+    const out = el("div", { class: "w-out" });
+
+    function draw() {
+      const [c, ct] = CONS[ci];
+      const [m, mt, note] = MATRA[mi];
+      view.replaceChildren(
+        el("b", { class: "w-glyph-parts" }, [c, el("i", {}, ["+"]), m || "∅"]),
+        el("b", { class: "w-glyph-out" }, [c + m]),
+      );
+      gridC.replaceChildren(...CONS.map(([g], i) =>
+        el("button", { type: "button", class: "w-char" + (i === ci ? " is-active" : ""),
+          onclick: () => { ci = i; draw(); } }, [g])));
+      gridM.replaceChildren(...MATRA.map(([g, t], i) =>
+        el("button", { type: "button", class: "w-char" + (i === mi ? " is-active" : ""),
+          onclick: () => { mi = i; draw(); } }, [g ? "◌" + g : "◌"])));
+      out.replaceChildren(
+        el("table", { class: "w-table" }, [
+          ["Consonne", c + "  —  " + ct + ", elle porte déjà un /a/"],
+          ["Signe vocalique", (m || "aucun") + "  —  " + note],
+          ["Syllabe obtenue", c + m + "  —  " + ct.replace(/a$/, "") + (mt === "∅" ? "" : mt)],
+        ].map((r) => el("tr", {}, [el("th", {}, [r[0]]), el("td", {}, [r[1]])]))),
+      );
+    }
+
+    draw();
+    return el("div", { class: "w-root" }, [
+      view,
+      el("p", { class: "w-hint" }, ["consonnes"]), gridC,
+      el("p", { class: "w-hint" }, ["signes vocaliques (mātrā)"]), gridM,
+      out,
+    ]);
+  }
+
+  // ------------------------------------------------------- word order widget
+
+  function ordreDesMots(props) {
+    const LANGS = [
+      { l: "Français", o: "SVO", S: "Marie", V: "mange", O: "la pomme" },
+      { l: "Anglais", o: "SVO", S: "Mary", V: "eats", O: "the apple" },
+      { l: "Mandarin", o: "SVO", S: "玛丽", V: "吃", O: "苹果" },
+      { l: "Espagnol", o: "SVO", S: "María", V: "come", O: "la manzana" },
+      { l: "Turc", o: "SOV", S: "Meryem", V: "yiyor", O: "elmayı" },
+      { l: "Hindi", o: "SOV", S: "मरियम", V: "खाती है", O: "सेब" },
+      { l: "Japonais", o: "SOV", S: "マリーが", V: "食べる", O: "りんごを" },
+      { l: "Arabe classique", o: "VSO", S: "مريم", V: "تأكل", O: "التفاحة" },
+      { l: "Irlandais", o: "VSO", S: "Máire", V: "itheann", O: "an t-úll" },
+    ];
+    let sel = 0;
+    const row = el("div", { class: "w-order" });
+    const out = el("div", { class: "w-out" });
+    const picker = el("div", { class: "w-controls" });
+
+    function draw() {
+      const L = LANGS[sel];
+      const CLS = { S: "w-sujet", V: "w-verbe", O: "w-objet" };
+      const NOM = { S: "sujet", V: "verbe", O: "objet" };
+      row.replaceChildren(...[...L.o].map((k) =>
+        el("span", { class: "w-cst " + CLS[k] }, [
+          el("b", {}, [L[k]]),
+          el("em", {}, [NOM[k]]),
+        ])));
+      picker.replaceChildren(...LANGS.map((x, i) =>
+        el("button", { type: "button", class: "w-btn" + (i === sel ? " is-active" : ""),
+          onclick: () => { sel = i; draw(); } }, [x.l])));
+      const counts = LANGS.reduce((a, x) => { a[x.o] = (a[x.o] || 0) + 1; return a; }, {});
+      out.replaceChildren(
+        el("table", { class: "w-table" }, [
+          ["Ordre", L.o],
+          ["Glose", "Marie mange la pomme"],
+          ["Dans cet échantillon", Object.entries(counts).map(([o, n]) => o + " : " + n).join("  ·  ")],
+        ].map((r) => el("tr", {}, [el("th", {}, [r[0]]), el("td", {}, [r[1]])]))),
+        el("p", { class: "w-note" }, [
+          "SOV et SVO couvrent à eux deux plus de huit langues du monde sur dix. " +
+          "Ce qui change n'est pas le sens mais la place : le sujet précède presque toujours l'objet, " +
+          "c'est la position du verbe qui distingue les types.",
+        ]),
+      );
+    }
+
+    draw();
+    return el("div", { class: "w-root" }, [picker, row, out]);
+  }
+
   // --------------------------------------------------------------- mounting
 
   const BUILDERS = {
@@ -1846,6 +2240,11 @@
     "matrice-2d": matrice2d,
     logistique: logistique,
     "theorie-jeux": theorieJeux,
+    "harmonie-vocalique": harmonieVocalique,
+    ton: ton,
+    "racine-arabe": racineArabe,
+    abugida: abugida,
+    "ordre-des-mots": ordreDesMots,
   };
 
   for (const fig of figures) {
