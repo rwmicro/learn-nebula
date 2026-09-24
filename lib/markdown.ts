@@ -882,6 +882,10 @@ const WIDGETS = new Set([
   "racine-arabe",
   "abugida",
   "ordre-des-mots",
+  "depistage",
+  "pharmacocinetique",
+  "cadrage",
+  "tcl",
 ]);
 
 /** Text shown before hydration and to readers without JavaScript. */
@@ -923,6 +927,12 @@ const WIDGET_FALLBACK: Record<string, string> = {
     "Composition d'une syllabe devanagari, consonne et signe vocalique (nécessite JavaScript).",
   "ordre-des-mots":
     "Ordre des constituants selon la langue (nécessite JavaScript).",
+  depistage:
+    "Valeur prédictive d'un test selon la prévalence (nécessite JavaScript).",
+  pharmacocinetique:
+    "Concentration plasmatique au fil des prises (nécessite JavaScript).",
+  cadrage: "Mise en évidence de l'effet de cadrage (nécessite JavaScript).",
+  tcl: "Théorème central limite, distribution des moyennes (nécessite JavaScript).",
 };
 
 /** Parses the `key: value` body of a widget block into a flat record. */
