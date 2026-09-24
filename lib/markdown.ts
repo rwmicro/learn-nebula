@@ -870,6 +870,13 @@ const WIDGETS = new Set([
   "table-verite",
   "cadre-pile",
   "pipeline",
+  "intervalle",
+  "echiquier",
+  "trapeze-vocalique",
+  "punnett",
+  "matrice-2d",
+  "logistique",
+  "theorie-jeux",
 ]);
 
 /** Text shown before hydration and to readers without JavaScript. */
@@ -892,6 +899,16 @@ const WIDGET_FALLBACK: Record<string, string> = {
   "table-verite": "Table de vérité d'une expression booléenne (nécessite JavaScript).",
   "cadre-pile": "Cadre de pile au fil d'un appel de fonction (nécessite JavaScript).",
   pipeline: "Pipeline d'instructions et aléas de données (nécessite JavaScript).",
+  intervalle:
+    "Comparaison audible entre gamme juste et tempérament égal (nécessite JavaScript).",
+  echiquier: "Position d'échecs déroulée coup par coup (nécessite JavaScript).",
+  "trapeze-vocalique":
+    "Trapèze vocalique et traits articulatoires (nécessite JavaScript).",
+  punnett: "Échiquier de Punnett d'un croisement (nécessite JavaScript).",
+  "matrice-2d":
+    "Une matrice 2×2 comme transformation du plan (nécessite JavaScript).",
+  logistique: "Suite logistique et diagramme de bifurcation (nécessite JavaScript).",
+  "theorie-jeux": "Matrice de gains et équilibres de Nash (nécessite JavaScript).",
 };
 
 /** Parses the `key: value` body of a widget block into a flat record. */
