@@ -371,3 +371,31 @@ describe("responsive images", () => {
     },
   );
 });
+
+describe("widgets", () => {
+  it("turns a known widget block into a mount point with parsed props", async () => {
+    const { html } = await renderMarkdown(
+      "```widget:ieee754\nvalue: 0.1\nbits: 32\n```",
+    );
+    expect(html).toContain('data-widget="ieee754"');
+    expect(html).toContain("&#x22;value&#x22;:&#x22;0.1&#x22;");
+    expect(html).toContain("&#x22;bits&#x22;:&#x22;32&#x22;");
+    // The fallback keeps the figure readable before hydration / without JS.
+    expect(html).toContain("widget-fallback");
+    expect(html).not.toContain("<pre");
+  });
+
+  it("leaves an unknown widget name as a plain code block", async () => {
+    const { html } = await renderMarkdown("```widget:nope\nvalue: 1\n```");
+    expect(html).not.toContain("data-widget");
+    expect(html).toContain("value: 1");
+  });
+
+  it("ignores blank and malformed lines in the props body", async () => {
+    const { html } = await renderMarkdown(
+      "```widget:complement2\n\nbits: 8\nnot a pair\n```",
+    );
+    expect(html).toContain("&#x22;bits&#x22;:&#x22;8&#x22;");
+    expect(html).not.toContain("not a pair");
+  });
+});

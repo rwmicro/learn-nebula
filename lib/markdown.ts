@@ -855,6 +855,79 @@ function rehypeManim(dir: string) {
   };
 }
 
+/** Widgets the site knows how to mount; anything else stays a code block. */
+const WIDGETS = new Set(["ieee754", "complement2", "cache-locality"]);
+
+/** Text shown before hydration and to readers without JavaScript. */
+const WIDGET_FALLBACK: Record<string, string> = {
+  ieee754: "Décomposition IEEE 754 d'un nombre flottant (nécessite JavaScript).",
+  complement2: "Représentation en complément à deux (nécessite JavaScript).",
+  "cache-locality":
+    "Parcours d'un tableau et défauts de cache (nécessite JavaScript).",
+};
+
+/** Parses the `key: value` body of a widget block into a flat record. */
+function widgetProps(source: string): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const line of source.split("\n")) {
+    const m = /^\s*([A-Za-z][\w-]*)\s*:\s*(.*?)\s*$/.exec(line);
+    if (m) out[m[1]] = m[2];
+  }
+  return out;
+}
+
+/**
+ * ```widget:<name> blocks become a mount point that public/js/widgets.js
+ * hydrates. The source stays ordinary fenced markdown so the vault keeps
+ * working on its own: Obsidian shows a readable code block, and a reader
+ * without JavaScript gets the fallback line rather than a hole in the page.
+ *
+ * Same shape as rehypeManim — recognise the language class, replace the <pre>.
+ * An unknown widget name is left alone on purpose, so a typo shows up as a
+ * visible code block instead of silently rendering nothing.
+ */
+function rehypeWidgets() {
+  return (tree: Root) => {
+    visit(tree, "element", (node: Element, index, parent) => {
+      if (node.tagName !== "pre" || !parent || index == null) return;
+      const code = node.children.find(
+        (c): c is Element => c.type === "element" && c.tagName === "code",
+      );
+      if (!code) return;
+      const classes =
+        (code.properties?.className as string[] | undefined) ?? [];
+      const cls = classes.find(
+        (c) => typeof c === "string" && c.startsWith("language-widget:"),
+      );
+      if (!cls) return;
+      const name = cls.slice("language-widget:".length);
+      if (!WIDGETS.has(name)) return;
+
+      const props = widgetProps(hastText(code));
+      parent.children[index] = {
+        type: "element",
+        tagName: "figure",
+        properties: {
+          className: ["widget"],
+          "data-widget": name,
+          "data-props": JSON.stringify(props),
+          "data-pagefind-ignore": true,
+        },
+        children: [
+          {
+            type: "element",
+            tagName: "p",
+            properties: { className: ["widget-fallback"] },
+            children: [
+              { type: "text", value: WIDGET_FALLBACK[name] ?? "Widget." },
+            ],
+          },
+        ],
+      };
+    });
+  };
+}
+
 const isBackref = (n: ElementContent) =>
   n.type === "element" && n.properties?.dataFootnoteBackref !== undefined;
 
@@ -1045,6 +1118,7 @@ export async function renderMarkdown(
     .use(rehypeStripUnsafe)
     .use(rehypeCallouts)
     .use(rehypeManim, dir)
+    .use(rehypeWidgets)
     .use(rehypeShiki)
     .use(rehypePlaceholders, ph.map)
     .use(rehypeHeadingIds)

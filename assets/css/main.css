@@ -2476,3 +2476,179 @@ main video {
   height: auto;
   margin: 0.6rem auto;
 }
+
+/* ---------------------------------------------------------------- widgets
+   Interactive figures built by public/js/widgets.js from ```widget: blocks
+   (rehypeWidgets in lib/markdown.ts). Same visual grammar as the rest of the
+   article: page-coloured surfaces, 1px hairlines, square corners, #003366 as
+   the only accent. Before hydration — and without JS — the figure holds just
+   .widget-fallback, so it reads as a normal line of text. */
+.widget {
+  margin: 1.8rem 0;
+  padding: 0;
+}
+.widget-fallback {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #ccc;
+  color: #6f6f6f;
+  font-size: var(--text-small);
+}
+.widget.is-live .w-root {
+  border: 1px solid #ccc;
+  padding: 0.9rem;
+  background: #fcfcfc;
+}
+.w-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+  font-size: var(--text-small);
+}
+.w-hint {
+  color: #6f6f6f;
+  font-size: var(--text-meta);
+}
+.w-btn,
+.w-input {
+  font: inherit;
+  font-size: var(--text-small);
+  border: 1px solid #ccc;
+  background: #fcfcfc;
+  color: #111;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0;
+  cursor: pointer;
+}
+.w-input {
+  cursor: text;
+  width: 12ch;
+  font-variant-numeric: tabular-nums;
+}
+.w-btn:hover {
+  background: #f0f7ff;
+  border-color: #003366;
+}
+.w-btn.is-active {
+  background: #f0f7ff;
+  border-color: #003366;
+  color: #003366;
+}
+
+/* Bit rows: monospace cells, grouped with a caption under each run. */
+.w-bits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+}
+.w-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.w-group-bits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.w-group-label {
+  font-size: var(--text-micro);
+  font-style: normal;
+  color: #6f6f6f;
+  white-space: nowrap;
+}
+.w-bit {
+  font: 500 var(--text-meta) / 1 ui-monospace, "SFMono-Regular", Menlo, monospace;
+  width: 1.5em;
+  height: 1.8em;
+  border: 1px solid #ccc;
+  background: #fcfcfc;
+  color: #6f6f6f;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 0;
+}
+.w-bit.is-on {
+  background: #f0f7ff;
+  border-color: #003366;
+  color: #003366;
+  font-weight: 700;
+}
+.w-group-sign .w-bit.is-on {
+  background: #003366;
+  color: #fcfcfc;
+}
+
+.w-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-small);
+}
+.w-table th,
+.w-table td {
+  text-align: left;
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+.w-table th {
+  font-weight: 500;
+  color: #6f6f6f;
+  white-space: nowrap;
+  width: 14em;
+}
+.w-table td {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.w-steps {
+  margin-top: 0.8rem;
+}
+.w-steps code {
+  display: block;
+  font-size: var(--text-meta);
+  color: #555;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Cache grid: one cell per array element, laid out in memory order. */
+.w-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  gap: 1px;
+  max-width: 26rem;
+  margin-bottom: 0.9rem;
+  background: #eee;
+  border: 1px solid #ccc;
+}
+.w-cell {
+  aspect-ratio: 1;
+  background: #fcfcfc;
+  display: block;
+}
+.w-cell.is-line {
+  background: #f0f7ff;
+}
+.w-cell.is-read {
+  background: #e4ecf4;
+}
+.w-cell.is-cached {
+  background: #cfe0f0;
+}
+.w-cell.is-now {
+  background: #003366;
+}
+
+@media (max-width: 640px) {
+  .w-table th {
+    width: auto;
+    white-space: normal;
+  }
+  .w-grid {
+    max-width: 100%;
+  }
+}
