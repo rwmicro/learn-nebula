@@ -2876,3 +2876,64 @@ main video {
     flex-basis: 8rem;
   }
 }
+
+/* Chessboard: Unicode pieces on a plain grid, no sprites. */
+.w-board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  max-width: 21rem;
+  border: 1px solid #ccc;
+  margin-bottom: 0.8rem;
+}
+.w-sq {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: #fcfcfc;
+  font-style: normal;
+}
+.w-sq.is-dark {
+  background: #e4ecf4;
+}
+.w-sq.is-last {
+  box-shadow: inset 0 0 0 2px #003366;
+}
+
+/* Vowel trapezoid. */
+.w-trap svg {
+  max-width: 28rem;
+}
+.w-vowel.is-sel circle {
+  stroke-width: 3;
+}
+
+/* Logistic map: the bifurcation canvas with a marker at the current r. */
+.w-canvas-wrap {
+  position: relative;
+}
+.w-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #b8740f;
+  pointer-events: none;
+}
+
+/* Payoff matrix: inputs sit inside the cells. */
+.w-payoff .w-input {
+  width: 6.5ch;
+  border-color: transparent;
+  background: transparent;
+  text-align: center;
+}
+.w-payoff td.is-true {
+  background: #f0f7ff;
+  outline: 1px solid #003366;
+}
+.w-payoff td.is-true .w-input {
+  color: #003366;
+  font-weight: 700;
+}

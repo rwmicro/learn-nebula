@@ -1251,6 +1251,578 @@
     ]);
   }
 
+  // ------------------------------------------------------- interval widget
+
+  /**
+   * Just intonation against equal temperament. The point is audible, not
+   * visual: a tempered fifth beats against a just one, and the beat rate is
+   * the difference of the two frequencies.
+   */
+  function intervalle(props) {
+    const RATIOS = [
+      ["Unisson", 0, 1 / 1], ["Seconde mineure", 1, 16 / 15],
+      ["Seconde majeure", 2, 9 / 8], ["Tierce mineure", 3, 6 / 5],
+      ["Tierce majeure", 4, 5 / 4], ["Quarte juste", 5, 4 / 3],
+      ["Triton", 6, 45 / 32], ["Quinte juste", 7, 3 / 2],
+      ["Sixte mineure", 8, 8 / 5], ["Sixte majeure", 9, 5 / 3],
+      ["Septième mineure", 10, 16 / 9], ["Septième majeure", 11, 15 / 8],
+      ["Octave", 12, 2 / 1],
+    ];
+    const base = Number(props.base ?? 261.63); // do médium
+    let idx = RATIOS.findIndex((r) => r[0] === (props.interval ?? "Quinte juste"));
+    if (idx < 0) idx = 7;
+
+    let ctx = null, nodes = [];
+    const stop = () => {
+      for (const n of nodes) { try { n.stop(); } catch { /* déjà arrêté */ } }
+      nodes = [];
+      play.textContent = "Écouter";
+      play.classList.remove("is-active");
+    };
+    function tone(freq, gain) {
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "sine";
+      o.frequency.value = freq;
+      g.gain.value = gain;
+      o.connect(g).connect(ctx.destination);
+      o.start();
+      nodes.push(o);
+      return o;
+    }
+    function start(mode) {
+      stop();
+      // An AudioContext may only be created from a user gesture.
+      if (!ctx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        if (!AC) { note.textContent = "Web Audio indisponible dans ce navigateur."; return; }
+        ctx = new AC();
+      }
+      if (ctx.state === "suspended") ctx.resume();
+      const [, demi, ratio] = RATIOS[idx];
+      const fJuste = base * ratio;
+      const fTemp = base * 2 ** (demi / 12);
+      tone(base, 0.12);
+      if (mode !== "temp") tone(fJuste, 0.12);
+      if (mode !== "juste") tone(fTemp, 0.12);
+      play.textContent = "Arrêter";
+      play.classList.add("is-active");
+      setTimeout(stop, 4000);
+    }
+
+    const sel = el("select", { class: "w-input" }, RATIOS.map((r, i) =>
+      el("option", i === idx ? { value: String(i), selected: "selected" } : { value: String(i) }, [r[0]])));
+    const out = el("div", { class: "w-out" });
+    const note = el("p", { class: "w-note" });
+
+    function draw() {
+      const [nom, demi, ratio] = RATIOS[idx];
+      const fJuste = base * ratio;
+      const fTemp = base * 2 ** (demi / 12);
+      const cents = 1200 * Math.log2(ratio / 2 ** (demi / 12));
+      const beats = Math.abs(fJuste - fTemp);
+      out.replaceChildren(
+        el("table", { class: "w-table" }, [
+          ["Rapport juste", ratio.toFixed(4) + (Number.isInteger(ratio * 15) ? "" : "") + "   (" + nom.toLowerCase() + ")"],
+          ["Fréquence juste", fJuste.toFixed(2) + " Hz"],
+          ["Fréquence tempérée", fTemp.toFixed(2) + " Hz"],
+          ["Écart", cents.toFixed(1) + " cents"],
+          ["Battements si les deux sonnent", beats < 0.05 ? "aucun" : beats.toFixed(2) + " par seconde"],
+        ].map((r) => el("tr", {}, [el("th", {}, [r[0]]), el("td", {}, [r[1]])]))),
+      );
+      // Judge audibility by the beat rate, not by cents: a fifth differs by
+      // only ~2 cents yet beats about twice a second, which is the classic
+      // demonstration. Below roughly one beat every ten seconds, nothing is
+      // perceptible.
+      note.textContent = beats < 0.1
+        ? "Les deux versions coïncident : aucun battement perceptible."
+        : "Jouées ensemble, les deux versions produisent " + beats.toFixed(2) +
+          " battement" + (beats >= 2 ? "s" : "") + " par seconde — cette pulsation lente " +
+          "est la trace audible du tempérament, et c'est ce que l'accordeur écoute.";
+    }
+
+    const play = el("button", { type: "button", class: "w-btn",
+      onclick: () => (nodes.length ? stop() : start("deux")) }, ["Écouter"]);
+    const pj = el("button", { type: "button", class: "w-btn", onclick: () => start("juste") }, ["Juste seul"]);
+    const pt = el("button", { type: "button", class: "w-btn", onclick: () => start("temp") }, ["Tempéré seul"]);
+    sel.addEventListener("change", () => { idx = Number(sel.value); stop(); draw(); });
+
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, [
+        el("label", {}, ["Intervalle ", sel]), play, pj, pt,
+        el("span", { class: "w-hint" }, ["fondamentale à " + base + " Hz"]),
+      ]),
+      out, note,
+    ]);
+  }
+
+  // ------------------------------------------------------ chessboard widget
+
+  function echiquier(props) {
+    const GLYPH = { K: "♔", Q: "♕", R: "♖", B: "♗", N: "♘", P: "♙",
+                    k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" };
+    const start = String(props.fen ?? "8/8/8/4k3/8/4K3/4P3/8 w - - 0 1");
+    // Moves are given in coordinate form (e2e4), one per `moves` prop, space separated.
+    const moves = String(props.moves ?? "").trim().split(/\s+/).filter(Boolean);
+    let step = 0;
+
+    function board(fen) {
+      const rows = fen.split(" ")[0].split("/");
+      const b = [];
+      for (const r of rows) {
+        const line = [];
+        for (const c of r) {
+          if (/\d/.test(c)) for (let k = 0; k < Number(c); k++) line.push("");
+          else line.push(c);
+        }
+        b.push(line);
+      }
+      return b;
+    }
+    const sq = (s) => [8 - Number(s[1]), s.charCodeAt(0) - 97]; // e4 -> [4,4]
+
+    function at(n) {
+      const b = board(start);
+      for (let k = 0; k < n && k < moves.length; k++) {
+        const m = moves[k];
+        const [fr, fc] = sq(m.slice(0, 2));
+        const [tr, tc] = sq(m.slice(2, 4));
+        b[tr][tc] = b[fr][fc];
+        b[fr][fc] = "";
+      }
+      return b;
+    }
+
+    const grid = el("div", { class: "w-board" });
+    const out = el("div", { class: "w-out" });
+
+    function draw() {
+      const b = at(step);
+      const last = step > 0 && moves[step - 1] ? [sq(moves[step - 1].slice(0, 2)), sq(moves[step - 1].slice(2, 4))] : null;
+      const cells = [];
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const dark = (r + c) % 2 === 1;
+          const isLast = last && last.some(([lr, lc]) => lr === r && lc === c);
+          cells.push(el("i", { class: "w-sq" + (dark ? " is-dark" : "") + (isLast ? " is-last" : "") },
+            [b[r][c] ? GLYPH[b[r][c]] || "" : ""]));
+        }
+      }
+      grid.replaceChildren(...cells);
+      out.replaceChildren(el("p", { class: "w-note" }, [
+        moves.length
+          ? "Coup " + step + " sur " + moves.length + (step ? " — " + moves[step - 1] : " — position initiale")
+          : "Position fixe.",
+      ]));
+    }
+
+    const ctrls = moves.length ? [
+      el("button", { type: "button", class: "w-btn", onclick: () => { step = 0; draw(); } }, ["Début"]),
+      el("button", { type: "button", class: "w-btn", onclick: () => { step = Math.max(0, step - 1); draw(); } }, ["Précédent"]),
+      el("button", { type: "button", class: "w-btn", onclick: () => { step = Math.min(moves.length, step + 1); draw(); } }, ["Suivant"]),
+    ] : [el("span", { class: "w-hint" }, ["position d'étude"])];
+
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, ctrls),
+      grid,
+      out,
+    ]);
+  }
+
+  // ------------------------------------------------- vowel trapezoid widget
+
+  /**
+   * The articulatory space is continuous: a vowel is a position of the tongue,
+   * not an entry in a list. A table cannot show that, a trapezoid can.
+   * Vowels are given as `sym:backness,height,rounded` — backness and height in
+   * 0..1 — so a note supplies whichever inventory it describes.
+   */
+  function trapezeVocalique(props) {
+    const DEF = "i:0,0,0 y:0,0,1 e:0.08,0.33,0 ø:0.08,0.33,1 ɛ:0.16,0.66,0 œ:0.16,0.66,1 a:0.24,1,0 ɑ:0.76,1,0 ɔ:0.84,0.66,1 o:0.92,0.33,1 u:1,0,1 ɯ:1,0,0";
+    const items = String(props.vowels ?? DEF).trim().split(/\s+/).map((t) => {
+      const [sym, rest] = t.split(":");
+      const [b, h, r] = (rest || "0,0,0").split(",").map(Number);
+      return { sym, b, h, r: !!r };
+    });
+    const out = el("div", { class: "w-out" });
+    const plot = el("div", { class: "w-trap" });
+
+    const W = 420, H = 300, P = 34;
+    function draw(sel) {
+      const kids = [];
+      // Trapezoid outline: the mouth narrows towards the back at close height.
+      const x = (b, h) => P + b * (W - 2 * P) * (1 - 0.28 * (1 - h)) + 0.28 * (1 - h) * (W - 2 * P) * 0;
+      const pts = [[P, P], [W - P, P], [W - P * 1.6, H - P], [P * 1.6, H - P]];
+      kids.push(svg("polygon", {
+        points: pts.map((p) => p.join(",")).join(" "),
+        fill: "#fcfcfc", stroke: "#ccc",
+      }));
+      for (const lbl of [["fermée", P], ["ouverte", H - P]]) {
+        kids.push(svg("text", { x: 4, y: lbl[1] + 4, "font-size": "10", fill: "#6f6f6f" }, []));
+        kids[kids.length - 1].textContent = lbl[0];
+      }
+      for (const v of items) {
+        // Interpolate along the trapezoid so points sit inside the outline.
+        const yy = P + v.h * (H - 2 * P);
+        const left = P + v.h * (P * 0.6);
+        const right = W - P - v.h * (P * 0.6);
+        const xx = left + v.b * (right - left);
+        const g = svg("g", { class: "w-vowel" + (sel === v.sym ? " is-sel" : "") });
+        g.appendChild(svg("circle", { cx: xx, cy: yy, r: 11,
+          fill: v.r ? "#003366" : "#f0f7ff", stroke: "#003366" }));
+        const t = svg("text", { x: xx, y: yy + 4, "text-anchor": "middle",
+          "font-size": "12", fill: v.r ? "#fcfcfc" : "#003366" }, []);
+        t.textContent = v.sym;
+        g.appendChild(t);
+        g.addEventListener("click", () => draw(v.sym));
+        g.style.cursor = "pointer";
+        kids.push(g);
+      }
+      plot.replaceChildren(svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%",
+        role: "img", "aria-label": "trapèze vocalique" }, kids));
+
+      const v = items.find((z) => z.sym === sel);
+      out.replaceChildren(
+        el("div", { class: "w-legend" }, [
+          el("span", { class: "w-key w-key-pos" }, ["arrondie"]),
+          el("span", { class: "w-key w-key-neg" }, ["non arrondie"]),
+          el("span", { class: "w-hint" }, ["horizontale : antérieur → postérieur · verticale : fermé → ouvert"]),
+        ]),
+        v ? el("table", { class: "w-table" }, [
+          ["Voyelle", v.sym],
+          ["Aperture", v.h < 0.25 ? "fermée" : v.h < 0.55 ? "mi-fermée" : v.h < 0.85 ? "mi-ouverte" : "ouverte"],
+          ["Lieu", v.b < 0.34 ? "antérieure" : v.b < 0.67 ? "centrale" : "postérieure"],
+          ["Labialisation", v.r ? "arrondie" : "non arrondie"],
+        ].map((r) => el("tr", {}, [el("th", {}, [r[0]]), el("td", {}, [r[1]])])))
+          : el("p", { class: "w-note" }, ["Cliquer une voyelle pour ses traits articulatoires."]),
+      );
+    }
+
+    draw(null);
+    return el("div", { class: "w-root" }, [plot, out]);
+  }
+
+  // -------------------------------------------------------- Punnett widget
+
+  function punnett(props) {
+    const p1 = el("input", { type: "text", class: "w-input", value: String(props.parent1 ?? "Aa") });
+    const p2 = el("input", { type: "text", class: "w-input", value: String(props.parent2 ?? "Aa") });
+    for (const n of [p1, p2]) n.style.width = "7ch";
+    const dom = el("input", { type: "text", class: "w-input", value: String(props.dominant ?? "A") });
+    dom.style.width = "4ch";
+    const out = el("div", { class: "w-out" });
+
+    /** Gametes of a genotype: every combination of one allele per locus. */
+    function gametes(g) {
+      const loci = g.match(/X.|Y|../g) || [];
+      let out = [""];
+      for (const l of loci) {
+        const next = [];
+        for (const pre of out) for (const a of (l === "Y" ? ["Y"] : [l[0], l[1]])) next.push(pre + a);
+        out = next;
+      }
+      return out;
+    }
+
+    function draw() {
+      const a = gametes(p1.value.trim());
+      const b = gametes(p2.value.trim());
+      if (!a.length || !b.length) {
+        out.replaceChildren(el("p", { class: "w-warn" }, ["Génotypes attendus, par exemple Aa, XHXh, XhY."]));
+        return;
+      }
+      const tally = {};
+      const rows = [el("tr", {}, [el("th", {}, [""]), ...b.map((g) => el("th", {}, [g]))])];
+      for (const ga of a) {
+        const cells = [el("th", {}, [ga])];
+        for (const gb of b) {
+          const child = [...ga + gb].sort((x, y) =>
+            (x === dom.value ? -1 : 1) - (y === dom.value ? -1 : 1) || x.localeCompare(y)).join("");
+          tally[child] = (tally[child] || 0) + 1;
+          cells.push(el("td", { class: "w-mono" }, [child]));
+        }
+        rows.push(el("tr", {}, cells));
+      }
+      const total = a.length * b.length;
+      out.replaceChildren(
+        el("table", { class: "w-table w-truth" }, rows),
+        el("table", { class: "w-table" }, Object.entries(tally)
+          .sort((x, y) => y[1] - x[1])
+          .map(([g, n]) => el("tr", {}, [
+            el("th", { class: "w-mono" }, [g]),
+            el("td", {}, [n + " / " + total + "  —  " + ((n / total) * 100).toFixed(0) + " %"]),
+          ]))),
+      );
+    }
+
+    for (const n of [p1, p2, dom]) n.addEventListener("input", draw);
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, [
+        el("label", {}, ["Parent 1 ", p1]),
+        el("label", {}, ["Parent 2 ", p2]),
+        el("label", {}, ["Allèle dominant ", dom]),
+      ]),
+      el("p", { class: "w-hint" }, ["autosomique : Aa × Aa · lié à l'X : XHXh × XHY"]),
+      out,
+    ]);
+  }
+
+  // ---------------------------------------------------- 2x2 matrix widget
+
+  /**
+   * A 2x2 matrix is a transformation of the plane, not a box of numbers: the
+   * determinant is the factor the unit square's area is multiplied by, and the
+   * eigenvectors are the directions the transform leaves on their own line.
+   */
+  function matrice2d(props) {
+    const v = (k, d) => Number(props[k] ?? d);
+    let m = [v("a", 1), v("b", 1), v("c", 0), v("d", 2)]; // a b / c d
+    const fields = ["a", "b", "c", "d"].map((k, i) => {
+      const n = el("input", { type: "number", step: "0.1", class: "w-input", value: String(m[i]) });
+      n.style.width = "5.5ch";
+      n.addEventListener("input", () => { m[i] = Number(n.value) || 0; draw(); });
+      return n;
+    });
+    const plot = el("div", { class: "w-plot" });
+    const out = el("div", { class: "w-out" });
+
+    const S = 260, C = S / 2, U = 42; // pixels per unit
+    const P = (x, y) => [C + x * U, C - y * U];
+
+    function draw() {
+      const [a, b, c, d] = m;
+      const det = a * d - b * c;
+      const tr = a + c === 0 ? a + d : a + d;
+      const kids = [];
+      // Original grid, faint.
+      for (let i = -3; i <= 3; i++) {
+        kids.push(svg("line", { x1: P(i, -3)[0], y1: P(i, -3)[1], x2: P(i, 3)[0], y2: P(i, 3)[1], stroke: "#eee" }));
+        kids.push(svg("line", { x1: P(-3, i)[0], y1: P(-3, i)[1], x2: P(3, i)[0], y2: P(3, i)[1], stroke: "#eee" }));
+      }
+      // Transformed grid.
+      const T = (x, y) => P(a * x + b * y, c * x + d * y);
+      for (let i = -3; i <= 3; i++) {
+        const A = T(i, -3), B = T(i, 3), Cc = T(-3, i), D = T(3, i);
+        kids.push(svg("line", { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: "#cfe0f0" }));
+        kids.push(svg("line", { x1: Cc[0], y1: Cc[1], x2: D[0], y2: D[1], stroke: "#cfe0f0" }));
+      }
+      // Unit square, before and after.
+      const sq0 = [[0, 0], [1, 0], [1, 1], [0, 1]].map(([x, y]) => P(x, y));
+      const sq1 = [[0, 0], [1, 0], [1, 1], [0, 1]].map(([x, y]) => T(x, y));
+      kids.push(svg("polygon", { points: sq0.map((p) => p.join(",")).join(" "), fill: "none", stroke: "#ccc", "stroke-dasharray": "3 3" }));
+      kids.push(svg("polygon", { points: sq1.map((p) => p.join(",")).join(" "), fill: "#f0f7ff", "fill-opacity": "0.8", stroke: "#003366" }));
+      // Basis images.
+      for (const [x, y, col] of [[1, 0, "#003366"], [0, 1, "#2d6cc0"]]) {
+        const q = T(x, y);
+        kids.push(svg("line", { x1: C, y1: C, x2: q[0], y2: q[1], stroke: col, "stroke-width": 2 }));
+      }
+      // Real eigenvectors, when the discriminant allows.
+      const disc = (a - d) ** 2 + 4 * b * c;
+      let eig = null;
+      if (disc >= 0) {
+        const r = Math.sqrt(disc);
+        const l1 = (a + d + r) / 2, l2 = (a + d - r) / 2;
+        eig = [l1, l2];
+        for (const l of [l1, l2]) {
+          // (A - lI)v = 0 -> v = (b, l - a) or (l - d, c)
+          let vx = b, vy = l - a;
+          if (Math.abs(vx) < 1e-9 && Math.abs(vy) < 1e-9) { vx = l - d; vy = c; }
+          const n = Math.hypot(vx, vy) || 1;
+          const [ux, uy] = [(vx / n) * 3, (vy / n) * 3];
+          const A = P(-ux, -uy), B = P(ux, uy);
+          kids.push(svg("line", { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: "#b8740f", "stroke-dasharray": "5 3" }));
+        }
+      }
+      plot.replaceChildren(svg("svg", { viewBox: `0 0 ${S} ${S}`, width: "100%", role: "img",
+        "aria-label": "transformation du plan" }, kids));
+
+      out.replaceChildren(
+        el("table", { class: "w-table" }, [
+          ["Déterminant", det.toFixed(3) + (Math.abs(det) < 1e-9
+            ? "  — le plan s'écrase sur une droite"
+            : "  — l'aire du carré unité est multipliée par " + Math.abs(det).toFixed(3) +
+              (det < 0 ? ", avec renversement d'orientation" : ""))],
+          ["Trace", (a + d).toFixed(3)],
+          ["Valeurs propres", eig
+            ? eig.map((x) => x.toFixed(3)).join("  et  ")
+            : "complexes — aucune direction n'est préservée, la transformation tourne"],
+        ].map((r) => el("tr", {}, [el("th", {}, [r[0]]), el("td", {}, [r[1]])]))),
+        el("div", { class: "w-legend" }, [
+          el("span", { class: "w-hint" }, ["tirets orange : directions propres · pointillés gris : carré unité de départ"]),
+        ]),
+      );
+    }
+
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, [
+        el("span", {}, ["["]), fields[0], fields[1], el("span", {}, ["]"]),
+        el("span", {}, ["["]), fields[2], fields[3], el("span", {}, ["]"]),
+        el("span", { class: "w-hint" }, ["lignes du haut puis du bas"]),
+      ]),
+      plot, out,
+    ]);
+  }
+
+  // -------------------------------------------------------- logistic map
+
+  function logistique(props) {
+    let r = Number(props.r ?? 3.2);
+    const slider = el("input", { type: "range", min: "2.4", max: "4", step: "0.001",
+      value: String(r), class: "w-range", "aria-label": "paramètre r" });
+    const plotOrbit = el("div", { class: "w-plot" });
+    const plotBif = el("div", { class: "w-plot" });
+    const out = el("div", { class: "w-out" });
+
+    // The bifurcation diagram never changes, so it is drawn once into a canvas.
+    const canvas = document.createElement("canvas");
+    canvas.width = 640; canvas.height = 280;
+    canvas.style.width = "100%";
+    canvas.style.border = "1px solid #ccc";
+    (function bifurcation() {
+      const g = canvas.getContext("2d");
+      if (!g) return;
+      g.fillStyle = "#fcfcfc"; g.fillRect(0, 0, canvas.width, canvas.height);
+      g.fillStyle = "rgba(0,51,102,0.5)";
+      for (let px = 0; px < canvas.width; px++) {
+        const rr = 2.4 + (px / canvas.width) * 1.6;
+        let x = 0.5;
+        for (let i = 0; i < 200; i++) x = rr * x * (1 - x); // régime transitoire
+        for (let i = 0; i < 120; i++) {
+          x = rr * x * (1 - x);
+          g.fillRect(px, canvas.height - x * canvas.height, 1, 1);
+        }
+      }
+    })();
+    const marker = el("div", { class: "w-marker" });
+    plotBif.replaceChildren(el("div", { class: "w-canvas-wrap" }, [canvas, marker]));
+
+    function draw() {
+      // Orbit: the first 60 iterates, so the period is countable by eye.
+      const W = 420, H = 150, N = 60;
+      let x = 0.5;
+      const pts = [];
+      for (let i = 0; i < 200; i++) x = r * x * (1 - x);
+      for (let i = 0; i < N; i++) { x = r * x * (1 - x); pts.push(x); }
+      const kids = [svg("line", { x1: 0, y1: H, x2: W, y2: H, stroke: "#ccc" })];
+      pts.forEach((v, i) => {
+        const px = (i / (N - 1)) * W;
+        kids.push(svg("circle", { cx: px, cy: H - v * H, r: 2.2, fill: "#003366" }));
+        if (i) {
+          const q = (i - 1) / (N - 1) * W;
+          kids.push(svg("line", { x1: q, y1: H - pts[i - 1] * H, x2: px, y2: H - v * H, stroke: "#cfe0f0" }));
+        }
+      });
+      plotOrbit.replaceChildren(svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
+        "aria-label": "orbite" }, kids));
+      marker.style.left = (((r - 2.4) / 1.6) * 100).toFixed(2) + "%";
+
+      // Detect the period by looking for a repeat among the settled values.
+      const tail = pts.slice(-32);
+      let period = 0;
+      for (let p = 1; p <= 16; p++) {
+        let ok = true;
+        for (let i = 0; i + p < tail.length; i++) if (Math.abs(tail[i] - tail[i + p]) > 1e-4) { ok = false; break; }
+        if (ok) { period = p; break; }
+      }
+      out.replaceChildren(
+        el("table", { class: "w-table" }, [
+          ["r", r.toFixed(3)],
+          ["Régime", period === 0 ? "apériodique — chaos"
+            : period === 1 ? "point fixe" : "cycle de période " + period],
+          ["Repères", "r < 3 : point fixe · 3 : période 2 · 3,449 : période 4 · 3,569… : chaos"],
+        ].map((z) => el("tr", {}, [el("th", {}, [z[0]]), el("td", {}, [z[1]])]))),
+      );
+    }
+
+    slider.addEventListener("input", () => { r = Number(slider.value); draw(); });
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, [
+        el("label", {}, ["r ", slider]),
+        el("span", { class: "w-hint" }, ["xₙ₊₁ = r·xₙ·(1 − xₙ)"]),
+      ]),
+      plotOrbit,
+      plotBif,
+      out,
+    ]);
+  }
+
+  // ------------------------------------------------------ game theory widget
+
+  function theorieJeux(props) {
+    // Payoffs as "a,b" per cell: row player first, column player second.
+    const def = ["3,3", "0,5", "5,0", "1,1"]; // dilemme du prisonnier
+    const cells = (props.payoffs ? String(props.payoffs).split(/\s*\|\s*/) : def);
+    const labels = {
+      r1: props.r1 ?? "Coopérer", r2: props.r2 ?? "Trahir",
+      c1: props.c1 ?? "Coopérer", c2: props.c2 ?? "Trahir",
+    };
+    const inputs = cells.slice(0, 4).map((v) => {
+      const n = el("input", { type: "text", class: "w-input", value: v });
+      n.style.width = "7ch";
+      n.addEventListener("input", draw);
+      return n;
+    });
+    const out = el("div", { class: "w-out" });
+    const grid = el("div", { class: "w-payoff" });
+
+    function parse() {
+      return inputs.map((n) => {
+        const [a, b] = n.value.split(",").map((x) => Number(x.trim()));
+        return [Number.isFinite(a) ? a : 0, Number.isFinite(b) ? b : 0];
+      });
+    }
+
+    function draw() {
+      const p = parse(); // [RC, RT, TC, TT] en ordre ligne-major
+      const M = [[p[0], p[1]], [p[2], p[3]]];
+      // Pure Nash equilibria: no player gains by deviating alone.
+      const nash = [];
+      for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) {
+        const rowOk = M[i][j][0] >= M[1 - i][j][0];
+        const colOk = M[i][j][1] >= M[i][1 - j][1];
+        if (rowOk && colOk) nash.push([i, j]);
+      }
+      grid.replaceChildren(
+        el("table", { class: "w-table w-truth" }, [
+          el("tr", {}, [el("th", {}, [""]), el("th", {}, [labels.c1]), el("th", {}, [labels.c2])]),
+          el("tr", {}, [el("th", {}, [labels.r1]),
+            el("td", { class: nash.some(([i, j]) => i === 0 && j === 0) ? "is-true" : "" }, [inputs[0]]),
+            el("td", { class: nash.some(([i, j]) => i === 0 && j === 1) ? "is-true" : "" }, [inputs[1]])]),
+          el("tr", {}, [el("th", {}, [labels.r2]),
+            el("td", { class: nash.some(([i, j]) => i === 1 && j === 0) ? "is-true" : "" }, [inputs[2]]),
+            el("td", { class: nash.some(([i, j]) => i === 1 && j === 1) ? "is-true" : "" }, [inputs[3]])]),
+        ]),
+      );
+      const names = nash.map(([i, j]) =>
+        "(" + (i ? labels.r2 : labels.r1) + ", " + (j ? labels.c2 : labels.c1) + ")");
+      // Pareto: is some cell at least as good for both, strictly better for one?
+      const flat = [[0, 0], [0, 1], [1, 0], [1, 1]];
+      const pareto = nash.map(([i, j]) => flat.some(([x, y]) =>
+        M[x][y][0] >= M[i][j][0] && M[x][y][1] >= M[i][j][1] &&
+        (M[x][y][0] > M[i][j][0] || M[x][y][1] > M[i][j][1])));
+      out.replaceChildren(
+        el("table", { class: "w-table" }, [
+          ["Équilibres de Nash en stratégies pures", names.length ? names.join("  ·  ") : "aucun — il en existe un en stratégies mixtes"],
+          ["Optimal au sens de Pareto", names.length
+            ? (pareto.some(Boolean) ? "non — un autre résultat serait meilleur pour tous" : "oui")
+            : "—"],
+        ].map((z) => el("tr", {}, [el("th", {}, [z[0]]), el("td", {}, [z[1]])]))),
+      );
+    }
+
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("p", { class: "w-hint" }, ["chaque case : gain de la ligne, gain de la colonne · les cases surlignées sont des équilibres"]),
+      grid,
+      out,
+    ]);
+  }
+
   // --------------------------------------------------------------- mounting
 
   const BUILDERS = {
@@ -1267,6 +1839,13 @@
     "table-verite": tableVerite,
     "cadre-pile": cadrePile,
     pipeline: pipeline,
+    intervalle: intervalle,
+    echiquier: echiquier,
+    "trapeze-vocalique": trapezeVocalique,
+    punnett: punnett,
+    "matrice-2d": matrice2d,
+    logistique: logistique,
+    "theorie-jeux": theorieJeux,
   };
 
   for (const fig of figures) {
