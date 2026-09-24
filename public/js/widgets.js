@@ -2217,6 +2217,369 @@
     return el("div", { class: "w-root" }, [picker, row, out]);
   }
 
+  // ------------------------------------------------------- screening widget
+
+  /**
+   * Base rates decide. A test can be excellent and still produce mostly false
+   * positives, because the well vastly outnumber the sick — which is what the
+   * note argues about tumour markers without being able to show it.
+   */
+  function depistage(props) {
+    const N = 10000; // population dessinée, une case par personne
+    let prev = Number(props.prevalence ?? 0.1);   // en pourcentage
+    let sens = Number(props.sensibilite ?? 99);
+    let spec = Number(props.specificite ?? 99);
+
+    const mk = (lbl, val, min, max, step) => {
+      const r = el("input", { type: "range", min: String(min), max: String(max),
+        step: String(step), value: String(val), class: "w-range", "aria-label": lbl });
+      return r;
+    };
+    // Prevalence spans four decades, so the slider is logarithmic.
+    const sPrev = mk("prévalence", Math.log10(prev), -2, 1.7, 0.01);
+    const sSens = mk("sensibilité", sens, 50, 100, 0.5);
+    const sSpec = mk("spécificité", spec, 50, 100, 0.5);
+
+    const canvas = document.createElement("canvas");
+    canvas.width = 400; canvas.height = 400;
+    canvas.style.width = "100%"; canvas.style.maxWidth = "22rem";
+    canvas.style.border = "1px solid #ccc";
+    const out = el("div", { class: "w-out" });
+    const note = el("p", { class: "w-note" });
+
+    function draw() {
+      prev = 10 ** Number(sPrev.value);
+      sens = Number(sSens.value);
+      spec = Number(sSpec.value);
+      const malades = Math.round((prev / 100) * N);
+      const sains = N - malades;
+      const vp = Math.round(malades * (sens / 100));
+      const fn = malades - vp;
+      const vn = Math.round(sains * (spec / 100));
+      const fp = sains - vn;
+      const vpp = vp + fp ? (vp / (vp + fp)) * 100 : 0;
+      const vpn = vn + fn ? (vn / (vn + fn)) * 100 : 0;
+
+      // 100x100 cells, ordered: TP, FN, FP, then the rest.
+      const g = canvas.getContext("2d");
+      if (g) {
+        const side = canvas.width / 100;
+        const COL = ["#003366", "#9fc0dd", "#b8740f", "#eee"]; // VP, FN, FP, VN
+        const runs = [[vp, 0], [fn, 1], [fp, 2], [vn, 3]];
+        let i = 0;
+        for (const [count, c] of runs) {
+          g.fillStyle = COL[c];
+          for (let k = 0; k < count; k++, i++) {
+            g.fillRect((i % 100) * side, Math.floor(i / 100) * side, side, side);
+          }
+        }
+      }
+
+      out.replaceChildren(
+        el("p", { class: "w-hint" }, [
+          "chaque case est une personne, " + N.toLocaleString("fr-FR") +
+          " au total — si le carré paraît vide, c'est que les malades y sont " +
+          "une poignée, et c'est tout le problème",
+        ]),
+        el("div", { class: "w-legend" }, [
+          el("span", { class: "w-key w-key-vp" }, ["vrais positifs " + vp]),
+          el("span", { class: "w-key w-key-fn" }, ["faux négatifs " + fn]),
+          el("span", { class: "w-key w-key-fp" }, ["faux positifs " + fp]),
+          el("span", { class: "w-key w-key-vn" }, ["vrais négatifs " + vn]),
+        ]),
+        el("table", { class: "w-table" }, [
+          ["Prévalence", prev < 1 ? prev.toFixed(2) + " %  (1 sur " + Math.round(100 / prev) + ")" : prev.toFixed(1) + " %"],
+          ["Sensibilité / Spécificité", sens.toFixed(1) + " %  /  " + spec.toFixed(1) + " %"],
+          ["Tests positifs", (vp + fp) + " sur " + N],
+          ["Valeur prédictive positive", vpp.toFixed(1) + " %  —  un test positif sur " +
+            (vp ? (Math.round(((vp + fp) / vp) * 10) / 10) : "∞") + " correspond à un vrai malade"],
+          ["Valeur prédictive négative", vpn.toFixed(2) + " %"],
+        ].map((r) => el("tr", {}, [el("th", {}, [r[0]]), el("td", {}, [r[1]])]))),
+      );
+      note.textContent = vpp < 50
+        ? "Avec ces réglages, la majorité des tests positifs sont faux. Le test n'est pas mauvais : les bien-portants sont simplement bien plus nombreux, et un petit pourcentage d'un grand nombre dépasse un grand pourcentage d'un petit nombre."
+        : "Ici un test positif est plus souvent juste que faux. Baisser la prévalence suffit à renverser cela sans toucher à la qualité du test.";
+    }
+
+    for (const r of [sPrev, sSens, sSpec]) r.addEventListener("input", draw);
+    const presets = [
+      ["Cancer rare, test excellent", -1, 99, 99],
+      ["Maladie fréquente", 0.7, 95, 90],
+      ["Population à risque", 1.0, 99, 99],
+    ].map(([lbl, p, se, sp]) => el("button", { type: "button", class: "w-btn",
+      onclick: () => { sPrev.value = String(p); sSens.value = String(se); sSpec.value = String(sp); draw(); } }, [lbl]));
+
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, [
+        el("label", {}, ["Prévalence ", sPrev]),
+        el("label", {}, ["Sensibilité ", sSens]),
+        el("label", {}, ["Spécificité ", sSpec]),
+      ]),
+      el("div", { class: "w-controls" }, presets),
+      canvas,
+      out,
+      note,
+    ]);
+  }
+
+  // ------------------------------------------------ pharmacokinetics widget
+
+  function pharmacocinetique(props) {
+    let dose = Number(props.dose ?? 100);
+    let inter = Number(props.intervalle ?? 8);   // heures entre deux prises
+    let demi = Number(props.demiVie ?? 6);       // demi-vie en heures
+
+    const sDose = el("input", { type: "range", min: "25", max: "400", step: "25",
+      value: String(dose), class: "w-range", "aria-label": "dose" });
+    const sInt = el("input", { type: "range", min: "2", max: "24", step: "1",
+      value: String(inter), class: "w-range", "aria-label": "intervalle" });
+    const sT12 = el("input", { type: "range", min: "1", max: "24", step: "0.5",
+      value: String(demi), class: "w-range", "aria-label": "demi-vie" });
+    const plot = el("div", { class: "w-plot" });
+    const out = el("div", { class: "w-out" });
+
+    function draw() {
+      dose = Number(sDose.value); inter = Number(sInt.value); demi = Number(sT12.value);
+      const k = Math.LN2 / demi;                  // constante d'élimination
+      const DUREE = Math.max(72, demi * 8);       // fenêtre d'observation
+      const PAS = 0.1;
+      const pts = [];
+      for (let t = 0; t <= DUREE; t += PAS) {
+        let c = 0;
+        for (let d = 0; d * inter <= t; d++) c += dose * Math.exp(-k * (t - d * inter));
+        pts.push([t, c]);
+      }
+      // Steady state: accumulation factor 1/(1 - e^{-k·τ}).
+      const R = 1 / (1 - Math.exp(-k * inter));
+      const cmaxSS = dose * R;
+      const cminSS = cmaxSS * Math.exp(-k * inter);
+      const t90 = demi * Math.log2(10);           // ~3,3 demi-vies pour 90 %
+      const t95 = demi * Math.log2(20);
+
+      const W = 460, H = 180, P = 24;
+      const maxC = Math.max(...pts.map((p) => p[1])) * 1.1 || 1;
+      const X = (t) => P + (t / DUREE) * (W - 2 * P);
+      const Y = (c) => H - P - (c / maxC) * (H - 2 * P);
+      const kids = [
+        svg("line", { x1: P, y1: H - P, x2: W - P, y2: H - P, stroke: "#ccc" }),
+        svg("line", { x1: P, y1: P, x2: P, y2: H - P, stroke: "#ccc" }),
+        svg("line", { x1: P, y1: Y(cmaxSS), x2: W - P, y2: Y(cmaxSS), stroke: "#b8740f", "stroke-dasharray": "4 3" }),
+        svg("line", { x1: P, y1: Y(cminSS), x2: W - P, y2: Y(cminSS), stroke: "#b8740f", "stroke-dasharray": "4 3" }),
+        svg("polyline", { points: pts.map((p) => X(p[0]) + "," + Y(p[1])).join(" "),
+          fill: "none", stroke: "#003366", "stroke-width": 2 }),
+      ];
+      if (t95 < DUREE) {
+        kids.push(svg("line", { x1: X(t95), y1: P, x2: X(t95), y2: H - P, stroke: "#3f6b4a", "stroke-dasharray": "2 3" }));
+      }
+      plot.replaceChildren(
+        svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
+          "aria-label": "concentration plasmatique" }, kids),
+        el("div", { class: "w-legend" }, [
+          el("span", { class: "w-hint" }, [
+            "tirets orange : plateau · trait vert : 95 % du plateau atteint · abscisse en heures, 0 à " +
+            Math.round(DUREE),
+          ]),
+        ]),
+      );
+      out.replaceChildren(
+        el("table", { class: "w-table" }, [
+          ["Dose et intervalle", dose + " mg toutes les " + inter + " h"],
+          ["Demi-vie", demi + " h  —  soit " + (inter / demi).toFixed(2) + " demi-vie par intervalle"],
+          ["Facteur d'accumulation", "×" + R.toFixed(2)],
+          ["Plateau", "pic " + cmaxSS.toFixed(0) + "  /  creux " + cminSS.toFixed(0) +
+            "  —  rapport " + (cmaxSS / cminSS).toFixed(1)],
+          ["Délai jusqu'au plateau", "90 % en " + t90.toFixed(0) + " h · 95 % en " + t95.toFixed(0) +
+            " h  —  soit " + (t95 / demi).toFixed(1) + " demi-vies"],
+        ].map((r) => el("tr", {}, [el("th", {}, [r[0]]), el("td", {}, [r[1]])]))),
+        el("p", { class: "w-note" }, [
+          "Doubler la dose double la hauteur du plateau mais ne le fait pas arriver plus tôt : " +
+          "le délai ne dépend que de la demi-vie, jamais de la dose. C'est pourquoi on administre " +
+          "une dose de charge quand il faut agir vite.",
+        ]),
+      );
+    }
+
+    for (const r of [sDose, sInt, sT12]) r.addEventListener("input", draw);
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, [
+        el("label", {}, ["Dose ", sDose]),
+        el("label", {}, ["Intervalle ", sInt]),
+        el("label", {}, ["Demi-vie ", sT12]),
+      ]),
+      plot,
+      out,
+    ]);
+  }
+
+  // --------------------------------------------------------- framing widget
+
+  /**
+   * Performs the bias before naming it. The reader answers two questions that
+   * are numerically identical and usually answers them differently — which a
+   * description of the framing effect cannot make anyone feel.
+   */
+  function cadrage(props) {
+    const total = 600;
+    const Q = [
+      {
+        cadre: "gains",
+        intro: "Une épidémie menace 600 personnes. Deux programmes sont possibles.",
+        a: "Le programme A sauve 200 personnes avec certitude.",
+        b: "Le programme B a une chance sur trois de sauver les 600, et deux chances sur trois de n'en sauver aucune.",
+      },
+      {
+        cadre: "pertes",
+        intro: "Une épidémie menace 600 personnes. Deux programmes sont possibles.",
+        a: "Le programme C entraîne la mort de 400 personnes avec certitude.",
+        b: "Le programme D a une chance sur trois que personne ne meure, et deux chances sur trois que les 600 meurent.",
+      },
+    ];
+    let step = 0;
+    const rep = [null, null];
+    const host = el("div", { class: "w-frame" });
+
+    function draw() {
+      if (step < 2) {
+        const q = Q[step];
+        host.replaceChildren(
+          el("p", { class: "w-hint" }, ["Question " + (step + 1) + " sur 2"]),
+          el("p", {}, [q.intro]),
+          el("div", { class: "w-choices" }, [
+            el("button", { type: "button", class: "w-btn w-choice",
+              onclick: () => { rep[step] = "sur"; step++; draw(); } }, [q.a]),
+            el("button", { type: "button", class: "w-btn w-choice",
+              onclick: () => { rep[step] = "risque"; step++; draw(); } }, [q.b]),
+          ]),
+        );
+        return;
+      }
+      const meme = rep[0] === rep[1];
+      host.replaceChildren(
+        el("table", { class: "w-table" }, [
+          ["Formulation en gains", rep[0] === "sur" ? "A — l'option sûre" : "B — le pari"],
+          ["Formulation en pertes", rep[1] === "sur" ? "C — l'option sûre" : "D — le pari"],
+          ["A et C", "200 survivants sur " + total + " — identiques"],
+          ["B et D", "espérance de 200 survivants — identiques"],
+        ].map((r) => el("tr", {}, [el("th", {}, [r[0]]), el("td", {}, [r[1]])]))),
+        el("p", { class: "w-note" }, [
+          meme
+            ? "Vos deux réponses sont cohérentes : les options étant identiques, c'est la réponse rationnelle."
+            : "Vos deux réponses diffèrent, alors que les options décrivent exactement les mêmes issues. " +
+              "C'est l'effet de cadrage : formulé en vies sauvées, on préfère le certain ; formulé en morts, on préfère le pari.",
+        ]),
+        el("p", { class: "w-note" }, [
+          "Dans l'étude d'origine de Tversky et Kahneman, 72 % choisissent A en cadrage de gains et 78 % choisissent D en cadrage de pertes. " +
+          "Réserve honnête : ces sujets ne voyaient qu'une seule formulation. Voir les deux, comme ici, affaiblit nettement l'effet — " +
+          "ce qui est en soi la meilleure parade connue contre ce biais.",
+        ]),
+        el("button", { type: "button", class: "w-btn",
+          onclick: () => { step = 0; rep[0] = rep[1] = null; draw(); } }, ["Recommencer"]),
+      );
+    }
+
+    draw();
+    return el("div", { class: "w-root" }, [host]);
+  }
+
+  // ------------------------------------------- central limit theorem widget
+
+  function tcl(props) {
+    const LOIS = {
+      uniforme: { nom: "uniforme", f: (r) => r(), mu: 0.5, sd: Math.sqrt(1 / 12) },
+      exponentielle: { nom: "exponentielle", f: (r) => -Math.log(1 - r()) / 3, mu: 1 / 3, sd: 1 / 3 },
+      bimodale: { nom: "bimodale", f: (r) => (r() < 0.5 ? 0.15 + r() * 0.12 : 0.73 + r() * 0.12), mu: 0.5, sd: 0.29 },
+      bernoulli: { nom: "Bernoulli p=0,1", f: (r) => (r() < 0.1 ? 1 : 0), mu: 0.1, sd: Math.sqrt(0.09) },
+    };
+    let loi = props.loi in LOIS ? props.loi : "exponentielle";
+    let n = Number(props.n ?? 1);
+    let seed = 7;
+
+    const sN = el("input", { type: "range", min: "1", max: "60", value: String(n),
+      class: "w-range", "aria-label": "taille de l'échantillon" });
+    const plot = el("div", { class: "w-plot" });
+    const out = el("div", { class: "w-out" });
+
+    function rng() { let x = seed; return () => (x = (x * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff; }
+
+    function draw() {
+      n = Number(sN.value);
+      const L = LOIS[loi];
+      const r = rng();
+      const TIRAGES = 4000;
+      const means = [];
+      for (let i = 0; i < TIRAGES; i++) {
+        let s = 0;
+        for (let k = 0; k < n; k++) s += L.f(r);
+        means.push(s / n);
+      }
+      const lo = Math.min(...means), hi = Math.max(...means);
+      const BINS = 44;
+      const h = new Array(BINS).fill(0);
+      for (const m of means) h[Math.min(BINS - 1, Math.floor(((m - lo) / (hi - lo || 1)) * BINS))]++;
+      const top = Math.max(...h);
+      const obsMu = means.reduce((a, b) => a + b, 0) / means.length;
+      const obsSd = Math.sqrt(means.reduce((a, b) => a + (b - obsMu) ** 2, 0) / means.length);
+      const theoSd = L.sd / Math.sqrt(n);
+
+      const W = 440, H = 170, P = 18;
+      const kids = [];
+      for (let b = 0; b < BINS; b++) {
+        const x = P + (b / BINS) * (W - 2 * P);
+        kids.push(svg("rect", { x, y: H - P - (h[b] / top) * (H - 2 * P),
+          width: (W - 2 * P) / BINS - 1, height: (h[b] / top) * (H - 2 * P), fill: "#cfe0f0" }));
+      }
+      // Theoretical normal for the sampling distribution of the mean.
+      const pts = [];
+      for (let i = 0; i <= 120; i++) {
+        const x = lo + (i / 120) * (hi - lo);
+        const y = Math.exp(-((x - L.mu) ** 2) / (2 * theoSd ** 2));
+        pts.push((P + (i / 120) * (W - 2 * P)) + "," + (H - P - y * (H - 2 * P)));
+      }
+      kids.push(svg("polyline", { points: pts.join(" "), fill: "none", stroke: "#003366", "stroke-width": 2 }));
+      kids.push(svg("line", { x1: P, y1: H - P, x2: W - P, y2: H - P, stroke: "#ccc" }));
+      plot.replaceChildren(svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
+        "aria-label": "distribution des moyennes" }, kids));
+
+      out.replaceChildren(
+        el("table", { class: "w-table" }, [
+          ["Loi de départ", L.nom + (n === 1 ? "  —  à n = 1, l'histogramme est cette loi elle-même" : "")],
+          ["Taille de l'échantillon", "n = " + n + "  ·  " + TIRAGES + " échantillons tirés"],
+          ["Moyenne des moyennes", obsMu.toFixed(4) + "   (théorique " + L.mu.toFixed(4) + ")"],
+          ["Écart-type observé", obsSd.toFixed(4)],
+          ["Erreur-type théorique σ/√n", theoSd.toFixed(4)],
+        ].map((z) => el("tr", {}, [el("th", {}, [z[0]]), el("td", {}, [z[1]])]))),
+        el("p", { class: "w-note" }, [
+          "La courbe bleue est la gaussienne prédite par le théorème, jamais ajustée aux données. " +
+          "Quelle que soit la loi de départ — même une Bernoulli, qui ne prend que deux valeurs — " +
+          "la distribution des moyennes s'y conforme dès que n grandit, et se resserre en 1/√n : " +
+          "quadrupler l'échantillon ne divise l'erreur que par deux.",
+        ]),
+      );
+    }
+
+    sN.addEventListener("input", draw);
+    const pick = Object.entries(LOIS).map(([k, v]) =>
+      el("button", { type: "button", class: "w-btn" + (k === loi ? " is-active" : ""),
+        onclick: (e) => {
+          loi = k;
+          for (const b of e.currentTarget.parentNode.children) b.classList.remove("is-active");
+          e.currentTarget.classList.add("is-active");
+          draw();
+        } }, [v.nom]));
+    const redraw = el("button", { type: "button", class: "w-btn",
+      onclick: () => { seed = (seed * 31 + 17) % 99991; draw(); } }, ["Nouveau tirage"]);
+
+    draw();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, pick),
+      el("div", { class: "w-controls" }, [el("label", {}, ["n ", sN]), redraw]),
+      plot,
+      out,
+    ]);
+  }
+
   // --------------------------------------------------------------- mounting
 
   const BUILDERS = {
@@ -2245,6 +2608,10 @@
     "racine-arabe": racineArabe,
     abugida: abugida,
     "ordre-des-mots": ordreDesMots,
+    depistage: depistage,
+    pharmacocinetique: pharmacocinetique,
+    cadrage: cadrage,
+    tcl: tcl,
   };
 
   for (const fig of figures) {

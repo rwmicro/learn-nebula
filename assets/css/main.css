@@ -3068,3 +3068,26 @@ main video {
   background: #eef3ee;
   border-color: #3f6b4a;
 }
+
+/* Screening: four-colour legend matching the population square. */
+.w-key-vp::before { background: #003366; }
+.w-key-fn::before { background: #9fc0dd; }
+.w-key-fp::before { background: #b8740f; }
+.w-key-vn::before { background: #eee; outline: 1px solid #ccc; }
+
+/* Framing: the two options as full-width choices, not inline buttons. */
+.w-frame p {
+  margin: 0 0 0.7rem;
+  font-size: var(--text-small);
+}
+.w-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.w-choice {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  white-space: normal;
+  line-height: 1.45;
+}
