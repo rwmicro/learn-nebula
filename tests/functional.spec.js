@@ -2,29 +2,30 @@ import fs from "node:fs";
 import path from "node:path";
 import { test, expect } from "@playwright/test";
 
-/** First exported page whose HTML matches, as a site-root URL. */
-function findPage(needle, limit = 4000) {
+/** Exported pages whose HTML contains `needle`, as site-root URLs. */
+function findPages(needle, max = 1) {
   const root = "out";
-  let seen = 0;
+  const hits = [];
   const walk = (dir) => {
     for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (hits.length >= max) return;
       const full = path.join(dir, e.name);
-      if (e.isDirectory()) {
-        const hit = walk(full);
-        if (hit) return hit;
-      } else if (e.name === "index.html" && ++seen <= limit) {
+      if (e.isDirectory()) walk(full);
+      else if (e.name === "index.html") {
         if (fs.readFileSync(full, "utf8").includes(needle))
-          return "/" + path.relative(root, dir).split(path.sep).join("/") + "/";
+          hits.push("/" + path.relative(root, dir).split(path.sep).join("/") + "/");
       }
     }
-    return null;
   };
   try {
-    return walk(root);
+    walk(root);
   } catch {
-    return null;
+    /* no export to scan */
   }
+  return hits;
 }
+
+const findPage = (needle) => findPages(needle, 1)[0] ?? null;
 
 test.describe("Security", () => {
   test("should not load insecure resources", async ({ page }) => {
@@ -272,5 +273,50 @@ test.describe("Widgets", () => {
     const bundle = fs.readFileSync("out/js/note.bundle.js", "utf8");
     expect(bundle).toContain("widget[data-widget]"); // the loader is in it
     expect(bundle.length).toBeLessThan(40_000); // the 106 KB library is not
+  });
+});
+
+test.describe("Keyboard", () => {
+  // Display maths and wide tables are `overflow-x: auto` boxes, and a scroll
+  // container that can't be focused can't be scrolled without a pointer (WCAG
+  // 2.1.1). public/js/scroll-focus.js measures rather than declares: a box that
+  // fits gets no tab stop, and `main table` is only a scroll container inside a
+  // media query, so the answer depends on the viewport.
+  test("a box that scrolls is focusable, one that fits is not", async ({ page }) => {
+    // Whether a box overflows depends on its content AND the viewport, so the
+    // subject can't be picked from the HTML: walk candidates until one of them
+    // actually scrolls at this project's width.
+    const candidates = findPages("katex-display", 25).concat(findPages("<table", 25));
+    test.skip(!candidates.length, "no scrollable candidate in this build");
+
+    let boxes = [];
+    for (const note of candidates) {
+      await page.goto(note);
+      await page.waitForLoadState("networkidle");
+      await page.waitForTimeout(400);
+      boxes = await page.evaluate(() =>
+        [...document.querySelectorAll("main pre, main table, main .katex-display")].map(
+          (el) => ({
+            scrolls: el.scrollWidth > el.clientWidth + 1,
+            focusable: el.getAttribute("tabindex") === "0",
+          }),
+        ),
+      );
+      if (boxes.some((b) => b.scrolls)) break;
+    }
+    test.skip(!boxes.some((b) => b.scrolls), "nothing overflows on any candidate");
+
+    for (const b of boxes) {
+      if (b.scrolls) expect(b.focusable, "a scrolling box is not focusable").toBe(true);
+    }
+    // And no dead tab stops: nothing this script marked should have stopped
+    // overflowing. (A <pre> may carry shiki's own tabindex, hence the marker.)
+    const dead = await page.evaluate(
+      () =>
+        [...document.querySelectorAll("[data-scroll-focus]")].filter(
+          (el) => el.scrollWidth <= el.clientWidth + 1,
+        ).length,
+    );
+    expect(dead, "a tab stop was left on a box that no longer scrolls").toBe(0);
   });
 });
