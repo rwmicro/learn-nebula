@@ -84,9 +84,14 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   `LangSwitcher.tsx`, etc.
 - **Backend** (`server/`, Hono on Node, typecheck with `tsc -p server/tsconfig.json`):
   `index.ts` mounts `routes/ask.ts` (RAG: embed the question via an
-  OpenAI-compatible endpoint → in-memory cosine search over `data/rag-chunks.json`
+  OpenAI-compatible endpoint → hybrid search over `data/rag-chunks.json`, in-memory
+  cosine + BM25 (`bm25.ts`) fused by RRF, optional TEI reranker via `RERANK_URL`
   → Anthropic or OpenAI-compatible generation, NDJSON stream), `routes/comments.ts`
-  (SQLite via better-sqlite3, Turnstile), `routes/translate.ts`. Config is
+  (SQLite via better-sqlite3, Turnstile), `routes/translate.ts` (translations
+  cached in the same SQLite file, keyed on model + languages + source).
+  Chunks (`scripts/build-rag-chunks.mjs`) are split at headings and start with a
+  `Title › Section` breadcrumb line; the vector cache on `/data` records the
+  embedding model and is discarded when it changes. Config is
   centralised in `server/env.ts` (all `process.env`); everything degrades to
   "disabled" when its vars are unset.
 - **`/admin/`** (`components/AdminPanel.tsx`, `robots: {index:false}`): owner-only
