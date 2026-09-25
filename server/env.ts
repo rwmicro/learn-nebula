@@ -34,6 +34,9 @@ export const env = {
   // retrieval (the assistant answers from the model alone, like dev mode).
   embedBaseUrl: process.env.EMBED_BASE_URL || "",
   embedModel: process.env.EMBED_MODEL || "bge-m3",
+  // Optional cross-encoder reranker (TEI /rerank endpoint, full URL, e.g. a
+  // second TEI running BAAI/bge-reranker-v2-m3). Unset → hybrid order is kept.
+  rerankUrl: process.env.RERANK_URL || "",
 
   // Comments moderation / anti-spam (optional).
   turnstileSecret: process.env.TURNSTILE_SECRET_KEY || "",

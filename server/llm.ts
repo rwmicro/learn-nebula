@@ -126,6 +126,31 @@ export async function openaiEmbed(
   return out;
 }
 
+/** Score `texts` against `query` with a cross-encoder reranker, through TEI's
+ *  /rerank API ({query, texts} → [{index, score}], score in 0..1). Returns one
+ *  score per text, in input order. */
+export async function rerank(
+  url: string,
+  query: string,
+  texts: string[],
+  timeoutMs: number,
+): Promise<number[]> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ query, texts, truncate: true }),
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`rerank failed: ${res.status}${body ? ` — ${body.slice(0, 300)}` : ""}`);
+  }
+  const j = (await res.json()) as { index: number; score: number }[];
+  const scores = Array.from({ length: texts.length }, () => 0);
+  for (const r of j) if (r.index >= 0 && r.index < texts.length) scores[r.index] = r.score;
+  return scores;
+}
+
 // Reused across requests instead of re-instantiating per call.
 let anthropic: Anthropic | null = null;
 export function anthropicClient(key: string): Anthropic {
