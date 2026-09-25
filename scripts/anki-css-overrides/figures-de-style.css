@@ -1,0 +1,10 @@
+/* Figures de Style — contrast floor for the deck's own template CSS.
+   The .apkg styles its quotation block (.quote > div) and the italic
+   example/attribution (i) in a grey around 2.8:1 on the white card, below
+   WCAG AA. #595959 on white is 7.0:1. !important because this is appended
+   after a stylesheet we do not control and must win whatever its selectors'
+   specificity. */
+.card .quote > div,
+.card i {
+  color: #595959 !important;
+}

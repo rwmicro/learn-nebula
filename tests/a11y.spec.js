@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { test } from "@playwright/test";
 import { injectAxe, checkA11y } from "axe-playwright";
 
@@ -64,14 +64,41 @@ test.describe("Accessibility (axe · WCAG 2.1 A/AA)", () => {
     // exclusion is div.card, which holds a card's HTML verbatim from the .apkg
     // plus the deck's own stylesheet, injected as-is by
     // components/Flashcards.tsx. Those colours are the deck author's, chosen
-    // against Anki's rendering, and several fail AA here — a real problem, but
-    // one that is fixed in the deck, not in this repository, and not something
-    // this suite can assert about content it does not write.
+    // against Anki's rendering, and several fail AA here. They are fixed per
+    // deck in scripts/anki-css-overrides/, and the next test audits the card
+    // body of every deck that has one; the rest stay out of scope here.
     //
     // Narrow on purpose: it excludes the card body only, so the study
     // controls, the header, the nav and the size switcher around it are all
     // still checked. Verified in both directions — a violation planted outside
     // .card still fails this test.
     await audit(page, { exclude: [[".card"]] });
+  });
+
+  // A deck with a CSS override in scripts/anki-css-overrides/ has had its
+  // colours fixed on purpose, so its card body is audited too: the override
+  // must actually clear AA against the deck's real stylesheet.
+  test("a flashcard deck with a contrast override, card included", async ({
+    page,
+  }) => {
+    let decks = [];
+    try {
+      decks = JSON.parse(readFileSync("content/anki/manifest.json", "utf8"));
+    } catch {
+      /* no manifest */
+    }
+    const fixed = decks.filter((d) =>
+      existsSync(`scripts/anki-css-overrides/${d.slug}.css`),
+    );
+    test.skip(!fixed.length, "no overridden deck built");
+    for (const d of fixed) {
+      await page.goto(`/cartes/${d.slug}/`);
+      await page.waitForSelector(".card");
+      await audit(page);
+      // Back of the card as well: flip and audit again.
+      await page.locator(".card").click();
+      await page.waitForTimeout(200);
+      await checkA11y(page, undefined, AXE);
+    }
   });
 });
