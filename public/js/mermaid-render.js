@@ -9,7 +9,7 @@
 // contain a diagram. CSP-safe under the prod policy: mermaid's dist calls no
 // eval; its 4 `Function("return this")()` global-detection sites short-circuit
 // on `self` in a browser and are never evaluated.
-import { normaliseMermaid } from "../../lib/mermaid-source.js";
+import { normaliseMermaid, MERMAID_CONFIG } from "../../lib/mermaid-source.js";
 
 (function () {
   const blocks = document.querySelectorAll("main pre.mermaid");
@@ -40,13 +40,9 @@ import { normaliseMermaid } from "../../lib/mermaid-source.js";
 
   loadMermaid()
     .then(async (mermaid) => {
-      mermaid.initialize({
-        startOnLoad: false,
-        securityLevel: "strict",
-        theme: "neutral",
-        fontFamily: '"Alegreya Sans", sans-serif',
-        flowchart: { useMaxWidth: true, htmlLabels: true },
-      });
+      // The same config the build uses (lib/mermaid-source.js), so a diagram
+      // that falls back to the browser looks like the 282 that didn't.
+      mermaid.initialize(MERMAID_CONFIG);
       for (const t of targets) {
         const id = "m" + Math.random().toString(36).slice(2);
         try {

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 // Plain JS on purpose — scripts/render-mermaid.mjs imports it with bare node.
-import { normaliseMermaid as n } from "./mermaid-source.js";
+import fs from "node:fs";
+import { normaliseMermaid as n, MERMAID_CONFIG } from "./mermaid-source.js";
 
 describe("normaliseMermaid", () => {
   it("turns Obsidian's literal \\n into a line break", () => {
@@ -61,10 +62,58 @@ describe("normaliseMermaid", () => {
     expect(n("A ---|(faible)| B")).toBe('A ---|"(faible)"| B');
   });
 
+  // The rule that broke a live diagram: a French open-interval ends in "[", and
+  // the rectangle rule latched onto that bracket, found the "]" of the *next*
+  // interval, and wrapped the <br/> between them. Nothing inside a quoted label
+  // is syntax, so no rule may enter one.
+  it("never reaches inside a label the author already quoted", () => {
+    const interval =
+      'INV --> |"Hyperbole"| P4["Décroissante sur ]-inf, 0[<br/>sur ]0, +inf["]';
+    expect(n(interval)).toBe(interval);
+    const card = 'Note["|A∪B∪C| = |A|+|B|+|C|<br/>− |A∩B|"]';
+    expect(n(card)).toBe(card);
+    const parens = 'A["déjà (quoté) et [crocheté]"]';
+    expect(n(parens)).toBe(parens);
+  });
+
+  // …while still quoting what is genuinely bare on the same line.
+  it("still fixes a bare label beside a quoted one", () => {
+    expect(n('A[Calcul (x)] --> B["déjà (quoté)"]')).toBe(
+      'A["Calcul (x)"] --> B["déjà (quoté)"]',
+    );
+  });
+
   // Anything that needs a guess about intent stays untouched — render-mermaid
   // reports it instead of silently drawing something else.
   it("leaves a malformed edge for the author to fix", () => {
     const typo = "Roches -.->|nouveau soulèvement.-> Relief";
     expect(n(typo)).toBe(typo);
+  });
+});
+
+// The theme once lived only in scripts/render-mermaid.mjs while the client
+// fallback kept mermaid's grey "neutral", so the handful of diagrams that fall
+// back to the browser came out looking like they belonged to another site.
+// Both paths read this object now; these guard the two of them from drifting
+// apart again.
+describe("MERMAID_CONFIG", () => {
+  it("is the themed config, not a mermaid default", () => {
+    // Only "base" reads themeVariables — "neutral" silently ignores them.
+    expect(MERMAID_CONFIG.theme).toBe("base");
+    expect(MERMAID_CONFIG.themeVariables.background).toBe("#fcfcfc");
+    expect(MERMAID_CONFIG.securityLevel).toBe("strict");
+  });
+
+  it("is the only place either renderer names a theme", () => {
+    for (const file of [
+      "scripts/render-mermaid.mjs",
+      "public/js/mermaid-render.js",
+    ]) {
+      const src = fs.readFileSync(file, "utf8");
+      expect(src, `${file} sets its own theme`).not.toMatch(/theme:\s*["']/);
+      expect(src, `${file} does not read the shared config`).toContain(
+        "MERMAID_CONFIG",
+      );
+    }
   });
 });
