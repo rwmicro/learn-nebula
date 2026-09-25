@@ -109,7 +109,8 @@ askRoute.post("/", async (c) => {
     const seen = new Set<string>();
     const blocks: string[] = [];
     for (const h of hits) {
-      blocks.push(`## ${h.title}\n${h.text}`);
+      // A chunk's first line is its "Title › Section" breadcrumb.
+      blocks.push(`## ${h.text}`);
       if (h.url && h.title && !seen.has(h.url)) {
         seen.add(h.url);
         sources.push({ title: h.title, url: h.url });

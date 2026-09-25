@@ -72,10 +72,11 @@ if (fs.existsSync(path.join(cache, ".git"))) {
   );
 }
 
-// Pronunciation audio (.mp3) AND Anki decks (.apkg) are stored in the vault
-// via git-lfs (its only two tracked patterns — see .gitattributes there) and
-// the build genuinely needs both: build-anki.mjs unzips the decks, and audio
-// clips are embedded in notes. A plain clone/fetch (GIT_LFS_SKIP_SMUDGE=1
+// Anki decks (.apkg) are stored in the vault via git-lfs and build-anki.mjs
+// unzips them. (Pronunciation .mp3 clips used to be in LFS too; they were
+// moved to plain git once the LFS bandwidth budget ran out, so they arrive
+// with the normal fetch. The pull below still covers them on an older vault
+// checkout.) A plain clone/fetch (GIT_LFS_SKIP_SMUDGE=1
 // above) only leaves LFS *pointer* files, so pull the real objects explicitly
 // — no --include scoping: everything git-lfs tracks here is actually used, and
 // scoping it previously (wrongly assuming decks were unneeded) left .apkg as
