@@ -20,7 +20,10 @@ const SCRIPTS = [
   "aside-toggle",
   "sticky-header",
   "mermaid-render",
-  "widgets",
+  // Not "widgets": the library itself is fetched on demand by the loader, for
+  // the 30 notes out of 721 that actually mount one. public/js/widgets.js is
+  // served as its own file (like mermaid.min.js) and never enters this bundle.
+  "widgets-loader",
   "related",
   "comments",
   "youtube",
