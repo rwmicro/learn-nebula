@@ -1,4 +1,30 @@
+import fs from "node:fs";
+import path from "node:path";
 import { test, expect } from "@playwright/test";
+
+/** First exported page whose HTML matches, as a site-root URL. */
+function findPage(needle, limit = 4000) {
+  const root = "out";
+  let seen = 0;
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        const hit = walk(full);
+        if (hit) return hit;
+      } else if (e.name === "index.html" && ++seen <= limit) {
+        if (fs.readFileSync(full, "utf8").includes(needle))
+          return "/" + path.relative(root, dir).split(path.sep).join("/") + "/";
+      }
+    }
+    return null;
+  };
+  try {
+    return walk(root);
+  } catch {
+    return null;
+  }
+}
 
 test.describe("Security", () => {
   test("should not load insecure resources", async ({ page }) => {
@@ -209,5 +235,42 @@ test.describe("Diagrams", () => {
     expect(probe.svgWidth).toBe(1600);
     expect(probe.figScrolls).toBe(true);
     expect(probe.figOverflowX).toBe("auto");
+  });
+});
+
+test.describe("Widgets", () => {
+  // public/js/widgets.js is 106 KB of builders for the 30 notes out of 721
+  // that mount one. It is deliberately NOT in note.bundle.js — widgets-loader
+  // fetches it only when a mount point is on the page. Both halves of that
+  // contract are asserted here, because only the second one is visible when it
+  // breaks: putting the library back in the bundle would keep every widget
+  // working while quadrupling what every other note downloads.
+  test("the library loads on a page with a widget, and only there", async ({
+    page,
+  }) => {
+    const withWidget = findPage('data-widget="');
+    test.skip(!withWidget, "no note mounts a widget in this build");
+
+    const fetched = [];
+    page.on("response", (r) => {
+      if (r.url().endsWith("/js/widgets.js")) fetched.push(r.url());
+    });
+
+    await page.goto(withWidget);
+    await page.waitForLoadState("networkidle");
+    expect(fetched, "widgets.js was not fetched on a page that has one").toHaveLength(1);
+    // Mounted, not just downloaded: the fallback paragraph is gone.
+    await expect(page.locator(".widget[data-widget] .widget-fallback")).toHaveCount(0);
+
+    fetched.length = 0;
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+    expect(fetched, "widgets.js was fetched on a page with no widget").toHaveLength(0);
+  });
+
+  test("the note bundle does not carry the widget library", () => {
+    const bundle = fs.readFileSync("out/js/note.bundle.js", "utf8");
+    expect(bundle).toContain("widget[data-widget]"); // the loader is in it
+    expect(bundle.length).toBeLessThan(40_000); // the 106 KB library is not
   });
 });
