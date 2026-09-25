@@ -139,6 +139,7 @@
     "scopeLangs": "语言",
     "scopeHint": "选择类型，然后输入搜索内容。",
     "notesLabel": "笔记",
+    "assetSize": "{size} MB",
     "empty": "没有匹配的笔记。",
     "mapLabel": "知识地图",
     "mapCaption": "笔记之间链接的总览 — 点击打开图谱。",
