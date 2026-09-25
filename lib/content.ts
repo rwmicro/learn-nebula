@@ -151,6 +151,13 @@ function slugifyPath(rel: string): string {
   return rel.split("/").map(slugifySegment).filter(Boolean).join("/");
 }
 
+// Above this, a browsable asset gets its weight printed next to its name. The
+// vault holds a few genuinely huge originals — a 12022x8364 history timeline is
+// 15 MB — and those links go to the file itself, not a resized variant, because
+// zooming into them is the point. 2 MB is roughly where a download stops being
+// instant on a phone.
+export const HEAVY_ASSET_BYTES = 2 * 1024 * 1024;
+
 // Folders hidden from the frontend (Obsidian internals / source material /
 // attachment caches). Their files are still copied to public/vault/ by
 // copy-vault-images.mjs, so notes embedding `_manim/*.mp4` or `audios/*.mp3`
@@ -519,6 +526,9 @@ export interface TreeFile {
   title: string;
   href: string;
   asset?: boolean; // standalone image/PDF file rather than a note
+  /** Byte size, assets only and only past HEAVY_ASSET_BYTES — the browse tree
+   *  shows it so a 15 MB timeline isn't a surprise on a phone. */
+  bytes?: number;
   deck?: boolean; // Anki flashcard deck (links to /cartes/<slug>)
   date?: Date;
   /** Frontmatter `lang`, notes only — carried through to the /graph language filter. */
@@ -573,6 +583,9 @@ export function getPostTree(): TreeNode[] {
       title: parts[parts.length - 1],
       href: asset.url,
       asset: true,
+      // Only the ones worth warning about; a badge on every thumbnail would be
+      // noise, and the tree is long.
+      ...(asset.bytes >= HEAVY_ASSET_BYTES ? { bytes: asset.bytes } : {}),
     });
   }
   // Anki decks surface in the folder that held their .apkg, linking to the
@@ -623,6 +636,8 @@ export type HomeTreeNode =
       deck?: boolean;
       /** Standalone attachment (image/PDF) rather than a note. */
       asset?: boolean;
+      /** Weight in bytes, heavy assets only — see HEAVY_ASSET_BYTES. */
+      bytes?: number;
     };
 
 // On-disk folder names that lack the accents/symbols we want to display.
@@ -645,6 +660,7 @@ function pruneToNotes(node: TreeNode, parentPath: string): HomeTreeNode | null {
       href: node.href,
       deck: node.deck,
       asset: node.asset,
+      bytes: node.bytes,
     };
   }
   const path = parentPath ? `${parentPath}/${node.name}` : node.name;

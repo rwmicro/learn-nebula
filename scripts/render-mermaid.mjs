@@ -1,12 +1,24 @@
 // Renders ```mermaid blocks to static SVG at build time (no client-side JS).
 // Replaces `<pre class="mermaid">source</pre>` in out/**/*.html with the SVG.
-// Requires a Chromium (Playwright) since mermaid needs a DOM; if unavailable,
-// it logs a warning and leaves the blocks (hidden by CSS) rather than failing.
+// Requires a Chromium (Playwright) since mermaid needs a DOM.
+//
+// Failing loudly when Chromium is missing is the whole point of this file's
+// error handling. A block left unrendered is not cosmetic: public/js/
+// mermaid-render.js picks it up in the browser and pulls /js/mermaid.min.js —
+// 3.4 MB — on every page that has one. This used to exit 0 with a warning, so a
+// broken `playwright install` (docker.yml runs it with `|| true`) would have
+// shipped that silently across every diagram page. An infrastructure failure
+// now stops the build; set MERMAID_ALLOW_SKIP=1 to opt out locally.
+//
+// A diagram that mermaid itself rejects is different — that's one note's syntax,
+// not the toolchain, and it shouldn't block a deploy of a thousand others. Those
+// stay a warning naming the files to fix.
 
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { chromium } from "@playwright/test";
+import { normaliseMermaid } from "../lib/mermaid-source.js";
 
 const OUT = path.join(process.cwd(), "out");
 const MERMAID = path.join(process.cwd(), "node_modules", "mermaid", "dist", "mermaid.min.js");
@@ -54,8 +66,22 @@ let browser;
 try {
   browser = await chromium.launch();
 } catch (e) {
-  console.warn(`render-mermaid: Chromium unavailable, skipping (${String(e).split("\n")[0]})`);
-  process.exit(0);
+  const reason = String(e).split("\n")[0];
+  if (process.env.MERMAID_ALLOW_SKIP === "1") {
+    console.warn(
+      `render-mermaid: Chromium unavailable, skipping ${sources.size} diagram(s) ` +
+        `because MERMAID_ALLOW_SKIP=1 (${reason}).\n` +
+        "  Those pages will load /js/mermaid.min.js (3.4 MB) in the browser instead.",
+    );
+    process.exit(0);
+  }
+  console.error(
+    `render-mermaid: Chromium unavailable and ${sources.size} diagram(s) need it — ${reason}\n` +
+      "  Every page holding one would fall back to a 3.4 MB client-side render, so this is a\n" +
+      "  build failure, not a warning. Install it with `pnpm exec playwright install chromium`,\n" +
+      "  or set MERMAID_ALLOW_SKIP=1 if you genuinely want the client-side fallback.",
+  );
+  process.exit(1);
 }
 
 const page = await browser.newPage();
@@ -74,15 +100,7 @@ await page.evaluate(() => {
 const svgs = new Map(); // hash -> svg
 let failed = 0;
 for (const [h, code] of sources) {
-  // Normalise common Obsidian habits mermaid rejects:
-  //  - literal "\n" line breaks -> <br/>
-  //  - unquoted [label] with special chars -> ["label"] (but not [( cylinders
-  //    or [[ subroutines, whose shape would break)
-  //  - unquoted subgraph titles with special chars -> quoted
-  const normalized = code
-    .replace(/\\n/g, "<br/>")
-    .replace(/\[(?![[(])([^[\]"]*[<>(){}+&|][^[\]"]*)\]/g, '["$1"]')
-    .replace(/^(\s*subgraph[ \t]+)(?!")([^[\n]*[<>()][^[\n]*?)\s*$/gm, '$1"$2"');
+  const normalized = normaliseMermaid(code);
   try {
     const svg = await page.evaluate(async (c) => {
       const id = "m" + Math.random().toString(36).slice(2);
@@ -107,7 +125,12 @@ for (const f of files) {
     const svg = svgs.get(hash(decode(inner).trim()));
     if (!svg) return whole;
     replaced++;
-    return `<figure class="mermaid-diagram" data-pagefind-ignore>${svg}</figure>`;
+    // tabindex: .mermaid-diagram is an overflow-x:auto box (a wide diagram
+    // scrolls rather than being squashed), and a scrollable region that isn't
+    // focusable can't be scrolled from the keyboard at all — axe flags it as
+    // serious, WCAG 2.1 2.1.1. Focusable is all the rule needs; the diagram's
+    // own <text> is what a screen reader then reads.
+    return `<figure class="mermaid-diagram" tabindex="0" data-pagefind-ignore>${svg}</figure>`;
   });
   if (out !== html) fs.writeFileSync(f, out);
   if (out.includes('class="mermaid"')) failedFiles.add(path.relative(OUT, f));
@@ -118,7 +141,8 @@ console.log(
 );
 if (failedFiles.size) {
   console.warn(
-    `\n${failedFiles.size} note(s) have invalid mermaid (e.g. unquoted labels) — fix the source:`,
+    `\n${failedFiles.size} note(s) have invalid mermaid (e.g. unquoted labels) — fix the source.\n` +
+      "  Each one makes a reader download /js/mermaid.min.js (3.4 MB) to render it client-side:",
   );
   for (const f of failedFiles) console.warn(`  ${f}`);
 }

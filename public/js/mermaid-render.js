@@ -9,19 +9,11 @@
 // contain a diagram. CSP-safe under the prod policy: mermaid's dist calls no
 // eval; its 4 `Function("return this")()` global-detection sites short-circuit
 // on `self` in a browser and are never evaluated.
+import { normaliseMermaid } from "../../lib/mermaid-source.js";
+
 (function () {
   const blocks = document.querySelectorAll("main pre.mermaid");
   if (!blocks.length) return;
-
-  // Mirror the build-time normalisation (scripts/render-mermaid.mjs) so the same
-  // Obsidian habits mermaid rejects (literal "\n", unquoted labels/subgraph
-  // titles with special chars) are fixed here too.
-  function normalize(code) {
-    return code
-      .replace(/\\n/g, "<br/>")
-      .replace(/\[(?![[(])([^[\]"]*[<>(){}+&|][^[\]"]*)\]/g, '["$1"]')
-      .replace(/^(\s*subgraph[ \t]+)(?!")([^[\n]*[<>()][^[\n]*?)\s*$/gm, '$1"$2"');
-  }
 
   // Capture the source and hide the raw box while we load + render, so the
   // flagged fallback doesn't flash. Restore it if rendering fails.
@@ -58,9 +50,12 @@
       for (const t of targets) {
         const id = "m" + Math.random().toString(36).slice(2);
         try {
-          const { svg } = await mermaid.render(id, normalize(t.source.trim()));
+          const { svg } = await mermaid.render(id, normaliseMermaid(t.source.trim()));
           const figure = document.createElement("figure");
           figure.className = "mermaid-diagram";
+          // Same as the build-time path: the box scrolls, so it must be
+          // keyboard-reachable (see scripts/render-mermaid.mjs).
+          figure.tabIndex = 0;
           figure.setAttribute("data-pagefind-ignore", "");
           figure.innerHTML = svg;
           t.el.replaceWith(figure);
