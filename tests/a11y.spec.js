@@ -94,20 +94,6 @@ test.describe("Accessibility (axe · WCAG 2.1 A/AA)", () => {
     for (const d of fixed) {
       await page.goto(`/cartes/${d.slug}/`);
       await page.waitForSelector(".card");
-      // TEMP diagnostic: dump the deck CSS and computed styles of the flagged nodes.
-      console.log(
-        "DIAG",
-        JSON.stringify(
-          await page.evaluate(() => ({
-            css: [...document.querySelectorAll("main style")].map((s) => s.textContent),
-            html: document.querySelector(".card")?.outerHTML.slice(0, 1500),
-            nodes: [...document.querySelectorAll(".card .quote > div, .card i")].map((e) => {
-              const cs = getComputedStyle(e);
-              return { tag: e.tagName, color: cs.color, opacity: cs.opacity, bg: cs.backgroundColor };
-            }),
-          })),
-        ),
-      );
       await audit(page);
       // Back of the card as well: flip and audit again.
       await page.locator(".card").click();
