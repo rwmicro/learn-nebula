@@ -2476,3 +2476,618 @@ main video {
   height: auto;
   margin: 0.6rem auto;
 }
+
+/* ---------------------------------------------------------------- widgets
+   Interactive figures built by public/js/widgets.js from ```widget: blocks
+   (rehypeWidgets in lib/markdown.ts). Same visual grammar as the rest of the
+   article: page-coloured surfaces, 1px hairlines, square corners, #003366 as
+   the only accent. Before hydration — and without JS — the figure holds just
+   .widget-fallback, so it reads as a normal line of text. */
+.widget {
+  margin: 1.8rem 0;
+  padding: 0;
+}
+.widget-fallback {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid #ccc;
+  color: #6f6f6f;
+  font-size: var(--text-small);
+}
+.widget.is-live .w-root {
+  border: 1px solid #ccc;
+  padding: 0.9rem;
+  background: #fcfcfc;
+}
+.w-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+  font-size: var(--text-small);
+}
+.w-hint {
+  color: #6f6f6f;
+  font-size: var(--text-meta);
+}
+.w-btn,
+.w-input {
+  font: inherit;
+  font-size: var(--text-small);
+  border: 1px solid #ccc;
+  background: #fcfcfc;
+  color: #111;
+  padding: 0.25rem 0.6rem;
+  border-radius: 0;
+  cursor: pointer;
+}
+.w-input {
+  cursor: text;
+  width: 12ch;
+  font-variant-numeric: tabular-nums;
+}
+.w-btn:hover {
+  background: #f0f7ff;
+  border-color: #003366;
+}
+.w-btn.is-active {
+  background: #f0f7ff;
+  border-color: #003366;
+  color: #003366;
+}
+
+/* Bit rows: monospace cells, grouped with a caption under each run. */
+.w-bits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+}
+.w-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.w-group-bits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.w-group-label {
+  font-size: var(--text-micro);
+  font-style: normal;
+  color: #6f6f6f;
+  white-space: nowrap;
+}
+.w-bit {
+  font: 500 var(--text-meta) / 1 ui-monospace, "SFMono-Regular", Menlo, monospace;
+  width: 1.5em;
+  height: 1.8em;
+  border: 1px solid #ccc;
+  background: #fcfcfc;
+  color: #6f6f6f;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 0;
+}
+.w-bit.is-on {
+  background: #f0f7ff;
+  border-color: #003366;
+  color: #003366;
+  font-weight: 700;
+}
+.w-group-sign .w-bit.is-on {
+  background: #003366;
+  color: #fcfcfc;
+}
+
+.w-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-small);
+}
+.w-table th,
+.w-table td {
+  text-align: left;
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  border-bottom: 1px solid #eee;
+  vertical-align: top;
+}
+.w-table th {
+  font-weight: 500;
+  color: #6f6f6f;
+  white-space: nowrap;
+  width: 14em;
+}
+.w-table td {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.w-steps {
+  margin-top: 0.8rem;
+}
+.w-steps code {
+  display: block;
+  font-size: var(--text-meta);
+  color: #555;
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Cache grid: one cell per array element, laid out in memory order. */
+.w-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  gap: 1px;
+  max-width: 26rem;
+  margin-bottom: 0.9rem;
+  background: #eee;
+  border: 1px solid #ccc;
+}
+.w-cell {
+  aspect-ratio: 1;
+  background: #fcfcfc;
+  display: block;
+}
+.w-cell.is-line {
+  background: #f0f7ff;
+}
+.w-cell.is-read {
+  background: #e4ecf4;
+}
+.w-cell.is-cached {
+  background: #cfe0f0;
+}
+.w-cell.is-now {
+  background: #003366;
+}
+
+@media (max-width: 640px) {
+  .w-table th {
+    width: auto;
+    white-space: normal;
+  }
+  .w-grid {
+    max-width: 100%;
+  }
+}
+
+/* Controls and surfaces shared by the later widgets. */
+.w-range {
+  width: 12rem;
+  accent-color: #003366;
+  vertical-align: middle;
+}
+.w-area {
+  font: inherit;
+  font-size: var(--text-small);
+  width: 100%;
+  border: 1px solid #ccc;
+  background: #fcfcfc;
+  color: #111;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0;
+  resize: vertical;
+  margin-bottom: 0.7rem;
+}
+.w-mono {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+.w-warn {
+  margin: 0;
+  color: #b3322f;
+  font-size: var(--text-small);
+}
+.w-note {
+  margin: 0.7rem 0 0;
+  font-size: var(--text-small);
+  color: #555;
+}
+
+/* Hash avalanche: one square per output bit, filled when the bit flipped. */
+.w-hashbits {
+  display: grid;
+  grid-template-columns: repeat(64, 1fr);
+  gap: 1px;
+  max-width: 24rem;
+  margin-bottom: 0.9rem;
+}
+.w-hbit {
+  aspect-ratio: 1;
+  background: #eee;
+  display: block;
+}
+.w-hbit.is-flip {
+  background: #003366;
+}
+
+/* Endianness: byte boxes carrying their offset. */
+.w-byte {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid #ccc;
+  background: #f0f7ff;
+  padding: 0.2rem 0.45rem;
+  font: 500 var(--text-meta) / 1.3 ui-monospace, Menlo, monospace;
+}
+.w-byte em {
+  font-style: normal;
+  font-size: var(--text-micro);
+  color: #6f6f6f;
+}
+
+/* Regex: the sample text with matches marked. */
+.w-highlight {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: var(--text-meta);
+  white-space: pre-wrap;
+  border: 1px solid #ccc;
+  padding: 0.5rem;
+  margin-bottom: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.w-highlight mark {
+  background: #f0f7ff;
+  outline: 1px solid #003366;
+  color: #003366;
+}
+
+/* Threshold plot. */
+.w-plot {
+  margin-bottom: 0.9rem;
+}
+.w-legend {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  font-size: var(--text-meta);
+  color: #6f6f6f;
+}
+.w-key::before {
+  content: "";
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.3em;
+}
+.w-key-neg::before {
+  background: #ccc;
+}
+.w-key-pos::before {
+  background: #9fc0dd;
+}
+
+.w-table-3 td:first-of-type {
+  width: 10em;
+}
+.w-truth td,
+.w-truth th {
+  text-align: center;
+  padding: 0.2rem 0.5rem;
+}
+.w-truth th:first-child,
+.w-truth td:first-child {
+  text-align: left;
+}
+.w-truth td.is-true {
+  color: #003366;
+  font-weight: 700;
+}
+
+/* Stack frame: program listing beside the stack itself. */
+.w-split {
+  display: flex;
+  gap: 1.4rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.w-prog {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--text-meta) / 1.7 ui-monospace, Menlo, monospace;
+  flex: 1 1 18rem;
+}
+.w-prog li {
+  white-space: pre;
+  color: #6f6f6f;
+}
+.w-prog li.is-now {
+  color: #003366;
+  background: #f0f7ff;
+  font-weight: 700;
+}
+.w-stack {
+  flex: 1 1 16rem;
+}
+.w-slot {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  border: 1px solid #ccc;
+  border-bottom: none;
+  padding: 0.25rem 0.5rem;
+  font-size: var(--text-meta);
+}
+.w-slot:last-child {
+  border-bottom: 1px solid #ccc;
+}
+.w-addr {
+  font-family: ui-monospace, Menlo, monospace;
+  color: #6f6f6f;
+  font-size: var(--text-micro);
+}
+.w-slot-v {
+  flex: 1;
+}
+.w-reg {
+  background: #003366;
+  color: #fcfcfc;
+  padding: 0 0.35em;
+  font: 700 var(--text-micro) / 1.6 ui-monospace, Menlo, monospace;
+  margin-left: 0.25em;
+}
+
+/* Pipeline: instructions down, cycles across. */
+.w-pipe {
+  overflow-x: auto;
+  margin-bottom: 0.9rem;
+}
+.w-pipe-row {
+  display: flex;
+  align-items: stretch;
+}
+.w-pipe-label {
+  flex: 0 0 11rem;
+  font: var(--text-meta) / 1.9 ui-monospace, Menlo, monospace;
+  color: #555;
+  white-space: pre;
+}
+.w-pipe-c {
+  flex: 0 0 2.6rem;
+  text-align: center;
+  font: 500 var(--text-micro) / 1.9 ui-monospace, Menlo, monospace;
+  color: #6f6f6f;
+  border: 1px solid transparent;
+}
+.w-pipe-c.is-if,
+.w-pipe-c.is-id,
+.w-pipe-c.is-ex,
+.w-pipe-c.is-mem,
+.w-pipe-c.is-wb {
+  border-color: #ccc;
+  background: #f0f7ff;
+  color: #003366;
+}
+.w-pipe-c.is-ex {
+  background: #003366;
+  color: #fcfcfc;
+}
+
+@media (max-width: 640px) {
+  .w-hashbits {
+    grid-template-columns: repeat(32, 1fr);
+  }
+  .w-pipe-label {
+    flex-basis: 8rem;
+  }
+}
+
+/* Chessboard: Unicode pieces on a plain grid, no sprites. */
+.w-board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  max-width: 21rem;
+  border: 1px solid #ccc;
+  margin-bottom: 0.8rem;
+}
+.w-sq {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: #fcfcfc;
+  font-style: normal;
+}
+.w-sq.is-dark {
+  background: #e4ecf4;
+}
+.w-sq.is-last {
+  box-shadow: inset 0 0 0 2px #003366;
+}
+
+/* Vowel trapezoid. */
+.w-trap svg {
+  max-width: 28rem;
+}
+.w-vowel.is-sel circle {
+  stroke-width: 3;
+}
+
+/* Logistic map: the bifurcation canvas with a marker at the current r. */
+.w-canvas-wrap {
+  position: relative;
+}
+.w-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #b8740f;
+  pointer-events: none;
+}
+
+/* Payoff matrix: inputs sit inside the cells. */
+.w-payoff .w-input {
+  width: 6.5ch;
+  border-color: transparent;
+  background: transparent;
+  text-align: center;
+}
+.w-payoff td.is-true {
+  background: #f0f7ff;
+  outline: 1px solid #003366;
+}
+.w-payoff td.is-true .w-input {
+  color: #003366;
+  font-weight: 700;
+}
+
+/* Vowel harmony: each suffix application shown as its own line. */
+.w-step {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid #eee;
+}
+.w-step code {
+  font-size: var(--text-small);
+  color: #003366;
+  min-width: 18rem;
+}
+.w-step em {
+  font-style: normal;
+  font-size: var(--text-micro);
+  color: #6f6f6f;
+}
+.w-result {
+  font-size: var(--text-lead);
+  font-weight: 700;
+  color: #003366;
+  margin: 0.8rem 0 0.6rem;
+}
+
+/* Tone contours. */
+.w-tone {
+  margin: 0 0 0.6rem;
+}
+.w-tone .w-hint {
+  margin: 0 0 0.2rem;
+}
+.w-tone svg {
+  max-width: 26rem;
+}
+
+/* Arabic roots: the derived form large and right-to-left. */
+.w-ar {
+  font-size: 1.15em;
+}
+.w-ar-big {
+  font-size: 1.5em;
+  line-height: 1.8;
+  color: #003366;
+}
+.w-roots th {
+  width: 7em;
+  color: #6f6f6f;
+}
+
+/* Abugida composition. */
+.w-glyph {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+.w-glyph-parts {
+  font-size: 2rem;
+  color: #6f6f6f;
+  font-weight: 400;
+}
+.w-glyph-parts i {
+  font-style: normal;
+  margin: 0 0.4rem;
+  color: #ccc;
+}
+.w-glyph-out {
+  font-size: 3rem;
+  color: #003366;
+  line-height: 1.2;
+}
+.w-chars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-bottom: 0.8rem;
+}
+.w-char {
+  font: 1.25rem/1 inherit;
+  min-width: 2.1em;
+  padding: 0.25em 0;
+  border: 1px solid #ccc;
+  background: #fcfcfc;
+  color: #111;
+  cursor: pointer;
+  border-radius: 0;
+}
+.w-char.is-active {
+  background: #f0f7ff;
+  border-color: #003366;
+  color: #003366;
+}
+
+/* Word order: constituents as labelled blocks in the language's order. */
+.w-order {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.9rem 0;
+}
+.w-cst {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #ccc;
+  padding: 0.45rem 0.8rem;
+  min-width: 6rem;
+}
+.w-cst b {
+  font-size: var(--text-body);
+}
+.w-cst em {
+  font-style: normal;
+  font-size: var(--text-micro);
+  color: #6f6f6f;
+}
+.w-sujet {
+  background: #f0f7ff;
+  border-color: #003366;
+}
+.w-verbe {
+  background: #f5f1e9;
+  border-color: #b8740f;
+}
+.w-objet {
+  background: #eef3ee;
+  border-color: #3f6b4a;
+}
+
+/* Screening: four-colour legend matching the population square. */
+.w-key-vp::before { background: #003366; }
+.w-key-fn::before { background: #9fc0dd; }
+.w-key-fp::before { background: #b8740f; }
+.w-key-vn::before { background: #eee; outline: 1px solid #ccc; }
+
+/* Framing: the two options as full-width choices, not inline buttons. */
+.w-frame p {
+  margin: 0 0 0.7rem;
+  font-size: var(--text-small);
+}
+.w-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.w-choice {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  white-space: normal;
+  line-height: 1.45;
+}
