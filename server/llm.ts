@@ -96,11 +96,13 @@ export async function openaiEmbed(
   model: string,
   input: string[],
   signal?: AbortSignal,
+  timeoutMs = 45_000,
 ): Promise<number[][]> {
   // Cap the wait: a hung embeddings endpoint would otherwise stall /api/ask
   // forever (retrieval is awaited before the answer starts streaming), which
   // looks like "the response never arrives". A timeout surfaces it as an error.
-  const timeout = AbortSignal.timeout(45_000);
+  // The default suits index batches; a single query passes something shorter.
+  const timeout = AbortSignal.timeout(timeoutMs);
   const res = await fetch(`${baseUrl.replace(/\/+$/, "")}/embeddings`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -122,6 +124,31 @@ export async function openaiEmbed(
     throw new Error(`embeddings count mismatch: got ${out.length} for ${input.length}`);
   }
   return out;
+}
+
+/** Score `texts` against `query` with a cross-encoder reranker, through TEI's
+ *  /rerank API ({query, texts} → [{index, score}], score in 0..1). Returns one
+ *  score per text, in input order. */
+export async function rerank(
+  url: string,
+  query: string,
+  texts: string[],
+  timeoutMs: number,
+): Promise<number[]> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ query, texts, truncate: true }),
+    signal: AbortSignal.timeout(timeoutMs),
+  });
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`rerank failed: ${res.status}${body ? ` — ${body.slice(0, 300)}` : ""}`);
+  }
+  const j = (await res.json()) as { index: number; score: number }[];
+  const scores = Array.from({ length: texts.length }, () => 0);
+  for (const r of j) if (r.index >= 0 && r.index < texts.length) scores[r.index] = r.score;
+  return scores;
 }
 
 // Reused across requests instead of re-instantiating per call.

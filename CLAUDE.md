@@ -60,12 +60,13 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   of this codebase is layout/canvas that tsc can't validate.
 - **`scripts/fetch-notes.mjs` keeps a persistent clone at `.cache/pensine`**
   (gitignored; CI restores/saves it via `actions/cache`, key `pensine-vault-*`),
-  updated in place rather than re-cloned. The vault's ~10k pronunciation clips
-  are git-lfs objects (`GIT_LFS_SKIP_SMUDGE=1` + a scoped `lfs pull
-  --include=*.mp3` keep the ~700MB of Anki `.apkg` decks from being fetched
-  too) — a throwaway clone re-pulling everything on every build/CI run is what
-  exhausts the GitHub account's shared LFS bandwidth quota. Don't reintroduce
-  a fresh-clone-per-run pattern here.
+  updated in place rather than re-cloned. The ~700MB of Anki `.apkg` decks are
+  git-lfs objects — a throwaway clone re-pulling them on every build/CI run is
+  what exhausts the GitHub account's shared LFS bandwidth quota (it ran out in
+  Sept 2026). Don't reintroduce a fresh-clone-per-run pattern here. The ~10k
+  pronunciation `.mp3` clips (214MB, ≤110KB each) were moved out of LFS into
+  plain git for that reason; keep them there. If LFS can't be fetched,
+  `copy-vault-images.mjs` skips the pointer stubs and warns in the build log.
 
 ## Architecture map
 
@@ -84,9 +85,14 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   `LangSwitcher.tsx`, etc.
 - **Backend** (`server/`, Hono on Node, typecheck with `tsc -p server/tsconfig.json`):
   `index.ts` mounts `routes/ask.ts` (RAG: embed the question via an
-  OpenAI-compatible endpoint → in-memory cosine search over `data/rag-chunks.json`
+  OpenAI-compatible endpoint → hybrid search over `data/rag-chunks.json`, in-memory
+  cosine + BM25 (`bm25.ts`) fused by RRF, optional TEI reranker via `RERANK_URL`
   → Anthropic or OpenAI-compatible generation, NDJSON stream), `routes/comments.ts`
-  (SQLite via better-sqlite3, Turnstile), `routes/translate.ts`. Config is
+  (SQLite via better-sqlite3, Turnstile), `routes/translate.ts` (translations
+  cached in the same SQLite file, keyed on model + languages + source).
+  Chunks (`scripts/build-rag-chunks.mjs`) are split at headings and start with a
+  `Title › Section` breadcrumb line; the vector cache on `/data` records the
+  embedding model and is discarded when it changes. Config is
   centralised in `server/env.ts` (all `process.env`); everything degrades to
   "disabled" when its vars are unset.
 - **`/admin/`** (`components/AdminPanel.tsx`, `robots: {index:false}`): owner-only

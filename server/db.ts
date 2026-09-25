@@ -39,6 +39,13 @@ export function initDb(): Database.Database {
       created_at INTEGER NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_questions_created ON questions(created_at DESC);
+
+    CREATE TABLE IF NOT EXISTS translations (
+      key TEXT PRIMARY KEY,
+      markdown TEXT NOT NULL,
+      created_at INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_translations_created ON translations(created_at DESC);
   `);
   return db;
 }
@@ -116,6 +123,32 @@ export function recentQuestions(limit = 100): QuestionRow[] {
   return get()
     .prepare("SELECT id, question, scope, locale, created_at FROM questions ORDER BY created_at DESC LIMIT ?")
     .all(Math.min(limit, MAX_QUESTIONS)) as QuestionRow[];
+}
+
+const MAX_TRANSLATIONS = 2000;
+
+/** Translated Markdown, keyed by a hash of (model, languages, source text) —
+ *  so every reader after the first gets a note's translation for free, and an
+ *  edited note (new source text) simply misses. The Markdown is stored rather
+ *  than the rendered HTML so a change to the render pipeline applies to cached
+ *  translations too. */
+export function cachedTranslation(key: string): string | null {
+  const row = get().prepare("SELECT markdown FROM translations WHERE key = ?").get(key) as
+    | { markdown: string }
+    | undefined;
+  return row?.markdown ?? null;
+}
+
+/** Store a translation; self-trims to MAX_TRANSLATIONS (oldest first), the same
+ *  way logQuestion() does. */
+export function storeTranslation(key: string, markdown: string): void {
+  const d = get();
+  d.prepare(
+    "INSERT OR REPLACE INTO translations (key, markdown, created_at) VALUES (?, ?, ?)",
+  ).run(key, markdown, Date.now());
+  d.prepare(
+    "DELETE FROM translations WHERE key NOT IN (SELECT key FROM translations ORDER BY created_at DESC LIMIT ?)",
+  ).run(MAX_TRANSLATIONS);
 }
 
 // Fallback if schema/comments.sql isn't shipped (kept in sync with that file).

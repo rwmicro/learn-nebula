@@ -4,12 +4,13 @@
 // KaTeX included) so the HTML matches the build output.
 
 import crypto from "node:crypto";
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { renderMarkdown } from "../../lib/markdown.ts";
 import { env, canGenerate } from "../env.ts";
 import { getIp } from "../http.ts";
 import { Cooldown, InFlight, Quota } from "../ratelimit.ts";
 import { anthropicClient, chatConfig, openaiChatText } from "../llm.ts";
+import { cachedTranslation, storeTranslation } from "../db.ts";
 import type Anthropic from "@anthropic-ai/sdk";
 
 const MAX_MD = 50_000;
@@ -72,6 +73,23 @@ translateRoute.post("/", async (c) => {
     return c.json({ error: "Langue non supportée." }, 400);
   }
 
+  // Served before the rate limits: a cached translation costs nothing, so a
+  // reader who already hit their hourly cap still gets notes someone else
+  // translated. The model is part of the key so switching TRANSLATE_MODEL (or
+  // the backend) doesn't keep serving the old model's output.
+  const model = env.anthropicKey ? `anthropic:${env.translateModel}` : `openai:${env.llmModel}`;
+  const cacheKey = crypto
+    .createHash("sha256")
+    .update(`${model}\0${sourceLang}\0${targetLang}\0${markdown}`)
+    .digest("hex");
+  let cached: string | null = null;
+  try {
+    cached = cachedTranslation(cacheKey);
+  } catch (e) {
+    console.warn("translate: cache read failed", e);
+  }
+  if (cached) return render(c, cached, dir, targetLang);
+
   const ip = getIp(c);
   if (ip !== "anon" && cooldown.limited(`translate:${ip}`)) {
     return c.json({ error: "Trop de requêtes — réessaie dans un instant." }, 429);
@@ -91,12 +109,17 @@ translateRoute.post("/", async (c) => {
 
     let translated: string;
     if (env.anthropicKey) {
-      const completion = await anthropicClient(env.anthropicKey).messages.create({
-        model: env.translateModel,
-        max_tokens: MAX_OUTPUT_TOKENS,
-        system,
-        messages: [{ role: "user", content: markdown }],
-      });
+      // Streamed, then awaited whole: the SDK refuses a NON-streamed request
+      // whose max_tokens implies it could run past 10 minutes (anything above
+      // ~21k tokens), before sending it — which made every translation 502.
+      const completion = await anthropicClient(env.anthropicKey)
+        .messages.stream({
+          model: env.translateModel,
+          max_tokens: MAX_OUTPUT_TOKENS,
+          system,
+          messages: [{ role: "user", content: markdown }],
+        })
+        .finalMessage();
       if (completion.stop_reason === "max_tokens") {
         return c.json(
           {
@@ -125,18 +148,11 @@ translateRoute.post("/", async (c) => {
     if (!translated.trim()) return c.json({ error: "Réponse vide du modèle." }, 502);
 
     try {
-      const rendered = await renderMarkdown(translated, { dir });
-      return c.json({ html: rendered.html, targetLang });
+      storeTranslation(cacheKey, translated);
     } catch (e) {
-      return c.json(
-        {
-          error: "Rendu échoué côté serveur.",
-          fallback: translated,
-          detail: e instanceof Error ? e.message : String(e),
-        },
-        500,
-      );
+      console.warn("translate: cache write failed", e);
     }
+    return render(c, translated, dir, targetLang);
   } catch (e) {
     return c.json(
       { error: "Échec de la traduction.", detail: e instanceof Error ? e.message : String(e) },
@@ -146,3 +162,19 @@ translateRoute.post("/", async (c) => {
     inflight.delete(key);
   }
 });
+
+async function render(c: Context, translated: string, dir: string, targetLang: string) {
+  try {
+    const rendered = await renderMarkdown(translated, { dir });
+    return c.json({ html: rendered.html, targetLang });
+  } catch (e) {
+    return c.json(
+      {
+        error: "Rendu échoué côté serveur.",
+        fallback: translated,
+        detail: e instanceof Error ? e.message : String(e),
+      },
+      500,
+    );
+  }
+}
