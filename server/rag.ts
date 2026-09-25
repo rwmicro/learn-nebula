@@ -25,10 +25,25 @@ interface Chunk {
 }
 interface Cached {
   h: string; // sha256(text)
-  v: number[];
+  v: Float32Array;
+}
+
+// On-disk vector cache. Vectors are base64 Float32 rather than JSON number
+// arrays (~5x smaller, and far cheaper to parse at startup), and the file
+// records the model that produced them: vectors from two models don't share a
+// space even when their dimension matches, so a model change discards the
+// cache instead of silently mixing them.
+interface VectorFile {
+  version: 2;
+  model: string;
+  entries: Record<string, { h: string; v: string }>;
 }
 
 const EMBED_BATCH = 32;
+// A single question embeds in well under a second; if the endpoint takes
+// longer than this it's down or busy, and the answer goes ahead without notes
+// rather than leaving the reader waiting.
+const QUERY_EMBED_TIMEOUT_MS = 8_000;
 
 let state: "disabled" | "loading" | "ready" | "error" = "disabled";
 let dim = 0;
@@ -41,7 +56,15 @@ export function ragState() {
 
 const hashText = (t: string) => crypto.createHash("sha256").update(t).digest("hex");
 
-function normalize(v: number[]): Float32Array {
+const encodeVec = (v: Float32Array) =>
+  Buffer.from(v.buffer, v.byteOffset, v.byteLength).toString("base64");
+function decodeVec(s: string): Float32Array {
+  const b = Buffer.from(s, "base64");
+  // Copy into a fresh, 4-byte-aligned buffer (Buffer pool slices may not be).
+  return new Float32Array(b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength));
+}
+
+function normalize(v: ArrayLike<number> & Iterable<number>): Float32Array {
   let n = 0;
   for (const x of v) n += x * x;
   n = Math.sqrt(n) || 1;
@@ -88,13 +111,7 @@ async function build() {
   }
 
   // Load the vector cache (id -> {hash, vector}) from the volume.
-  const cache = new Map<string, Cached>();
-  try {
-    const raw: Record<string, Cached> = JSON.parse(fs.readFileSync(env.ragVectors, "utf8"));
-    for (const [id, c] of Object.entries(raw)) cache.set(id, c);
-  } catch {
-    /* first run */
-  }
+  const cache = loadCache();
 
   const todo = chunks.filter((c) => cache.get(c.id)?.h !== hashText(c.text));
   if (todo.length) {
@@ -128,15 +145,19 @@ async function build() {
       }
       batch.forEach((c, j) => {
         const v = vecs[j];
-        if (v) cache.set(c.id, { h: hashText(c.text), v });
+        if (v) cache.set(c.id, { h: hashText(c.text), v: Float32Array.from(v) });
       });
       if (i % (EMBED_BATCH * 20) === 0 && i > 0) {
         console.log(`rag: …${i}/${todo.length}`);
         saveCache(cache); // periodic flush so progress survives a restart
       }
     }
-    saveCache(cache);
   }
+  // Always rewritten with only the current chunks, so notes that were deleted
+  // or re-chunked don't keep their vectors in the file forever.
+  const live = new Set(chunks.map((c) => c.id));
+  for (const id of cache.keys()) if (!live.has(id)) cache.delete(id);
+  saveCache(cache);
 
   // Build the in-memory normalized matrix (only chunks we have vectors for).
   const kept = chunks.filter((c) => cache.has(c.id));
@@ -152,12 +173,37 @@ async function build() {
   console.log(`rag: ready — ${kept.length} chunk(s), dim ${dim}.`);
 }
 
+function loadCache(): Map<string, Cached> {
+  const cache = new Map<string, Cached>();
+  let raw: Partial<VectorFile>;
+  try {
+    raw = JSON.parse(fs.readFileSync(env.ragVectors, "utf8"));
+  } catch {
+    return cache; // first run
+  }
+  if (raw.version !== 2 || !raw.entries) {
+    console.log("rag: vector cache is in the old format — re-embedding everything.");
+    return cache;
+  }
+  if (raw.model !== env.embedModel) {
+    console.log(
+      `rag: vector cache was built with "${raw.model}", now "${env.embedModel}" — re-embedding everything.`,
+    );
+    return cache;
+  }
+  for (const [id, c] of Object.entries(raw.entries)) cache.set(id, { h: c.h, v: decodeVec(c.v) });
+  return cache;
+}
+
 function saveCache(cache: Map<string, Cached>) {
   try {
     fs.mkdirSync(path.dirname(env.ragVectors), { recursive: true });
-    const obj: Record<string, Cached> = {};
-    for (const [id, c] of cache) obj[id] = c;
-    fs.writeFileSync(env.ragVectors, JSON.stringify(obj));
+    const file: VectorFile = { version: 2, model: env.embedModel, entries: {} };
+    for (const [id, c] of cache) file.entries[id] = { h: c.h, v: encodeVec(c.v) };
+    // Write-then-rename so a crash mid-write can't leave a truncated cache.
+    const tmp = `${env.ragVectors}.tmp`;
+    fs.writeFileSync(tmp, JSON.stringify(file));
+    fs.renameSync(tmp, env.ragVectors);
   } catch (e) {
     console.warn("rag: could not persist vector cache:", e instanceof Error ? e.message : e);
   }
@@ -193,9 +239,21 @@ export async function search(
   prefix = "",
 ): Promise<RagHit[]> {
   if (state !== "ready" || !metas.length || !dim) return [];
-  const [qv] = await openaiEmbed(env.embedBaseUrl, env.embedModel, [query.slice(0, 2000)]);
+  const [qv] = await openaiEmbed(
+    env.embedBaseUrl,
+    env.embedModel,
+    [query.slice(0, 2000)],
+    undefined,
+    QUERY_EMBED_TIMEOUT_MS,
+  );
   const q = normalize(qv);
-  if (q.length !== dim) return []; // embedding model changed vs the cache
+  if (q.length !== dim) {
+    // The endpoint now serves a different model than the index was built with
+    // (EMBED_MODEL unchanged, model swapped behind it). Say so — an empty
+    // result here otherwise looks exactly like "no relevant notes".
+    console.warn(`rag: query vector has dim ${q.length}, index has ${dim} — restart to re-embed.`);
+    return [];
+  }
   const n = metas.length;
   const scored: { i: number; s: number }[] = [];
   for (let i = 0; i < n; i++) {
