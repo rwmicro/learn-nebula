@@ -8,7 +8,11 @@ import "@/assets/css/cartes.css";
 type Params = { params: Promise<{ slug: string }> };
 
 export function generateStaticParams() {
-  return getAnkiManifest().map((d) => ({ slug: d.slug }));
+  const decks = getAnkiManifest().map((d) => ({ slug: d.slug }));
+  // `output: "export"` refuses a dynamic route with no params at all. With no
+  // decks (e.g. every .apkg is an undownloaded Git LFS stub), emit one
+  // placeholder that renders as a 404 instead of failing the whole build.
+  return decks.length ? decks : [{ slug: "_" }];
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
