@@ -1,0 +1,8 @@
+/* Figures de Style — contrast fix for the deck's own template CSS.
+   The .apkg sets `.quote { background-color: darkgrey; color: white }`: the
+   quotation block and its italic attribution (i) render white on #a9a9a9,
+   2.35:1, below WCAG AA. Keeping the design (light text on a grey band) and
+   darkening the band to #595959 gives white on #595959, 7.0:1. */
+.card .quote {
+  background-color: #595959;
+}
