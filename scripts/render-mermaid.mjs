@@ -18,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { chromium } from "@playwright/test";
-import { normaliseMermaid } from "../lib/mermaid-source.js";
+import { normaliseMermaid, MERMAID_CONFIG } from "../lib/mermaid-source.js";
 
 const OUT = path.join(process.cwd(), "out");
 const MERMAID = path.join(process.cwd(), "node_modules", "mermaid", "dist", "mermaid.min.js");
@@ -86,80 +86,6 @@ try {
 
 const page = await browser.newPage();
 await page.addScriptTag({ path: MERMAID });
-// Theme tuned to the site palette (assets/css): #fcfcfc page, #111 text,
-// #003366 accent (the `a` colour), #f0f7ff tint, #ccc hairlines. Built on
-// mermaid's "base" theme because only that one reads themeVariables; "neutral"
-// ignores them. Flat fills and 1px borders so a diagram sits in the page like
-// a table does, rather than arriving with its own visual identity.
-const MERMAID_CONFIG = {
-  startOnLoad: false,
-  securityLevel: "strict",
-  theme: "base",
-  fontFamily: '"Alegreya Sans", sans-serif',
-  themeVariables: {
-    fontFamily: '"Alegreya Sans", sans-serif',
-    fontSize: "15px",
-    background: "#fcfcfc",
-    textColor: "#111",
-    lineColor: "#6f6f6f",
-    // Nodes: tinted fill, accent border.
-    primaryColor: "#f0f7ff",
-    primaryBorderColor: "#003366",
-    primaryTextColor: "#111",
-    mainBkg: "#f0f7ff",
-    nodeBorder: "#003366",
-    nodeTextColor: "#111",
-    // Secondary/tertiary surfaces (subgraphs, clusters): page-coloured, hairline.
-    secondaryColor: "#fcfcfc",
-    secondaryBorderColor: "#ccc",
-    secondaryTextColor: "#111",
-    tertiaryColor: "#fcfcfc",
-    tertiaryBorderColor: "#ccc",
-    tertiaryTextColor: "#555",
-    clusterBkg: "#fcfcfc",
-    clusterBorder: "#ccc",
-    titleColor: "#111",
-    edgeLabelBackground: "#fcfcfc",
-    // sequenceDiagram.
-    actorBkg: "#f0f7ff",
-    actorBorder: "#003366",
-    actorTextColor: "#111",
-    actorLineColor: "#ccc",
-    signalColor: "#111",
-    signalTextColor: "#111",
-    labelBoxBkgColor: "#f0f7ff",
-    labelBoxBorderColor: "#003366",
-    labelTextColor: "#111",
-    loopTextColor: "#111",
-    noteBkgColor: "#f7f7f5",
-    noteBorderColor: "#ccc",
-    noteTextColor: "#555",
-    sequenceNumberColor: "#fcfcfc",
-    altBackground: "#fcfcfc",
-    // mindmap / timeline sections cycle through cScale*; git0 is also what
-    // mindmap paints its root with, hence a light value rather than an accent.
-    cScale0: "#f0f7ff", cScaleLabel0: "#111",
-    cScale1: "#e7eef6", cScaleLabel1: "#111",
-    cScale2: "#eef3ee", cScaleLabel2: "#111",
-    cScale3: "#f5f1e9", cScaleLabel3: "#111",
-    cScale4: "#f0f7ff", cScaleLabel4: "#111",
-    cScale5: "#e7eef6", cScaleLabel5: "#111",
-    cScale6: "#eef3ee", cScaleLabel6: "#111",
-    cScale7: "#f5f1e9", cScaleLabel7: "#111",
-    git0: "#e7eef6", git1: "#2d6cc0", git2: "#009b8f", git3: "#3f6b4a",
-    // pie/quadrant: the callout accent series from main.css.
-    pie1: "#003366", pie2: "#2d6cc0", pie3: "#009b8f",
-    pie4: "#3f6b4a", pie5: "#b8740f", pie6: "#6b4fbb",
-    pieTitleTextColor: "#111",
-    pieSectionTextColor: "#fcfcfc",
-    pieStrokeColor: "#fcfcfc",
-    pieOuterStrokeColor: "#ccc",
-  },
-  flowchart: { useMaxWidth: true, htmlLabels: true, curve: "basis" },
-  sequence: { useMaxWidth: true, mirrorActors: false, messageAlign: "left" },
-  packet: { useMaxWidth: true },
-};
-
 await page.evaluate((cfg) => {
   window.mermaid.initialize(cfg);
 }, MERMAID_CONFIG);
