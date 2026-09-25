@@ -62,6 +62,27 @@ describe("normaliseMermaid", () => {
     expect(n("A ---|(faible)| B")).toBe('A ---|"(faible)"| B');
   });
 
+  // The rule that broke a live diagram: a French open-interval ends in "[", and
+  // the rectangle rule latched onto that bracket, found the "]" of the *next*
+  // interval, and wrapped the <br/> between them. Nothing inside a quoted label
+  // is syntax, so no rule may enter one.
+  it("never reaches inside a label the author already quoted", () => {
+    const interval =
+      'INV --> |"Hyperbole"| P4["Décroissante sur ]-inf, 0[<br/>sur ]0, +inf["]';
+    expect(n(interval)).toBe(interval);
+    const card = 'Note["|A∪B∪C| = |A|+|B|+|C|<br/>− |A∩B|"]';
+    expect(n(card)).toBe(card);
+    const parens = 'A["déjà (quoté) et [crocheté]"]';
+    expect(n(parens)).toBe(parens);
+  });
+
+  // …while still quoting what is genuinely bare on the same line.
+  it("still fixes a bare label beside a quoted one", () => {
+    expect(n('A[Calcul (x)] --> B["déjà (quoté)"]')).toBe(
+      'A["Calcul (x)"] --> B["déjà (quoté)"]',
+    );
+  });
+
   // Anything that needs a guess about intent stays untouched — render-mermaid
   // reports it instead of silently drawing something else.
   it("leaves a malformed edge for the author to fix", () => {
