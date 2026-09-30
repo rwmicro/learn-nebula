@@ -254,5 +254,10 @@
     "loading": "Tirage d'une note au hasard…",
     "error": "Impossible de tirer une note au hasard. Retour à l'accueil",
     "noscript": "Le tirage au hasard a besoin de JavaScript. Retour à l'accueil"
+  },
+  "theme": {
+    "auto": "Thème : automatique (suit le système)",
+    "light": "Thème : clair",
+    "dark": "Thème : sombre"
   }
 }

@@ -40,7 +40,7 @@ export function NotFoundSuggestions() {
 
   if (!words.length) return null;
   const q = words.join(" ");
-  const link = "text-[#003366] underline underline-offset-2";
+  const link = "text-link underline underline-offset-2";
   return (
     <section className="mt-8 text-body leading-relaxed">
       {notes.length > 0 && (

@@ -32,7 +32,12 @@ export function Frise({ entries }: { entries: TimelineEntry[] }) {
             <li key={e.href} className="frise-entry">
               <span className="frise-year">
                 {formatYear(e.year)}
-                {e.yearEnd !== undefined ? `–${formatYear(e.yearEnd)}` : ""}
+                {e.yearEnd !== undefined && (
+                  <>
+                    –<wbr />
+                    {formatYear(e.yearEnd)}
+                  </>
+                )}
               </span>
               <div className="frise-content">
                 <a href={e.href}>{e.title}</a>

@@ -254,5 +254,10 @@
     "loading": "Picking a random note…",
     "error": "Couldn't pick a random note. Back to the home page",
     "noscript": "Picking a random note needs JavaScript. Back to the home page"
+  },
+  "theme": {
+    "auto": "Theme: automatic (follows the system)",
+    "light": "Theme: light",
+    "dark": "Theme: dark"
   }
 }

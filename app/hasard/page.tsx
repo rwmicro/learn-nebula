@@ -33,13 +33,13 @@ const PICK = `(function () {
     });
 })();`;
 
-const link = "text-[#003366] underline underline-offset-2";
+const link = "text-link underline underline-offset-2";
 
 export default function RandomNotePage() {
   return (
     <main
       id="main"
-      className="mx-auto max-w-[42rem] px-5 py-16 text-[#1a1a1a]"
+      className="mx-auto max-w-[42rem] px-5 py-16 text-ink"
       data-pagefind-ignore="all"
     >
       <h1
@@ -48,7 +48,7 @@ export default function RandomNotePage() {
       >
         {t("random.title")}
       </h1>
-      <p id="hasard-status" hidden className="text-body italic text-[#787369]">
+      <p id="hasard-status" hidden className="text-body italic text-muted-warm">
         <span {...attrs(i18nAttrs("random.loading"))}>{t("random.loading")}</span>
       </p>
       <p id="hasard-error" hidden className="text-body">

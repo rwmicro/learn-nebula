@@ -38,6 +38,11 @@ window.__i18n.getActiveLocale = function () {
   return window.__i18n.locale || window.__i18n.defaultLocale;
 };`.replace(/<\/script/gi, "<\\/script");
 
+// Applies the reader's stored theme (/js/theme.js) before first paint, so a
+// pinned dark theme never flashes light (or the reverse). No stored choice =
+// no attribute, and global.css follows prefers-color-scheme.
+const THEME_BOOTSTRAP = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: SITE_TITLE,
@@ -51,7 +56,12 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#fcfcfc",
+  // Browser chrome follows the OS scheme (the explicit toggle can't reach it
+  // without JS; the two values are global.css's --paper).
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fcfcfc" },
+    { media: "(prefers-color-scheme: dark)", color: "#1c1b19" },
+  ],
 };
 
 export default function RootLayout({
@@ -60,9 +70,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr">
+    // suppressHydrationWarning: THEME_BOOTSTRAP sets data-theme before React
+    // hydrates, which is the point.
+    <html lang="fr" suppressHydrationWarning>
       <head>
         <meta httpEquiv="Content-Security-Policy" content={buildCSP()} />
+        {/* Blocking and first in <head> on purpose: must run before the body
+            paints. Covered by the CSP's script-src 'unsafe-inline'. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
         {/* Body font: preloaded so text paints in the real face sooner (the
             metric-matched fallback already prevents layout shift). */}
@@ -77,7 +92,7 @@ export default function RootLayout({
       <body>
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:start-[0.6rem] focus:top-[0.6rem] focus:z-[2000] border border-[#111] bg-white px-4 py-2 [font-family:'Alegreya_Sans',sans-serif]"
+          className="sr-only focus:not-sr-only focus:absolute focus:start-[0.6rem] focus:top-[0.6rem] focus:z-[2000] border border-ink bg-paper px-4 py-2 [font-family:'Alegreya_Sans',sans-serif]"
           data-i18n="layout.skipLink"
         >
           {t("layout.skipLink")}
@@ -100,6 +115,8 @@ export default function RootLayout({
             home page no longer pulls scripts it doesn't use. */}
         <Script src="/js/instantpage.js" strategy="afterInteractive" />
         <Script src="/js/lightbox.js" strategy="afterInteractive" />
+        {/* Theme toggle buttons (masthead + note nav); the palette itself is CSS. */}
+        <Script src="/js/theme.js" strategy="afterInteractive" />
         {/* Pronunciation clips (.pron-btn): notes render them via Markdown
             (![word](clip.mp3)) and /cartes decks via [sound:clip.mp3], so this
             loads everywhere rather than only through <NoteScripts />. */}
