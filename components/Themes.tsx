@@ -105,7 +105,10 @@ export function DisciplinePage({ discipline }: { discipline: Discipline }) {
   return (
     <main className="themes-page">
       <Back href="/themes/" labelKey="themes.all" />
-      <p className="themes-kicker" {...attrs(i18nAttrs("themes.disciplineKicker"))}>
+      <p
+        className="themes-kicker"
+        {...attrs(i18nAttrs("themes.disciplineKicker"))}
+      >
         {t("themes.disciplineKicker")}
       </p>
       <h1 className="themes-title">{discipline.name}</h1>
@@ -149,7 +152,11 @@ function NoteSection({
   return (
     <section>
       <h2 className="themes-h2">
-        {name ? name : <span {...attrs(i18nAttrs("themes.root"))}>{t("themes.root")}</span>}
+        {name ? (
+          name
+        ) : (
+          <span {...attrs(i18nAttrs("themes.root"))}>{t("themes.root")}</span>
+        )}
         {showCount && <span className="themes-count">{notes.length}</span>}
       </h2>
       <ul className="themes-notes">
