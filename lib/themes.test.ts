@@ -4,7 +4,9 @@ import { tagSlug } from "./slug";
 describe("tagSlug", () => {
   it("folds accents instead of dropping the letters", () => {
     expect(tagSlug("sécurité")).toBe("securite");
-    expect(tagSlug("Économie comportementale")).toBe("economie-comportementale");
+    expect(tagSlug("Économie comportementale")).toBe(
+      "economie-comportementale",
+    );
   });
   it("merges spellings of one tag", () => {
     expect(tagSlug("Sécurité")).toBe(tagSlug("securite"));
