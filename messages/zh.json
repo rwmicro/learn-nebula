@@ -9,7 +9,9 @@
     "graph": "图谱",
     "frise": "时间线",
     "menu": "菜单",
-    "themes": "主题"
+    "themes": "主题",
+    "cartes": "卡片",
+    "random": "随机笔记"
   },
   "sidebar": {
     "searchPlaceholder": "搜索笔记…",
@@ -236,5 +238,21 @@
     "root": "综合",
     "topTags": "常见主题",
     "all": "全部主题"
+  },
+  "cartesIndex": {
+    "title": "复习卡片",
+    "intro": "花园中的 Anki 卡组，可逐张翻阅，按文件夹分组。",
+    "empty": "目前还没有可用的卡组。",
+    "count": "{count} 张卡片"
+  },
+  "notFound": {
+    "suggestions": "你是否在找……",
+    "search": "在花园中搜索“{q}”"
+  },
+  "random": {
+    "title": "随机一篇笔记",
+    "loading": "正在随机挑选一篇笔记…",
+    "error": "无法随机挑选笔记。返回首页",
+    "noscript": "随机挑选笔记需要 JavaScript。返回首页"
   }
 }

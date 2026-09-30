@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { SITE_TITLE, SITE_DESCRIPTION, absoluteURL } from "./site";
+import { SITE_TITLE, SITE_DESCRIPTION, FEED_ALTERNATES, absoluteURL } from "./site";
 import { resolveVaultAsset, resolveVaultAssetByName } from "./vault-assets";
 import { extractPlain, truncate } from "./markdown";
 import { franc } from "franc-min";
@@ -78,7 +78,7 @@ export function buildMetadata({
   return {
     title,
     description,
-    alternates: { canonical: url },
+    alternates: { canonical: url, types: FEED_ALTERNATES },
     robots: fm.noindex
       ? { index: false, follow: true }
       : { index: true, follow: true, "max-image-preview": "large" },

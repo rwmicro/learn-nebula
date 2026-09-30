@@ -3,9 +3,10 @@ import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
 
 /**
  * "Latest growth" on the home page: the handful of notes most recently planted
- * or re-tended. A garden has no reverse-chronological feed by design, so this
- * is deliberately short — a way back into what is currently being worked on,
- * not an index. Rendered on the server (no client JS): the dates carry
+ * or re-tended. The garden isn't browsed reverse-chronologically, so this is
+ * deliberately short — a way back into what is currently being worked on, not
+ * an index. Readers who want to follow along get the longer list (same
+ * getRecentNotes() ranking) from the RSS feed, app/feed.xml. Rendered on the server (no client JS): the dates carry
  * `data-i18n-date` so /js/i18n.js reformats them on a locale switch, like
  * every other date on the site.
  */
