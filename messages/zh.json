@@ -9,7 +9,8 @@
     "graph": "图谱",
     "frise": "时间线",
     "menu": "菜单",
-    "cartes": "卡片"
+    "cartes": "卡片",
+    "random": "随机笔记"
   },
   "sidebar": {
     "searchPlaceholder": "搜索笔记…",
@@ -216,5 +217,11 @@
   "notFound": {
     "suggestions": "你是否在找……",
     "search": "在花园中搜索“{q}”"
+  },
+  "random": {
+    "title": "随机一篇笔记",
+    "loading": "正在随机挑选一篇笔记…",
+    "error": "无法随机挑选笔记。返回首页",
+    "noscript": "随机挑选笔记需要 JavaScript。返回首页"
   }
 }
