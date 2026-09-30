@@ -2,6 +2,7 @@ import { NAV } from "./site";
 import {
   INDEX_NOTE,
   formatDateLong,
+  tagHref,
   type LocalGraph,
   type NoteStage,
   type SiblingNav,
@@ -370,9 +371,10 @@ function themePillsHtml(tags: unknown[] | undefined): string {
     .map((t) => {
       const s = String(t);
       const hue = tagHue(s.toLowerCase());
-      // Clicking a theme runs a search for it on the home page (#12): the home
-      // search reads ?q= on mount, so a plain link is enough — no JS needed.
-      const href = `/?q=${encodeURIComponent(s)}`;
+      // A theme shared by several notes opens its /themes/ page. One found on
+      // this note alone has no page, so it runs a home search instead (#12):
+      // the home search reads ?q= on mount, no JS needed here.
+      const href = tagHref(s) ?? `/?q=${encodeURIComponent(s)}`;
       return `<a class="theme-pill" href="${href}" style="--theme-h:${hue}">${escapeHtml(s)}</a>`;
     })
     .join("");

@@ -8,7 +8,8 @@
     "socialsciences": "社会科学",
     "graph": "图谱",
     "frise": "时间线",
-    "menu": "菜单"
+    "menu": "菜单",
+    "themes": "主题"
   },
   "sidebar": {
     "searchPlaceholder": "搜索笔记…",
@@ -205,5 +206,18 @@
     "intro": "花园中与历史事件相关的笔记，按日期排序。",
     "empty": "还没有笔记标注历史日期。",
     "bce": "公元前 {year} 年"
+  },
+  "themes": {
+    "title": "主题",
+    "intro": "按学科和主题浏览花园中的笔记。",
+    "disciplines": "学科",
+    "tags": "主题",
+    "tagsIntro": "至少两篇笔记共有的主题，按出现次数排序。",
+    "count": "{n} 篇笔记",
+    "tagKicker": "主题",
+    "disciplineKicker": "学科",
+    "root": "综合",
+    "topTags": "常见主题",
+    "all": "全部主题"
   }
 }

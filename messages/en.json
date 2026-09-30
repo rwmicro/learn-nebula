@@ -8,7 +8,8 @@
     "socialsciences": "Social Sciences",
     "graph": "Graph",
     "frise": "Timeline",
-    "menu": "Menu"
+    "menu": "Menu",
+    "themes": "Themes"
   },
   "sidebar": {
     "searchPlaceholder": "Search the notes…",
@@ -205,5 +206,18 @@
     "intro": "The garden's notes about a historical event, sorted by date.",
     "empty": "No note carries a historical date yet.",
     "bce": "{year} BCE"
+  },
+  "themes": {
+    "title": "Themes",
+    "intro": "The garden's notes by discipline and by theme.",
+    "disciplines": "Disciplines",
+    "tags": "Themes",
+    "tagsIntro": "Themes shared by at least two notes, most common first.",
+    "count": "{n} notes",
+    "tagKicker": "Theme",
+    "disciplineKicker": "Discipline",
+    "root": "General",
+    "topTags": "Common themes",
+    "all": "All themes"
   }
 }

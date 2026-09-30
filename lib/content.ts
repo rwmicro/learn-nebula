@@ -5,6 +5,7 @@ import * as TOML from "smol-toml";
 import { INCLUDE_DRAFTS } from "./site";
 import { resolveVaultAssetByName, listVaultAssets } from "./vault-assets";
 import { getAnkiManifest } from "./anki";
+import { tagSlug } from "./slug";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const POSTS_DIR = path.join(CONTENT_DIR, "posts");
@@ -408,6 +409,166 @@ export function getDomains(): DomainGroup[] {
       notes: notes.sort((a, b) => a.title.localeCompare(b.title)),
     }))
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+}
+
+// --- /themes/: notes by tag and by discipline ---------------------------------
+
+/** A tag gets its own page from this many notes up. Two thirds of the vault's
+ *  ~1,300 tags sit on a single note, where a page would only repeat that note;
+ *  their pills keep linking to the home search instead. */
+export const MIN_TAG_NOTES = 2;
+
+export interface ThemeNote {
+  title: string;
+  href: string;
+  /** Discipline display name ("Biology", "Philosophy"), "" for a note that
+   *  sits directly under a top folder. */
+  discipline: string;
+}
+
+export interface TagGroup {
+  /** ASCII slug, the page is /themes/<slug>/. */
+  slug: string;
+  /** The spelling most notes use, when several fold to one slug. */
+  name: string;
+  notes: ThemeNote[];
+}
+
+export interface Discipline {
+  /** ASCII slug, the page is /disciplines/<slug>/. */
+  slug: string;
+  /** Display name, e.g. "Échecs" (see homeDisplayName). */
+  name: string;
+  /** "Applied Sciences" or "Social Sciences". */
+  top: string;
+  /** Notes grouped by their sub-folder under the discipline ("" = at its root). */
+  sections: { name: string; notes: ThemeNote[] }[];
+  count: number;
+  /** The discipline's most used tags that have a page, most used first. */
+  tags: { slug: string; name: string; count: number }[];
+}
+
+function disciplineOf(rawPath: string): { top: string; name: string } | null {
+  const parts = rawPath.split("/");
+  return parts.length >= 3 ? { top: parts[0], name: parts[1] } : null;
+}
+
+function themeNote(d: Doc): ThemeNote {
+  const disc = disciplineOf(d.rawPath);
+  return {
+    title: d.frontmatter.title,
+    href: `/posts/${d.slug}/`,
+    discipline: disc ? homeDisplayName(disc.name) : "",
+  };
+}
+
+const byTitle = (a: ThemeNote, b: ThemeNote) =>
+  a.title.localeCompare(b.title, "fr", { numeric: true });
+
+let tagsCache: TagGroup[] | null = null;
+/** Every tag carried by at least MIN_TAG_NOTES notes, most used first. */
+export function getTags(): TagGroup[] {
+  if (tagsCache) return tagsCache;
+  const map = new Map<
+    string,
+    { spellings: Map<string, number>; notes: Map<string, ThemeNote> }
+  >();
+  for (const d of getAllPosts()) {
+    for (const raw of d.frontmatter.tags ?? []) {
+      // YAML turns tokens like `802.11` into numbers.
+      const name = String(raw).trim();
+      const slug = tagSlug(name);
+      if (!slug) continue;
+      const e = map.get(slug) ?? { spellings: new Map(), notes: new Map() };
+      e.spellings.set(name, (e.spellings.get(name) ?? 0) + 1);
+      e.notes.set(d.slug, themeNote(d));
+      map.set(slug, e);
+    }
+  }
+  tagsCache = [...map.entries()]
+    .filter(([, e]) => e.notes.size >= MIN_TAG_NOTES)
+    .map(([slug, e]) => ({
+      slug,
+      name: [...e.spellings.entries()].sort((a, b) => b[1] - a[1])[0][0],
+      notes: [...e.notes.values()].sort(byTitle),
+    }))
+    .sort(
+      (a, b) =>
+        b.notes.length - a.notes.length || a.name.localeCompare(b.name, "fr"),
+    );
+  return tagsCache;
+}
+
+/** The /themes/ page of a tag, or null when it is too rare to have one. */
+export function tagHref(tag: unknown): string | null {
+  const slug = tagSlug(String(tag));
+  return getTags().some((g) => g.slug === slug) ? `/themes/${slug}/` : null;
+}
+
+let disciplinesCache: Discipline[] | null = null;
+/** The second-level folders (Biology, Philosophy…), A→Z within each top folder. */
+export function getDisciplines(): Discipline[] {
+  if (disciplinesCache) return disciplinesCache;
+  const withPage = new Map(getTags().map((g) => [g.slug, g.name]));
+  const map = new Map<
+    string,
+    {
+      top: string;
+      folder: string;
+      sections: Map<string, ThemeNote[]>;
+      tags: Map<string, number>;
+    }
+  >();
+  for (const d of getAllPosts()) {
+    const disc = disciplineOf(d.rawPath);
+    if (!disc) continue;
+    const key = `${disc.top}/${disc.name}`;
+    const e = map.get(key) ?? {
+      top: disc.top,
+      folder: disc.name,
+      sections: new Map(),
+      tags: new Map(),
+    };
+    const parts = d.rawPath.split("/");
+    const section = parts.length > 3 ? parts[2] : "";
+    e.sections.set(section, [...(e.sections.get(section) ?? []), themeNote(d)]);
+    for (const raw of d.frontmatter.tags ?? []) {
+      const slug = tagSlug(String(raw));
+      if (withPage.has(slug)) e.tags.set(slug, (e.tags.get(slug) ?? 0) + 1);
+    }
+    map.set(key, e);
+  }
+  disciplinesCache = [...map.values()]
+    .map((e) => {
+      const sections = [...e.sections.entries()]
+        .map(([name, notes]) => ({ name, notes: notes.sort(byTitle) }))
+        // Root notes first, then sub-folders in natural order.
+        .sort((a, b) =>
+          a.name === "" ? -1 : b.name === "" ? 1 :
+          a.name.localeCompare(b.name, undefined, { numeric: true }),
+        );
+      const count = sections.reduce((n, s) => n + s.notes.length, 0);
+      // A tag on most notes of the discipline, like "philosophie" on
+      // Philosophy, says nothing about it; keep the ones that pick a subset.
+      const tags = [...e.tags.entries()]
+        .filter(([, n]) => n >= MIN_TAG_NOTES && n < count * 0.6)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 24)
+        .map(([slug, n]) => ({ slug, name: withPage.get(slug)!, count: n }));
+      return {
+        slug: tagSlug(`${e.top} ${e.folder}`),
+        name: homeDisplayName(e.folder),
+        top: e.top,
+        sections,
+        count,
+        tags,
+      };
+    })
+    .sort(
+      (a, b) =>
+        a.top.localeCompare(b.top) || a.name.localeCompare(b.name, "fr"),
+    );
+  return disciplinesCache;
 }
 
 export interface LangGroup {
