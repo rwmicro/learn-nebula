@@ -22,6 +22,7 @@ export const NAV = [
   { name: "nav.graph", href: "/graph/" },
   { name: "nav.frise", href: "/frise/" },
   { name: "nav.cartes", href: "/cartes/" },
+  { name: "nav.random", href: "/hasard/" },
 ];
 
 // Social profiles for the Person JSON-LD (none yet).

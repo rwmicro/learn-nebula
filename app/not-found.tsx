@@ -26,7 +26,7 @@ export default async function NotFound() {
         dangerouslySetInnerHTML={{ __html: html }}
       />
       <NotFoundSuggestions />
-      <nav className="mt-10 flex gap-7 text-meta font-semibold uppercase tracking-[0.1em]">
+      <nav className="mt-10 flex flex-wrap gap-x-7 gap-y-2text-meta font-semibold uppercase tracking-[0.1em]">
         <a
           href="/"
           data-i18n="nav.home"
@@ -40,6 +40,13 @@ export default async function NotFound() {
           className="text-[#1a1a1a] no-underline underline-offset-[3px] hover:underline"
         >
           {t("nav.graph")}
+        </a>
+        <a
+          href="/hasard/"
+          data-i18n="nav.random"
+          className="text-[#1a1a1a] no-underline underline-offset-[3px] hover:underline"
+        >
+          {t("nav.random")}
         </a>
       </nav>
     </main>

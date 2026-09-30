@@ -9,7 +9,8 @@
     "graph": "Grafo",
     "frise": "Cronología",
     "menu": "Menú",
-    "cartes": "Tarjetas"
+    "cartes": "Tarjetas",
+    "random": "Al azar"
   },
   "sidebar": {
     "searchPlaceholder": "Buscar en las notas…",
@@ -216,5 +217,11 @@
   "notFound": {
     "suggestions": "Quizás buscabas…",
     "search": "Buscar «{q}» en el jardín"
+  },
+  "random": {
+    "title": "Una nota al azar",
+    "loading": "Eligiendo una nota al azar…",
+    "error": "No se pudo elegir una nota al azar. Volver al inicio",
+    "noscript": "Elegir una nota al azar requiere JavaScript. Volver al inicio"
   }
 }

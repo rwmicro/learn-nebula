@@ -9,7 +9,8 @@
     "graph": "Graphe",
     "frise": "Frise",
     "menu": "Menu",
-    "cartes": "Cartes"
+    "cartes": "Cartes",
+    "random": "Au hasard"
   },
   "sidebar": {
     "searchPlaceholder": "Rechercher dans les notes…",
@@ -216,5 +217,11 @@
   "notFound": {
     "suggestions": "Vous cherchiez peut-être…",
     "search": "Rechercher « {q} » dans le jardin"
+  },
+  "random": {
+    "title": "Une note au hasard",
+    "loading": "Tirage d'une note au hasard…",
+    "error": "Impossible de tirer une note au hasard. Retour à l'accueil",
+    "noscript": "Le tirage au hasard a besoin de JavaScript. Retour à l'accueil"
   }
 }

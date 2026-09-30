@@ -9,7 +9,8 @@
     "graph": "Graph",
     "frise": "Timeline",
     "menu": "Menu",
-    "cartes": "Flashcards"
+    "cartes": "Flashcards",
+    "random": "Random note"
   },
   "sidebar": {
     "searchPlaceholder": "Search the notes…",
@@ -216,5 +217,11 @@
   "notFound": {
     "suggestions": "Perhaps you were looking for…",
     "search": "Search the garden for “{q}”"
+  },
+  "random": {
+    "title": "A random note",
+    "loading": "Picking a random note…",
+    "error": "Couldn't pick a random note. Back to the home page",
+    "noscript": "Picking a random note needs JavaScript. Back to the home page"
   }
 }
