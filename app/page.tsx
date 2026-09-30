@@ -1,15 +1,8 @@
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import {
-  getIndexDoc,
-  getHomeTree,
-  getPdfAssets,
-  getDomains,
-  getLangs,
-  getRecentNotes,
-} from "@/lib/content";
+import { getIndexDoc, getPdfAssets, getLangs, getRecentNotes } from "@/lib/content";
+import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
 import { renderMarkdown } from "@/lib/markdown";
-import { buildGraph } from "@/lib/graph-data";
 import { buildMetadata } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 import { graph, personJsonLd, websiteJsonLd } from "@/lib/jsonld";
@@ -53,10 +46,6 @@ export default async function HomePage() {
   const masthead =
     (hasMath ? `<link rel="stylesheet" href="/katex/katex.min.css">` : "");
 
-  // Lightweight folder-only graph for the home preview (the full graph with all
-  // notes lives on /graph).
-  const graphData = buildGraph({ foldersOnly: true });
-
   return (
     <>
       <div dangerouslySetInnerHTML={{ __html: masthead }} />
@@ -75,12 +64,14 @@ export default async function HomePage() {
       </div>
       <main id="main" className={newsreader.variable}>
         <RecentNotes notes={getRecentNotes()} />
+        {/* The full tree, the domains scope and the folder-graph preview
+            arrive as /home-data.json (lib/home-data.ts); the shell covers the
+            first paint. */}
         <HomeContent
-          tree={getHomeTree()}
+          shell={homeTreeShell()}
+          dataVersion={homeDataVersion()}
           pdfs={getPdfAssets()}
-          domains={getDomains()}
           langs={getLangs()}
-          graphData={graphData}
         />
       </main>
       <JsonLd data={graph(personJsonLd(), websiteJsonLd())} />

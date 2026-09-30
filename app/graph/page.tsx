@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { buildGraph } from "@/lib/graph-data";
-import { CircularGraph } from "@/components/CircularGraph";
+import { graphDataVersion } from "@/lib/home-data";
+import { GraphLoader } from "@/components/GraphLoader";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/graph.css";
 
@@ -11,6 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function GraphPage() {
-  const data = buildGraph();
-  return <CircularGraph data={data} />;
+  return <GraphLoader version={graphDataVersion()} />;
 }

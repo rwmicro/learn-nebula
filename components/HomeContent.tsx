@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { HomeTreeNode, PdfRef, DomainGroup, LangGroup } from "@/lib/content";
+import type { HomeTreeNode, PdfRef, LangGroup } from "@/lib/content";
+import type { HomeData } from "@/lib/home-data";
 import type { GraphData } from "@/lib/graph-data";
 import { CircularGraph } from "@/components/CircularGraph";
 import { t, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
@@ -221,7 +222,7 @@ interface Source {
 
 // Mount the circular-map preview only once its box scrolls near the viewport,
 // so the home page's most-common first paint isn't weighed down by it.
-function LazyGraph({ graphData }: { graphData: GraphData }) {
+function LazyGraph({ graphData }: { graphData: GraphData | null }) {
   const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
   useEffect(() => {
@@ -241,7 +242,7 @@ function LazyGraph({ graphData }: { graphData: GraphData }) {
   }, [show]);
   return (
     <div ref={ref} className="h-full w-full">
-      {show ? <CircularGraph data={graphData} preview /> : null}
+      {show && graphData ? <CircularGraph data={graphData} preview /> : null}
     </div>
   );
 }
@@ -390,19 +391,42 @@ function usePagefind(query: string): PfHit[] {
   return hits;
 }
 
+// Fetch /home-data.json once (lib/home-data.ts). The version is the file's
+// content hash, so the URL changes with each build and the service worker's
+// stale-while-revalidate can never serve last build's tree. Null until it
+// lands, or for good if it fails: the shell tree and Pagefind still work.
+function useHomeData(version: string): HomeData | null {
+  const [data, setData] = useState<HomeData | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/home-data.json?v=${version}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: HomeData | null) => {
+        if (!cancelled && d) setData(d);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [version]);
+  return data;
+}
+
 export function HomeContent({
-  tree,
+  shell,
+  dataVersion,
   pdfs,
-  domains,
   langs,
-  graphData,
 }: {
-  tree: HomeTreeNode[];
+  shell: HomeTreeNode[];
+  dataVersion: string;
   pdfs: PdfRef[];
-  domains: DomainGroup[];
   langs: LangGroup[];
-  graphData: GraphData;
 }) {
+  const data = useHomeData(dataVersion);
+  const tree = data?.tree ?? shell;
+  const domains = useMemo(() => data?.domains ?? [], [data]);
+  const graphData = data?.graph ?? null;
   const locale = useLocale();
   const tr = (k: string) => t(k, undefined, locale);
   // Heavy attachments link straight to the original file (zooming into a
@@ -667,7 +691,12 @@ export function HomeContent({
             </button>
             {open && (
               <div id={listId} className={isGroup ? "mt-[0.9rem]" : "mt-[0.3rem]"}>
-                {renderNodes(node.children, depth + 1)}
+                {node.children.length === 0 && node.count > 0 ? (
+                  // Shell folder opened before /home-data.json arrived.
+                  <p aria-busy="true" className="m-0 pl-[1.1rem] text-[#787369]">…</p>
+                ) : (
+                  renderNodes(node.children, depth + 1)
+                )}
               </div>
             )}
           </li>
