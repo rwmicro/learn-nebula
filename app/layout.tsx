@@ -1,6 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
-import { SITE_TITLE, SITE_DESCRIPTION, SITE_URL, buildCSP } from "@/lib/site";
+import {
+  SITE_TITLE,
+  SITE_DESCRIPTION,
+  SITE_URL,
+  FEED_ALTERNATES,
+  buildCSP,
+} from "@/lib/site";
 import { DEFAULT_LOCALE, LOCALES, getMessages, t } from "@/lib/i18n";
 import { getLanguageScopes } from "@/lib/content";
 import { Footer } from "@/components/Footer";
@@ -36,6 +42,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
+  // Feed autodiscovery (<link rel="alternate" type="application/rss+xml">)
+  // for app/feed.xml; lib/seo.ts repeats it for pages with a canonical URL.
+  alternates: { types: FEED_ALTERNATES },
   // Favicon/apple-touch icons are auto-detected from app/icon.png & app/apple-icon.png.
 };
 

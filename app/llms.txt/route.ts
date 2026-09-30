@@ -27,6 +27,7 @@ export async function GET() {
       ? [`- [Flashcards](${SITE_URL}/cartes/): the Anki decks, grouped by vault folder, to study card by card`]
       : []),
     `- [Sitemap](${SITE_URL}/sitemap.xml): the complete, exhaustive list of note URLs`,
+    `- [RSS feed](${SITE_URL}/feed.xml): the 30 notes most recently written or revised`,
     "",
     "## Domains",
     ...domains
