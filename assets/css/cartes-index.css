@@ -1,0 +1,85 @@
+/* Scoped to the /cartes/ index — same per-route pattern and document-flow
+   layout as frise.css. The per-deck study view has its own cartes.css. */
+
+.cartes-index {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.2rem 4rem;
+}
+
+.cartes-index-back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #111;
+  text-decoration: none;
+}
+.cartes-index-back:hover {
+  text-decoration: underline;
+}
+
+.cartes-index-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  letter-spacing: -0.01rem;
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+}
+
+.cartes-index-intro {
+  color: #555;
+  margin: 0 0 2.5rem;
+  font-size: 1.1rem;
+}
+
+.cartes-index-empty {
+  font-style: italic;
+  color: #787369;
+}
+
+.cartes-index-group + .cartes-index-group {
+  margin-top: 2rem;
+}
+
+.cartes-index-folder {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: #3f6b4a; /* --color-garden — the site's one accent */
+  margin: 0 0 0.4rem;
+}
+
+.cartes-index-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #ccc;
+}
+
+.cartes-index-deck {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid #e4e2dd;
+}
+
+.cartes-index-deck a {
+  font-size: 1.15rem;
+  color: #111;
+  text-decoration: none;
+}
+.cartes-index-deck a:hover {
+  text-decoration: underline;
+}
+
+.cartes-index-count {
+  color: #787369;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}

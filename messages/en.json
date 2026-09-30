@@ -8,7 +8,8 @@
     "socialsciences": "Social Sciences",
     "graph": "Graph",
     "frise": "Timeline",
-    "menu": "Menu"
+    "menu": "Menu",
+    "cartes": "Flashcards"
   },
   "sidebar": {
     "searchPlaceholder": "Search the notes…",
@@ -205,5 +206,11 @@
     "intro": "The garden's notes about a historical event, sorted by date.",
     "empty": "No note carries a historical date yet.",
     "bce": "{year} BCE"
+  },
+  "cartesIndex": {
+    "title": "Flashcards",
+    "intro": "The garden's Anki decks, to flip through card by card, grouped by folder.",
+    "empty": "No flashcard deck is available yet.",
+    "count": "{count} cards"
   }
 }
