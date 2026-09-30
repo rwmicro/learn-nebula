@@ -6,7 +6,7 @@ export function Footer() {
   return (
     <footer
       data-pagefind-ignore
-      className="mt-10 border-t border-[#ccc] pt-4 pb-4 xl:pb-0 text-small leading-relaxed text-[#555] [container-type:inline-size]"
+      className="mt-10 border-t border-rule-strong pt-4 pb-4 xl:pb-0 text-small leading-relaxed text-ink-2 [container-type:inline-size]"
     >
       <div className="flex flex-col gap-3 min-[480px]:flex-row min-[480px]:items-start min-[480px]:gap-5">
         {/* eslint-disable-next-line @next/next/no-img-element */}

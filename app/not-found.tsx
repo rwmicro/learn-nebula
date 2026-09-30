@@ -16,26 +16,26 @@ export default async function NotFound() {
   const doc = getPage("404");
   const { html } = await renderMarkdown(doc.body);
   return (
-    <main id="main" className="mx-auto max-w-[42rem] px-5 py-16 text-[#1a1a1a]">
+    <main id="main" className="mx-auto max-w-[42rem] px-5 py-16 text-ink">
       <h1 className="m-0 mb-5 text-balance text-[clamp(1.5rem,1.1rem+2.5vw,3rem)] font-medium leading-tight">
         {doc.frontmatter.title}
       </h1>
       <div
-        className="text-body leading-relaxed [&_a]:text-[#003366] [&_a]:underline [&_a]:underline-offset-2 [&_p]:mb-4"
+        className="text-body leading-relaxed [&_a]:text-link [&_a]:underline [&_a]:underline-offset-2 [&_p]:mb-4"
         dangerouslySetInnerHTML={{ __html: html }}
       />
       <nav className="mt-10 flex gap-7 text-meta font-semibold uppercase tracking-[0.1em]">
         <a
           href="/"
           data-i18n="nav.home"
-          className="text-[#1a1a1a] no-underline underline-offset-[3px] hover:underline"
+          className="text-ink no-underline underline-offset-[3px] hover:underline"
         >
           {t("nav.home")}
         </a>
         <a
           href="/graph/"
           data-i18n="nav.graph"
-          className="text-[#1a1a1a] no-underline underline-offset-[3px] hover:underline"
+          className="text-ink no-underline underline-offset-[3px] hover:underline"
         >
           {t("nav.graph")}
         </a>

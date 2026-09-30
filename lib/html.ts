@@ -27,7 +27,34 @@ export function navHtml(): string {
     (n) =>
       `<li><a href="${n.href}"${i18nAttrs(n.name)}>${escapeHtml(t(n.name))}</a></li>`,
   ).join("");
-  return `<nav class="site-nav" data-pagefind-ignore><ul>${items}</ul></nav>`;
+  return `<nav class="site-nav" data-pagefind-ignore><ul>${items}<li class="site-nav-theme">${themeToggleHtml()}</li></ul></nav>`;
+}
+
+/** Light / dark / auto toggle, shared by the note nav above and the home
+ * masthead (components/Header.tsx). Wired by /js/theme.js; CSS (global.css)
+ * shows the icon matching <html data-theme> — no JS needed for the first
+ * paint to be right. The label is the "auto" one at build time and is synced
+ * to the stored choice by theme.js. */
+export function themeToggleHtml(): string {
+  const svg = (cls: string, body: string) =>
+    `<svg class="theme-icon ${cls}" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" ` +
+    `fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">${body}</svg>`;
+  const auto = svg(
+    "theme-icon-auto",
+    `<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/>`,
+  );
+  const light = svg(
+    "theme-icon-light",
+    `<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/>`,
+  );
+  const dark = svg("theme-icon-dark", `<path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/>`);
+  return (
+    `<button class="theme-toggle" type="button" data-theme-toggle data-pagefind-ignore ` +
+    `aria-label="${escapeHtml(t("theme.auto"))}" title="${escapeHtml(t("theme.auto"))}"` +
+    i18nAttr("aria-label", "theme.auto") +
+    i18nAttr("title", "theme.auto") +
+    `>${auto}${light}${dark}</button>`
+  );
 }
 
 /**

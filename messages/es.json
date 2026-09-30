@@ -205,5 +205,10 @@
     "intro": "Las notas del jardín sobre un acontecimiento histórico, ordenadas por fecha.",
     "empty": "Ninguna nota tiene todavía una fecha histórica.",
     "bce": "{year} a. C."
+  },
+  "theme": {
+    "auto": "Tema: automático (sigue al sistema)",
+    "light": "Tema: claro",
+    "dark": "Tema: oscuro"
   }
 }

@@ -15,7 +15,7 @@ interface Deck {
 }
 
 const btn =
-  "cursor-pointer rounded-[2px] border border-[#1a1a1a] bg-transparent px-3.5 py-1.5 text-micro font-semibold uppercase tracking-[0.08em] text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white disabled:opacity-40";
+  "cursor-pointer rounded-[2px] border border-ink bg-transparent px-3.5 py-1.5 text-micro font-semibold uppercase tracking-[0.08em] text-ink hover:bg-ink hover:text-paper disabled:opacity-40";
 
 // Card zoom levels (whole card content scales: text + images).
 const SIZES = [1, 1.3, 1.6, 2];
@@ -125,42 +125,44 @@ export function Flashcards({
   return (
     <main
       id="main"
-      className="flashcards-main mx-auto px-5 py-12 text-[#1a1a1a] transition-[max-width] duration-200"
+      className="flashcards-main mx-auto px-5 py-12 text-ink transition-[max-width] duration-200"
       style={{ maxWidth: `${60 * SIZES[sizeIdx]}rem` }}
     >
       {deck?.css && <style dangerouslySetInnerHTML={{ __html: deck.css }} />}
 
       <a
         href="/"
-        className="text-micro font-semibold uppercase tracking-[0.1em] text-[#787369] no-underline hover:bg-transparent hover:text-[#1a1a1a]"
+        className="text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
       >
         ← {tr("home")}
       </a>
 
-      <header className="mb-6 mt-3 flex items-baseline justify-between gap-4 border-b border-[#1a1a1a] pb-2">
+      <header className="mb-6 mt-3 flex items-baseline justify-between gap-4 border-b border-ink pb-2">
         <h1 className="m-0 text-balance text-[clamp(1.25rem,1rem+1.8vw,2.2rem)] font-medium leading-tight">
           {name}
         </h1>
         {cards.length > 0 && (
-          <span className="shrink-0 text-meta tabular-nums text-[#787369]">
+          <span className="shrink-0 text-meta tabular-nums text-muted-warm">
             {pos + 1} / {cards.length}
           </span>
         )}
       </header>
 
       {error ? (
-        <p className="italic text-[#787369]">{tr("err")}</p>
+        <p className="italic text-muted-warm">{tr("err")}</p>
       ) : !deck ? (
-        <p className="italic text-[#787369]">{tr("loading")}</p>
+        <p className="italic text-muted-warm">{tr("loading")}</p>
       ) : !cards.length ? (
-        <p className="italic text-[#787369]">{tr("empty")}</p>
+        <p className="italic text-muted-warm">{tr("empty")}</p>
       ) : (
         <>
           <button
             type="button"
             onClick={handleCardClick}
             aria-label={tr("flip")}
-            className="flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-[#e4e2dd] bg-white p-8 text-center transition-[min-height] duration-200 hover:bg-white"
+            // keep-light: the card HTML comes with the deck's own CSS (Anki
+            // notetypes assume a white card), so it stays a light card in dark mode.
+            className="keep-light flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-rule bg-paper p-8 text-center transition-[min-height] duration-200 hover:bg-paper"
             style={{ minHeight: `${26 * SIZES[sizeIdx]}rem` }}
           >
             <div
@@ -195,7 +197,7 @@ export function Flashcards({
               {SIZES[sizeIdx] !== 1 ? ` ×${SIZES[sizeIdx]}` : ""}
             </button>
           </div>
-          <p className="mt-4 text-center text-micro italic text-[#787369]">
+          <p className="mt-4 text-center text-micro italic text-muted-warm">
             {tr("hint")}
           </p>
         </>
