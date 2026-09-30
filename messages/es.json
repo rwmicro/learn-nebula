@@ -212,5 +212,9 @@
     "intro": "Los mazos Anki del jardín, para repasar tarjeta a tarjeta, ordenados por carpeta.",
     "empty": "Todavía no hay ningún mazo de tarjetas disponible.",
     "count": "{count} tarjetas"
+  },
+  "notFound": {
+    "suggestions": "Quizás buscabas…",
+    "search": "Buscar «{q}» en el jardín"
   }
 }

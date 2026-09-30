@@ -3,6 +3,7 @@ import { getPage } from "@/lib/content";
 import { renderMarkdown } from "@/lib/markdown";
 import { SITE_TITLE } from "@/lib/site";
 import { t } from "@/lib/i18n";
+import { NotFoundSuggestions } from "@/components/NotFoundSuggestions";
 
 export const metadata: Metadata = {
   title: `Page Not Found | ${SITE_TITLE}`,
@@ -24,6 +25,7 @@ export default async function NotFound() {
         className="text-body leading-relaxed [&_a]:text-[#003366] [&_a]:underline [&_a]:underline-offset-2 [&_p]:mb-4"
         dangerouslySetInnerHTML={{ __html: html }}
       />
+      <NotFoundSuggestions />
       <nav className="mt-10 flex gap-7 text-meta font-semibold uppercase tracking-[0.1em]">
         <a
           href="/"

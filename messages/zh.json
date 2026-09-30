@@ -212,5 +212,9 @@
     "intro": "花园中的 Anki 卡组，可逐张翻阅，按文件夹分组。",
     "empty": "目前还没有可用的卡组。",
     "count": "{count} 张卡片"
+  },
+  "notFound": {
+    "suggestions": "你是否在找……",
+    "search": "在花园中搜索“{q}”"
   }
 }

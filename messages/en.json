@@ -212,5 +212,9 @@
     "intro": "The garden's Anki decks, to flip through card by card, grouped by folder.",
     "empty": "No flashcard deck is available yet.",
     "count": "{count} cards"
+  },
+  "notFound": {
+    "suggestions": "Perhaps you were looking for…",
+    "search": "Search the garden for “{q}”"
   }
 }
