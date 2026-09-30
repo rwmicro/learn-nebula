@@ -3,6 +3,7 @@ import { getPage } from "@/lib/content";
 import { renderMarkdown } from "@/lib/markdown";
 import { SITE_TITLE } from "@/lib/site";
 import { t } from "@/lib/i18n";
+import { NotFoundSuggestions } from "@/components/NotFoundSuggestions";
 
 export const metadata: Metadata = {
   title: `Page Not Found | ${SITE_TITLE}`,
@@ -24,7 +25,8 @@ export default async function NotFound() {
         className="text-body leading-relaxed [&_a]:text-[#003366] [&_a]:underline [&_a]:underline-offset-2 [&_p]:mb-4"
         dangerouslySetInnerHTML={{ __html: html }}
       />
-      <nav className="mt-10 flex gap-7 text-meta font-semibold uppercase tracking-[0.1em]">
+      <NotFoundSuggestions />
+      <nav className="mt-10 flex flex-wrap gap-x-7 gap-y-2text-meta font-semibold uppercase tracking-[0.1em]">
         <a
           href="/"
           data-i18n="nav.home"
@@ -38,6 +40,13 @@ export default async function NotFound() {
           className="text-[#1a1a1a] no-underline underline-offset-[3px] hover:underline"
         >
           {t("nav.graph")}
+        </a>
+        <a
+          href="/hasard/"
+          data-i18n="nav.random"
+          className="text-[#1a1a1a] no-underline underline-offset-[3px] hover:underline"
+        >
+          {t("nav.random")}
         </a>
       </nav>
     </main>

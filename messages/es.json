@@ -9,7 +9,9 @@
     "graph": "Grafo",
     "frise": "Cronología",
     "menu": "Menú",
-    "themes": "Temas"
+    "themes": "Temas",
+    "cartes": "Tarjetas",
+    "random": "Al azar"
   },
   "sidebar": {
     "searchPlaceholder": "Buscar en las notas…",
@@ -236,5 +238,21 @@
     "root": "General",
     "topTags": "Temas frecuentes",
     "all": "Todos los temas"
+  },
+  "cartesIndex": {
+    "title": "Tarjetas de repaso",
+    "intro": "Los mazos Anki del jardín, para repasar tarjeta a tarjeta, ordenados por carpeta.",
+    "empty": "Todavía no hay ningún mazo de tarjetas disponible.",
+    "count": "{count} tarjetas"
+  },
+  "notFound": {
+    "suggestions": "Quizás buscabas…",
+    "search": "Buscar «{q}» en el jardín"
+  },
+  "random": {
+    "title": "Una nota al azar",
+    "loading": "Eligiendo una nota al azar…",
+    "error": "No se pudo elegir una nota al azar. Volver al inicio",
+    "noscript": "Elegir una nota al azar requiere JavaScript. Volver al inicio"
   }
 }

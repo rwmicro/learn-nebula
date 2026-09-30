@@ -301,14 +301,17 @@ main dd {
   padding: 0;
   margin-bottom: 0.4rem;
   margin-top: 4rem;
-  gap: 1.4rem;
+  gap: 0.6rem 1.4rem;
   display: flex;
+  /* Five entries no longer fit one line on a phone. */
+  flex-wrap: wrap;
   align-items: center;
 }
 
 .site-nav li {
   margin: 0 !important;
   padding: 0;
+  white-space: nowrap;
 }
 
 .site-nav li a {
