@@ -8,7 +8,8 @@
     "socialsciences": "Ciencias sociales",
     "graph": "Grafo",
     "frise": "Cronología",
-    "menu": "Menú"
+    "menu": "Menú",
+    "cartes": "Tarjetas"
   },
   "sidebar": {
     "searchPlaceholder": "Buscar en las notas…",
@@ -205,5 +206,11 @@
     "intro": "Las notas del jardín sobre un acontecimiento histórico, ordenadas por fecha.",
     "empty": "Ninguna nota tiene todavía una fecha histórica.",
     "bce": "{year} a. C."
+  },
+  "cartesIndex": {
+    "title": "Tarjetas de repaso",
+    "intro": "Los mazos Anki del jardín, para repasar tarjeta a tarjeta, ordenados por carpeta.",
+    "empty": "Todavía no hay ningún mazo de tarjetas disponible.",
+    "count": "{count} tarjetas"
   }
 }

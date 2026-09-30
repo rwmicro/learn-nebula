@@ -8,7 +8,8 @@
     "socialsciences": "Sciences sociales",
     "graph": "Graphe",
     "frise": "Frise",
-    "menu": "Menu"
+    "menu": "Menu",
+    "cartes": "Cartes"
   },
   "sidebar": {
     "searchPlaceholder": "Rechercher dans les notes…",
@@ -205,5 +206,11 @@
     "intro": "Les notes du jardin qui portent sur un événement historique, triées par date.",
     "empty": "Aucune note ne porte encore de date historique.",
     "bce": "{year} av. J.-C."
+  },
+  "cartesIndex": {
+    "title": "Cartes de révision",
+    "intro": "Les paquets Anki du jardin, à feuilleter carte par carte, rangés par dossier.",
+    "empty": "Aucun paquet de cartes n'est disponible pour l'instant.",
+    "count": "{count} cartes"
   }
 }
