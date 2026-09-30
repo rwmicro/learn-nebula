@@ -93,6 +93,12 @@ export default function Header({ doc }: { doc: Doc }) {
               {t("nav.graph")}
             </a>
           </li>
+          <li className="m-0 hidden sm:block">·</li>
+          <li className="m-0">
+            <a href="/themes/" className={navLink} data-i18n="nav.themes">
+              {t("nav.themes")}
+            </a>
+          </li>
         </ul>
       </nav>
     </header>

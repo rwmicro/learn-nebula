@@ -8,7 +8,8 @@
     "socialsciences": "Ciencias sociales",
     "graph": "Grafo",
     "frise": "Cronología",
-    "menu": "Menú"
+    "menu": "Menú",
+    "themes": "Temas"
   },
   "sidebar": {
     "searchPlaceholder": "Buscar en las notas…",
@@ -205,5 +206,18 @@
     "intro": "Las notas del jardín sobre un acontecimiento histórico, ordenadas por fecha.",
     "empty": "Ninguna nota tiene todavía una fecha histórica.",
     "bce": "{year} a. C."
+  },
+  "themes": {
+    "title": "Temas",
+    "intro": "Las notas del jardín por disciplina y por tema.",
+    "disciplines": "Disciplinas",
+    "tags": "Temas",
+    "tagsIntro": "Los temas que comparten al menos dos notas, del más frecuente al menos.",
+    "count": "{n} notas",
+    "tagKicker": "Tema",
+    "disciplineKicker": "Disciplina",
+    "root": "General",
+    "topTags": "Temas frecuentes",
+    "all": "Todos los temas"
   }
 }

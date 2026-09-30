@@ -8,7 +8,8 @@
     "socialsciences": "Sciences sociales",
     "graph": "Graphe",
     "frise": "Frise",
-    "menu": "Menu"
+    "menu": "Menu",
+    "themes": "Thèmes"
   },
   "sidebar": {
     "searchPlaceholder": "Rechercher dans les notes…",
@@ -205,5 +206,18 @@
     "intro": "Les notes du jardin qui portent sur un événement historique, triées par date.",
     "empty": "Aucune note ne porte encore de date historique.",
     "bce": "{year} av. J.-C."
+  },
+  "themes": {
+    "title": "Thèmes",
+    "intro": "Les notes du jardin par discipline et par thème.",
+    "disciplines": "Disciplines",
+    "tags": "Thèmes",
+    "tagsIntro": "Les thèmes partagés par au moins deux notes, du plus fréquent au plus rare.",
+    "count": "{n} notes",
+    "tagKicker": "Thème",
+    "disciplineKicker": "Discipline",
+    "root": "Général",
+    "topTags": "Thèmes fréquents",
+    "all": "Tous les thèmes"
   }
 }
