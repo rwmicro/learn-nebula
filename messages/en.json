@@ -205,5 +205,10 @@
     "intro": "The garden's notes about a historical event, sorted by date.",
     "empty": "No note carries a historical date yet.",
     "bce": "{year} BCE"
+  },
+  "theme": {
+    "auto": "Theme: automatic (follows the system)",
+    "light": "Theme: light",
+    "dark": "Theme: dark"
   }
 }

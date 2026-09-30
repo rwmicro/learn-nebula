@@ -61,8 +61,8 @@ export default async function HomePage() {
     <>
       <div dangerouslySetInnerHTML={{ __html: masthead }} />
       <Header doc={doc} />
-      <div className='w-11/12 mx-auto text-center text-lead text-neutral-500 mt-5 md:mt-10'>
-      <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-neutral-700 mt-5 md:mt-10" />
+      <div className='w-11/12 mx-auto text-center text-lead text-muted mt-5 md:mt-10'>
+      <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-ink-2 mt-5 md:mt-10" />
           <div className="w-full md:w-11/12 max-w-11/12 mx-auto">
             <span className="home-frame mb-2 block">
               <picture>
@@ -70,7 +70,7 @@ export default async function HomePage() {
                 <img src="/images/eragny.webp" alt="Éragny" width="1200" height="950" fetchPriority="high" decoding="async" />
               </picture>
             </span>
-            <span className="text-sm text-neutral-500" data-i18n="home.imageCaption"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>
+            <span className="text-sm text-muted" data-i18n="home.imageCaption"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>
           </div>
       </div>
       <main id="main" className={newsreader.variable}>

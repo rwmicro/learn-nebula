@@ -48,7 +48,7 @@ import { normaliseMermaid, MERMAID_CONFIG } from "../../lib/mermaid-source.js";
         try {
           const { svg } = await mermaid.render(id, normaliseMermaid(t.source.trim()));
           const figure = document.createElement("figure");
-          figure.className = "mermaid-diagram";
+          figure.className = "mermaid-diagram keep-light";
           // Same as the build-time path: the box scrolls, so it must be
           // keyboard-reachable (see scripts/render-mermaid.mjs).
           figure.tabIndex = 0;

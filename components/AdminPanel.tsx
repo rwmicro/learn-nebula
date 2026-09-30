@@ -41,13 +41,13 @@ interface Health {
 function ragDotColor(state: string): string {
   switch (state) {
     case "ready":
-      return "#3f6b4a"; // --color-garden
+      return "var(--garden)";
     case "loading":
-      return "#c98a2c";
+      return "var(--warn)";
     case "error":
-      return "#c0392b"; // the one red this codebase already uses (main.css)
+      return "var(--danger)";
     default:
-      return "#a8a49c"; // disabled / unknown
+      return "var(--faint)"; // disabled / unknown
   }
 }
 
@@ -278,7 +278,7 @@ export function AdminPanel() {
 
   return (
     <div className="mx-auto max-w-[42rem] px-6 py-10">
-      <h1 className="admin-title m-0 mb-6 flex items-center gap-2 text-2xl font-bold text-black">
+      <h1 className="admin-title m-0 mb-6 flex items-center gap-2 text-2xl font-bold text-ink">
         <svg
           viewBox="0 0 24 24"
           width="22"
@@ -300,17 +300,17 @@ export function AdminPanel() {
       </h1>
 
       {connected && (
-        <div className="mb-6 flex items-center gap-2 text-small text-[#787369]">
+        <div className="mb-6 flex items-center gap-2 text-small text-muted-warm">
           <span
             aria-hidden="true"
             className="inline-block h-2 w-2 rounded-full"
-            style={{ background: "#3f6b4a" }}
+            style={{ background: "var(--garden)" }}
           />
           connecté
           <button
             type="button"
             onClick={disconnect}
-            className={`rounded underline underline-offset-2 hover:text-black ${FOCUS_RING}`}
+            className={`rounded underline underline-offset-2 hover:text-ink ${FOCUS_RING}`}
           >
             se déconnecter
           </button>
@@ -320,7 +320,7 @@ export function AdminPanel() {
       {/* --- RAG health: no token required, GET /healthz is public. --- */}
       <section className="admin-card">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="admin-eyebrow m-0 text-small font-semibold text-[#787369]">
+          <h2 className="admin-eyebrow m-0 text-small font-semibold text-muted-warm">
             état de l&apos;assistant
           </h2>
           <button
@@ -328,18 +328,18 @@ export function AdminPanel() {
             onClick={loadHealth}
             disabled={healthBusy}
             aria-label="Rafraîchir l'état de l'assistant"
-            className={`rounded text-small text-[#787369] hover:text-black disabled:opacity-40 ${FOCUS_RING}`}
+            className={`rounded text-small text-muted-warm hover:text-ink disabled:opacity-40 ${FOCUS_RING}`}
           >
             {healthBusy ? "…" : "↻"}
           </button>
         </div>
-        {healthError && <p className="m-0 text-small text-[#c0392b]">{healthError}</p>}
-        {!healthError && !health && <p className="m-0 text-small italic text-[#787369]">Chargement…</p>}
+        {healthError && <p className="m-0 text-small text-danger">{healthError}</p>}
+        {!healthError && !health && <p className="m-0 text-small italic text-muted-warm">Chargement…</p>}
         {health && (
           <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-small">
-            <dt className="text-[#787369]">Génération</dt>
+            <dt className="text-muted-warm">Génération</dt>
             <dd className="m-0">{health.generate ? "configurée" : "désactivée (pas de clé LLM)"}</dd>
-            <dt className="text-[#787369]">Index RAG</dt>
+            <dt className="text-muted-warm">Index RAG</dt>
             <dd className="m-0 flex items-center gap-2">
               <span
                 aria-hidden="true"
@@ -348,7 +348,7 @@ export function AdminPanel() {
               />
               {health.rag.state}
             </dd>
-            <dt className="text-[#787369]">Extraits indexés</dt>
+            <dt className="text-muted-warm">Extraits indexés</dt>
             <dd className="m-0">
               {health.rag.chunks} (dimension {health.rag.dim || "—"})
             </dd>
@@ -359,7 +359,7 @@ export function AdminPanel() {
       {!connected ? (
         /* --- Single auth step: unlocks both cards below. --- */
         <section className="admin-card mt-6">
-          <h2 className="admin-eyebrow m-0 mb-2 text-small font-semibold text-[#787369]">
+          <h2 className="admin-eyebrow m-0 mb-2 text-small font-semibold text-muted-warm">
             connexion
           </h2>
           <form
@@ -375,16 +375,16 @@ export function AdminPanel() {
               onChange={(e) => setTokenInput(e.target.value)}
               placeholder="Jeton admin (COMMENTS_ADMIN_TOKEN)"
               autoComplete="off"
-              className={`min-w-0 flex-1 rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
+              className={`min-w-0 flex-1 rounded border border-rule-strong bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
             />
             <button
               type="submit"
-              className={`shrink-0 rounded bg-garden px-3 py-1 text-small font-semibold text-[#fcfcfc] hover:bg-garden-dark ${FOCUS_RING}`}
+              className={`shrink-0 rounded bg-garden px-3 py-1 text-small font-semibold text-paper hover:bg-garden-dark ${FOCUS_RING}`}
             >
               Se connecter
             </button>
           </form>
-          {pendingError && <p className="m-0 mt-2 text-small text-[#c0392b]">{pendingError}</p>}
+          {pendingError && <p className="m-0 mt-2 text-small text-danger">{pendingError}</p>}
         </section>
       ) : (
         <>
@@ -392,11 +392,11 @@ export function AdminPanel() {
           <section className="admin-card mt-6">
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <h2 className="admin-eyebrow m-0 text-small font-semibold text-[#787369]">
+                <h2 className="admin-eyebrow m-0 text-small font-semibold text-muted-warm">
                   commentaires en attente
                 </h2>
                 {pending && pending.length > 0 && (
-                  <span className="rounded-full bg-[#f0f0ec] px-2 py-px text-micro font-semibold text-[#555]">
+                  <span className="rounded-full bg-wash-2 px-2 py-px text-micro font-semibold text-ink-2">
                     {/* Reflects what's actually on screen, not the unfiltered total
                         — showing "4" while a search narrows the list to 1 card
                         would read as a bug, not a filter. */}
@@ -411,7 +411,7 @@ export function AdminPanel() {
                 onClick={() => refreshPending(token)}
                 disabled={pendingBusy}
                 aria-label="Actualiser les commentaires en attente"
-                className={`rounded text-small text-[#787369] hover:text-black disabled:opacity-40 ${FOCUS_RING}`}
+                className={`rounded text-small text-muted-warm hover:text-ink disabled:opacity-40 ${FOCUS_RING}`}
               >
                 {pendingBusy ? "…" : "↻"}
               </button>
@@ -424,14 +424,14 @@ export function AdminPanel() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Filtrer par nom, note ou texte…"
-                  className={`min-w-0 flex-1 rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
+                  className={`min-w-0 flex-1 rounded border border-rule-strong bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
                 />
                 {pending.length > 1 && (
                   <button
                     type="button"
                     onClick={approveAllShown}
                     disabled={bulkBusy || !filtered?.length}
-                    className={`shrink-0 rounded border border-[#ccc] px-2 py-1 text-small hover:bg-[#f0f0ec] disabled:opacity-40 ${FOCUS_RING}`}
+                    className={`shrink-0 rounded border border-rule-strong px-2 py-1 text-small hover:bg-wash-2 disabled:opacity-40 ${FOCUS_RING}`}
                   >
                     {bulkBusy ? "…" : `tout approuver${query ? " (filtré)" : ""}`}
                   </button>
@@ -439,25 +439,25 @@ export function AdminPanel() {
               </div>
             )}
 
-            {pendingError && <p className="m-0 mb-3 text-small text-[#c0392b]">{pendingError}</p>}
+            {pendingError && <p className="m-0 mb-3 text-small text-danger">{pendingError}</p>}
             {pending === null && !pendingError && (
-              <p className="m-0 text-small italic text-[#787369]">Chargement…</p>
+              <p className="m-0 text-small italic text-muted-warm">Chargement…</p>
             )}
             {pending?.length === 0 && (
-              <p className="m-0 text-small italic text-[#787369]">Rien en attente.</p>
+              <p className="m-0 text-small italic text-muted-warm">Rien en attente.</p>
             )}
             {pending && pending.length > 0 && filtered?.length === 0 && (
-              <p className="m-0 text-small italic text-[#787369]">
+              <p className="m-0 text-small italic text-muted-warm">
                 Aucun commentaire ne correspond à « {query} ».
               </p>
             )}
 
             <ul className="m-0 flex list-none flex-col gap-3 p-0">
               {filtered?.map((c) => (
-                <li key={c.id} className="rounded border border-[#e4e2dd] p-3">
-                  <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-3 text-small text-[#787369]">
+                <li key={c.id} className="rounded border border-rule p-3">
+                  <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-3 text-small text-muted-warm">
                     <span>
-                      <strong className="text-black">{c.name || "anonyme"}</strong> sur{" "}
+                      <strong className="text-ink">{c.name || "anonyme"}</strong> sur{" "}
                       <a
                         href={`/posts/${c.slug}/`}
                         className={`rounded text-garden underline-offset-2 hover:underline ${FOCUS_RING}`}
@@ -473,7 +473,7 @@ export function AdminPanel() {
                       type="button"
                       disabled={busyIds.has(c.id)}
                       onClick={() => act(c.id, "approve")}
-                      className={`rounded bg-garden px-2 py-1 text-small font-semibold text-[#fcfcfc] hover:bg-garden-dark disabled:opacity-50 ${FOCUS_RING}`}
+                      className={`rounded bg-garden px-2 py-1 text-small font-semibold text-paper hover:bg-garden-dark disabled:opacity-50 ${FOCUS_RING}`}
                     >
                       Approuver
                     </button>
@@ -481,7 +481,7 @@ export function AdminPanel() {
                       type="button"
                       disabled={busyIds.has(c.id)}
                       onClick={() => act(c.id, "delete")}
-                      className={`rounded border border-[#ccc] px-2 py-1 text-small hover:bg-[#f0f0ec] disabled:opacity-50 ${FOCUS_RING}`}
+                      className={`rounded border border-rule-strong px-2 py-1 text-small hover:bg-wash-2 disabled:opacity-50 ${FOCUS_RING}`}
                     >
                       Supprimer
                     </button>
@@ -495,11 +495,11 @@ export function AdminPanel() {
           <section className="admin-card mt-6">
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <h2 className="admin-eyebrow m-0 text-small font-semibold text-[#787369]">
+                <h2 className="admin-eyebrow m-0 text-small font-semibold text-muted-warm">
                   questions récentes
                 </h2>
                 {questions && questions.length > 0 && (
-                  <span className="rounded-full bg-[#f0f0ec] px-2 py-px text-micro font-semibold text-[#555]">
+                  <span className="rounded-full bg-wash-2 px-2 py-px text-micro font-semibold text-ink-2">
                     {qq && filteredQuestions?.length !== questions.length
                       ? `${filteredQuestions?.length ?? 0}/${questions.length}`
                       : questions.length}
@@ -511,12 +511,12 @@ export function AdminPanel() {
                 onClick={() => refreshQuestions(token)}
                 disabled={questionsBusy}
                 aria-label="Actualiser le journal des questions"
-                className={`rounded text-small text-[#787369] hover:text-black disabled:opacity-40 ${FOCUS_RING}`}
+                className={`rounded text-small text-muted-warm hover:text-ink disabled:opacity-40 ${FOCUS_RING}`}
               >
                 {questionsBusy ? "…" : "↻"}
               </button>
             </div>
-            <p className="m-0 mb-3 text-small text-[#787369]">
+            <p className="m-0 mb-3 text-small text-muted-warm">
               Ce que les visiteurs demandent à l&apos;assistant — utile pour repérer les
               sujets mal couverts par le jardin.
             </p>
@@ -527,19 +527,19 @@ export function AdminPanel() {
                 value={questionsQuery}
                 onChange={(e) => setQuestionsQuery(e.target.value)}
                 placeholder="Filtrer par texte ou dossier…"
-                className={`mb-3 w-full rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
+                className={`mb-3 w-full rounded border border-rule-strong bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
               />
             )}
 
-            {questionsError && <p className="m-0 mb-3 text-small text-[#c0392b]">{questionsError}</p>}
+            {questionsError && <p className="m-0 mb-3 text-small text-danger">{questionsError}</p>}
             {questions === null && !questionsError && (
-              <p className="m-0 text-small italic text-[#787369]">Chargement…</p>
+              <p className="m-0 text-small italic text-muted-warm">Chargement…</p>
             )}
             {questions?.length === 0 && (
-              <p className="m-0 text-small italic text-[#787369]">Aucune question pour l&apos;instant.</p>
+              <p className="m-0 text-small italic text-muted-warm">Aucune question pour l&apos;instant.</p>
             )}
             {questions && questions.length > 0 && filteredQuestions?.length === 0 && (
-              <p className="m-0 text-small italic text-[#787369]">
+              <p className="m-0 text-small italic text-muted-warm">
                 Aucune question ne correspond à « {questionsQuery} ».
               </p>
             )}
@@ -549,11 +549,11 @@ export function AdminPanel() {
                 <li key={r.id}>
                   <time>{new Date(r.created_at).toLocaleString()}</time>
                   {r.scope && (
-                    <span className="admin-log-scope rounded-full bg-[#f0f0ec] px-2 py-px text-micro text-[#555]">
+                    <span className="admin-log-scope rounded-full bg-wash-2 px-2 py-px text-micro text-ink-2">
                       {r.scope}
                     </span>
                   )}
-                  <span className="admin-log-question text-black">{r.question}</span>
+                  <span className="admin-log-question text-ink">{r.question}</span>
                 </li>
               ))}
             </ul>
@@ -564,7 +564,7 @@ export function AdminPanel() {
       {toast && (
         <div
           role="status"
-          className="admin-toast fixed bottom-6 left-1/2 -translate-x-1/2 rounded bg-[#1a1a1a] px-3 py-2 text-small text-[#fcfcfc] shadow-lg"
+          className="admin-toast fixed bottom-6 left-1/2 -translate-x-1/2 rounded bg-ink px-3 py-2 text-small text-paper shadow-lg"
         >
           {toast}
         </div>

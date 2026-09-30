@@ -98,11 +98,11 @@ function collectMatches(
 const MAX_RESULTS = 240;
 
 const labelCls =
-  "m-0 mb-4 border-0 p-0 text-meta font-semibold uppercase tracking-[0.1em] leading-tight text-[#1a1a1a] [font-family:var(--gk-serif),Georgia,serif]";
+  "m-0 mb-4 border-0 p-0 text-meta font-semibold uppercase tracking-[0.1em] leading-tight text-ink [font-family:var(--gk-serif),Georgia,serif]";
 const linkCls =
-  "text-[#1a1a1a] no-underline underline-offset-[3px] hover:bg-transparent hover:underline focus-visible:underline";
+  "text-ink no-underline underline-offset-[3px] hover:bg-transparent hover:underline focus-visible:underline";
 const catLabelCls =
-  "mb-2 text-meta font-semibold uppercase tracking-[0.1em] text-[#787369]";
+  "mb-2 text-meta font-semibold uppercase tracking-[0.1em] text-muted-warm";
 
 // Light Markdown → React for the assistant's answer (the system prompt asks for
 // **bold**, *italic*, `code`, [links] and "- " lists). Built as React nodes, not
@@ -121,7 +121,7 @@ function inlineMd(text: string): ReactNode[] {
       out.push(<em key={i}>{m[2]}</em>);
     } else if (m[3] != null) {
       out.push(
-        <code key={i} className="rounded bg-[#f0eee9] px-1 py-0.5 text-[0.92em]">
+        <code key={i} className="rounded bg-wash-2 px-1 py-0.5 text-[0.92em]">
           {m[3]}
         </code>,
       );
@@ -183,7 +183,7 @@ function Chevron({ open, size = 11 }: { open: boolean; size?: number }) {
       width={size}
       height={size}
       aria-hidden="true"
-      className={`shrink-0 text-[#787369] transition-transform duration-200 ${
+      className={`shrink-0 text-muted-warm transition-transform duration-200 ${
         open ? "rotate-90" : ""
       }`}
     >
@@ -203,12 +203,12 @@ function Chevron({ open, size = 11 }: { open: boolean; size?: number }) {
 // answer panel sits blank through the embed + retrieval + first-token latency.
 function Thinking({ label }: { label: string }) {
   return (
-    <p className="m-0 flex items-center gap-2 text-body italic text-[#787369]">
+    <p className="m-0 flex items-center gap-2 text-body italic text-muted-warm">
       {label}
       <span aria-hidden="true" className="inline-flex gap-1">
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#787369] [animation-delay:-0.3s]" />
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#787369] [animation-delay:-0.15s]" />
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#787369]" />
+        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-warm [animation-delay:-0.3s]" />
+        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-warm [animation-delay:-0.15s]" />
+        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-warm" />
       </span>
     </p>
   );
@@ -321,7 +321,7 @@ function RichExcerpt({ url, label }: { url: string; label: string }) {
       </button>
       {open &&
         (loading ? (
-          <p className="m-0 mt-1 text-small italic text-[#787369]">…</p>
+          <p className="m-0 mt-1 text-small italic text-muted-warm">…</p>
         ) : html ? (
           <div
             className="rich-excerpt"
@@ -598,7 +598,7 @@ export function HomeContent({
           const icon = node.deck ? "▦" : node.asset ? "▤" : "—";
           return (
             <li key={node.href} className="m-0 mb-[0.55rem] flex items-baseline">
-              <span aria-hidden="true" className="mr-2 select-none text-[#787369]">
+              <span aria-hidden="true" className="mr-2 select-none text-muted-warm">
                 {icon}
               </span>
               <a
@@ -609,14 +609,14 @@ export function HomeContent({
                 {node.title}
               </a>
               {node.deck && (
-                <span className="ml-2 shrink-0 text-micro uppercase tracking-[0.08em] text-[#787369]">
+                <span className="ml-2 shrink-0 text-micro uppercase tracking-[0.08em] text-muted-warm">
                   cartes
                 </span>
               )}
               {node.bytes != null && (
                 // No `uppercase` here, unlike the "cartes" tag next to it: Mo is
                 // a unit symbol, and MO is a different thing.
-                <span className="ml-2 shrink-0 text-micro tracking-[0.08em] text-[#787369]">
+                <span className="ml-2 shrink-0 text-micro tracking-[0.08em] text-muted-warm">
                   {assetSize(node.bytes)}
                 </span>
               )}
@@ -642,7 +642,7 @@ export function HomeContent({
               onClick={() => toggleDir(node.path)}
               className={
                 isGroup
-                  ? "flex w-full cursor-pointer items-baseline justify-between gap-4 border-b border-[#e4e2dd] bg-transparent p-0 pb-[0.35rem] text-left hover:bg-transparent"
+                  ? "flex w-full cursor-pointer items-baseline justify-between gap-4 border-b border-rule bg-transparent p-0 pb-[0.35rem] text-left hover:bg-transparent"
                   : "flex w-full cursor-pointer items-center gap-2 bg-transparent p-0 py-[0.15rem] text-left hover:bg-transparent"
               }
             >
@@ -650,18 +650,18 @@ export function HomeContent({
                 <>
                   <span className="flex items-center gap-2">
                     <Chevron open={open} />
-                    <span className="text-meta font-semibold uppercase tracking-[0.1em] text-[#1a1a1a]">
+                    <span className="text-meta font-semibold uppercase tracking-[0.1em] text-ink">
                       {themeLabel(node.name)}
                     </span>
                   </span>
-                  <span className="text-meta tabular-nums text-[#787369]">
+                  <span className="text-meta tabular-nums text-muted-warm">
                     {node.count}
                   </span>
                 </>
               ) : (
                 <>
                   <Chevron open={open} size={10} />
-                  <span className="text-body text-[#1a1a1a]">{node.name}</span>
+                  <span className="text-body text-ink">{node.name}</span>
                 </>
               )}
             </button>
@@ -746,7 +746,7 @@ export function HomeContent({
   // Full body width: <main> reserves a 26rem right gutter for note asides on
   // wide screens; reclaim it so this zone spans the whole body.
   return (
-    <section className="mt-12 text-[#1a1a1a] [font-family:var(--gk-serif),Georgia,serif] [container-type:inline-size] min-[1081px]:-mr-96">
+    <section className="mt-12 text-ink [font-family:var(--gk-serif),Georgia,serif] [container-type:inline-size] min-[1081px]:-mr-96">
       {/* 1. filter field + full-width results overlay */}
       <form
         ref={formRef}
@@ -754,13 +754,13 @@ export function HomeContent({
         className="relative z-30 mb-10"
         onSubmit={(e) => e.preventDefault()}
       >
-        <label className="flex items-center gap-2 border-b border-[#1a1a1a] pb-2">
+        <label className="flex items-center gap-2 border-b border-ink pb-2">
           <svg
             viewBox="0 0 24 24"
             width="18"
             height="18"
             aria-hidden="true"
-            className="shrink-0 text-[#1a1a1a]"
+            className="shrink-0 text-ink"
           >
             <circle
               cx="10.5"
@@ -793,7 +793,7 @@ export function HomeContent({
             autoComplete="off"
             placeholder={tr("home.searchPlaceholder")}
             aria-label={tr("home.searchAria")}
-            className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-lead text-[#1a1a1a] outline-none placeholder:italic placeholder:text-[#787369] [&::-webkit-search-cancel-button]:appearance-none"
+            className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-lead text-ink outline-none placeholder:italic placeholder:text-muted-warm [&::-webkit-search-cancel-button]:appearance-none"
           />
           {query && (
             <button
@@ -804,7 +804,7 @@ export function HomeContent({
               }}
               aria-label={tr("home.searchClear")}
               title={tr("home.searchClear")}
-              className="-mr-1 shrink-0 p-1 text-[#787369] transition-colors hover:text-[#1a1a1a]"
+              className="-mr-1 shrink-0 p-1 text-muted-warm transition-colors hover:text-ink"
             >
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                 <path
@@ -820,9 +820,9 @@ export function HomeContent({
         </label>
 
         {openPanel && (
-          <div className="absolute left-0 right-0 top-full z-40 mt-3 max-h-[70vh] overflow-y-auto border border-[#e4e2dd] bg-[#fcfcfc] px-6 py-5 shadow-[0_12px_32px_rgba(0,0,0,0.07)]">
+          <div className="absolute left-0 right-0 top-full z-40 mt-3 max-h-[70vh] overflow-y-auto border border-rule bg-paper px-6 py-5 shadow-[0_12px_32px_rgba(0,0,0,0.07)]">
             {/* scope filter tabs */}
-            <div className="mb-4 flex flex-wrap gap-2 border-b border-[#e4e2dd] pb-3">
+            <div className="mb-4 flex flex-wrap gap-2 border-b border-rule pb-3">
               {scopes.map((s) => (
                 <button
                   key={s.id}
@@ -831,15 +831,15 @@ export function HomeContent({
                   aria-pressed={scope === s.id}
                   className={`rounded-full border px-3 py-1 text-meta uppercase tracking-[0.08em] transition-colors ${
                     scope === s.id
-                      ? "border-[#1a1a1a] bg-[#1a1a1a] text-[#fcfcfc]"
-                      : "border-[#d8d5ce] text-[#1a1a1a] hover:border-[#1a1a1a]"
+                      ? "border-ink bg-ink text-paper"
+                      : "border-rule text-ink hover:border-ink"
                   }`}
                 >
                   {s.label}
                   {searching && (
                     <span
                       className={`ml-1.5 tabular-nums ${
-                        scope === s.id ? "text-[#cfcdc6]" : "text-[#787369]"
+                        scope === s.id ? "text-paper/70" : "text-muted-warm"
                       }`}
                     >
                       {s.count}
@@ -850,9 +850,9 @@ export function HomeContent({
             </div>
 
             {!searching ? (
-              <p className="m-0 italic text-[#787369]">{tr("home.scopeHint")}</p>
+              <p className="m-0 italic text-muted-warm">{tr("home.scopeHint")}</p>
             ) : visibleCount === 0 ? (
-              <p className="m-0 italic text-[#787369]">{tr("home.empty")}</p>
+              <p className="m-0 italic text-muted-warm">{tr("home.empty")}</p>
             ) : (
               <div className="flex flex-col gap-6">
                 {/* Notes (+ full-text content hits) */}
@@ -866,26 +866,26 @@ export function HomeContent({
                         <ul className="m-0 list-none p-0 [column-gap:2.5rem] min-[700px]:columns-2 min-[1100px]:columns-3">
                           {notes.slice(0, MAX_RESULTS).map((m) => (
                             <li key={m.href} className="mb-[0.55rem] flex break-inside-avoid">
-                              <span aria-hidden="true" className="mr-2 select-none text-[#787369]">—</span>
+                              <span aria-hidden="true" className="mr-2 select-none text-muted-warm">—</span>
                               <a href={m.href} className={`${linkCls} text-body`}>
                                 {m.title}
                                 {m.where && (
-                                  <span className="ml-2 text-meta italic text-[#787369]">{m.where}</span>
+                                  <span className="ml-2 text-meta italic text-muted-warm">{m.where}</span>
                                 )}
                               </a>
                             </li>
                           ))}
                         </ul>
                         {notes.length > MAX_RESULTS && (
-                          <p className="mt-3 text-meta italic text-[#787369]">
+                          <p className="mt-3 text-meta italic text-muted-warm">
                             + {notes.length - MAX_RESULTS}…
                           </p>
                         )}
                       </>
                     )}
                     {contentHits.length > 0 && (
-                      <div className={notes.length > 0 ? "mt-5 border-t border-[#e4e2dd] pt-4" : ""}>
-                        <p className="mb-3 text-meta font-semibold uppercase tracking-[0.1em] text-[#787369]">
+                      <div className={notes.length > 0 ? "mt-5 border-t border-rule pt-4" : ""}>
+                        <p className="mb-3 text-meta font-semibold uppercase tracking-[0.1em] text-muted-warm">
                           {tr("home.inContent")}
                         </p>
                         <ul className="m-0 list-none p-0">
@@ -894,7 +894,7 @@ export function HomeContent({
                               <a href={h.url} className={`${linkCls} text-body`}>{h.title}</a>
                               {h.excerpt && (
                                 <p
-                                  className="m-0 mt-1 text-small text-[#787369] [&_mark]:bg-[#ffe9a8] [&_mark]:text-[#1a1a1a]"
+                                  className="m-0 mt-1 text-small text-muted-warm [&_mark]:bg-[#ffe9a8] [&_mark]:text-[#1a1a1a]"
                                   dangerouslySetInnerHTML={{ __html: h.excerpt }}
                                 />
                               )}
@@ -914,7 +914,7 @@ export function HomeContent({
                     <ul className="m-0 list-none p-0 [column-gap:2.5rem] min-[700px]:columns-2">
                       {pdfMatches.slice(0, MAX_RESULTS).map((p) => (
                         <li key={p.href} className="mb-[0.55rem] flex break-inside-avoid">
-                          <span aria-hidden="true" className="mr-2 select-none text-[#787369]">▤</span>
+                          <span aria-hidden="true" className="mr-2 select-none text-muted-warm">▤</span>
                           <a
                             href={p.href}
                             target="_blank"
@@ -923,7 +923,7 @@ export function HomeContent({
                           >
                             {p.title}
                             {p.where && (
-                              <span className="ml-2 text-meta italic text-[#787369]">{p.where}</span>
+                              <span className="ml-2 text-meta italic text-muted-warm">{p.where}</span>
                             )}
                           </a>
                         </li>
@@ -939,11 +939,11 @@ export function HomeContent({
                     <ul className="m-0 list-none p-0">
                       {decks.map((m) => (
                         <li key={m.href} className="mb-[0.55rem] flex break-inside-avoid">
-                          <span aria-hidden="true" className="mr-2 select-none text-[#787369]">▦</span>
+                          <span aria-hidden="true" className="mr-2 select-none text-muted-warm">▦</span>
                           <a href={m.href} className={`${linkCls} text-body`}>
                             {m.title}
                             {m.where && (
-                              <span className="ml-2 text-meta italic text-[#787369]">{m.where}</span>
+                              <span className="ml-2 text-meta italic text-muted-warm">{m.where}</span>
                             )}
                           </a>
                         </li>
@@ -971,9 +971,9 @@ export function HomeContent({
                             }}
                             className="flex items-baseline gap-2 bg-transparent p-0 text-left"
                           >
-                            <span aria-hidden="true" className="text-[#787369]">▸</span>
+                            <span aria-hidden="true" className="text-muted-warm">▸</span>
                             <span className={`${linkCls} text-body`}>{themeLabel(m.title)}</span>
-                            <span className="text-meta tabular-nums text-[#787369]">{m.count}</span>
+                            <span className="text-meta tabular-nums text-muted-warm">{m.count}</span>
                           </button>
                         </li>
                       ))}
@@ -990,9 +990,9 @@ export function HomeContent({
                     <div className="flex flex-col gap-4">
                       {domainMatches.map((d) => (
                         <div key={d.name}>
-                          <p className="m-0 mb-2 text-body font-semibold text-[#1a1a1a]">
+                          <p className="m-0 mb-2 text-body font-semibold text-ink">
                             {d.name}
-                            <span className="ml-2 text-meta tabular-nums text-[#787369]">
+                            <span className="ml-2 text-meta tabular-nums text-muted-warm">
                               {d.notes.length}
                             </span>
                           </p>
@@ -1002,7 +1002,7 @@ export function HomeContent({
                                 key={n.href}
                                 className="mb-[0.55rem] flex break-inside-avoid"
                               >
-                                <span aria-hidden="true" className="mr-2 select-none text-[#787369]">
+                                <span aria-hidden="true" className="mr-2 select-none text-muted-warm">
                                   —
                                 </span>
                                 <a href={n.href} className={`${linkCls} text-body`}>
@@ -1026,9 +1026,9 @@ export function HomeContent({
                     <div className="flex flex-col gap-4">
                       {langMatches.map((l) => (
                         <div key={l.code}>
-                          <p className="m-0 mb-2 text-body font-semibold text-[#1a1a1a]">
+                          <p className="m-0 mb-2 text-body font-semibold text-ink">
                             {l.name}
-                            <span className="ml-2 text-meta tabular-nums text-[#787369]">
+                            <span className="ml-2 text-meta tabular-nums text-muted-warm">
                               {l.notes.length}
                             </span>
                           </p>
@@ -1038,7 +1038,7 @@ export function HomeContent({
                                 key={n.href}
                                 className="mb-[0.55rem] flex break-inside-avoid"
                               >
-                                <span aria-hidden="true" className="mr-2 select-none text-[#787369]">
+                                <span aria-hidden="true" className="mr-2 select-none text-muted-warm">
                                   —
                                 </span>
                                 <a href={n.href} className={`${linkCls} text-body`}>
@@ -1073,11 +1073,11 @@ export function HomeContent({
             <a
               href="/graph/"
               aria-label={tr("home.mapLabel")}
-              className="group relative block h-[440px] w-full cursor-pointer overflow-hidden rounded-[3px] border border-[#e4e2dd] hover:bg-transparent max-[700px]:h-[300px]"
+              className="group relative block h-[440px] w-full cursor-pointer overflow-hidden rounded-[3px] border border-rule hover:bg-transparent max-[700px]:h-[300px]"
             >
               <LazyGraph graphData={graphData} />
               {/* Hover cue: this decorative preview opens the full, labelled graph. */}
-              <span className="pointer-events-none absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border border-[#e4e2dd] bg-[#fcfcfc]/85 text-[#1a1a1a] opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
+              <span className="pointer-events-none absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border border-rule bg-paper/85 text-ink opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
                 <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
                   <path
                     d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"
@@ -1090,19 +1090,19 @@ export function HomeContent({
                 </svg>
               </span>
             </a>
-            <p className="mt-[0.7rem] text-pretty text-small italic text-[#787369]">
+            <p className="mt-[0.7rem] text-pretty text-small italic text-muted-warm">
               {tr("home.mapCaption")}
             </p>
           </section>
 
-          <section className="rounded-[3px] border border-[#e4e2dd] px-6 py-5">
+          <section className="rounded-[3px] border border-rule px-6 py-5">
             <div className="mb-[0.6rem] flex items-center justify-between gap-2">
               <h2 className={labelCls}>{tr("home.askLabel")}</h2>
               {/* Pushpin: dock the assistant at the bottom-right and keep it there
                   across navigation (PinnedAssistant, mounted site-wide). */}
               <button
                 type="button"
-                className="shrink-0 cursor-pointer border-0 bg-transparent p-1 text-[#787369] hover:text-garden"
+                className="shrink-0 cursor-pointer border-0 bg-transparent p-1 text-muted-warm hover:text-garden"
                 aria-label={tr("home.pinChat")}
                 title={tr("home.pinChat")}
                 onClick={() => {
@@ -1120,11 +1120,11 @@ export function HomeContent({
                 </svg>
               </button>
             </div>
-            <p className="m-0 mb-[1.1rem] text-pretty text-body text-[#1a1a1a]">
+            <p className="m-0 mb-[1.1rem] text-pretty text-body text-ink">
               {tr("home.askIntro")}
             </p>
             <form
-              className="flex items-center gap-4 border-b border-[#1a1a1a] pb-2"
+              className="flex items-center gap-4 border-b border-ink pb-2"
               onSubmit={(e) => {
                 e.preventDefault();
                 const text = question.trim();
@@ -1140,12 +1140,12 @@ export function HomeContent({
                 disabled={busy}
                 placeholder={tr("home.askPlaceholder")}
                 aria-label={tr("home.askAria")}
-                className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-body text-[#1a1a1a] outline-none placeholder:italic placeholder:text-[#787369] disabled:opacity-60"
+                className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-body text-ink outline-none placeholder:italic placeholder:text-muted-warm disabled:opacity-60"
               />
               <button
                 type="submit"
                 disabled={busy}
-                className="shrink-0 cursor-pointer rounded-[3px] border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-[#fcfcfc] transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-[#c9c6bf] disabled:text-[#fcfcfc]"
+                className="shrink-0 cursor-pointer rounded-[3px] border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-paper transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-rule-strong disabled:text-paper"
               >
                 {tr("home.askSend")}
               </button>
@@ -1156,7 +1156,7 @@ export function HomeContent({
                 ref={answerRef}
                 aria-live={busy ? "off" : "polite"}
                 aria-busy={busy}
-                className="mt-[1.1rem] max-h-[22rem] overflow-y-auto text-body leading-relaxed text-[#1a1a1a]"
+                className="mt-[1.1rem] max-h-[22rem] overflow-y-auto text-body leading-relaxed text-ink"
               >
                 {busy && !answer ? (
                   <Thinking label={tr("askAi.searching")} />
@@ -1168,7 +1168,7 @@ export function HomeContent({
 
             {sources.length > 0 && (
               <div className="mt-3">
-                <p className="m-0 mb-[0.3rem] text-micro font-semibold uppercase tracking-[0.1em] text-[#787369]">
+                <p className="m-0 mb-[0.3rem] text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm">
                   {tr("askAi.sourcesTitle")}
                 </p>
                 <ul className="m-0 list-disc pl-[1.1rem]">

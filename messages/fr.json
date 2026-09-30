@@ -205,5 +205,10 @@
     "intro": "Les notes du jardin qui portent sur un événement historique, triées par date.",
     "empty": "Aucune note ne porte encore de date historique.",
     "bce": "{year} av. J.-C."
+  },
+  "theme": {
+    "auto": "Thème : automatique (suit le système)",
+    "light": "Thème : clair",
+    "dark": "Thème : sombre"
   }
 }
