@@ -3,6 +3,18 @@ import { visit, SKIP } from "unist-util-visit";
 import { fromHtml } from "hast-util-from-html";
 import type { Root, Element, RootContent } from "hast";
 
+// modus-operandi foreground → its modus-vivendi counterpart.
+const VIVENDI: Record<string, string> = {
+  "#505050": "#a8a8a8", // comments, preprocessor
+  "#5317ac": "#b6a0ff", // keywords, tags
+  "#0000c0": "#00bcff", // constants
+  "#005a5f": "#6ae4b9", // types
+  "#721045": "#feacd0", // functions
+  "#00538b": "#00d3d0", // variables, operators, attributes
+  "#2544bb": "#79a8ff", // strings
+  "#8f0075": "#f78fe7", // builtins
+};
+
 // Approximation of Hugo's chroma "modus-operandi" style as a TextMate theme,
 // so highlighted code keeps the same light palette without chroma/Go.
 const modusOperandi: ThemeRegistration = {
@@ -59,6 +71,22 @@ const modusOperandi: ThemeRegistration = {
   ],
 };
 
+// Dark companion (the palette of Emacs's "modus-vivendi", modus-operandi's
+// dark twin), same scopes. Shiki emits it as --shiki-dark / --shiki-dark-bg on
+// every token and syntax.css switches to them in dark mode. Background is the
+// dark page colour (global.css --paper), not modus-vivendi's pure black.
+const modusVivendi: ThemeRegistration = {
+  name: "modus-vivendi",
+  type: "dark",
+  colors: { "editor.foreground": "#ffffff", "editor.background": "#1c1b19" },
+  fg: "#ffffff",
+  bg: "#1c1b19",
+  settings: modusOperandi.settings!.map((rule) => ({
+    ...rule,
+    settings: { foreground: VIVENDI[rule.settings!.foreground!] },
+  })),
+};
+
 // Markdown fence language -> Shiki grammar id.
 const LANG_MAP: Record<string, string> = { cfg: "ini", sh: "bash" };
 // Grammars to load. Plain text uses Shiki's built-in "text" (no grammar needed).
@@ -67,7 +95,7 @@ const LANGS = ["cpp", "asm", "ini", "cmake", "nginx", "bash", "python"];
 let highlighterPromise: Promise<Highlighter> | null = null;
 function getHighlighter(): Promise<Highlighter> {
   if (!highlighterPromise) {
-    highlighterPromise = createHighlighter({ themes: [modusOperandi], langs: LANGS });
+    highlighterPromise = createHighlighter({ themes: [modusOperandi, modusVivendi], langs: LANGS });
   }
   return highlighterPromise;
 }
@@ -132,7 +160,8 @@ export function rehypeShiki() {
       const lang = LANGS.includes(mapped) ? mapped : "text";
       const html = hl.codeToHtml(j.value.replace(/\n$/, ""), {
         lang,
-        theme: "modus-operandi",
+        themes: { light: "modus-operandi", dark: "modus-vivendi" },
+        defaultColor: "light",
         transformers: [
           {
             pre(node) {

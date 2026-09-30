@@ -7,7 +7,8 @@
 //
 // Everything here is plain DOM: the note HTML is static-exported, so there is
 // no React on the page to hydrate into. Each builder returns a fragment and is
-// responsible for its own listeners; nothing is registered globally.
+// responsible for its own listeners; the only global one is `theme:change`,
+// on which the two <canvas> figures redraw in the new palette.
 (function () {
   const figures = document.querySelectorAll(".widget[data-widget]");
   if (!figures.length) return;
@@ -25,6 +26,12 @@
       n.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
     }
     return n;
+  }
+
+  /** A palette token (global.css) resolved to a colour, for <canvas>, which
+   * cannot take var(). Canvas widgets redraw on `theme:change` (/js/theme.js). */
+  function cssColor(name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888";
   }
 
   /** A row of clickable bit cells. `groups` splits it into labelled runs. */
@@ -791,9 +798,16 @@
   }
 
   /** Minimal SVG element helper — same shape as el(), different namespace. */
+  // Colours are palette tokens ("var(--link)") so the figures follow the
+  // light/dark theme. var() is only guaranteed in a style declaration, not in
+  // a presentation attribute, so fill/stroke tokens go through .style.
   function svg(tag, attrs, children) {
     const n = document.createElementNS("http://www.w3.org/2000/svg", tag);
-    for (const k in attrs || {}) n.setAttribute(k, attrs[k]);
+    for (const k in attrs || {}) {
+      const v = attrs[k];
+      if ((k === "fill" || k === "stroke") && String(v).startsWith("var(")) n.style.setProperty(k, v);
+      else n.setAttribute(k, v);
+    }
     for (const c of children || []) n.appendChild(c);
     return n;
   }
@@ -850,14 +864,14 @@
         const w = W / bins - 1;
         bars.push(svg("rect", {
           x, y: H / 2 - (hn[b] / top) * (H / 2 - 4), width: w,
-          height: (hn[b] / top) * (H / 2 - 4), fill: "#ccc",
+          height: (hn[b] / top) * (H / 2 - 4), fill: "var(--rule-strong)",
         }));
         bars.push(svg("rect", {
-          x, y: H / 2, width: w, height: (hp[b] / top) * (H / 2 - 4), fill: "#9fc0dd",
+          x, y: H / 2, width: w, height: (hp[b] / top) * (H / 2 - 4), fill: "var(--link-mid)",
         }));
       }
       const xs = th * W;
-      bars.push(svg("line", { x1: xs, y1: 0, x2: xs, y2: H, stroke: "#003366", "stroke-width": 2 }));
+      bars.push(svg("line", { x1: xs, y1: 0, x2: xs, y2: H, stroke: "var(--link)", "stroke-width": 2 }));
       plot.replaceChildren(
         svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
           "aria-label": "distribution des scores et seuil" }, bars),
@@ -1457,10 +1471,10 @@
       const pts = [[P, P], [W - P, P], [W - P * 1.6, H - P], [P * 1.6, H - P]];
       kids.push(svg("polygon", {
         points: pts.map((p) => p.join(",")).join(" "),
-        fill: "#fcfcfc", stroke: "#ccc",
+        fill: "var(--paper)", stroke: "var(--rule-strong)",
       }));
       for (const lbl of [["fermée", P], ["ouverte", H - P]]) {
-        kids.push(svg("text", { x: 4, y: lbl[1] + 4, "font-size": "10", fill: "#6f6f6f" }, []));
+        kids.push(svg("text", { x: 4, y: lbl[1] + 4, "font-size": "10", fill: "var(--muted)" }, []));
         kids[kids.length - 1].textContent = lbl[0];
       }
       for (const v of items) {
@@ -1471,9 +1485,9 @@
         const xx = left + v.b * (right - left);
         const g = svg("g", { class: "w-vowel" + (sel === v.sym ? " is-sel" : "") });
         g.appendChild(svg("circle", { cx: xx, cy: yy, r: 11,
-          fill: v.r ? "#003366" : "#f0f7ff", stroke: "#003366" }));
+          fill: v.r ? "var(--link)" : "var(--link-wash)", stroke: "var(--link)" }));
         const t = svg("text", { x: xx, y: yy + 4, "text-anchor": "middle",
-          "font-size": "12", fill: v.r ? "#fcfcfc" : "#003366" }, []);
+          "font-size": "12", fill: v.r ? "var(--paper)" : "var(--link)" }, []);
         t.textContent = v.sym;
         g.appendChild(t);
         g.addEventListener("click", () => draw(v.sym));
@@ -1599,23 +1613,23 @@
       const kids = [];
       // Original grid, faint.
       for (let i = -3; i <= 3; i++) {
-        kids.push(svg("line", { x1: P(i, -3)[0], y1: P(i, -3)[1], x2: P(i, 3)[0], y2: P(i, 3)[1], stroke: "#eee" }));
-        kids.push(svg("line", { x1: P(-3, i)[0], y1: P(-3, i)[1], x2: P(3, i)[0], y2: P(3, i)[1], stroke: "#eee" }));
+        kids.push(svg("line", { x1: P(i, -3)[0], y1: P(i, -3)[1], x2: P(i, 3)[0], y2: P(i, 3)[1], stroke: "var(--rule-soft)" }));
+        kids.push(svg("line", { x1: P(-3, i)[0], y1: P(-3, i)[1], x2: P(3, i)[0], y2: P(3, i)[1], stroke: "var(--rule-soft)" }));
       }
       // Transformed grid.
       const T = (x, y) => P(a * x + b * y, c * x + d * y);
       for (let i = -3; i <= 3; i++) {
         const A = T(i, -3), B = T(i, 3), Cc = T(-3, i), D = T(3, i);
-        kids.push(svg("line", { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: "#cfe0f0" }));
-        kids.push(svg("line", { x1: Cc[0], y1: Cc[1], x2: D[0], y2: D[1], stroke: "#cfe0f0" }));
+        kids.push(svg("line", { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: "var(--link-soft)" }));
+        kids.push(svg("line", { x1: Cc[0], y1: Cc[1], x2: D[0], y2: D[1], stroke: "var(--link-soft)" }));
       }
       // Unit square, before and after.
       const sq0 = [[0, 0], [1, 0], [1, 1], [0, 1]].map(([x, y]) => P(x, y));
       const sq1 = [[0, 0], [1, 0], [1, 1], [0, 1]].map(([x, y]) => T(x, y));
-      kids.push(svg("polygon", { points: sq0.map((p) => p.join(",")).join(" "), fill: "none", stroke: "#ccc", "stroke-dasharray": "3 3" }));
-      kids.push(svg("polygon", { points: sq1.map((p) => p.join(",")).join(" "), fill: "#f0f7ff", "fill-opacity": "0.8", stroke: "#003366" }));
+      kids.push(svg("polygon", { points: sq0.map((p) => p.join(",")).join(" "), fill: "none", stroke: "var(--rule-strong)", "stroke-dasharray": "3 3" }));
+      kids.push(svg("polygon", { points: sq1.map((p) => p.join(",")).join(" "), fill: "var(--link-wash)", "fill-opacity": "0.8", stroke: "var(--link)" }));
       // Basis images.
-      for (const [x, y, col] of [[1, 0, "#003366"], [0, 1, "#2d6cc0"]]) {
+      for (const [x, y, col] of [[1, 0, "var(--link)"], [0, 1, "var(--callout-blue)"]]) {
         const q = T(x, y);
         kids.push(svg("line", { x1: C, y1: C, x2: q[0], y2: q[1], stroke: col, "stroke-width": 2 }));
       }
@@ -1633,7 +1647,7 @@
           const n = Math.hypot(vx, vy) || 1;
           const [ux, uy] = [(vx / n) * 3, (vy / n) * 3];
           const A = P(-ux, -uy), B = P(ux, uy);
-          kids.push(svg("line", { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: "#b8740f", "stroke-dasharray": "5 3" }));
+          kids.push(svg("line", { x1: A[0], y1: A[1], x2: B[0], y2: B[1], stroke: "var(--warn)", "stroke-dasharray": "5 3" }));
         }
       }
       plot.replaceChildren(svg("svg", { viewBox: `0 0 ${S} ${S}`, width: "100%", role: "img",
@@ -1681,12 +1695,15 @@
     const canvas = document.createElement("canvas");
     canvas.width = 640; canvas.height = 280;
     canvas.style.width = "100%";
-    canvas.style.border = "1px solid #ccc";
-    (function bifurcation() {
+    canvas.style.border = "1px solid var(--rule-strong)";
+    // Drawn once, and again only when the theme (so the palette) changes.
+    function bifurcation() {
       const g = canvas.getContext("2d");
       if (!g) return;
-      g.fillStyle = "#fcfcfc"; g.fillRect(0, 0, canvas.width, canvas.height);
-      g.fillStyle = "rgba(0,51,102,0.5)";
+      g.globalAlpha = 1;
+      g.fillStyle = cssColor("--paper"); g.fillRect(0, 0, canvas.width, canvas.height);
+      g.fillStyle = cssColor("--link");
+      g.globalAlpha = 0.5;
       for (let px = 0; px < canvas.width; px++) {
         const rr = 2.4 + (px / canvas.width) * 1.6;
         let x = 0.5;
@@ -1696,7 +1713,9 @@
           g.fillRect(px, canvas.height - x * canvas.height, 1, 1);
         }
       }
-    })();
+    }
+    bifurcation();
+    document.addEventListener("theme:change", bifurcation);
     const marker = el("div", { class: "w-marker" });
     plotBif.replaceChildren(el("div", { class: "w-canvas-wrap" }, [canvas, marker]));
 
@@ -1707,13 +1726,13 @@
       const pts = [];
       for (let i = 0; i < 200; i++) x = r * x * (1 - x);
       for (let i = 0; i < N; i++) { x = r * x * (1 - x); pts.push(x); }
-      const kids = [svg("line", { x1: 0, y1: H, x2: W, y2: H, stroke: "#ccc" })];
+      const kids = [svg("line", { x1: 0, y1: H, x2: W, y2: H, stroke: "var(--rule-strong)" })];
       pts.forEach((v, i) => {
         const px = (i / (N - 1)) * W;
-        kids.push(svg("circle", { cx: px, cy: H - v * H, r: 2.2, fill: "#003366" }));
+        kids.push(svg("circle", { cx: px, cy: H - v * H, r: 2.2, fill: "var(--link)" }));
         if (i) {
           const q = (i - 1) / (N - 1) * W;
-          kids.push(svg("line", { x1: q, y1: H - pts[i - 1] * H, x2: px, y2: H - v * H, stroke: "#cfe0f0" }));
+          kids.push(svg("line", { x1: q, y1: H - pts[i - 1] * H, x2: px, y2: H - v * H, stroke: "var(--link-soft)" }));
         }
       });
       plotOrbit.replaceChildren(svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
@@ -1974,7 +1993,7 @@
       for (let lvl = 1; lvl <= 5; lvl++) {
         const y = H - P - ((lvl - 1) / 4) * (H - 2 * P);
         kids.push(svg("line", { x1: 0, y1: y, x2: W, y2: y,
-          stroke: lvl === 1 || lvl === 5 ? "#ccc" : "#eee" }));
+          stroke: lvl === 1 || lvl === 5 ? "var(--rule-strong)" : "var(--rule-soft)" }));
       }
       list.forEach((t, i) => {
         const c = TONES[t.tone] || TONES[0];
@@ -1986,10 +2005,10 @@
         }).join(" ");
         kids.push(svg(c.chao.length === 1 ? "circle" : "polyline",
           c.chao.length === 1
-            ? { cx: x0 + span / 2, cy: H - P - 0.5 * (H - 2 * P), r: 4, fill: "#6f6f6f" }
-            : { points: pts, fill: "none", stroke: t.changed ? "#b8740f" : "#003366", "stroke-width": 3 }));
+            ? { cx: x0 + span / 2, cy: H - P - 0.5 * (H - 2 * P), r: 4, fill: "var(--muted)" }
+            : { points: pts, fill: "none", stroke: t.changed ? "var(--warn)" : "var(--link)", "stroke-width": 3 }));
         const lab = svg("text", { x: x0 + span / 2, y: H - 2, "text-anchor": "middle",
-          "font-size": "12", fill: t.changed ? "#b8740f" : "#111" }, []);
+          "font-size": "12", fill: t.changed ? "var(--warn)" : "var(--ink)" }, []);
         lab.textContent = t.syl + (t.tone || "");
         kids.push(lab);
       });
@@ -2243,7 +2262,7 @@
     const canvas = document.createElement("canvas");
     canvas.width = 400; canvas.height = 400;
     canvas.style.width = "100%"; canvas.style.maxWidth = "22rem";
-    canvas.style.border = "1px solid #ccc";
+    canvas.style.border = "1px solid var(--rule-strong)";
     const out = el("div", { class: "w-out" });
     const note = el("p", { class: "w-note" });
 
@@ -2264,7 +2283,7 @@
       const g = canvas.getContext("2d");
       if (g) {
         const side = canvas.width / 100;
-        const COL = ["#003366", "#9fc0dd", "#b8740f", "#eee"]; // VP, FN, FP, VN
+        const COL = ["--link", "--link-mid", "--warn", "--rule-soft"].map(cssColor); // VP, FN, FP, VN
         const runs = [[vp, 0], [fn, 1], [fp, 2], [vn, 3]];
         let i = 0;
         for (const [count, c] of runs) {
@@ -2310,6 +2329,7 @@
       onclick: () => { sPrev.value = String(p); sSens.value = String(se); sSpec.value = String(sp); draw(); } }, [lbl]));
 
     draw();
+    document.addEventListener("theme:change", draw);
     return el("div", { class: "w-root" }, [
       el("div", { class: "w-controls" }, [
         el("label", {}, ["Prévalence ", sPrev]),
@@ -2362,15 +2382,15 @@
       const X = (t) => P + (t / DUREE) * (W - 2 * P);
       const Y = (c) => H - P - (c / maxC) * (H - 2 * P);
       const kids = [
-        svg("line", { x1: P, y1: H - P, x2: W - P, y2: H - P, stroke: "#ccc" }),
-        svg("line", { x1: P, y1: P, x2: P, y2: H - P, stroke: "#ccc" }),
-        svg("line", { x1: P, y1: Y(cmaxSS), x2: W - P, y2: Y(cmaxSS), stroke: "#b8740f", "stroke-dasharray": "4 3" }),
-        svg("line", { x1: P, y1: Y(cminSS), x2: W - P, y2: Y(cminSS), stroke: "#b8740f", "stroke-dasharray": "4 3" }),
+        svg("line", { x1: P, y1: H - P, x2: W - P, y2: H - P, stroke: "var(--rule-strong)" }),
+        svg("line", { x1: P, y1: P, x2: P, y2: H - P, stroke: "var(--rule-strong)" }),
+        svg("line", { x1: P, y1: Y(cmaxSS), x2: W - P, y2: Y(cmaxSS), stroke: "var(--warn)", "stroke-dasharray": "4 3" }),
+        svg("line", { x1: P, y1: Y(cminSS), x2: W - P, y2: Y(cminSS), stroke: "var(--warn)", "stroke-dasharray": "4 3" }),
         svg("polyline", { points: pts.map((p) => X(p[0]) + "," + Y(p[1])).join(" "),
-          fill: "none", stroke: "#003366", "stroke-width": 2 }),
+          fill: "none", stroke: "var(--link)", "stroke-width": 2 }),
       ];
       if (t95 < DUREE) {
-        kids.push(svg("line", { x1: X(t95), y1: P, x2: X(t95), y2: H - P, stroke: "#3f6b4a", "stroke-dasharray": "2 3" }));
+        kids.push(svg("line", { x1: X(t95), y1: P, x2: X(t95), y2: H - P, stroke: "var(--garden)", "stroke-dasharray": "2 3" }));
       }
       plot.replaceChildren(
         svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
@@ -2528,7 +2548,7 @@
       for (let b = 0; b < BINS; b++) {
         const x = P + (b / BINS) * (W - 2 * P);
         kids.push(svg("rect", { x, y: H - P - (h[b] / top) * (H - 2 * P),
-          width: (W - 2 * P) / BINS - 1, height: (h[b] / top) * (H - 2 * P), fill: "#cfe0f0" }));
+          width: (W - 2 * P) / BINS - 1, height: (h[b] / top) * (H - 2 * P), fill: "var(--link-soft)" }));
       }
       // Theoretical normal for the sampling distribution of the mean.
       const pts = [];
@@ -2537,8 +2557,8 @@
         const y = Math.exp(-((x - L.mu) ** 2) / (2 * theoSd ** 2));
         pts.push((P + (i / 120) * (W - 2 * P)) + "," + (H - P - y * (H - 2 * P)));
       }
-      kids.push(svg("polyline", { points: pts.join(" "), fill: "none", stroke: "#003366", "stroke-width": 2 }));
-      kids.push(svg("line", { x1: P, y1: H - P, x2: W - P, y2: H - P, stroke: "#ccc" }));
+      kids.push(svg("polyline", { points: pts.join(" "), fill: "none", stroke: "var(--link)", "stroke-width": 2 }));
+      kids.push(svg("line", { x1: P, y1: H - P, x2: W - P, y2: H - P, stroke: "var(--rule-strong)" }));
       plot.replaceChildren(svg("svg", { viewBox: `0 0 ${W} ${H}`, width: "100%", role: "img",
         "aria-label": "distribution des moyennes" }, kids));
 

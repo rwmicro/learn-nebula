@@ -14,7 +14,7 @@
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
-  color: #111;
+  color: var(--ink);
   text-decoration: none;
 }
 .cartes-index-back:hover {
@@ -30,14 +30,14 @@
 }
 
 .cartes-index-intro {
-  color: #555;
+  color: var(--ink-2);
   margin: 0 0 2.5rem;
   font-size: 1.1rem;
 }
 
 .cartes-index-empty {
   font-style: italic;
-  color: #787369;
+  color: var(--muted-warm);
 }
 
 .cartes-index-group + .cartes-index-group {
@@ -48,7 +48,7 @@
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   font-weight: 700;
   font-size: 1.05rem;
-  color: #3f6b4a; /* --color-garden — the site's one accent */
+  color: var(--garden); /* the site's one accent */
   margin: 0 0 0.4rem;
 }
 
@@ -56,7 +56,7 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--rule-strong);
 }
 
 .cartes-index-deck {
@@ -66,12 +66,12 @@
   justify-content: space-between;
   gap: 0.2rem 1rem;
   padding: 0.7rem 0;
-  border-bottom: 1px solid #e4e2dd;
+  border-bottom: 1px solid var(--rule);
 }
 
 .cartes-index-deck a {
   font-size: 1.15rem;
-  color: #111;
+  color: var(--ink);
   text-decoration: none;
 }
 .cartes-index-deck a:hover {
@@ -79,7 +79,7 @@
 }
 
 .cartes-index-count {
-  color: #787369;
+  color: var(--muted-warm);
   font-size: 0.95rem;
   white-space: nowrap;
 }

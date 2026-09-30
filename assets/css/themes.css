@@ -14,7 +14,7 @@
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
-  color: #111;
+  color: var(--ink);
   text-decoration: none;
 }
 .themes-back:hover {
@@ -26,7 +26,7 @@
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
   font-weight: 700;
-  color: #3f6b4a; /* --color-garden — the site's one accent */
+  color: var(--garden); /* the site's one accent */
 }
 
 .themes-title {
@@ -39,7 +39,7 @@
 }
 
 .themes-intro {
-  color: #555;
+  color: var(--ink-2);
   margin: 0 0 2rem;
   font-size: 1.1rem;
 }
@@ -50,21 +50,21 @@
   font-size: 1.4rem;
   margin: 2.5rem 0 0.75rem;
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--rule-strong);
 }
 
 .themes-h3 {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
   font-size: 1.1rem;
-  color: #787369;
+  color: var(--muted-warm);
   margin: 1.25rem 0 0.5rem;
 }
 
 .themes-count {
   margin-left: 0.4em;
   font-size: 0.85em;
-  color: #787369;
+  color: var(--muted-warm);
   font-variant-numeric: tabular-nums;
 }
 
@@ -83,11 +83,11 @@
 .themes-list li,
 .themes-notes li {
   padding: 0.35rem 0;
-  border-bottom: 1px solid #e4e2dd;
+  border-bottom: 1px solid var(--rule);
 }
 
 .themes-page a {
-  color: #111;
+  color: var(--ink);
   text-decoration: none;
 }
 .themes-page a:hover {

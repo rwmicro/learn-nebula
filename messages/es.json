@@ -254,5 +254,10 @@
     "loading": "Eligiendo una nota al azar…",
     "error": "No se pudo elegir una nota al azar. Volver al inicio",
     "noscript": "Elegir una nota al azar requiere JavaScript. Volver al inicio"
+  },
+  "theme": {
+    "auto": "Tema: automático (sigue al sistema)",
+    "light": "Tema: claro",
+    "dark": "Tema: oscuro"
   }
 }

@@ -29,20 +29,20 @@ interface Deck {
 
 const base =
   "cursor-pointer rounded-[2px] border px-3.5 py-1.5 text-micro font-semibold uppercase tracking-[0.08em] disabled:opacity-40";
-const btn = `${base} border-[#1a1a1a] bg-transparent text-[#1a1a1a] hover:bg-[#1a1a1a] hover:text-white`;
-const btnOn = `${base} border-[#1a1a1a] bg-[#1a1a1a] text-white hover:bg-[#1a1a1a]`;
+const btn = `${base} border-ink bg-transparent text-ink hover:bg-ink hover:text-paper`;
+const btnOn = `${base} border-ink bg-ink text-paper hover:bg-ink`;
 // Grade buttons take their accent from --g (set inline per grade).
-const btnGrade = `${base} border-[var(--g)] border-t-[3px] bg-transparent text-[var(--g)] hover:bg-[var(--g)] hover:text-white`;
+const btnGrade = `${base} border-[var(--g)] border-t-[3px] bg-transparent text-[var(--g)] hover:bg-[var(--g)] hover:text-paper`;
 const quiet =
-  "cursor-pointer border-0 bg-transparent p-0 text-micro font-semibold uppercase tracking-[0.08em] text-[#787369] underline decoration-dotted underline-offset-4 hover:bg-transparent hover:text-[#1a1a1a]";
+  "cursor-pointer border-0 bg-transparent p-0 text-micro font-semibold uppercase tracking-[0.08em] text-muted-warm underline decoration-dotted underline-offset-4 hover:bg-transparent hover:text-ink";
 
 // Grade accents (text + top rule): again → red, hard → amber, good → the
-// site's garden green, easy → blue. All ≥ 4.5:1 on white.
+// site's garden green, easy → blue. Theme tokens from global.css, so they hold in dark mode too.
 const GRADE_COLOR: Record<Grade, string> = {
-  again: "#a3322a",
-  hard: "#8a5a00",
-  good: "#3f6b4a",
-  easy: "#2c5d8f",
+  again: "var(--callout-red)",
+  hard: "var(--callout-amber)",
+  good: "var(--garden)",
+  easy: "var(--callout-blue)",
 };
 
 // Card zoom levels (whole card content scales: text + images).
@@ -254,24 +254,24 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
   return (
     <main
       id="main"
-      className="flashcards-main mx-auto px-5 py-12 text-[#1a1a1a] transition-[max-width] duration-200"
+      className="flashcards-main mx-auto px-5 py-12 text-ink transition-[max-width] duration-200"
       style={{ maxWidth: `${60 * SIZES[sizeIdx]}rem` }}
     >
       {deck?.css && <style dangerouslySetInnerHTML={{ __html: deck.css }} />}
 
       <a
         href="/"
-        className="text-micro font-semibold uppercase tracking-[0.1em] text-[#787369] no-underline hover:bg-transparent hover:text-[#1a1a1a]"
+        className="text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
       >
         ← {tr("home")}
       </a>
 
-      <header className="mb-6 mt-3 flex items-baseline justify-between gap-4 border-b border-[#1a1a1a] pb-2">
+      <header className="mb-6 mt-3 flex items-baseline justify-between gap-4 border-b border-ink pb-2">
         <h1 className="m-0 text-balance text-[clamp(1.25rem,1rem+1.8vw,2.2rem)] font-medium leading-tight">
           {name}
         </h1>
         {cards.length > 0 && !(reviewing && !queue.length) && (
-          <span className="shrink-0 text-meta tabular-nums text-[#787369]">
+          <span className="shrink-0 text-meta tabular-nums text-muted-warm">
             {reviewing
               ? `${queue.length} ${tr("left")}`
               : `${pos + 1} / ${cards.length}`}
@@ -294,7 +294,7 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
               </button>
             ))}
           </div>
-          <dl className="m-0 flex gap-5 text-meta tabular-nums text-[#787369]">
+          <dl className="m-0 flex gap-5 text-meta tabular-nums text-muted-warm">
             {(
               [
                 ["due", summary.due],
@@ -304,7 +304,7 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
             ).map(([k, n]) => (
               <div key={k} className="flex items-baseline gap-1.5">
                 <dt>{tr(k)}</dt>
-                <dd className="m-0 font-semibold text-[#1a1a1a]">{n}</dd>
+                <dd className="m-0 font-semibold text-ink">{n}</dd>
               </div>
             ))}
           </dl>
@@ -312,14 +312,14 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
       )}
 
       {error ? (
-        <p className="italic text-[#787369]">{tr("err")}</p>
+        <p className="italic text-muted-warm">{tr("err")}</p>
       ) : !deck ? (
-        <p className="italic text-[#787369]">{tr("loading")}</p>
+        <p className="italic text-muted-warm">{tr("loading")}</p>
       ) : !cards.length ? (
-        <p className="italic text-[#787369]">{tr("empty")}</p>
+        <p className="italic text-muted-warm">{tr("empty")}</p>
       ) : reviewing && !queue.length ? (
         <section
-          className="flex flex-col items-center justify-center gap-5 rounded-[4px] border border-[#e4e2dd] bg-white p-8 text-center"
+          className="flex flex-col items-center justify-center gap-5 rounded-[4px] border border-rule bg-paper p-8 text-center"
           style={{ minHeight: `${26 * SIZES[sizeIdx]}rem` }}
         >
           <h2
@@ -352,7 +352,9 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
             type="button"
             onClick={handleCardClick}
             aria-label={tr("flip")}
-            className="flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-[#e4e2dd] bg-white p-8 text-center transition-[min-height] duration-200 hover:bg-white"
+            // keep-light: the card HTML comes with the deck's own CSS (Anki
+            // notetypes assume a white card), so it stays a light card in dark mode.
+            className="keep-light flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-rule bg-paper p-8 text-center transition-[min-height] duration-200 hover:bg-paper"
             style={{ minHeight: `${26 * SIZES[sizeIdx]}rem` }}
           >
             <div
@@ -419,7 +421,7 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
               {SIZES[sizeIdx] !== 1 ? ` ×${SIZES[sizeIdx]}` : ""}
             </button>
           </div>
-          <p className="mt-4 text-center text-micro italic text-[#787369]">
+          <p className="mt-4 text-center text-micro italic text-muted-warm">
             {tr(reviewing ? "hintReview" : "hint")}
           </p>
         </>
