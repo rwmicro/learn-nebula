@@ -7,6 +7,13 @@ import { resolveVaultAssetByName, listVaultAssets } from "./vault-assets";
 import { joinNotePath } from "./vault-health";
 import { getAnkiManifest } from "./anki";
 import { tagSlug } from "./slug";
+import {
+  buildPrereqComponents,
+  parsePrereqField,
+  prereqCycles,
+  MIN_PATH_NOTES,
+  type PrereqEdge,
+} from "./prereq-graph";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const POSTS_DIR = path.join(CONTENT_DIR, "posts");
@@ -60,6 +67,11 @@ export interface Frontmatter {
    *  ("Antiquité tardive" rather than "476") — cosmetic only, sorting always
    *  goes by `year`. */
   period?: string;
+  /** Notes to read first, raw from the frontmatter (`prerequis`, or its
+   *  English spelling `prerequisites`): wikilinks or plain titles/paths, one
+   *  or a list. Parsed by parsePrereqField and resolved like a [[wikilink]];
+   *  see getPrerequisites(). */
+  prerequis?: unknown;
 }
 
 export interface Doc {
@@ -835,6 +847,12 @@ function homeDisplayName(folder: string): string {
   return HOME_DISPLAY_NAME[folder] ?? folder;
 }
 
+/** A note's folder breadcrumb without its top group, display names:
+ *  "Applied Sciences/Mathematics/Lycée/Note" → "Mathematics › Lycée". */
+export function homeFolderLabel(rawPath: string): string {
+  return rawPath.split("/").slice(1, -1).map(homeDisplayName).join(" › ");
+}
+
 // Keep notes, decks AND standalone assets (images/PDFs) as leaves, tagging each
 // folder with how many items it transitively contains.
 function pruneToNotes(node: TreeNode, parentPath: string): HomeTreeNode | null {
@@ -1040,6 +1058,212 @@ export function getBacklinks(slug: string): SiblingRef[] {
     }
   }
   return out.sort((a, b) => a.title.localeCompare(b.title));
+}
+
+// --- Prerequisites (frontmatter `prerequis:`) and reading paths --------------
+// A note lists the notes to read before it; the reverse ("pour aller plus
+// loin") and the /parcours/ reading paths are derived from those lists. The
+// graph logic is pure and lives in lib/prereq-graph.ts.
+
+let prereqCache: {
+  /** slug → prerequisite slugs, in the order the frontmatter lists them. */
+  prereqs: Map<string, string[]>;
+  /** slug → slugs of the notes that list it as a prerequisite. */
+  dependents: Map<string, string[]>;
+  /** slug → targets that resolve to no published note. */
+  unresolved: Map<string, string[]>;
+} | null = null;
+
+function prereqIndex() {
+  if (prereqCache) return prereqCache;
+  const published = new Set(getAllPosts().map((p) => p.slug));
+  const prereqs = new Map<string, string[]>();
+  const dependents = new Map<string, string[]>();
+  const unresolved = new Map<string, string[]>();
+  for (const post of getAllPosts()) {
+    const fm = post.frontmatter as Frontmatter & { prerequisites?: unknown };
+    const targets = parsePrereqField(fm.prerequis ?? fm.prerequisites);
+    if (!targets.length) continue;
+    const list: string[] = [];
+    const missing: string[] = [];
+    for (const target of targets) {
+      const url = resolveWikiLink(target);
+      const slug =
+        url && url.startsWith("/posts/")
+          ? url.slice("/posts/".length).replace(/\/$/, "")
+          : null;
+      // A draft (unpublished) note or a vault asset is as good as missing:
+      // the page could not link to it.
+      if (!slug || !published.has(slug)) missing.push(target);
+      // A note listing itself is a cycle of one: kept as an edge so
+      // vault-health reports it, never shown on the page.
+      else if (!list.includes(slug)) list.push(slug);
+    }
+    if (list.length) prereqs.set(post.slug, list);
+    if (missing.length) unresolved.set(post.slug, missing);
+    for (const p of list) {
+      if (p === post.slug) continue;
+      const d = dependents.get(p) ?? [];
+      d.push(post.slug);
+      dependents.set(p, d);
+    }
+  }
+  prereqCache = { prereqs, dependents, unresolved };
+  return prereqCache;
+}
+
+function refsOf(slugs: string[] | undefined): SiblingRef[] {
+  const out: SiblingRef[] = [];
+  for (const s of slugs ?? []) {
+    try {
+      out.push({ title: getPost(s).frontmatter.title, slug: s });
+    } catch {
+      /* slug no longer resolvable */
+    }
+  }
+  return out;
+}
+
+/** The notes `slug` asks to read first ("À lire avant"), in frontmatter order. */
+export function getPrerequisites(slug: string): SiblingRef[] {
+  return refsOf(prereqIndex().prereqs.get(slug)?.filter((s) => s !== slug));
+}
+
+/** The notes that list `slug` as a prerequisite ("Pour aller plus loin"), A→Z. */
+export function getDependents(slug: string): SiblingRef[] {
+  return refsOf(prereqIndex().dependents.get(slug)).sort((a, b) =>
+    a.title.localeCompare(b.title, "fr", { numeric: true }),
+  );
+}
+
+/** `prerequis` entries naming no published note, per note slug (vault-health). */
+export function getUnresolvedPrereqs(): Map<string, string[]> {
+  return prereqIndex().unresolved;
+}
+
+/** Every prerequisite relation, [prerequisite, dependent]. */
+export function getPrereqEdges(): PrereqEdge[] {
+  const edges: PrereqEdge[] = [];
+  for (const [slug, list] of prereqIndex().prereqs) {
+    for (const p of list) edges.push([p, slug]);
+  }
+  return edges;
+}
+
+export interface ReadingPathNote {
+  slug: string;
+  title: string;
+  href: string;
+  /** Slugs of this note's direct prerequisites within the path. */
+  prereqs: string[];
+}
+
+export interface ReadingPathView {
+  /** URL slug: the page is /parcours/<slug>/. */
+  slug: string;
+  /** From frontmatter `parcours:` on one of its notes, else its common folder. */
+  name: string;
+  description?: string;
+  /** Majority discipline of the path's notes, "" when none. */
+  discipline: string;
+  /** In reading (topological) order. */
+  notes: ReadingPathNote[];
+  /** [prerequisite, dependent] slugs, cycle breaks removed. */
+  edges: PrereqEdge[];
+}
+
+/** `parcours: "Nom"`, or `parcours: { titre|title: "Nom", description: "…" }`
+ *  (plus `parcours-description:` next to the string form). */
+function pathMeta(fm: Frontmatter): { name: string; description?: string } | null {
+  const raw = (fm as unknown as Record<string, unknown>).parcours;
+  const extra = (fm as unknown as Record<string, unknown>)["parcours-description"];
+  const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
+  if (str(raw)) return { name: str(raw)!, description: str(extra) };
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    const o = raw as Record<string, unknown>;
+    const name = str(o.titre) ?? str(o.title) ?? str(o.nom) ?? str(o.name);
+    if (name) return { name, description: str(o.description) ?? str(extra) };
+  }
+  return null;
+}
+
+/** Display name of the deepest folder all `rawPaths` share, top group
+ *  dropped: "Mathematics › Lycée", "Languages & Dialects › Espagnol". */
+function commonFolderName(rawPaths: string[]): string {
+  const dirs = rawPaths.map((p) => p.split("/").slice(0, -1));
+  const common: string[] = [];
+  for (let i = 0; dirs.every((d) => i < d.length && d[i] === dirs[0][i]); i++) {
+    common.push(dirs[0][i]);
+  }
+  return common.slice(1).map(homeDisplayName).join(" › ");
+}
+
+let prereqComponentsCache: ReturnType<typeof buildPrereqComponents> | null = null;
+function prereqComponents() {
+  if (prereqComponentsCache) return prereqComponentsCache;
+  const nodes = getAllPosts().map((d) => {
+    const disc = disciplineOf(d.rawPath);
+    return {
+      slug: d.slug,
+      title: d.frontmatter.title,
+      discipline: disc ? homeDisplayName(disc.name) : "",
+    };
+  });
+  prereqComponentsCache = buildPrereqComponents(nodes, getPrereqEdges());
+  return prereqComponentsCache;
+}
+
+let readingPathsCache: ReadingPathView[] | null = null;
+/** The /parcours/ reading paths: connected groups of 3+ notes linked by
+ *  `prerequis`, each in reading order (see lib/prereq-graph.ts). */
+export function getReadingPaths(): ReadingPathView[] {
+  if (readingPathsCache) return readingPathsCache;
+  const used = new Set<string>();
+  readingPathsCache = prereqComponents()
+    .filter((c) => c.notes.length >= MIN_PATH_NOTES)
+    .map((c) => {
+      const docs = c.notes.map((s) => getPost(s));
+      // The first note in reading order that names the path wins.
+      const meta = docs.map((d) => pathMeta(d.frontmatter)).find(Boolean) ?? null;
+      const name =
+        meta?.name || commonFolderName(docs.map((d) => d.rawPath)) || c.discipline || docs[0].frontmatter.title;
+      const base = tagSlug(name) || "parcours";
+      let slug = base;
+      for (let i = 2; used.has(slug); i++) slug = `${base}-${i}`;
+      used.add(slug);
+      return {
+        slug,
+        name,
+        ...(meta?.description ? { description: meta.description } : {}),
+        discipline: c.discipline,
+        notes: docs.map((d) => ({
+          slug: d.slug,
+          title: d.frontmatter.title,
+          href: `/posts/${d.slug}/`,
+          prereqs: c.edges.filter(([, b]) => b === d.slug).map(([a]) => a),
+        })),
+        edges: c.edges,
+      };
+    });
+  return readingPathsCache;
+}
+
+/** The reading path a note belongs to, if any (for its "À lire avant" block). */
+export function getReadingPathOf(slug: string): ReadingPathView | null {
+  return getReadingPaths().find((p) => p.notes.some((n) => n.slug === slug)) ?? null;
+}
+
+/** Prerequisite cycles (vault-health): each cycle's notes and the `prerequis`
+ *  relations the reading order had to ignore to break it. */
+export function getPrereqCycles(): {
+  members: SiblingRef[];
+  broken: [SiblingRef, SiblingRef][];
+}[] {
+  const ref = (s: string): SiblingRef => ({ slug: s, title: getPost(s).frontmatter.title });
+  return prereqCycles(prereqComponents()).map((c) => ({
+    members: c.members.map(ref),
+    broken: c.broken.map(([a, b]) => [ref(a), ref(b)] as [SiblingRef, SiblingRef]),
+  }));
 }
 
 /** Top-level single page such as `404`. */

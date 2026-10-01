@@ -1,0 +1,435 @@
+// Command palette — ⌘K / Ctrl+K, "/" (outside text fields), or any
+// [data-palette-open] button (masthead, note header). Site-wide, loaded from
+// app/layout.tsx as its own small bundle (scripts/bundle-js.mjs); the dialog is
+// only built on first open, and /notes-index.json (?v=<content hash>, from
+// <meta name="gk-notes-index">) is only fetched then too.
+//
+// Lists: notes (title + folder, fuzzy and accent-insensitive via
+// lib/palette-match.ts), the current note's sections (h2/h3), actions (theme,
+// random note, assistant) and the site's index pages. ARIA combobox +
+// listbox inside a modal dialog: arrows move, Enter opens (Ctrl/⌘+Enter in a
+// new tab for links), Esc closes, Tab stays inside, focus returns to where it
+// was.
+import { fold, rankItems } from "../../lib/palette-match";
+
+(function () {
+  if (window.__palette) return;
+  const doc = document;
+  const root = doc.documentElement;
+  const isMac = /Mac|iPhone|iPad|iPod/i.test(
+    (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent,
+  );
+
+  function tt(k, vars) {
+    const i18n = window.__i18n;
+    let s;
+    if (i18n && i18n.t) s = i18n.t(k, vars);
+    else {
+      const v = i18n && k.split(".").reduce((o, p) => (o ? o[p] : undefined), i18n.bundles[i18n.defaultLocale]);
+      s = typeof v === "string" ? v : k;
+      if (vars) s = s.replace(/\{(\w+)\}/g, (_, n) => (vars[n] != null ? String(vars[n]) : ""));
+    }
+    return s;
+  }
+  const esc = (s) =>
+    String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+  // Shortcut hint on the trigger buttons: ⌘K on Apple platforms.
+  function syncKbd() {
+    doc.querySelectorAll(".palette-kbd").forEach((k) => (k.textContent = isMac ? "⌘K" : "Ctrl K"));
+  }
+
+  // --- state ----------------------------------------------------------------
+  let el = null;
+  let input = null;
+  let list = null;
+  let statusEl = null;
+  let lastFocus = null;
+  let notes = null; // [{kind, title, hint, href}]
+  let notesState = "idle"; // idle | loading | ready | error
+  let shown = []; // flat list of rendered items
+  let active = 0;
+
+  const ICON = {
+    note: '<path d="M7 3.5h7l4 4V20.5H7z M14 3.5v4h4" />',
+    section: '<path d="M5 7h14M5 12h10M5 17h12" />',
+    action: '<path d="M13 3L5 13h6l-1 8 8-10h-6z" />',
+    nav: '<path d="M5 12h13M13 6l6 6-6 6" />',
+  };
+  const icon = (k) =>
+    `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>`;
+
+  // --- data -----------------------------------------------------------------
+  function loadNotes() {
+    if (notesState === "loading" || notesState === "ready") return;
+    notesState = "loading";
+    const v = doc.querySelector('meta[name="gk-notes-index"]');
+    const url = "/notes-index.json" + (v && v.content ? "?v=" + encodeURIComponent(v.content) : "");
+    fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json();
+      })
+      .then((data) => {
+        notes = (Array.isArray(data) ? data : []).map((n) => ({
+          kind: "note",
+          title: String(n.title),
+          hint: n.folder ? String(n.folder) : "",
+          href: String(n.href),
+        }));
+        notesState = "ready";
+        if (isOpen()) render();
+      })
+      .catch(() => {
+        notesState = "error";
+        if (isOpen()) render();
+      });
+  }
+
+  function sections() {
+    const body = doc.querySelector(".article-body");
+    if (!body) return [];
+    return [...body.querySelectorAll("h2[id], h3[id]")]
+      .map((h) => {
+        const clone = h.cloneNode(true);
+        clone.querySelectorAll(".anchor, .heading-anchor, a[aria-hidden='true']").forEach((a) => a.remove());
+        const text = (clone.textContent || "").replace(/\s+/g, " ").trim();
+        return text && { kind: "section", title: text, hint: h.tagName === "H3" ? "·" : "", href: "#" + h.id, level: h.tagName };
+      })
+      .filter(Boolean);
+  }
+
+  function themePref() {
+    const v = root.getAttribute("data-theme");
+    return v === "light" || v === "dark" ? v : "auto";
+  }
+  function setTheme(p) {
+    // /js/theme.js owns the logic (storage, labels, theme:change); fall back
+    // to the same steps if it hasn't loaded.
+    if (window.__theme && window.__theme.set) return window.__theme.set(p);
+    if (p === "auto") root.removeAttribute("data-theme");
+    else root.setAttribute("data-theme", p);
+    try {
+      if (p === "auto") localStorage.removeItem("theme");
+      else localStorage.setItem("theme", p);
+    } catch {
+      /* storage blocked */
+    }
+    doc.dispatchEvent(new CustomEvent("theme:change", { detail: { theme: p } }));
+  }
+
+  function randomNote() {
+    const pick = () => {
+      const pool = (notes || []).filter((n) => n.href !== location.pathname);
+      if (!pool.length) return (location.href = "/hasard/");
+      location.href = pool[Math.floor(Math.random() * pool.length)].href;
+    };
+    if (notesState === "ready") pick();
+    else location.href = "/hasard/";
+  }
+
+  function openAssistant() {
+    try {
+      localStorage.setItem("gkChatPinned", "1");
+    } catch {
+      /* ignore */
+    }
+    window.dispatchEvent(new Event("gk:pin-chat"));
+    // Hand focus to its input once React has shown it.
+    setTimeout(() => {
+      const field = doc.querySelector(".gk-pinned-form input");
+      if (field) field.focus();
+    }, 80);
+  }
+
+  function actions() {
+    const cur = themePref();
+    const mark = (p) => (cur === p ? tt("palette.current") : "");
+    return [
+      { kind: "action", title: tt("palette.themeLight"), hint: mark("light"), keywords: "theme light clair jour", run: () => setTheme("light") },
+      { kind: "action", title: tt("palette.themeDark"), hint: mark("dark"), keywords: "theme dark sombre nuit", run: () => setTheme("dark") },
+      { kind: "action", title: tt("palette.themeAuto"), hint: mark("auto"), keywords: "theme auto systeme system", run: () => setTheme("auto") },
+      { kind: "action", title: tt("palette.random"), hint: "", keywords: "hasard random aleatoire", run: randomNote },
+      { kind: "action", title: tt("palette.assistant"), hint: "", keywords: "assistant ia ai question chat demander", run: openAssistant },
+    ];
+  }
+
+  function navItems() {
+    return [
+      ["nav.home", "/", "accueil home"],
+      ["nav.graph", "/graph/", "graphe graph carte"],
+      ["nav.frise", "/frise/", "frise chronologie timeline"],
+      ["nav.themes", "/themes/", "themes tags disciplines"],
+      ["nav.cartes", "/cartes/", "cartes anki flashcards"],
+      ["nav.parcours", "/parcours/", "parcours chemins prerequis paths"],
+    ]
+      .filter(([, href]) => href !== location.pathname)
+      .map(([k, href, kw]) => ({ kind: "nav", title: tt(k), hint: "", href, keywords: kw }));
+  }
+
+  function groups(q) {
+    const out = [];
+    const secs = sections();
+    if (!q) {
+      if (secs.length) out.push({ label: tt("palette.sections"), items: secs.slice(0, 12) });
+      out.push({ label: tt("palette.actions"), items: actions() });
+      out.push({ label: tt("palette.goTo"), items: navItems() });
+      return out;
+    }
+    if (notes) {
+      const found = rankItems(q, notes, 30);
+      if (found.length) out.push({ label: tt("palette.notes"), items: found });
+    }
+    const s = rankItems(q, secs, 8);
+    if (s.length) out.push({ label: tt("palette.sections"), items: s });
+    const a = rankItems(q, actions(), 5);
+    if (a.length) out.push({ label: tt("palette.actions"), items: a });
+    const n = rankItems(q, navItems(), 6);
+    if (n.length) out.push({ label: tt("palette.goTo"), items: n });
+    return out;
+  }
+
+  // <mark> the query's tokens in a title, when folding kept the length (it
+  // does for accents; ligatures like "œ" would shift the offsets).
+  function highlight(text, q) {
+    const f = fold(text);
+    if (!q || f.length !== text.length) return esc(text);
+    const marks = new Array(text.length).fill(false);
+    for (const tok of fold(q).split(/\s+/).filter(Boolean)) {
+      const at = f.indexOf(tok);
+      if (at >= 0) for (let i = at; i < at + tok.length; i++) marks[i] = true;
+    }
+    let html = "";
+    let open = false;
+    for (let i = 0; i < text.length; i++) {
+      if (marks[i] && !open) (html += "<mark>"), (open = true);
+      if (!marks[i] && open) (html += "</mark>"), (open = false);
+      html += esc(text[i]);
+    }
+    return html + (open ? "</mark>" : "");
+  }
+
+  // --- rendering ------------------------------------------------------------
+  function render() {
+    const q = input.value.trim();
+    const gs = groups(q);
+    shown = [];
+    let html = "";
+    gs.forEach((g, gi) => {
+      html += `<div role="group" aria-labelledby="palette-g${gi}" class="palette-group">`;
+      html += `<div class="palette-group-label" id="palette-g${gi}">${esc(g.label)}</div>`;
+      for (const it of g.items) {
+        const i = shown.length;
+        shown.push(it);
+        html +=
+          `<div role="option" id="palette-o${i}" class="palette-opt palette-opt--${it.kind}" data-i="${i}" aria-selected="false">` +
+          `<span class="palette-opt-icon">${icon(it.kind)}</span>` +
+          `<span class="palette-opt-text"><span class="palette-opt-title">${highlight(it.title, q)}</span>` +
+          (it.hint && it.hint !== "·" ? `<span class="palette-opt-hint">${esc(it.hint)}</span>` : "") +
+          `</span></div>`;
+      }
+      html += `</div>`;
+    });
+    let status = "";
+    if (q && notesState === "loading") status = tt("palette.loading");
+    else if (q && notesState === "error") status = tt("palette.loadError");
+    if (!shown.length) {
+      html += `<p class="palette-empty">${esc(status || tt("palette.empty"))}</p>`;
+    }
+    list.innerHTML = html;
+    statusEl.textContent = q ? status || tt("palette.results", { n: shown.length }) : "";
+    setActive(Math.min(active, Math.max(0, shown.length - 1)), false);
+  }
+
+  function setActive(i, scroll = true) {
+    active = i;
+    let cur = null;
+    list.querySelectorAll(".palette-opt").forEach((o) => {
+      const on = Number(o.getAttribute("data-i")) === i;
+      o.setAttribute("aria-selected", on ? "true" : "false");
+      if (on) cur = o;
+    });
+    if (cur) {
+      input.setAttribute("aria-activedescendant", cur.id);
+      if (scroll) cur.scrollIntoView({ block: "nearest" });
+    } else input.removeAttribute("aria-activedescendant");
+  }
+
+  function run(item, newTab) {
+    if (!item) return;
+    if (item.run) {
+      close(false);
+      item.run();
+      return;
+    }
+    if (item.href.startsWith("#")) {
+      close(false);
+      const target = doc.getElementById(decodeURIComponent(item.href.slice(1)));
+      if (target) {
+        history.pushState(null, "", item.href);
+        target.scrollIntoView({ block: "start" });
+        if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+        target.focus({ preventScroll: true });
+      }
+      return;
+    }
+    if (newTab) {
+      window.open(item.href, "_blank", "noopener");
+      return;
+    }
+    close(false);
+    location.href = item.href;
+  }
+
+  // --- dialog ---------------------------------------------------------------
+  function build() {
+    if (el) return;
+    el = doc.createElement("div");
+    el.className = "palette";
+    el.hidden = true;
+    el.setAttribute("data-pagefind-ignore", "all");
+    el.innerHTML =
+      `<div class="palette-backdrop" data-palette-close></div>` +
+      `<div class="palette-panel" role="dialog" aria-modal="true" aria-labelledby="palette-title">` +
+      `<h2 id="palette-title" class="sr-only"></h2>` +
+      `<div class="palette-field">` +
+      `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>` +
+      `<input class="palette-input" type="text" role="combobox" aria-expanded="true" aria-controls="palette-list" aria-autocomplete="list" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go">` +
+      `<button type="button" class="palette-close" data-palette-close><kbd>Esc</kbd></button>` +
+      `</div>` +
+      `<div id="palette-list" class="palette-list" role="listbox"></div>` +
+      `<div class="palette-foot"><span class="palette-status" role="status"></span><span class="palette-hint" aria-hidden="true"></span></div>` +
+      `</div>`;
+    doc.body.appendChild(el);
+    input = el.querySelector(".palette-input");
+    list = el.querySelector(".palette-list");
+    statusEl = el.querySelector(".palette-status");
+    label();
+
+    input.addEventListener("input", () => {
+      active = 0;
+      render();
+      list.scrollTop = 0;
+    });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        if (!shown.length) return;
+        const d = e.key === "ArrowDown" ? 1 : -1;
+        setActive((active + d + shown.length) % shown.length);
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        run(shown[active], e.metaKey || e.ctrlKey);
+      } else if (e.key === "PageDown" || e.key === "PageUp") {
+        e.preventDefault();
+        if (!shown.length) return;
+        const d = e.key === "PageDown" ? 8 : -8;
+        setActive(Math.min(shown.length - 1, Math.max(0, active + d)));
+      }
+    });
+    el.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        close(true);
+      } else if (e.key === "Tab") {
+        // Focus trap: the field and the close button are the only stops.
+        const stops = [input, el.querySelector(".palette-close")];
+        const i = stops.indexOf(doc.activeElement);
+        e.preventDefault();
+        stops[(i + (e.shiftKey ? -1 : 1) + stops.length) % stops.length].focus();
+      }
+    });
+    list.addEventListener("mousemove", (e) => {
+      const o = e.target instanceof Element && e.target.closest(".palette-opt");
+      if (o && Number(o.getAttribute("data-i")) !== active) setActive(Number(o.getAttribute("data-i")), false);
+    });
+    list.addEventListener("click", (e) => {
+      const o = e.target instanceof Element && e.target.closest(".palette-opt");
+      if (o) run(shown[Number(o.getAttribute("data-i"))], e.metaKey || e.ctrlKey);
+    });
+    el.addEventListener("click", (e) => {
+      if (e.target instanceof Element && e.target.closest("[data-palette-close]")) close(true);
+    });
+    // Keep focus inside if something steals it (e.g. a click on padding).
+    el.addEventListener("mousedown", (e) => {
+      if (e.target instanceof Element && !e.target.closest("input, button, .palette-opt")) e.preventDefault();
+    });
+  }
+
+  function label() {
+    if (!el) return;
+    el.querySelector("#palette-title").textContent = tt("palette.title");
+    input.setAttribute("placeholder", tt("palette.placeholder"));
+    input.setAttribute("aria-label", tt("palette.title"));
+    list.setAttribute("aria-label", tt("palette.notes"));
+    el.querySelector(".palette-close").setAttribute("aria-label", tt("palette.close"));
+    el.querySelector(".palette-hint").textContent = tt("palette.hint");
+  }
+
+  const isOpen = () => !!el && !el.hidden;
+
+  function open(initial) {
+    build();
+    if (isOpen()) return input.focus();
+    lastFocus = doc.activeElement;
+    el.hidden = false;
+    root.classList.add("palette-open");
+    input.value = initial || "";
+    active = 0;
+    loadNotes();
+    render();
+    input.focus();
+    doc.querySelectorAll("[data-palette-open]").forEach((b) => b.setAttribute("aria-expanded", "true"));
+  }
+
+  function close(restoreFocus) {
+    if (!isOpen()) return;
+    el.hidden = true;
+    root.classList.remove("palette-open");
+    doc.querySelectorAll("[data-palette-open]").forEach((b) => b.setAttribute("aria-expanded", "false"));
+    if (restoreFocus && lastFocus && lastFocus.focus) lastFocus.focus();
+  }
+
+  function editable(t) {
+    return (
+      t instanceof Element &&
+      (t.closest("input, textarea, select, [contenteditable=''], [contenteditable='true']") !== null)
+    );
+  }
+
+  doc.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      if (isOpen()) close(true);
+      else open("");
+      return;
+    }
+    // "/" opens it too, as on most sites with a search box — unless typing.
+    if (e.key === "/" && !e.metaKey && !e.ctrlKey && !e.altKey && !isOpen() && !editable(e.target)) {
+      e.preventDefault();
+      open("");
+    }
+  });
+  doc.addEventListener("click", (e) => {
+    const btn = e.target instanceof Element && e.target.closest("[data-palette-open]");
+    if (btn) {
+      e.preventDefault();
+      open("");
+    }
+  });
+  doc.addEventListener("i18n:change", () => {
+    label();
+    if (isOpen()) render();
+  });
+  doc.addEventListener("theme:change", () => {
+    if (isOpen()) render();
+  });
+  // bfcache restore: never come back to a page with the palette still open.
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted) close(false);
+  });
+
+  syncKbd();
+  window.__palette = { open, close };
+})();

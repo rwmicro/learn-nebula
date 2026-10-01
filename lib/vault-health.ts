@@ -11,6 +11,10 @@ import { isAudioSrc } from "./vault-assets";
  *  the feed and "latest growth"). */
 export const REQUIRED_FIELDS = ["title", "domain", "subdomain", "tags", "date"] as const;
 
+/** Reason given for a `prerequis:` entry that names no published note (the
+ *  "À lire avant" block drops it; vault-health lists it under broken links). */
+export const PREREQ_MISSING = "prérequis introuvable";
+
 /** Below this many characters of body text a note is a stub. */
 export const NEAR_EMPTY_CHARS = 200;
 

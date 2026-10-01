@@ -1,11 +1,14 @@
 import crypto from "node:crypto";
 import {
+  getAllPosts,
   getDomains,
   getHomeTree,
+  homeFolderLabel,
   type DomainGroup,
   type HomeTreeNode,
 } from "./content";
 import { buildGraph, type GraphData } from "./graph-data";
+import type { NoteIndexEntry } from "./note-suggest";
 
 /**
  * What the home page needs beyond its first paint: the full browse tree (every
@@ -69,3 +72,24 @@ export function graphDataJson(): string {
 }
 export const graphDataVersion = () =>
   crypto.createHash("sha1").update(graphDataJson()).digest("hex").slice(0, 12);
+
+let notesIndex: { json: string; version: string } | null = null;
+function loadNotesIndex() {
+  if (notesIndex) return notesIndex;
+  const notes: NoteIndexEntry[] = getAllPosts().map((p) => {
+    const folder = homeFolderLabel(p.rawPath);
+    return { title: p.frontmatter.title, href: `/posts/${p.slug}/`, ...(folder ? { folder } : {}) };
+  });
+  const json = JSON.stringify(notes);
+  notesIndex = {
+    json,
+    version: crypto.createHash("sha1").update(json).digest("hex").slice(0, 12),
+  };
+  return notesIndex;
+}
+/** /notes-index.json — {title, href, folder} for every published note. */
+export const notesIndexJson = () => loadNotesIndex().json;
+/** Its content hash: the command palette fetches /notes-index.json?v=<hash>
+ *  (exposed on <meta name="gk-notes-index"> by app/layout.tsx), so a new
+ *  build never reads last build's list from the cache. */
+export const notesIndexVersion = () => loadNotesIndex().version;
