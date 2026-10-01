@@ -22,7 +22,7 @@ const isWordChar = (c: string | undefined) => !!c && /[\p{L}\p{N}]/u.test(c);
  * substring, then a subsequence ("drvt" in "derivation") whose letters may not
  * be spread too thin. Earlier positions score higher.
  */
-export function tokenScore(token: string, text: string): number | null {
+export function tokenScore(token: string, text: string, fuzzy = true): number | null {
   if (!token) return 0;
   const at = text.indexOf(token);
   if (at === 0) return 100;
@@ -35,7 +35,7 @@ export function tokenScore(token: string, text: string): number | null {
     }
     return 55 - Math.min(at, 40) * 0.25;
   }
-  if (token.length < 2) return null;
+  if (!fuzzy || token.length < 2) return null;
   // Subsequence, greedy from the first occurrence of the first letter that
   // leads to a full match — good enough at palette sizes.
   let best: number | null = null;
@@ -76,7 +76,7 @@ export interface Matchable {
  * the hint at half, keywords at 0.8. Bonuses for the title being exactly the
  * query or starting with it, and a small one for shorter titles.
  */
-export function scoreItem(query: string, item: Matchable): number | null {
+export function scoreItem(query: string, item: Matchable, fuzzy = true): number | null {
   const q = fold(query).trim();
   if (!q) return 0;
   const title = fold(item.title);
@@ -85,9 +85,9 @@ export function scoreItem(query: string, item: Matchable): number | null {
   let total = 0;
   for (const tok of q.split(/\s+/)) {
     const candidates = [
-      tokenScore(tok, title),
-      hint ? scale(tokenScore(tok, hint), 0.5) : null,
-      kw ? scale(tokenScore(tok, kw), 0.8) : null,
+      tokenScore(tok, title, fuzzy),
+      hint ? scale(tokenScore(tok, hint, fuzzy), 0.5) : null,
+      kw ? scale(tokenScore(tok, kw, fuzzy), 0.8) : null,
     ].filter((x): x is number => x !== null);
     if (!candidates.length) return null;
     total += Math.max(...candidates);
@@ -103,13 +103,15 @@ function scale(x: number | null, k: number): number | null {
 
 const collator = new Intl.Collator("fr", { numeric: true, sensitivity: "base" });
 
-/** Items matching `query`, best first (ties: shorter title, then A→Z), at most `limit`. */
+/**
+ * Items matching `query`, best first (ties: shorter title, then A→Z), at most
+ * `limit`. Subsequence matches are only a fallback: as soon as one item
+ * contains every token as a substring, scattered-letter matches ("kant" in
+ * "Kata Ganti") are noise and are left out.
+ */
 export function rankItems<T extends Matchable>(query: string, items: T[], limit = Infinity): T[] {
-  const scored: { item: T; score: number }[] = [];
-  for (const item of items) {
-    const score = scoreItem(query, item);
-    if (score !== null) scored.push({ item, score });
-  }
+  let scored = collect(query, items, false);
+  if (!scored.length) scored = collect(query, items, true);
   scored.sort(
     (a, b) =>
       b.score - a.score ||
@@ -117,4 +119,13 @@ export function rankItems<T extends Matchable>(query: string, items: T[], limit 
       collator.compare(a.item.title, b.item.title),
   );
   return scored.slice(0, limit).map((s) => s.item);
+}
+
+function collect<T extends Matchable>(query: string, items: T[], fuzzy: boolean) {
+  const scored: { item: T; score: number }[] = [];
+  for (const item of items) {
+    const score = scoreItem(query, item, fuzzy);
+    if (score !== null) scored.push({ item, score });
+  }
+  return scored;
 }

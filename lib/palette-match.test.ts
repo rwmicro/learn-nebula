@@ -84,3 +84,19 @@ describe("rankItems", () => {
     expect(rankItems("", [{ title: "b" }, { title: "a" }]).map((i) => i.title)).toEqual(["a", "b"]);
   });
 });
+
+describe("rankItems substring-first", () => {
+  it("drops scattered-letter matches when a real substring match exists", () => {
+    const items = [
+      { title: "Emmanuel Kant (1724-1804)" },
+      { title: "Pronoms (Kata Ganti)" },
+      { title: "Work and Study" },
+    ];
+    expect(rankItems("kant", items).map((i) => i.title)).toEqual(["Emmanuel Kant (1724-1804)"]);
+  });
+  it("still falls back to subsequences when nothing contains the query", () => {
+    expect(rankItems("drvt", [{ title: "Dérivation" }, { title: "Suites" }]).map((i) => i.title)).toEqual([
+      "Dérivation",
+    ]);
+  });
+});
