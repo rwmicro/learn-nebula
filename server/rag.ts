@@ -217,6 +217,9 @@ export interface RagHit {
   url: string;
   text: string;
   score: number;
+  /** Cosine to the query, whatever ordered the hit (the reranker's score is on
+   *  a different scale) — what the questions log records as coverage. */
+  cosine: number;
 }
 
 // A scope slug is a slugified folder path (lib/content.ts slugifyPath), so it is
@@ -326,7 +329,7 @@ export async function search(
     const c = perNote.get(m.url) ?? 0;
     if (c >= MAX_PER_NOTE) continue;
     perNote.set(m.url, c + 1);
-    out.push({ title: m.title, url: m.url, text: m.text, score: s });
+    out.push({ title: m.title, url: m.url, text: m.text, score: s, cosine: cos[i] });
     if (out.length >= topK) break;
   }
   return out;

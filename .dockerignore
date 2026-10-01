@@ -1,5 +1,5 @@
 # Keep the build context small. The image only needs: out/, server/, lib/,
-# schema/, data/rag-chunks.json, package.json, pnpm-lock.yaml.
+# schema/, data/{rag-chunks,build-info,vault-health}.json, package.json, pnpm-lock.yaml.
 node_modules
 .next
 .git
@@ -26,3 +26,5 @@ obsidian-manim-plugin
 # Runtime state (baked chunks are kept; DB + vector cache are not)
 data/*
 !data/rag-chunks.json
+!data/build-info.json
+!data/vault-health.json
