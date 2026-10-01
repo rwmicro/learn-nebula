@@ -83,5 +83,9 @@
     announce();
   });
 
+  // The command palette (/js/palette.js) sets a theme directly ("thème :
+  // sombre") rather than cycling; same storage and events as a click.
+  window.__theme = { set: set, pref: pref };
+
   sync();
 })();

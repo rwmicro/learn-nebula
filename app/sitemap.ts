@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts, getDisciplines } from "@/lib/content";
+import { getAllPosts, getDisciplines, getReadingPaths } from "@/lib/content";
 import { absoluteURL } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -19,9 +19,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteURL("/themes/") },
     ...getDisciplines().map((d) => ({ url: absoluteURL(`/disciplines/${d.slug}/`) })),
   ];
+  const paths = getReadingPaths();
+  const parcours = paths.length
+    ? [
+        { url: absoluteURL("/parcours/") },
+        ...paths.map((p) => ({ url: absoluteURL(`/parcours/${p.slug}/`) })),
+      ]
+    : [];
   return [
     { url: absoluteURL("/"), lastModified: homeLastModified },
     ...themes,
+    ...parcours,
     ...posts,
   ];
 }

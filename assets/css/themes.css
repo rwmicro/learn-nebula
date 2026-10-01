@@ -115,3 +115,37 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Read checkmark after a note link (components/ReadMarks.tsx, from the
+   reader's localStorage). Also used by /parcours/, which loads this file. */
+.read-check {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.4em;
+  color: var(--garden);
+  vertical-align: 0.05em;
+}
+.themes-notes li.is-read > a {
+  color: var(--ink-2);
+}
+
+/* Link to /parcours/ from the themes index. */
+.themes-paths {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: -1rem 0 2rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.themes-page a.themes-paths {
+  color: var(--garden);
+}
+
+@media print {
+  .read-check {
+    display: none;
+  }
+}

@@ -1,0 +1,336 @@
+/* /parcours/ (index of reading paths) and /parcours/<slug>/ (one path as a
+   prerequisite graph). Loaded after themes.css, whose page frame, titles and
+   lists it reuses. Every colour is a palette token (global.css), so the
+   inline SVG follows light/dark like the rest of the page. */
+
+.parcours-page--path {
+  max-width: 60rem;
+}
+
+/* --- index cards ---------------------------------------------------------- */
+.parcours-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.8rem;
+}
+.parcours-card-link {
+  display: flex;
+  gap: 1.1rem;
+  align-items: center;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--paper);
+}
+.themes-page a.parcours-card-link:hover {
+  text-decoration: none;
+  border-color: var(--rule-strong);
+  background: var(--wash);
+}
+.parcours-card-link:hover .parcours-card-title {
+  text-decoration: underline;
+}
+.parcours-card-link:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.parcours-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+.parcours-card-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.25rem;
+  line-height: 1.2;
+}
+.parcours-card-desc {
+  color: var(--ink-2);
+}
+.parcours-card-meta {
+  color: var(--muted-warm);
+  font-size: 0.95rem;
+}
+
+/* Thumbnail graph: dots for notes, filled once read. */
+.pm {
+  flex: none;
+  max-width: 5.5rem;
+  height: auto;
+}
+.pm-edge {
+  fill: none;
+  stroke: var(--rule-strong);
+  stroke-width: 1.4;
+}
+.pm-dot {
+  fill: var(--paper);
+  stroke: var(--muted-warm);
+  stroke-width: 1.4;
+}
+.pm-dot.is-read {
+  fill: var(--garden);
+  stroke: var(--garden);
+}
+
+/* --- read progress ("2/6 lues" + bar) -------------------------------------- */
+.parcours-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--muted-warm);
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+}
+.parcours-bar {
+  display: inline-block;
+  width: 6rem;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--rule);
+  overflow: hidden;
+}
+.parcours-bar > span {
+  display: block;
+  height: 100%;
+  width: calc(var(--read, 0) * 100%);
+  background: var(--garden);
+}
+.parcours-progress.is-done {
+  color: var(--garden);
+}
+
+.parcours-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 1.2rem;
+  color: var(--muted-warm);
+  margin: 0 0 0.8rem;
+}
+.parcours-next {
+  margin: 0 0 1.2rem;
+  font-size: 1.1rem;
+}
+.themes-page .parcours-next a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* --- the graph ------------------------------------------------------------- */
+.parcours-figure {
+  margin: 1.2rem 0 0.5rem;
+}
+/* Wider than the column on a phone: scrolls sideways, with the scroll
+   shadows of the mermaid figures (main.css) so a cut-off edge reads as "more
+   this way". Inert when the graph fits. */
+.parcours-graph {
+  --scroll-shade: color-mix(in srgb, var(--ink) 16%, transparent);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  padding: 0.4rem 0;
+  background:
+    linear-gradient(to right, var(--paper) 40%, transparent) left center / 2.5rem 100% no-repeat local,
+    linear-gradient(to left, var(--paper) 40%, transparent) right center / 2.5rem 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--scroll-shade), transparent) left center / 0.8rem 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, var(--scroll-shade), transparent) right center / 0.8rem 100% no-repeat scroll,
+    var(--paper);
+}
+.parcours-graph:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.pg {
+  display: block;
+  margin: 0 auto;
+  max-width: none;
+  overflow: visible;
+}
+.pg-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+/* Two drawings of the same graph: roomy boxes on wide screens, tighter ones
+   on phones (see COMPACT in components/Parcours.tsx). */
+.pg--compact {
+  display: none;
+}
+@media (max-width: 560px) {
+  .pg--wide {
+    display: none;
+  }
+  .pg--compact {
+    display: block;
+  }
+  .pg--compact .pg-label {
+    font-size: 13px;
+  }
+}
+.pg-edge {
+  fill: none;
+  stroke: var(--rule-strong);
+  stroke-width: 1.6;
+  marker-end: url(#pg-arrow);
+}
+.pg-edge.is-read {
+  stroke: var(--garden);
+  marker-end: url(#pg-arrow-read);
+}
+.pg-arrowhead {
+  fill: var(--rule-strong);
+}
+.pg-arrowhead--read {
+  fill: var(--garden);
+}
+.pg-box {
+  fill: var(--paper);
+  stroke: var(--rule-strong);
+  stroke-width: 1.3;
+}
+.pg-label {
+  fill: var(--ink);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 14.5px;
+}
+.pg-check {
+  display: none;
+}
+.pg-check circle {
+  fill: var(--garden);
+}
+.pg-check path {
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pg-node {
+  cursor: pointer;
+}
+.pg-node:hover .pg-box {
+  stroke: var(--ink);
+}
+.pg-node:hover .pg-label {
+  text-decoration: underline;
+}
+.pg-node:focus {
+  outline: none;
+}
+.pg-node:focus-visible .pg-box {
+  stroke: var(--link);
+  stroke-width: 3;
+}
+/* Read: filled; next to read: a strong link-blue frame. */
+.pg-node.is-read .pg-box {
+  fill: var(--garden-wash);
+  stroke: var(--garden);
+}
+.pg-node.is-read .pg-check {
+  display: inline;
+}
+.pg-node.is-next .pg-box {
+  fill: var(--link-wash);
+  stroke: var(--link);
+  stroke-width: 2.6;
+}
+.pg-node.is-next .pg-label {
+  font-weight: 700;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pg-box {
+    transition:
+      fill 0.15s ease,
+      stroke 0.15s ease;
+  }
+}
+
+.parcours-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.3rem 1.3rem;
+  margin-top: 0.7rem;
+  color: var(--muted-warm);
+  font-size: 0.92rem;
+}
+.parcours-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.parcours-swatch {
+  display: inline-block;
+  width: 1.1rem;
+  height: 0.75rem;
+  border-radius: 3px;
+  border: 1.3px solid var(--rule-strong);
+  background: var(--paper);
+}
+.parcours-swatch--read {
+  background: var(--garden-wash);
+  border-color: var(--garden);
+}
+.parcours-swatch--next {
+  background: var(--link-wash);
+  border: 2px solid var(--link);
+}
+
+/* --- ordered list (text alternative) -------------------------------------- */
+.parcours-order {
+  margin: 0;
+  padding-left: 1.6rem;
+  list-style: decimal;
+}
+.parcours-order li {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.parcours-order li::marker {
+  color: var(--muted-warm);
+  font-variant-numeric: tabular-nums;
+}
+.parcours-order a {
+  font-size: 1.1rem;
+}
+.parcours-order li.is-next > a {
+  font-weight: 700;
+}
+.parcours-after {
+  color: var(--muted-warm);
+  font-size: 0.95rem;
+}
+.parcours-privacy {
+  margin: 2rem 0 0;
+  color: var(--muted-warm);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+@media (max-width: 560px) {
+  .parcours-card-link {
+    align-items: flex-start;
+    gap: 0.8rem;
+    padding: 0.8rem;
+  }
+  .pm {
+    max-width: 3.6rem;
+  }
+}
+
+@media print {
+  .parcours-progress,
+  .parcours-legend,
+  .parcours-next,
+  .parcours-privacy {
+    display: none !important;
+  }
+}
