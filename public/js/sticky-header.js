@@ -28,3 +28,38 @@
   );
   io.observe(header);
 })();
+
+// Reading-progress bar: a hairline pinned to the top edge of the viewport (so
+// it also sits on top of the condensed bar above, when that is showing),
+// filled in proportion to how much of the article body has been scrolled
+// past. Decorative — aria-hidden, no focus — and drawn with a transform so a
+// scroll costs one composited property, at most once per frame.
+(function () {
+  const body = document.querySelector(".article-body");
+  if (!body) return;
+  const bar = document.createElement("div");
+  bar.className = "reading-progress";
+  bar.setAttribute("aria-hidden", "true");
+  bar.setAttribute("data-pagefind-ignore", "");
+  document.body.appendChild(bar);
+
+  let queued = false;
+  function update() {
+    queued = false;
+    const r = body.getBoundingClientRect();
+    // 0 while the body's top is still below the top of the viewport; 1 once
+    // its end has come up into view — the last screen of a note is "read".
+    const total = r.height - window.innerHeight;
+    const p = total <= 0 ? (r.top <= 0 ? 1 : 0) : Math.min(1, Math.max(0, -r.top / total));
+    bar.style.setProperty("--progress", p.toFixed(4));
+    bar.dataset.empty = p <= 0 ? "true" : "false";
+  }
+  function onScroll() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(update);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  window.addEventListener("resize", onScroll, { passive: true });
+  update();
+})();

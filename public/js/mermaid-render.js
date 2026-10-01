@@ -9,7 +9,7 @@
 // contain a diagram. CSP-safe under the prod policy: mermaid's dist calls no
 // eval; its 4 `Function("return this")()` global-detection sites short-circuit
 // on `self` in a browser and are never evaluated.
-import { normaliseMermaid, MERMAID_CONFIG } from "../../lib/mermaid-source.js";
+import { normaliseMermaid, polishSvg, MERMAID_CONFIG } from "../../lib/mermaid-source.js";
 
 (function () {
   const blocks = document.querySelectorAll("main pre.mermaid");
@@ -46,14 +46,15 @@ import { normaliseMermaid, MERMAID_CONFIG } from "../../lib/mermaid-source.js";
       for (const t of targets) {
         const id = "m" + Math.random().toString(36).slice(2);
         try {
-          const { svg } = await mermaid.render(id, normaliseMermaid(t.source.trim()));
+          const source = normaliseMermaid(t.source.trim());
+          const { svg } = await mermaid.render(id, source);
           const figure = document.createElement("figure");
           figure.className = "mermaid-diagram keep-light";
           // Same as the build-time path: the box scrolls, so it must be
           // keyboard-reachable (see scripts/render-mermaid.mjs).
           figure.tabIndex = 0;
           figure.setAttribute("data-pagefind-ignore", "");
-          figure.innerHTML = svg;
+          figure.innerHTML = polishSvg(svg, source);
           t.el.replaceWith(figure);
         } catch {
           // Invalid diagram — re-reveal the flagged source so it can be fixed
