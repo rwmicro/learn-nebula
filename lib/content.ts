@@ -7,6 +7,13 @@ import { resolveVaultAssetByName, listVaultAssets } from "./vault-assets";
 import { joinNotePath } from "./vault-health";
 import { getAnkiManifest } from "./anki";
 import { tagSlug } from "./slug";
+import {
+  definitionAnchor,
+  glossaryDiscipline,
+  entriesForNote,
+  extractDefinitions,
+  type GlossaryEntry,
+} from "./glossary";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const POSTS_DIR = path.join(CONTENT_DIR, "posts");
@@ -1040,6 +1047,41 @@ export function getBacklinks(slug: string): SiblingRef[] {
     }
   }
   return out.sort((a, b) => a.title.localeCompare(b.title));
+}
+
+// --- Glossary (lib/glossary.ts) ----------------------------------------------
+let glossaryCache: GlossaryEntry[] | null = null;
+/** Every explicit definition in the vault (a term defined in two notes is
+ *  listed twice; getGlossaryFor picks the nearer one per note). */
+export function getGlossary(): GlossaryEntry[] {
+  if (glossaryCache) return glossaryCache;
+  const all: GlossaryEntry[] = [];
+  for (const doc of [...getAllPosts()].sort((a, b) =>
+    a.rawPath.localeCompare(b.rawPath),
+  )) {
+    const noteUrl = `/posts/${doc.slug}/`;
+    for (const { term, def } of extractDefinitions(doc.body)) {
+      all.push({
+        term,
+        def,
+        href: `${noteUrl}#${definitionAnchor(term)}`,
+        noteTitle: doc.frontmatter.title,
+        noteUrl,
+        discipline: glossaryDiscipline(doc.rawPath),
+      });
+    }
+  }
+  glossaryCache = all;
+  return glossaryCache;
+}
+
+/** The glossary terms to mark in `doc` (same discipline, defined elsewhere). */
+export function getGlossaryFor(doc: Doc): GlossaryEntry[] {
+  return entriesForNote(
+    getGlossary(),
+    `/posts/${doc.slug}/`,
+    glossaryDiscipline(doc.rawPath),
+  );
 }
 
 /** Top-level single page such as `404`. */

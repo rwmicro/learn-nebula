@@ -248,7 +248,11 @@
     "title": "Tarjetas de repaso",
     "intro": "Los mazos Anki del jardín, para repasar tarjeta a tarjeta, ordenados por carpeta.",
     "empty": "Todavía no hay ningún mazo de tarjetas disponible.",
-    "count": "{count} tarjetas"
+    "count": "{count} tarjetas",
+    "noteQuestions": "Preguntas de notas para repasar",
+    "noteQuestionsIntro": "Preguntas de repaso que añadiste desde las notas.",
+    "noteQuestionsDue": "{count} pendientes",
+    "noteQuestionsSaved": "{count} guardadas"
   },
   "notFound": {
     "suggestions": "Quizás buscabas…",
@@ -264,5 +268,47 @@
     "auto": "Tema: automático (sigue al sistema)",
     "light": "Tema: claro",
     "dark": "Tema: oscuro"
+  },
+  "quiz": {
+    "label": "Pregunta de repaso",
+    "reveal": "Mostrar la respuesta",
+    "hide": "Ocultar la respuesta",
+    "prompt": "¿Lo sabías?",
+    "selfAria": "Autoevaluación",
+    "knew": "Lo sabía",
+    "notYet": "Todavía no",
+    "add": "Añadir a mis repasos",
+    "remove": "Quitar de mis repasos",
+    "savedToday": "En tus repasos — para hoy.",
+    "savedOn": "En tus repasos — próximo repaso: {date}.",
+    "removed": "Quitada de tus repasos.",
+    "noStorage": "Repasos no disponibles: el almacenamiento del navegador está bloqueado.",
+    "reviewLink": "Mis repasos"
+  },
+  "selMenu": {
+    "aria": "Acciones sobre la selección",
+    "explain": "Explicar",
+    "copyLink": "Copiar enlace",
+    "copyLinkAria": "Copiar un enlace a este pasaje",
+    "linkCopied": "Enlace copiado",
+    "copyFailed": "No se pudo copiar"
+  },
+  "glossary": {
+    "kicker": "Glosario",
+    "definedIn": "Definido en «{note}»"
+  },
+  "noteReview": {
+    "title": "Preguntas de notas",
+    "intro": "Las preguntas de las notas que añadiste a tus repasos, con el mismo calendario que los mazos. Se guardan en este navegador.",
+    "back": "Tarjetas de repaso",
+    "saved": "Guardadas",
+    "empty": "Ninguna pregunta guardada. En una nota, muestra la respuesta de una pregunta y elige «Añadir a mis repasos».",
+    "openNote": "Ver en la nota",
+    "from": "Nota: {title}",
+    "all": "Todas las preguntas guardadas ({count})",
+    "remove": "Quitar",
+    "removeAria": "Quitar esta pregunta de mis repasos",
+    "noStorage": "El almacenamiento del navegador no está disponible: aquí no se pueden guardar preguntas.",
+    "hintReview": "Espacio: mostrar la respuesta · 1 2 3 4: calificar"
   }
 }

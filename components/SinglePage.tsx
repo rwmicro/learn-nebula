@@ -4,6 +4,7 @@ import {
   getSiblings,
   getBacklinks,
   getLocalGraph,
+  getGlossaryFor,
 } from "@/lib/content";
 import { renderMarkdown } from "@/lib/markdown";
 import {
@@ -47,7 +48,12 @@ export async function SinglePage({
   const dir = doc.rawPath.includes("/")
     ? doc.rawPath.slice(0, doc.rawPath.lastIndexOf("/"))
     : "";
-  const { html, plain, hasMath } = await renderMarkdown(doc.body, { dir });
+  // Glossary marks (lib/glossary.ts) only on notes: terms defined in another
+  // note of the same discipline, first occurrence each.
+  const { html, plain, hasMath } = await renderMarkdown(doc.body, {
+    dir,
+    glossary: note ? getGlossaryFor(doc) : undefined,
+  });
   const fm = doc.frontmatter;
   // Subtitle: manual override takes precedence (untranslated user text);
   // otherwise emit the article date inside a <time data-i18n-date> so the

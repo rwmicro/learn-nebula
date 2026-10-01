@@ -248,7 +248,11 @@
     "title": "复习卡片",
     "intro": "花园中的 Anki 卡组，可逐张翻阅，按文件夹分组。",
     "empty": "目前还没有可用的卡组。",
-    "count": "{count} 张卡片"
+    "count": "{count} 张卡片",
+    "noteQuestions": "待复习的笔记问题",
+    "noteQuestionsIntro": "你从笔记中加入的复习题。",
+    "noteQuestionsDue": "{count} 待复习",
+    "noteQuestionsSaved": "已保存 {count}"
   },
   "notFound": {
     "suggestions": "你是否在找……",
@@ -264,5 +268,47 @@
     "auto": "主题：自动（跟随系统）",
     "light": "主题：浅色",
     "dark": "主题：深色"
+  },
+  "quiz": {
+    "label": "复习题",
+    "reveal": "显示答案",
+    "hide": "隐藏答案",
+    "prompt": "你答对了吗？",
+    "selfAria": "自我评估",
+    "knew": "我知道",
+    "notYet": "还不会",
+    "add": "加入我的复习",
+    "remove": "从复习中移除",
+    "savedToday": "已加入复习——今天复习。",
+    "savedOn": "已加入复习——下次复习：{date}。",
+    "removed": "已从复习中移除。",
+    "noStorage": "无法复习：浏览器存储被禁用。",
+    "reviewLink": "我的复习"
+  },
+  "selMenu": {
+    "aria": "选中文本操作",
+    "explain": "解释",
+    "copyLink": "复制链接",
+    "copyLinkAria": "复制指向这段文字的链接",
+    "linkCopied": "链接已复制",
+    "copyFailed": "复制失败"
+  },
+  "glossary": {
+    "kicker": "术语表",
+    "definedIn": "定义见《{note}》"
+  },
+  "noteReview": {
+    "title": "笔记问题",
+    "intro": "你加入复习的笔记问题，与卡组使用相同的复习计划，保存在此浏览器中。",
+    "back": "复习卡片",
+    "saved": "已保存",
+    "empty": "还没有保存的问题。在笔记中显示某个问题的答案，然后选择“加入我的复习”。",
+    "openNote": "在笔记中查看",
+    "from": "笔记：{title}",
+    "all": "全部已保存问题（{count}）",
+    "remove": "移除",
+    "removeAria": "从复习中移除此问题",
+    "noStorage": "浏览器存储不可用：无法在此保存笔记问题。",
+    "hintReview": "空格：显示答案 · 1 2 3 4：评分"
   }
 }

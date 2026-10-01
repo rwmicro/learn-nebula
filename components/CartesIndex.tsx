@@ -1,5 +1,6 @@
 import { t, i18nAttrs } from "@/lib/i18n";
 import type { AnkiDeck } from "@/lib/anki";
+import { NoteQuestionsEntry } from "@/components/NoteQuestionsEntry";
 
 /**
  * /cartes/ — every Anki deck (lib/anki.ts's manifest), grouped under the vault
@@ -26,6 +27,9 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
       <p className="cartes-index-intro" {...attrs(i18nAttrs("cartesIndex.intro"))}>
         {t("cartesIndex.intro")}
       </p>
+
+      {/* Questions saved from the notes' [!quiz] cards (public/js/quiz.js). */}
+      <NoteQuestionsEntry />
 
       {folders.length === 0 ? (
         <p className="cartes-index-empty" {...attrs(i18nAttrs("cartesIndex.empty"))}>

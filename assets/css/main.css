@@ -3379,3 +3379,246 @@ main video {
   white-space: normal;
   line-height: 1.45;
 }
+
+/* ---------------------------------------------------------------------------
+ * Retrieval-practice cards: `> [!quiz] Question` (lib/markdown.ts quizCallout)
+ * wired by /js/quiz.js. A callout in the garden accent: the question in the
+ * body face, the answer behind a disclosure button, then self-grading and
+ * "add to my reviews" (created by the script, never indexed by Pagefind).
+ * ------------------------------------------------------------------------- */
+.callout-quiz {
+  --c: var(--garden);
+}
+.quiz-question {
+  margin: 0.4rem 0 0;
+  color: var(--ink);
+  font-weight: 600;
+  /* The body size (main p), so the question reads as prose, not a caption. */
+  font-size: clamp(1.15rem, 1rem + 0.7vw, 1.4rem);
+  line-height: 1.4;
+}
+.quiz-controls {
+  margin-top: 0.65rem;
+}
+.quiz-reveal,
+.quiz-btn {
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.1;
+  padding: 0.42rem 0.8rem;
+  color: var(--c);
+  background: var(--paper);
+  border: 1px solid var(--c);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.quiz-self-btn[aria-pressed="true"] {
+  color: var(--paper);
+  background: var(--c);
+}
+/* Hover only where it exists: on touch a tapped button would stay "hovered". */
+@media (hover: hover) {
+  .quiz-reveal:hover,
+  .quiz-btn:hover {
+    color: var(--paper);
+    background: var(--c);
+  }
+  .quiz-reveal[aria-expanded="true"]:hover {
+    color: var(--paper);
+    background: var(--muted-warm);
+  }
+}
+.quiz-reveal:focus-visible,
+.quiz-btn:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 2px;
+}
+.quiz-reveal[aria-expanded="true"] {
+  color: var(--muted-warm);
+  border-color: var(--rule-strong);
+}
+.quiz-answer {
+  margin-top: 0.75rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed color-mix(in srgb, var(--c) 45%, var(--rule));
+}
+.quiz-grade {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 1rem;
+  margin-top: 0.8rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--rule);
+}
+.quiz-grade[hidden] {
+  display: none;
+}
+.quiz-self {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+.quiz-prompt {
+  color: var(--ink-2);
+  font-style: italic;
+  font-size: 0.98rem;
+  margin-inline-end: 0.2rem;
+}
+.quiz-add {
+  margin-inline-start: auto;
+  border-style: dashed;
+}
+.quiz-status {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted-warm);
+  font-size: 0.92rem;
+}
+.quiz-status:empty {
+  display: none;
+}
+.article-body .quiz-status a.quiz-review-link {
+  color: var(--link);
+}
+@media (max-width: 34rem) {
+  .quiz-add {
+    margin-inline-start: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Glossary marks (lib/glossary.ts) and their card (/js/glossary.js, which
+ * reuses the link-preview card above). A dotted underline in the text colour:
+ * a hint, not a link-blue call to click.
+ * ------------------------------------------------------------------------- */
+.article-body a.gloss {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--muted-warm);
+  cursor: help;
+}
+.article-body a.gloss:hover,
+.article-body a.gloss:focus-visible,
+.article-body a.gloss[aria-describedby] {
+  background: var(--garden-wash);
+  text-decoration-color: var(--garden);
+  border-radius: 2px;
+}
+.gloss-kicker {
+  margin: 0 0 0.1rem;
+  color: var(--garden);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.gloss-popover .note-popover-excerpt {
+  font-size: 0.98rem;
+}
+.gloss-source {
+  display: inline-block;
+  margin-top: 0.45rem;
+  color: var(--link);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.88rem;
+  text-decoration: underline;
+  text-decoration-color: var(--link-soft);
+  text-underline-offset: 2px;
+}
+.gloss-source::after {
+  content: " →";
+}
+
+/* ---------------------------------------------------------------------------
+ * Selection toolbar (/js/selection-menu.js): fixed to the viewport, above the
+ * article and the link cards, below the drawer/backdrop (z 1100+).
+ * ------------------------------------------------------------------------- */
+.sel-menu {
+  position: fixed;
+  z-index: 1003;
+  display: flex;
+  gap: 1px;
+  padding: 0;
+  background: var(--rule-strong);
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: sel-menu-in 0.12s ease-out;
+}
+.sel-menu[hidden] {
+  display: none;
+}
+.sel-menu-btn {
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.92rem;
+  line-height: 1;
+  padding: 0.55rem 0.8rem;
+  min-height: 2.25rem;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sel-menu-btn:hover,
+.sel-menu-btn:focus-visible {
+  background: var(--wash-2);
+}
+.sel-menu-btn:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: -2px;
+}
+.sel-menu-explain {
+  color: var(--garden);
+  font-weight: 700;
+}
+.sel-menu[data-copied="true"] .sel-menu-btn:not(.sel-menu-explain) {
+  color: var(--garden);
+}
+@keyframes sel-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+@media (pointer: coarse) {
+  .sel-menu-btn {
+    min-height: 2.75rem;
+    padding-inline: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-reveal,
+  .quiz-btn {
+    transition: none;
+  }
+  .sel-menu {
+    animation: none;
+  }
+}
+
+/* Interactive chrome means nothing on paper; a printed quiz shows its answer. */
+@media print {
+  .quiz-controls,
+  .quiz-grade,
+  .sel-menu,
+  .gloss-popover {
+    display: none !important;
+  }
+  .quiz-answer[hidden] {
+    display: block !important;
+  }
+  .article-body a.gloss {
+    text-decoration: none;
+  }
+}

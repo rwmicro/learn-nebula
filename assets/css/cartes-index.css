@@ -83,3 +83,17 @@
   font-size: 0.95rem;
   white-space: nowrap;
 }
+
+/* "Questions de notes à revoir" — the note-questions review (NoteQuestionsEntry). */
+.cartes-index-notes {
+  margin-bottom: 2.5rem;
+}
+.cartes-index-due {
+  color: var(--garden);
+  font-weight: 700;
+}
+.cartes-index-note-intro {
+  margin: 0.5rem 0 0;
+  color: var(--muted-warm);
+  font-size: 0.98rem;
+}
