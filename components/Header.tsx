@@ -3,7 +3,7 @@ import type { Doc } from "@/lib/content";
 import { t } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
 import { EditionDate } from "@/components/EditionDate";
-import { themeToggleHtml } from "@/lib/html";
+import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
 
 // Blackletter wordmark, à la New York Times. next/font self-hosts the file at
 // build time (served from our origin), so `font-src 'self'` keeps holding and
@@ -46,6 +46,11 @@ export default function Header({ doc }: { doc: Doc }) {
         <span
           className="contents"
           dangerouslySetInnerHTML={{ __html: themeToggleHtml() }}
+        />
+        {/* Command palette trigger (⌘K / Ctrl+K, wired by /js/palette.js). */}
+        <span
+          className="contents"
+          dangerouslySetInnerHTML={{ __html: paletteButtonHtml() }}
         />
       </div>
 

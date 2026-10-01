@@ -11,7 +11,8 @@
     "menu": "Menu",
     "themes": "Themes",
     "cartes": "Flashcards",
-    "random": "Random note"
+    "random": "Random note",
+    "parcours": "Reading paths"
   },
   "sidebar": {
     "searchPlaceholder": "Search the notes…",
@@ -310,5 +311,58 @@
     "removeAria": "Remove this question from my reviews",
     "noStorage": "Browser storage is unavailable: note questions can’t be saved here.",
     "hintReview": "Space: show the answer · 1 2 3 4: grade"
+  },
+  "prereq": {
+    "before": "Read first",
+    "further": "Going further",
+    "pathLink": "See the reading path"
+  },
+  "parcours": {
+    "title": "Reading paths",
+    "intro": "Sequences of notes to read in order: each note comes after the ones it lists as prerequisites.",
+    "empty": "No reading path yet: it takes at least three notes linked by their prerequisites.",
+    "count": "{n} notes",
+    "after": "after",
+    "other": "Miscellaneous",
+    "from": "From “{first}” to “{last}”",
+    "next": "Read next:",
+    "nextShort": "Read next",
+    "unread": "Unread",
+    "order": "In order",
+    "graphAria": "Prerequisite graph of the path"
+  },
+  "reading": {
+    "read": "Read",
+    "readOn": "Read on {date}",
+    "markRead": "Mark as read",
+    "markUnread": "Mark as unread",
+    "resumeAt": "Resume at {pct}%",
+    "resumeTitle": "Pick up where you left off",
+    "progress": "{pct}% read",
+    "count": "{read}/{total} read",
+    "countAria": "{read} of {total} notes read",
+    "privacy": "Your progress stays in this browser."
+  },
+  "palette": {
+    "open": "Search",
+    "openAria": "Open the command palette (Ctrl K)",
+    "title": "Command palette",
+    "placeholder": "A note, a section, an action…",
+    "notes": "Notes",
+    "sections": "On this page",
+    "actions": "Actions",
+    "goTo": "Go to",
+    "loading": "Loading notes…",
+    "loadError": "Could not load the list of notes.",
+    "empty": "No results",
+    "results": "{n} results",
+    "hint": "↑↓ navigate · Enter open · Esc close",
+    "close": "Close",
+    "themeLight": "Theme: light",
+    "themeDark": "Theme: dark",
+    "themeAuto": "Theme: automatic",
+    "random": "A random note",
+    "assistant": "Open the assistant",
+    "current": "current"
   }
 }

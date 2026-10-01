@@ -373,6 +373,8 @@ export function noteHeaderHtml(
     `<div class="note-header-crumb">` +
     `<a href="/">${escapeHtml(INDEX_NOTE)}</a>${crumbs}` +
     `</div>` +
+    // Command palette (⌘K): search notes, jump to a section, switch theme.
+    paletteButtonHtml(true) +
     `</header>` +
     `<div class="note-header-condensed" data-pagefind-ignore>` +
     meta +
@@ -684,6 +686,84 @@ export function backlinksHtml(backlinks: SiblingRef[]): string {
     `<p class="backlinks-title"${i18nAttrs("siblings.backlinks")}>${escapeHtml(t("siblings.backlinks"))}</p>` +
     `<ul>${items}</ul>` +
     `</nav>`
+  );
+}
+
+/** "À lire avant": the notes this one lists under frontmatter `prerequis`, as
+ *  a compact row near the top of the note. `pathHref` links the reading path
+ *  (/parcours/#id) the note belongs to, when it is in one. Read checkmarks are
+ *  added client-side (/js/reading-state.js). */
+export function prereqHtml(prereqs: SiblingRef[], pathHref?: string): string {
+  if (!prereqs.length) return "";
+  const items = prereqs
+    .map((p) => `<li><a href="/posts/${encodeSlug(p.slug)}/">${escapeHtml(p.title)}</a></li>`)
+    .join("");
+  const path = pathHref
+    ? `<a class="prereq-path" href="${escapeHtml(pathHref)}"${i18nAttrs("prereq.pathLink")}>${escapeHtml(t("prereq.pathLink"))}</a>`
+    : "";
+  return (
+    `<nav class="prereq" data-pagefind-ignore aria-labelledby="prereq-title">` +
+    `<p class="prereq-title" id="prereq-title"${i18nAttrs("prereq.before")}>${escapeHtml(t("prereq.before"))}</p>` +
+    `<ul class="prereq-list">${items}</ul>` +
+    path +
+    `</nav>`
+  );
+}
+
+/** "Pour aller plus loin": the notes that list this one as a prerequisite,
+ *  placed right after the article body (before the backlinks, which leave
+ *  these notes out so none is listed twice). */
+export function furtherHtml(dependents: SiblingRef[]): string {
+  if (!dependents.length) return "";
+  const items = dependents
+    .map((d) => `<li><a href="/posts/${encodeSlug(d.slug)}/">${escapeHtml(d.title)}</a></li>`)
+    .join("");
+  return (
+    `<nav class="further" data-pagefind-ignore aria-labelledby="further-title">` +
+    `<p class="further-title" id="further-title"${i18nAttrs("prereq.further")}>${escapeHtml(t("prereq.further"))}</p>` +
+    `<ul>${items}</ul>` +
+    `</nav>`
+  );
+}
+
+/** "Lue" badge for the note-actions row; revealed by /js/reading-state.js
+ *  once the reader has finished the note (state lives in localStorage). */
+export function readBadgeHtml(): string {
+  return (
+    `<span class="read-badge" hidden>` +
+    `<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>` +
+    `<span${i18nAttrs("reading.read")}>${escapeHtml(t("reading.read"))}</span>` +
+    `</span>`
+  );
+}
+
+/** End-of-article reading state (read on…, mark read / unread, resume). An
+ *  empty mount point: /js/reading-state.js fills and reveals it, so readers
+ *  without JS (or storage) never see controls that can't work. */
+export function readStateHtml(slug: string, minutes: number): string {
+  return (
+    `<div class="read-state" data-pagefind-ignore hidden` +
+    ` data-slug="${escapeHtml(slug)}" data-minutes="${minutes}"></div>`
+  );
+}
+
+/** Command-palette trigger (/js/palette.js, site-wide). `compact` drops the
+ *  text label (note header); the shortcut hint is rewritten to ⌘K on Apple
+ *  platforms by the script. */
+export function paletteButtonHtml(compact = false): string {
+  const label = escapeHtml(t("palette.openAria"));
+  return (
+    `<button type="button" class="palette-btn${compact ? " palette-btn--compact" : ""}" data-palette-open data-pagefind-ignore` +
+    ` aria-label="${label}" title="${label}" aria-haspopup="dialog"` +
+    i18nAttr("aria-label", "palette.openAria") +
+    i18nAttr("title", "palette.openAria") +
+    `>` +
+    `<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>` +
+    (compact
+      ? ""
+      : `<span class="palette-btn-label"${i18nAttrs("palette.open")}>${escapeHtml(t("palette.open"))}</span>`) +
+    `<kbd class="palette-kbd" aria-hidden="true">Ctrl K</kbd>` +
+    `</button>`
   );
 }
 

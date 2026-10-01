@@ -12,10 +12,18 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { getPostSlugs, getPost, resolveRelativeNoteLink, resolveWikiLink } from "../lib/content";
+import {
+  getPostSlugs,
+  getPost,
+  getPrereqCycles,
+  getUnresolvedPrereqs,
+  resolveRelativeNoteLink,
+  resolveWikiLink,
+} from "../lib/content";
 import { resolveVaultAsset, resolveVaultAssetByName } from "../lib/vault-assets";
 import {
   NEAR_EMPTY_CHARS,
+  PREREQ_MISSING,
   bodyTextLength,
   extractAudioRefs,
   extractNoteLinks,
@@ -42,9 +50,13 @@ const report = {
   frontmatter: [] as (NoteRef & { missing: string[]; none: boolean })[],
   audio: [] as (NoteRef & { clips: { src: string; problem: "missing" | "empty" | "lfs" }[] })[],
   english: [] as (NoteRef & { en: number; fr: number; es: number; ratio: number })[],
+  /** `prerequis` cycles: the notes involved and the relations /parcours/
+   *  ignored to put them in a reading order. */
+  prereqCycles: [] as { members: NoteRef[]; broken: [NoteRef, NoteRef][] }[],
 };
 
 const slugs = getPostSlugs();
+const unresolvedPrereqs = getUnresolvedPrereqs();
 // rawPath (lowercase) → slug, for note-relative markdown links.
 
 function assetFile(url: string): string {
@@ -91,6 +103,11 @@ for (const slug of slugs) {
       }
     }
   }
+  // `prerequis:` entries naming no published note: the "À lire avant" block
+  // silently leaves them out, so this is the only place they show up.
+  for (const target of unresolvedPrereqs.get(slug) ?? []) {
+    broken.push({ kind: "prerequis", target, reason: PREREQ_MISSING });
+  }
   if (broken.length) report.brokenLinks.push({ ...ref, links: broken });
 
   // --- pronunciation clips
@@ -134,11 +151,13 @@ report.frontmatter.sort(byTitle);
 report.audio.sort(byTitle);
 report.english.sort((a, b) => b.ratio - a.ratio || byTitle(a, b));
 
+report.prereqCycles = getPrereqCycles();
+
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(report));
 console.log(
   `Vault health -> data/vault-health.json (${report.notes} notes: ` +
     `${report.brokenLinks.length} with broken links, ${report.nearEmpty.length} near-empty, ` +
     `${report.frontmatter.length} frontmatter gaps, ${report.audio.length} with bad audio, ` +
-    `${report.english.length} mostly English)`,
+    `${report.english.length} mostly English, ${report.prereqCycles.length} prerequisite cycles)`,
 );

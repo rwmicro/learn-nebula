@@ -9,12 +9,15 @@ import {
 } from "@/lib/site";
 import { DEFAULT_LOCALE, LOCALES, getMessages, t } from "@/lib/i18n";
 import { getLanguageScopes } from "@/lib/content";
+import { notesIndexVersion } from "@/lib/home-data";
 import { Footer } from "@/components/Footer";
 import { PinnedAssistant } from "@/components/PinnedAssistant";
 import "../assets/css/fonts.css";
 // Global frame only (Tailwind + @theme + html/body/main margins). Article
 // typography lives in main.css, loaded per-route on note pages / 404.
 import "../assets/css/global.css";
+// Command palette + its trigger buttons, and the view-transition rules.
+import "../assets/css/palette.css";
 
 // Inline every message bundle so the runtime swap (/js/i18n.js) has them all
 // available without a second fetch — built from LOCALES so a new language is
@@ -42,6 +45,43 @@ window.__i18n.getActiveLocale = function () {
 // pinned dark theme never flashes light (or the reverse). No stored choice =
 // no attribute, and global.css follows prefers-color-scheme.
 const THEME_BOOTSTRAP = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
+
+// Cross-document view transitions (palette.css opts in with @view-transition):
+// a note title clicked in a list (home, /themes/, /parcours/) morphs into the
+// note's H1, which carries view-transition-name "note-title" (note-paths.css).
+// The name goes on the clicked link only, in `pageswap`, right before the old
+// page is captured: a list holds the same note twice (recent notes + tree), and
+// two elements with one name would abort the transition. Coming back, the
+// `pagereveal` side names the link to the note we came from, if it is on
+// screen. Note → note navigations leave both H1s to morph into each other.
+// Inline in <head> because `pagereveal` fires before the first frame, before
+// any deferred script runs; a no-op where the API doesn't exist.
+const VIEW_TRANSITIONS = `(function(){
+if(!("onpagereveal" in window))return;
+var N="note-title",last=null;
+function path(u){try{var x=new URL(u,location.href);return x.origin===location.origin?x.pathname:null}catch(e){return null}}
+function name(el){if(el.getClientRects().length>1)el.style.display="inline-block";el.style.viewTransitionName=N}
+function unname(el){el.style.viewTransitionName="";el.style.display=""}
+function onNote(){return location.pathname.indexOf("/posts/")===0}
+addEventListener("click",function(e){last=e.target&&e.target.closest?e.target.closest("a[href]"):null},true);
+addEventListener("pageswap",function(e){
+if(!e.viewTransition||onNote())return;
+var to=e.activation&&e.activation.entry&&path(e.activation.entry.url);
+if(!to||to.indexOf("/posts/")!==0||!last||path(last.href)!==to)return;
+name(last);
+});
+addEventListener("pagereveal",function(e){
+if(!e.viewTransition||onNote())return;
+var a=window.navigation&&navigation.activation;
+var from=a&&a.from&&path(a.from.url);
+if(!from||from.indexOf("/posts/")!==0)return;
+var h=innerHeight,links=document.querySelectorAll('a[href="'+from.replace(/["\\\\]/g,"")+'"]');
+for(var i=0;i<links.length;i++){var r=links[i].getBoundingClientRect();
+if(r.width&&r.bottom>0&&r.top<h){var el=links[i];name(el);
+e.viewTransition.finished.finally(function(){unname(el)});return}}
+});
+addEventListener("pageshow",function(e){if(e.persisted&&last)unname(last)});
+})();`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -78,6 +118,10 @@ export default function RootLayout({
         {/* Blocking and first in <head> on purpose: must run before the body
             paints. Covered by the CSP's script-src 'unsafe-inline'. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
+        <script dangerouslySetInnerHTML={{ __html: VIEW_TRANSITIONS }} />
+        {/* Content hash of /notes-index.json for the command palette's lazy
+            fetch (?v=), so a new build never reads a cached old list. */}
+        <meta name="gk-notes-index" content={notesIndexVersion()} />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
         {/* Body font: preloaded so text paints in the real face sooner (the
             metric-matched fallback already prevents layout shift). */}
@@ -117,6 +161,9 @@ export default function RootLayout({
         <Script src="/js/lightbox.js" strategy="afterInteractive" />
         {/* Theme toggle buttons (masthead + note nav); the palette itself is CSS. */}
         <Script src="/js/theme.js" strategy="afterInteractive" />
+        {/* Command palette (⌘K / Ctrl+K, "/"): built on first open; bundled
+            with lib/palette-match.ts by scripts/bundle-js.mjs. */}
+        <Script src="/js/palette.bundle.js" strategy="afterInteractive" />
         {/* Pronunciation clips (.pron-btn): notes render them via Markdown
             (![word](clip.mp3)) and /cartes decks via [sound:clip.mp3], so this
             loads everywhere rather than only through <NoteScripts />. */}

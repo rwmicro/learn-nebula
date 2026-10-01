@@ -1,5 +1,6 @@
 import { t, i18nAttrs } from "@/lib/i18n";
 import type { Discipline, TagGroup, ThemeNote } from "@/lib/content";
+import { ReadMarks } from "@/components/ReadMarks";
 
 /**
  * The /themes/ pages: an index of disciplines and tags, one page per tag
@@ -16,9 +17,12 @@ const TOPS = [
 export function ThemesIndex({
   disciplines,
   tags,
+  hasPaths = false,
 }: {
   disciplines: Discipline[];
   tags: TagGroup[];
+  /** Whether /parcours/ has any reading path to link to. */
+  hasPaths?: boolean;
 }) {
   return (
     <main className="themes-page">
@@ -29,6 +33,11 @@ export function ThemesIndex({
       <p className="themes-intro" {...attrs(i18nAttrs("themes.intro"))}>
         {t("themes.intro")}
       </p>
+      {hasPaths && (
+        <a href="/parcours/" className="themes-paths">
+          <span {...attrs(i18nAttrs("parcours.title"))}>{t("parcours.title")}</span> →
+        </a>
+      )}
 
       <h2 className="themes-h2" {...attrs(i18nAttrs("themes.disciplines"))}>
         {t("themes.disciplines")}
@@ -97,6 +106,7 @@ export function TagPage({ tag }: { tag: TagGroup }) {
           showCount={sections.length > 1}
         />
       ))}
+      <ReadMarks />
     </main>
   );
 }
@@ -136,6 +146,7 @@ export function DisciplinePage({ discipline }: { discipline: Discipline }) {
           showCount={discipline.sections.length > 1}
         />
       ))}
+      <ReadMarks />
     </main>
   );
 }
@@ -159,7 +170,7 @@ function NoteSection({
         )}
         {showCount && <span className="themes-count">{notes.length}</span>}
       </h2>
-      <ul className="themes-notes">
+      <ul className="themes-notes" data-read-marks>
         {notes.map((n) => (
           <li key={n.href}>
             <a href={n.href}>{n.title}</a>

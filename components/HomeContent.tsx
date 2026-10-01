@@ -8,6 +8,16 @@ import { CircularGraph } from "@/components/CircularGraph";
 import { t, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import { readAskStream } from "@/lib/ask-stream";
 import { folderAnchor } from "@/lib/slug";
+import {
+  CHANGE_EVENT,
+  STORAGE_KEY,
+  folderReadCounts,
+  isRead,
+  loadStore,
+  resumeCandidate,
+  slugFromHref,
+  type ReadingStore,
+} from "@/lib/reading-progress";
 
 // Diacritic-insensitive fold so the query and the note/folder names compare
 // apples to apples (matches lib/content slugging).
@@ -412,19 +422,62 @@ function useHomeData(version: string): HomeData | null {
   return data;
 }
 
+// The reader's reading progress (lib/reading-progress.ts, localStorage only),
+// kept in sync with other tabs and with a back/forward restore of this page.
+function useReadingStore(): ReadingStore {
+  const [store, setStore] = useState<ReadingStore>({});
+  useEffect(() => {
+    const load = () => setStore(loadStore());
+    load();
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY || e.key === null) load();
+    };
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("pageshow", load);
+    window.addEventListener(CHANGE_EVENT, load);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("pageshow", load);
+      window.removeEventListener(CHANGE_EVENT, load);
+    };
+  }, []);
+  return store;
+}
+
 export function HomeContent({
   shell,
   dataVersion,
   pdfs,
   langs,
+  hasPaths = false,
 }: {
   shell: HomeTreeNode[];
   dataVersion: string;
   pdfs: PdfRef[];
   langs: LangGroup[];
+  /** Whether /parcours/ has reading paths to link to. */
+  hasPaths?: boolean;
 }) {
   const data = useHomeData(dataVersion);
   const tree = data?.tree ?? shell;
+  // --- reading progress: per-folder "x/y lues" and the "Reprendre" card ---
+  const readStore = useReadingStore();
+  const readCounts = useMemo(() => folderReadCounts(tree, readStore), [tree, readStore]);
+  const noteTitles = useMemo(() => {
+    const m = new Map<string, string>();
+    const walk = (nodes: HomeTreeNode[]) => {
+      for (const n of nodes) {
+        if (n.type === "dir") walk(n.children);
+        else if (!n.deck && !n.asset) m.set(n.href, n.title);
+      }
+    };
+    walk(data?.tree ?? []);
+    return m;
+  }, [data]);
+  const resume = useMemo(() => {
+    const c = resumeCandidate(readStore, (s) => noteTitles.has(`/posts/${s}/`));
+    return c && { ...c, title: noteTitles.get(`/posts/${c.slug}/`)!, pct: Math.round(c.progress * 100) };
+  }, [readStore, noteTitles]);
   const domains = useMemo(() => data?.domains ?? [], [data]);
   const graphData = data?.graph ?? null;
   const locale = useLocale();
@@ -632,6 +685,18 @@ export function HomeContent({
               >
                 {node.title}
               </a>
+              {!node.deck && !node.asset && isRead(readStore, slugFromHref(node.href)) && (
+                <span
+                  className="ml-[0.4rem] shrink-0 text-garden"
+                  title={tr("reading.read")}
+                  data-pagefind-ignore
+                >
+                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                    <path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="sr-only"> ({tr("reading.read").toLowerCase()})</span>
+                </span>
+              )}
               {node.deck && (
                 <span className="ml-2 shrink-0 text-micro uppercase tracking-[0.08em] text-muted-warm">
                   cartes
@@ -653,6 +718,10 @@ export function HomeContent({
         const anchor = folderAnchor(node.path);
         const listId = `gk-dir-${anchor}`;
         const isGroup = depth === 0;
+        // "x/y lues" once the reader has finished a note in this folder.
+        const rc = readCounts.get(node.path);
+        const readLabel =
+          rc && rc.read > 0 ? t("reading.count", { read: rc.read, total: rc.total }, locale) : null;
         return (
           <li
             key={node.path}
@@ -679,13 +748,27 @@ export function HomeContent({
                     </span>
                   </span>
                   <span className="text-meta tabular-nums text-muted-warm">
-                    {node.count}
+                    {readLabel ? (
+                      <span className="text-garden" data-pagefind-ignore>
+                        {readLabel}
+                      </span>
+                    ) : (
+                      node.count
+                    )}
                   </span>
                 </>
               ) : (
                 <>
                   <Chevron open={open} size={10} />
                   <span className="text-body text-ink">{node.name}</span>
+                  {readLabel && (
+                    <span
+                      className="ml-auto shrink-0 pl-2 text-micro tabular-nums text-garden"
+                      data-pagefind-ignore
+                    >
+                      {readLabel}
+                    </span>
+                  )}
                 </>
               )}
             </button>
@@ -1087,11 +1170,45 @@ export function HomeContent({
         )}
       </form>
 
+      {/* "Reprendre": the unfinished note read last, back at its position
+          (/js/reading-state.js restores it from the #reprendre hash). */}
+      {resume && (
+        <a
+          href={`/posts/${resume.slug}/#reprendre`}
+          data-pagefind-ignore
+          className="group mb-10 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[3px] border border-rule border-l-[3px] border-l-garden px-5 py-3 text-ink no-underline hover:bg-wash"
+        >
+          <span className="text-micro font-semibold uppercase tracking-[0.1em] text-garden">
+            {tr("reading.resumeTitle")}
+          </span>
+          <span className="min-w-0 flex-1 basis-48 text-body group-hover:underline">
+            {resume.title}
+          </span>
+          <span className="flex items-center gap-2 text-meta tabular-nums text-muted-warm">
+            <span aria-hidden="true" className="block h-1 w-16 overflow-hidden rounded-sm bg-rule">
+              <span className="block h-full bg-garden" style={{ width: `${resume.pct}%` }} />
+            </span>
+            {t("reading.progress", { pct: resume.pct }, locale)}
+            <span aria-hidden="true" className="text-ink">→</span>
+          </span>
+        </a>
+      )}
+
       {/* 2. two columns spread across the full body width */}
       <div className="grid grid-cols-1 gap-10 min-[700px]:items-start min-[700px]:justify-between min-[700px]:gap-y-0 min-[700px]:[grid-template-columns:minmax(240px,360px)_minmax(340px,580px)]">
         {/* left — notes browse tree */}
         <div id="notes" className="scroll-mt-6">
-          <h2 className={labelCls}>{tr("home.notesLabel")}</h2>
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className={labelCls}>{tr("home.notesLabel")}</h2>
+            {hasPaths && (
+              <a
+                href="/parcours/"
+                className={`${linkCls} mb-4 text-meta italic text-garden`}
+              >
+                {tr("parcours.title")} →
+              </a>
+            )}
+          </div>
           {renderNodes(tree, 0)}
         </div>
 
