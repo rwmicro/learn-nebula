@@ -74,5 +74,21 @@
     threshold: [0, 1],
   });
   headings.forEach((h) => io.observe(h));
+  // A jump (anchor link, Page Down, scrollbar drag) can carry a heading from
+  // below the band to above the viewport without it ever intersecting, so the
+  // observer stays silent; a rAF-throttled scroll pass catches those.
+  let queued = false;
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        update();
+      });
+    },
+    { passive: true },
+  );
   update();
 })();
