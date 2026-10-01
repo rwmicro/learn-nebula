@@ -53,7 +53,12 @@
     "readingTimeAria": "Tiempo de lectura estimado",
     "readingTimeFormat": "{min} min de lectura",
     "translateFilter": "Filtrar idiomas…",
-    "translateNoMatch": "Ningún idioma"
+    "translateNoMatch": "Ningún idioma",
+    "copyLinkAria": "Copiar el enlace a esta sección",
+    "linkCopied": "enlace copiado",
+    "copyCode": "copiar",
+    "copyCodeAria": "Copiar el código",
+    "codeCopied": "copiado"
   },
   "growth": {
     "tended": "retocada el",

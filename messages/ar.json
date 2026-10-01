@@ -53,7 +53,12 @@
     "readingTimeAria": "الوقت المقدر للقراءة",
     "readingTimeFormat": "قراءة لمدة {min} دقيقة",
     "translateFilter": "تصفية اللغات…",
-    "translateNoMatch": "لا توجد لغة"
+    "translateNoMatch": "لا توجد لغة",
+    "copyLinkAria": "نسخ رابط هذا القسم",
+    "linkCopied": "تم نسخ الرابط",
+    "copyCode": "نسخ",
+    "copyCodeAria": "نسخ الشفرة",
+    "codeCopied": "تم النسخ"
   },
   "growth": {
     "tended": "آخر تحديث",
