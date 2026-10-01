@@ -241,3 +241,35 @@ body:has(.admin-panel) footer {
   overflow-wrap: anywhere;
   color: var(--ink-2);
 }
+
+/* In-page menu: sticks to the top so any card is one tap away on a long page. */
+.admin-toc {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  margin: 0 0 1.5rem;
+  padding: 0.5rem 0;
+  background: var(--paper);
+  border-bottom: 1px solid var(--rule);
+}
+.admin-toc ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.admin-toc a {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-size: var(--text-small, 0.875rem);
+  color: var(--muted-warm);
+  text-decoration: none;
+}
+.admin-toc a:hover {
+  color: var(--ink);
+}
+.admin-card {
+  scroll-margin-top: 4rem;
+}
