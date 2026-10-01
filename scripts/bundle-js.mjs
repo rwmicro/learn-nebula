@@ -29,6 +29,7 @@ const SCRIPTS = [
   "comments",
   "youtube",
   "popover",
+  "copy-links",
 ];
 // Note: "ask" (the old floating note assistant) was removed — the note "AI"
 // button now opens the single, draggable <PinnedAssistant> mounted site-wide.

@@ -53,7 +53,12 @@
     "readingTimeAria": "Estimated reading time",
     "readingTimeFormat": "{min} min read",
     "translateFilter": "Filter languages…",
-    "translateNoMatch": "No language"
+    "translateNoMatch": "No language",
+    "copyLinkAria": "Copy the link to this section",
+    "linkCopied": "link copied",
+    "copyCode": "copy",
+    "copyCodeAria": "Copy the code",
+    "codeCopied": "copied"
   },
   "growth": {
     "tended": "last tended",

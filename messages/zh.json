@@ -53,7 +53,12 @@
     "readingTimeAria": "预计阅读时间",
     "readingTimeFormat": "阅读 {min} 分钟",
     "translateFilter": "筛选语言…",
-    "translateNoMatch": "无匹配语言"
+    "translateNoMatch": "无匹配语言",
+    "copyLinkAria": "复制本节链接",
+    "linkCopied": "链接已复制",
+    "copyCode": "复制",
+    "copyCodeAria": "复制代码",
+    "codeCopied": "已复制"
   },
   "growth": {
     "tended": "最近修订",
