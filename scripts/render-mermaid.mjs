@@ -18,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { chromium } from "@playwright/test";
-import { normaliseMermaid, MERMAID_CONFIG } from "../lib/mermaid-source.js";
+import { normaliseMermaid, polishSvg, MERMAID_CONFIG } from "../lib/mermaid-source.js";
 
 const OUT = path.join(process.cwd(), "out");
 const MERMAID = path.join(process.cwd(), "node_modules", "mermaid", "dist", "mermaid.min.js");
@@ -101,7 +101,7 @@ for (const [h, code] of sources) {
       const { svg } = await window.mermaid.render(id, c);
       return svg;
     }, normalized);
-    svgs.set(h, svg);
+    svgs.set(h, polishSvg(svg, normalized));
   } catch (e) {
     failed++;
     console.warn(`  diagram error: ${String(e).split("\n")[0].slice(0, 120)}`);

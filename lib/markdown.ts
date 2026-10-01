@@ -1194,8 +1194,11 @@ export async function renderMarkdown(
     .use(rehypeSlug)
     .use(rehypeAutolinkHeadings, {
       behavior: "append",
-      properties: { className: ["anchor"] },
-      content: { type: "text", value: "§" },
+      // className first: buildToc (lib/html.ts) strips `<a class="anchor"…`.
+      // Kept out of the search index — the "#" is chrome, not heading text.
+      // public/js/copy-links.js labels it and turns a click into "copy link".
+      properties: { className: ["anchor"], dataPagefindIgnore: "" },
+      content: { type: "text", value: "#" },
     })
     .use(rehypeVaultAssets, dir)
     .use(rehypeYouTube)
