@@ -80,4 +80,164 @@
   .admin-toast {
     animation: none;
   }
+  .admin-details summary::before {
+    transition: none;
+  }
+}
+
+/* The site footer is laid out for the note pages (left-aligned, with a wide
+   right gutter for the aside — global.css `main, footer`). /admin has no
+   aside: its panel is a centred 42rem column with 1.5rem padding, so line the
+   footer up with the cards' edges instead. Scoped with :has() because route
+   CSS stays loaded after a client-side navigation away (cf. cartes.css). */
+body:has(.admin-panel) footer {
+  max-width: 39rem;
+  margin-inline: max(1.5rem, calc((100% - 39rem) / 2));
+}
+
+/* Rows of the published-comments list: a quiet rule per entry, like the log. */
+.admin-row + .admin-row {
+  border-top: 1px solid var(--rule-soft);
+}
+
+.admin-subject {
+  overflow-wrap: anywhere;
+}
+
+/* "En retard": the one card state that asks for an action. Warn-coloured
+   rule, not a filled alarm box — it's a chore, not an outage. */
+.admin-behind {
+  border-color: var(--warn);
+  background: var(--wash);
+}
+
+/* Segmented control for the questions views. */
+.admin-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+.admin-tab {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
+  padding: 0.2rem 0.7rem;
+  font-size: var(--text-small);
+  color: var(--muted-warm);
+  background: transparent;
+}
+.admin-tab + .admin-tab {
+  border-left: 1px solid var(--rule-strong);
+}
+.admin-tab:hover {
+  color: var(--ink);
+  background: var(--wash);
+}
+.admin-tab[aria-pressed="true"] {
+  color: var(--ink);
+  background: var(--wash-2);
+  font-weight: 600;
+}
+.admin-tab-count {
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-warm);
+  font-weight: 400;
+}
+
+/* Poorly covered question: the warn colour as text, no fill. */
+.admin-weak {
+  color: var(--warn);
+  font-size: var(--text-micro);
+  font-weight: 600;
+}
+.admin-log .admin-log-flag {
+  order: 2;
+}
+
+/* Grouped questions: the count in a fixed gutter, so the questions align. */
+.admin-groups li {
+  display: grid;
+  grid-template-columns: 2rem 1fr;
+  gap: 0.6rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.admin-groups li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.admin-group-count {
+  font-weight: 700;
+  color: var(--ink-2);
+  text-align: right;
+}
+
+/* Vault health: one disclosure per problem kind. */
+.admin-details + .admin-details {
+  border-top: 1px solid var(--rule-soft);
+}
+.admin-details summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+  list-style: none;
+}
+.admin-details summary::-webkit-details-marker {
+  display: none;
+}
+.admin-details summary::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  margin: 0 0.15rem;
+  border-right: 1.5px solid var(--muted-warm);
+  border-bottom: 1.5px solid var(--muted-warm);
+  transform: rotate(-45deg);
+  transition: transform 0.15s ease;
+  flex-shrink: 0;
+}
+.admin-details[open] summary::before {
+  transform: rotate(45deg);
+}
+.admin-details summary:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+.admin-details-title {
+  font-weight: 600;
+}
+.admin-details-body {
+  padding: 0 0 0.75rem 1rem;
+}
+.admin-notes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-small);
+  max-height: 24rem;
+  overflow-y: auto;
+}
+.admin-notes > li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.admin-notes > li:last-child {
+  border-bottom: none;
+}
+.admin-sublist {
+  margin: 0.15rem 0 0;
+  padding-left: 1rem;
+  font-size: var(--text-micro);
+  color: var(--muted-warm);
+}
+.admin-sublist code {
+  font-size: 0.95em;
+  overflow-wrap: anywhere;
+  color: var(--ink-2);
 }

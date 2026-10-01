@@ -22,6 +22,12 @@ export const env = {
     process.env.RAG_VECTORS ||
     path.join(path.dirname(process.env.DB_PATH || path.join(cwd, "data", "x")), "rag-vectors.json"),
 
+  // Build-time reports for /admin, baked into the image next to the chunks
+  // (scripts/build-info.mjs, scripts/vault-health.ts). Admin-only: they live
+  // outside out/ so the static server never exposes them.
+  buildInfo: process.env.BUILD_INFO || path.join(cwd, "data", "build-info.json"),
+  vaultHealth: process.env.VAULT_HEALTH || path.join(cwd, "data", "vault-health.json"),
+
   // Generation: Anthropic when a key is present, otherwise an OpenAI-compatible
   // chat endpoint (Ollama / llama.cpp / LM Studio).
   anthropicKey: process.env.ANTHROPIC_API_KEY || "",

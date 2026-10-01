@@ -8,9 +8,9 @@ import { stream } from "hono/streaming";
 import { env, canGenerate } from "../env.ts";
 import { Cooldown, InFlight, Quota } from "../ratelimit.ts";
 import { getIp, ndLine } from "../http.ts";
-import { search, scopePrefix } from "../rag.ts";
+import { search, scopePrefix, ragState } from "../rag.ts";
 import { anthropicDeltas, chatConfig, openaiChatDeltas } from "../llm.ts";
-import { logQuestion } from "../db.ts";
+import { logQuestion, type RetrievalStats } from "../db.ts";
 
 const TOP_K = 5;
 const MIN_SCORE = 0.4;
@@ -93,19 +93,21 @@ askRoute.post("/", async (c) => {
   // `scope` narrows it to one folder — the language picker in the assistant —
   // so a query doesn't pull chunks from 18 other languages at once.
   const prefix = scopePrefix(payload.scope);
-  // "What do people ask" log for /admin — no IP, keyed on nothing that
-  // identifies who asked. Logged past the rate-limit gate above so a
-  // rejected flood doesn't fill the log with duplicates.
-  try {
-    logQuestion(question, prefix ? scopeName(prefix) : null, replyLang);
-  } catch (e) {
-    console.warn("ask: question log failed", e);
-  }
   const sources: { title: string; url: string }[] = [];
   let context = "";
+  // Coverage for the /admin questions log; stays null (unknown, not "weak")
+  // when retrieval isn't running or fails.
+  let retrieval: RetrievalStats | null = null;
   try {
     const queryText = selection ? `${question}\n${selection}` : question;
+    const ready = ragState().state === "ready";
     const hits = await search(queryText, TOP_K, MIN_SCORE, prefix);
+    if (ready) {
+      retrieval = {
+        hits: hits.length,
+        topScore: hits.length ? Math.max(...hits.map((h) => h.cosine)) : null,
+      };
+    }
     const seen = new Set<string>();
     const blocks: string[] = [];
     for (const h of hits) {
@@ -119,6 +121,15 @@ askRoute.post("/", async (c) => {
     context = blocks.join("\n\n");
   } catch (e) {
     console.warn("ask: retrieval failed", e);
+  }
+  // "What do people ask" log for /admin — no IP, keyed on nothing that
+  // identifies who asked. Logged past the rate-limit gate above so a
+  // rejected flood doesn't fill the log with duplicates, and after retrieval
+  // so the entry records how well the vault covered the question.
+  try {
+    logQuestion(question, prefix ? scopeName(prefix) : null, replyLang, retrieval);
+  } catch (e) {
+    console.warn("ask: question log failed", e);
   }
 
   const noteContext = [
