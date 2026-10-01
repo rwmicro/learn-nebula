@@ -11,7 +11,8 @@
     "menu": "菜单",
     "themes": "主题",
     "cartes": "卡片",
-    "random": "随机笔记"
+    "random": "随机笔记",
+    "parcours": "阅读路径"
   },
   "sidebar": {
     "searchPlaceholder": "搜索笔记…",
@@ -264,5 +265,58 @@
     "auto": "主题：自动（跟随系统）",
     "light": "主题：浅色",
     "dark": "主题：深色"
+  },
+  "prereq": {
+    "before": "先读",
+    "further": "延伸阅读",
+    "pathLink": "查看阅读路径"
+  },
+  "parcours": {
+    "title": "阅读路径",
+    "intro": "按顺序阅读的笔记序列：每篇笔记都排在它所列出的先修笔记之后。",
+    "empty": "暂无阅读路径：至少需要三篇通过先修关系相连的笔记。",
+    "count": "{n} 篇笔记",
+    "after": "在其后：",
+    "other": "其他",
+    "from": "从「{first}」到「{last}」",
+    "next": "下一篇：",
+    "nextShort": "下一篇",
+    "unread": "未读",
+    "order": "阅读顺序",
+    "graphAria": "路径的先修关系图"
+  },
+  "reading": {
+    "read": "已读",
+    "readOn": "已于 {date} 读完",
+    "markRead": "标记为已读",
+    "markUnread": "标记为未读",
+    "resumeAt": "从 {pct}% 处继续",
+    "resumeTitle": "继续阅读",
+    "progress": "已读 {pct}%",
+    "count": "已读 {read}/{total}",
+    "countAria": "{total} 篇笔记中已读 {read} 篇",
+    "privacy": "阅读进度只保存在此浏览器中。"
+  },
+  "palette": {
+    "open": "搜索",
+    "openAria": "打开命令面板（Ctrl K）",
+    "title": "命令面板",
+    "placeholder": "笔记、章节或操作……",
+    "notes": "笔记",
+    "sections": "本页",
+    "actions": "操作",
+    "goTo": "前往",
+    "loading": "正在加载笔记……",
+    "loadError": "无法加载笔记列表。",
+    "empty": "没有结果",
+    "results": "{n} 个结果",
+    "hint": "↑↓ 选择 · Enter 打开 · Esc 关闭",
+    "close": "关闭",
+    "themeLight": "主题：浅色",
+    "themeDark": "主题：深色",
+    "themeAuto": "主题：自动",
+    "random": "随机笔记",
+    "assistant": "打开助手",
+    "current": "当前"
   }
 }

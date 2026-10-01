@@ -4,6 +4,8 @@
 // body[data-condensed-header="true"] which the CSS uses to slide the
 // condensed bar down from the top. Cheaper than a scroll listener and
 // throttles naturally.
+import { scrollProgress } from "../../lib/reading-progress";
+
 (function () {
   const header = document.querySelector(".note-header");
   const condensed = document.querySelector(".note-header-condensed");
@@ -49,8 +51,8 @@
     const r = body.getBoundingClientRect();
     // 0 while the body's top is still below the top of the viewport; 1 once
     // its end has come up into view — the last screen of a note is "read".
-    const total = r.height - window.innerHeight;
-    const p = total <= 0 ? (r.top <= 0 ? 1 : 0) : Math.min(1, Math.max(0, -r.top / total));
+    // Shared with /js/reading-state.js, which marks the note read at 90 %.
+    const p = scrollProgress(r.top, r.height, window.innerHeight);
     bar.style.setProperty("--progress", p.toFixed(4));
     bar.dataset.empty = p <= 0 ? "true" : "false";
   }

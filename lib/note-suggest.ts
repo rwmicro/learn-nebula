@@ -3,6 +3,10 @@
 export interface NoteIndexEntry {
   title: string;
   href: string;
+  /** Folder breadcrumb, top group dropped ("Mathematics › Lycée") — shown and
+   *  matched by the command palette (/js/palette.js). Optional: older cached
+   *  copies of the index don't carry it. */
+  folder?: string;
 }
 
 /** Lowercase, accent-free, alphanumeric words ("Économie_politique" →

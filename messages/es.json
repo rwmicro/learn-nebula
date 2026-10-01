@@ -11,7 +11,8 @@
     "menu": "Menú",
     "themes": "Temas",
     "cartes": "Tarjetas",
-    "random": "Al azar"
+    "random": "Al azar",
+    "parcours": "Itinerarios"
   },
   "sidebar": {
     "searchPlaceholder": "Buscar en las notas…",
@@ -264,5 +265,58 @@
     "auto": "Tema: automático (sigue al sistema)",
     "light": "Tema: claro",
     "dark": "Tema: oscuro"
+  },
+  "prereq": {
+    "before": "Leer antes",
+    "further": "Para ir más lejos",
+    "pathLink": "Ver el itinerario"
+  },
+  "parcours": {
+    "title": "Itinerarios de lectura",
+    "intro": "Secuencias de notas para leer en orden: cada nota viene después de las que indica como requisitos previos.",
+    "empty": "Todavía no hay itinerarios: hacen falta al menos tres notas unidas por sus requisitos previos.",
+    "count": "{n} notas",
+    "after": "después de",
+    "other": "Varios",
+    "from": "De «{first}» a «{last}»",
+    "next": "Para leer a continuación:",
+    "nextShort": "Siguiente lectura",
+    "unread": "No leída",
+    "order": "En orden",
+    "graphAria": "Grafo de requisitos del itinerario"
+  },
+  "reading": {
+    "read": "Leída",
+    "readOn": "Leída el {date}",
+    "markRead": "Marcar como leída",
+    "markUnread": "Marcar como no leída",
+    "resumeAt": "Retomar en el {pct} %",
+    "resumeTitle": "Retomar",
+    "progress": "{pct} % leído",
+    "count": "{read}/{total} leídas",
+    "countAria": "{read} de {total} notas leídas",
+    "privacy": "Tu progreso se queda en este navegador."
+  },
+  "palette": {
+    "open": "Buscar",
+    "openAria": "Abrir la paleta de comandos (Ctrl K)",
+    "title": "Paleta de comandos",
+    "placeholder": "Una nota, una sección, una acción…",
+    "notes": "Notas",
+    "sections": "En esta página",
+    "actions": "Acciones",
+    "goTo": "Ir a",
+    "loading": "Cargando notas…",
+    "loadError": "No se pudo cargar la lista de notas.",
+    "empty": "Sin resultados",
+    "results": "{n} resultados",
+    "hint": "↑↓ navegar · Intro abrir · Esc cerrar",
+    "close": "Cerrar",
+    "themeLight": "Tema: claro",
+    "themeDark": "Tema: oscuro",
+    "themeAuto": "Tema: automático",
+    "random": "Una nota al azar",
+    "assistant": "Abrir el asistente",
+    "current": "actual"
   }
 }

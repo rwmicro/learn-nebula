@@ -4,6 +4,9 @@ import {
   getSiblings,
   getBacklinks,
   getLocalGraph,
+  getPrerequisites,
+  getDependents,
+  getReadingPathOf,
 } from "@/lib/content";
 import { renderMarkdown } from "@/lib/markdown";
 import {
@@ -23,6 +26,10 @@ import {
   asideToggleHtml,
   growthHtml,
   localGraphHtml,
+  prereqHtml,
+  furtherHtml,
+  readBadgeHtml,
+  readStateHtml,
 } from "@/lib/html";
 import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
 import { JsonLd } from "@/components/JsonLd";
@@ -91,7 +98,22 @@ export async function SinglePage({
   const lang = noteLang !== "fr" ? noteLang : undefined;
 
   const siblings = note ? siblingNavHtml(getSiblings(doc.slug)) : "";
-  const backlinks = note ? backlinksHtml(getBacklinks(doc.slug)) : "";
+  // Prerequisites (frontmatter `prerequis`) up top, the notes that build on
+  // this one ("pour aller plus loin") after the body. Those notes usually
+  // [[link]] here too; the backlinks list leaves them out so none shows twice.
+  const dependents = note ? getDependents(doc.slug) : [];
+  const readingPath = note ? getReadingPathOf(doc.slug) : null;
+  const prereqs = note
+    ? prereqHtml(
+        getPrerequisites(doc.slug),
+        readingPath ? `/parcours/${readingPath.slug}/` : undefined,
+      )
+    : "";
+  const further = note ? furtherHtml(dependents) : "";
+  const dependentSlugs = new Set(dependents.map((d) => d.slug));
+  const backlinks = note
+    ? backlinksHtml(getBacklinks(doc.slug).filter((b) => !dependentSlugs.has(b.slug)))
+    : "";
   // Rendered inside the aside, under the TOC — see buildToc below.
   const localGraph = note ? localGraphHtml(getLocalGraph(doc.slug)) : "";
   const related = note ? relatedNotesHtml(doc.slug) : "";
@@ -136,10 +158,15 @@ export async function SinglePage({
         translateButtonHtml(detectedLang) +
         // Reading time pushed to the right edge as passive metadata
         readingTime +
+        // "Lue" once the reader has finished it (/js/reading-state.js).
+        readBadgeHtml() +
         `</div>`
       : "") +
+    prereqs +
     `<div class="article-body">${html}</div>` +
     articleSource +
+    (note ? readStateHtml(doc.slug, readingMinutes) : "") +
+    further +
     backlinks +
     related +
     (note ? commentsHtml(doc.slug) : "") +

@@ -31,6 +31,8 @@ interface Report {
   frontmatter: (NoteRef & { missing: string[]; none: boolean })[];
   audio: (NoteRef & { clips: { src: string; problem: "missing" | "empty" | "lfs" }[] })[];
   english: (NoteRef & { en: number; fr: number; es: number; ratio: number })[];
+  /** Absent from reports built before prerequisites existed. */
+  prereqCycles?: { members: NoteRef[]; broken: [NoteRef, NoteRef][] }[];
 }
 
 const AUDIO_PROBLEM: Record<string, string> = {
@@ -69,7 +71,8 @@ export function VaultHealthCard({ token, onUnauthorized }: { token: string; onUn
       report.nearEmpty.length +
       report.frontmatter.length +
       report.audio.length +
-      report.english.length
+      report.english.length +
+      (report.prereqCycles?.length ?? 0)
     : 0;
 
   return (
@@ -93,14 +96,21 @@ export function VaultHealthCard({ token, onUnauthorized }: { token: string; onUn
             <Section
               title="Liens cassés"
               count={report.brokenLinks.length}
-              hint="[[liens]] vers une note introuvable, et liens Markdown vers un .md — le site ne les convertit pas (404) : écrire [[Note]] à la place."
+              hint="[[liens]] vers une note introuvable, liens Markdown vers un .md qui ne nomme aucune note, et entrées « prerequis: » qui ne désignent aucune note publiée (le bloc « À lire avant » les omet)."
             >
               {report.brokenLinks.map((n) => (
                 <NoteItem key={n.slug} note={n} meta={plural(n.links.length, "lien")}>
                   <ul className="admin-sublist">
                     {n.links.slice(0, 8).map((l) => (
                       <li key={`${l.kind}:${l.target}`}>
-                        <code>{l.kind === "wikilink" ? `[[${l.target}]]` : `(${l.target})`}</code> — {l.reason}
+                        <code>
+                          {l.kind === "wikilink"
+                            ? `[[${l.target}]]`
+                            : l.kind === "prerequis"
+                              ? `prerequis: ${l.target}`
+                              : `(${l.target})`}
+                        </code>{" "}
+                        — {l.reason}
                       </li>
                     ))}
                     {n.links.length > 8 && <li>… et {n.links.length - 8} autres</li>}
@@ -151,6 +161,31 @@ export function VaultHealthCard({ token, onUnauthorized }: { token: string; onUn
             >
               {report.english.map((n) => (
                 <NoteItem key={n.slug} note={n} meta={`${Math.round(n.ratio * 100)} % anglais`} />
+              ))}
+            </Section>
+            <Section
+              title="Prérequis en boucle"
+              count={report.prereqCycles?.length ?? 0}
+              hint="Des notes qui se citent mutuellement en « prerequis: » — /parcours/ ignore la relation barrée pour les ordonner."
+            >
+              {(report.prereqCycles ?? []).map((c) => (
+                <li key={c.members.map((m) => m.slug).join("|")}>
+                  <div className="flex flex-wrap gap-x-2">
+                    {c.members.map((m, i) => (
+                      <span key={m.slug}>
+                        {i > 0 && "· "}
+                        <NoteLink slug={m.slug}>{m.title}</NoteLink>
+                      </span>
+                    ))}
+                  </div>
+                  <ul className="admin-sublist">
+                    {c.broken.map(([a, b]) => (
+                      <li key={`${a.slug}>${b.slug}`}>
+                        <s>{b.title} ← prerequis: {a.title}</s> — ignoré
+                      </li>
+                    ))}
+                  </ul>
+                </li>
               ))}
             </Section>
           </div>

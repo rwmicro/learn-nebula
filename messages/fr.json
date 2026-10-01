@@ -11,7 +11,8 @@
     "menu": "Menu",
     "themes": "Thèmes",
     "cartes": "Cartes",
-    "random": "Au hasard"
+    "random": "Au hasard",
+    "parcours": "Parcours"
   },
   "sidebar": {
     "searchPlaceholder": "Rechercher dans les notes…",
@@ -264,5 +265,58 @@
     "auto": "Thème : automatique (suit le système)",
     "light": "Thème : clair",
     "dark": "Thème : sombre"
+  },
+  "prereq": {
+    "before": "À lire avant",
+    "further": "Pour aller plus loin",
+    "pathLink": "Voir le parcours"
+  },
+  "parcours": {
+    "title": "Parcours de lecture",
+    "intro": "Des suites de notes à lire dans l’ordre : chaque note y vient après celles qu’elle indique comme prérequis.",
+    "empty": "Aucun parcours pour l’instant : il faut au moins trois notes reliées par leurs prérequis.",
+    "count": "{n} notes",
+    "after": "après",
+    "other": "Divers",
+    "from": "De « {first} » à « {last} »",
+    "next": "À lire ensuite :",
+    "nextShort": "À lire ensuite",
+    "unread": "Non lue",
+    "order": "Dans l’ordre",
+    "graphAria": "Graphe des prérequis du parcours"
+  },
+  "reading": {
+    "read": "Lue",
+    "readOn": "Lue le {date}",
+    "markRead": "Marquer comme lue",
+    "markUnread": "Marquer comme non lue",
+    "resumeAt": "Reprendre à {pct} %",
+    "resumeTitle": "Reprendre",
+    "progress": "{pct} % lu",
+    "count": "{read}/{total} lues",
+    "countAria": "{read} notes lues sur {total}",
+    "privacy": "Votre progression reste dans ce navigateur."
+  },
+  "palette": {
+    "open": "Rechercher",
+    "openAria": "Ouvrir la palette de commandes (Ctrl K)",
+    "title": "Palette de commandes",
+    "placeholder": "Une note, une section, une action…",
+    "notes": "Notes",
+    "sections": "Sur cette page",
+    "actions": "Actions",
+    "goTo": "Aller à",
+    "loading": "Chargement des notes…",
+    "loadError": "Impossible de charger la liste des notes.",
+    "empty": "Aucun résultat",
+    "results": "{n} résultats",
+    "hint": "↑↓ naviguer · Entrée ouvrir · Échap fermer",
+    "close": "Fermer",
+    "themeLight": "Thème : clair",
+    "themeDark": "Thème : sombre",
+    "themeAuto": "Thème : automatique",
+    "random": "Une note au hasard",
+    "assistant": "Ouvrir l’assistant",
+    "current": "actuel"
   }
 }
