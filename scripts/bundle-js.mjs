@@ -30,6 +30,9 @@ const SCRIPTS = [
   "youtube",
   "popover",
   "copy-links",
+  "quiz",
+  "selection-menu",
+  "glossary",
 ];
 // Note: "ask" (the old floating note assistant) was removed — the note "AI"
 // button now opens the single, draggable <PinnedAssistant> mounted site-wide.

@@ -248,7 +248,11 @@
     "title": "Cartes de révision",
     "intro": "Les paquets Anki du jardin, à feuilleter carte par carte, rangés par dossier.",
     "empty": "Aucun paquet de cartes n'est disponible pour l'instant.",
-    "count": "{count} cartes"
+    "count": "{count} cartes",
+    "noteQuestions": "Questions de notes à revoir",
+    "noteQuestionsIntro": "Les questions de révision que vous avez ajoutées depuis les notes.",
+    "noteQuestionsDue": "{count} à revoir",
+    "noteQuestionsSaved": "{count} enregistrées"
   },
   "notFound": {
     "suggestions": "Vous cherchiez peut-être…",
@@ -264,5 +268,47 @@
     "auto": "Thème : automatique (suit le système)",
     "light": "Thème : clair",
     "dark": "Thème : sombre"
+  },
+  "quiz": {
+    "label": "Question de révision",
+    "reveal": "Afficher la réponse",
+    "hide": "Masquer la réponse",
+    "prompt": "Le saviez-vous ?",
+    "selfAria": "Auto-évaluation",
+    "knew": "Je savais",
+    "notYet": "Pas encore",
+    "add": "Ajouter à mes révisions",
+    "remove": "Retirer de mes révisions",
+    "savedToday": "Dans vos révisions — à revoir aujourd’hui.",
+    "savedOn": "Dans vos révisions — prochaine révision : {date}.",
+    "removed": "Retirée de vos révisions.",
+    "noStorage": "Révisions indisponibles : le stockage du navigateur est bloqué.",
+    "reviewLink": "Mes révisions"
+  },
+  "selMenu": {
+    "aria": "Actions sur la sélection",
+    "explain": "Expliquer",
+    "copyLink": "Copier le lien",
+    "copyLinkAria": "Copier un lien vers ce passage",
+    "linkCopied": "Lien copié",
+    "copyFailed": "Copie impossible"
+  },
+  "glossary": {
+    "kicker": "Glossaire",
+    "definedIn": "Définition dans « {note} »"
+  },
+  "noteReview": {
+    "title": "Questions de notes",
+    "intro": "Les questions des notes que vous avez ajoutées à vos révisions, avec le même calendrier que les paquets de cartes. Elles sont enregistrées dans ce navigateur.",
+    "back": "Cartes de révision",
+    "saved": "Enregistrées",
+    "empty": "Aucune question enregistrée. Sur une note, révélez la réponse d’une question puis choisissez « Ajouter à mes révisions ».",
+    "openNote": "Voir dans la note",
+    "from": "Note : {title}",
+    "all": "Toutes les questions enregistrées ({count})",
+    "remove": "Retirer",
+    "removeAria": "Retirer cette question de mes révisions",
+    "noStorage": "Le stockage du navigateur est indisponible : les questions de notes ne peuvent pas être enregistrées ici.",
+    "hintReview": "Espace : afficher la réponse · 1 2 3 4 : noter"
   }
 }

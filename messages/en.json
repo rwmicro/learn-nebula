@@ -248,7 +248,11 @@
     "title": "Flashcards",
     "intro": "The garden's Anki decks, to flip through card by card, grouped by folder.",
     "empty": "No flashcard deck is available yet.",
-    "count": "{count} cards"
+    "count": "{count} cards",
+    "noteQuestions": "Note questions to review",
+    "noteQuestionsIntro": "Review questions you added from the notes.",
+    "noteQuestionsDue": "{count} due",
+    "noteQuestionsSaved": "{count} saved"
   },
   "notFound": {
     "suggestions": "Perhaps you were looking for…",
@@ -264,5 +268,47 @@
     "auto": "Theme: automatic (follows the system)",
     "light": "Theme: light",
     "dark": "Theme: dark"
+  },
+  "quiz": {
+    "label": "Review question",
+    "reveal": "Show the answer",
+    "hide": "Hide the answer",
+    "prompt": "Did you know it?",
+    "selfAria": "Self-assessment",
+    "knew": "I knew it",
+    "notYet": "Not yet",
+    "add": "Add to my reviews",
+    "remove": "Remove from my reviews",
+    "savedToday": "In your reviews — due today.",
+    "savedOn": "In your reviews — next review: {date}.",
+    "removed": "Removed from your reviews.",
+    "noStorage": "Reviews unavailable: browser storage is blocked.",
+    "reviewLink": "My reviews"
+  },
+  "selMenu": {
+    "aria": "Selection actions",
+    "explain": "Explain",
+    "copyLink": "Copy link",
+    "copyLinkAria": "Copy a link to this passage",
+    "linkCopied": "Link copied",
+    "copyFailed": "Copy failed"
+  },
+  "glossary": {
+    "kicker": "Glossary",
+    "definedIn": "Defined in “{note}”"
+  },
+  "noteReview": {
+    "title": "Note questions",
+    "intro": "The questions from notes you added to your reviews, on the same schedule as the card decks. They are stored in this browser.",
+    "back": "Flashcards",
+    "saved": "Saved",
+    "empty": "No saved question yet. On a note, reveal a question’s answer, then choose “Add to my reviews”.",
+    "openNote": "Open in the note",
+    "from": "Note: {title}",
+    "all": "All saved questions ({count})",
+    "remove": "Remove",
+    "removeAria": "Remove this question from my reviews",
+    "noStorage": "Browser storage is unavailable: note questions can’t be saved here.",
+    "hintReview": "Space: show the answer · 1 2 3 4: grade"
   }
 }

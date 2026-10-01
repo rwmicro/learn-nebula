@@ -51,6 +51,8 @@
   function previewable(a) {
     if (!a || !a.href || a.target === "_blank") return false;
     if (a.closest(".note-popover")) return false;
+    // Glossary marks have their own definition card (/js/glossary.js).
+    if (a.classList.contains("gloss")) return false;
     let u;
     try {
       u = new URL(a.href);
