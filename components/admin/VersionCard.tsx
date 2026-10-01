@@ -69,7 +69,7 @@ export function VersionCard({ token, onUnauthorized }: { token: string; onUnauth
   const served = data?.build?.pensine;
 
   return (
-    <section className="admin-card">
+    <section id="admin-version" className="admin-card">
       <CardHeader title="version en ligne">
         <RefreshButton busy={busy} onClick={load} label="Revérifier la version en ligne" />
       </CardHeader>

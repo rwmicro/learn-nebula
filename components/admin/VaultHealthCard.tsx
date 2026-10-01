@@ -73,7 +73,7 @@ export function VaultHealthCard({ token, onUnauthorized }: { token: string; onUn
     : 0;
 
   return (
-    <section className="admin-card">
+    <section id="admin-health" className="admin-card">
       <CardHeader title="santé du coffre">
         <RefreshButton busy={busy} onClick={load} label="Recharger le rapport du coffre" />
       </CardHeader>

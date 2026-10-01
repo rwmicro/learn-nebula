@@ -14,7 +14,7 @@ import katex from "katex";
 import type { Root, Element, ElementContent, RootContent } from "hast";
 import { createHash } from "node:crypto";
 import { rehypeShiki } from "./highlight";
-import { resolveWikiLink } from "./content";
+import { resolveRelativeNoteLink, resolveWikiLink } from "./content";
 import {
   resolveVaultAsset,
   isVideoSrc,
@@ -1158,6 +1158,17 @@ function remarkWikiLinks() {
   };
 }
 
+/** Point relative `[text](Other note.md)` links at the note's page; left as
+ *  written they would 404, since only the vault's assets are copied. */
+function remarkRelativeNoteLinks(dir: string) {
+  return (tree: Root) => {
+    visit(tree as any, "link", (node: any) => {
+      const url = resolveRelativeNoteLink(dir, node.url ?? "");
+      if (url) node.url = url;
+    });
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Processors
 // ---------------------------------------------------------------------------
@@ -1181,6 +1192,7 @@ export async function renderMarkdown(
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkWikiLinks)
+    .use(remarkRelativeNoteLinks, dir)
     .use(remarkSmartypants)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)

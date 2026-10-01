@@ -114,7 +114,7 @@ export function QuestionsCard({ token, onUnauthorized }: { token: string; onUnau
   };
 
   return (
-    <section className="admin-card">
+    <section id="admin-questions" className="admin-card">
       <CardHeader title="questions posées">
         <RefreshButton busy={busy} onClick={() => load()} label="Actualiser le journal des questions" />
       </CardHeader>

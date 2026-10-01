@@ -117,7 +117,7 @@ export function PublishedComments({
   const to = Math.min(offset + PAGE, total);
 
   return (
-    <section className="admin-card">
+    <section id="admin-published" className="admin-card">
       <CardHeader title="commentaires publiés" count={comments ? total : undefined}>
         <RefreshButton busy={busy} onClick={load} label="Actualiser les commentaires publiés" />
       </CardHeader>

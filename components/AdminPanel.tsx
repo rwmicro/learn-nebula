@@ -46,6 +46,16 @@ function ragDotColor(state: string): string {
   }
 }
 
+/** In-page menu, in the order the cards are laid out once connected. */
+const ADMIN_SECTIONS: [string, string][] = [
+  ["admin-assistant", "assistant"],
+  ["admin-version", "version"],
+  ["admin-pending", "en attente"],
+  ["admin-published", "publiés"],
+  ["admin-questions", "questions"],
+  ["admin-health", "santé du coffre"],
+];
+
 export function AdminPanel() {
   // `token` is only ever the LAST one that actually worked; `connected` gates
   // the UI so a wrong guess doesn't lock the reader out of the input to fix it
@@ -290,8 +300,22 @@ export function AdminPanel() {
         </div>
       )}
 
+      {connected && (
+        <nav aria-label="Sections de l&apos;administration" className="admin-toc">
+          <ul>
+            {ADMIN_SECTIONS.map(([id, label]) => (
+              <li key={id}>
+                <a href={`#${id}`} className={`rounded ${FOCUS_RING}`}>
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+
       {/* --- RAG health: no token required, GET /healthz is public. --- */}
-      <section className="admin-card">
+      <section id="admin-assistant" className="admin-card">
         <div className="mb-2 flex items-center justify-between">
           <h2 className="admin-eyebrow m-0 text-small font-semibold text-muted-warm">
             état de l&apos;assistant
@@ -364,7 +388,7 @@ export function AdminPanel() {
           <VersionCard token={token} onUnauthorized={expired} />
 
           {/* --- Comment moderation: things to decide. --- */}
-          <section className="admin-card">
+          <section id="admin-pending" className="admin-card">
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <h2 className="admin-eyebrow m-0 text-small font-semibold text-muted-warm">

@@ -12,7 +12,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { getPostSlugs, getPost, resolveWikiLink } from "../lib/content";
+import { getPostSlugs, getPost, resolveRelativeNoteLink, resolveWikiLink } from "../lib/content";
 import { resolveVaultAsset, resolveVaultAssetByName } from "../lib/vault-assets";
 import {
   NEAR_EMPTY_CHARS,
@@ -21,7 +21,6 @@ import {
   extractNoteLinks,
   isLfsPointer,
   isMostlyEnglish,
-  joinNotePath,
   missingFields,
   stopwordScore,
 } from "../lib/vault-health";
@@ -47,8 +46,6 @@ const report = {
 
 const slugs = getPostSlugs();
 // rawPath (lowercase) → slug, for note-relative markdown links.
-const byRawPath = new Map<string, string>();
-for (const slug of slugs) byRawPath.set(getPost(slug).rawPath.toLowerCase(), slug);
 
 function assetFile(url: string): string {
   return path.join(POSTS_DIR, decodeURIComponent(url.slice("/vault/".length)));
@@ -87,13 +84,11 @@ for (const slug of slugs) {
         broken.push({ ...link, reason: "note introuvable" });
       }
     } else {
-      // The renderer leaves a relative `.md` href as is (it only rewrites
-      // assets), so even a link to an existing note 404s on the site.
-      const exists = byRawPath.has(joinNotePath(dir, link.target).toLowerCase());
-      broken.push({
-        ...link,
-        reason: exists ? "lien .md non converti (404)" : "note introuvable",
-      });
+      // The renderer points a relative `.md` href at the note's page, so only
+      // one that names no note is broken.
+      if (!resolveRelativeNoteLink(dir, link.target)) {
+        broken.push({ ...link, reason: "note introuvable" });
+      }
     }
   }
   if (broken.length) report.brokenLinks.push({ ...ref, links: broken });
@@ -123,8 +118,10 @@ for (const slug of slugs) {
   }
   if (clips.length) report.audio.push({ ...ref, clips });
 
-  // --- language (a note that declares `lang` is foreign on purpose)
-  if (!doc.frontmatter.lang && isMostlyEnglish(doc.body)) {
+  // --- language (a note that declares `lang` is foreign on purpose, and the
+  // English course's examples are English by design, around French notes)
+  const englishCourse = /(^|\/)Languages - Dialects\/Anglais\//i.test(doc.rawPath);
+  if (!doc.frontmatter.lang && !englishCourse && isMostlyEnglish(doc.body)) {
     const s = stopwordScore(doc.body);
     report.english.push({ ...ref, en: s.en, fr: s.fr, es: s.es, ratio: Math.round(s.enRatio * 100) / 100 });
   }

@@ -4,6 +4,7 @@ import matter from "gray-matter";
 import * as TOML from "smol-toml";
 import { INCLUDE_DRAFTS } from "./site";
 import { resolveVaultAssetByName, listVaultAssets } from "./vault-assets";
+import { joinNotePath } from "./vault-health";
 import { getAnkiManifest } from "./anki";
 import { tagSlug } from "./slug";
 
@@ -251,6 +252,29 @@ export function resolveWikiLink(target: string): string | null {
   }
   // Fall back to a vault asset (e.g. [[file.pdf]], [[image.png]]).
   return byBase.get(tl) ?? resolveVaultAssetByName(target) ?? null;
+}
+
+/**
+ * Resolve a relative markdown link to another note — `[x](q01-foo.md)`,
+ * `[x](../Other/Note.md#part)`, as Obsidian and GitHub both write them — from
+ * the folder `dir` of the note that holds it. Returns the page URL (with the
+ * `#anchor` kept) or null when the href isn't a relative `.md` link or names
+ * no note in the vault.
+ */
+export function resolveRelativeNoteLink(dir: string, href: string): string | null {
+  if (/^([a-z][a-z0-9+.-]*:|#|\/)/i.test(href)) return null; // external, anchor, absolute
+  const hashAt = href.indexOf("#");
+  const pathPart = hashAt === -1 ? href : href.slice(0, hashAt);
+  const hash = hashAt === -1 ? "" : href.slice(hashAt);
+  if (!/\.md$/i.test(pathPart)) return null;
+  let decoded = pathPart;
+  try {
+    decoded = decodeURIComponent(pathPart);
+  } catch {
+    /* keep as written */
+  }
+  const url = wikiIndex().byPath.get(joinNotePath(dir, decoded).toLowerCase());
+  return url ? url + hash : null;
 }
 
 function parse(file: string, slug: string, rawPath: string): Doc {
