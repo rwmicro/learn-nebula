@@ -273,3 +273,34 @@ body:has(.admin-panel) footer {
 .admin-card {
   scroll-margin-top: 4rem;
 }
+
+/* Prérequis suggérés: one entry per note, its suggestions nested. */
+.admin-prereqs {
+  max-height: 32rem;
+}
+.admin-prereq-list {
+  margin: 0.3rem 0 0;
+  padding: 0 0 0 0.75rem;
+  list-style: none;
+  border-left: 2px solid var(--rule-soft);
+}
+.admin-prereq-list > li {
+  padding: 0.3rem 0;
+}
+.admin-prereq-list > li + li {
+  border-top: 1px dashed var(--rule-soft);
+}
+.admin-prereq-list > li.is-ignored {
+  opacity: 0.55;
+}
+.admin-prereq-path {
+  color: var(--muted-warm);
+  font-style: italic;
+}
+.admin-prereq-yaml {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: var(--text-micro);
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}

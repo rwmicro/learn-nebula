@@ -12,7 +12,8 @@
     "themes": "Thèmes",
     "cartes": "Cartes",
     "random": "Au hasard",
-    "parcours": "Parcours"
+    "parcours": "Parcours",
+    "progression": "Ma progression"
   },
   "sidebar": {
     "searchPlaceholder": "Rechercher dans les notes…",
@@ -133,7 +134,8 @@
     "licenseLink": "licence Creative Commons",
     "licenseMiddle": ", et le code source sous ",
     "licenseGpl": "licence GNU GPL",
-    "licenseAfter": ". Créé à l'origine par "
+    "licenseAfter": ". Créé à l'origine par ",
+    "progression": "Ma progression : exporter, importer"
   },
   "home": {
     "searchPlaceholder": "Filtrer les notes…",
@@ -256,7 +258,8 @@
     "noteQuestions": "Questions de notes à revoir",
     "noteQuestionsIntro": "Les questions de révision que vous avez ajoutées depuis les notes.",
     "noteQuestionsDue": "{count} à revoir",
-    "noteQuestionsSaved": "{count} enregistrées"
+    "noteQuestionsSaved": "{count} enregistrées",
+    "progression": "Sauvegarder ou transférer ma progression"
   },
   "notFound": {
     "suggestions": "Vous cherchiez peut-être…",
@@ -413,6 +416,76 @@
     "themeAuto": "Thème : automatique",
     "random": "Une note au hasard",
     "assistant": "Ouvrir l’assistant",
-    "current": "actuel"
+    "current": "actuel",
+    "exportProgress": "Exporter ma progression",
+    "importProgress": "Importer une progression"
+  },
+  "progression": {
+    "title": "Ma progression",
+    "intro": "Tout ce que le jardin retient de votre lecture reste dans ce navigateur. Exportez-le pour le garder, ou pour le reprendre sur un autre appareil.",
+    "summaryTitle": "Dans ce navigateur",
+    "statRead": "notes lues",
+    "statStarted": "notes commencées",
+    "statCards": "cartes en révision",
+    "statQuestions": "questions sauvegardées",
+    "empty": "Rien d’enregistré dans ce navigateur pour l’instant.",
+    "noStorage": "Le stockage local est bloqué dans ce navigateur (navigation privée ?) : rien à exporter ni importer ici.",
+    "privacy": "Rien ne passe par le serveur : export, import et lien se font entièrement dans ce navigateur.",
+    "exportTitle": "Exporter",
+    "exportText": "Un fichier JSON daté, à garder ou à importer ailleurs.",
+    "exportButton": "Exporter",
+    "exported": "Fichier téléchargé : {file}",
+    "importTitle": "Importer",
+    "importText": "Un fichier exporté depuis ce site. Rien ne change avant votre confirmation.",
+    "importButton": "Importer un fichier…",
+    "linkTitle": "Lien de transfert",
+    "linkText": "Toute la progression, compressée dans l’adresse même (après le #, qui n’est jamais envoyé au serveur). Ouvrez-le sur l’autre appareil.",
+    "linkButton": "Copier un lien de transfert",
+    "linkCopied": "Lien copié ({n} caractères).",
+    "linkShown": "Copie impossible : sélectionnez le lien ci-dessous.",
+    "linkTooBig": "Trop de données pour un lien ({n} caractères, {max} au plus) : utilisez plutôt le fichier.",
+    "linkUnsupported": "Ce navigateur ne sait pas compresser les données : utilisez le fichier.",
+    "nothing": "Rien à exporter pour l’instant.",
+    "linkLabel": "Lien de transfert",
+    "confirmTitle": "Importer cette progression ?",
+    "fromFile": "Fichier « {name} », exporté le {date}.",
+    "fromLink": "Progression reçue par lien, exportée le {date}.",
+    "incoming": "Il contient :",
+    "modeLegend": "Comment l’importer",
+    "modeMerge": "Fusionner",
+    "modeMergeHint": "garde tout ; pour un même élément, la version la plus récente l’emporte",
+    "modeReplace": "Remplacer",
+    "modeReplaceHint": "efface la progression de ce navigateur et met celle du fichier à la place",
+    "changesTitle": "Ce qui changera",
+    "kindReading": "Notes",
+    "kindDecks": "Cartes",
+    "kindQuestions": "Questions",
+    "chAdded": "+{n} ajoutées",
+    "chUpdated": "{n} mises à jour",
+    "chRemoved": "−{n} supprimées",
+    "chUnchanged": "{n} inchangées",
+    "noChange": "Rien ne changerait : ce navigateur a déjà tout.",
+    "dropped": "{n} entrées inconnues ou abîmées seront ignorées.",
+    "confirm": "Importer",
+    "cancel": "Annuler",
+    "done": "Progression importée.",
+    "doneError": "Import incomplet : le stockage du navigateur est plein ou bloqué.",
+    "cancelled": "Import annulé, rien n’a changé.",
+    "errJson": "Ce fichier n’est pas du JSON lisible.",
+    "errFormat": "Ce n’est pas un fichier de progression du jardin.",
+    "errVersion": "Ce fichier vient d’une version plus récente du site : rechargez la page et réessayez.",
+    "errEmpty": "Le fichier ne contient aucune progression utilisable.",
+    "errLink": "Ce lien de transfert est incomplet ou abîmé.",
+    "errRead": "Impossible de lire ce fichier."
+  },
+  "pathStep": {
+    "label": "Parcours",
+    "step": "Étape {n}/{total}",
+    "navAria": "Position dans le parcours",
+    "prev": "Précédente",
+    "next": "Suivante",
+    "othersOne": "+1 autre parcours",
+    "othersMany": "+{n} autres parcours",
+    "othersTitle": "Cette note est aussi dans :"
   }
 }

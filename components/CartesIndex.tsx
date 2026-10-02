@@ -30,6 +30,11 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
 
       {/* Questions saved from the notes' [!quiz] cards (public/js/quiz.js). */}
       <NoteQuestionsEntry />
+      <p className="cartes-index-progress">
+        <a href="/progression/" {...attrs(i18nAttrs("cartesIndex.progression"))}>
+          {t("cartesIndex.progression")}
+        </a>
+      </p>
 
       {folders.length === 0 ? (
         <p className="cartes-index-empty" {...attrs(i18nAttrs("cartesIndex.empty"))}>

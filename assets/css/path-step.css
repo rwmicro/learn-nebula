@@ -1,0 +1,199 @@
+/* Note pages: the reading-path step bar (lib/path-step.ts) — "Parcours : <nom>
+   · Étape 4/20", previous / next note in the path, other paths. When the note
+   also has prerequisites, the "À lire avant" block (.prereq, note-paths.css)
+   sits inside it as a second row and loses its own frame. Loaded with
+   main.css on /posts/* only. */
+
+.path-step {
+  margin: 1.1rem 0 1.6rem;
+  padding: 0.5rem 0.85rem;
+  border: 1px solid var(--rule);
+  border-inline-start: 3px solid var(--garden);
+  border-radius: 3px;
+  background: var(--wash);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.path-step-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.9rem;
+}
+
+main .path-step-where {
+  margin: 0;
+  min-width: 0;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+.path-step-label {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--garden);
+}
+.path-step-colon {
+  color: var(--garden);
+}
+main .path-step-path {
+  color: var(--ink);
+  font-weight: 600;
+}
+.path-step-sep {
+  color: var(--faint);
+}
+.path-step-count {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-warm);
+  white-space: nowrap;
+}
+
+/* Previous / next: pushed to the end of the row. */
+.path-step-nav {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.9rem;
+  margin-inline-start: auto;
+}
+main .path-step-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  max-width: 17rem;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+main .path-step-link:hover .path-step-name {
+  text-decoration: underline;
+}
+.path-step-dir {
+  flex: none;
+  font-size: 0.85rem;
+  text-transform: lowercase;
+  color: var(--muted-warm);
+}
+.path-step-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.path-step-arrow {
+  flex: none;
+  color: var(--garden);
+}
+/* In right-to-left text the arrows point the other way. */
+[dir="rtl"] .path-step-arrow {
+  display: inline-block;
+  transform: scaleX(-1);
+}
+
+/* "+1 autre parcours" / "+N autres parcours". */
+main .path-step-others {
+  position: relative;
+  font-size: 0.9rem;
+  color: var(--muted-warm);
+}
+.path-step-others summary {
+  cursor: pointer;
+  list-style: none;
+}
+.path-step-others summary::-webkit-details-marker {
+  display: none;
+}
+.path-step-others summary::after {
+  content: " ▾";
+  font-size: 0.8em;
+}
+.path-step-others-pop {
+  position: absolute;
+  z-index: 5;
+  inset-inline-start: 0;
+  top: calc(100% + 0.3rem);
+  min-width: 14rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  background: var(--paper-raised);
+  box-shadow: 0 8px 24px -10px rgb(0 0 0 / 0.3);
+}
+main .path-step-others-pop p {
+  margin: 0 0 0.25rem;
+  font-size: 0.85rem;
+  color: var(--muted-warm);
+}
+.path-step-others-pop ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+main .path-step-others-pop li {
+  margin: 0.15rem 0;
+  font-size: 0.95rem;
+}
+
+main .path-step a:focus-visible,
+.path-step summary:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* The "À lire avant" row, nested: same block, no second frame. */
+.path-step .prereq {
+  margin: 0.45rem 0 0;
+  padding: 0.4rem 0 0;
+  border: 0;
+  border-top: 1px dashed var(--rule-strong);
+  border-radius: 0;
+  background: none;
+}
+
+@media (max-width: 40rem) {
+  .path-step {
+    padding: 0.45rem 0.7rem;
+  }
+  /* Phones: direction words only on screen; the titles stay readable to
+     screen readers (visually hidden) and in the link's title. */
+  .path-step-nav {
+    width: 100%;
+    justify-content: space-between;
+    margin-inline-start: 0;
+  }
+  .path-step-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .path-step-dir {
+    font-size: 0.95rem;
+    color: var(--ink-2);
+  }
+}
+
+/* Print: the navigation goes; nested prerequisites (if any) stay, as they
+   do on a note outside any path. */
+@media print {
+  .path-step:not(.path-step--with-prereq) {
+    display: none !important;
+  }
+  .path-step--with-prereq {
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .path-step-row {
+    display: none !important;
+  }
+  .path-step .prereq {
+    border-top: 0;
+  }
+}
