@@ -272,7 +272,10 @@ test.describe("Widgets", () => {
   test("the note bundle does not carry the widget library", () => {
     const bundle = fs.readFileSync("out/js/note.bundle.js", "utf8");
     expect(bundle).toContain("widget[data-widget]"); // the loader is in it
-    expect(bundle.length).toBeLessThan(40_000); // the 106 KB library is not
+    // The library alone is 106 KB, so a bundle that carried it would be well
+    // past this; the margin leaves room for the note enhancers themselves
+    // (quiz, glossary, selection toolbar, reading progress… ≈ 47 KB in 10/2026).
+    expect(bundle.length).toBeLessThan(80_000);
   });
 });
 
