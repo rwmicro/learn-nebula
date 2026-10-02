@@ -274,9 +274,45 @@ test.describe("Widgets", () => {
     expect(bundle).toContain("widget[data-widget]"); // the loader is in it
     // The library alone is 106 KB, so a bundle that carried it would be well
     // past this; the margin leaves room for the note enhancers themselves
-    // (quiz, glossary, selection toolbar, reading progress… ≈ 47 KB in 10/2026).
-    expect(bundle.length).toBeLessThan(80_000);
+    // (selection toolbar, reading progress, comments… ≈ 38 KB in 10/2026,
+    // once quiz and glossary moved to their own per-note bundles).
+    expect(bundle.length).toBeLessThan(55_000);
+    // Those two load only where they are used (see below).
+    expect(bundle).not.toContain("quiz-self-btn");
+    expect(bundle).not.toContain("gloss-popover");
   });
+});
+
+test.describe("Per-note bundles", () => {
+  // quiz.bundle.js / glossary.bundle.js are added by SinglePage only to notes
+  // whose HTML has a `[!quiz]` card or a glossary mark.
+  for (const [name, needle] of [
+    ["quiz", "callout-quiz"],
+    ["glossary", 'class="gloss"'],
+  ]) {
+    test(`${name}.bundle.js loads on a note that uses it, and only there`, async ({
+      page,
+    }) => {
+      const withIt = findPage(needle);
+      test.skip(!withIt, `no note uses ${name} in this build`);
+      const fetched = [];
+      page.on("response", (r) => {
+        if (r.url().endsWith(`/js/${name}.bundle.js`)) fetched.push(r.url());
+      });
+      await page.goto(withIt);
+      await page.waitForLoadState("networkidle");
+      expect(fetched).toHaveLength(1);
+
+      const without = findPages("/js/note.bundle.js", 400).find(
+        (p) => !fs.readFileSync(path.join("out", p, "index.html"), "utf8").includes(needle),
+      );
+      test.skip(!without, "every note uses it");
+      fetched.length = 0;
+      await page.goto(without);
+      await page.waitForLoadState("networkidle");
+      expect(fetched).toHaveLength(0);
+    });
+  }
 });
 
 test.describe("Keyboard", () => {

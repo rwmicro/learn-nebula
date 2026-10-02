@@ -13,6 +13,8 @@ public/vault
 public/anki
 public/js/mermaid.min.js
 public/js/note.bundle.js
+public/js/quiz.bundle.js
+public/js/glossary.bundle.js
 
 # Tests / tooling / local config
 tests

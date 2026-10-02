@@ -1,4 +1,4 @@
-import { t, i18nAttrs } from "@/lib/i18n";
+import { t, i18nAttrs, disciplineKey } from "@/lib/i18n";
 import type { ReadingPathView } from "@/lib/content";
 import {
   edgePath,
@@ -45,7 +45,9 @@ export function ParcoursIndex({
       {[...groups.entries()].map(([discipline, list]) => (
         <section key={discipline || "_"}>
           <h2 className="themes-h2">
-            {discipline || (
+            {discipline ? (
+              <DisciplineName name={discipline} />
+            ) : (
               <span {...attrs(i18nAttrs("parcours.other"))}>
                 {t("parcours.other")}
               </span>
@@ -142,7 +144,11 @@ export function ParcoursPage({
         <link rel="stylesheet" href="/katex/katex.min.css" />
       )}
       <Back href="/parcours/" labelKey="parcours.title" />
-      {path.discipline && <p className="themes-kicker">{path.discipline}</p>}
+      {path.discipline && (
+        <p className="themes-kicker">
+          <DisciplineName name={path.discipline} />
+        </p>
+      )}
       <h1 className="themes-title">{path.name}</h1>
       {path.description && (
         <p className="themes-intro parcours-desc">{path.description}</p>
@@ -505,6 +511,14 @@ function Progress({
       </span>
     </span>
   );
+}
+
+/** A discipline's localized name ("Philosophy" → "Philosophie"), swapped at
+ *  runtime like the rest; the folder name as is when there is no key. */
+function DisciplineName({ name }: { name: string }) {
+  const key = disciplineKey(name);
+  if (!key) return <>{name}</>;
+  return <span {...attrs(i18nAttrs(key))}>{t(key)}</span>;
 }
 
 function Back({ href, labelKey }: { href: string; labelKey: string }) {

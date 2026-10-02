@@ -69,3 +69,17 @@ export function i18nAttr(attr: string, key: string): string {
 export function getMessages(locale: Locale): Messages {
   return BUNDLES[locale];
 }
+
+/** The `discipline.*` key of a discipline display name ("Philosophy",
+ * "Languages & Dialects", "Échecs" → "discipline.philosophy",
+ * "discipline.languagesdialects", "discipline.echecs"), or null when the
+ * bundles have no translation for it (callers then show the name as is). */
+export function disciplineKey(name: string): string | null {
+  const k = name
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+  const key = `discipline.${k}`;
+  return k && lookup(BUNDLES[DEFAULT_LOCALE], key) != null ? key : null;
+}
