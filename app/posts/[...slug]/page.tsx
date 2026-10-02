@@ -10,6 +10,7 @@ import { NoteScripts } from "@/components/NoteScripts";
 import "@/assets/css/main.css";
 import "@/assets/css/syntax.css";
 import "@/assets/css/note-paths.css";
+import "@/assets/css/path-step.css";
 
 type Params = { params: Promise<{ slug: string[] }> };
 

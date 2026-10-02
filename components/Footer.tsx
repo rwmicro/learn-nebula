@@ -49,6 +49,13 @@ export function Footer() {
             <span data-i18n="footer.licenseAfter">{t("footer.licenseAfter")}</span>
             <a href={ORIGINAL_AUTHOR_URL}>{ORIGINAL_AUTHOR}</a>.
           </p>
+          {/* Reading / review progress lives in this browser only: the way to
+              keep it or move it (app/progression). */}
+          <p className="footer-prose m-0 print:hidden">
+            <a href="/progression/" data-i18n="footer.progression">
+              {t("footer.progression")}
+            </a>
+          </p>
         </div>
       </div>
     </footer>

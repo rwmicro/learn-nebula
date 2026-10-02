@@ -15,6 +15,7 @@ import { VersionCard } from "./admin/VersionCard";
 import { PublishedComments } from "./admin/PublishedComments";
 import { QuestionsCard } from "./admin/QuestionsCard";
 import { VaultHealthCard } from "./admin/VaultHealthCard";
+import { PrereqSuggestionsCard } from "./admin/PrereqSuggestionsCard";
 
 const TOKEN_KEY = "gkAdminToken";
 const POLL_MS = 30_000;
@@ -54,6 +55,7 @@ const ADMIN_SECTIONS: [string, string][] = [
   ["admin-published", "publiés"],
   ["admin-questions", "questions"],
   ["admin-health", "santé du coffre"],
+  ["admin-prereqs", "prérequis suggérés"],
 ];
 
 export function AdminPanel() {
@@ -501,6 +503,8 @@ export function AdminPanel() {
           <QuestionsCard token={token} onUnauthorized={expired} />
 
           <VaultHealthCard token={token} onUnauthorized={expired} />
+
+          <PrereqSuggestionsCard token={token} onUnauthorized={expired} onToast={showToast} />
         </>
       )}
 

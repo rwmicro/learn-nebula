@@ -8,7 +8,9 @@ import {
   getPrerequisites,
   getDependents,
   getReadingPathOf,
+  getReadingPaths,
 } from "@/lib/content";
+import { pathStepHtml, pathStepOf } from "@/lib/path-step";
 import { renderMarkdown } from "@/lib/markdown";
 import {
   dropcapHtml,
@@ -109,12 +111,19 @@ export async function SinglePage({
   // [[link]] here too; the backlinks list leaves them out so none shows twice.
   const dependents = note ? getDependents(doc.slug) : [];
   const readingPath = note ? getReadingPathOf(doc.slug) : null;
-  const prereqs = note
+  // In a reading path, the step bar ("Parcours : … · Étape 4/20", previous /
+  // next) replaces the block's own "Voir le parcours" link and holds the
+  // prerequisites under its first row: one compact block, not two.
+  const step = note ? pathStepOf(doc.slug, getReadingPaths()) : null;
+  const prereqBlock = note
     ? prereqHtml(
         getPrerequisites(doc.slug),
-        readingPath ? `/parcours/${readingPath.slug}/` : undefined,
+        readingPath && !step ? `/parcours/${readingPath.slug}/` : undefined,
       )
     : "";
+  const prereqs = step
+    ? pathStepHtml(step, prereqBlock.replace(/^<nav /, "<div ").replace(/<\/nav>$/, "</div>"))
+    : prereqBlock;
   const further = note ? furtherHtml(dependents) : "";
   const dependentSlugs = new Set(dependents.map((d) => d.slug));
   const backlinks = note

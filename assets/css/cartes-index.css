@@ -97,3 +97,15 @@
   color: var(--muted-warm);
   font-size: 0.98rem;
 }
+
+/* Link to /progression/ (export / import of the SRS state). */
+.cartes-index-progress {
+  margin: 0.6rem 0 0;
+  font-size: 0.98rem;
+}
+.cartes-index-progress a {
+  color: var(--muted-warm);
+}
+.cartes-index-progress a::after {
+  content: " →";
+}

@@ -1,0 +1,341 @@
+/* /progression/ — export / import of the reader's progress
+   (components/Progression.tsx). Same document-flow frame as /cartes/
+   (cartes-index.css); every colour from the global.css tokens. */
+
+.progression {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 4rem;
+}
+
+.progression-back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.progression-back:hover {
+  text-decoration: underline;
+}
+
+.progression-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  letter-spacing: -0.01rem;
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+}
+.progression-intro {
+  color: var(--ink-2);
+  margin: 0 0 2rem;
+  font-size: 1.1rem;
+}
+
+.progression-h2 {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--garden);
+  margin: 0 0 0.5rem;
+}
+.progression-h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 1.1rem 0 0.4rem;
+}
+.progression-muted {
+  margin: 0.4rem 0 0;
+  color: var(--muted-warm);
+  font-style: italic;
+}
+
+/* --- summary --------------------------------------------------------------- */
+.progression-summary {
+  margin: 0 0 2rem;
+}
+.progression-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--rule-strong);
+  border-bottom: 1px solid var(--rule);
+}
+.progression-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.8rem 0.9rem 0.9rem 0;
+}
+.progression-stat + .progression-stat {
+  padding-inline-start: 0.9rem;
+  border-inline-start: 1px solid var(--rule);
+}
+.progression-stat dt {
+  font-size: 0.95rem;
+  line-height: 1.25;
+  color: var(--ink-2);
+}
+.progression-stat dd {
+  order: -1; /* the number first, labels of any length below it */
+  margin: 0;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 2rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--ink);
+}
+
+/* --- actions --------------------------------------------------------------- */
+.progression-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+.progression-action {
+  display: flex;
+  flex-direction: column;
+  padding: 0.9rem 1rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--paper-raised);
+}
+.progression-action p {
+  margin: 0 0 0.9rem;
+  flex: 1;
+  font-size: 0.98rem;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.progression-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 2.5rem;
+  padding: 0.35rem 0.9rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.98rem;
+  cursor: pointer;
+}
+.progression-btn:hover:not(:disabled) {
+  border-color: var(--ink);
+  background: var(--wash);
+}
+.progression-btn:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+}
+.progression-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.progression-btn--primary {
+  border-color: var(--garden);
+  background: var(--garden);
+  color: var(--paper);
+}
+.progression-btn--primary:hover:not(:disabled) {
+  border-color: var(--garden-hover);
+  background: var(--garden-hover);
+}
+.progression-btn--primary.is-danger {
+  border-color: var(--danger);
+  background: var(--danger);
+}
+.progression-btn--primary.is-danger:hover:not(:disabled) {
+  border-color: var(--danger-ink);
+  background: var(--danger-ink);
+}
+
+.progression-status {
+  min-height: 1.5em;
+  margin: 1rem 0 0;
+  font-size: 1rem;
+  color: var(--ink-2);
+}
+.progression-status.is-ok {
+  color: var(--garden);
+}
+.progression-status.is-error {
+  color: var(--danger);
+}
+
+.progression-link {
+  display: block;
+  margin: 0.5rem 0 0;
+}
+.progression-link span {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--muted-warm);
+}
+.progression-link textarea {
+  width: 100%;
+  margin-top: 0.25rem;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 4px;
+  background: var(--paper-raised);
+  color: var(--ink);
+  font: 0.8rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+}
+
+.progression-privacy {
+  margin: 2rem 0 0;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.95rem;
+  color: var(--muted-warm);
+}
+
+/* --- confirmation dialog --------------------------------------------------- */
+.progression-dialog {
+  margin: auto; /* centred: the global reset zeroes dialog margins */
+  width: min(34rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 1.2rem 1.3rem 1.1rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 18px 50px -12px rgb(0 0 0 / 0.35);
+}
+.progression-dialog::backdrop {
+  background: rgb(0 0 0 / 0.45);
+}
+.progression-dialog-title {
+  margin: 0;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-size: 1.45rem;
+}
+.progression-incoming {
+  margin: 0.6rem 0 0;
+  color: var(--ink-2);
+}
+.progression-modes {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  border: 0;
+}
+.progression-modes legend {
+  margin-bottom: 0.4rem;
+  font-weight: 700;
+}
+.progression-mode {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.progression-mode.is-on {
+  border-color: var(--garden);
+  background: var(--garden-wash);
+}
+.progression-mode input {
+  margin-top: 0.3rem;
+  accent-color: var(--garden);
+}
+.progression-mode-hint {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--ink-2);
+}
+.progression-mode:has(input:focus-visible) {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+}
+
+.progression-changes {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.98rem;
+}
+.progression-changes th,
+.progression-changes td {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--rule);
+  text-align: start;
+  vertical-align: baseline;
+}
+.progression-changes th {
+  width: 7rem;
+  font-weight: 600;
+}
+.progression-changes td span + span::before {
+  content: " · ";
+  color: var(--faint);
+}
+.progression-changes .is-added {
+  color: var(--garden);
+  font-weight: 600;
+}
+.progression-changes .is-removed {
+  color: var(--danger);
+  font-weight: 600;
+}
+.progression-changes .is-same {
+  color: var(--muted-warm);
+}
+
+.progression-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  margin-top: 1.2rem;
+}
+
+@media (max-width: 40rem) {
+  .progression-actions {
+    grid-template-columns: 1fr;
+  }
+  .progression-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .progression-stat:nth-child(3) {
+    padding-inline-start: 0;
+    border-inline-start: 0;
+  }
+  .progression-stat:nth-child(n + 3) {
+    border-top: 1px solid var(--rule);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .progression-dialog[open] {
+    animation: progression-in 0.16s ease-out;
+  }
+  @keyframes progression-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+}
+
+@media print {
+  .progression-actions,
+  .progression-status,
+  .progression-link,
+  .progression-dialog {
+    display: none !important;
+  }
+}

@@ -3,6 +3,7 @@
 //
 //   GET /api/admin/version      → served build vs. pensine's latest commit (server/version.ts)
 //   GET /api/admin/vault-health → the build-time vault report (scripts/vault-health.ts)
+//   GET /api/admin/prereq-suggestions → draft `prerequis` edges (scripts/prereq-suggestions.ts)
 
 import fs from "node:fs";
 import { Hono } from "hono";
@@ -31,5 +32,18 @@ adminRoute.get("/vault-health", (c) => {
     return c.json({ error: "Rapport absent — il est généré par le build (scripts/vault-health.ts)." }, 404);
   }
   // Already JSON on disk: pass it through rather than parse + re-serialise.
+  return c.body(raw, 200, { "content-type": "application/json; charset=utf-8" });
+});
+
+adminRoute.get("/prereq-suggestions", (c) => {
+  let raw: string;
+  try {
+    raw = fs.readFileSync(env.prereqSuggestions, "utf8");
+  } catch {
+    return c.json(
+      { error: "Suggestions absentes — elles sont générées par le build (scripts/prereq-suggestions.ts)." },
+      404,
+    );
+  }
   return c.body(raw, 200, { "content-type": "application/json; charset=utf-8" });
 });
