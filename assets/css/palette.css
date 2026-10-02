@@ -154,7 +154,8 @@ html.palette-open {
   align-items: center;
   gap: 0.65rem;
   padding: 0.45rem 0.6rem;
-  border-radius: 6px;
+  /* Square on the left so the selection bar stays a straight line. */
+  border-radius: 0 6px 6px 0;
   cursor: pointer;
   color: var(--ink);
 }
