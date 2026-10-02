@@ -11,6 +11,7 @@
 // new tab for links), Esc closes, Tab stays inside, focus returns to where it
 // was.
 import { fold, rankItems } from "../../lib/palette-match";
+import { downloadExport } from "../../lib/progress-transfer";
 
 (function () {
   if (window.__palette) return;
@@ -142,6 +143,13 @@ import { fold, rankItems } from "../../lib/palette-match";
     }, 80);
   }
 
+  // Progress export runs right here (lib/progress-transfer.ts); importing
+  // needs a file picker and a confirmation, so it goes to /progression/.
+  function exportProgress() {
+    const name = downloadExport();
+    if (!name) location.href = "/progression/";
+  }
+
   function actions() {
     const cur = themePref();
     const mark = (p) => (cur === p ? tt("palette.current") : "");
@@ -151,6 +159,8 @@ import { fold, rankItems } from "../../lib/palette-match";
       { kind: "action", title: tt("palette.themeAuto"), hint: mark("auto"), keywords: "theme auto systeme system", run: () => setTheme("auto") },
       { kind: "action", title: tt("palette.random"), hint: "", keywords: "hasard random aleatoire", run: randomNote },
       { kind: "action", title: tt("palette.assistant"), hint: "", keywords: "assistant ia ai question chat demander", run: openAssistant },
+      { kind: "action", title: tt("palette.exportProgress"), hint: "", keywords: "exporter export progression sauvegarde backup lues cartes", run: exportProgress },
+      { kind: "action", title: tt("palette.importProgress"), hint: "", keywords: "importer import progression restaurer transfert appareil", run: () => (location.href = "/progression/#importer") },
     ];
   }
 
@@ -162,6 +172,7 @@ import { fold, rankItems } from "../../lib/palette-match";
       ["nav.themes", "/themes/", "themes tags disciplines"],
       ["nav.cartes", "/cartes/", "cartes anki flashcards"],
       ["nav.parcours", "/parcours/", "parcours chemins prerequis paths"],
+      ["nav.progression", "/progression/", "progression progress export import sauvegarde"],
     ]
       .filter(([, href]) => href !== location.pathname)
       .map(([k, href, kw]) => ({ kind: "nav", title: tt(k), hint: "", href, keywords: kw }));
