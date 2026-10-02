@@ -6,6 +6,9 @@ import {
   type GraphLayout,
 } from "@/lib/prereq-layout";
 import { ReadMarks } from "@/components/ReadMarks";
+import { PathZoom } from "@/components/PathZoom";
+import { ParcoursStudy, type StudyNoteView } from "@/components/ParcoursStudy";
+import type { PathExtras } from "@/lib/path-extras";
 
 /**
  * /parcours/ (an index of reading paths, one card each) and /parcours/<slug>/
@@ -14,7 +17,14 @@ import { ReadMarks } from "@/components/ReadMarks";
  * <ReadMarks> only toggles read / next-to-read classes from localStorage.
  */
 
-export function ParcoursIndex({ paths }: { paths: ReadingPathView[] }) {
+export function ParcoursIndex({
+  paths,
+  extras,
+}: {
+  paths: ReadingPathView[];
+  /** Per path slug: reading times and quiz ids (for the "maîtrisées" count). */
+  extras: Record<string, PathExtras>;
+}) {
   const groups = new Map<string, ReadingPathView[]>();
   for (const p of paths)
     groups.set(p.discipline, [...(groups.get(p.discipline) ?? []), p]);
@@ -79,6 +89,7 @@ export function ParcoursIndex({ paths }: { paths: ReadingPathView[] }) {
                     <Progress
                       slugs={p.notes.map((n) => n.slug)}
                       total={p.notes.length}
+                      extras={extras[p.slug]}
                     />
                   </span>
                 </a>
@@ -95,21 +106,41 @@ export function ParcoursIndex({ paths }: { paths: ReadingPathView[] }) {
   );
 }
 
-export function ParcoursPage({ path }: { path: ReadingPathView }) {
+export function ParcoursPage({
+  path,
+  extras,
+}: {
+  path: ReadingPathView;
+  extras: PathExtras;
+}) {
   const titles = new Map(path.notes.map((n) => [n.slug, n.title]));
   const order = path.notes.map((n) => n.slug);
   const titleOf = (s: string) => titles.get(s) ?? s;
   const layout = layoutPrereqGraph(order, path.edges, titleOf);
   // Phones get a tighter drawing (narrower boxes, shorter lines) so most
-  // paths fit a 390px screen; wider ones scroll sideways (see ReadMarks,
-  // which brings the next note into view). CSS shows one or the other.
+  // paths fit a 390px screen; wider ones zoom and pan (PathZoom), opening on
+  // the next note to read. CSS shows one or the other.
   const compact = layoutPrereqGraph(order, path.edges, titleOf, COMPACT);
+  const study: StudyNoteView[] = path.notes.map((n) => ({
+    slug: n.slug,
+    title: n.title,
+    href: n.href,
+    prereqs: n.prereqs,
+    minutes: extras.notes[n.slug]?.minutes ?? 1,
+    quiz: extras.notes[n.slug]?.quiz ?? [],
+  }));
+  const hasQuiz = new Set(study.filter((n) => n.quiz.length).map((n) => n.slug));
   return (
     <main
       id="main"
       className="themes-page parcours-page parcours-page--path"
       data-parcours
+      data-path={path.slug}
     >
+      {/* Revision answers can hold KaTeX markup from the notes. */}
+      {extras.items.some((i) => /katex/.test(i.q + i.a)) && (
+        <link rel="stylesheet" href="/katex/katex.min.css" />
+      )}
       <Back href="/parcours/" labelKey="parcours.title" />
       {path.discipline && <p className="themes-kicker">{path.discipline}</p>}
       <h1 className="themes-title">{path.name}</h1>
@@ -123,6 +154,7 @@ export function ParcoursPage({ path }: { path: ReadingPathView }) {
         <Progress
           slugs={path.notes.map((n) => n.slug)}
           total={path.notes.length}
+          extras={extras}
         />
       </div>
       <p className="parcours-next" data-parcours-next hidden>
@@ -130,38 +162,36 @@ export function ParcoursPage({ path }: { path: ReadingPathView }) {
         <a href="#">…</a>
       </p>
 
+      <ParcoursStudy pathSlug={path.slug} notes={study} items={extras.items} />
+
       <figure className="parcours-figure">
-        <div
-          className="parcours-graph"
-          // Scrollable region (narrow screens): reachable and named for keyboard users.
-          tabIndex={compact.width > 340 ? 0 : undefined}
-          role="group"
-          aria-label={t("parcours.graphAria")}
-          {...attrs(` data-i18n-aria-label="parcours.graphAria"`)}
-        >
+        <PathZoom label={t("parcours.graphAria")}>
           <ArrowDefs />
-          <PathSvg path={path} layout={layout} variant="wide" />
-          <PathSvg path={path} layout={compact} variant="compact" lineH={15} />
-        </div>
+          <PathSvg path={path} layout={layout} variant="wide" quiz={hasQuiz} />
+          <PathSvg
+            path={path}
+            layout={compact}
+            variant="compact"
+            lineH={15}
+            quiz={hasQuiz}
+          />
+        </PathZoom>
         <figcaption className="parcours-legend" aria-hidden="true">
-          <span className="parcours-legend-item">
-            <span className="parcours-swatch parcours-swatch--read" />
-            <span {...attrs(i18nAttrs("reading.read"))}>
-              {t("reading.read")}
+          {(
+            [
+              ["unread", "parcours.unread"],
+              ["next", "parcours.nextShort"],
+              ["read", "reading.read"],
+              ["known", "parcours.known"],
+              ["mastered", "parcours.mastered"],
+              ["target", "parcours.targetBadge"],
+            ] as const
+          ).map(([k, key]) => (
+            <span key={k} className="parcours-legend-item">
+              <span className={`parcours-swatch parcours-swatch--${k}`} />
+              <span {...attrs(i18nAttrs(key))}>{t(key)}</span>
             </span>
-          </span>
-          <span className="parcours-legend-item">
-            <span className="parcours-swatch parcours-swatch--next" />
-            <span {...attrs(i18nAttrs("parcours.nextShort"))}>
-              {t("parcours.nextShort")}
-            </span>
-          </span>
-          <span className="parcours-legend-item">
-            <span className="parcours-swatch" />
-            <span {...attrs(i18nAttrs("parcours.unread"))}>
-              {t("parcours.unread")}
-            </span>
-          </span>
+          ))}
         </figcaption>
       </figure>
 
@@ -169,10 +199,11 @@ export function ParcoursPage({ path }: { path: ReadingPathView }) {
       <h2 className="themes-h2" {...attrs(i18nAttrs("parcours.order"))}>
         {t("parcours.order")}
       </h2>
-      <ol className="parcours-order" data-read-marks>
+      <ol className="parcours-order">
         {path.notes.map((n) => (
           <li key={n.slug} data-slug={n.slug}>
-            <a href={n.href}>{n.title}</a>
+            <a href={n.href}>{n.title}</a>{" "}
+            <span className="parcours-state" data-state-label hidden />
             {n.prereqs.length > 0 && (
               <span className="parcours-after">
                 {" — "}
@@ -182,6 +213,26 @@ export function ParcoursPage({ path }: { path: ReadingPathView }) {
                 {n.prereqs.map((p) => titles.get(p) ?? p).join(", ")}
               </span>
             )}
+            <span className="parcours-li-acts">
+              <button
+                type="button"
+                className="parcours-li-btn"
+                data-act="target"
+                data-slug={n.slug}
+                aria-pressed="false"
+              >
+                {t("parcours.targetThis")}
+              </button>
+              <button
+                type="button"
+                className="parcours-li-btn"
+                data-act="known"
+                data-slug={n.slug}
+                aria-pressed="false"
+              >
+                {t("parcours.know")}
+              </button>
+            </span>
           </li>
         ))}
       </ol>
@@ -251,11 +302,14 @@ function PathSvg({
   layout,
   variant,
   lineH = 17,
+  quiz,
 }: {
   path: ReadingPathView;
   layout: GraphLayout;
   variant: "wide" | "compact";
   lineH?: number;
+  /** Notes that have `[!quiz]` questions (a small "?" mark). */
+  quiz: Set<string>;
 }) {
   const prereqs = new Map(path.notes.map((n) => [n.slug, n.prereqs]));
   return (
@@ -282,44 +336,90 @@ function PathSvg({
           const cx = n.x + n.w / 2;
           const y0 = n.y + n.h / 2 - ((n.lines.length - 1) * lineH) / 2;
           return (
-            <a
-              key={n.slug}
-              href={`/posts/${n.slug}/`}
-              className="pg-node"
-              data-slug={n.slug}
-              data-prereqs={(prereqs.get(n.slug) ?? []).join(" ")}
-              aria-label={n.title}
-            >
-              <title>{n.title}</title>
-              <rect
-                className="pg-box"
-                x={n.x}
-                y={n.y}
-                width={n.w}
-                height={n.h}
-                rx="7"
-              />
-              <text
-                className="pg-label"
-                x={cx}
-                y={y0}
-                textAnchor="middle"
-                dominantBaseline="central"
+            // One group per note: the link (plain click opens the note) and,
+            // beside it, two small buttons: "viser" (target, bottom right)
+            // and "je connais déjà" (top left). Buttons can't nest in a
+            // link, hence siblings; ParcoursStudy wires and labels them.
+            <g key={n.slug} className="pg-item" data-slug={n.slug}>
+              <a
+                href={`/posts/${n.slug}/`}
+                className="pg-node"
+                data-slug={n.slug}
+                data-prereqs={(prereqs.get(n.slug) ?? []).join(" ")}
+                aria-label={n.title}
               >
-                {n.lines.map((l, i) => (
-                  <tspan key={i} x={cx} dy={i === 0 ? 0 : lineH}>
-                    {l}
-                  </tspan>
-                ))}
-              </text>
+                <title>{n.title}</title>
+                <rect
+                  className="pg-box"
+                  x={n.x}
+                  y={n.y}
+                  width={n.w}
+                  height={n.h}
+                  rx="7"
+                />
+                <text
+                  className="pg-label"
+                  x={cx}
+                  y={y0}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                >
+                  {n.lines.map((l, i) => (
+                    <tspan key={i} x={cx} dy={i === 0 ? 0 : lineH}>
+                      {l}
+                    </tspan>
+                  ))}
+                </text>
+                {quiz.has(n.slug) && (
+                  <text className="pg-quiz" x={n.x + 7} y={n.y + n.h - 6} aria-hidden="true">
+                    ?
+                  </text>
+                )}
+                {/* State badge, top right: a check (lue), a dashed check
+                    (connue) or a star (maîtrisée). */}
+                <g
+                  className="pg-badge"
+                  transform={`translate(${n.x + n.w - 1} ${n.y + 1})`}
+                >
+                  <circle r="9" />
+                  <path className="pg-badge-check" d="M-4 0.5l2.6 2.6 5.4-5.4" />
+                  <path
+                    className="pg-badge-star"
+                    d="M0,-5.6 L1.6,-1.8 L5.4,-1.7 L2.5,0.8 L3.4,4.6 L0,2.6 L-3.4,4.6 L-2.5,0.8 L-5.4,-1.7 L-1.6,-1.8 Z"
+                  />
+                </g>
+              </a>
               <g
-                className="pg-check"
-                transform={`translate(${n.x + n.w - 1} ${n.y + 1})`}
+                className="pg-act pg-act--target"
+                role="button"
+                tabIndex={0}
+                data-act="target"
+                data-slug={n.slug}
+                aria-pressed="false"
+                aria-label={`${t("parcours.targetThis")} : ${n.title}`}
+                transform={`translate(${n.x + n.w - 2} ${n.y + n.h - 2})`}
               >
-                <circle r="9" />
-                <path d="M-4 0.5l2.6 2.6 5.4-5.4" />
+                <title>{t("parcours.targetThis")}</title>
+                <circle className="pg-act-bg" r="11" />
+                <circle className="pg-act-ring" r="6.5" />
+                <circle className="pg-act-ring" r="3" />
+                <circle className="pg-act-dot" r="1.2" />
               </g>
-            </a>
+              <g
+                className="pg-act pg-act--known"
+                role="button"
+                tabIndex={0}
+                data-act="known"
+                data-slug={n.slug}
+                aria-pressed="false"
+                aria-label={`${t("parcours.know")} : ${n.title}`}
+                transform={`translate(${n.x + 2} ${n.y + 2})`}
+              >
+                <title>{t("parcours.know")}</title>
+                <circle className="pg-act-bg" r="11" />
+                <path className="pg-act-tick" d="M-4.5 0.5l3 3 6-6" />
+              </g>
+            </g>
           );
         })}
       </g>
@@ -373,15 +473,32 @@ function MiniGraph({ path }: { path: ReadingPathView }) {
   );
 }
 
-function Progress({ slugs, total }: { slugs: string[]; total: number }) {
+function Progress({
+  slugs,
+  total,
+  extras,
+}: {
+  slugs: string[];
+  total: number;
+  extras?: PathExtras;
+}) {
+  // Quiz ids of the notes that have some: ReadMarks derives "maîtrisée".
+  const quiz: Record<string, string[]> = {};
+  for (const s of slugs) {
+    const q = extras?.notes[s]?.quiz;
+    if (q?.length) quiz[s] = q;
+  }
   return (
     <span
       className="parcours-progress"
       data-read-progress
+      data-path-progress
       data-slugs={slugs.join(" ")}
+      data-quiz={Object.keys(quiz).length ? JSON.stringify(quiz) : undefined}
     >
       <span className="parcours-bar" aria-hidden="true">
-        <span />
+        <span className="parcours-bar-done" />
+        <span className="parcours-bar-mastered" />
       </span>
       <span className="parcours-progress-text" data-read-count>
         {t("reading.count", { read: 0, total })}

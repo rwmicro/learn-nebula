@@ -4,13 +4,19 @@ import { useEffect } from "react";
 import { t as buildT } from "@/lib/i18n";
 import {
   CHANGE_EVENT,
-  STORAGE_KEY,
   isRead,
   loadStore,
-  nextToRead,
   slugFromHref,
   type ReadingStore,
 } from "@/lib/reading-progress";
+import {
+  QUIZ_EVENT,
+  STUDY_EVENT,
+  isStudyKey,
+  loadStudyStates,
+  progressCounts,
+  type ProgressCounts,
+} from "@/lib/path-study";
 
 /**
  * Read state on server-rendered lists (the /themes/ and /disciplines/ note
@@ -19,9 +25,12 @@ import {
  *
  * - `[data-read-marks] a[href^="/posts/"]` — a checkmark after each read note;
  * - `[data-read-progress][data-slugs]` — "x/y lues" plus a bar (`--read`);
- * - `[data-parcours]` — on a path graph, `.is-read` on read notes and edges
- *   leaving them, `.is-next` on the note to read next, which
- *   `[data-parcours-next]` also names.
+ * - `[data-path-progress]` (reading paths) — the same with the path states
+ *   of lib/path-study.ts: "12 lues · 4 maîtrisées / 20", known notes too,
+ *   and the state of each dot of the path's thumbnail.
+ *
+ * The path graph itself (states, next note, target…) is
+ * components/ParcoursStudy.tsx.
  *
  * Renders nothing; re-runs when another tab (storage) or this one
  * (CHANGE_EVENT) changes the store, and on a back/forward restore.
@@ -31,15 +40,19 @@ export function ReadMarks() {
     const apply = () => decorate(loadStore());
     apply();
     const onStorage = (e: StorageEvent) => {
-      if (e.key === STORAGE_KEY || e.key === null) apply();
+      if (isStudyKey(e.key)) apply();
     };
     window.addEventListener("storage", onStorage);
     window.addEventListener(CHANGE_EVENT, apply);
+    window.addEventListener(STUDY_EVENT, apply);
+    window.addEventListener(QUIZ_EVENT, apply);
     window.addEventListener("pageshow", apply);
     document.addEventListener("i18n:change", apply);
     return () => {
       window.removeEventListener("storage", onStorage);
       window.removeEventListener(CHANGE_EVENT, apply);
+      window.removeEventListener(STUDY_EVENT, apply);
+      window.removeEventListener(QUIZ_EVENT, apply);
       window.removeEventListener("pageshow", apply);
       document.removeEventListener("i18n:change", apply);
     };
@@ -93,6 +106,10 @@ function decorate(store: ReadingStore) {
   document
     .querySelectorAll<HTMLElement>("[data-read-progress][data-slugs]")
     .forEach((el) => {
+      if (el.hasAttribute("data-path-progress")) {
+        decoratePath(el);
+        return;
+      }
       const slugs = (el.dataset.slugs ?? "").split(" ").filter(Boolean);
       const read = slugs.filter((s) => isRead(store, s)).length;
       const total = slugs.length;
@@ -109,52 +126,47 @@ function decorate(store: ReadingStore) {
           n.classList.toggle("is-read", isRead(store, n.dataset.slug)),
         );
     });
+}
 
-  // 3. Path graphs: read / next state on nodes, edges and the ordered list.
-  document.querySelectorAll<HTMLElement>("[data-parcours]").forEach((root) => {
-    const notes = [
-      ...root.querySelectorAll<HTMLElement>(".pg-node[data-slug]"),
-    ].map((n) => ({
-      el: n,
-      slug: n.dataset.slug!,
-      prereqs: (n.dataset.prereqs ?? "").split(" ").filter(Boolean),
-    }));
-    const next = nextToRead(notes, store);
-    for (const n of notes) {
-      n.el.classList.toggle("is-read", isRead(store, n.slug));
-      n.el.classList.toggle("is-next", n.slug === next);
-    }
-    root.querySelectorAll<SVGElement>(".pg-edge[data-from]").forEach((e) => {
-      e.classList.toggle("is-read", isRead(store, e.dataset.from));
+/** "12 lues · 2 connues · 4 maîtrisées / 20", or "3/6 lues" while nothing is
+ *  known or mastered. */
+function pathProgressText(c: ProgressCounts): string {
+  if (!c.known && !c.mastered) return tr("reading.count", { read: c.read, total: c.total });
+  const n = (key: string, v: number) => tr(v === 1 ? `${key}One` : key, { n: v });
+  const parts = [n("parcours.pRead", c.read)];
+  if (c.known) parts.push(n("parcours.pKnown", c.known));
+  if (c.mastered) parts.push(n("parcours.pMastered", c.mastered));
+  return `${parts.join(" · ")} / ${c.total}`;
+}
+
+function decoratePath(el: HTMLElement) {
+  const slugs = (el.dataset.slugs ?? "").split(" ").filter(Boolean);
+  let quiz: Record<string, string[]> = {};
+  try {
+    quiz = el.dataset.quiz ? JSON.parse(el.dataset.quiz) : {};
+  } catch {
+    /* malformed: no mastery */
+  }
+  const { states } = loadStudyStates(
+    slugs.map((slug) => ({ slug, prereqs: [], quiz: quiz[slug] ?? [] })),
+  );
+  const c = progressCounts(slugs, states);
+  el.style.setProperty("--read", c.total ? String(c.done / c.total) : "0");
+  el.style.setProperty("--mastered", c.total ? String(c.mastered / c.total) : "0");
+  el.classList.toggle("is-started", c.done > 0);
+  el.classList.toggle("is-done", c.total > 0 && c.done === c.total);
+  const text = el.querySelector("[data-read-count]");
+  if (text) text.textContent = pathProgressText(c);
+  el.setAttribute(
+    "aria-label",
+    tr("parcours.progressAria", { read: c.read, known: c.known, mastered: c.mastered, total: c.total }),
+  );
+  el.closest("[data-read-group]")
+    ?.querySelectorAll<SVGElement>(".pm-dot[data-slug]")
+    .forEach((n) => {
+      const st = states.get(n.dataset.slug!) ?? "unread";
+      n.classList.toggle("is-read", st === "read");
+      n.classList.toggle("is-known", st === "known");
+      n.classList.toggle("is-mastered", st === "mastered");
     });
-    root.querySelectorAll<HTMLElement>("li[data-slug]").forEach((li) => {
-      li.classList.toggle("is-next", li.dataset.slug === next);
-    });
-    // A graph wider than the screen scrolls sideways: bring the note to read
-    // next (else the first one) into view, once, without animating.
-    root.querySelectorAll<HTMLElement>(".parcours-graph").forEach((box) => {
-      if (box.dataset.scrolled || box.scrollWidth <= box.clientWidth) return;
-      box.dataset.scrolled = "1";
-      const svg = [...box.querySelectorAll<SVGSVGElement>("svg.pg")].find(
-        (s) => s.getClientRects().length,
-      );
-      const node =
-        svg?.querySelector<SVGGraphicsElement>(".pg-node.is-next") ??
-        svg?.querySelector<SVGGraphicsElement>(".pg-node");
-      if (!node) return;
-      const b = box.getBoundingClientRect();
-      const r = node.getBoundingClientRect();
-      box.scrollLeft += r.left + r.width / 2 - (b.left + b.width / 2);
-    });
-    const callout = root.querySelector<HTMLElement>("[data-parcours-next]");
-    if (callout) {
-      const link = callout.querySelector("a");
-      const target = notes.find((n) => n.slug === next);
-      callout.hidden = !target;
-      if (link && target) {
-        link.setAttribute("href", `/posts/${target.slug}/`);
-        link.textContent = target.el.getAttribute("aria-label") ?? target.slug;
-      }
-    }
-  });
 }

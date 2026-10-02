@@ -129,6 +129,9 @@ export function CircularGraph({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [rot, setRot] = useState(0); // radians — the "roulette"
   const [filter, setFilter] = useState<string | null>(null);
+  // Reading-path filter (/parcours/): its notes and prerequisite edges lit,
+  // the rest dimmed — the discipline filter's pattern, one or the other.
+  const [pathSel, setPathSel] = useState<string | null>(null);
   const [tip, setTip] = useState<{ x: number; y: number; label: string } | null>(null);
   const [legendOpen, setLegendOpen] = useState(false);
 
@@ -156,6 +159,21 @@ export function CircularGraph({
     setPan({ x: 0, y: 0 });
   }, [fitZoom, preview]);
 
+  const byId = useMemo(() => new Map(layout.nodes.map((n) => [n.id, n])), [layout.nodes]);
+  const pathView = useMemo(() => {
+    const p = pathSel ? data.paths?.find((x) => x.slug === pathSel) : undefined;
+    if (!p) return null;
+    const ids = p.notes.map((s) => `file:/posts/${s}/`);
+    return {
+      path: p,
+      ids: new Set(ids),
+      edges: p.edges
+        .map(([a, b]) => [byId.get(ids[a]), byId.get(ids[b])] as const)
+        .filter((e): e is readonly [Positioned, Positioned] => !!e[0] && !!e[1]),
+    };
+  }, [pathSel, data.paths, byId]);
+  const pathIds = pathView?.ids ?? null;
+
   const cx = size.w / 2;
   const cy = size.h / 2;
 
@@ -182,7 +200,10 @@ export function CircularGraph({
               : p.node.kind === "dir"
                 ? themeColor(p.node.theme, palette)
                 : themeColor(p.node.theme, palette, 0.6);
-          const dim = filter !== null && p.node.kind !== "root" && p.node.theme !== filter;
+          const onPath = !!pathIds?.has(p.id);
+          const dim =
+            p.node.kind !== "root" &&
+            ((filter !== null && p.node.theme !== filter) || (pathIds !== null && !onPath));
           return (
             <circle
               key={p.id}
@@ -194,8 +215,9 @@ export function CircularGraph({
               data-label={p.node.label}
               cx={x.toFixed(1)}
               cy={y.toFixed(1)}
-              r={nodeR(p)}
+              r={onPath ? Math.max(3, nodeR(p)) : nodeR(p)}
               fill={fill}
+              className={onPath ? "cg-path-node" : undefined}
               opacity={dim ? 0.07 : undefined}
               style={p.node.href ? { cursor: "pointer" } : undefined}
             />
@@ -203,7 +225,30 @@ export function CircularGraph({
         })}
       </g>
     ),
-    [layout.nodes, palette, filter],
+    [layout.nodes, palette, filter, pathIds],
+  );
+  // The chosen path's prerequisite edges, bowed towards the centre so they
+  // read apart from the folder spokes.
+  const pathEl = pathView && (
+    <g className="cg-path-edges" fill="none">
+      {pathView.edges.map(([a, b]) => {
+        const [x1, y1] = polar(a.angle, a.radius);
+        const [x2, y2] = polar(b.angle, b.radius);
+        const span = Math.abs(a.angle - b.angle);
+        const d = Math.min(span, TAU - span);
+        const mid = (a.angle + b.angle) / 2 + (span > Math.PI ? Math.PI : 0);
+        // Neighbours on the rim get a shallow bow, far-apart notes a deep one.
+        const bow = Math.min(0.3, 0.03 + d * 0.6);
+        const [qx, qy] = polar(mid, Math.min(a.radius, b.radius) * (1 - bow));
+        return (
+          <path
+            key={`${a.id}>${b.id}`}
+            d={`M${x1.toFixed(1)},${y1.toFixed(1)}Q${qx.toFixed(1)},${qy.toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}`}
+            markerEnd="url(#cg-path-arrow)"
+          />
+        );
+      })}
+    </g>
   );
 
   // Radial labels for EVERY sub-folder and file (classic dendrogram treatment:
@@ -226,7 +271,7 @@ export function CircularGraph({
           return (
             <text
               key={p.id}
-              className={isDir ? "cg-dlabel" : "cg-flabel"}
+              className={`${isDir ? "cg-dlabel" : "cg-flabel"}${pathIds?.has(p.id) ? " is-path" : ""}`}
               data-node
               data-kind={p.node.kind}
               data-href={p.node.href ?? ""}
@@ -243,7 +288,7 @@ export function CircularGraph({
         })}
       </g>
     ),
-    [layout.nodes, rot],
+    [layout.nodes, rot, pathIds],
   );
 
   // --- interaction ---------------------------------------------------------
@@ -393,6 +438,36 @@ export function CircularGraph({
     setQuery("");
   }
 
+  // Choosing a path turns its notes to face the top and zooms in on them.
+  function selectPath(slug: string | null) {
+    setPathSel(slug);
+    if (!slug) return;
+    setFilter(null);
+    const p = data.paths?.find((x) => x.slug === slug);
+    const pos = (p?.notes ?? [])
+      .map((s) => byId.get(`file:/posts/${s}/`))
+      .filter((n): n is Positioned => !!n);
+    if (!pos.length) return;
+    // Circular mean of the angles; mean radius.
+    const sx = pos.reduce((a, n) => a + Math.sin(n.angle), 0);
+    const cy0 = pos.reduce((a, n) => a + Math.cos(n.angle), 0);
+    const angle = Math.atan2(sx, cy0);
+    const radius = pos.reduce((a, n) => a + n.radius, 0) / pos.length;
+    // Zoom so the path's arc (its notes' angular spread on the rim) fills
+    // about half the screen, within the usual zoom range.
+    const spread = Math.max(...pos.map((n) => {
+      const d = Math.abs(((n.angle - angle + Math.PI) % TAU + TAU) % TAU - Math.PI);
+      return d;
+    }));
+    const arc = Math.max(40, 2 * spread * radius);
+    const z = Math.min(fitZoom * 5, Math.max(fitZoom * 2.2, (0.5 * Math.min(size.w, size.h)) / arc));
+    setRot(((-angle % TAU) + TAU) % TAU);
+    setZoom(z);
+    // The rim a little above the centre: room for the labels above it and
+    // for the prerequisite arcs that bow inwards below it.
+    setPan({ x: 0, y: z * radius - 0.08 * size.h });
+  }
+
   const disciplines = useMemo(
     () => [...palette.keys()].sort((a, b) => a.localeCompare(b)),
     [palette],
@@ -417,14 +492,32 @@ export function CircularGraph({
         className="cg-svg"
         width={size.w}
         height={size.h}
-        data-filter={filter ?? undefined}
+        data-filter={filter ?? pathSel ?? undefined}
+        data-path={pathSel ?? undefined}
         data-zoomed={!preview && zoom >= fitZoom * 1.8 ? "" : undefined}
         style={preview ? { pointerEvents: "none" } : undefined}
         {...handlers}
       >
+        {!preview && (
+          <defs>
+            <marker
+              id="cg-path-arrow"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerUnits="userSpaceOnUse"
+              markerWidth="5"
+              markerHeight="5"
+              orient="auto-start-reverse"
+            >
+              <path d="M0,1 L9,5 L0,9 z" className="cg-path-arrowhead" />
+            </marker>
+          </defs>
+        )}
         <g transform={`translate(${cx + pan.x},${cy + pan.y}) scale(${zoom})`}>
           <g transform={`rotate(${(rot * 180) / Math.PI})`}>
             {linksEl}
+            {pathEl}
             {circlesEl}
           </g>
           {/* Labels live outside the rotating group so their flip tracks the
@@ -518,11 +611,29 @@ export function CircularGraph({
               setZoom(fitZoom);
               setPan({ x: 0, y: 0 });
               setFilter(null);
+              setPathSel(null);
             }}
           >
             {tr("graph.reset")}
           </button>
         </div>
+        {!!data.paths?.length && (
+          <label className="cg-path">
+            <span className="cg-path-label">{tr("graph.path")}</span>
+            <select
+              value={pathSel ?? ""}
+              aria-label={tr("graph.pathAria")}
+              onChange={(e) => selectPath(e.target.value || null)}
+            >
+              <option value="">{tr("graph.pathNone")}</option>
+              {data.paths.map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.name} ({p.notes.length})
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         {/* Below 640px this becomes a collapse toggle (CSS-only above that
             width — the button stays hidden and the list stays open). */}
         <button
@@ -541,7 +652,10 @@ export function CircularGraph({
                 type="button"
                 aria-pressed={filter === d}
                 className={filter === d ? "on" : undefined}
-                onClick={() => setFilter((f) => (f === d ? null : d))}
+                onClick={() => {
+                  setPathSel(null);
+                  setFilter((f) => (f === d ? null : d));
+                }}
               >
                 <span className="cg-swatch" style={{ background: themeColor(d, palette) }} />
                 {d}
