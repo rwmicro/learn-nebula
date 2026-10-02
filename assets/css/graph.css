@@ -370,3 +370,67 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Reading-path filter (/parcours/): the chosen path's notes and prerequisite
+   edges in the link colour, everything else dimmed (node opacity, as the
+   discipline filter does). */
+.cg-path {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+.cg-path-label {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+}
+.cg-path select {
+  min-width: 0;
+  flex: 1;
+  max-width: 14rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.15rem 0.3rem;
+  font: inherit;
+}
+.cg-path select:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 1px;
+}
+.cg-path-edges path {
+  stroke: var(--link);
+  stroke-width: 2.2;
+  vector-effect: non-scaling-stroke;
+}
+.cg-path-arrowhead {
+  fill: var(--link);
+}
+.cg-nodes circle.cg-path-node {
+  stroke: var(--link);
+  stroke-width: 2;
+}
+.cg-svg[data-path] .cg-links path {
+  opacity: 0.35;
+}
+.cg-svg[data-path] .cg-flabel,
+.cg-svg[data-path] .cg-dlabel {
+  opacity: 0.25;
+}
+/* On a phone the two-line touch hint sits at the bottom too: keep the
+   (now taller) panel above it. */
+@media (max-width: 640px) {
+  .cg-panel {
+    bottom: 4.6rem;
+  }
+}
+.cg-svg .cg-flabel.is-path {
+  display: inline;
+  opacity: 1;
+  fill: var(--ink);
+  font-weight: 700;
+}

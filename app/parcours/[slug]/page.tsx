@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getReadingPaths } from "@/lib/content";
 import { ParcoursPage } from "@/components/Parcours";
+import { pathExtras } from "@/lib/path-extras";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/themes.css";
 import "@/assets/css/parcours.css";
@@ -32,5 +33,5 @@ export default async function Page({ params }: Params) {
   const { slug } = await params;
   const path = getReadingPaths().find((x) => x.slug === slug);
   if (!path) notFound();
-  return <ParcoursPage path={path} />;
+  return <ParcoursPage path={path} extras={await pathExtras(path)} />;
 }
