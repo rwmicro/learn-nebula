@@ -27,6 +27,8 @@ export const env = {
   // outside out/ so the static server never exposes them.
   buildInfo: process.env.BUILD_INFO || path.join(cwd, "data", "build-info.json"),
   vaultHealth: process.env.VAULT_HEALTH || path.join(cwd, "data", "vault-health.json"),
+  prereqSuggestions:
+    process.env.PREREQ_SUGGESTIONS || path.join(cwd, "data", "prereq-suggestions.json"),
 
   // Generation: Anthropic when a key is present, otherwise an OpenAI-compatible
   // chat endpoint (Ollama / llama.cpp / LM Studio).

@@ -12,7 +12,8 @@
     "themes": "Themes",
     "cartes": "Flashcards",
     "random": "Random note",
-    "parcours": "Reading paths"
+    "parcours": "Reading paths",
+    "progression": "My progress"
   },
   "sidebar": {
     "searchPlaceholder": "Search the notes…",
@@ -133,7 +134,8 @@
     "licenseLink": "Creative Commons license",
     "licenseMiddle": ", and the source code under the ",
     "licenseGpl": "GNU GPL",
-    "licenseAfter": ". Originally created by "
+    "licenseAfter": ". Originally created by ",
+    "progression": "My progress: export, import"
   },
   "home": {
     "searchPlaceholder": "Filter the notes…",
@@ -253,7 +255,8 @@
     "noteQuestions": "Note questions to review",
     "noteQuestionsIntro": "Review questions you added from the notes.",
     "noteQuestionsDue": "{count} due",
-    "noteQuestionsSaved": "{count} saved"
+    "noteQuestionsSaved": "{count} saved",
+    "progression": "Back up or transfer my progress"
   },
   "notFound": {
     "suggestions": "Perhaps you were looking for…",
@@ -363,6 +366,76 @@
     "themeAuto": "Theme: automatic",
     "random": "A random note",
     "assistant": "Open the assistant",
-    "current": "current"
+    "current": "current",
+    "exportProgress": "Export my progress",
+    "importProgress": "Import progress"
+  },
+  "progression": {
+    "title": "My progress",
+    "intro": "Everything the garden remembers about your reading stays in this browser. Export it to keep a copy or to pick up on another device.",
+    "summaryTitle": "In this browser",
+    "statRead": "notes read",
+    "statStarted": "notes started",
+    "statCards": "cards in review",
+    "statQuestions": "saved questions",
+    "empty": "Nothing saved in this browser yet.",
+    "noStorage": "Local storage is blocked in this browser (private mode?): nothing to export or import here.",
+    "privacy": "Nothing goes through the server: export, import and link all happen in this browser.",
+    "exportTitle": "Export",
+    "exportText": "A dated JSON file, to keep or to import elsewhere.",
+    "exportButton": "Export",
+    "exported": "File downloaded: {file}",
+    "importTitle": "Import",
+    "importText": "A file exported from this site. Nothing changes until you confirm.",
+    "importButton": "Import a file…",
+    "linkTitle": "Transfer link",
+    "linkText": "All your progress, compressed into the address itself (after the #, which is never sent to the server). Open it on the other device.",
+    "linkButton": "Copy a transfer link",
+    "linkCopied": "Link copied ({n} characters).",
+    "linkShown": "Couldn’t copy: select the link below.",
+    "linkTooBig": "Too much data for a link ({n} characters, {max} at most): use the file instead.",
+    "linkUnsupported": "This browser can’t compress the data: use the file.",
+    "nothing": "Nothing to export yet.",
+    "linkLabel": "Transfer link",
+    "confirmTitle": "Import this progress?",
+    "fromFile": "File “{name}”, exported on {date}.",
+    "fromLink": "Progress received by link, exported on {date}.",
+    "incoming": "It contains:",
+    "modeLegend": "How to import it",
+    "modeMerge": "Merge",
+    "modeMergeHint": "keeps everything; for the same item, the most recent version wins",
+    "modeReplace": "Replace",
+    "modeReplaceHint": "erases this browser’s progress and puts the file’s in its place",
+    "changesTitle": "What will change",
+    "kindReading": "Notes",
+    "kindDecks": "Cards",
+    "kindQuestions": "Questions",
+    "chAdded": "+{n} added",
+    "chUpdated": "{n} updated",
+    "chRemoved": "−{n} removed",
+    "chUnchanged": "{n} unchanged",
+    "noChange": "Nothing would change: this browser already has it all.",
+    "dropped": "{n} unknown or damaged entries will be skipped.",
+    "confirm": "Import",
+    "cancel": "Cancel",
+    "done": "Progress imported.",
+    "doneError": "Incomplete import: the browser’s storage is full or blocked.",
+    "cancelled": "Import cancelled, nothing changed.",
+    "errJson": "This file isn’t readable JSON.",
+    "errFormat": "This isn’t a garden progress file.",
+    "errVersion": "This file comes from a newer version of the site: reload the page and try again.",
+    "errEmpty": "The file holds no usable progress.",
+    "errLink": "This transfer link is incomplete or damaged.",
+    "errRead": "Couldn’t read this file."
+  },
+  "pathStep": {
+    "label": "Path",
+    "step": "Step {n}/{total}",
+    "navAria": "Position in the reading path",
+    "prev": "Previous",
+    "next": "Next",
+    "othersOne": "+1 other path",
+    "othersMany": "+{n} other paths",
+    "othersTitle": "This note is also in:"
   }
 }
