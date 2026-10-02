@@ -14,6 +14,10 @@ import {
   parseNoteDeck,
   removeQuestion,
   saveNoteDeck,
+  allAnsweredCorrectly,
+  answeredCorrectly,
+  extractQuizItems,
+  recordCorrect,
 } from "./note-quiz";
 import { renderMarkdown, quizId } from "./markdown";
 
@@ -140,5 +144,65 @@ describe("[!quiz] callouts", () => {
     expect(ids[0]).not.toBe(ids[1]);
     expect(ids[1]).toBe(ids[2]);
     expect(html).toContain(`id="q-${ids[1]}-2"`);
+  });
+});
+
+describe("correct answers (mastery)", () => {
+  it("records a correct answer without saving the question", () => {
+    const store = new MemStore();
+    const d = recordCorrect(emptyNoteDeck(), "q1", T);
+    expect(Object.keys(d.items)).toEqual([]);
+    saveNoteDeck(store, "n", d);
+    // Kept in storage (it holds an answer), but not a review.
+    expect(loadNoteDeck(store, "n").ok).toEqual({ q1: T });
+    expect(loadAllNoteDecks(store)).toEqual({});
+    expect(answeredCorrectly(loadNoteDeck(store, "n"), "q1")).toBe(true);
+  });
+  it("good/easy grades count, again/hard don't", () => {
+    let d = addQuestion(emptyNoteDeck(), "q1", item("Q1"), null, T);
+    d = gradeQuestion(d, "q1", "again", T);
+    expect(d.ok?.q1).toBeUndefined();
+    d = gradeQuestion(d, "q1", "easy", T);
+    expect(d.ok?.q1).toBe(T);
+    expect(allAnsweredCorrectly(d, ["q1"])).toBe(true);
+    expect(allAnsweredCorrectly(d, ["q1", "q2"])).toBe(false);
+    expect(allAnsweredCorrectly(d, [])).toBe(false);
+  });
+  it("migrates entries stored before `ok`: a saved card with a streak counts", () => {
+    const legacy = JSON.stringify({
+      v: 1,
+      cards: { q1: { ef: 2.5, iv: 1, reps: 1, due: "2026-10-01" }, q2: { ef: 2.3, iv: 0, reps: 0, due: T } },
+      newDay: T,
+      newCount: 2,
+      items: { q1: { ...item("Q1"), added: T }, q2: { ...item("Q2"), added: T } },
+    });
+    const d = parseNoteDeck(legacy);
+    expect(d.ok).toEqual({});
+    expect(answeredCorrectly(d, "q1")).toBe(true);
+    expect(answeredCorrectly(d, "q2")).toBe(false);
+    // And round-trips with the new field.
+    expect(parseNoteDeck(JSON.stringify(recordCorrect(d, "q2", T))).ok).toEqual({ q2: T });
+    expect(parseNoteDeck('{"v":1,"cards":{},"items":{},"ok":{"x":"bad"}}').ok).toEqual({});
+  });
+});
+
+describe("extractQuizItems (build)", () => {
+  it("pulls question, answer and ids from rendered HTML", async () => {
+    const { html } = await renderMarkdown(
+      "Intro.\n\n> [!quiz] Qu'est-ce qu'une base ?\n> Une famille **libre** et génératrice.\n>\n> > [!note] Remarque\n> > imbriquée\n\nMilieu.\n\n> [!quiz]+ Deux ?\n> Oui.\n\n> [!quiz] Deux ?\n> Oui.",
+    );
+    const items = extractQuizItems(html);
+    expect(items).toHaveLength(3);
+    expect(items[0].id).toBe(quizId("Qu’est-ce qu’une base ?"));
+    expect(items[0].q).toContain("base");
+    expect(items[0].a).toContain("<strong>libre</strong>");
+    expect(items[0].a).toContain("imbriquée");
+    expect(items[0].a).not.toMatch(/<\/div>$/);
+    expect(items[1].id).toBe(items[2].id);
+    expect(items[2].domId).toBe(`q-${items[2].id}-2`);
+    expect(items[1].a).toContain("Oui.");
+  });
+  it("returns nothing for a note without quiz", () => {
+    expect(extractQuizItems("<p>rien</p>")).toEqual([]);
   });
 });
