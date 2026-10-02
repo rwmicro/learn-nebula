@@ -14,6 +14,7 @@ import {
   LINK_PARAM,
   MAX_LINK_CHARS,
   PROGRESS_IMPORTED_EVENT,
+  REFRESH_EVENTS,
   applyPlan,
   canCompress,
   collectProgress,
@@ -205,6 +206,7 @@ export function Progression() {
     if (!plan || !store) return close({ tone: "error", text: tr("noStorage") });
     const ok = applyPlan(store, plan);
     window.dispatchEvent(new Event(CHANGE_EVENT));
+    for (const e of REFRESH_EVENTS) window.dispatchEvent(new Event(e));
     window.dispatchEvent(new Event(PROGRESS_IMPORTED_EVENT));
     refresh();
     close(
@@ -232,6 +234,8 @@ export function Progression() {
     ["reading", "kindReading"],
     ["decks", "kindDecks"],
     ["questions", "kindQuestions"],
+    ["known", "kindKnown"],
+    ["targets", "kindTargets"],
   ];
 
   return (
@@ -260,12 +264,15 @@ export function Progression() {
               <Stat n={summary?.started} label={tr("statStarted")} />
               <Stat n={summary?.cards} label={tr("statCards")} />
               <Stat n={summary?.questions} label={tr("statQuestions")} />
+              <Stat n={summary?.known} label={tr("statKnown")} />
             </dl>
             {summary &&
               !summary.read &&
               !summary.started &&
               !summary.cards &&
-              !summary.questions && (
+              !summary.questions &&
+              !summary.known &&
+              !summary.targets && (
                 <p className="progression-muted">{tr("empty")}</p>
               )}
           </>

@@ -103,6 +103,8 @@ describe("collect / summarize / export", () => {
       decks: 1,
       questions: 1,
       questionNotes: 1,
+      known: 0,
+      targets: 0,
     });
   });
 
@@ -283,6 +285,74 @@ describe("planImport", () => {
       "theme",
     ]);
     expect(JSON.parse(dump.gkReading)).toEqual(incoming.gkReading);
+  });
+});
+
+describe("path study keys", () => {
+  it("merges known notes (newest t) and keeps local path targets", () => {
+    const local = {
+      gkKnown: { a: { t: 100, via: "test" }, b: { t: 10 } },
+      gkPathTarget: { p1: "x" },
+    };
+    const incoming = {
+      gkKnown: { a: { t: 50 }, b: { t: 20 }, c: { t: 5 } },
+      gkPathTarget: { p1: "y", p2: "z" },
+    };
+    const merged = planImport(local, incoming, "merge");
+    expect(merged.write.gkKnown).toEqual({
+      a: { t: 100, via: "test" },
+      b: { t: 20 },
+      c: { t: 5 },
+    });
+    expect(merged.write.gkPathTarget).toEqual({ p1: "x", p2: "z" });
+    expect(merged.changes.known).toMatchObject({ added: 1, updated: 1 });
+    const replaced = planImport(local, incoming, "replace");
+    expect(replaced.write.gkPathTarget).toEqual(incoming.gkPathTarget);
+  });
+
+  it("unions mastered questions, latest date winning", () => {
+    const plan = planImport(
+      {
+        "srs:note:n": {
+          ...deck({}),
+          items: {},
+          ok: { q1: "2026-09-01", q2: "2026-09-05" },
+        },
+      },
+      {
+        "srs:note:n": {
+          ...deck({}),
+          items: {},
+          ok: { q1: "2026-09-03", q3: "2026-09-04" },
+        },
+      },
+      "merge",
+    );
+    expect(
+      (plan.write["srs:note:n"] as { ok: Record<string, string> }).ok,
+    ).toEqual({
+      q1: "2026-09-03",
+      q2: "2026-09-05",
+      q3: "2026-09-04",
+    });
+  });
+
+  it("keeps an entry holding only mastered marks", () => {
+    const file = buildExport({
+      "srs:note:n": { ...deck({}), items: {}, ok: { q1: "2026-09-01" } },
+      gkKnown: { a: { t: 1 }, bad: { t: "x" } },
+      gkPathTarget: { p: "s", empty: "" },
+    });
+    const v = validateImport(JSON.stringify(file));
+    expect(v.ok).toBe(true);
+    if (!v.ok) return;
+    expect(Object.keys(v.file.items).sort()).toEqual([
+      "gkKnown",
+      "gkPathTarget",
+      "srs:note:n",
+    ]);
+    expect(v.file.items.gkKnown).toEqual({ a: { t: 1 } });
+    expect(v.file.items.gkPathTarget).toEqual({ p: "s" });
   });
 });
 

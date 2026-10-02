@@ -14,7 +14,7 @@ export const FORMAT = "jardin-progression";
 /** Bumped when the file layout changes; older files stay importable. */
 export const VERSION = 1;
 
-export type KindId = "reading" | "questions" | "decks";
+export type KindId = "reading" | "known" | "targets" | "questions" | "decks";
 
 export interface KeySpec {
   kind: KindId;
@@ -34,6 +34,10 @@ export interface KeySpec {
 export const PROGRESS_KEYS: KeySpec[] = [
   // Read notes and reading positions (lib/reading-progress.ts).
   { kind: "reading", key: "gkReading" },
+  // Notes the reader says they already know, {slug: {t, via?}} (/parcours/).
+  { kind: "known", key: "gkKnown" },
+  // The note each reading path is aimed at, {pathSlug: noteSlug} (/parcours/).
+  { kind: "targets", key: "gkPathTarget" },
   // Questions saved from notes, with their SRS state (lib/note-quiz.ts).
   { kind: "questions", prefix: "srs:note:" },
   // Anki deck SRS state, one key per deck (components/Flashcards.tsx).
@@ -69,9 +73,35 @@ function sanitize(kind: KindId, value: unknown): unknown {
         out[slug] = { ...src[slug], ...known[slug] };
       return Object.keys(out).length ? out : null;
     }
+    case "known": {
+      // {t} validated, other fields (via…) carried over.
+      const out: Record<string, Record<string, unknown>> = {};
+      for (const [slug, e] of Object.entries(
+        value as Record<string, unknown>,
+      )) {
+        if (!slug || !e || typeof e !== "object" || Array.isArray(e)) continue;
+        const t = Number((e as { t?: unknown }).t);
+        if (!Number.isFinite(t)) continue;
+        out[slug] = { ...(e as Record<string, unknown>), t: Math.round(t) };
+      }
+      return Object.keys(out).length ? out : null;
+    }
+    case "targets": {
+      const out: Record<string, string> = {};
+      for (const [path, note] of Object.entries(
+        value as Record<string, unknown>,
+      )) {
+        if (path && typeof note === "string" && note) out[path] = note;
+      }
+      return Object.keys(out).length ? out : null;
+    }
     case "questions": {
-      const d = parseNoteDeck(json);
-      return Object.keys(d.items).length ? d : null;
+      const d: NoteDeckLike = parseNoteDeck(json);
+      // `ok`: questions answered correctly, {questionId: "YYYY-MM-DD"}. An
+      // entry may hold only that, with no saved question.
+      const ok = parseOk((value as { ok?: unknown }).ok);
+      if (Object.keys(ok).length) d.ok = ok;
+      return Object.keys(d.items).length || d.ok ? d : null;
     }
     case "decks": {
       if ((value as { v?: unknown }).v !== 1) return null;
@@ -79,6 +109,17 @@ function sanitize(kind: KindId, value: unknown): unknown {
       return Object.keys(p.cards).length || p.newCount ? p : null;
     }
   }
+}
+
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+function parseOk(v: unknown): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!v || typeof v !== "object" || Array.isArray(v)) return out;
+  for (const [id, day] of Object.entries(v as Record<string, unknown>)) {
+    if (id && typeof day === "string" && DAY_RE.test(day)) out[id] = day;
+  }
+  return out;
 }
 
 // --- reading what's in storage -------------------------------------------
@@ -119,6 +160,10 @@ export interface Summary {
   /** Questions saved from notes, across `questionNotes` notes. */
   questions: number;
   questionNotes: number;
+  /** Notes marked as already known. */
+  known: number;
+  /** Reading paths with a chosen target note. */
+  targets: number;
 }
 
 export function summarize(items: Record<string, unknown>): Summary {
@@ -129,6 +174,8 @@ export function summarize(items: Record<string, unknown>): Summary {
     decks: 0,
     questions: 0,
     questionNotes: 0,
+    known: 0,
+    targets: 0,
   };
   for (const [k, v] of Object.entries(items)) {
     const kind = specFor(k)?.kind;
@@ -143,8 +190,13 @@ export function summarize(items: Record<string, unknown>): Summary {
       s.decks++;
       s.cards += Object.keys((v as Progress).cards).length;
     } else if (kind === "questions") {
-      s.questionNotes++;
-      s.questions += Object.keys((v as { items: object }).items).length;
+      const n = Object.keys((v as { items: object }).items).length;
+      if (n) s.questionNotes++;
+      s.questions += n;
+    } else if (kind === "known") {
+      s.known += Object.keys(v as object).length;
+    } else if (kind === "targets") {
+      s.targets += Object.keys(v as object).length;
     }
   }
   return s;
@@ -274,7 +326,10 @@ function mergeProgress<T extends Progress>(a: T, b: T): T {
   return { ...a, ...b, cards, ...day };
 }
 
-type NoteDeckLike = Progress & { items: Record<string, { added?: string }> };
+type NoteDeckLike = Progress & {
+  items: Record<string, { added?: string }>;
+  ok?: Record<string, string>;
+};
 
 function mergeQuestions(a: NoteDeckLike, b: NoteDeckLike): NoteDeckLike {
   const items = { ...a.items };
@@ -282,7 +337,35 @@ function mergeQuestions(a: NoteDeckLike, b: NoteDeckLike): NoteDeckLike {
     const cur = items[id];
     if (!cur || (it.added ?? "") > (cur.added ?? "")) items[id] = it;
   }
-  return { ...mergeProgress(a, b), items };
+  // `ok` marks: union, the latest date per question.
+  const ok = { ...(a.ok ?? {}) };
+  for (const [id, day] of Object.entries(b.ok ?? {})) {
+    if (!ok[id] || day > ok[id]) ok[id] = day;
+  }
+  const out: NoteDeckLike = { ...mergeProgress(a, b), items };
+  if (Object.keys(ok).length) out.ok = ok;
+  else delete out.ok;
+  return out;
+}
+
+type KnownEntry = { t: number } & Record<string, unknown>;
+
+/** Newest `t` wins per note. */
+function mergeKnown(
+  a: Record<string, KnownEntry>,
+  b: Record<string, KnownEntry>,
+) {
+  const out = { ...a };
+  for (const [slug, e] of Object.entries(b)) {
+    if (!out[slug] || e.t > out[slug].t) out[slug] = e;
+  }
+  return out;
+}
+
+/** A target is the reader's choice on this device: merging only fills the
+ *  paths that have none here ("replace" takes the file's as a whole). */
+function mergeTargets(a: Record<string, string>, b: Record<string, string>) {
+  return { ...b, ...a };
 }
 
 /** Merge two values of the same key. */
@@ -301,6 +384,16 @@ export function mergeValue(
       return mergeProgress(local as Progress, incoming as Progress);
     case "questions":
       return mergeQuestions(local as NoteDeckLike, incoming as NoteDeckLike);
+    case "known":
+      return mergeKnown(
+        local as Record<string, KnownEntry>,
+        incoming as Record<string, KnownEntry>,
+      );
+    case "targets":
+      return mergeTargets(
+        local as Record<string, string>,
+        incoming as Record<string, string>,
+      );
     default:
       return incoming;
   }
@@ -311,7 +404,7 @@ function unitsOf(key: string, v: unknown): Record<string, string> {
   const kind = specFor(key)?.kind;
   const out: Record<string, string> = {};
   if (!v) return out;
-  if (kind === "reading") {
+  if (kind === "reading" || kind === "known" || kind === "targets") {
     for (const [s, e] of Object.entries(v as Record<string, unknown>))
       out[s] = JSON.stringify(e);
   } else if (kind === "decks") {
@@ -320,7 +413,10 @@ function unitsOf(key: string, v: unknown): Record<string, string> {
   } else if (kind === "questions") {
     const d = v as NoteDeckLike;
     for (const [id, it] of Object.entries(d.items))
-      out[id] = JSON.stringify([it, d.cards[id] ?? null]);
+      out[id] = JSON.stringify([it, d.cards[id] ?? null, d.ok?.[id] ?? null]);
+    // Answered-correctly marks of questions no longer saved count on their own.
+    for (const [id, day] of Object.entries(d.ok ?? {}))
+      if (!(id in d.items)) out[`ok:${id}`] = day;
   }
   return out;
 }
@@ -340,7 +436,8 @@ export interface ImportPlan {
   write: Record<string, unknown>;
   /** Keys to delete (replace mode: local progress the file doesn't have). */
   remove: string[];
-  /** Per kind, counted in notes (reading), cards (decks) or questions. */
+  /** Per kind, counted in notes (reading, known), paths (targets), cards
+   *  (decks) or questions. */
   changes: Record<KindId, KindChanges>;
 }
 
@@ -362,6 +459,8 @@ export function planImport(
   });
   const changes: Record<KindId, KindChanges> = {
     reading: zero(),
+    known: zero(),
+    targets: zero(),
     questions: zero(),
     decks: zero(),
   };
@@ -522,6 +621,9 @@ export function downloadExport(now = new Date()): string | null {
 
 /** Fired on window after an import rewrites progress in this tab. */
 export const PROGRESS_IMPORTED_EVENT = "gk:progress-imported";
+/** The events open views already listen to for each kind of progress
+ *  (reading-progress CHANGE_EVENT aside): dispatched after an import too. */
+export const REFRESH_EVENTS = ["gk:study-change", "gk:quiz-change"];
 
 /** `#import=…` → the payload, or null. */
 export function payloadFromHash(hash: string): string | null {
