@@ -107,8 +107,12 @@ export function ParcoursStudy({
   }, [reload]);
 
   const done = useCallback((s: string) => isDone(states.get(s)), [states]);
-  const next = useMemo(() => (ready ? nextToReadIn(notes, done) : null), [ready, notes, done]);
   const plan = useMemo(() => (target ? targetPlan(notes, target, done) : null), [target, notes, done]);
+  // With a target, "next" is the first readable note on the way to it.
+  const next = useMemo(
+    () => (ready ? nextToReadIn(plan ? notes.filter((n) => plan.scope.has(n.slug)) : notes, done) : null),
+    [ready, notes, done, plan],
+  );
 
   const changed = () => window.dispatchEvent(new CustomEvent(STUDY_EVENT));
   const toggleKnown = useCallback(
