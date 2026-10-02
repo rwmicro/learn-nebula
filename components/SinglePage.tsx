@@ -37,6 +37,7 @@ import {
 import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
 import { JsonLd } from "@/components/JsonLd";
 import { PagefindAssets } from "@/components/PagefindAssets";
+import { NoteFeatureScripts } from "@/components/NoteScripts";
 import { franc } from "franc-min";
 
 /**
@@ -59,7 +60,7 @@ export async function SinglePage({
     : "";
   // Glossary marks (lib/glossary.ts) only on notes: terms defined in another
   // note of the same discipline, first occurrence each.
-  const { html, plain, hasMath } = await renderMarkdown(doc.body, {
+  const { html, plain, hasMath, hasQuiz, hasGlossary } = await renderMarkdown(doc.body, {
     dir,
     glossary: note ? getGlossaryFor(doc) : undefined,
   });
@@ -193,6 +194,7 @@ export async function SinglePage({
       <main id="main" lang={lang} dangerouslySetInnerHTML={{ __html: main }} />
       {jsonLd && <JsonLd data={jsonLd} />}
       {note && <PagefindAssets />}
+      {note && <NoteFeatureScripts quiz={hasQuiz} glossary={hasGlossary} />}
     </>
   );
 }

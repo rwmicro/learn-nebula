@@ -184,6 +184,20 @@ export function nextPlacementNote(
   return null;
 }
 
+/**
+ * The notes a placement test covers: the whole path, or — with a target set —
+ * only its scope (the target and its ancestors, `targetPlan(...).scope`), in
+ * path order. The scope is closed under ancestors, so every path between two
+ * of its notes stays inside it and the "no" pruning works the same on the
+ * subset.
+ */
+export function placementNotes<T extends StudyNote>(notes: T[], target: string | null | undefined): T[] {
+  if (!target || !notes.some((n) => n.slug === target)) return notes;
+  const scope = ancestorsOf(target, notes);
+  scope.add(target);
+  return notes.filter((n) => scope.has(n.slug));
+}
+
 /** Notes below a "no": every descendant of a note answered "no". */
 export function placementBlocked(
   notes: StudyNote[],

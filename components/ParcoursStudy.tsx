@@ -27,6 +27,7 @@ import {
   markKnown,
   nextPlacementNote,
   nextToReadIn,
+  placementNotes,
   placementRemaining,
   resetPlacement,
   saveKnown,
@@ -366,6 +367,7 @@ export function ParcoursStudy({
           <Placement
             pathSlug={pathSlug}
             notes={notes}
+            target={target}
             items={items}
             states={states}
             known={known}
@@ -450,7 +452,8 @@ function StudyDialog({
 
 function Placement({
   pathSlug,
-  notes,
+  notes: allNotes,
+  target,
   items,
   states,
   known,
@@ -459,12 +462,18 @@ function Placement({
 }: {
   pathSlug: string;
   notes: StudyNoteView[];
+  /** With a target, the test only asks about it and its ancestors. */
+  target: string | null;
   items: PathQuizItem[];
   states: Map<string, NoteState>;
   known: KnownStore;
   tr: Tr;
   onClose: () => void;
 }) {
+  // Fixed when the test opens (a target change mid-test would reshuffle it).
+  const [notes] = useState(() => placementNotes(allNotes, target));
+  const scopedTo =
+    target && notes.length < allNotes.length ? (allNotes.find((n) => n.slug === target)?.title ?? null) : null;
   // Snapshot when the test opens: notes already done count as a "yes" and are
   // not asked — except the marks a previous placement of this path set, which
   // a new test asks again.
@@ -557,6 +566,7 @@ function Placement({
         {tr("parcours.placementStep", { k: asked + 1, left: left - 1 })}
       </p>
       <p className="placement-intro">{tr("parcours.placementIntro")}</p>
+      {scopedTo && <p className="placement-scope">{tr("parcours.placementScoped", { title: scopedTo })}</p>}
       {quiz ? (
         <>
           <p className="placement-q-note">

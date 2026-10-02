@@ -742,6 +742,37 @@
   border-color: var(--garden);
   background: var(--garden-wash);
 }
+/* Twenty rows of two buttons each are noise: a row shows its buttons on
+   hover or when focus is inside it (opacity, not display/visibility, so they
+   stay in the tab order and tabbing onto one reveals it). A pressed one (the
+   current target, a known note) stays visible: it is a state, not a tool.
+   Touch screens can't hover: always shown there, a little smaller. */
+.parcours-li-btn {
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+.parcours-order li:hover .parcours-li-btn,
+.parcours-order li:focus-within .parcours-li-btn,
+.parcours-li-btn[aria-pressed="true"] {
+  opacity: 1;
+}
+@media (hover: none) {
+  .parcours-li-btn {
+    opacity: 1;
+    font-size: 0.74rem;
+    line-height: 1.5;
+    padding: 0 0.35rem;
+  }
+  .parcours-li-acts {
+    gap: 0.25rem;
+    margin-left: 0.3rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .parcours-li-btn {
+    transition: none;
+  }
+}
 .parcours-privacy {
   margin: 2rem 0 0;
   color: var(--muted-warm);
@@ -808,6 +839,13 @@
   margin: 0 0 0.8rem;
   color: var(--ink-2);
   font-size: 0.95rem;
+}
+.placement-scope {
+  margin: -0.4rem 0 0.8rem;
+  padding-left: 0.6rem;
+  border-left: 3px solid var(--callout-violet);
+  color: var(--ink-2);
+  font-size: 0.9rem;
 }
 .placement-hint {
   margin: 1rem 0 0;

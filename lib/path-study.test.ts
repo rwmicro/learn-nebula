@@ -11,6 +11,7 @@ import {
   parseKnown,
   parseTargets,
   placementBlocked,
+  placementNotes,
   placementRemaining,
   progressCounts,
   resetPlacement,
@@ -129,6 +130,19 @@ describe("placement walk", () => {
     expect(nextPlacementNote(notes, answers)).toBe("f");
     answers.f = "unsure"; // not sure: not known, but keeps descending
     expect(nextPlacementNote(notes, answers)).toBeNull();
+  });
+  it("with a target, asks only about the target and its ancestors", () => {
+    const scoped = placementNotes(notes, "d");
+    expect(scoped.map((n) => n.slug)).toEqual(["a", "b", "c", "d"]); // no f, no e
+    expect(placementRemaining(scoped, {})).toBe(4);
+    const answers: Record<string, PlacementAnswer> = { a: "yes", b: "yes" };
+    expect(nextPlacementNote(scoped, answers)).toBe("c"); // f skipped
+    answers.c = "no"; // d is below c: blocked, and f/e are out of scope
+    expect(nextPlacementNote(scoped, answers)).toBeNull();
+    // No target (or one not on the path): the whole path.
+    expect(placementNotes(notes, null)).toBe(notes);
+    expect(placementNotes(notes, "zz")).toBe(notes);
+    expect(placementNotes(notes, "a").map((n) => n.slug)).toEqual(["a"]);
   });
   it("a no at the root ends the test", () => {
     expect(nextPlacementNote(notes, { a: "no" })).toBeNull();

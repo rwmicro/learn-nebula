@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { renderMarkdown, extractPlain, truncate } from "./markdown";
 import { listVaultAssets, getVaultImage } from "./vault-assets";
+import type { GlossaryEntry } from "./glossary";
 
 describe("truncate", () => {
   it("leaves short strings untouched", () => {
@@ -82,6 +83,33 @@ describe("renderMarkdown", () => {
     expect(html).toContain('class="callout-title"');
     expect(html).toContain("Attention");
     expect(html).toContain("Sois prudent");
+  });
+
+  it("flags notes with a quiz card (for the per-note quiz bundle)", async () => {
+    const quiz = await renderMarkdown("> [!quiz] Combien ?\n> Deux.");
+    expect(quiz.html).toContain("callout-quiz");
+    expect(quiz.hasQuiz).toBe(true);
+    expect(quiz.hasGlossary).toBe(false);
+    const plain = await renderMarkdown("> [!tip] Astuce\n> Le mot callout-quiz en texte.");
+    expect(plain.hasQuiz).toBe(false);
+  });
+
+  it("flags notes with glossary marks (for the per-note glossary bundle)", async () => {
+    const entries: GlossaryEntry[] = [
+      {
+        term: "Somme directe",
+        def: "Déf.",
+        href: "/posts/x/#def-somme-directe",
+        noteTitle: "Algèbre",
+        noteUrl: "/posts/x/",
+        discipline: "Applied Sciences/Mathematics",
+      },
+    ];
+    const { html, hasGlossary } = await renderMarkdown("Une somme directe ici.", {
+      glossary: entries,
+    });
+    expect(html).toContain('class="gloss"');
+    expect(hasGlossary).toBe(true);
   });
 
   it("uses a default label when the callout has no title", async () => {

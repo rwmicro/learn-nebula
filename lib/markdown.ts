@@ -1325,6 +1325,10 @@ export interface Rendered {
   plain: string;
   /** Whether any math was rendered (so the page can load the KaTeX stylesheet). */
   hasMath: boolean;
+  /** A `[!quiz]` card (quizCallout): the page loads /js/quiz.bundle.js. */
+  hasQuiz: boolean;
+  /** A glossary mark (lib/glossary.ts): the page loads /js/glossary.bundle.js. */
+  hasGlossary: boolean;
 }
 
 export async function renderMarkdown(
@@ -1376,7 +1380,13 @@ export async function renderMarkdown(
     .use(rehypeStringify, { allowDangerousHtml: true });
 
   const html = String(await processor.process(text));
-  return { html, plain: extractPlain(raw), hasMath: ph.map.size > 0 };
+  return {
+    html,
+    plain: extractPlain(raw),
+    hasMath: ph.map.size > 0,
+    hasQuiz: /class="[^"]*\bcallout-quiz\b/.test(html),
+    hasGlossary: /<a class="gloss"/.test(html),
+  };
 }
 
 /** Plain-text rendering for meta descriptions and list excerpts. */
