@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
-import { GRADES, dayKey, type Grade } from "@/lib/srs";
+import { dayKey, type Grade } from "@/lib/srs";
 import {
   countSaved,
   dueQuestions,
@@ -15,7 +15,7 @@ import {
   type DueItem,
   type NoteDeck,
 } from "@/lib/note-quiz";
-import { GRADE_COLOR, btn, btnGrade } from "@/components/srs-ui";
+import { ReviewSession } from "@/components/ReviewSession";
 
 /**
  * /cartes/revision/ — review the note questions (`> [!quiz]` callouts) the
@@ -33,10 +33,7 @@ export function NoteReview() {
   // null = not loaded yet; false = no storage.
   const [decks, setDecks] = useState<Record<string, NoteDeck> | null | false>(null);
   const [queue, setQueue] = useState<DueItem[]>([]);
-  const [revealed, setRevealed] = useState(false);
   const [today, setToday] = useState(() => dayKey());
-  const revealRef = useRef<HTMLButtonElement>(null);
-  const doneRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     try {
@@ -60,21 +57,15 @@ export function NoteReview() {
     }
   }, []);
 
-  const grade = useCallback(
-    (g: Grade) => {
-      if (!decks || !revealed || !queue.length) return;
-      const [head, ...rest] = queue;
+  const onGrade = useCallback(
+    (head: DueItem, g: Grade) => {
+      if (!decks) return undefined;
       const deck = gradeQuestion(decks[head.slug], head.id, g, today);
       persist(head.slug, deck);
       setDecks({ ...decks, [head.slug]: deck });
-      const q = g === "again" ? [...rest, { ...head, state: deck.cards[head.id] }] : rest;
-      setQueue(q);
-      setRevealed(false);
-      requestAnimationFrame(() =>
-        (q.length ? revealRef.current : doneRef.current)?.focus(),
-      );
+      return deck.cards[head.id];
     },
-    [decks, revealed, queue, today, persist],
+    [decks, today, persist],
   );
 
   const remove = (slug: string, id: string) => {
@@ -85,27 +76,8 @@ export function NoteReview() {
     if (!Object.keys(deck.items).length) delete next[slug];
     setDecks(next);
     setQueue((q) => q.filter((x) => !(x.slug === slug && x.id === id)));
-    if (queue[0]?.slug === slug && queue[0]?.id === id) setRevealed(false);
   };
 
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey || e.altKey) return;
-      const el = e.target as HTMLElement | null;
-      if (el?.closest("input, textarea, select, [contenteditable]")) return;
-      if ((e.key === " " || e.key === "Enter") && !el?.closest("button, a, summary")) {
-        if (!queue.length) return;
-        e.preventDefault();
-        setRevealed(true);
-      } else if (revealed && /^[1-4]$/.test(e.key)) {
-        grade(GRADES[Number(e.key) - 1]);
-      }
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [grade, revealed, queue.length]);
-
-  const head = queue[0];
   const saved = decks ? countSaved(decks) : 0;
   const nextDay = decks && !queue.length ? nextDueDay(decks, today) : null;
   const all = decks
@@ -154,14 +126,13 @@ export function NoteReview() {
         <p className="italic text-muted-warm">{tr("noteReview.noStorage")}</p>
       ) : saved === 0 ? (
         <p className="italic text-muted-warm">{tr("noteReview.empty")}</p>
-      ) : !head ? (
-        <section className="flex min-h-[14rem] flex-col items-center justify-center gap-5 rounded-[4px] border border-rule bg-paper p-8 text-center">
-          <h2
-            ref={doneRef}
-            tabIndex={-1}
-            className="m-0 text-balance text-[clamp(1.1rem,1rem+1vw,1.5rem)] font-medium leading-snug outline-none"
-          >
-            {nextDay
+      ) : (
+        <ReviewSession
+          queue={queue}
+          setQueue={setQueue}
+          onGrade={onGrade}
+          done={
+            nextDay
               ? tr("flashcards.doneNext", {
                   date: new Intl.DateTimeFormat(locale, {
                     weekday: "long",
@@ -169,68 +140,9 @@ export function NoteReview() {
                     month: "long",
                   }).format(new Date(`${nextDay}T12:00:00`)),
                 })
-              : tr("flashcards.done")}
-          </h2>
-        </section>
-      ) : (
-        <>
-          <article className="note-review-card rounded-[4px] border border-rule bg-paper p-6 sm:p-8">
-            <p className="m-0 mb-3 text-micro font-semibold uppercase tracking-[0.08em] text-muted-warm">
-              <a href={head.item.url} className="text-muted-warm hover:text-ink">
-                {tr("noteReview.from", { title: head.item.title })}
-              </a>
-            </p>
-            <div
-              className="note-review-q text-[clamp(1.1rem,1rem+0.6vw,1.35rem)] font-medium leading-snug"
-              dangerouslySetInnerHTML={{ __html: head.item.q }}
-            />
-            {revealed && (
-              <div
-                className="note-review-a mt-5 border-t border-rule pt-5"
-                dangerouslySetInnerHTML={{ __html: head.item.a }}
-              />
-            )}
-          </article>
-
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            {revealed ? (
-              <div
-                role="group"
-                aria-label={tr("flashcards.grades")}
-                className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:gap-3"
-              >
-                {GRADES.map((g, i) => (
-                  <button
-                    key={g}
-                    type="button"
-                    className={btnGrade}
-                    style={{ "--g": GRADE_COLOR[g] } as React.CSSProperties}
-                    onClick={() => grade(g)}
-                    aria-keyshortcuts={String(i + 1)}
-                  >
-                    <kbd className="mr-1.5 font-mono font-normal opacity-60">{i + 1}</kbd>
-                    {tr(`flashcards.${g}`)}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <button
-                ref={revealRef}
-                type="button"
-                className={btn}
-                onClick={() => setRevealed(true)}
-              >
-                {tr("quiz.reveal")}
-              </button>
-            )}
-            <a href={head.item.url} className={`${btn} no-underline`}>
-              {tr("noteReview.openNote")}
-            </a>
-          </div>
-          <p className="mt-4 text-center text-micro italic text-muted-warm">
-            {tr("noteReview.hintReview")}
-          </p>
-        </>
+              : tr("flashcards.done")
+          }
+        />
       )}
 
       {decks && saved > 0 && (

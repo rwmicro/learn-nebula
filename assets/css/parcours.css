@@ -1,7 +1,12 @@
 /* /parcours/ (index of reading paths) and /parcours/<slug>/ (one path as a
    prerequisite graph). Loaded after themes.css, whose page frame, titles and
    lists it reuses. Every colour is a palette token (global.css), so the
-   inline SVG follows light/dark like the rest of the page. */
+   inline SVG follows light/dark like the rest of the page.
+
+   Note states (components/ParcoursStudy.tsx, lib/path-study.ts): non lue
+   (plain), lue (green wash + check), connue (green wash, dashed frame +
+   dashed check — close to lue), maîtrisée (solid green + star); plus "next"
+   (blue frame) and the target (violet ring). */
 
 .parcours-page--path {
   max-width: 60rem;
@@ -57,7 +62,7 @@
   font-size: 0.95rem;
 }
 
-/* Thumbnail graph: dots for notes, filled once read. */
+/* Thumbnail graph: dots for notes, filled by state. */
 .pm {
   flex: none;
   max-width: 5.5rem;
@@ -74,11 +79,20 @@
   stroke-width: 1.4;
 }
 .pm-dot.is-read {
+  fill: var(--garden-wash);
+  stroke: var(--garden);
+}
+.pm-dot.is-known {
+  fill: var(--garden-wash);
+  stroke: var(--garden);
+  stroke-dasharray: 2 1.5;
+}
+.pm-dot.is-mastered {
   fill: var(--garden);
   stroke: var(--garden);
 }
 
-/* --- read progress ("2/6 lues" + bar) -------------------------------------- */
+/* --- progress ("12 lues · 4 maîtrisées / 20" + bar) ------------------------ */
 .parcours-progress {
   display: inline-flex;
   align-items: center;
@@ -88,17 +102,26 @@
   font-variant-numeric: tabular-nums;
 }
 .parcours-bar {
+  position: relative;
   display: inline-block;
   width: 6rem;
-  height: 4px;
-  border-radius: 2px;
+  height: 5px;
+  border-radius: 3px;
   background: var(--rule);
   overflow: hidden;
 }
+/* Done (read or known) in the light green, mastered over it in full green. */
 .parcours-bar > span {
-  display: block;
+  position: absolute;
+  inset: 0 auto 0 0;
   height: 100%;
+}
+.parcours-bar-done {
   width: calc(var(--read, 0) * 100%);
+  background: color-mix(in srgb, var(--garden) 45%, var(--rule));
+}
+.parcours-bar-mastered {
+  width: calc(var(--mastered, 0) * 100%);
   background: var(--garden);
 }
 .parcours-progress.is-done {
@@ -114,7 +137,7 @@
   margin: 0 0 0.8rem;
 }
 .parcours-next {
-  margin: 0 0 1.2rem;
+  margin: 0 0 1rem;
   font-size: 1.1rem;
 }
 .themes-page .parcours-next a {
@@ -123,29 +146,216 @@
   text-underline-offset: 3px;
 }
 
+/* --- study bar: target summary + tools -------------------------------------- */
+.parcours-study {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  margin: 0 0 0.6rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--wash);
+}
+.parcours-target {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+  min-width: 0;
+  flex: 1 1 100%;
+}
+.parcours-target-text {
+  min-width: 0;
+}
+.parcours-target-text .parcours-target-icon {
+  margin-right: 0.35rem;
+  vertical-align: -0.2em;
+}
+.parcours-target strong {
+  white-space: nowrap;
+}
+.themes-page .parcours-target a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.parcours-tip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--muted-warm);
+  font-size: 0.95rem;
+}
+.parcours-target-icon {
+  display: inline-block;
+  flex: none;
+  fill: none;
+  stroke: var(--callout-violet);
+  stroke-width: 1.6;
+}
+.parcours-target-icon .dot {
+  fill: var(--callout-violet);
+  stroke: none;
+}
+.parcours-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.parcours-tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--ink);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.3;
+  cursor: pointer;
+}
+.parcours-tool:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+.parcours-tool:focus-visible,
+.parcours-li-btn:focus-visible,
+.parcours-dialog-close:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.parcours-tool--quiet {
+  border-color: var(--rule-strong);
+  color: var(--ink-2);
+  font-weight: 500;
+}
+.parcours-tool--yes {
+  border-color: var(--garden);
+  color: var(--garden);
+}
+.parcours-tool--yes:hover {
+  background: var(--garden);
+  border-color: var(--garden);
+  color: var(--paper);
+}
+.parcours-tool--no {
+  border-color: var(--callout-red);
+  color: var(--callout-red);
+}
+.parcours-tool--no:hover {
+  background: var(--callout-red);
+  border-color: var(--callout-red);
+  color: var(--paper);
+}
+.parcours-tool-count {
+  min-width: 1.4em;
+  padding: 0 0.35em;
+  border-radius: 999px;
+  background: var(--garden);
+  color: var(--paper);
+  font-size: 0.8rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
 /* --- the graph ------------------------------------------------------------- */
 .parcours-figure {
-  margin: 1.2rem 0 0.5rem;
+  margin: 0.8rem 0 0.5rem;
 }
-/* Wider than the column on a phone: scrolls sideways, with the scroll
-   shadows of the mermaid figures (main.css) so a cut-off edge reads as "more
-   this way". Inert when the graph fits. */
 .parcours-graph {
-  --scroll-shade: color-mix(in srgb, var(--ink) 16%, transparent);
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
   padding: 0.4rem 0;
-  background:
-    linear-gradient(to right, var(--paper) 40%, transparent) left center / 2.5rem 100% no-repeat local,
-    linear-gradient(to left, var(--paper) 40%, transparent) right center / 2.5rem 100% no-repeat local,
-    radial-gradient(farthest-side at 0 50%, var(--scroll-shade), transparent) left center / 0.8rem 100% no-repeat scroll,
-    radial-gradient(farthest-side at 100% 50%, var(--scroll-shade), transparent) right center / 0.8rem 100% no-repeat scroll,
-    var(--paper);
+  background: var(--paper);
+}
+/* Before the zoom kicks in (or without JS), a drawing wider than the column
+   scrolls sideways rather than widening the page. */
+.pz:not(.is-on) .parcours-graph {
+  overflow-x: auto;
 }
 .parcours-graph:focus-visible {
   outline: 2px solid var(--link);
   outline-offset: 2px;
 }
+/* Zoom & pan (components/PathZoom.tsx) — only when the drawing overflows. */
+.pz.is-on .pz-viewport {
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  cursor: grab;
+  /* Vertical swipes still scroll the page; sideways drags and pinches pan
+     and zoom the graph. */
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pz.is-on .pz-viewport.is-dragging {
+  cursor: grabbing;
+}
+.pz.is-on .pz-stage {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: max-content;
+  transform-origin: 0 0;
+}
+.pz.is-on .pz-stage .pg {
+  margin: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pz.is-on .pz-viewport:not(.is-dragging) .pz-stage {
+    transition: transform 0.18s ease-out;
+  }
+}
+.pz-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem 0.9rem;
+  margin-top: 0.45rem;
+}
+.pz-controls {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+.pz-btn {
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 0.55rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.pz-btn--fit {
+  font-size: 0.9rem;
+}
+.pz-btn:hover:not(:disabled) {
+  background: var(--wash-2);
+}
+.pz-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.pz-btn:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.pz-hint {
+  color: var(--muted-warm);
+  font-size: 0.85rem;
+}
+
 .pg {
   display: block;
   margin: 0 auto;
@@ -200,18 +410,11 @@
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 14.5px;
 }
-.pg-check {
-  display: none;
-}
-.pg-check circle {
-  fill: var(--garden);
-}
-.pg-check path {
-  fill: none;
-  stroke: var(--paper);
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
+.pg-quiz {
+  fill: var(--muted-warm);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
 }
 .pg-node {
   cursor: pointer;
@@ -229,27 +432,192 @@
   stroke: var(--link);
   stroke-width: 3;
 }
-/* Read: filled; next to read: a strong link-blue frame. */
-.pg-node.is-read .pg-box {
+
+/* State badge (top right). */
+.pg-badge {
+  display: none;
+}
+.pg-badge circle {
+  fill: var(--garden);
+}
+.pg-badge path {
+  fill: none;
+  stroke: var(--paper);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.pg-badge .pg-badge-star {
+  display: none;
+  fill: var(--paper);
+  stroke: none;
+}
+.pg-item.is-read .pg-badge,
+.pg-item.is-known .pg-badge,
+.pg-item.is-mastered .pg-badge {
+  display: inline;
+}
+/* Lue: filled. */
+.pg-item.is-read .pg-box {
   fill: var(--garden-wash);
   stroke: var(--garden);
 }
-.pg-node.is-read .pg-check {
-  display: inline;
+/* Connue: the same wash, a dashed frame and a hollow check. */
+.pg-item.is-known .pg-box {
+  fill: var(--garden-wash);
+  stroke: var(--garden);
+  stroke-dasharray: 6 4;
 }
-.pg-node.is-next .pg-box {
+.pg-item.is-known .pg-badge circle {
+  fill: var(--paper);
+  stroke: var(--garden);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+.pg-item.is-known .pg-badge path {
+  stroke: var(--garden);
+}
+/* Maîtrisée: solid, with a star. */
+.pg-item.is-mastered .pg-box {
+  fill: var(--garden);
+  stroke: var(--garden);
+}
+.pg-item.is-mastered .pg-label,
+.pg-item.is-mastered .pg-quiz {
+  fill: var(--paper);
+}
+.pg-item.is-mastered .pg-badge circle {
+  fill: var(--paper);
+  stroke: var(--garden);
+  stroke-width: 1.5;
+}
+.pg-item.is-mastered .pg-badge-check {
+  display: none;
+}
+.pg-item.is-mastered .pg-badge .pg-badge-star {
+  display: inline;
+  fill: var(--garden);
+}
+/* Next to read: a strong link-blue frame. */
+.pg-item.is-next .pg-box {
   fill: var(--link-wash);
   stroke: var(--link);
   stroke-width: 2.6;
+  stroke-dasharray: none;
 }
-.pg-node.is-next .pg-label {
+.pg-item.is-next .pg-label {
   font-weight: 700;
+}
+/* Target: a violet ring around the box. */
+.pg-item.is-target .pg-box {
+  stroke: var(--callout-violet);
+  stroke-width: 3;
+  stroke-dasharray: none;
+}
+
+/* Action buttons: target (bottom right) and "je connais déjà" (top left).
+   Quiet until the note is hovered or focused; always shown on touch screens
+   (no hover) and when active. */
+.pg-act {
+  cursor: pointer;
+  opacity: 0;
+}
+.pg-act:focus {
+  outline: none;
+}
+.pg-item:hover .pg-act,
+.pg-item:focus-within .pg-act,
+.pg-act[aria-pressed="true"] {
+  opacity: 1;
+}
+@media (hover: none) {
+  .pg-act {
+    opacity: 0.85;
+  }
+}
+.pg-act.is-hidden {
+  display: none;
+}
+.pg-act-bg {
+  fill: var(--paper);
+  stroke: var(--rule-strong);
+  stroke-width: 1.3;
+}
+.pg-act-ring {
+  fill: none;
+  stroke: var(--callout-violet);
+  stroke-width: 1.5;
+}
+.pg-act-dot {
+  fill: var(--callout-violet);
+}
+.pg-act-tick {
+  fill: none;
+  stroke: var(--garden);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 3 2;
+}
+.pg-act:hover .pg-act-bg {
+  fill: var(--wash-2);
+  stroke: var(--ink);
+}
+.pg-act:focus-visible .pg-act-bg {
+  stroke: var(--link);
+  stroke-width: 2.5;
+}
+.pg-act--target[aria-pressed="true"] .pg-act-bg {
+  fill: var(--callout-violet);
+  stroke: var(--callout-violet);
+}
+.pg-act--target[aria-pressed="true"] .pg-act-ring {
+  stroke: var(--paper);
+}
+.pg-act--target[aria-pressed="true"] .pg-act-dot {
+  fill: var(--paper);
+}
+.pg-act--known[aria-pressed="true"] .pg-act-bg {
+  fill: var(--garden-wash);
+  stroke: var(--garden);
+}
+.pg-act--known[aria-pressed="true"] .pg-act-tick {
+  stroke-dasharray: none;
+}
+
+/* Target mode: only the target and its ancestors stay lit. */
+.pg-item.out-scope,
+.pg-edge.out-scope {
+  opacity: 0.22;
+}
+/* Hover / focus: the note's ancestors and descendants (overrides target
+   mode while it lasts). */
+.pg.is-hl .pg-item:not(.is-lit),
+.pg.is-hl .pg-edge:not(.is-lit) {
+  opacity: 0.18;
+}
+.pg.is-hl .pg-item.is-lit,
+.pg.is-hl .pg-edge.is-lit {
+  opacity: 1;
+}
+.pg.is-hl .pg-edge.is-lit {
+  stroke: var(--ink);
+  stroke-width: 2.2;
+}
+.pg.is-hl .pg-item.is-focus .pg-box {
+  stroke: var(--ink);
+  stroke-width: 2.4;
 }
 @media (prefers-reduced-motion: no-preference) {
   .pg-box {
     transition:
       fill 0.15s ease,
       stroke 0.15s ease;
+  }
+  .pg-item,
+  .pg-edge,
+  .pg-act {
+    transition: opacity 0.15s ease;
   }
 }
 
@@ -279,9 +647,20 @@
   background: var(--garden-wash);
   border-color: var(--garden);
 }
+.parcours-swatch--known {
+  background: var(--garden-wash);
+  border: 1.5px dashed var(--garden);
+}
+.parcours-swatch--mastered {
+  background: var(--garden);
+  border-color: var(--garden);
+}
 .parcours-swatch--next {
   background: var(--link-wash);
   border: 2px solid var(--link);
+}
+.parcours-swatch--target {
+  border: 2.5px solid var(--callout-violet);
 }
 
 /* --- ordered list (text alternative) -------------------------------------- */
@@ -304,15 +683,203 @@
 .parcours-order li.is-next > a {
   font-weight: 700;
 }
+.parcours-order li.out-scope {
+  opacity: 0.5;
+}
+.parcours-order li.is-target > a {
+  text-decoration: underline;
+  text-decoration-color: var(--callout-violet);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+.parcours-state {
+  display: inline-block;
+  margin-left: 0.25rem;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: var(--garden-wash);
+  color: var(--garden);
+  font-size: 0.82rem;
+  font-weight: 600;
+  vertical-align: 0.1em;
+}
+.parcours-order li.is-target .parcours-state {
+  background: color-mix(in srgb, var(--callout-violet) 14%, var(--paper));
+  color: var(--ink);
+}
 .parcours-after {
   color: var(--muted-warm);
   font-size: 0.95rem;
+}
+.parcours-li-acts {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-left: 0.5rem;
+  vertical-align: 0.1em;
+}
+.parcours-li-btn {
+  padding: 0 0.45rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--muted-warm);
+  font: inherit;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  cursor: pointer;
+}
+.parcours-li-btn:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.parcours-li-btn[aria-pressed="true"] {
+  color: var(--ink);
+  border-color: var(--callout-violet);
+  background: color-mix(in srgb, var(--callout-violet) 10%, var(--paper));
+}
+.parcours-li-btn[data-act="known"][aria-pressed="true"] {
+  border-color: var(--garden);
+  background: var(--garden-wash);
 }
 .parcours-privacy {
   margin: 2rem 0 0;
   color: var(--muted-warm);
   font-size: 0.9rem;
   font-style: italic;
+}
+
+/* --- dialogs: placement test, path revision --------------------------------- */
+.parcours-dialog {
+  margin: auto;
+  width: min(44rem, calc(100vw - 2rem));
+  max-height: calc(100dvh - 2rem);
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.parcours-dialog::backdrop {
+  background: color-mix(in srgb, var(--ink) 40%, transparent);
+}
+.parcours-dialog-inner {
+  padding: 1rem 1.25rem 1.25rem;
+}
+.parcours-dialog-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--ink);
+}
+.parcours-dialog-head h2 {
+  margin: 0;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-size: 1.35rem;
+}
+.parcours-dialog-close {
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.parcours-dialog-close:hover {
+  background: var(--wash-2);
+  color: var(--ink);
+}
+.placement-meta,
+.path-review-meta {
+  margin: 0 0 0.4rem;
+  color: var(--muted-warm);
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+.placement-intro,
+.placement-hint {
+  margin: 0 0 0.8rem;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+}
+.placement-hint {
+  margin: 1rem 0 0;
+  color: var(--muted-warm);
+  font-size: 0.88rem;
+  font-style: italic;
+}
+.placement-question {
+  margin: 0.8rem 0 1rem;
+  font-size: 1.3rem;
+  line-height: 1.35;
+}
+.placement-q-note {
+  margin: 0.6rem 0 0.4rem;
+  color: var(--muted-warm);
+  font-size: 0.9rem;
+}
+.parcours-dialog a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.placement-quiz {
+  margin: 0 0 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  font-size: 1.1rem;
+}
+.placement-answer {
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--rule);
+}
+.placement-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.placement-done {
+  margin: 0.6rem 0 1rem;
+  font-size: 1.15rem;
+}
+/* Question/answer HTML (as in cartes.css, which this page doesn't load). */
+.parcours-dialog .note-review-q > :first-child,
+.parcours-dialog .note-review-a > :first-child {
+  margin-top: 0;
+}
+.parcours-dialog .note-review-q > :last-child,
+.parcours-dialog .note-review-a > :last-child {
+  margin-bottom: 0;
+}
+.parcours-dialog .note-review-a {
+  font-size: 1.05rem;
+  line-height: 1.55;
+}
+.parcours-dialog .note-review-a p,
+.parcours-dialog .note-review-a ul,
+.parcours-dialog .note-review-a ol {
+  margin: 0 0 0.7rem;
+}
+.path-review-empty pre {
+  margin: 0.6rem 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 4px;
+  background: var(--wash-2);
+  color: var(--ink);
+  font-size: 0.9rem;
+  white-space: pre-wrap;
+}
+.path-review-empty p {
+  margin: 0.4rem 0;
 }
 
 @media (max-width: 560px) {
@@ -324,13 +891,45 @@
   .pm {
     max-width: 3.6rem;
   }
+  .parcours-study {
+    padding: 0.55rem 0.6rem;
+  }
+  .parcours-tool {
+    font-size: 0.88rem;
+    padding: 0.3rem 0.6rem;
+  }
+  .pz-hint {
+    display: none;
+  }
+  .parcours-dialog-inner {
+    padding: 0.8rem 0.9rem 1rem;
+  }
 }
 
 @media print {
   .parcours-progress,
   .parcours-legend,
   .parcours-next,
-  .parcours-privacy {
+  .parcours-privacy,
+  .parcours-study,
+  .parcours-li-acts,
+  .parcours-state,
+  .pz-bar,
+  .pg-act,
+  .parcours-dialog {
     display: none !important;
+  }
+  .pz.is-on .pz-viewport {
+    height: auto !important;
+    overflow: visible;
+    border: 0;
+  }
+  .pz.is-on .pz-stage {
+    position: static;
+    transform: none !important;
+  }
+  .pg-item,
+  .pg-edge {
+    opacity: 1 !important;
   }
 }

@@ -12,8 +12,10 @@ import {
   SELF_GRADE,
   addQuestion,
   gradeQuestion,
+  isCorrect,
   loadNoteDeck,
   noteSlugFromPath,
+  recordCorrect,
   removeQuestion,
   saveNoteDeck,
 } from "../../lib/note-quiz.ts";
@@ -193,13 +195,18 @@ import { dayKey } from "../../lib/srs.ts";
       deck = addQuestion(deck, id, cardItem(card), g);
     } else if (deck.items[id] && g) {
       deck = gradeQuestion(deck, id, g);
-    } else return; // graded but not saved: the grade is just for the reader
+    } else if (g && isCorrect(g)) {
+      // Not in the reviews, but a correct answer still counts towards the
+      // note's "maîtrisée" state on reading paths (lib/path-study.ts).
+      deck = recordCorrect(deck, id);
+    } else return; // "Pas encore" on an unsaved question: just for the reader
     try {
       saveNoteDeck(s, slug, deck);
     } catch {
       if (status) say(status, "quiz.noStorage");
       return;
     }
+    window.dispatchEvent(new CustomEvent("gk:quiz-change"));
     showStatus(card, deck, id);
   });
 
