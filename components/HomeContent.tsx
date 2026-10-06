@@ -5,7 +5,7 @@ import type { HomeTreeNode, PdfRef, LangGroup } from "@/lib/content";
 import type { HomeData } from "@/lib/home-data";
 import type { GraphData } from "@/lib/graph-data";
 import { CircularGraph } from "@/components/CircularGraph";
-import { t, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
+import { t, folderKey, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import { readAskStream } from "@/lib/ask-stream";
 import { folderAnchor } from "@/lib/slug";
 import {
@@ -55,8 +55,9 @@ interface Match {
   href?: string;
   /** Browse-tree key for theme (folder) results. */
   path?: string;
-  /** Folder breadcrumb (group dropped) for context, e.g. "Arts · Artistes". */
-  where: string;
+  /** Folder breadcrumb (group dropped) for context, e.g. ["Arts", "Artistes"],
+   *  as named on disk — translated when rendered (whereLabel). */
+  where: string[];
   /** "note" = regular note, "deck" = Anki deck, "theme" = matching folder. */
   kind: "note" | "deck" | "theme";
   /** Note count, for theme results. */
@@ -65,12 +66,15 @@ interface Match {
 
 // Flatten every match. A folder whose name matches contributes a "theme" result
 // AND (via ancestorMatch) all of its notes; otherwise notes match on their own
-// title. Anki decks are notes tagged deck → kind "deck".
+// title. Anki decks are notes tagged deck → kind "deck". A folder matches on
+// its on-disk name or on its label in the reader's locale ("Philosophy" or
+// "Philosophie").
 function collectMatches(
   nodes: HomeTreeNode[],
   q: string,
   ancestorMatch: boolean,
   parents: string[],
+  label: (name: string) => string,
 ): Match[] {
   const out: Match[] = [];
   for (const node of nodes) {
@@ -81,25 +85,29 @@ function collectMatches(
           kind: node.deck ? "deck" : "note",
           title: node.title,
           href: node.href,
-          where: parents.slice(1).join(" · "),
+          where: parents.slice(1),
         });
       }
     } else {
-      const selfMatch = fold(node.name).includes(q);
+      const selfMatch =
+        fold(node.name).includes(q) || fold(label(node.name)).includes(q);
       if (selfMatch) {
         out.push({
           kind: "theme",
           title: node.name,
           path: node.path,
           count: node.count,
-          where: parents.slice(1).join(" · "),
+          where: parents.slice(1),
         });
       }
       out.push(
-        ...collectMatches(node.children, q, ancestorMatch || selfMatch, [
-          ...parents,
-          node.name,
-        ]),
+        ...collectMatches(
+          node.children,
+          q,
+          ancestorMatch || selfMatch,
+          [...parents, node.name],
+          label,
+        ),
       );
     }
   }
@@ -347,6 +355,11 @@ interface PfHit {
   url: string;
   title: string;
   excerpt: string;
+  /** Where the note lives ("Philosophie › Philosophes"), its `section`
+   *  Pagefind metadata (lib/html.ts noteSectionMetaHtml), built in `fr`. */
+  section?: string;
+  /** The discipline's i18n key, to re-translate `section`'s first part. */
+  dkey?: string;
 }
 
 // Full-text search over note CONTENT via Pagefind (index built into /pagefind by
@@ -384,8 +397,18 @@ function usePagefind(query: string): PfHit[] {
         if (cancelled) return;
         setHits(
           data.map((d) => {
-            const x = d as { url: string; meta?: { title?: string }; excerpt?: string };
-            return { url: x.url, title: x.meta?.title || x.url, excerpt: x.excerpt || "" };
+            const x = d as {
+              url: string;
+              meta?: { title?: string; section?: string; dkey?: string };
+              excerpt?: string;
+            };
+            return {
+              url: x.url,
+              title: x.meta?.title || x.url,
+              excerpt: x.excerpt || "",
+              section: x.meta?.section,
+              dkey: x.meta?.dkey,
+            };
           }),
         );
       } catch {
@@ -487,14 +510,22 @@ export function HomeContent({
   // before the click rather than picking a smaller file on the reader's behalf.
   const assetSize = (bytes: number) =>
     t("home.assetSize", { size: Math.round(bytes / 1048576) }, locale);
-  // Localise only the two top-level "grands thèmes"; deeper folder names stay as
-  // authored on disk. Reuses the existing nav translations.
-  const themeLabel = (name: string) =>
-    name === "Applied Sciences"
-      ? tr("nav.appliedsciences")
-      : name === "Social Sciences"
-        ? tr("nav.socialsciences")
-        : name;
+  // Localise the two top-level "grands thèmes" (nav.*) and the disciplines
+  // (discipline.*); deeper folder names stay as authored on disk.
+  const folderName = (name: string) => {
+    const key = folderKey(name);
+    return key ? t(key, undefined, locale) : name;
+  };
+  const whereLabel = (parts: string[]) => parts.map(folderName).join(" · ");
+  // A Pagefind hit's `section` is built in the default locale; swap its
+  // discipline for the active locale's name.
+  const sectionLabel = (h: PfHit) => {
+    if (!h.section || !h.dkey || locale === DEFAULT_LOCALE) return h.section;
+    const built = t(h.dkey);
+    return h.section.startsWith(built)
+      ? t(h.dkey, undefined, locale) + h.section.slice(built.length)
+      : h.section;
+  };
 
   // --- search + collapsible browse state ----------------------------------
   const [query, setQuery] = useState("");
@@ -543,12 +574,27 @@ export function HomeContent({
 
   // Search results live in a full-width overlay, not in the browse tree.
   const matches = useMemo(
-    () => (searching ? collectMatches(tree, q, false, []) : []),
-    [tree, q, searching],
+    () =>
+      searching
+        ? collectMatches(tree, q, false, [], (name) => {
+            const key = folderKey(name);
+            return key ? t(key, undefined, locale) : name;
+          })
+        : [],
+    [tree, q, searching, locale],
   );
   const notes = matches.filter((m) => m.kind === "note");
   const decks = matches.filter((m) => m.kind === "deck");
   const themes = matches.filter((m) => m.kind === "theme");
+  // Tags with a /themes/<slug>/ page (from /home-data.json) also belong to
+  // the "Thèmes" scope: typing "kant" finds the Kant theme page.
+  const tagMatches = useMemo(
+    () =>
+      searching && data?.tags
+        ? data.tags.filter(([name, slug]) => fold(name).includes(q) || slug.includes(q))
+        : [],
+    [data, q, searching],
+  );
   const pdfMatches = useMemo(
     () =>
       searching
@@ -586,12 +632,12 @@ export function HomeContent({
       label: tr("home.scopeAll"),
       count:
         notes.length + contentHits.length + pdfMatches.length + decks.length +
-        themes.length + domainMatches.length + langMatches.length,
+        themes.length + tagMatches.length + domainMatches.length + langMatches.length,
     },
     { id: "notes", label: tr("home.scopeNotes"), count: notes.length + contentHits.length },
     { id: "pdf", label: tr("home.scopePdf"), count: pdfMatches.length },
     { id: "anki", label: tr("home.scopeAnki"), count: decks.length },
-    { id: "themes", label: tr("home.scopeThemes"), count: themes.length },
+    { id: "themes", label: tr("home.scopeThemes"), count: themes.length + tagMatches.length },
     { id: "domaines", label: tr("home.scopeDomains"), count: domainMatches.length },
     { id: "langues", label: tr("home.scopeLangs"), count: langMatches.length },
   ];
@@ -744,7 +790,7 @@ export function HomeContent({
                   <span className="flex items-center gap-2">
                     <Chevron open={open} />
                     <span className="text-meta font-semibold uppercase tracking-[0.1em] text-ink">
-                      {themeLabel(node.name)}
+                      {folderName(node.name)}
                     </span>
                   </span>
                   <span className="text-meta tabular-nums text-muted-warm">
@@ -760,7 +806,7 @@ export function HomeContent({
               ) : (
                 <>
                   <Chevron open={open} size={10} />
-                  <span className="text-body text-ink">{node.name}</span>
+                  <span className="text-body text-ink">{folderName(node.name)}</span>
                   {readLabel && (
                     <span
                       className="ml-auto shrink-0 pl-2 text-micro tabular-nums text-garden"
@@ -981,8 +1027,8 @@ export function HomeContent({
                               <span aria-hidden="true" className="mr-2 select-none text-muted-warm">—</span>
                               <a href={m.href} className={`${linkCls} text-body`}>
                                 {m.title}
-                                {m.where && (
-                                  <span className="ml-2 text-meta italic text-muted-warm">{m.where}</span>
+                                {m.where.length > 0 && (
+                                  <span className="ml-2 text-meta italic text-muted-warm">{whereLabel(m.where)}</span>
                                 )}
                               </a>
                             </li>
@@ -1004,9 +1050,14 @@ export function HomeContent({
                           {contentHits.map((h) => (
                             <li key={h.url} className="mb-3">
                               <a href={h.url} className={`${linkCls} text-body`}>{h.title}</a>
+                              {h.section && (
+                                <span className="ml-2 text-meta italic text-muted-warm">
+                                  {sectionLabel(h)}
+                                </span>
+                              )}
                               {h.excerpt && (
                                 <p
-                                  className="m-0 mt-1 text-small text-muted-warm [&_mark]:bg-[#ffe9a8] [&_mark]:text-[#1a1a1a]"
+                                  className="m-0 mt-1 text-small text-muted-warm [&_mark]:rounded-[2px] [&_mark]:bg-mark-soft [&_mark]:px-[0.1em] [&_mark]:text-ink"
                                   dangerouslySetInnerHTML={{ __html: h.excerpt }}
                                 />
                               )}
@@ -1035,7 +1086,9 @@ export function HomeContent({
                           >
                             {p.title}
                             {p.where && (
-                              <span className="ml-2 text-meta italic text-muted-warm">{p.where}</span>
+                              <span className="ml-2 text-meta italic text-muted-warm">
+                                {whereLabel(p.where.split(" · "))}
+                              </span>
                             )}
                           </a>
                         </li>
@@ -1054,8 +1107,8 @@ export function HomeContent({
                           <span aria-hidden="true" className="mr-2 select-none text-muted-warm">▦</span>
                           <a href={m.href} className={`${linkCls} text-body`}>
                             {m.title}
-                            {m.where && (
-                              <span className="ml-2 text-meta italic text-muted-warm">{m.where}</span>
+                            {m.where.length > 0 && (
+                              <span className="ml-2 text-meta italic text-muted-warm">{whereLabel(m.where)}</span>
                             )}
                           </a>
                         </li>
@@ -1064,10 +1117,30 @@ export function HomeContent({
                   </div>
                 )}
 
-                {/* Themes (folders) — clicking reveals the folder in the browse tree */}
-                {showCat("themes") && themes.length > 0 && (
+                {/* Themes: tags with a /themes/ page (links), then folders —
+                    clicking a folder reveals it in the browse tree */}
+                {showCat("themes") && (themes.length > 0 || tagMatches.length > 0) && (
                   <div>
                     {scope === "all" && <p className={catLabelCls}>{tr("home.scopeThemes")}</p>}
+                    {tagMatches.length > 0 && (
+                      <ul
+                        className={`m-0 list-none p-0 [column-gap:2.5rem] min-[700px]:columns-2 min-[1100px]:columns-3 ${
+                          themes.length > 0 ? "mb-3" : ""
+                        }`}
+                      >
+                        {tagMatches.slice(0, MAX_RESULTS).map(([name, slug, count]) => (
+                          <li key={slug} className="mb-[0.4rem] flex items-baseline gap-2 break-inside-avoid">
+                            <span aria-hidden="true" className="select-none text-muted-warm">#</span>
+                            <a href={`/themes/${slug}/`} className={`${linkCls} text-body`}>
+                              {name}
+                            </a>
+                            <span className="text-meta tabular-nums text-muted-warm">
+                              {t("themes.count", { n: count }, locale)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     <ul className="m-0 list-none p-0">
                       {themes.map((m) => (
                         <li key={m.path} className="mb-[0.4rem]">
@@ -1084,7 +1157,7 @@ export function HomeContent({
                             className="flex items-baseline gap-2 bg-transparent p-0 text-left"
                           >
                             <span aria-hidden="true" className="text-muted-warm">▸</span>
-                            <span className={`${linkCls} text-body`}>{themeLabel(m.title)}</span>
+                            <span className={`${linkCls} text-body`}>{folderName(m.title)}</span>
                             <span className="text-meta tabular-nums text-muted-warm">{m.count}</span>
                           </button>
                         </li>

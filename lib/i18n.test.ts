@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { t, getMessages, LOCALES, DEFAULT_LOCALE, disciplineKey } from "./i18n";
+import { t, getMessages, LOCALES, DEFAULT_LOCALE, disciplineKey, folderKey } from "./i18n";
 
 describe("t (translator)", () => {
   it("resolves a nested key in the default locale", () => {
@@ -58,6 +58,13 @@ describe("message bundles", () => {
     expect(disciplineKey("Nowhere")).toBeNull();
     expect(disciplineKey("")).toBeNull();
     expect(t("discipline.philosophy")).toBe("Philosophie");
+  });
+
+  it("maps breadcrumb folders to a key, top groups included", () => {
+    expect(folderKey("Social Sciences")).toBe("nav.socialsciences");
+    expect(folderKey("Applied Sciences")).toBe("nav.appliedsciences");
+    expect(folderKey("Philosophy")).toBe("discipline.philosophy");
+    expect(folderKey("Philosophes")).toBeNull();
   });
 
   it("defaults to French", () => {

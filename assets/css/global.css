@@ -40,6 +40,7 @@
   --color-garden-dark: var(--garden-hover);
   --color-danger: var(--danger);
   --color-mark: var(--mark);
+  --color-mark-soft: var(--mark-soft);
 }
 
 /* ===========================================================================
@@ -84,6 +85,9 @@
   --danger-ink: #660000; /* inline code, footnote marks */
   --warn: #b8740f;
   --mark: #ffcf33; /* selection / search highlight (always with black text) */
+  /* Search-hit wash: the --mark yellow thinned out, over the text's own
+     colour — the solid --mark is too loud repeated across a results list. */
+  --mark-soft: color-mix(in srgb, var(--mark) 38%, transparent);
   /* Growth-stage ramp (sprout → settled), see .growth-* below. */
   --growth-1: #4e7a36; /* 4.92:1 */
   --growth-2: #3f6b4a; /* 6.00:1 — the site's --garden */
@@ -144,6 +148,7 @@
   --callout-red: #ef8a80;
   --callout-violet: #b4a0f0;
   --callout-grey: #a29d93;
+  --mark-soft: color-mix(in srgb, var(--mark) 24%, transparent);
   --island-pad: 0.8rem 1rem;
 }
 /* Same dark palette when the OS asks for it and the reader has not pinned
@@ -185,6 +190,7 @@
     --callout-red: #ef8a80;
     --callout-violet: #b4a0f0;
     --callout-grey: #a29d93;
+    --mark-soft: color-mix(in srgb, var(--mark) 24%, transparent);
     --island-pad: 0.8rem 1rem;
   }
 }

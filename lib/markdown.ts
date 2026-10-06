@@ -333,7 +333,7 @@ function quizCallout(
       {
         type: "element",
         tagName: "div",
-        properties: { className: ["callout-title"] },
+        properties: { className: ["callout-title"], dataPagefindIgnore: "" },
         children: [
           icon,
           {
@@ -375,7 +375,10 @@ function quizCallout(
         properties: {
           className: ["callout-body", "quiz-answer"],
           id: `${domId}-a`,
+          // The answer stays out of the Pagefind index, or the search
+          // excerpts would spoil it; the question above stays searchable.
           ...(open ? {} : { hidden: true }),
+          dataPagefindIgnore: true,
         },
         children: answer,
       },

@@ -138,6 +138,7 @@ export default function RootLayout({
           href="#main"
           className="sr-only focus:not-sr-only focus:absolute focus:start-[0.6rem] focus:top-[0.6rem] focus:z-[2000] border border-ink bg-paper px-4 py-2 [font-family:'Alegreya_Sans',sans-serif]"
           data-i18n="layout.skipLink"
+          data-pagefind-ignore=""
         >
           {t("layout.skipLink")}
         </a>
