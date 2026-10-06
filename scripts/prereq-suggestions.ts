@@ -38,6 +38,11 @@ const slugOfUrl = (url: string | null): string | null => {
   }
 };
 
+// Where each note's file lives in the pensine repo — what /api/admin/
+// prereq-accept edits (NOTES_SUBDIR as in scripts/fetch-notes.mjs).
+const subdir = (process.env.NOTES_SUBDIR || "").replace(/^\/+|\/+$/g, "");
+const repoPathOf = (rawPath: string) => `${subdir ? `${subdir}/` : ""}${rawPath}.md`;
+
 const posts = getAllPosts();
 const published = new Set(posts.map((p) => p.slug));
 
@@ -100,6 +105,8 @@ const report = {
       return {
         slug,
         title: n.title,
+        /** The note's file in the vault repo, for /api/admin/prereq-accept. */
+        notePath: repoPathOf(n.rawPath),
         existing: n.prereqTargets,
         /** Every suggestion for this note at once. */
         yamlAll: prereqYaml([
@@ -110,6 +117,8 @@ const report = {
         suggestions: list.map((s) => ({
           slug: s.prereq,
           title: bySlug.get(s.prereq)!.title,
+          /** The wikilink target to add (shortest spelling that resolves). */
+          link: bySlug.get(s.prereq)!.linkName,
           confidence: s.confidence,
           reasons: s.reasons,
           yaml: s.yaml,
