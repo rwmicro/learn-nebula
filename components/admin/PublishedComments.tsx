@@ -18,7 +18,12 @@ import {
   Unauthorized,
   adminFetch,
   fmtDateTime,
+  type AdminCardProps,
 } from "./shared";
+import { useTick } from "./store";
+
+/** Bump this tick (store.bump) to make the list re-read, e.g. after approvals. */
+export const PUBLISHED_TICK = "published";
 
 interface Comment {
   id: number;
@@ -31,18 +36,8 @@ interface Comment {
 const PAGE = 10;
 const SEARCH_DEBOUNCE_MS = 250;
 
-export function PublishedComments({
-  token,
-  onUnauthorized,
-  onToast,
-  reloadKey,
-}: {
-  token: string;
-  onUnauthorized: () => void;
-  onToast: (msg: string) => void;
-  /** Bumped by the panel when a pending comment gets approved. */
-  reloadKey: number;
-}) {
+export function PublishedComments({ token, onUnauthorized, onToast }: AdminCardProps) {
+  const reloadKey = useTick(PUBLISHED_TICK);
   const [query, setQuery] = useState("");
   const [debounced, setDebounced] = useState("");
   const [offset, setOffset] = useState(0);

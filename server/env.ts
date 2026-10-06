@@ -29,6 +29,18 @@ export const env = {
   vaultHealth: process.env.VAULT_HEALTH || path.join(cwd, "data", "vault-health.json"),
   prereqSuggestions:
     process.env.PREREQ_SUGGESTIONS || path.join(cwd, "data", "prereq-suggestions.json"),
+  factsToCheck: process.env.FACTS_TO_CHECK || path.join(cwd, "data", "facts-to-check.json"),
+
+  // /admin "Reconstruire le site": a fine-grained token with Actions
+  // read/write on GITHUB_REPO dispatches .github/workflows/docker.yml and
+  // lists its runs. Unset → the card shows the feature as disabled.
+  githubToken: process.env.GITHUB_TOKEN || "",
+  githubRepo: process.env.GITHUB_REPO || "rwmicro/learn-nebula",
+  // /admin "Accepter" on prerequisite suggestions: commits the frontmatter
+  // edit to the vault on a new branch and opens a PR. Needs Contents + Pull
+  // requests write on PENSINE_REPO; falls back to GITHUB_TOKEN. Unset → disabled.
+  pensineRepo: process.env.PENSINE_REPO || "rwmicro/pensine",
+  pensineToken: process.env.PENSINE_TOKEN || process.env.GITHUB_TOKEN || "",
 
   // Generation: Anthropic when a key is present, otherwise an OpenAI-compatible
   // chat endpoint (Ollama / llama.cpp / LM Studio).

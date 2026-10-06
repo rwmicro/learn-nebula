@@ -9,6 +9,11 @@ import { t, folderKey, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import { readAskStream } from "@/lib/ask-stream";
 import { folderAnchor } from "@/lib/slug";
 import {
+  SEARCH_MISS_MIN_CHARS,
+  SEARCH_MISS_SETTLE_MS,
+  reportSearchMiss,
+} from "@/lib/search-miss";
+import {
   CHANGE_EVENT,
   STORAGE_KEY,
   folderReadCounts,
@@ -644,6 +649,17 @@ export function HomeContent({
   const showCat = (cat: Scope) => scope === "all" || scope === cat;
   const visibleCount = scopes.find((s) => s.id === scope)?.count ?? 0;
   const openPanel = advancedOpen || searching;
+
+  // "Recherches sans résultat" for /admin: a query that stays unchanged and
+  // empty-handed (Pagefind included — its hits reset the timer) is reported
+  // once per page view. Fire-and-forget; fails silently without a backend.
+  const totalCount = scopes[0].count;
+  useEffect(() => {
+    const raw = query.trim();
+    if (totalCount > 0 || raw.length < SEARCH_MISS_MIN_CHARS) return;
+    const timer = setTimeout(() => reportSearchMiss(raw, "home"), SEARCH_MISS_SETTLE_MS);
+    return () => clearTimeout(timer);
+  }, [query, totalCount]);
 
   // restore / persist the query + open folders across back-navigation (session)
   useEffect(() => {

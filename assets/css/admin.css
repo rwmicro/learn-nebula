@@ -242,38 +242,6 @@ body:has(.admin-panel) footer {
   color: var(--ink-2);
 }
 
-/* In-page menu: sticks to the top so any card is one tap away on a long page. */
-.admin-toc {
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  margin: 0 0 1.5rem;
-  padding: 0.5rem 0;
-  background: var(--paper);
-  border-bottom: 1px solid var(--rule);
-}
-.admin-toc ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.admin-toc a {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-  text-transform: lowercase;
-  font-size: var(--text-small, 0.875rem);
-  color: var(--muted-warm);
-  text-decoration: none;
-}
-.admin-toc a:hover {
-  color: var(--ink);
-}
-.admin-card {
-  scroll-margin-top: 4rem;
-}
-
 /* Prérequis suggérés: one entry per note, its suggestions nested. */
 .admin-prereqs {
   max-height: 32rem;
@@ -303,4 +271,289 @@ body:has(.admin-panel) footer {
   font-size: var(--text-micro);
   color: var(--ink-2);
   overflow-wrap: anywhere;
+}
+
+/* ---------------------------------------------------------------- layout */
+
+.admin-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.admin-card {
+  scroll-margin-top: 1rem;
+}
+
+/* Label/value pairs (assistant, version): labels muted, values in ink. */
+.admin-dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.3rem 0.9rem;
+  font-size: var(--text-small);
+}
+.admin-dl dt {
+  color: var(--muted-warm);
+}
+.admin-dl dd {
+  margin: 0;
+  color: var(--ink);
+  min-width: 0;
+}
+.admin-dl strong {
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------- dashboard */
+
+/* One tile per actionable count. Zero reads calm (quiet rule, muted number);
+   non-zero stands out with the warn colour as a left rule and a tinted fill —
+   a chore list, not an alarm panel. */
+.admin-dashboard ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  list-style: none;
+}
+.admin-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  height: 100%;
+  padding: 0.6rem 0.75rem 0.65rem;
+  border: 1px solid var(--rule);
+  border-left-width: 3px;
+  border-radius: 0.375rem;
+  color: var(--muted-warm);
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.admin-tile:hover {
+  background: var(--wash);
+  border-color: var(--rule-strong);
+}
+.admin-tile-value {
+  font-size: 1.6rem;
+  line-height: 1.1;
+  font-weight: 700;
+}
+.admin-tile-label {
+  font-size: var(--text-micro);
+  line-height: 1.3;
+}
+.admin-tile.is-calm .admin-tile-value,
+.admin-tile.is-unknown .admin-tile-value {
+  color: var(--faint);
+  font-weight: 600;
+}
+.admin-tile.is-hot {
+  border-color: color-mix(in srgb, var(--warn) 45%, var(--rule));
+  border-left-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 7%, var(--paper));
+  color: var(--ink-2);
+}
+.admin-tile.is-hot .admin-tile-value {
+  color: var(--ink);
+}
+.admin-tile.is-hot:hover {
+  background: color-mix(in srgb, var(--warn) 12%, var(--paper));
+}
+@media (max-width: 34rem) {
+  .admin-dashboard ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .admin-tile-value {
+    font-size: 1.35rem;
+  }
+}
+
+/* ------------------------------------------------------------------ tabs */
+
+.admin-tablist {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  gap: 0.25rem;
+  margin: 0 0 1.5rem;
+  border-bottom: 1px solid var(--rule);
+  background: var(--paper);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.admin-tablist::-webkit-scrollbar {
+  display: none;
+}
+.admin-tabbtn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+  padding: 0.55rem 0.9rem 0.5rem;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-size: var(--text-body);
+  text-transform: lowercase;
+  color: var(--muted-warm);
+  background: transparent;
+}
+.admin-tabbtn:hover {
+  color: var(--ink);
+}
+.admin-tabbtn[aria-selected="true"] {
+  color: var(--ink);
+  font-weight: 700;
+  border-bottom-color: var(--garden);
+}
+.admin-tabbtn:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: -2px;
+  border-radius: 0.25rem;
+}
+.admin-tabdot {
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 999px;
+  background: var(--danger);
+}
+
+/* ------------------------------------------------------------ moderation */
+
+.admin-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+.admin-check input {
+  accent-color: var(--garden);
+}
+
+.admin-bulkbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.375rem;
+  background: var(--wash);
+}
+
+.admin-btn-primary {
+  flex-shrink: 0;
+  border-radius: 0.25rem;
+  padding: 0.25rem 0.6rem;
+  font-size: var(--text-small);
+  font-weight: 600;
+  color: var(--paper);
+  background: var(--garden);
+}
+.admin-btn-primary:hover:not(:disabled) {
+  background: var(--garden-hover);
+}
+.admin-btn-primary:disabled {
+  opacity: 0.4;
+}
+.admin-btn-danger:not(:disabled) {
+  color: var(--danger);
+}
+
+.admin-queue {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.admin-queue-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.375rem;
+}
+.admin-queue-item:focus-visible {
+  border-color: var(--garden);
+}
+.admin-queue-item.is-selected {
+  background: var(--wash);
+  border-color: var(--rule-strong);
+}
+.admin-queue-item.is-flagged {
+  border-color: color-mix(in srgb, var(--danger) 40%, var(--rule));
+  box-shadow: inset 3px 0 0 var(--danger);
+}
+.admin-queue-item.is-busy {
+  opacity: 0.55;
+}
+.admin-queue-check {
+  margin-top: 0.3rem;
+  accent-color: var(--garden);
+}
+.admin-flag {
+  color: var(--danger);
+  font-weight: 600;
+}
+
+.admin-kbd-legend kbd {
+  display: inline-block;
+  min-width: 1.2em;
+  padding: 0 0.3em;
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  border-radius: 0.2rem;
+  font-family: ui-monospace, monospace;
+  font-size: 0.95em;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--ink-2);
+  background: var(--paper);
+}
+
+.admin-blocked {
+  border-top: 1px solid var(--rule-soft);
+}
+.admin-blocked summary {
+  justify-content: flex-start;
+}
+.admin-textarea {
+  resize: vertical;
+  font-family: ui-monospace, monospace;
+  color: var(--ink);
+}
+
+/* ---------------------------------------------------------- vault health */
+
+.admin-note-actions {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.75rem;
+}
+.admin-note-action {
+  border-radius: 0.2rem;
+  font-size: var(--text-micro);
+  color: var(--muted-warm);
+  text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
+  text-underline-offset: 2px;
+}
+.admin-note-action:hover {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+.admin-details.has-items .admin-details-title {
+  color: var(--ink);
 }

@@ -4,26 +4,29 @@
 // writes at build time (data/vault-health.json, never a public file). One
 // collapsible section per problem kind, each listing the notes to fix.
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   CardHeader,
   CountBadge,
   Dot,
   ErrorLine,
+  FOCUS_RING,
   Muted,
   NoteLink,
   RefreshButton,
-  Unauthorized,
-  adminFetch,
   fmtDateTime,
   plural,
+  type AdminCardProps,
 } from "./shared";
+import { URLS, useAdminResource } from "./store";
 
 interface NoteRef {
   slug: string;
   title: string;
+  /** Vault-relative file path; absent from reports built before it existed. */
+  path?: string;
 }
-interface Report {
+export interface VaultReport {
   generatedAt: string;
   notes: number;
   brokenLinks: (NoteRef & { links: { kind: string; target: string; reason: string }[] })[];
@@ -34,6 +37,19 @@ interface Report {
   /** Absent from reports built before prerequisites existed. */
   prereqCycles?: { members: NoteRef[]; broken: [NoteRef, NoteRef][] }[];
 }
+type Report = VaultReport;
+
+const VAULT_EDIT = "https://github.com/rwmicro/pensine/edit/main/";
+
+function editUrl(p: string): string {
+  return VAULT_EDIT + p.split("/").map(encodeURIComponent).join("/");
+}
+
+/** Ids of the disclosures the dashboard tiles jump to. */
+export const HEALTH_SECTION_IDS = {
+  brokenLinks: "admin-health-links",
+  audio: "admin-health-audio",
+} as const;
 
 const AUDIO_PROBLEM: Record<string, string> = {
   missing: "introuvable",
@@ -41,30 +57,9 @@ const AUDIO_PROBLEM: Record<string, string> = {
   lfs: "pointeur git-lfs non téléchargé",
 };
 
-export function VaultHealthCard({ token, onUnauthorized }: { token: string; onUnauthorized: () => void }) {
-  const [report, setReport] = useState<Report | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [missing, setMissing] = useState(false);
-  const [busy, setBusy] = useState(false);
-
-  const load = useCallback(async () => {
-    setBusy(true);
-    try {
-      setReport(await adminFetch<Report>("/api/admin/vault-health", token));
-      setError(null);
-      setMissing(false);
-    } catch (e) {
-      if (e instanceof Unauthorized) onUnauthorized();
-      else if (e instanceof Error && e.message === "HTTP 404") setMissing(true);
-      else setError("Impossible de charger le rapport du coffre.");
-    } finally {
-      setBusy(false);
-    }
-  }, [token, onUnauthorized]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+export function VaultHealthCard({ token, onUnauthorized }: AdminCardProps) {
+  const res = useAdminResource<Report>(URLS.vaultHealth, token, onUnauthorized);
+  const report = res.data;
 
   const total = report
     ? report.brokenLinks.length +
@@ -78,13 +73,13 @@ export function VaultHealthCard({ token, onUnauthorized }: { token: string; onUn
   return (
     <section id="admin-health" className="admin-card">
       <CardHeader title="santé du coffre">
-        <RefreshButton busy={busy} onClick={load} label="Recharger le rapport du coffre" />
+        <RefreshButton busy={res.busy} onClick={() => res.reload()} label="Recharger le rapport du coffre" />
       </CardHeader>
-      {error && <ErrorLine>{error}</ErrorLine>}
-      {missing && (
+      {res.failed && <ErrorLine>Impossible de charger le rapport du coffre.</ErrorLine>}
+      {res.missing && (
         <Muted>Pas de rapport sur ce serveur — il est produit par le build (scripts/vault-health.ts).</Muted>
       )}
-      {!report && !error && !missing && <Muted>Chargement…</Muted>}
+      {!report && !res.failed && !res.missing && <Muted>Chargement…</Muted>}
       {report && (
         <>
           <p className="m-0 mb-3 flex items-center gap-2 text-small text-muted-warm">
@@ -94,6 +89,7 @@ export function VaultHealthCard({ token, onUnauthorized }: { token: string; onUn
           </p>
           <div className="admin-health">
             <Section
+              id={HEALTH_SECTION_IDS.brokenLinks}
               title="Liens cassés"
               count={report.brokenLinks.length}
               hint="[[liens]] vers une note introuvable, liens Markdown vers un .md qui ne nomme aucune note, et entrées « prerequis: » qui ne désignent aucune note publiée (le bloc « À lire avant » les omet)."
@@ -137,6 +133,7 @@ export function VaultHealthCard({ token, onUnauthorized }: { token: string; onUn
               ))}
             </Section>
             <Section
+              id={HEALTH_SECTION_IDS.audio}
               title="Audio manquant ou vide"
               count={report.audio.length}
               hint="Clips de prononciation absents, vides ou restés en pointeur LFS."
@@ -175,6 +172,12 @@ export function VaultHealthCard({ token, onUnauthorized }: { token: string; onUn
                       <span key={m.slug}>
                         {i > 0 && "· "}
                         <NoteLink slug={m.slug}>{m.title}</NoteLink>
+                        {m.path && (
+                          <>
+                            {" "}
+                            <EditLink path={m.path} title={m.title} short />
+                          </>
+                        )}
                       </span>
                     ))}
                   </div>
@@ -196,18 +199,20 @@ export function VaultHealthCard({ token, onUnauthorized }: { token: string; onUn
 }
 
 function Section({
+  id,
   title,
   count,
   hint,
   children,
 }: {
+  id?: string;
   title: string;
   count: number;
   hint: string;
   children: ReactNode;
 }) {
   return (
-    <details className="admin-details">
+    <details id={id} className={`admin-details${count ? " has-items" : ""}`}>
       <summary className="text-small">
         <span className="admin-details-title text-ink">{title}</span>
         <CountBadge>{count}</CountBadge>
@@ -223,11 +228,32 @@ function Section({
 function NoteItem({ note, meta, children }: { note: NoteRef; meta?: string; children?: ReactNode }) {
   return (
     <li>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <NoteLink slug={note.slug}>{note.title}</NoteLink>
-        {meta && <span className="text-micro text-muted-warm">{meta}</span>}
+        <span className="admin-note-actions">
+          {meta && <span className="text-micro text-muted-warm">{meta}</span>}
+          <a href={`/posts/${note.slug}/`} className={`admin-note-action ${FOCUS_RING}`}>
+            voir la note
+          </a>
+          {note.path && <EditLink path={note.path} title={note.title} />}
+        </span>
       </div>
       {children}
     </li>
+  );
+}
+
+function EditLink({ path, title, short = false }: { path: string; title: string; short?: boolean }) {
+  return (
+    <a
+      href={editUrl(path)}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={`Modifier « ${title} » sur GitHub (${path})`}
+      aria-label={short ? `Modifier « ${title} » sur GitHub` : undefined}
+      className={`admin-note-action ${FOCUS_RING}`}
+    >
+      {short ? "modifier ↗" : "modifier sur GitHub ↗"}
+    </a>
   );
 }
