@@ -33,7 +33,8 @@ ENV NODE_ENV=production \
     RAG_VECTORS=/data/rag-vectors.json \
     BUILD_INFO=/app/data/build-info.json \
     VAULT_HEALTH=/app/data/vault-health.json \
-    PREREQ_SUGGESTIONS=/app/data/prereq-suggestions.json
+    PREREQ_SUGGESTIONS=/app/data/prereq-suggestions.json \
+    FACTS_TO_CHECK=/app/data/facts-to-check.json
 RUN corepack enable && corepack prepare pnpm@10.28.0 --activate
 
 COPY --from=deps /app/node_modules ./node_modules
@@ -45,9 +46,10 @@ COPY messages ./messages
 COPY schema ./schema
 COPY data/rag-chunks.json ./data/rag-chunks.json
 # Build-time reports read by the admin-only /api/admin/* endpoints
-# (scripts/build-info.mjs, scripts/vault-health.ts, scripts/prereq-suggestions.ts)
+# (scripts/build-info.mjs, scripts/vault-health.ts, scripts/prereq-suggestions.ts,
+# scripts/facts-to-check.ts)
 # — kept out of out/ so the static server never exposes them.
-COPY data/build-info.json data/vault-health.json data/prereq-suggestions.json ./data/
+COPY data/build-info.json data/vault-health.json data/prereq-suggestions.json data/facts-to-check.json ./data/
 COPY out ./out
 
 # /data holds the SQLite comments DB and the embedded-vector cache — mount it so

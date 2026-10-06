@@ -4,6 +4,8 @@
 //   GET /api/admin/version      → served build vs. pensine's latest commit (server/version.ts)
 //   GET /api/admin/vault-health → the build-time vault report (scripts/vault-health.ts)
 //   GET /api/admin/prereq-suggestions → draft `prerequis` edges (scripts/prereq-suggestions.ts)
+//   …plus the tools in admin-tools.ts (search misses, rebuild, prereq PR,
+//   retrieval bench, facts to check), mounted at the end of this file.
 
 import fs from "node:fs";
 import { Hono } from "hono";
@@ -11,6 +13,7 @@ import { isAdmin } from "../auth.ts";
 import { getIp } from "../http.ts";
 import { env } from "../env.ts";
 import { versionStatus } from "../version.ts";
+import { adminToolsRoute } from "./admin-tools.ts";
 
 export const adminRoute = new Hono();
 
@@ -47,3 +50,6 @@ adminRoute.get("/prereq-suggestions", (c) => {
   }
   return c.body(raw, 200, { "content-type": "application/json; charset=utf-8" });
 });
+
+// Mounted after the gate above, so every tool route is token-checked too.
+adminRoute.route("/", adminToolsRoute);

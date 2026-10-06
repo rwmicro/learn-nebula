@@ -3,9 +3,9 @@
 // Prérequis suggérés — GET /api/admin/prereq-suggestions, the draft edges
 // scripts/prereq-suggestions.ts writes at build time (data/
 // prereq-suggestions.json, never a public file; heuristics in
-// lib/prereq-suggest.ts). The vault is a git repo the server can't write to,
-// so the action is copying the ready-to-paste frontmatter line; "Ignorer" is
-// remembered in this browser only.
+// lib/prereq-suggest.ts). "Accepter" opens a pull request on the vault
+// (PrereqAcceptButton, when the server has a token); "Copier" copies the
+// ready-to-paste frontmatter line; "Ignorer" is remembered in this browser only.
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
@@ -22,6 +22,7 @@ import {
   fmtDateTime,
   plural,
 } from "./shared";
+import PrereqAcceptButton from "./PrereqAcceptButton";
 
 interface Suggestion {
   slug: string;
@@ -29,11 +30,15 @@ interface Suggestion {
   confidence: number;
   reasons: string[];
   yaml: string;
+  /** Wikilink target to add; absent from reports built before "Accepter". */
+  link?: string;
   path: { slug: string; name: string } | null;
 }
 interface NoteGroup {
   slug: string;
   title: string;
+  /** The note's file in the vault repo; absent from older reports. */
+  notePath?: string;
   existing: string[];
   yamlAll: string;
   best: number;
@@ -266,6 +271,16 @@ export function PrereqSuggestionsCard({
                           </span>
                         )}
                       </span>
+                      {live.length > 1 && g.notePath && (
+                        <PrereqAcceptButton
+                          token={token}
+                          onUnauthorized={onUnauthorized}
+                          onToast={onToast}
+                          items={live
+                            .filter((s) => s.link)
+                            .map((s) => ({ notePath: g.notePath!, link: s.link! }))}
+                        />
+                      )}
                       {live.length > 1 && (
                         <button
                           type="button"
@@ -299,6 +314,15 @@ export function PrereqSuggestionsCard({
                                   : "nouveau groupe"}
                               </span>
                               <span className="ml-auto flex gap-1">
+                                {g.notePath && s.link && (
+                                  <PrereqAcceptButton
+                                    token={token}
+                                    onUnauthorized={onUnauthorized}
+                                    onToast={onToast}
+                                    items={[{ notePath: g.notePath, link: s.link }]}
+                                    disabled={ign}
+                                  />
+                                )}
                                 <button
                                   type="button"
                                   className={BUTTON_CLASS}
