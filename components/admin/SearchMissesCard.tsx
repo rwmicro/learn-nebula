@@ -6,7 +6,7 @@
 // nobody wrote yet, or a spelling the index misses. "Ignorer" deletes the row
 // (DELETE /api/admin/search-misses); it comes back if people keep missing.
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import {
   BUTTON_CLASS,
   CardHeader,
@@ -19,7 +19,9 @@ import {
   fmtDate,
   fmtDateTime,
   plural,
+  type AdminCardProps,
 } from "./shared";
+import { URLS, setResource, useAdminResource } from "./store";
 
 interface Miss {
   q: string;
@@ -28,7 +30,7 @@ interface Miss {
   first_seen: number;
   last_seen: number;
 }
-interface MissesData {
+export interface MissesData {
   top: Miss[];
   recent: Miss[];
   total: number;
@@ -41,58 +43,31 @@ const VIEWS: { id: View; label: string }[] = [
 ];
 const WHERE_LABEL: Record<string, string> = { home: "accueil", note: "page de note" };
 
-export function SearchMissesCard({
-  token,
-  onUnauthorized,
-  onToast,
-}: {
-  token: string;
-  onUnauthorized: () => void;
-  onToast?: (message: string) => void;
-}) {
-  const [data, setData] = useState<MissesData | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+export function SearchMissesCard({ token, onUnauthorized, onToast }: AdminCardProps) {
+  const res = useAdminResource<MissesData>(URLS.searchMisses, token, onUnauthorized);
+  const data = res.data;
+  const error = res.failed ? (res.error ?? "Impossible de charger les recherches sans résultat.") : null;
   const [view, setView] = useState<View>("top");
   const [removing, setRemoving] = useState<string | null>(null);
-
-  const load = useCallback(async () => {
-    setBusy(true);
-    try {
-      setData(await adminFetch<MissesData>("/api/admin/search-misses", token));
-      setError(null);
-    } catch (e) {
-      if (e instanceof Unauthorized) onUnauthorized();
-      else setError("Impossible de charger les recherches sans résultat.");
-    } finally {
-      setBusy(false);
-    }
-  }, [token, onUnauthorized]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
 
   const dismiss = async (m: Miss) => {
     const key = `${m.where}:${m.q}`;
     setRemoving(key);
     try {
       await adminFetch(
-        `/api/admin/search-misses?q=${encodeURIComponent(m.q)}&where=${m.where}`,
+        `${URLS.searchMisses}?q=${encodeURIComponent(m.q)}&where=${m.where}`,
         token,
         { method: "DELETE" },
       );
-      setData((d) =>
-        d && {
-          top: d.top.filter((x) => `${x.where}:${x.q}` !== key),
-          recent: d.recent.filter((x) => `${x.where}:${x.q}` !== key),
-          total: Math.max(0, d.total - 1),
-        },
-      );
-      onToast?.(`« ${m.q} » ignorée.`);
+      setResource<MissesData>(URLS.searchMisses, (d) => ({
+        top: (d?.top ?? []).filter((x) => `${x.where}:${x.q}` !== key),
+        recent: (d?.recent ?? []).filter((x) => `${x.where}:${x.q}` !== key),
+        total: Math.max(0, (d?.total ?? 1) - 1),
+      }));
+      onToast(`« ${m.q} » ignorée.`);
     } catch (e) {
       if (e instanceof Unauthorized) onUnauthorized();
-      else onToast?.("Suppression impossible.");
+      else onToast("Suppression impossible.");
     } finally {
       setRemoving(null);
     }
@@ -103,7 +78,7 @@ export function SearchMissesCard({
   return (
     <section id="admin-search-misses" className="admin-card">
       <CardHeader title="recherches sans résultat" count={data ? data.total : undefined}>
-        <RefreshButton busy={busy} onClick={load} label="Recharger les recherches sans résultat" />
+        <RefreshButton busy={res.busy} onClick={() => res.reload()} label="Recharger les recherches sans résultat" />
       </CardHeader>
       <p className="m-0 mb-3 text-small text-muted-warm">
         Recherches d&apos;au moins trois caractères restées sans aucun résultat — une note à écrire, ou
