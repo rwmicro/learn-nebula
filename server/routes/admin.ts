@@ -6,6 +6,8 @@
 //   GET /api/admin/prereq-suggestions → draft `prerequis` edges (scripts/prereq-suggestions.ts)
 //   GET /api/admin/blocked-words → { words, hold } — the comment word filter
 //   PUT /api/admin/blocked-words { words: string[], hold?: boolean } → same shape back
+//   …plus the tools in admin-tools.ts (search misses, rebuild, prereq PR,
+//   retrieval bench, facts to check), mounted at the end of this file.
 
 import fs from "node:fs";
 import { Hono } from "hono";
@@ -15,6 +17,7 @@ import { env } from "../env.ts";
 import { versionStatus } from "../version.ts";
 import { HOLD_BLOCKED_KEY, blockedWords, holdBlocked, setBlockedWords, setSetting } from "../db.ts";
 import { MAX_WORDS, sanitizeWords } from "../blocked-words.ts";
+import { adminToolsRoute } from "./admin-tools.ts";
 
 export const adminRoute = new Hono();
 
@@ -78,3 +81,6 @@ adminRoute.put("/blocked-words", async (c) => {
     return c.json({ error: "Base de commentaires indisponible." }, 503);
   }
 });
+
+// Mounted after the gate above, so every tool route is token-checked too.
+adminRoute.route("/", adminToolsRoute);

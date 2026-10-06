@@ -236,6 +236,10 @@ export function scopePrefix(scope: unknown): string {
   return `/posts/${s}/`;
 }
 
+// What /api/ask retrieves with (and /api/admin/rag-debug replays).
+export const ASK_TOP_K = 5;
+export const ASK_MIN_SCORE = 0.4;
+
 // Hybrid retrieval: the dense ranking (cosine) and the lexical one (BM25) are
 // fused with Reciprocal Rank Fusion, then optionally reordered by a
 // cross-encoder reranker (RERANK_URL).
@@ -254,16 +258,41 @@ const RERANK_MIN_SCORE = 0.02;
 const MAX_PER_NOTE = 2; // keep a single long note from filling every slot
 const RERANK_TIMEOUT_MS = 8_000;
 
-/** Top-K chunks for `query`, restricted to chunks whose URL starts with
- *  `prefix` when one is given. `minScore` is the cosine a chunk needs to enter
- *  through the dense ranking alone. */
-export async function search(
+/** One retrieval candidate with every score that placed it — what
+ *  /api/admin/rag-debug shows. `bm25` is null when the chunk only came in
+ *  through the dense ranking, `rerank` when no reranker ran on it. */
+export interface ScoredChunk {
+  title: string;
+  url: string;
+  text: string;
+  cosine: number;
+  bm25: number | null;
+  /** Shares a rare query word with the question (see LEXICAL_RARE_DF). */
+  rare: boolean;
+  rrf: number;
+  rerank: number | null;
+  /** Kept in the final top-K (after the reranker floor and the per-note cap). */
+  kept: boolean;
+}
+
+export interface RetrievalTrace {
+  /** Candidates in final order (reranked when the reranker ran). */
+  candidates: ScoredChunk[];
+  hits: RagHit[];
+  reranked: boolean;
+  rerankError: string | null;
+}
+
+/** The whole hybrid pipeline with its intermediate scores, or null when the
+ *  index isn't ready / the query vector doesn't match it. search() is this,
+ *  minus the trace. */
+export async function retrieve(
   query: string,
   topK: number,
   minScore: number,
   prefix = "",
-): Promise<RagHit[]> {
-  if (state !== "ready" || !metas.length || !dim) return [];
+): Promise<RetrievalTrace | null> {
+  if (state !== "ready" || !metas.length || !dim) return null;
   const [qv] = await openaiEmbed(
     env.embedBaseUrl,
     env.embedModel,
@@ -277,7 +306,7 @@ export async function search(
     // (EMBED_MODEL unchanged, model swapped behind it). Say so — an empty
     // result here otherwise looks exactly like "no relevant notes".
     console.warn(`rag: query vector has dim ${q.length}, index has ${dim} — restart to re-embed.`);
-    return [];
+    return null;
   }
 
   const inScope = (i: number) => !prefix || metas[i].url.startsWith(prefix);
@@ -293,16 +322,22 @@ export async function search(
     if (dot >= minScore) dense.push(i);
   }
   dense.sort((a, b) => cos[b] - cos[a]);
-  const lexical = (lex?.search(query, CANDIDATES, inScope, LEXICAL_RARE_DF) ?? [])
-    .filter((h) => h.rare || cos[h.i] >= minScore - LEXICAL_COSINE_FLOOR_DELTA)
-    .map((h) => h.i);
+  const lexHits = (lex?.search(query, CANDIDATES, inScope, LEXICAL_RARE_DF) ?? []).filter(
+    (h) => h.rare || cos[h.i] >= minScore - LEXICAL_COSINE_FLOOR_DELTA,
+  );
+  const lexical = lexHits.map((h) => h.i);
+  const lexScore = new Map(lexHits.map((h) => [h.i, h]));
 
   const fused = new Map<number, number>();
   for (const list of [dense.slice(0, CANDIDATES), lexical]) {
     list.forEach((i, rank) => fused.set(i, (fused.get(i) ?? 0) + 1 / (RRF_K + rank + 1)));
   }
-  let ranked = [...fused].sort((a, b) => b[1] - a[1]).map(([i]) => ({ i, s: cos[i] }));
+  let ranked: { i: number; s: number; rerank: number | null }[] = [...fused]
+    .sort((a, b) => b[1] - a[1])
+    .map(([i]) => ({ i, s: cos[i], rerank: null }));
 
+  let reranked = false;
+  let rerankError: string | null = null;
   if (env.rerankUrl && ranked.length > 1) {
     const pool = ranked.slice(0, RERANK_POOL);
     try {
@@ -313,26 +348,58 @@ export async function search(
         RERANK_TIMEOUT_MS,
       );
       ranked = pool
-        .map(({ i }, k) => ({ i, s: scores[k] }))
-        .filter((h) => h.s >= RERANK_MIN_SCORE)
+        .map(({ i }, k) => ({ i, s: scores[k], rerank: scores[k] }))
         .sort((a, b) => b.s - a.s);
+      reranked = true;
     } catch (e) {
       // Degrade to the fused order rather than failing the question.
-      console.warn("rag: rerank failed —", e instanceof Error ? e.message : e);
+      rerankError = e instanceof Error ? e.message : String(e);
+      console.warn("rag: rerank failed —", rerankError);
     }
   }
 
   const perNote = new Map<string, number>();
-  const out: RagHit[] = [];
-  for (const { i, s } of ranked) {
+  const hits: RagHit[] = [];
+  const keptIdx = new Set<number>();
+  for (const { i, s, rerank: rr } of ranked) {
+    if (hits.length >= topK) break;
+    if (rr !== null && rr < RERANK_MIN_SCORE) continue;
     const m = metas[i];
     const c = perNote.get(m.url) ?? 0;
     if (c >= MAX_PER_NOTE) continue;
     perNote.set(m.url, c + 1);
-    out.push({ title: m.title, url: m.url, text: m.text, score: s, cosine: cos[i] });
-    if (out.length >= topK) break;
+    keptIdx.add(i);
+    hits.push({ title: m.title, url: m.url, text: m.text, score: s, cosine: cos[i] });
   }
-  return out;
+
+  const candidates: ScoredChunk[] = ranked.map(({ i, rerank: rr }) => {
+    const m = metas[i];
+    const l = lexScore.get(i);
+    return {
+      title: m.title,
+      url: m.url,
+      text: m.text,
+      cosine: cos[i],
+      bm25: l ? l.s : null,
+      rare: l ? l.rare : false,
+      rrf: fused.get(i) ?? 0,
+      rerank: rr,
+      kept: keptIdx.has(i),
+    };
+  });
+  return { candidates, hits, reranked, rerankError };
+}
+
+/** Top-K chunks for `query`, restricted to chunks whose URL starts with
+ *  `prefix` when one is given. `minScore` is the cosine a chunk needs to enter
+ *  through the dense ranking alone. */
+export async function search(
+  query: string,
+  topK: number,
+  minScore: number,
+  prefix = "",
+): Promise<RagHit[]> {
+  return (await retrieve(query, topK, minScore, prefix))?.hits ?? [];
 }
 
 export interface RelatedHit {
