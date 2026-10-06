@@ -10,3 +10,11 @@ export function folderAnchor(path: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "");
 }
+
+/** URL slug for a frontmatter tag or a folder name on the /themes/ pages.
+ *  Accents are folded first, so "sécurité" gives "securite" rather than the
+ *  "s-curit" folderAnchor would, and two spellings of one tag ("Sécurité",
+ *  "securite") land on the same page. */
+export function tagSlug(tag: string): string {
+  return folderAnchor(tag.normalize("NFD").replace(/[̀-ͯ]/g, ""));
+}

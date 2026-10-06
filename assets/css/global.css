@@ -14,11 +14,185 @@
      on phones instead of wrapping; the cqi term still scales it up grandly on
      wider screens, capped at the max. */
   --text-wordmark: clamp(1.55rem, 8.6cqi, 6rem);
+}
+
+/* Colour tokens as Tailwind utilities (text-ink, border-rule, bg-paper,
+   bg-garden…). `inline` so each utility emits var(--ink) itself and resolves
+   per element — that is what lets a .keep-light island below re-theme its
+   subtree. The values live in the palette blocks that follow. */
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-wash: var(--wash);
+  --color-wash-2: var(--wash-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-2: var(--ink-2);
+  --color-muted: var(--muted);
+  --color-muted-warm: var(--muted-warm);
+  --color-faint: var(--faint);
+  --color-rule-soft: var(--rule-soft);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-link: var(--link);
+  --color-link-wash: var(--link-wash);
+  --color-garden: var(--garden);
+  --color-garden-dark: var(--garden-hover);
+  --color-danger: var(--danger);
+  --color-mark: var(--mark);
+  --color-mark-soft: var(--mark-soft);
+}
+
+/* ===========================================================================
+ * Palette — light (default) and dark. Every colour on the site goes through
+ * these tokens; the rest of the CSS never hard-codes a grey. The theme follows
+ * the OS (prefers-color-scheme) unless the reader picked one with the toggle
+ * (components/ThemeToggle, public/js/theme.js), which sets data-theme on
+ * <html> before first paint (layout.tsx). `.keep-light` pins a subtree to the
+ * light palette in dark mode — for artwork drawn with a fixed light theme
+ * (build-time mermaid SVG, Anki cards) that would be illegible re-inked.
+ * Dark: warm near-black paper, off-white ink, and every text token ≥ 4.5:1
+ * on the paper (WCAG AA) — ratios noted against #1c1b19.
+ * ======================================================================== */
+:root,
+.keep-light {
+  color-scheme: light;
+  --paper: #fcfcfc; /* page */
+  --paper-raised: #fcfcfc; /* floating panels, popovers */
+  --wash: #faf9f6; /* faint fill (excerpts, placeholders) */
+  --wash-2: #f0f0ec; /* hover / table-head fill */
+  --ink: #111;
+  --ink-soft: #333;
+  --ink-2: #555;
+  --muted: #6f6f6f;
+  --muted-warm: #787369;
+  --faint: #a8a49c; /* decorative only — below text contrast by design */
+  --rule-soft: #eee;
+  --rule: #e4e2dd;
+  --rule-strong: #ccc;
+  /* The link blue and its tints. */
+  --link: #003366;
+  --link-wash: #f0f7ff;
+  --link-soft: #cfe0f0;
+  --link-mid: #9fc0dd; /* chart fills */
   /* Muted garden green — CTA fill for the "Ask the garden" / comment submit
      buttons. Subtle enough for the editorial B&W palette, clearly a button.
-     Exposed as bg-garden / text-garden and as var(--color-garden). */
-  --color-garden: #3f6b4a;
-  --color-garden-dark: #345a3e;
+     Exposed as bg-garden / text-garden. Text on it uses var(--paper). */
+  --garden: #3f6b4a;
+  --garden-hover: #345a3e;
+  --garden-wash: #eef3ec;
+  --danger: #b3322f;
+  --danger-ink: #660000; /* inline code, footnote marks */
+  --warn: #b8740f;
+  --mark: #ffcf33; /* selection / search highlight (always with black text) */
+  /* Search-hit wash: the --mark yellow thinned out, over the text's own
+     colour — the solid --mark is too loud repeated across a results list. */
+  --mark-soft: color-mix(in srgb, var(--mark) 38%, transparent);
+  /* Growth-stage ramp (sprout → settled), see .growth-* below. */
+  --growth-1: #4e7a36; /* 4.92:1 */
+  --growth-2: #3f6b4a; /* 6.00:1 — the site's --garden */
+  --growth-3: #2f5d3a; /* 7.45:1 */
+  /* Callout hues (main.css .callout-*). */
+  --callout-blue: #2d6cc0;
+  --callout-teal: #009b8f;
+  --callout-green: #2e8b3d;
+  --callout-orange: #b8740f;
+  --callout-amber: #8f6600; /* see .callout-warning in main.css */
+  --callout-red: #b3322f;
+  --callout-violet: #6b4fbb;
+  --callout-grey: #6b6b6b;
+}
+.keep-light {
+  color: var(--ink);
+}
+/* Inner padding of a .keep-light card: none in light, where the card is the
+   page colour and must not shift the layout. Outside the shared block above on
+   purpose — an island has to inherit the dark value, not reset it. */
+:root {
+  --island-pad: 0;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #1c1b19;
+  --paper-raised: #242320;
+  --wash: #22211e;
+  --wash-2: #2c2a27;
+  --ink: #ebe8e2; /* 14.1:1 */
+  --ink-soft: #d6d3cc; /* 11.5:1 */
+  --ink-2: #bdb9b1; /* 8.8:1 */
+  --muted: #a29d93; /* 6.4:1 */
+  --muted-warm: #a8a296; /* 6.8:1 */
+  --faint: #7a766e; /* 3.8:1, decorative */
+  --rule-soft: #2c2a27;
+  --rule: #36342f;
+  --rule-strong: #4a4741;
+  --link: #9cc2ec; /* 9.3:1 */
+  --link-wash: #1f2a37;
+  --link-soft: #34506f;
+  --link-mid: #4a76a3;
+  --garden: #86b893; /* 7.6:1; the paper colour on it is 7.6:1 too */
+  --garden-hover: #a3c9a9;
+  --garden-wash: #233027;
+  --danger: #ef8a80;
+  --danger-ink: #f0a39b;
+  --warn: #e0a84a;
+  --growth-1: #b0d48f;
+  --growth-2: #86b893;
+  --growth-3: #6fa87c;
+  --callout-blue: #7fb2f0;
+  --callout-teal: #4fc4b8;
+  --callout-green: #6fc47e;
+  --callout-orange: #e0a84a;
+  --callout-amber: #d9b44a;
+  --callout-red: #ef8a80;
+  --callout-violet: #b4a0f0;
+  --callout-grey: #a29d93;
+  --mark-soft: color-mix(in srgb, var(--mark) 24%, transparent);
+  --island-pad: 0.8rem 1rem;
+}
+/* Same dark palette when the OS asks for it and the reader has not pinned
+   light. Kept in step with the block above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #1c1b19;
+    --paper-raised: #242320;
+    --wash: #22211e;
+    --wash-2: #2c2a27;
+    --ink: #ebe8e2;
+    --ink-soft: #d6d3cc;
+    --ink-2: #bdb9b1;
+    --muted: #a29d93;
+    --muted-warm: #a8a296;
+    --faint: #7a766e;
+    --rule-soft: #2c2a27;
+    --rule: #36342f;
+    --rule-strong: #4a4741;
+    --link: #9cc2ec;
+    --link-wash: #1f2a37;
+    --link-soft: #34506f;
+    --link-mid: #4a76a3;
+    --garden: #86b893;
+    --garden-hover: #a3c9a9;
+    --garden-wash: #233027;
+    --danger: #ef8a80;
+    --danger-ink: #f0a39b;
+    --warn: #e0a84a;
+    --growth-1: #b0d48f;
+    --growth-2: #86b893;
+    --growth-3: #6fa87c;
+    --callout-blue: #7fb2f0;
+    --callout-teal: #4fc4b8;
+    --callout-green: #6fc47e;
+    --callout-orange: #e0a84a;
+    --callout-amber: #d9b44a;
+    --callout-red: #ef8a80;
+    --callout-violet: #b4a0f0;
+    --callout-grey: #a29d93;
+    --mark-soft: color-mix(in srgb, var(--mark) 24%, transparent);
+    --island-pad: 0.8rem 1rem;
+  }
 }
 
 /* ===========================================================================
@@ -37,8 +211,8 @@ body {
   margin: 2rem auto;
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-weight: 440;
-  background-color: #fcfcfc;
-  color: #111;
+  background-color: var(--paper);
+  color: var(--ink);
   width: 100%;
   max-width: 1100px;
   counter-reset: margin-counter;
@@ -60,7 +234,7 @@ body {
   gap: 0.35rem;
   text-transform: lowercase;
   letter-spacing: 0.02em;
-  color: var(--growth-c, #6f6f6f);
+  color: var(--growth-c, var(--muted));
 }
 .growth-dot {
   width: 0.5rem;
@@ -74,13 +248,13 @@ body {
    read nicely but measured 3.19:1, which axe caught. Keep the progression
    legible by darkening the whole ramp rather than only the failing end. */
 .growth-seedling {
-  --growth-c: #4e7a36; /* 4.92:1 */
+  --growth-c: var(--growth-1);
 }
 .growth-budding {
-  --growth-c: #3f6b4a; /* 6.00:1 — the site's --color-garden */
+  --growth-c: var(--growth-2);
 }
 .growth-evergreen {
-  --growth-c: #2f5d3a; /* 7.45:1 */
+  --growth-c: var(--growth-3);
 }
 
 /* Home "latest growth": a short way back into what is being worked on, not a
@@ -98,7 +272,7 @@ body {
   font-weight: 700;
   font-size: clamp(1.15rem, 1rem + 0.5vw, 1.35rem);
   margin: 0 0 0.5rem;
-  color: #111;
+  color: var(--ink);
 }
 .recent-notes .recent-notes-list {
   list-style: none;
@@ -111,7 +285,7 @@ body {
   align-items: baseline;
   gap: 0.3rem 0.6rem;
   padding: 0.35rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--rule-soft);
 }
 .recent-notes .recent-notes-list li:last-child {
   border-bottom: 0;
@@ -119,7 +293,7 @@ body {
 .recent-notes-list a {
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-size: 1.15rem;
-  color: #111;
+  color: var(--ink);
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
@@ -132,7 +306,7 @@ body {
   margin-inline-start: auto;
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.92rem;
-  color: #6f6f6f;
+  color: var(--muted);
 }
 .recent-meta time {
   font-style: italic;
@@ -167,14 +341,18 @@ body {
   display: block;
 }
 .cg-links path {
-  stroke: #d7d4cd;
+  stroke: var(--rule);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 .cg-nodes circle {
-  stroke: #fcfcfc;
+  stroke: var(--paper);
   stroke-width: 0.5;
   vector-effect: non-scaling-stroke;
+}
+/* The root dot is ink (its #111 fill attribute is the no-CSS fallback). */
+.cg-nodes circle[data-kind="root"] {
+  fill: var(--ink);
 }
 
 /* Rich search excerpt (HomeContent): a small HTML snippet of a note — mainly so
@@ -182,11 +360,11 @@ body {
 .rich-excerpt {
   margin-top: 0.5rem;
   padding: 0.6rem 0.8rem;
-  border-left: 2px solid #e4e2dd;
-  background: #faf9f6;
+  border-left: 2px solid var(--rule);
+  background: var(--wash);
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-size: 0.92rem;
-  color: #333;
+  color: var(--ink-soft);
   max-height: 22rem;
   overflow: auto;
 }
@@ -203,12 +381,12 @@ body {
 }
 .rich-excerpt th,
 .rich-excerpt td {
-  border: 1px solid #d8d5cd;
+  border: 1px solid var(--rule);
   padding: 0.2rem 0.5rem;
   text-align: left;
 }
 .rich-excerpt th {
-  background: #f0eee8;
+  background: var(--wash-2);
   font-weight: 600;
 }
 .rich-excerpt img {
@@ -231,8 +409,8 @@ body {
   max-height: min(38rem, 82vh);
   display: flex;
   flex-direction: column;
-  background: #fcfcfc;
-  border: 1px solid #1a1a1a;
+  background: var(--paper);
+  border: 1px solid var(--ink);
   border-radius: 6px;
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
   font-family: "Alegreya", "Alegreya Fallback", serif;
@@ -249,8 +427,8 @@ body {
   cursor: nwse-resize;
   z-index: 3;
   touch-action: none;
-  border-left: 2px solid #9a938a;
-  border-top: 2px solid #9a938a;
+  border-left: 2px solid var(--faint);
+  border-top: 2px solid var(--faint);
   border-top-left-radius: 6px;
 }
 .gk-pinned-head {
@@ -258,14 +436,14 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0.4rem 0.5rem 0.7rem;
-  border-bottom: 1px solid #e4e2dd;
+  border-bottom: 1px solid var(--rule);
   cursor: move; /* drag handle */
   touch-action: none;
   user-select: none;
 }
 .gk-pinned-grip {
   display: inline-flex;
-  color: #5f7d4f;
+  color: var(--garden);
 }
 .gk-pinned-title {
   flex: 1;
@@ -280,9 +458,9 @@ body {
   align-items: center;
   gap: 0.45rem;
   padding: 0.55rem 1.1rem;
-  border: 1px solid var(--color-garden);
-  background: var(--color-garden);
-  color: #fcfcfc;
+  border: 1px solid var(--garden);
+  background: var(--garden);
+  color: var(--paper);
   border-radius: 999px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
   cursor: pointer;
@@ -294,8 +472,8 @@ body {
   line-height: 1.2;
 }
 .gk-pinned-trigger:hover {
-  background: var(--color-garden-dark);
-  border-color: var(--color-garden-dark);
+  background: var(--garden-hover);
+  border-color: var(--garden-hover);
 }
 .gk-pinned-title {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
@@ -308,19 +486,19 @@ body {
   background: transparent;
   font-size: 1.4rem;
   line-height: 1;
-  color: #555;
+  color: var(--ink-2);
   cursor: pointer;
   padding: 0 0.4rem;
 }
 .gk-pinned-close:hover {
-  color: #111;
+  color: var(--ink);
 }
 .gk-pinned-body {
   padding: 0.8rem 1rem;
   flex: 1 1 auto;
   min-height: 6.5rem;
   overflow-y: auto;
-  border-bottom: 1px solid #e4e2dd;
+  border-bottom: 1px solid var(--rule);
 }
 /* Pinned selection chip + the floating "ask about this passage" button. */
 .gk-pinned-chip {
@@ -329,18 +507,18 @@ body {
   gap: 0.4rem;
   margin-bottom: 0.6rem;
   padding: 0.35rem 0.6rem;
-  background: #eef3ec;
-  border-left: 2px solid var(--color-garden);
+  background: var(--garden-wash);
+  border-left: 2px solid var(--garden);
   border-radius: 3px;
   font-size: 0.98rem;
-  color: #333;
+  color: var(--ink-soft);
 }
 .gk-pinned-chip button {
   flex: none;
   border: 0;
   background: transparent;
   cursor: pointer;
-  color: #666;
+  color: var(--muted);
   font-size: 1.1rem;
   line-height: 1;
   padding: 0;
@@ -352,9 +530,9 @@ body {
   align-items: center;
   gap: 0.4rem;
   padding: 0.35rem 0.7rem;
-  border: 1px solid var(--color-garden);
-  background: var(--color-garden);
-  color: #fcfcfc;
+  border: 1px solid var(--garden);
+  background: var(--garden);
+  color: var(--paper);
   border-radius: 999px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   cursor: pointer;
@@ -365,12 +543,12 @@ body {
   line-height: 1.2;
 }
 .gk-sel-btn:hover {
-  background: var(--color-garden-dark);
-  border-color: var(--color-garden-dark);
+  background: var(--garden-hover);
+  border-color: var(--garden-hover);
 }
 .gk-pinned-hint {
   margin: 0;
-  color: #787369;
+  color: var(--muted-warm);
   font-style: italic;
   font-size: 1.05rem;
 }
@@ -378,7 +556,7 @@ body {
   margin: 0;
   font-size: 1.1rem;
   line-height: 1.45;
-  color: #1a1a1a;
+  color: var(--ink);
   white-space: pre-wrap;
 }
 /* Markdown rendered from the finished answer (markdownToHtml): reset the
@@ -400,19 +578,19 @@ body {
   margin-top: 0.2rem;
 }
 .gk-pinned-answer code {
-  background: #f0f7ff;
+  background: var(--link-wash);
   border-radius: 2px;
   padding: 0.05rem 0.3rem;
   font-size: 0.95em;
 }
 .gk-pinned-answer a {
-  color: var(--color-garden);
+  color: var(--garden);
 }
 .gk-pinned-sources {
   margin: 0.5rem 0 0;
   padding-left: 1rem;
   font-size: 0.82rem;
-  color: #555;
+  color: var(--ink-2);
 }
 .gk-pinned-scope {
   display: flex;
@@ -420,23 +598,23 @@ body {
   gap: 0.4rem;
   padding: 0.35rem 0.8rem 0;
   font-size: 0.82rem;
-  color: #787369;
+  color: var(--muted-warm);
 }
 .gk-pinned-scope select {
   flex: 1;
   min-width: 0;
   border: 0;
-  border-bottom: 1px dotted #a8a49c;
+  border-bottom: 1px dotted var(--faint);
   background: transparent;
   padding: 0.1rem 0;
   font: inherit;
   font-size: 0.86rem;
-  color: #1a1a1a;
+  color: var(--ink);
   cursor: pointer;
   outline: none;
 }
 .gk-pinned-scope select:focus-visible {
-  border-bottom-color: var(--color-garden);
+  border-bottom-color: var(--garden);
 }
 .gk-pinned-form {
   display: flex;
@@ -448,7 +626,7 @@ body {
   flex: 1;
   min-width: 0;
   border: 0;
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 1px solid var(--ink);
   background: transparent;
   padding: 0.25rem 0;
   font: inherit;
@@ -457,15 +635,15 @@ body {
 }
 .gk-pinned-form input::placeholder {
   font-style: italic;
-  color: #787369;
+  color: var(--muted-warm);
 }
 .gk-pinned-form button {
   flex: none;
   cursor: pointer;
   border: 0;
   border-radius: 3px;
-  background: var(--color-garden);
-  color: #fcfcfc;
+  background: var(--garden);
+  color: var(--paper);
   padding: 0.4rem 0.95rem;
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
@@ -473,19 +651,19 @@ body {
   font-size: 1rem;
 }
 .gk-pinned-form button:hover {
-  background: var(--color-garden-dark);
+  background: var(--garden-hover);
 }
 .gk-pinned-form button:disabled {
-  background: #c9c6bf;
+  background: var(--rule-strong);
   cursor: default;
 }
 
 ::selection {
-  background-color: #ffcf33;
+  background-color: var(--mark);
   color: #000000;
 }
 ::-moz-selection {
-  background-color: #ffcf33;
+  background-color: var(--mark);
   color: #000000;
 }
 
@@ -564,6 +742,8 @@ footer {
   max-width: 92vw;
   max-height: 88vh;
   margin: 0;
+  /* Literal, not var(--paper): the viewer is dark in both themes, and a
+     transparent diagram needs a light sheet under it to stay legible. */
   background: #fcfcfc;
   border: 1px solid rgba(252, 252, 252, 0.25);
   border-radius: 2px; /* same value as .home-frame — the one other framed image */
@@ -592,7 +772,7 @@ footer {
 }
 
 .lb-btn:focus-visible {
-  outline: 2px solid #3f6b4a; /* --color-garden — same focus ring as the rest of the site */
+  outline: 2px solid var(--garden); /* same focus ring as the rest of the site */
   outline-offset: 2px;
 }
 
@@ -632,16 +812,16 @@ footer {
   gap: 0.9rem;
   align-items: baseline;
   padding: 0.7rem 1.2rem;
-  color: #555;
-  background: #fcfcfc;
-  border-top: 1px solid #e4e2dd;
+  color: var(--ink-2);
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-size: 1.05rem;
 }
 
 .lb-count {
   flex: none;
-  color: #a8a49c;
+  color: var(--faint);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.9rem;
 }
@@ -673,7 +853,7 @@ footer {
   width: 1.7rem;
   height: 1.7rem;
   padding: 0;
-  color: #555;
+  color: var(--ink-2);
   background: transparent;
   border: none;
   border-radius: 50%;
@@ -682,12 +862,12 @@ footer {
 }
 
 .pron-btn:hover {
-  background: #f0f7ff;
-  color: #003366;
+  background: var(--link-wash);
+  color: var(--link);
 }
 
 .pron-btn:focus-visible {
-  outline: 1px solid #003366;
+  outline: 1px solid var(--link);
   outline-offset: 2px;
 }
 
@@ -700,7 +880,7 @@ footer {
 /* Playing: icon and label pick up the link blue, waves pulse to read as
    "sound coming out" without swapping in a second icon. */
 .pron-btn[data-state="playing"] {
-  color: #003366;
+  color: var(--link);
 }
 .pron-btn[data-state="playing"] .pron-wave {
   animation: pron-pulse 0.9s ease-in-out infinite;
@@ -721,7 +901,7 @@ footer {
 
 /* Loading: same pulse on the whole icon while the clip buffers. */
 .pron-btn[data-state="loading"] {
-  color: #6f6f6f;
+  color: var(--muted);
   cursor: progress;
 }
 .pron-btn[data-state="loading"] .pron-icon {
@@ -730,7 +910,7 @@ footer {
 
 /* Error: the failure red used by callout-failure/danger/bug in main.css. */
 .pron-btn[data-state="error"] {
-  color: #b3322f;
+  color: var(--danger);
 }
 
 /* Footer prose links: a persistent underline so they're distinguishable without
@@ -740,8 +920,42 @@ footer {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
-  text-decoration-color: #b3ada2;
+  text-decoration-color: var(--faint);
 }
 .footer-prose a:hover {
   text-decoration-color: currentColor;
+}
+
+/* Light / dark / auto toggle (themeToggleHtml in lib/html.ts, /js/theme.js):
+   an icon-only button in the masthead utility bar and the note nav. The icon
+   shown is picked from <html data-theme> here, so it is right on first paint. */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted-warm);
+  cursor: pointer;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  color: var(--ink);
+  background: var(--wash-2);
+}
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+}
+.theme-icon {
+  display: none;
+}
+:root:not([data-theme]) .theme-icon-auto,
+:root[data-theme="light"] .theme-icon-light,
+:root[data-theme="dark"] .theme-icon-dark {
+  display: block;
 }

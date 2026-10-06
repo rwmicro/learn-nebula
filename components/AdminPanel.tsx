@@ -1,34 +1,30 @@
 "use client";
 
 // Owner-only tool: comment moderation (approve/delete the pending queue,
-// search it, bulk-approve) + a glance at the assistant's RAG index health.
-// Both already exist server-side (server/routes/comments.ts, GET /healthz) —
-// this is the missing UI; until now the only way to moderate was a raw
-// `curl` with the bearer token (see .env.example / README). Gated purely by
-// the same COMMENTS_ADMIN_TOKEN the API already checks — this page has no
-// secrets of its own, it just calls the protected endpoints with whatever
-// token the owner pastes in.
+// search it, bulk-approve; browse and delete published comments), the
+// assistant's RAG index health, whether the live image is behind the vault,
+// the questions visitors ask (with frequent / poorly covered views) and the
+// build-time vault health report. Gated purely by the same
+// COMMENTS_ADMIN_TOKEN the API already checks — this page has no secrets of
+// its own, it just calls the protected endpoints with whatever token the
+// owner pastes in. The cards past the pending queue live in components/admin/.
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { FOCUS_RING, Muted, fmtDateTime } from "./admin/shared";
+import { VersionCard } from "./admin/VersionCard";
+import { PublishedComments } from "./admin/PublishedComments";
+import { QuestionsCard } from "./admin/QuestionsCard";
+import { VaultHealthCard } from "./admin/VaultHealthCard";
+import { PrereqSuggestionsCard } from "./admin/PrereqSuggestionsCard";
 
 const TOKEN_KEY = "gkAdminToken";
 const POLL_MS = 30_000;
-
-const FOCUS_RING =
-  "focus-visible:outline focus-visible:outline-2 focus-visible:outline-garden focus-visible:outline-offset-2";
 
 interface PendingComment {
   id: number;
   slug: string;
   name: string | null;
   body: string;
-  created_at: number;
-}
-interface QuestionLogEntry {
-  id: number;
-  question: string;
-  scope: string | null;
-  locale: string | null;
   created_at: number;
 }
 interface Health {
@@ -41,15 +37,26 @@ interface Health {
 function ragDotColor(state: string): string {
   switch (state) {
     case "ready":
-      return "#3f6b4a"; // --color-garden
+      return "var(--garden)";
     case "loading":
-      return "#c98a2c";
+      return "var(--warn)";
     case "error":
-      return "#c0392b"; // the one red this codebase already uses (main.css)
+      return "var(--danger)";
     default:
-      return "#a8a49c"; // disabled / unknown
+      return "var(--faint)"; // disabled / unknown
   }
 }
+
+/** In-page menu, in the order the cards are laid out once connected. */
+const ADMIN_SECTIONS: [string, string][] = [
+  ["admin-assistant", "assistant"],
+  ["admin-version", "version"],
+  ["admin-pending", "en attente"],
+  ["admin-published", "publiés"],
+  ["admin-questions", "questions"],
+  ["admin-health", "santé du coffre"],
+  ["admin-prereqs", "prérequis suggérés"],
+];
 
 export function AdminPanel() {
   // `token` is only ever the LAST one that actually worked; `connected` gates
@@ -59,7 +66,9 @@ export function AdminPanel() {
   const [connected, setConnected] = useState(false);
   const [tokenInput, setTokenInput] = useState("");
   const [health, setHealth] = useState<Health | null>(null);
-  const [healthError, setHealthError] = useState<string | null>(null);
+  // Unreachable /healthz is the normal state of a static preview (no Node
+  // server behind it), so it's reported neutrally, not as an error.
+  const [healthDown, setHealthDown] = useState(false);
   const [healthBusy, setHealthBusy] = useState(false);
   const [pending, setPending] = useState<PendingComment[] | null>(null);
   const [pendingError, setPendingError] = useState<string | null>(null);
@@ -67,10 +76,8 @@ export function AdminPanel() {
   const [busyIds, setBusyIds] = useState<Set<number>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
   const [query, setQuery] = useState("");
-  const [questions, setQuestions] = useState<QuestionLogEntry[] | null>(null);
-  const [questionsError, setQuestionsError] = useState<string | null>(null);
-  const [questionsBusy, setQuestionsBusy] = useState(false);
-  const [questionsQuery, setQuestionsQuery] = useState("");
+  // Bumped when a pending comment is approved, so the published list reloads.
+  const [publishedKey, setPublishedKey] = useState(0);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -89,9 +96,10 @@ export function AdminPanel() {
       const r = await fetch("/healthz");
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       setHealth(await r.json());
-      setHealthError(null);
+      setHealthDown(false);
     } catch {
-      setHealthError("Impossible de joindre /healthz.");
+      setHealth(null);
+      setHealthDown(true);
     } finally {
       setHealthBusy(false);
     }
@@ -138,7 +146,6 @@ export function AdminPanel() {
       } catch {
         /* ignore */
       }
-      refreshQuestions(tok, { silent: true });
     } catch {
       setPendingError("Impossible de charger les commentaires en attente.");
       setConnected(false);
@@ -173,39 +180,21 @@ export function AdminPanel() {
     }
   }, []);
 
-  /** Same shape as refreshPending, for the read-only questions log. */
-  const refreshQuestions = useCallback(async (tok: string, opts: { silent?: boolean } = {}) => {
-    if (!opts.silent) setQuestionsBusy(true);
-    try {
-      const r = await fetch("/api/questions", {
-        headers: { authorization: `Bearer ${tok}` },
-      });
-      if (r.status === 401) return; // tryConnect/refreshPending already surface this
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      const data = await r.json();
-      setQuestions(data.questions ?? []);
-      if (!opts.silent) setQuestionsError(null);
-    } catch {
-      if (!opts.silent) setQuestionsError("Impossible de charger le journal des questions.");
-    } finally {
-      if (!opts.silent) setQuestionsBusy(false);
-    }
-  }, []);
-
   // Re-poll while connected, so activity from another tab/visitor shows up
   // without a manual reload. Silent: no loading flicker.
-  // (Below refreshPending/refreshQuestions's own declarations — `const`s, not
-  // hoisted like a function declaration, so this must come after them.)
+  // (Below refreshPending's own declaration — a `const`, not
+  // hoisted like a function declaration, so this must come after it.)
   useEffect(() => {
     if (!connected) return;
     const id = setInterval(() => {
       refreshPending(token, { silent: true });
-      refreshQuestions(token, { silent: true });
     }, POLL_MS);
     return () => clearInterval(id);
-  }, [connected, token, refreshPending, refreshQuestions]);
+  }, [connected, token, refreshPending]);
 
-  function disconnect() {
+  /** Stable identity: the cards in components/admin/ call it on a 401 and
+   *  list it as an effect dependency. Touches only setters. */
+  const disconnect = useCallback(() => {
     try {
       localStorage.removeItem(TOKEN_KEY);
     } catch {
@@ -217,10 +206,13 @@ export function AdminPanel() {
     setPendingError(null);
     setTokenInput("");
     setQuery("");
-    setQuestions(null);
-    setQuestionsError(null);
-    setQuestionsQuery("");
-  }
+  }, []);
+
+  /** A card saw a 401 mid-session: same as refreshPending's handling. */
+  const expired = useCallback(() => {
+    disconnect();
+    setPendingError("Le jeton n'est plus valide — reconnecte-toi.");
+  }, [disconnect]);
 
   async function act(id: number, action: "approve" | "delete", opts: { silent?: boolean } = {}) {
     setBusyIds((s) => new Set(s).add(id));
@@ -232,6 +224,7 @@ export function AdminPanel() {
       });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       setPending((list) => list?.filter((c) => c.id !== id) ?? null);
+      if (action === "approve") setPublishedKey((k) => k + 1);
       if (!opts.silent) showToast(action === "approve" ? "Commentaire approuvé." : "Commentaire supprimé.");
       return true;
     } catch {
@@ -255,14 +248,6 @@ export function AdminPanel() {
       c.body.toLowerCase().includes(q),
   );
 
-  const qq = questionsQuery.trim().toLowerCase();
-  const filteredQuestions = questions?.filter(
-    (r) =>
-      !qq ||
-      r.question.toLowerCase().includes(qq) ||
-      (r.scope ?? "").toLowerCase().includes(qq),
-  );
-
   async function approveAllShown() {
     if (!filtered?.length) return;
     const ids = filtered.map((c) => c.id);
@@ -277,8 +262,8 @@ export function AdminPanel() {
   }
 
   return (
-    <div className="mx-auto max-w-[42rem] px-6 py-10">
-      <h1 className="admin-title m-0 mb-6 flex items-center gap-2 text-2xl font-bold text-black">
+    <div className="admin-panel mx-auto max-w-[42rem] px-6 py-10">
+      <h1 className="admin-title m-0 mb-6 flex items-center gap-2 text-2xl font-bold text-ink">
         <svg
           viewBox="0 0 24 24"
           width="22"
@@ -300,27 +285,41 @@ export function AdminPanel() {
       </h1>
 
       {connected && (
-        <div className="mb-6 flex items-center gap-2 text-small text-[#787369]">
+        <div className="mb-6 flex items-center gap-2 text-small text-muted-warm">
           <span
             aria-hidden="true"
             className="inline-block h-2 w-2 rounded-full"
-            style={{ background: "#3f6b4a" }}
+            style={{ background: "var(--garden)" }}
           />
           connecté
           <button
             type="button"
             onClick={disconnect}
-            className={`rounded underline underline-offset-2 hover:text-black ${FOCUS_RING}`}
+            className={`rounded underline underline-offset-2 hover:text-ink ${FOCUS_RING}`}
           >
             se déconnecter
           </button>
         </div>
       )}
 
+      {connected && (
+        <nav aria-label="Sections de l&apos;administration" className="admin-toc">
+          <ul>
+            {ADMIN_SECTIONS.map(([id, label]) => (
+              <li key={id}>
+                <a href={`#${id}`} className={`rounded ${FOCUS_RING}`}>
+                  {label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
+
       {/* --- RAG health: no token required, GET /healthz is public. --- */}
-      <section className="admin-card">
+      <section id="admin-assistant" className="admin-card">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="admin-eyebrow m-0 text-small font-semibold text-[#787369]">
+          <h2 className="admin-eyebrow m-0 text-small font-semibold text-muted-warm">
             état de l&apos;assistant
           </h2>
           <button
@@ -328,18 +327,18 @@ export function AdminPanel() {
             onClick={loadHealth}
             disabled={healthBusy}
             aria-label="Rafraîchir l'état de l'assistant"
-            className={`rounded text-small text-[#787369] hover:text-black disabled:opacity-40 ${FOCUS_RING}`}
+            className={`rounded text-small text-muted-warm hover:text-ink disabled:opacity-40 ${FOCUS_RING}`}
           >
             {healthBusy ? "…" : "↻"}
           </button>
         </div>
-        {healthError && <p className="m-0 text-small text-[#c0392b]">{healthError}</p>}
-        {!healthError && !health && <p className="m-0 text-small italic text-[#787369]">Chargement…</p>}
+        {healthDown && <Muted>Serveur non joignable — normal en aperçu statique.</Muted>}
+        {!healthDown && !health && <Muted>Chargement…</Muted>}
         {health && (
           <dl className="m-0 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-small">
-            <dt className="text-[#787369]">Génération</dt>
+            <dt className="text-muted-warm">Génération</dt>
             <dd className="m-0">{health.generate ? "configurée" : "désactivée (pas de clé LLM)"}</dd>
-            <dt className="text-[#787369]">Index RAG</dt>
+            <dt className="text-muted-warm">Index RAG</dt>
             <dd className="m-0 flex items-center gap-2">
               <span
                 aria-hidden="true"
@@ -348,7 +347,7 @@ export function AdminPanel() {
               />
               {health.rag.state}
             </dd>
-            <dt className="text-[#787369]">Extraits indexés</dt>
+            <dt className="text-muted-warm">Extraits indexés</dt>
             <dd className="m-0">
               {health.rag.chunks} (dimension {health.rag.dim || "—"})
             </dd>
@@ -359,7 +358,7 @@ export function AdminPanel() {
       {!connected ? (
         /* --- Single auth step: unlocks both cards below. --- */
         <section className="admin-card mt-6">
-          <h2 className="admin-eyebrow m-0 mb-2 text-small font-semibold text-[#787369]">
+          <h2 className="admin-eyebrow m-0 mb-2 text-small font-semibold text-muted-warm">
             connexion
           </h2>
           <form
@@ -375,28 +374,30 @@ export function AdminPanel() {
               onChange={(e) => setTokenInput(e.target.value)}
               placeholder="Jeton admin (COMMENTS_ADMIN_TOKEN)"
               autoComplete="off"
-              className={`min-w-0 flex-1 rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
+              className={`min-w-0 flex-1 rounded border border-rule-strong bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
             />
             <button
               type="submit"
-              className={`shrink-0 rounded bg-garden px-3 py-1 text-small font-semibold text-[#fcfcfc] hover:bg-garden-dark ${FOCUS_RING}`}
+              className={`shrink-0 rounded bg-garden px-3 py-1 text-small font-semibold text-paper hover:bg-garden-dark ${FOCUS_RING}`}
             >
               Se connecter
             </button>
           </form>
-          {pendingError && <p className="m-0 mt-2 text-small text-[#c0392b]">{pendingError}</p>}
+          {pendingError && <p className="m-0 mt-2 text-small text-danger">{pendingError}</p>}
         </section>
       ) : (
         <>
+          <VersionCard token={token} onUnauthorized={expired} />
+
           {/* --- Comment moderation: things to decide. --- */}
-          <section className="admin-card mt-6">
+          <section id="admin-pending" className="admin-card">
             <div className="mb-2 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
-                <h2 className="admin-eyebrow m-0 text-small font-semibold text-[#787369]">
+                <h2 className="admin-eyebrow m-0 text-small font-semibold text-muted-warm">
                   commentaires en attente
                 </h2>
                 {pending && pending.length > 0 && (
-                  <span className="rounded-full bg-[#f0f0ec] px-2 py-px text-micro font-semibold text-[#555]">
+                  <span className="rounded-full bg-wash-2 px-2 py-px text-micro font-semibold text-ink-2">
                     {/* Reflects what's actually on screen, not the unfiltered total
                         — showing "4" while a search narrows the list to 1 card
                         would read as a bug, not a filter. */}
@@ -411,7 +412,7 @@ export function AdminPanel() {
                 onClick={() => refreshPending(token)}
                 disabled={pendingBusy}
                 aria-label="Actualiser les commentaires en attente"
-                className={`rounded text-small text-[#787369] hover:text-black disabled:opacity-40 ${FOCUS_RING}`}
+                className={`rounded text-small text-muted-warm hover:text-ink disabled:opacity-40 ${FOCUS_RING}`}
               >
                 {pendingBusy ? "…" : "↻"}
               </button>
@@ -424,14 +425,14 @@ export function AdminPanel() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Filtrer par nom, note ou texte…"
-                  className={`min-w-0 flex-1 rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
+                  className={`min-w-0 flex-1 rounded border border-rule-strong bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
                 />
                 {pending.length > 1 && (
                   <button
                     type="button"
                     onClick={approveAllShown}
                     disabled={bulkBusy || !filtered?.length}
-                    className={`shrink-0 rounded border border-[#ccc] px-2 py-1 text-small hover:bg-[#f0f0ec] disabled:opacity-40 ${FOCUS_RING}`}
+                    className={`shrink-0 rounded border border-rule-strong px-2 py-1 text-small hover:bg-wash-2 disabled:opacity-40 ${FOCUS_RING}`}
                   >
                     {bulkBusy ? "…" : `tout approuver${query ? " (filtré)" : ""}`}
                   </button>
@@ -439,25 +440,25 @@ export function AdminPanel() {
               </div>
             )}
 
-            {pendingError && <p className="m-0 mb-3 text-small text-[#c0392b]">{pendingError}</p>}
+            {pendingError && <p className="m-0 mb-3 text-small text-danger">{pendingError}</p>}
             {pending === null && !pendingError && (
-              <p className="m-0 text-small italic text-[#787369]">Chargement…</p>
+              <p className="m-0 text-small italic text-muted-warm">Chargement…</p>
             )}
             {pending?.length === 0 && (
-              <p className="m-0 text-small italic text-[#787369]">Rien en attente.</p>
+              <p className="m-0 text-small italic text-muted-warm">Rien en attente.</p>
             )}
             {pending && pending.length > 0 && filtered?.length === 0 && (
-              <p className="m-0 text-small italic text-[#787369]">
+              <p className="m-0 text-small italic text-muted-warm">
                 Aucun commentaire ne correspond à « {query} ».
               </p>
             )}
 
             <ul className="m-0 flex list-none flex-col gap-3 p-0">
               {filtered?.map((c) => (
-                <li key={c.id} className="rounded border border-[#e4e2dd] p-3">
-                  <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-3 text-small text-[#787369]">
+                <li key={c.id} className="rounded border border-rule p-3">
+                  <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-3 text-small text-muted-warm">
                     <span>
-                      <strong className="text-black">{c.name || "anonyme"}</strong> sur{" "}
+                      <strong className="text-ink">{c.name || "anonyme"}</strong> sur{" "}
                       <a
                         href={`/posts/${c.slug}/`}
                         className={`rounded text-garden underline-offset-2 hover:underline ${FOCUS_RING}`}
@@ -465,7 +466,7 @@ export function AdminPanel() {
                         {c.slug}
                       </a>
                     </span>
-                    <time>{new Date(c.created_at).toLocaleString()}</time>
+                    <time className="tabular-nums">{fmtDateTime(c.created_at)}</time>
                   </div>
                   <p className="m-0 mb-2 whitespace-pre-wrap text-body">{c.body}</p>
                   <div className="flex gap-2">
@@ -473,7 +474,7 @@ export function AdminPanel() {
                       type="button"
                       disabled={busyIds.has(c.id)}
                       onClick={() => act(c.id, "approve")}
-                      className={`rounded bg-garden px-2 py-1 text-small font-semibold text-[#fcfcfc] hover:bg-garden-dark disabled:opacity-50 ${FOCUS_RING}`}
+                      className={`rounded bg-garden px-2 py-1 text-small font-semibold text-paper hover:bg-garden-dark disabled:opacity-50 ${FOCUS_RING}`}
                     >
                       Approuver
                     </button>
@@ -481,7 +482,7 @@ export function AdminPanel() {
                       type="button"
                       disabled={busyIds.has(c.id)}
                       onClick={() => act(c.id, "delete")}
-                      className={`rounded border border-[#ccc] px-2 py-1 text-small hover:bg-[#f0f0ec] disabled:opacity-50 ${FOCUS_RING}`}
+                      className={`rounded border border-rule-strong px-2 py-1 text-small hover:bg-wash-2 disabled:opacity-50 ${FOCUS_RING}`}
                     >
                       Supprimer
                     </button>
@@ -491,80 +492,26 @@ export function AdminPanel() {
             </ul>
           </section>
 
+          <PublishedComments
+            token={token}
+            onUnauthorized={expired}
+            onToast={showToast}
+            reloadKey={publishedKey}
+          />
+
           {/* --- Questions log: an append-only record, nothing to decide. --- */}
-          <section className="admin-card mt-6">
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <h2 className="admin-eyebrow m-0 text-small font-semibold text-[#787369]">
-                  questions récentes
-                </h2>
-                {questions && questions.length > 0 && (
-                  <span className="rounded-full bg-[#f0f0ec] px-2 py-px text-micro font-semibold text-[#555]">
-                    {qq && filteredQuestions?.length !== questions.length
-                      ? `${filteredQuestions?.length ?? 0}/${questions.length}`
-                      : questions.length}
-                  </span>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => refreshQuestions(token)}
-                disabled={questionsBusy}
-                aria-label="Actualiser le journal des questions"
-                className={`rounded text-small text-[#787369] hover:text-black disabled:opacity-40 ${FOCUS_RING}`}
-              >
-                {questionsBusy ? "…" : "↻"}
-              </button>
-            </div>
-            <p className="m-0 mb-3 text-small text-[#787369]">
-              Ce que les visiteurs demandent à l&apos;assistant — utile pour repérer les
-              sujets mal couverts par le jardin.
-            </p>
+          <QuestionsCard token={token} onUnauthorized={expired} />
 
-            {questions && questions.length > 3 && (
-              <input
-                type="search"
-                value={questionsQuery}
-                onChange={(e) => setQuestionsQuery(e.target.value)}
-                placeholder="Filtrer par texte ou dossier…"
-                className={`mb-3 w-full rounded border border-[#ccc] bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
-              />
-            )}
+          <VaultHealthCard token={token} onUnauthorized={expired} />
 
-            {questionsError && <p className="m-0 mb-3 text-small text-[#c0392b]">{questionsError}</p>}
-            {questions === null && !questionsError && (
-              <p className="m-0 text-small italic text-[#787369]">Chargement…</p>
-            )}
-            {questions?.length === 0 && (
-              <p className="m-0 text-small italic text-[#787369]">Aucune question pour l&apos;instant.</p>
-            )}
-            {questions && questions.length > 0 && filteredQuestions?.length === 0 && (
-              <p className="m-0 text-small italic text-[#787369]">
-                Aucune question ne correspond à « {questionsQuery} ».
-              </p>
-            )}
-
-            <ul className="admin-log text-small">
-              {filteredQuestions?.map((r) => (
-                <li key={r.id}>
-                  <time>{new Date(r.created_at).toLocaleString()}</time>
-                  {r.scope && (
-                    <span className="admin-log-scope rounded-full bg-[#f0f0ec] px-2 py-px text-micro text-[#555]">
-                      {r.scope}
-                    </span>
-                  )}
-                  <span className="admin-log-question text-black">{r.question}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <PrereqSuggestionsCard token={token} onUnauthorized={expired} onToast={showToast} />
         </>
       )}
 
       {toast && (
         <div
           role="status"
-          className="admin-toast fixed bottom-6 left-1/2 -translate-x-1/2 rounded bg-[#1a1a1a] px-3 py-2 text-small text-[#fcfcfc] shadow-lg"
+          className="admin-toast fixed bottom-6 left-1/2 -translate-x-1/2 rounded bg-ink px-3 py-2 text-small text-paper shadow-lg"
         >
           {toast}
         </div>

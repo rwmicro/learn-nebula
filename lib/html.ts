@@ -2,6 +2,7 @@ import { NAV } from "./site";
 import {
   INDEX_NOTE,
   formatDateLong,
+  tagHref,
   type LocalGraph,
   type NoteStage,
   type SiblingNav,
@@ -9,7 +10,7 @@ import {
 } from "./content";
 import { folderAnchor } from "./slug";
 import { escapeHtml } from "./escape";
-import { t, i18nAttrs, i18nAttr } from "./i18n";
+import { t, i18nAttrs, i18nAttr, folderKey } from "./i18n";
 
 // Re-exported for the many modules (SinglePage, tests) that import it from here.
 export { escapeHtml };
@@ -27,7 +28,34 @@ export function navHtml(): string {
     (n) =>
       `<li><a href="${n.href}"${i18nAttrs(n.name)}>${escapeHtml(t(n.name))}</a></li>`,
   ).join("");
-  return `<nav class="site-nav" data-pagefind-ignore><ul>${items}</ul></nav>`;
+  return `<nav class="site-nav" data-pagefind-ignore><ul>${items}<li class="site-nav-theme">${themeToggleHtml()}</li></ul></nav>`;
+}
+
+/** Light / dark / auto toggle, shared by the note nav above and the home
+ * masthead (components/Header.tsx). Wired by /js/theme.js; CSS (global.css)
+ * shows the icon matching <html data-theme> — no JS needed for the first
+ * paint to be right. The label is the "auto" one at build time and is synced
+ * to the stored choice by theme.js. */
+export function themeToggleHtml(): string {
+  const svg = (cls: string, body: string) =>
+    `<svg class="theme-icon ${cls}" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" ` +
+    `fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">${body}</svg>`;
+  const auto = svg(
+    "theme-icon-auto",
+    `<circle cx="12" cy="12" r="8"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor" stroke="none"/>`,
+  );
+  const light = svg(
+    "theme-icon-light",
+    `<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M5.3 18.7l1.6-1.6M17.1 6.9l1.6-1.6"/>`,
+  );
+  const dark = svg("theme-icon-dark", `<path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z"/>`);
+  return (
+    `<button class="theme-toggle" type="button" data-theme-toggle data-pagefind-ignore ` +
+    `aria-label="${escapeHtml(t("theme.auto"))}" title="${escapeHtml(t("theme.auto"))}"` +
+    i18nAttr("aria-label", "theme.auto") +
+    i18nAttr("title", "theme.auto") +
+    `>${auto}${light}${dark}</button>`
+  );
 }
 
 /**
@@ -304,7 +332,46 @@ export function growthHtml(
     badge && tendedHtml
       ? `<span class="growth-sep" aria-hidden="true">·</span>`
       : "";
-  return `<div class="note-growth">${badge}${sep}${tendedHtml}</div>`;
+  return `<div class="note-growth" data-pagefind-ignore>${badge}${sep}${tendedHtml}</div>`;
+}
+
+/** A vault folder name as shown to readers: the top groups and disciplines
+ * translated (build-time `fr`, swapped at runtime via data-i18n), any other
+ * folder as named on disk. */
+export function folderLabel(name: string): string {
+  const key = folderKey(name);
+  return key ? t(key) : name;
+}
+function folderI18n(name: string): string {
+  const key = folderKey(name);
+  return key ? i18nAttrs(key) : "";
+}
+
+/** Where a note lives, for search results: its discipline and sub-folders
+ * ("Philosophie › Philosophes"), the top group dropped as the home search
+ * does — kept only for a note filed directly under it. */
+export function noteSectionLabel(rawPath: string): string {
+  const folders = rawPath.split("/").slice(0, -1);
+  const shown = folders.length > 1 ? folders.slice(1) : folders;
+  return shown.map(folderLabel).join(" › ");
+}
+
+/** Pagefind metadata for a note: `section` (see {@link noteSectionLabel}),
+ * shown under each result of the note-page search (public/js/pagefind-init.js),
+ * plus `dkey`, the discipline's i18n key, so that script can re-translate the
+ * discipline for a reader on another locale. Hidden and out of the indexed
+ * text (`data-pagefind-ignore` still lets Pagefind read the metadata). */
+export function noteSectionMetaHtml(rawPath: string): string {
+  const section = noteSectionLabel(rawPath);
+  if (!section) return "";
+  const folders = rawPath.split("/").slice(0, -1);
+  const key = folderKey(folders.length > 1 ? folders[1] : (folders[0] ?? ""));
+  return (
+    `<span hidden data-pagefind-ignore>` +
+    `<span data-pagefind-meta="section">${escapeHtml(section)}</span>` +
+    (key ? `<span data-pagefind-meta="dkey">${escapeHtml(key)}</span>` : "") +
+    `</span>`
+  );
 }
 
 export function noteHeaderHtml(
@@ -321,7 +388,7 @@ export function noteHeaderHtml(
     ? `<span class="crumbs">${folders
         .map(
           (name, i) =>
-            `<a href="/#${folderAnchor(folders.slice(0, i + 1).join("/"))}">${escapeHtml(name)}</a>`,
+            `<a href="/#${folderAnchor(folders.slice(0, i + 1).join("/"))}"${folderI18n(name)}>${escapeHtml(folderLabel(name))}</a>`,
         )
         .join(" › ")}</span>`
     : "";
@@ -345,6 +412,8 @@ export function noteHeaderHtml(
     `<div class="note-header-crumb">` +
     `<a href="/">${escapeHtml(INDEX_NOTE)}</a>${crumbs}` +
     `</div>` +
+    // Command palette (⌘K): search notes, jump to a section, switch theme.
+    paletteButtonHtml(true) +
     `</header>` +
     `<div class="note-header-condensed" data-pagefind-ignore>` +
     meta +
@@ -370,9 +439,10 @@ function themePillsHtml(tags: unknown[] | undefined): string {
     .map((t) => {
       const s = String(t);
       const hue = tagHue(s.toLowerCase());
-      // Clicking a theme runs a search for it on the home page (#12): the home
-      // search reads ?q= on mount, so a plain link is enough — no JS needed.
-      const href = `/?q=${encodeURIComponent(s)}`;
+      // A theme shared by several notes opens its /themes/ page. One found on
+      // this note alone has no page, so it runs a home search instead (#12):
+      // the home search reads ?q= on mount, no JS needed here.
+      const href = tagHref(s) ?? `/?q=${encodeURIComponent(s)}`;
       return `<a class="theme-pill" href="${href}" style="--theme-h:${hue}">${escapeHtml(s)}</a>`;
     })
     .join("");
@@ -655,6 +725,84 @@ export function backlinksHtml(backlinks: SiblingRef[]): string {
     `<p class="backlinks-title"${i18nAttrs("siblings.backlinks")}>${escapeHtml(t("siblings.backlinks"))}</p>` +
     `<ul>${items}</ul>` +
     `</nav>`
+  );
+}
+
+/** "À lire avant": the notes this one lists under frontmatter `prerequis`, as
+ *  a compact row near the top of the note. `pathHref` links the reading path
+ *  (/parcours/#id) the note belongs to, when it is in one. Read checkmarks are
+ *  added client-side (/js/reading-state.js). */
+export function prereqHtml(prereqs: SiblingRef[], pathHref?: string): string {
+  if (!prereqs.length) return "";
+  const items = prereqs
+    .map((p) => `<li><a href="/posts/${encodeSlug(p.slug)}/">${escapeHtml(p.title)}</a></li>`)
+    .join("");
+  const path = pathHref
+    ? `<a class="prereq-path" href="${escapeHtml(pathHref)}"${i18nAttrs("prereq.pathLink")}>${escapeHtml(t("prereq.pathLink"))}</a>`
+    : "";
+  return (
+    `<nav class="prereq" data-pagefind-ignore aria-labelledby="prereq-title">` +
+    `<p class="prereq-title" id="prereq-title"${i18nAttrs("prereq.before")}>${escapeHtml(t("prereq.before"))}</p>` +
+    `<ul class="prereq-list">${items}</ul>` +
+    path +
+    `</nav>`
+  );
+}
+
+/** "Pour aller plus loin": the notes that list this one as a prerequisite,
+ *  placed right after the article body (before the backlinks, which leave
+ *  these notes out so none is listed twice). */
+export function furtherHtml(dependents: SiblingRef[]): string {
+  if (!dependents.length) return "";
+  const items = dependents
+    .map((d) => `<li><a href="/posts/${encodeSlug(d.slug)}/">${escapeHtml(d.title)}</a></li>`)
+    .join("");
+  return (
+    `<nav class="further" data-pagefind-ignore aria-labelledby="further-title">` +
+    `<p class="further-title" id="further-title"${i18nAttrs("prereq.further")}>${escapeHtml(t("prereq.further"))}</p>` +
+    `<ul>${items}</ul>` +
+    `</nav>`
+  );
+}
+
+/** "Lue" badge for the note-actions row; revealed by /js/reading-state.js
+ *  once the reader has finished the note (state lives in localStorage). */
+export function readBadgeHtml(): string {
+  return (
+    `<span class="read-badge" hidden>` +
+    `<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>` +
+    `<span${i18nAttrs("reading.read")}>${escapeHtml(t("reading.read"))}</span>` +
+    `</span>`
+  );
+}
+
+/** End-of-article reading state (read on…, mark read / unread, resume). An
+ *  empty mount point: /js/reading-state.js fills and reveals it, so readers
+ *  without JS (or storage) never see controls that can't work. */
+export function readStateHtml(slug: string, minutes: number): string {
+  return (
+    `<div class="read-state" data-pagefind-ignore hidden` +
+    ` data-slug="${escapeHtml(slug)}" data-minutes="${minutes}"></div>`
+  );
+}
+
+/** Command-palette trigger (/js/palette.js, site-wide). `compact` drops the
+ *  text label (note header); the shortcut hint is rewritten to ⌘K on Apple
+ *  platforms by the script. */
+export function paletteButtonHtml(compact = false): string {
+  const label = escapeHtml(t("palette.openAria"));
+  return (
+    `<button type="button" class="palette-btn${compact ? " palette-btn--compact" : ""}" data-palette-open data-pagefind-ignore` +
+    ` aria-label="${label}" title="${label}" aria-haspopup="dialog"` +
+    i18nAttr("aria-label", "palette.openAria") +
+    i18nAttr("title", "palette.openAria") +
+    `>` +
+    `<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg>` +
+    (compact
+      ? ""
+      : `<span class="palette-btn-label"${i18nAttrs("palette.open")}>${escapeHtml(t("palette.open"))}</span>`) +
+    `<kbd class="palette-kbd" aria-hidden="true">Ctrl K</kbd>` +
+    `</button>`
   );
 }
 

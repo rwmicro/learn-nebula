@@ -1,12 +1,23 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import type { HomeTreeNode, PdfRef, DomainGroup, LangGroup } from "@/lib/content";
+import type { HomeTreeNode, PdfRef, LangGroup } from "@/lib/content";
+import type { HomeData } from "@/lib/home-data";
 import type { GraphData } from "@/lib/graph-data";
 import { CircularGraph } from "@/components/CircularGraph";
-import { t, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
+import { t, folderKey, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import { readAskStream } from "@/lib/ask-stream";
 import { folderAnchor } from "@/lib/slug";
+import {
+  CHANGE_EVENT,
+  STORAGE_KEY,
+  folderReadCounts,
+  isRead,
+  loadStore,
+  resumeCandidate,
+  slugFromHref,
+  type ReadingStore,
+} from "@/lib/reading-progress";
 
 // Diacritic-insensitive fold so the query and the note/folder names compare
 // apples to apples (matches lib/content slugging).
@@ -44,8 +55,9 @@ interface Match {
   href?: string;
   /** Browse-tree key for theme (folder) results. */
   path?: string;
-  /** Folder breadcrumb (group dropped) for context, e.g. "Arts · Artistes". */
-  where: string;
+  /** Folder breadcrumb (group dropped) for context, e.g. ["Arts", "Artistes"],
+   *  as named on disk — translated when rendered (whereLabel). */
+  where: string[];
   /** "note" = regular note, "deck" = Anki deck, "theme" = matching folder. */
   kind: "note" | "deck" | "theme";
   /** Note count, for theme results. */
@@ -54,12 +66,15 @@ interface Match {
 
 // Flatten every match. A folder whose name matches contributes a "theme" result
 // AND (via ancestorMatch) all of its notes; otherwise notes match on their own
-// title. Anki decks are notes tagged deck → kind "deck".
+// title. Anki decks are notes tagged deck → kind "deck". A folder matches on
+// its on-disk name or on its label in the reader's locale ("Philosophy" or
+// "Philosophie").
 function collectMatches(
   nodes: HomeTreeNode[],
   q: string,
   ancestorMatch: boolean,
   parents: string[],
+  label: (name: string) => string,
 ): Match[] {
   const out: Match[] = [];
   for (const node of nodes) {
@@ -70,25 +85,29 @@ function collectMatches(
           kind: node.deck ? "deck" : "note",
           title: node.title,
           href: node.href,
-          where: parents.slice(1).join(" · "),
+          where: parents.slice(1),
         });
       }
     } else {
-      const selfMatch = fold(node.name).includes(q);
+      const selfMatch =
+        fold(node.name).includes(q) || fold(label(node.name)).includes(q);
       if (selfMatch) {
         out.push({
           kind: "theme",
           title: node.name,
           path: node.path,
           count: node.count,
-          where: parents.slice(1).join(" · "),
+          where: parents.slice(1),
         });
       }
       out.push(
-        ...collectMatches(node.children, q, ancestorMatch || selfMatch, [
-          ...parents,
-          node.name,
-        ]),
+        ...collectMatches(
+          node.children,
+          q,
+          ancestorMatch || selfMatch,
+          [...parents, node.name],
+          label,
+        ),
       );
     }
   }
@@ -98,11 +117,11 @@ function collectMatches(
 const MAX_RESULTS = 240;
 
 const labelCls =
-  "m-0 mb-4 border-0 p-0 text-meta font-semibold uppercase tracking-[0.1em] leading-tight text-[#1a1a1a] [font-family:var(--gk-serif),Georgia,serif]";
+  "m-0 mb-4 border-0 p-0 text-meta font-semibold uppercase tracking-[0.1em] leading-tight text-ink [font-family:var(--gk-serif),Georgia,serif]";
 const linkCls =
-  "text-[#1a1a1a] no-underline underline-offset-[3px] hover:bg-transparent hover:underline focus-visible:underline";
+  "text-ink no-underline underline-offset-[3px] hover:bg-transparent hover:underline focus-visible:underline";
 const catLabelCls =
-  "mb-2 text-meta font-semibold uppercase tracking-[0.1em] text-[#787369]";
+  "mb-2 text-meta font-semibold uppercase tracking-[0.1em] text-muted-warm";
 
 // Light Markdown → React for the assistant's answer (the system prompt asks for
 // **bold**, *italic*, `code`, [links] and "- " lists). Built as React nodes, not
@@ -121,7 +140,7 @@ function inlineMd(text: string): ReactNode[] {
       out.push(<em key={i}>{m[2]}</em>);
     } else if (m[3] != null) {
       out.push(
-        <code key={i} className="rounded bg-[#f0eee9] px-1 py-0.5 text-[0.92em]">
+        <code key={i} className="rounded bg-wash-2 px-1 py-0.5 text-[0.92em]">
           {m[3]}
         </code>,
       );
@@ -183,7 +202,7 @@ function Chevron({ open, size = 11 }: { open: boolean; size?: number }) {
       width={size}
       height={size}
       aria-hidden="true"
-      className={`shrink-0 text-[#787369] transition-transform duration-200 ${
+      className={`shrink-0 text-muted-warm transition-transform duration-200 ${
         open ? "rotate-90" : ""
       }`}
     >
@@ -203,12 +222,12 @@ function Chevron({ open, size = 11 }: { open: boolean; size?: number }) {
 // answer panel sits blank through the embed + retrieval + first-token latency.
 function Thinking({ label }: { label: string }) {
   return (
-    <p className="m-0 flex items-center gap-2 text-body italic text-[#787369]">
+    <p className="m-0 flex items-center gap-2 text-body italic text-muted-warm">
       {label}
       <span aria-hidden="true" className="inline-flex gap-1">
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#787369] [animation-delay:-0.3s]" />
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#787369] [animation-delay:-0.15s]" />
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-[#787369]" />
+        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-warm [animation-delay:-0.3s]" />
+        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-warm [animation-delay:-0.15s]" />
+        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-warm" />
       </span>
     </p>
   );
@@ -221,7 +240,7 @@ interface Source {
 
 // Mount the circular-map preview only once its box scrolls near the viewport,
 // so the home page's most-common first paint isn't weighed down by it.
-function LazyGraph({ graphData }: { graphData: GraphData }) {
+function LazyGraph({ graphData }: { graphData: GraphData | null }) {
   const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
   useEffect(() => {
@@ -241,7 +260,7 @@ function LazyGraph({ graphData }: { graphData: GraphData }) {
   }, [show]);
   return (
     <div ref={ref} className="h-full w-full">
-      {show ? <CircularGraph data={graphData} preview /> : null}
+      {show && graphData ? <CircularGraph data={graphData} preview /> : null}
     </div>
   );
 }
@@ -321,7 +340,7 @@ function RichExcerpt({ url, label }: { url: string; label: string }) {
       </button>
       {open &&
         (loading ? (
-          <p className="m-0 mt-1 text-small italic text-[#787369]">…</p>
+          <p className="m-0 mt-1 text-small italic text-muted-warm">…</p>
         ) : html ? (
           <div
             className="rich-excerpt"
@@ -336,6 +355,11 @@ interface PfHit {
   url: string;
   title: string;
   excerpt: string;
+  /** Where the note lives ("Philosophie › Philosophes"), its `section`
+   *  Pagefind metadata (lib/html.ts noteSectionMetaHtml), built in `fr`. */
+  section?: string;
+  /** The discipline's i18n key, to re-translate `section`'s first part. */
+  dkey?: string;
 }
 
 // Full-text search over note CONTENT via Pagefind (index built into /pagefind by
@@ -373,8 +397,18 @@ function usePagefind(query: string): PfHit[] {
         if (cancelled) return;
         setHits(
           data.map((d) => {
-            const x = d as { url: string; meta?: { title?: string }; excerpt?: string };
-            return { url: x.url, title: x.meta?.title || x.url, excerpt: x.excerpt || "" };
+            const x = d as {
+              url: string;
+              meta?: { title?: string; section?: string; dkey?: string };
+              excerpt?: string;
+            };
+            return {
+              url: x.url,
+              title: x.meta?.title || x.url,
+              excerpt: x.excerpt || "",
+              section: x.meta?.section,
+              dkey: x.meta?.dkey,
+            };
           }),
         );
       } catch {
@@ -390,19 +424,85 @@ function usePagefind(query: string): PfHit[] {
   return hits;
 }
 
+// Fetch /home-data.json once (lib/home-data.ts). The version is the file's
+// content hash, so the URL changes with each build and the service worker's
+// stale-while-revalidate can never serve last build's tree. Null until it
+// lands, or for good if it fails: the shell tree and Pagefind still work.
+function useHomeData(version: string): HomeData | null {
+  const [data, setData] = useState<HomeData | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/home-data.json?v=${version}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d: HomeData | null) => {
+        if (!cancelled && d) setData(d);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [version]);
+  return data;
+}
+
+// The reader's reading progress (lib/reading-progress.ts, localStorage only),
+// kept in sync with other tabs and with a back/forward restore of this page.
+function useReadingStore(): ReadingStore {
+  const [store, setStore] = useState<ReadingStore>({});
+  useEffect(() => {
+    const load = () => setStore(loadStore());
+    load();
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === STORAGE_KEY || e.key === null) load();
+    };
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("pageshow", load);
+    window.addEventListener(CHANGE_EVENT, load);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("pageshow", load);
+      window.removeEventListener(CHANGE_EVENT, load);
+    };
+  }, []);
+  return store;
+}
+
 export function HomeContent({
-  tree,
+  shell,
+  dataVersion,
   pdfs,
-  domains,
   langs,
-  graphData,
+  hasPaths = false,
 }: {
-  tree: HomeTreeNode[];
+  shell: HomeTreeNode[];
+  dataVersion: string;
   pdfs: PdfRef[];
-  domains: DomainGroup[];
   langs: LangGroup[];
-  graphData: GraphData;
+  /** Whether /parcours/ has reading paths to link to. */
+  hasPaths?: boolean;
 }) {
+  const data = useHomeData(dataVersion);
+  const tree = data?.tree ?? shell;
+  // --- reading progress: per-folder "x/y lues" and the "Reprendre" card ---
+  const readStore = useReadingStore();
+  const readCounts = useMemo(() => folderReadCounts(tree, readStore), [tree, readStore]);
+  const noteTitles = useMemo(() => {
+    const m = new Map<string, string>();
+    const walk = (nodes: HomeTreeNode[]) => {
+      for (const n of nodes) {
+        if (n.type === "dir") walk(n.children);
+        else if (!n.deck && !n.asset) m.set(n.href, n.title);
+      }
+    };
+    walk(data?.tree ?? []);
+    return m;
+  }, [data]);
+  const resume = useMemo(() => {
+    const c = resumeCandidate(readStore, (s) => noteTitles.has(`/posts/${s}/`));
+    return c && { ...c, title: noteTitles.get(`/posts/${c.slug}/`)!, pct: Math.round(c.progress * 100) };
+  }, [readStore, noteTitles]);
+  const domains = useMemo(() => data?.domains ?? [], [data]);
+  const graphData = data?.graph ?? null;
   const locale = useLocale();
   const tr = (k: string) => t(k, undefined, locale);
   // Heavy attachments link straight to the original file (zooming into a
@@ -410,14 +510,22 @@ export function HomeContent({
   // before the click rather than picking a smaller file on the reader's behalf.
   const assetSize = (bytes: number) =>
     t("home.assetSize", { size: Math.round(bytes / 1048576) }, locale);
-  // Localise only the two top-level "grands thèmes"; deeper folder names stay as
-  // authored on disk. Reuses the existing nav translations.
-  const themeLabel = (name: string) =>
-    name === "Applied Sciences"
-      ? tr("nav.appliedsciences")
-      : name === "Social Sciences"
-        ? tr("nav.socialsciences")
-        : name;
+  // Localise the two top-level "grands thèmes" (nav.*) and the disciplines
+  // (discipline.*); deeper folder names stay as authored on disk.
+  const folderName = (name: string) => {
+    const key = folderKey(name);
+    return key ? t(key, undefined, locale) : name;
+  };
+  const whereLabel = (parts: string[]) => parts.map(folderName).join(" · ");
+  // A Pagefind hit's `section` is built in the default locale; swap its
+  // discipline for the active locale's name.
+  const sectionLabel = (h: PfHit) => {
+    if (!h.section || !h.dkey || locale === DEFAULT_LOCALE) return h.section;
+    const built = t(h.dkey);
+    return h.section.startsWith(built)
+      ? t(h.dkey, undefined, locale) + h.section.slice(built.length)
+      : h.section;
+  };
 
   // --- search + collapsible browse state ----------------------------------
   const [query, setQuery] = useState("");
@@ -466,12 +574,27 @@ export function HomeContent({
 
   // Search results live in a full-width overlay, not in the browse tree.
   const matches = useMemo(
-    () => (searching ? collectMatches(tree, q, false, []) : []),
-    [tree, q, searching],
+    () =>
+      searching
+        ? collectMatches(tree, q, false, [], (name) => {
+            const key = folderKey(name);
+            return key ? t(key, undefined, locale) : name;
+          })
+        : [],
+    [tree, q, searching, locale],
   );
   const notes = matches.filter((m) => m.kind === "note");
   const decks = matches.filter((m) => m.kind === "deck");
   const themes = matches.filter((m) => m.kind === "theme");
+  // Tags with a /themes/<slug>/ page (from /home-data.json) also belong to
+  // the "Thèmes" scope: typing "kant" finds the Kant theme page.
+  const tagMatches = useMemo(
+    () =>
+      searching && data?.tags
+        ? data.tags.filter(([name, slug]) => fold(name).includes(q) || slug.includes(q))
+        : [],
+    [data, q, searching],
+  );
   const pdfMatches = useMemo(
     () =>
       searching
@@ -509,12 +632,12 @@ export function HomeContent({
       label: tr("home.scopeAll"),
       count:
         notes.length + contentHits.length + pdfMatches.length + decks.length +
-        themes.length + domainMatches.length + langMatches.length,
+        themes.length + tagMatches.length + domainMatches.length + langMatches.length,
     },
     { id: "notes", label: tr("home.scopeNotes"), count: notes.length + contentHits.length },
     { id: "pdf", label: tr("home.scopePdf"), count: pdfMatches.length },
     { id: "anki", label: tr("home.scopeAnki"), count: decks.length },
-    { id: "themes", label: tr("home.scopeThemes"), count: themes.length },
+    { id: "themes", label: tr("home.scopeThemes"), count: themes.length + tagMatches.length },
     { id: "domaines", label: tr("home.scopeDomains"), count: domainMatches.length },
     { id: "langues", label: tr("home.scopeLangs"), count: langMatches.length },
   ];
@@ -598,7 +721,7 @@ export function HomeContent({
           const icon = node.deck ? "▦" : node.asset ? "▤" : "—";
           return (
             <li key={node.href} className="m-0 mb-[0.55rem] flex items-baseline">
-              <span aria-hidden="true" className="mr-2 select-none text-[#787369]">
+              <span aria-hidden="true" className="mr-2 select-none text-muted-warm">
                 {icon}
               </span>
               <a
@@ -608,15 +731,27 @@ export function HomeContent({
               >
                 {node.title}
               </a>
+              {!node.deck && !node.asset && isRead(readStore, slugFromHref(node.href)) && (
+                <span
+                  className="ml-[0.4rem] shrink-0 text-garden"
+                  title={tr("reading.read")}
+                  data-pagefind-ignore
+                >
+                  <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true">
+                    <path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  <span className="sr-only"> ({tr("reading.read").toLowerCase()})</span>
+                </span>
+              )}
               {node.deck && (
-                <span className="ml-2 shrink-0 text-micro uppercase tracking-[0.08em] text-[#787369]">
+                <span className="ml-2 shrink-0 text-micro uppercase tracking-[0.08em] text-muted-warm">
                   cartes
                 </span>
               )}
               {node.bytes != null && (
                 // No `uppercase` here, unlike the "cartes" tag next to it: Mo is
                 // a unit symbol, and MO is a different thing.
-                <span className="ml-2 shrink-0 text-micro tracking-[0.08em] text-[#787369]">
+                <span className="ml-2 shrink-0 text-micro tracking-[0.08em] text-muted-warm">
                   {assetSize(node.bytes)}
                 </span>
               )}
@@ -629,6 +764,10 @@ export function HomeContent({
         const anchor = folderAnchor(node.path);
         const listId = `gk-dir-${anchor}`;
         const isGroup = depth === 0;
+        // "x/y lues" once the reader has finished a note in this folder.
+        const rc = readCounts.get(node.path);
+        const readLabel =
+          rc && rc.read > 0 ? t("reading.count", { read: rc.read, total: rc.total }, locale) : null;
         return (
           <li
             key={node.path}
@@ -642,7 +781,7 @@ export function HomeContent({
               onClick={() => toggleDir(node.path)}
               className={
                 isGroup
-                  ? "flex w-full cursor-pointer items-baseline justify-between gap-4 border-b border-[#e4e2dd] bg-transparent p-0 pb-[0.35rem] text-left hover:bg-transparent"
+                  ? "flex w-full cursor-pointer items-baseline justify-between gap-4 border-b border-rule bg-transparent p-0 pb-[0.35rem] text-left hover:bg-transparent"
                   : "flex w-full cursor-pointer items-center gap-2 bg-transparent p-0 py-[0.15rem] text-left hover:bg-transparent"
               }
             >
@@ -650,24 +789,43 @@ export function HomeContent({
                 <>
                   <span className="flex items-center gap-2">
                     <Chevron open={open} />
-                    <span className="text-meta font-semibold uppercase tracking-[0.1em] text-[#1a1a1a]">
-                      {themeLabel(node.name)}
+                    <span className="text-meta font-semibold uppercase tracking-[0.1em] text-ink">
+                      {folderName(node.name)}
                     </span>
                   </span>
-                  <span className="text-meta tabular-nums text-[#787369]">
-                    {node.count}
+                  <span className="text-meta tabular-nums text-muted-warm">
+                    {readLabel ? (
+                      <span className="text-garden" data-pagefind-ignore>
+                        {readLabel}
+                      </span>
+                    ) : (
+                      node.count
+                    )}
                   </span>
                 </>
               ) : (
                 <>
                   <Chevron open={open} size={10} />
-                  <span className="text-body text-[#1a1a1a]">{node.name}</span>
+                  <span className="text-body text-ink">{folderName(node.name)}</span>
+                  {readLabel && (
+                    <span
+                      className="ml-auto shrink-0 pl-2 text-micro tabular-nums text-garden"
+                      data-pagefind-ignore
+                    >
+                      {readLabel}
+                    </span>
+                  )}
                 </>
               )}
             </button>
             {open && (
               <div id={listId} className={isGroup ? "mt-[0.9rem]" : "mt-[0.3rem]"}>
-                {renderNodes(node.children, depth + 1)}
+                {node.children.length === 0 && node.count > 0 ? (
+                  // Shell folder opened before /home-data.json arrived.
+                  <p aria-busy="true" className="m-0 pl-[1.1rem] text-muted-warm">…</p>
+                ) : (
+                  renderNodes(node.children, depth + 1)
+                )}
               </div>
             )}
           </li>
@@ -746,7 +904,7 @@ export function HomeContent({
   // Full body width: <main> reserves a 26rem right gutter for note asides on
   // wide screens; reclaim it so this zone spans the whole body.
   return (
-    <section className="mt-12 text-[#1a1a1a] [font-family:var(--gk-serif),Georgia,serif] [container-type:inline-size] min-[1081px]:-mr-96">
+    <section className="mt-12 text-ink [font-family:var(--gk-serif),Georgia,serif] [container-type:inline-size] min-[1081px]:-mr-96">
       {/* 1. filter field + full-width results overlay */}
       <form
         ref={formRef}
@@ -754,13 +912,13 @@ export function HomeContent({
         className="relative z-30 mb-10"
         onSubmit={(e) => e.preventDefault()}
       >
-        <label className="flex items-center gap-2 border-b border-[#1a1a1a] pb-2">
+        <label className="flex items-center gap-2 border-b border-ink pb-2">
           <svg
             viewBox="0 0 24 24"
             width="18"
             height="18"
             aria-hidden="true"
-            className="shrink-0 text-[#1a1a1a]"
+            className="shrink-0 text-ink"
           >
             <circle
               cx="10.5"
@@ -793,7 +951,7 @@ export function HomeContent({
             autoComplete="off"
             placeholder={tr("home.searchPlaceholder")}
             aria-label={tr("home.searchAria")}
-            className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-lead text-[#1a1a1a] outline-none placeholder:italic placeholder:text-[#787369] [&::-webkit-search-cancel-button]:appearance-none"
+            className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-lead text-ink outline-none placeholder:italic placeholder:text-muted-warm [&::-webkit-search-cancel-button]:appearance-none"
           />
           {query && (
             <button
@@ -804,7 +962,7 @@ export function HomeContent({
               }}
               aria-label={tr("home.searchClear")}
               title={tr("home.searchClear")}
-              className="-mr-1 shrink-0 p-1 text-[#787369] transition-colors hover:text-[#1a1a1a]"
+              className="-mr-1 shrink-0 p-1 text-muted-warm transition-colors hover:text-ink"
             >
               <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                 <path
@@ -820,9 +978,9 @@ export function HomeContent({
         </label>
 
         {openPanel && (
-          <div className="absolute left-0 right-0 top-full z-40 mt-3 max-h-[70vh] overflow-y-auto border border-[#e4e2dd] bg-[#fcfcfc] px-6 py-5 shadow-[0_12px_32px_rgba(0,0,0,0.07)]">
+          <div className="absolute left-0 right-0 top-full z-40 mt-3 max-h-[70vh] overflow-y-auto border border-rule bg-paper px-6 py-5 shadow-[0_12px_32px_rgba(0,0,0,0.07)]">
             {/* scope filter tabs */}
-            <div className="mb-4 flex flex-wrap gap-2 border-b border-[#e4e2dd] pb-3">
+            <div className="mb-4 flex flex-wrap gap-2 border-b border-rule pb-3">
               {scopes.map((s) => (
                 <button
                   key={s.id}
@@ -831,15 +989,15 @@ export function HomeContent({
                   aria-pressed={scope === s.id}
                   className={`rounded-full border px-3 py-1 text-meta uppercase tracking-[0.08em] transition-colors ${
                     scope === s.id
-                      ? "border-[#1a1a1a] bg-[#1a1a1a] text-[#fcfcfc]"
-                      : "border-[#d8d5ce] text-[#1a1a1a] hover:border-[#1a1a1a]"
+                      ? "border-ink bg-ink text-paper"
+                      : "border-rule text-ink hover:border-ink"
                   }`}
                 >
                   {s.label}
                   {searching && (
                     <span
                       className={`ml-1.5 tabular-nums ${
-                        scope === s.id ? "text-[#cfcdc6]" : "text-[#787369]"
+                        scope === s.id ? "text-paper/70" : "text-muted-warm"
                       }`}
                     >
                       {s.count}
@@ -850,9 +1008,9 @@ export function HomeContent({
             </div>
 
             {!searching ? (
-              <p className="m-0 italic text-[#787369]">{tr("home.scopeHint")}</p>
+              <p className="m-0 italic text-muted-warm">{tr("home.scopeHint")}</p>
             ) : visibleCount === 0 ? (
-              <p className="m-0 italic text-[#787369]">{tr("home.empty")}</p>
+              <p className="m-0 italic text-muted-warm">{tr("home.empty")}</p>
             ) : (
               <div className="flex flex-col gap-6">
                 {/* Notes (+ full-text content hits) */}
@@ -866,35 +1024,40 @@ export function HomeContent({
                         <ul className="m-0 list-none p-0 [column-gap:2.5rem] min-[700px]:columns-2 min-[1100px]:columns-3">
                           {notes.slice(0, MAX_RESULTS).map((m) => (
                             <li key={m.href} className="mb-[0.55rem] flex break-inside-avoid">
-                              <span aria-hidden="true" className="mr-2 select-none text-[#787369]">—</span>
+                              <span aria-hidden="true" className="mr-2 select-none text-muted-warm">—</span>
                               <a href={m.href} className={`${linkCls} text-body`}>
                                 {m.title}
-                                {m.where && (
-                                  <span className="ml-2 text-meta italic text-[#787369]">{m.where}</span>
+                                {m.where.length > 0 && (
+                                  <span className="ml-2 text-meta italic text-muted-warm">{whereLabel(m.where)}</span>
                                 )}
                               </a>
                             </li>
                           ))}
                         </ul>
                         {notes.length > MAX_RESULTS && (
-                          <p className="mt-3 text-meta italic text-[#787369]">
+                          <p className="mt-3 text-meta italic text-muted-warm">
                             + {notes.length - MAX_RESULTS}…
                           </p>
                         )}
                       </>
                     )}
                     {contentHits.length > 0 && (
-                      <div className={notes.length > 0 ? "mt-5 border-t border-[#e4e2dd] pt-4" : ""}>
-                        <p className="mb-3 text-meta font-semibold uppercase tracking-[0.1em] text-[#787369]">
+                      <div className={notes.length > 0 ? "mt-5 border-t border-rule pt-4" : ""}>
+                        <p className="mb-3 text-meta font-semibold uppercase tracking-[0.1em] text-muted-warm">
                           {tr("home.inContent")}
                         </p>
                         <ul className="m-0 list-none p-0">
                           {contentHits.map((h) => (
                             <li key={h.url} className="mb-3">
                               <a href={h.url} className={`${linkCls} text-body`}>{h.title}</a>
+                              {h.section && (
+                                <span className="ml-2 text-meta italic text-muted-warm">
+                                  {sectionLabel(h)}
+                                </span>
+                              )}
                               {h.excerpt && (
                                 <p
-                                  className="m-0 mt-1 text-small text-[#787369] [&_mark]:bg-[#ffe9a8] [&_mark]:text-[#1a1a1a]"
+                                  className="m-0 mt-1 text-small text-muted-warm [&_mark]:rounded-[2px] [&_mark]:bg-mark-soft [&_mark]:px-[0.1em] [&_mark]:text-ink"
                                   dangerouslySetInnerHTML={{ __html: h.excerpt }}
                                 />
                               )}
@@ -914,7 +1077,7 @@ export function HomeContent({
                     <ul className="m-0 list-none p-0 [column-gap:2.5rem] min-[700px]:columns-2">
                       {pdfMatches.slice(0, MAX_RESULTS).map((p) => (
                         <li key={p.href} className="mb-[0.55rem] flex break-inside-avoid">
-                          <span aria-hidden="true" className="mr-2 select-none text-[#787369]">▤</span>
+                          <span aria-hidden="true" className="mr-2 select-none text-muted-warm">▤</span>
                           <a
                             href={p.href}
                             target="_blank"
@@ -923,7 +1086,9 @@ export function HomeContent({
                           >
                             {p.title}
                             {p.where && (
-                              <span className="ml-2 text-meta italic text-[#787369]">{p.where}</span>
+                              <span className="ml-2 text-meta italic text-muted-warm">
+                                {whereLabel(p.where.split(" · "))}
+                              </span>
                             )}
                           </a>
                         </li>
@@ -939,11 +1104,11 @@ export function HomeContent({
                     <ul className="m-0 list-none p-0">
                       {decks.map((m) => (
                         <li key={m.href} className="mb-[0.55rem] flex break-inside-avoid">
-                          <span aria-hidden="true" className="mr-2 select-none text-[#787369]">▦</span>
+                          <span aria-hidden="true" className="mr-2 select-none text-muted-warm">▦</span>
                           <a href={m.href} className={`${linkCls} text-body`}>
                             {m.title}
-                            {m.where && (
-                              <span className="ml-2 text-meta italic text-[#787369]">{m.where}</span>
+                            {m.where.length > 0 && (
+                              <span className="ml-2 text-meta italic text-muted-warm">{whereLabel(m.where)}</span>
                             )}
                           </a>
                         </li>
@@ -952,10 +1117,30 @@ export function HomeContent({
                   </div>
                 )}
 
-                {/* Themes (folders) — clicking reveals the folder in the browse tree */}
-                {showCat("themes") && themes.length > 0 && (
+                {/* Themes: tags with a /themes/ page (links), then folders —
+                    clicking a folder reveals it in the browse tree */}
+                {showCat("themes") && (themes.length > 0 || tagMatches.length > 0) && (
                   <div>
                     {scope === "all" && <p className={catLabelCls}>{tr("home.scopeThemes")}</p>}
+                    {tagMatches.length > 0 && (
+                      <ul
+                        className={`m-0 list-none p-0 [column-gap:2.5rem] min-[700px]:columns-2 min-[1100px]:columns-3 ${
+                          themes.length > 0 ? "mb-3" : ""
+                        }`}
+                      >
+                        {tagMatches.slice(0, MAX_RESULTS).map(([name, slug, count]) => (
+                          <li key={slug} className="mb-[0.4rem] flex items-baseline gap-2 break-inside-avoid">
+                            <span aria-hidden="true" className="select-none text-muted-warm">#</span>
+                            <a href={`/themes/${slug}/`} className={`${linkCls} text-body`}>
+                              {name}
+                            </a>
+                            <span className="text-meta tabular-nums text-muted-warm">
+                              {t("themes.count", { n: count }, locale)}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                     <ul className="m-0 list-none p-0">
                       {themes.map((m) => (
                         <li key={m.path} className="mb-[0.4rem]">
@@ -971,9 +1156,9 @@ export function HomeContent({
                             }}
                             className="flex items-baseline gap-2 bg-transparent p-0 text-left"
                           >
-                            <span aria-hidden="true" className="text-[#787369]">▸</span>
-                            <span className={`${linkCls} text-body`}>{themeLabel(m.title)}</span>
-                            <span className="text-meta tabular-nums text-[#787369]">{m.count}</span>
+                            <span aria-hidden="true" className="text-muted-warm">▸</span>
+                            <span className={`${linkCls} text-body`}>{folderName(m.title)}</span>
+                            <span className="text-meta tabular-nums text-muted-warm">{m.count}</span>
                           </button>
                         </li>
                       ))}
@@ -990,9 +1175,9 @@ export function HomeContent({
                     <div className="flex flex-col gap-4">
                       {domainMatches.map((d) => (
                         <div key={d.name}>
-                          <p className="m-0 mb-2 text-body font-semibold text-[#1a1a1a]">
+                          <p className="m-0 mb-2 text-body font-semibold text-ink">
                             {d.name}
-                            <span className="ml-2 text-meta tabular-nums text-[#787369]">
+                            <span className="ml-2 text-meta tabular-nums text-muted-warm">
                               {d.notes.length}
                             </span>
                           </p>
@@ -1002,7 +1187,7 @@ export function HomeContent({
                                 key={n.href}
                                 className="mb-[0.55rem] flex break-inside-avoid"
                               >
-                                <span aria-hidden="true" className="mr-2 select-none text-[#787369]">
+                                <span aria-hidden="true" className="mr-2 select-none text-muted-warm">
                                   —
                                 </span>
                                 <a href={n.href} className={`${linkCls} text-body`}>
@@ -1026,9 +1211,9 @@ export function HomeContent({
                     <div className="flex flex-col gap-4">
                       {langMatches.map((l) => (
                         <div key={l.code}>
-                          <p className="m-0 mb-2 text-body font-semibold text-[#1a1a1a]">
+                          <p className="m-0 mb-2 text-body font-semibold text-ink">
                             {l.name}
-                            <span className="ml-2 text-meta tabular-nums text-[#787369]">
+                            <span className="ml-2 text-meta tabular-nums text-muted-warm">
                               {l.notes.length}
                             </span>
                           </p>
@@ -1038,7 +1223,7 @@ export function HomeContent({
                                 key={n.href}
                                 className="mb-[0.55rem] flex break-inside-avoid"
                               >
-                                <span aria-hidden="true" className="mr-2 select-none text-[#787369]">
+                                <span aria-hidden="true" className="mr-2 select-none text-muted-warm">
                                   —
                                 </span>
                                 <a href={n.href} className={`${linkCls} text-body`}>
@@ -1058,11 +1243,45 @@ export function HomeContent({
         )}
       </form>
 
+      {/* "Reprendre": the unfinished note read last, back at its position
+          (/js/reading-state.js restores it from the #reprendre hash). */}
+      {resume && (
+        <a
+          href={`/posts/${resume.slug}/#reprendre`}
+          data-pagefind-ignore
+          className="group mb-10 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[3px] border border-rule border-l-[3px] border-l-garden px-5 py-3 text-ink no-underline hover:bg-wash"
+        >
+          <span className="text-micro font-semibold uppercase tracking-[0.1em] text-garden">
+            {tr("reading.resumeTitle")}
+          </span>
+          <span className="min-w-0 flex-1 basis-48 text-body group-hover:underline">
+            {resume.title}
+          </span>
+          <span className="flex items-center gap-2 text-meta tabular-nums text-muted-warm">
+            <span aria-hidden="true" className="block h-1 w-16 overflow-hidden rounded-sm bg-rule">
+              <span className="block h-full bg-garden" style={{ width: `${resume.pct}%` }} />
+            </span>
+            {t("reading.progress", { pct: resume.pct }, locale)}
+            <span aria-hidden="true" className="text-ink">→</span>
+          </span>
+        </a>
+      )}
+
       {/* 2. two columns spread across the full body width */}
       <div className="grid grid-cols-1 gap-10 min-[700px]:items-start min-[700px]:justify-between min-[700px]:gap-y-0 min-[700px]:[grid-template-columns:minmax(240px,360px)_minmax(340px,580px)]">
         {/* left — notes browse tree */}
         <div id="notes" className="scroll-mt-6">
-          <h2 className={labelCls}>{tr("home.notesLabel")}</h2>
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className={labelCls}>{tr("home.notesLabel")}</h2>
+            {hasPaths && (
+              <a
+                href="/parcours/"
+                className={`${linkCls} mb-4 text-meta italic text-garden`}
+              >
+                {tr("parcours.title")} →
+              </a>
+            )}
+          </div>
           {renderNodes(tree, 0)}
         </div>
 
@@ -1073,11 +1292,11 @@ export function HomeContent({
             <a
               href="/graph/"
               aria-label={tr("home.mapLabel")}
-              className="group relative block h-[440px] w-full cursor-pointer overflow-hidden rounded-[3px] border border-[#e4e2dd] hover:bg-transparent max-[700px]:h-[300px]"
+              className="group relative block h-[440px] w-full cursor-pointer overflow-hidden rounded-[3px] border border-rule hover:bg-transparent max-[700px]:h-[300px]"
             >
               <LazyGraph graphData={graphData} />
               {/* Hover cue: this decorative preview opens the full, labelled graph. */}
-              <span className="pointer-events-none absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border border-[#e4e2dd] bg-[#fcfcfc]/85 text-[#1a1a1a] opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
+              <span className="pointer-events-none absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full border border-rule bg-paper/85 text-ink opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100">
                 <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
                   <path
                     d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"
@@ -1090,19 +1309,19 @@ export function HomeContent({
                 </svg>
               </span>
             </a>
-            <p className="mt-[0.7rem] text-pretty text-small italic text-[#787369]">
+            <p className="mt-[0.7rem] text-pretty text-small italic text-muted-warm">
               {tr("home.mapCaption")}
             </p>
           </section>
 
-          <section className="rounded-[3px] border border-[#e4e2dd] px-6 py-5">
+          <section className="rounded-[3px] border border-rule px-6 py-5">
             <div className="mb-[0.6rem] flex items-center justify-between gap-2">
               <h2 className={labelCls}>{tr("home.askLabel")}</h2>
               {/* Pushpin: dock the assistant at the bottom-right and keep it there
                   across navigation (PinnedAssistant, mounted site-wide). */}
               <button
                 type="button"
-                className="shrink-0 cursor-pointer border-0 bg-transparent p-1 text-[#787369] hover:text-garden"
+                className="shrink-0 cursor-pointer border-0 bg-transparent p-1 text-muted-warm hover:text-garden"
                 aria-label={tr("home.pinChat")}
                 title={tr("home.pinChat")}
                 onClick={() => {
@@ -1120,11 +1339,11 @@ export function HomeContent({
                 </svg>
               </button>
             </div>
-            <p className="m-0 mb-[1.1rem] text-pretty text-body text-[#1a1a1a]">
+            <p className="m-0 mb-[1.1rem] text-pretty text-body text-ink">
               {tr("home.askIntro")}
             </p>
             <form
-              className="flex items-center gap-4 border-b border-[#1a1a1a] pb-2"
+              className="flex items-center gap-4 border-b border-ink pb-2"
               onSubmit={(e) => {
                 e.preventDefault();
                 const text = question.trim();
@@ -1140,12 +1359,12 @@ export function HomeContent({
                 disabled={busy}
                 placeholder={tr("home.askPlaceholder")}
                 aria-label={tr("home.askAria")}
-                className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-body text-[#1a1a1a] outline-none placeholder:italic placeholder:text-[#787369] disabled:opacity-60"
+                className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-body text-ink outline-none placeholder:italic placeholder:text-muted-warm disabled:opacity-60"
               />
               <button
                 type="submit"
                 disabled={busy}
-                className="shrink-0 cursor-pointer rounded-[3px] border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-[#fcfcfc] transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-[#c9c6bf] disabled:text-[#fcfcfc]"
+                className="shrink-0 cursor-pointer rounded-[3px] border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-paper transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-rule-strong disabled:text-paper"
               >
                 {tr("home.askSend")}
               </button>
@@ -1156,7 +1375,7 @@ export function HomeContent({
                 ref={answerRef}
                 aria-live={busy ? "off" : "polite"}
                 aria-busy={busy}
-                className="mt-[1.1rem] max-h-[22rem] overflow-y-auto text-body leading-relaxed text-[#1a1a1a]"
+                className="mt-[1.1rem] max-h-[22rem] overflow-y-auto text-body leading-relaxed text-ink"
               >
                 {busy && !answer ? (
                   <Thinking label={tr("askAi.searching")} />
@@ -1168,7 +1387,7 @@ export function HomeContent({
 
             {sources.length > 0 && (
               <div className="mt-3">
-                <p className="m-0 mb-[0.3rem] text-micro font-semibold uppercase tracking-[0.1em] text-[#787369]">
+                <p className="m-0 mb-[0.3rem] text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm">
                   {tr("askAi.sourcesTitle")}
                 </p>
                 <ul className="m-0 list-disc pl-[1.1rem]">

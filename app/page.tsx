@@ -1,15 +1,8 @@
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import {
-  getIndexDoc,
-  getHomeTree,
-  getPdfAssets,
-  getDomains,
-  getLangs,
-  getRecentNotes,
-} from "@/lib/content";
+import { getIndexDoc, getPdfAssets, getLangs, getReadingPaths, getRecentNotes } from "@/lib/content";
+import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
 import { renderMarkdown } from "@/lib/markdown";
-import { buildGraph } from "@/lib/graph-data";
 import { buildMetadata } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 import { graph, personJsonLd, websiteJsonLd } from "@/lib/jsonld";
@@ -53,16 +46,12 @@ export default async function HomePage() {
   const masthead =
     (hasMath ? `<link rel="stylesheet" href="/katex/katex.min.css">` : "");
 
-  // Lightweight folder-only graph for the home preview (the full graph with all
-  // notes lives on /graph).
-  const graphData = buildGraph({ foldersOnly: true });
-
   return (
     <>
       <div dangerouslySetInnerHTML={{ __html: masthead }} />
       <Header doc={doc} />
-      <div className='w-11/12 mx-auto text-center text-lead text-neutral-500 mt-5 md:mt-10'>
-      <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-neutral-700 mt-5 md:mt-10" />
+      <div className='w-11/12 mx-auto text-center text-lead text-muted mt-5 md:mt-10'>
+      <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-ink-2 mt-5 md:mt-10" />
           <div className="w-full md:w-11/12 max-w-11/12 mx-auto">
             <span className="home-frame mb-2 block">
               <picture>
@@ -70,17 +59,20 @@ export default async function HomePage() {
                 <img src="/images/eragny.webp" alt="Éragny" width="1200" height="950" fetchPriority="high" decoding="async" />
               </picture>
             </span>
-            <span className="text-sm text-neutral-500" data-i18n="home.imageCaption"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>
+            <span className="text-sm text-muted" data-i18n="home.imageCaption"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>
           </div>
       </div>
       <main id="main" className={newsreader.variable}>
         <RecentNotes notes={getRecentNotes()} />
+        {/* The full tree, the domains scope and the folder-graph preview
+            arrive as /home-data.json (lib/home-data.ts); the shell covers the
+            first paint. */}
         <HomeContent
-          tree={getHomeTree()}
+          shell={homeTreeShell()}
+          dataVersion={homeDataVersion()}
           pdfs={getPdfAssets()}
-          domains={getDomains()}
           langs={getLangs()}
-          graphData={graphData}
+          hasPaths={getReadingPaths().length > 0}
         />
       </main>
       <JsonLd data={graph(personJsonLd(), websiteJsonLd())} />

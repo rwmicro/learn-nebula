@@ -47,7 +47,22 @@ export function initDb(): Database.Database {
     );
     CREATE INDEX IF NOT EXISTS idx_translations_created ON translations(created_at DESC);
   `);
+  migrateQuestions(db);
   return db;
+}
+
+/** Columns added to `questions` after it first shipped. SQLite has no
+ *  `ADD COLUMN IF NOT EXISTS`, so check table_info first — safe to run on
+ *  every start, against a fresh file or a volume from any earlier version. */
+function migrateQuestions(d: Database.Database): void {
+  const cols = new Set(
+    (d.prepare("PRAGMA table_info(questions)").all() as { name: string }[]).map((c) => c.name),
+  );
+  // Best cosine among the chunks retrieval kept (NULL = retrieval unavailable
+  // when the question was asked, so its coverage is unknown, not "weak").
+  if (!cols.has("top_score")) d.exec("ALTER TABLE questions ADD COLUMN top_score REAL");
+  // How many chunks retrieval kept (0..TOP_K); NULL as above.
+  if (!cols.has("hits")) d.exec("ALTER TABLE questions ADD COLUMN hits INTEGER");
 }
 
 function get(): Database.Database {
@@ -72,6 +87,35 @@ export function pending(): CommentRow[] {
         "WHERE status = 'pending' ORDER BY created_at DESC LIMIT ?",
     )
     .all(PAGE_LIMIT) as CommentRow[];
+}
+
+/** Escape LIKE wildcards so a search for "100%" matches literally. */
+function likePattern(q: string): string {
+  return `%${q.replace(/[\\%_]/g, (ch) => `\\${ch}`)}%`;
+}
+
+/** Published comments for /admin, newest first, optionally filtered by a
+ *  case-insensitive substring of the slug, name or body. With Turnstile on,
+ *  comments skip the pending queue entirely — this is the only place they can
+ *  be found again (and deleted). */
+export function approvedPage(opts: { q?: string; limit: number; offset: number }): {
+  comments: CommentRow[];
+  total: number;
+} {
+  const d = get();
+  const q = (opts.q ?? "").trim().toLowerCase();
+  const where = q
+    ? "WHERE status = 'approved' AND (lower(slug) LIKE @p ESCAPE '\\' OR lower(coalesce(name, '')) LIKE @p ESCAPE '\\' OR lower(body) LIKE @p ESCAPE '\\')"
+    : "WHERE status = 'approved'";
+  const params = q ? { p: likePattern(q) } : {};
+  const total = (d.prepare(`SELECT count(*) AS n FROM comments ${where}`).get(params) as { n: number }).n;
+  const comments = d
+    .prepare(
+      `SELECT id, slug, name, body, created_at FROM comments ${where} ` +
+        "ORDER BY created_at DESC, id DESC LIMIT @limit OFFSET @offset",
+    )
+    .all({ ...params, limit: opts.limit, offset: opts.offset }) as CommentRow[];
+  return { comments, total };
 }
 
 export function insertComment(
@@ -101,6 +145,14 @@ export interface QuestionRow {
   scope: string | null;
   locale: string | null;
   created_at: number;
+  top_score: number | null;
+  hits: number | null;
+}
+
+/** What retrieval found for a question; null when retrieval wasn't running. */
+export interface RetrievalStats {
+  topScore: number | null;
+  hits: number;
 }
 
 const MAX_QUESTIONS = 300;
@@ -109,11 +161,23 @@ const MAX_QUESTIONS = 300;
  *  what to write next, not analytics on who asked. Self-trims to MAX_QUESTIONS
  *  on every insert (personal-scale traffic, so a query per submission is fine —
  *  no separate cron/sweep needed). */
-export function logQuestion(question: string, scope: string | null, locale: string | null): void {
+export function logQuestion(
+  question: string,
+  scope: string | null,
+  locale: string | null,
+  retrieval: RetrievalStats | null = null,
+): void {
   const d = get();
   d.prepare(
-    "INSERT INTO questions (question, scope, locale, created_at) VALUES (?, ?, ?, ?)",
-  ).run(question, scope, locale, Date.now());
+    "INSERT INTO questions (question, scope, locale, created_at, top_score, hits) VALUES (?, ?, ?, ?, ?, ?)",
+  ).run(
+    question,
+    scope,
+    locale,
+    Date.now(),
+    retrieval ? retrieval.topScore : null,
+    retrieval ? retrieval.hits : null,
+  );
   d.prepare(
     "DELETE FROM questions WHERE id NOT IN (SELECT id FROM questions ORDER BY created_at DESC LIMIT ?)",
   ).run(MAX_QUESTIONS);
@@ -121,7 +185,10 @@ export function logQuestion(question: string, scope: string | null, locale: stri
 
 export function recentQuestions(limit = 100): QuestionRow[] {
   return get()
-    .prepare("SELECT id, question, scope, locale, created_at FROM questions ORDER BY created_at DESC LIMIT ?")
+    .prepare(
+      "SELECT id, question, scope, locale, created_at, top_score, hits FROM questions " +
+        "ORDER BY created_at DESC, id DESC LIMIT ?",
+    )
     .all(Math.min(limit, MAX_QUESTIONS)) as QuestionRow[];
 }
 

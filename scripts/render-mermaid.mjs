@@ -18,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { chromium } from "@playwright/test";
-import { normaliseMermaid, MERMAID_CONFIG } from "../lib/mermaid-source.js";
+import { normaliseMermaid, polishSvg, MERMAID_CONFIG } from "../lib/mermaid-source.js";
 
 const OUT = path.join(process.cwd(), "out");
 const MERMAID = path.join(process.cwd(), "node_modules", "mermaid", "dist", "mermaid.min.js");
@@ -101,7 +101,7 @@ for (const [h, code] of sources) {
       const { svg } = await window.mermaid.render(id, c);
       return svg;
     }, normalized);
-    svgs.set(h, svg);
+    svgs.set(h, polishSvg(svg, normalized));
   } catch (e) {
     failed++;
     console.warn(`  diagram error: ${String(e).split("\n")[0].slice(0, 120)}`);
@@ -124,7 +124,7 @@ for (const f of files) {
     // focusable can't be scrolled from the keyboard at all — axe flags it as
     // serious, WCAG 2.1 2.1.1. Focusable is all the rule needs; the diagram's
     // own <text> is what a screen reader then reads.
-    return `<figure class="mermaid-diagram" tabindex="0" data-pagefind-ignore>${svg}</figure>`;
+    return `<figure class="mermaid-diagram keep-light" tabindex="0" data-pagefind-ignore>${svg}</figure>`;
   });
   if (out !== html) fs.writeFileSync(f, out);
   if (out.includes('class="mermaid"')) failedFiles.add(path.relative(OUT, f));

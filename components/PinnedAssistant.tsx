@@ -3,8 +3,10 @@
 // The single "Ask the garden" assistant. Mounted site-wide in the root layout.
 //   • Home: opened (and pinned) from the "Demander au jardin" pushpin button.
 //   • Notes: a floating sprout trigger opens it (the note "AI" button), and
-//     selecting text shows an "ask about this" button that opens it with the
-//     passage pinned as context.
+//     the selection toolbar's "Expliquer" (public/js/selection-menu.js, a
+//     `gk:explain` event) opens it with the passage pinned as context and
+//     asks for an explanation straight away. Elsewhere, selecting text shows
+//     an "ask about this" button that pins the passage.
 //   • Once open it docks — draggable by its header, resizable by its top-left
 //     corner — and persists across navigation (pinned flag, position and size in
 //     localStorage). There is only ever ONE assistant.
@@ -61,6 +63,8 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const drag = useRef<{ dx: number; dy: number } | null>(null);
   const rez = useRef<{ right: number; bottom: number } | null>(null);
+  // Latest ask(), for the window-level `gk:explain` listener below.
+  const askRef = useRef<(text: string, sel?: string) => void>(() => {});
 
   function open() {
     setPinned(true);
@@ -91,8 +95,25 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
     }
     setIsNote(location.pathname.startsWith("/posts/"));
     const onPin = () => open();
+    // "Expliquer" from the note selection toolbar: pin the passage, open,
+    // and ask the server's default "explain this passage" question (an
+    // empty question + a selection — /api/ask fills it in the reply language).
+    const onExplain = (e: Event) => {
+      const text = String((e as CustomEvent<{ text?: string }>).detail?.text ?? "")
+        .trim()
+        .slice(0, 4000);
+      if (!text) return;
+      setSelection(text);
+      setQuestion("");
+      open();
+      askRef.current("", text);
+    };
     window.addEventListener("gk:pin-chat", onPin);
-    return () => window.removeEventListener("gk:pin-chat", onPin);
+    window.addEventListener("gk:explain", onExplain);
+    return () => {
+      window.removeEventListener("gk:pin-chat", onPin);
+      window.removeEventListener("gk:explain", onExplain);
+    };
   }, []);
   useEffect(() => () => abortRef.current?.abort(), []);
 
@@ -122,6 +143,8 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
   // --- "ask about a selection" (notes) -------------------------------------
   useEffect(() => {
     function check() {
+      // Note pages have their own selection toolbar (selection-menu.js).
+      if (location.pathname.startsWith("/posts/")) return setCandidate(null);
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || sel.rangeCount === 0) return setCandidate(null);
       const text = sel.toString().trim();
@@ -238,7 +261,7 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
     return (navigator.language || "fr").slice(0, 2).toLowerCase();
   }
 
-  async function ask(text: string) {
+  async function ask(text: string, sel: string = selection) {
     abortRef.current?.abort();
     const ctrl = new AbortController();
     abortRef.current = ctrl;
@@ -254,7 +277,7 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           question: text,
-          selection: selection || undefined,
+          selection: sel || undefined,
           locale: preferredReplyLocale(),
           scope: scope || undefined,
         }),
@@ -289,6 +312,11 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
     setBusy(false);
     if (abortRef.current === ctrl) abortRef.current = null;
   }
+
+  // Keep the `gk:explain` listener on the latest ask() (it reads `scope`).
+  useEffect(() => {
+    askRef.current = ask;
+  });
 
   // The "ask about this passage" button floats near a text selection on notes.
   const selBtn = candidate && (

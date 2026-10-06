@@ -1,0 +1,285 @@
+/* Site-wide: the command palette (/js/palette.js) and its trigger buttons,
+   plus the cross-document view transitions. Imported by app/layout.tsx after
+   global.css; colours are palette tokens only, so dark mode needs nothing
+   extra. */
+
+/* --- trigger button (masthead, note header, note nav) ---------------------- */
+.palette-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  appearance: none;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink-soft);
+  padding: 0.2rem 0.45rem 0.2rem 0.6rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.palette-btn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+  background: var(--wash);
+}
+.palette-btn:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+/* In the note header it sits at the end of the breadcrumb row, and stays
+   right-aligned when a long breadcrumb pushes it onto its own line. */
+.note-header .palette-btn {
+  margin-inline-start: auto;
+  align-self: center;
+}
+.palette-btn--compact {
+  padding: 0.15rem 0.4rem 0.15rem 0.5rem;
+  gap: 0.3rem;
+}
+.palette-kbd {
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: var(--muted);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0 0.3rem;
+  background: var(--wash);
+}
+/* Touch screens have no keyboard shortcut to advertise. */
+@media (hover: none) {
+  .palette-kbd {
+    display: none;
+  }
+}
+
+/* --- dialog ---------------------------------------------------------------- */
+html.palette-open {
+  overflow: hidden;
+}
+.palette[hidden] {
+  display: none;
+}
+.palette {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 12vh 1rem 1rem;
+}
+.palette-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--ink) 28%, transparent);
+}
+.palette-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: min(40rem, 100%);
+  max-height: min(34rem, 76vh);
+  background: var(--paper-raised);
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+  border-radius: 10px;
+  box-shadow: 0 18px 50px color-mix(in srgb, var(--ink) 22%, transparent);
+  overflow: hidden;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.palette-field {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted-warm);
+}
+.palette-input {
+  flex: 1;
+  min-width: 0;
+  appearance: none;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.12rem;
+}
+.palette-input::placeholder {
+  color: var(--muted-warm);
+  font-style: italic;
+}
+.palette-close {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+}
+.palette-close kbd {
+  font-family: inherit;
+  font-size: 0.75rem;
+  color: var(--muted);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.05rem 0.35rem;
+  background: var(--wash);
+}
+.palette-close:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.palette-list {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.35rem 0.4rem 0.5rem;
+}
+.palette-group + .palette-group {
+  margin-top: 0.35rem;
+}
+.palette-group-label {
+  padding: 0.45rem 0.6rem 0.2rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-warm);
+}
+.palette-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.45rem 0.6rem;
+  /* Square on the left so the selection bar stays a straight line. */
+  border-radius: 0 6px 6px 0;
+  cursor: pointer;
+  color: var(--ink);
+}
+.palette-opt[aria-selected="true"] {
+  background: var(--wash-2);
+  box-shadow: inset 2px 0 0 var(--garden);
+}
+.palette-opt-icon {
+  flex: none;
+  display: inline-flex;
+  color: var(--muted-warm);
+}
+.palette-opt[aria-selected="true"] .palette-opt-icon {
+  color: var(--garden);
+}
+.palette-opt-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.palette-opt-title {
+  font-size: 1rem;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.palette-opt-title mark {
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-color: var(--garden);
+  text-underline-offset: 2px;
+}
+.palette-opt-hint {
+  font-size: 0.8rem;
+  color: var(--muted-warm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.palette-opt--section .palette-opt-title {
+  font-style: italic;
+}
+.palette-empty {
+  margin: 0;
+  padding: 1.2rem 0.6rem;
+  text-align: center;
+  color: var(--muted-warm);
+}
+.palette-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.45rem 0.9rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.78rem;
+  color: var(--muted-warm);
+}
+
+/* Phones: a full-width sheet from the top, keyboard-friendly (the input stays
+   above the on-screen keyboard). */
+@media (max-width: 640px) {
+  .palette {
+    padding: 0;
+  }
+  .palette-panel {
+    width: 100%;
+    max-height: 88dvh;
+    border-width: 0 0 1px;
+    border-radius: 0 0 14px 14px;
+  }
+  .palette-input {
+    font-size: 1.05rem; /* ≥16px: no iOS zoom-on-focus */
+  }
+  .palette-hint {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .palette:not([hidden]) .palette-panel {
+    animation: palette-in 0.14s ease-out;
+  }
+  .palette:not([hidden]) .palette-backdrop {
+    animation: palette-fade 0.14s ease-out;
+  }
+}
+@keyframes palette-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.99);
+  }
+}
+@keyframes palette-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media print {
+  .palette,
+  .palette-btn {
+    display: none !important;
+  }
+}
+
+/* --- cross-document view transitions --------------------------------------
+   Same-origin navigations cross-fade, and a note title clicked in a list
+   (home, /themes/, /parcours/) morphs into the note's H1: the H1 carries the
+   name (note-paths.css), the clicked link gets it just before the old page is
+   captured (the `pageswap` handler in app/layout.tsx). Opted in only when the
+   reader hasn't asked for reduced motion, so for them nothing animates. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.18s;
+}
+::view-transition-group(note-title) {
+  animation-duration: 0.32s;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}

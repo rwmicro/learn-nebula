@@ -107,6 +107,7 @@ comments survive an image update.
 - **Backend:** `server/` — `routes/ask.ts` (RAG), `routes/comments.ts` (SQLite +
   Turnstile), `routes/translate.ts`.
 - **Client enhancers:** vanilla scripts in `public/js/`, bundled by
-  `scripts/bundle-js.mjs` into `note.bundle.js`.
+  `scripts/bundle-js.mjs` into `note.bundle.js` (plus `quiz.bundle.js` /
+  `glossary.bundle.js`, added only to the notes that use them).
 
 See **CLAUDE.md** for the agent-oriented map (commands, gotchas, conventions).

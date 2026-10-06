@@ -1,0 +1,151 @@
+/* Scoped to /themes/ and /disciplines/ — same per-route pattern as frise.css,
+   whose typography it follows. */
+
+.themes-page {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.2rem 4rem;
+}
+
+.themes-back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.themes-back:hover {
+  text-decoration: underline;
+}
+
+.themes-kicker {
+  margin: 0;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  color: var(--garden); /* the site's one accent */
+}
+
+.themes-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  letter-spacing: -0.01rem;
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.themes-intro {
+  color: var(--ink-2);
+  margin: 0 0 2rem;
+  font-size: 1.1rem;
+}
+
+.themes-h2 {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-size: 1.4rem;
+  margin: 2.5rem 0 0.75rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.themes-h3 {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-size: 1.1rem;
+  color: var(--muted-warm);
+  margin: 1.25rem 0 0.5rem;
+}
+
+.themes-count {
+  margin-left: 0.4em;
+  font-size: 0.85em;
+  color: var(--muted-warm);
+  font-variant-numeric: tabular-nums;
+}
+
+.themes-tops {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 2.5rem;
+}
+
+.themes-list,
+.themes-notes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.themes-list li,
+.themes-notes li {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.themes-page a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.themes-page a:hover {
+  text-decoration: underline;
+}
+.themes-notes a {
+  font-size: 1.1rem;
+}
+
+.themes-cloud {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  line-height: 1.5;
+}
+.themes-cloud--compact {
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 560px) {
+  .themes-tops {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Read checkmark after a note link (components/ReadMarks.tsx, from the
+   reader's localStorage). Also used by /parcours/, which loads this file. */
+.read-check {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 0.4em;
+  color: var(--garden);
+  vertical-align: 0.05em;
+}
+.themes-notes li.is-read > a {
+  color: var(--ink-2);
+}
+
+/* Link to /parcours/ from the themes index. */
+.themes-paths {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: -1rem 0 2rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.themes-page a.themes-paths {
+  color: var(--garden);
+}
+
+@media print {
+  .read-check {
+    display: none;
+  }
+}
