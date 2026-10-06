@@ -30,8 +30,8 @@ importers:
         specifier: ^4.13.5
         version: 4.13.5
       katex:
-        specifier: ^0.16.11
-        version: 0.16.47
+        specifier: ^0.18.2
+        version: 0.18.2
       mdast-util-to-string:
         specifier: ^4.0.0
         version: 4.0.0
@@ -2747,6 +2747,10 @@ packages:
 
   katex@0.16.47:
     resolution: {integrity: sha512-Eeo8Ys1doU1z+x8AZsPpQu+p/QcZBI5PeOo7QGQdy2x2m0MU/hYagBbGOmXwr5KVbEfVuWv9LpnQWeehogurjg==}
+    hasBin: true
+
+  katex@0.18.2:
+    resolution: {integrity: sha512-3snve4y0SXTMequLim1FMiPvLGElySam0blN5xQZBqEY3lOJz1TnuaaiugnBZBqHzlSAGmFTYL7MCQkORuLKCA==}
     hasBin: true
 
   keyv@4.5.4:
@@ -6616,6 +6620,10 @@ snapshots:
       xmlbuilder: 15.1.1
 
   katex@0.16.47:
+    dependencies:
+      commander: 8.3.0
+
+  katex@0.18.2:
     dependencies:
       commander: 8.3.0
 
