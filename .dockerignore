@@ -1,5 +1,5 @@
 # Keep the build context small. The image only needs: out/, server/, lib/,
-# schema/, data/rag-chunks.json, package.json, pnpm-lock.yaml.
+# schema/, data/{rag-chunks,build-info,vault-health,prereq-suggestions}.json, package.json, pnpm-lock.yaml.
 node_modules
 .next
 .git
@@ -13,6 +13,8 @@ public/vault
 public/anki
 public/js/mermaid.min.js
 public/js/note.bundle.js
+public/js/quiz.bundle.js
+public/js/glossary.bundle.js
 
 # Tests / tooling / local config
 tests
@@ -26,3 +28,6 @@ obsidian-manim-plugin
 # Runtime state (baked chunks are kept; DB + vector cache are not)
 data/*
 !data/rag-chunks.json
+!data/build-info.json
+!data/vault-health.json
+!data/prereq-suggestions.json

@@ -10,3 +10,31 @@ body:has(.flashcards-main) {
 .flashcards-main {
   margin-inline: auto !important;
 }
+
+/* Note-questions review (/cartes/revision/, components/NoteReview.tsx): the
+   saved question/answer HTML comes from the note pages, without main.css. */
+.note-review-q > :first-child,
+.note-review-a > :first-child {
+  margin-top: 0;
+}
+.note-review-q > :last-child,
+.note-review-a > :last-child {
+  margin-bottom: 0;
+}
+.note-review-a {
+  font-size: 1.08rem;
+  line-height: 1.55;
+}
+.note-review-a p,
+.note-review-a ul,
+.note-review-a ol {
+  margin: 0 0 0.7rem;
+}
+.note-review-a a,
+.note-review-q a {
+  color: var(--link);
+}
+.note-review-item p {
+  display: inline;
+  margin: 0;
+}

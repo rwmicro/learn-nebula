@@ -4,7 +4,23 @@ import matter from "gray-matter";
 import * as TOML from "smol-toml";
 import { INCLUDE_DRAFTS } from "./site";
 import { resolveVaultAssetByName, listVaultAssets } from "./vault-assets";
+import { joinNotePath } from "./vault-health";
 import { getAnkiManifest } from "./anki";
+import { tagSlug } from "./slug";
+import {
+  definitionAnchor,
+  glossaryDiscipline,
+  entriesForNote,
+  extractDefinitions,
+  type GlossaryEntry,
+} from "./glossary";
+import {
+  buildPrereqComponents,
+  parsePrereqField,
+  prereqCycles,
+  MIN_PATH_NOTES,
+  type PrereqEdge,
+} from "./prereq-graph";
 
 const CONTENT_DIR = path.join(process.cwd(), "content");
 const POSTS_DIR = path.join(CONTENT_DIR, "posts");
@@ -58,6 +74,11 @@ export interface Frontmatter {
    *  ("Antiquité tardive" rather than "476") — cosmetic only, sorting always
    *  goes by `year`. */
   period?: string;
+  /** Notes to read first, raw from the frontmatter (`prerequis`, or its
+   *  English spelling `prerequisites`): wikilinks or plain titles/paths, one
+   *  or a list. Parsed by parsePrereqField and resolved like a [[wikilink]];
+   *  see getPrerequisites(). */
+  prerequis?: unknown;
 }
 
 export interface Doc {
@@ -252,6 +273,29 @@ export function resolveWikiLink(target: string): string | null {
   return byBase.get(tl) ?? resolveVaultAssetByName(target) ?? null;
 }
 
+/**
+ * Resolve a relative markdown link to another note — `[x](q01-foo.md)`,
+ * `[x](../Other/Note.md#part)`, as Obsidian and GitHub both write them — from
+ * the folder `dir` of the note that holds it. Returns the page URL (with the
+ * `#anchor` kept) or null when the href isn't a relative `.md` link or names
+ * no note in the vault.
+ */
+export function resolveRelativeNoteLink(dir: string, href: string): string | null {
+  if (/^([a-z][a-z0-9+.-]*:|#|\/)/i.test(href)) return null; // external, anchor, absolute
+  const hashAt = href.indexOf("#");
+  const pathPart = hashAt === -1 ? href : href.slice(0, hashAt);
+  const hash = hashAt === -1 ? "" : href.slice(hashAt);
+  if (!/\.md$/i.test(pathPart)) return null;
+  let decoded = pathPart;
+  try {
+    decoded = decodeURIComponent(pathPart);
+  } catch {
+    /* keep as written */
+  }
+  const url = wikiIndex().byPath.get(joinNotePath(dir, decoded).toLowerCase());
+  return url ? url + hash : null;
+}
+
 function parse(file: string, slug: string, rawPath: string): Doc {
   const raw = fs.readFileSync(file, "utf8");
   const { data, content } = raw.startsWith("+++")
@@ -408,6 +452,166 @@ export function getDomains(): DomainGroup[] {
       notes: notes.sort((a, b) => a.title.localeCompare(b.title)),
     }))
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+}
+
+// --- /themes/: notes by tag and by discipline ---------------------------------
+
+/** A tag gets its own page from this many notes up. Two thirds of the vault's
+ *  ~1,300 tags sit on a single note, where a page would only repeat that note;
+ *  their pills keep linking to the home search instead. */
+export const MIN_TAG_NOTES = 2;
+
+export interface ThemeNote {
+  title: string;
+  href: string;
+  /** Discipline display name ("Biology", "Philosophy"), "" for a note that
+   *  sits directly under a top folder. */
+  discipline: string;
+}
+
+export interface TagGroup {
+  /** ASCII slug, the page is /themes/<slug>/. */
+  slug: string;
+  /** The spelling most notes use, when several fold to one slug. */
+  name: string;
+  notes: ThemeNote[];
+}
+
+export interface Discipline {
+  /** ASCII slug, the page is /disciplines/<slug>/. */
+  slug: string;
+  /** Display name, e.g. "Échecs" (see homeDisplayName). */
+  name: string;
+  /** "Applied Sciences" or "Social Sciences". */
+  top: string;
+  /** Notes grouped by their sub-folder under the discipline ("" = at its root). */
+  sections: { name: string; notes: ThemeNote[] }[];
+  count: number;
+  /** The discipline's most used tags that have a page, most used first. */
+  tags: { slug: string; name: string; count: number }[];
+}
+
+function disciplineOf(rawPath: string): { top: string; name: string } | null {
+  const parts = rawPath.split("/");
+  return parts.length >= 3 ? { top: parts[0], name: parts[1] } : null;
+}
+
+function themeNote(d: Doc): ThemeNote {
+  const disc = disciplineOf(d.rawPath);
+  return {
+    title: d.frontmatter.title,
+    href: `/posts/${d.slug}/`,
+    discipline: disc ? homeDisplayName(disc.name) : "",
+  };
+}
+
+const byTitle = (a: ThemeNote, b: ThemeNote) =>
+  a.title.localeCompare(b.title, "fr", { numeric: true });
+
+let tagsCache: TagGroup[] | null = null;
+/** Every tag carried by at least MIN_TAG_NOTES notes, most used first. */
+export function getTags(): TagGroup[] {
+  if (tagsCache) return tagsCache;
+  const map = new Map<
+    string,
+    { spellings: Map<string, number>; notes: Map<string, ThemeNote> }
+  >();
+  for (const d of getAllPosts()) {
+    for (const raw of d.frontmatter.tags ?? []) {
+      // YAML turns tokens like `802.11` into numbers.
+      const name = String(raw).trim();
+      const slug = tagSlug(name);
+      if (!slug) continue;
+      const e = map.get(slug) ?? { spellings: new Map(), notes: new Map() };
+      e.spellings.set(name, (e.spellings.get(name) ?? 0) + 1);
+      e.notes.set(d.slug, themeNote(d));
+      map.set(slug, e);
+    }
+  }
+  tagsCache = [...map.entries()]
+    .filter(([, e]) => e.notes.size >= MIN_TAG_NOTES)
+    .map(([slug, e]) => ({
+      slug,
+      name: [...e.spellings.entries()].sort((a, b) => b[1] - a[1])[0][0],
+      notes: [...e.notes.values()].sort(byTitle),
+    }))
+    .sort(
+      (a, b) =>
+        b.notes.length - a.notes.length || a.name.localeCompare(b.name, "fr"),
+    );
+  return tagsCache;
+}
+
+/** The /themes/ page of a tag, or null when it is too rare to have one. */
+export function tagHref(tag: unknown): string | null {
+  const slug = tagSlug(String(tag));
+  return getTags().some((g) => g.slug === slug) ? `/themes/${slug}/` : null;
+}
+
+let disciplinesCache: Discipline[] | null = null;
+/** The second-level folders (Biology, Philosophy…), A→Z within each top folder. */
+export function getDisciplines(): Discipline[] {
+  if (disciplinesCache) return disciplinesCache;
+  const withPage = new Map(getTags().map((g) => [g.slug, g.name]));
+  const map = new Map<
+    string,
+    {
+      top: string;
+      folder: string;
+      sections: Map<string, ThemeNote[]>;
+      tags: Map<string, number>;
+    }
+  >();
+  for (const d of getAllPosts()) {
+    const disc = disciplineOf(d.rawPath);
+    if (!disc) continue;
+    const key = `${disc.top}/${disc.name}`;
+    const e = map.get(key) ?? {
+      top: disc.top,
+      folder: disc.name,
+      sections: new Map(),
+      tags: new Map(),
+    };
+    const parts = d.rawPath.split("/");
+    const section = parts.length > 3 ? parts[2] : "";
+    e.sections.set(section, [...(e.sections.get(section) ?? []), themeNote(d)]);
+    for (const raw of d.frontmatter.tags ?? []) {
+      const slug = tagSlug(String(raw));
+      if (withPage.has(slug)) e.tags.set(slug, (e.tags.get(slug) ?? 0) + 1);
+    }
+    map.set(key, e);
+  }
+  disciplinesCache = [...map.values()]
+    .map((e) => {
+      const sections = [...e.sections.entries()]
+        .map(([name, notes]) => ({ name, notes: notes.sort(byTitle) }))
+        // Root notes first, then sub-folders in natural order.
+        .sort((a, b) =>
+          a.name === "" ? -1 : b.name === "" ? 1 :
+          a.name.localeCompare(b.name, undefined, { numeric: true }),
+        );
+      const count = sections.reduce((n, s) => n + s.notes.length, 0);
+      // A tag on most notes of the discipline, like "philosophie" on
+      // Philosophy, says nothing about it; keep the ones that pick a subset.
+      const tags = [...e.tags.entries()]
+        .filter(([, n]) => n >= MIN_TAG_NOTES && n < count * 0.6)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 24)
+        .map(([slug, n]) => ({ slug, name: withPage.get(slug)!, count: n }));
+      return {
+        slug: tagSlug(`${e.top} ${e.folder}`),
+        name: homeDisplayName(e.folder),
+        top: e.top,
+        sections,
+        count,
+        tags,
+      };
+    })
+    .sort(
+      (a, b) =>
+        a.top.localeCompare(b.top) || a.name.localeCompare(b.name, "fr"),
+    );
+  return disciplinesCache;
 }
 
 export interface LangGroup {
@@ -650,6 +854,12 @@ function homeDisplayName(folder: string): string {
   return HOME_DISPLAY_NAME[folder] ?? folder;
 }
 
+/** A note's folder breadcrumb without its top group, display names:
+ *  "Applied Sciences/Mathematics/Lycée/Note" → "Mathematics › Lycée". */
+export function homeFolderLabel(rawPath: string): string {
+  return rawPath.split("/").slice(1, -1).map(homeDisplayName).join(" › ");
+}
+
 // Keep notes, decks AND standalone assets (images/PDFs) as leaves, tagging each
 // folder with how many items it transitively contains.
 function pruneToNotes(node: TreeNode, parentPath: string): HomeTreeNode | null {
@@ -855,6 +1065,248 @@ export function getBacklinks(slug: string): SiblingRef[] {
     }
   }
   return out.sort((a, b) => a.title.localeCompare(b.title));
+}
+
+// --- Glossary (lib/glossary.ts) ----------------------------------------------
+let glossaryCache: GlossaryEntry[] | null = null;
+/** Every explicit definition in the vault (a term defined in two notes is
+ *  listed twice; getGlossaryFor picks the nearer one per note). */
+export function getGlossary(): GlossaryEntry[] {
+  if (glossaryCache) return glossaryCache;
+  const all: GlossaryEntry[] = [];
+  for (const doc of [...getAllPosts()].sort((a, b) =>
+    a.rawPath.localeCompare(b.rawPath),
+  )) {
+    const noteUrl = `/posts/${doc.slug}/`;
+    for (const { term, def } of extractDefinitions(doc.body)) {
+      all.push({
+        term,
+        def,
+        href: `${noteUrl}#${definitionAnchor(term)}`,
+        noteTitle: doc.frontmatter.title,
+        noteUrl,
+        discipline: glossaryDiscipline(doc.rawPath),
+      });
+    }
+  }
+  glossaryCache = all;
+  return glossaryCache;
+}
+
+/** The glossary terms to mark in `doc` (same discipline, defined elsewhere). */
+export function getGlossaryFor(doc: Doc): GlossaryEntry[] {
+  return entriesForNote(
+    getGlossary(),
+    `/posts/${doc.slug}/`,
+    glossaryDiscipline(doc.rawPath),
+  );
+}
+
+
+// --- Prerequisites (frontmatter `prerequis:`) and reading paths --------------
+// A note lists the notes to read before it; the reverse ("pour aller plus
+// loin") and the /parcours/ reading paths are derived from those lists. The
+// graph logic is pure and lives in lib/prereq-graph.ts.
+
+let prereqCache: {
+  /** slug → prerequisite slugs, in the order the frontmatter lists them. */
+  prereqs: Map<string, string[]>;
+  /** slug → slugs of the notes that list it as a prerequisite. */
+  dependents: Map<string, string[]>;
+  /** slug → targets that resolve to no published note. */
+  unresolved: Map<string, string[]>;
+} | null = null;
+
+function prereqIndex() {
+  if (prereqCache) return prereqCache;
+  const published = new Set(getAllPosts().map((p) => p.slug));
+  const prereqs = new Map<string, string[]>();
+  const dependents = new Map<string, string[]>();
+  const unresolved = new Map<string, string[]>();
+  for (const post of getAllPosts()) {
+    const fm = post.frontmatter as Frontmatter & { prerequisites?: unknown };
+    const targets = parsePrereqField(fm.prerequis ?? fm.prerequisites);
+    if (!targets.length) continue;
+    const list: string[] = [];
+    const missing: string[] = [];
+    for (const target of targets) {
+      const url = resolveWikiLink(target);
+      const slug =
+        url && url.startsWith("/posts/")
+          ? url.slice("/posts/".length).replace(/\/$/, "")
+          : null;
+      // A draft (unpublished) note or a vault asset is as good as missing:
+      // the page could not link to it.
+      if (!slug || !published.has(slug)) missing.push(target);
+      // A note listing itself is a cycle of one: kept as an edge so
+      // vault-health reports it, never shown on the page.
+      else if (!list.includes(slug)) list.push(slug);
+    }
+    if (list.length) prereqs.set(post.slug, list);
+    if (missing.length) unresolved.set(post.slug, missing);
+    for (const p of list) {
+      if (p === post.slug) continue;
+      const d = dependents.get(p) ?? [];
+      d.push(post.slug);
+      dependents.set(p, d);
+    }
+  }
+  prereqCache = { prereqs, dependents, unresolved };
+  return prereqCache;
+}
+
+function refsOf(slugs: string[] | undefined): SiblingRef[] {
+  const out: SiblingRef[] = [];
+  for (const s of slugs ?? []) {
+    try {
+      out.push({ title: getPost(s).frontmatter.title, slug: s });
+    } catch {
+      /* slug no longer resolvable */
+    }
+  }
+  return out;
+}
+
+/** The notes `slug` asks to read first ("À lire avant"), in frontmatter order. */
+export function getPrerequisites(slug: string): SiblingRef[] {
+  return refsOf(prereqIndex().prereqs.get(slug)?.filter((s) => s !== slug));
+}
+
+/** The notes that list `slug` as a prerequisite ("Pour aller plus loin"), A→Z. */
+export function getDependents(slug: string): SiblingRef[] {
+  return refsOf(prereqIndex().dependents.get(slug)).sort((a, b) =>
+    a.title.localeCompare(b.title, "fr", { numeric: true }),
+  );
+}
+
+/** `prerequis` entries naming no published note, per note slug (vault-health). */
+export function getUnresolvedPrereqs(): Map<string, string[]> {
+  return prereqIndex().unresolved;
+}
+
+/** Every prerequisite relation, [prerequisite, dependent]. */
+export function getPrereqEdges(): PrereqEdge[] {
+  const edges: PrereqEdge[] = [];
+  for (const [slug, list] of prereqIndex().prereqs) {
+    for (const p of list) edges.push([p, slug]);
+  }
+  return edges;
+}
+
+export interface ReadingPathNote {
+  slug: string;
+  title: string;
+  href: string;
+  /** Slugs of this note's direct prerequisites within the path. */
+  prereqs: string[];
+}
+
+export interface ReadingPathView {
+  /** URL slug: the page is /parcours/<slug>/. */
+  slug: string;
+  /** From frontmatter `parcours:` on one of its notes, else its common folder. */
+  name: string;
+  description?: string;
+  /** Majority discipline of the path's notes, "" when none. */
+  discipline: string;
+  /** In reading (topological) order. */
+  notes: ReadingPathNote[];
+  /** [prerequisite, dependent] slugs, cycle breaks removed. */
+  edges: PrereqEdge[];
+}
+
+/** `parcours: "Nom"`, or `parcours: { titre|title: "Nom", description: "…" }`
+ *  (plus `parcours-description:` next to the string form). */
+function pathMeta(fm: Frontmatter): { name: string; description?: string } | null {
+  const raw = (fm as unknown as Record<string, unknown>).parcours;
+  const extra = (fm as unknown as Record<string, unknown>)["parcours-description"];
+  const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
+  if (str(raw)) return { name: str(raw)!, description: str(extra) };
+  if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+    const o = raw as Record<string, unknown>;
+    const name = str(o.titre) ?? str(o.title) ?? str(o.nom) ?? str(o.name);
+    if (name) return { name, description: str(o.description) ?? str(extra) };
+  }
+  return null;
+}
+
+/** Display name of the deepest folder all `rawPaths` share, top group
+ *  dropped: "Mathematics › Lycée", "Languages & Dialects › Espagnol". */
+function commonFolderName(rawPaths: string[]): string {
+  const dirs = rawPaths.map((p) => p.split("/").slice(0, -1));
+  const common: string[] = [];
+  for (let i = 0; dirs.every((d) => i < d.length && d[i] === dirs[0][i]); i++) {
+    common.push(dirs[0][i]);
+  }
+  return common.slice(1).map(homeDisplayName).join(" › ");
+}
+
+let prereqComponentsCache: ReturnType<typeof buildPrereqComponents> | null = null;
+function prereqComponents() {
+  if (prereqComponentsCache) return prereqComponentsCache;
+  const nodes = getAllPosts().map((d) => {
+    const disc = disciplineOf(d.rawPath);
+    return {
+      slug: d.slug,
+      title: d.frontmatter.title,
+      discipline: disc ? homeDisplayName(disc.name) : "",
+    };
+  });
+  prereqComponentsCache = buildPrereqComponents(nodes, getPrereqEdges());
+  return prereqComponentsCache;
+}
+
+let readingPathsCache: ReadingPathView[] | null = null;
+/** The /parcours/ reading paths: connected groups of 3+ notes linked by
+ *  `prerequis`, each in reading order (see lib/prereq-graph.ts). */
+export function getReadingPaths(): ReadingPathView[] {
+  if (readingPathsCache) return readingPathsCache;
+  const used = new Set<string>();
+  readingPathsCache = prereqComponents()
+    .filter((c) => c.notes.length >= MIN_PATH_NOTES)
+    .map((c) => {
+      const docs = c.notes.map((s) => getPost(s));
+      // The first note in reading order that names the path wins.
+      const meta = docs.map((d) => pathMeta(d.frontmatter)).find(Boolean) ?? null;
+      const name =
+        meta?.name || commonFolderName(docs.map((d) => d.rawPath)) || c.discipline || docs[0].frontmatter.title;
+      const base = tagSlug(name) || "parcours";
+      let slug = base;
+      for (let i = 2; used.has(slug); i++) slug = `${base}-${i}`;
+      used.add(slug);
+      return {
+        slug,
+        name,
+        ...(meta?.description ? { description: meta.description } : {}),
+        discipline: c.discipline,
+        notes: docs.map((d) => ({
+          slug: d.slug,
+          title: d.frontmatter.title,
+          href: `/posts/${d.slug}/`,
+          prereqs: c.edges.filter(([, b]) => b === d.slug).map(([a]) => a),
+        })),
+        edges: c.edges,
+      };
+    });
+  return readingPathsCache;
+}
+
+/** The reading path a note belongs to, if any (for its "À lire avant" block). */
+export function getReadingPathOf(slug: string): ReadingPathView | null {
+  return getReadingPaths().find((p) => p.notes.some((n) => n.slug === slug)) ?? null;
+}
+
+/** Prerequisite cycles (vault-health): each cycle's notes and the `prerequis`
+ *  relations the reading order had to ignore to break it. */
+export function getPrereqCycles(): {
+  members: SiblingRef[];
+  broken: [SiblingRef, SiblingRef][];
+}[] {
+  const ref = (s: string): SiblingRef => ({ slug: s, title: getPost(s).frontmatter.title });
+  return prereqCycles(prereqComponents()).map((c) => ({
+    members: c.members.map(ref),
+    broken: c.broken.map(([a, b]) => [ref(a), ref(b)] as [SiblingRef, SiblingRef]),
+  }));
 }
 
 /** Top-level single page such as `404`. */

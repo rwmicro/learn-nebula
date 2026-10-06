@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 // Plain JS on purpose — scripts/render-mermaid.mjs imports it with bare node.
 import fs from "node:fs";
-import { normaliseMermaid as n, MERMAID_CONFIG } from "./mermaid-source.js";
+import { normaliseMermaid as n, diagramType, MERMAID_CONFIG } from "./mermaid-source.js";
 
 describe("normaliseMermaid", () => {
   it("turns Obsidian's literal \\n into a line break", () => {
@@ -88,6 +88,31 @@ describe("normaliseMermaid", () => {
   it("leaves a malformed edge for the author to fix", () => {
     const typo = "Roches -.->|nouveau soulèvement.-> Relief";
     expect(n(typo)).toBe(typo);
+  });
+});
+
+describe("timeline", () => {
+  it("uses the bare <br> its word-wrapper splits on, not <br/>", () => {
+    expect(n("timeline\n    1661 : Boyle\\nThe Sceptical Chymist")).toBe(
+      "timeline\n    1661 : Boyle<br>The Sceptical Chymist",
+    );
+    expect(n("timeline\n  1789 : Lavoisier<br/>masse")).toBe("timeline\n  1789 : Lavoisier<br>masse");
+  });
+
+  it("never quotes timeline text", () => {
+    const src = "%% frise\ntimeline\n    XVIe siècle : Paracelse (iatrochimie) & co [x]";
+    expect(n(src)).toBe(src);
+  });
+
+  it("still gives other diagrams <br/>", () => {
+    expect(n("flowchart LR\n  A[x\\ny]")).toBe('flowchart LR\n  A["x<br/>y"]');
+  });
+});
+
+describe("diagramType", () => {
+  it("skips blank lines, comments and front matter", () => {
+    expect(diagramType("\n%% c\ntimeline\n  a : b")).toBe("timeline");
+    expect(diagramType("---\ntitle: x\n---\nflowchart TD")).toBe("flowchart");
   });
 });
 

@@ -3,6 +3,9 @@
 //
 //   GET  /api/comments?slug=<slug>    → approved comments for a note
 //   GET  /api/comments?status=pending → admin list (Bearer token)
+//   GET  /api/comments?status=approved&q=&offset=&limit=
+//                                     → admin list of published comments,
+//                                       newest first, { comments, total }
 //   POST /api/comments                → submit { slug, name?, body, turnstileToken? }
 //   PATCH /api/comments               → admin { id, action: "approve"|"delete" }
 
@@ -14,6 +17,7 @@ import { Cooldown } from "../ratelimit.ts";
 import {
   approvedForSlug,
   pending,
+  approvedPage,
   insertComment,
   setStatus,
   deleteComment,
@@ -82,6 +86,15 @@ commentsRoute.get("/", (c) => {
         return c.json({ error: "Non autorisé." }, 401);
       }
       return c.json({ comments: pending() });
+    }
+    if (status === "approved") {
+      if (!isAdmin(c.req.header("authorization"), getIp(c))) {
+        return c.json({ error: "Non autorisé." }, 401);
+      }
+      const limit = Math.min(Math.max(Math.floor(Number(c.req.query("limit"))) || 20, 1), 100);
+      const offset = Math.max(Math.floor(Number(c.req.query("offset"))) || 0, 0);
+      const q = (c.req.query("q") ?? "").slice(0, 200);
+      return c.json(approvedPage({ q, limit, offset }));
     }
     const slug = c.req.query("slug");
     if (!slug) return c.json({ error: "slug requis." }, 400);

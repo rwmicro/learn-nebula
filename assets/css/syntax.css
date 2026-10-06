@@ -18,7 +18,23 @@
   width: 2ch;
   margin-right: 0.8em;
   text-align: right;
-  color: #7f7f7f;
+  color: var(--muted);
   -webkit-user-select: none;
   user-select: none;
+}
+
+/* Dark mode: Shiki writes the modus-vivendi colours next to the light ones as
+   --shiki-dark / --shiki-dark-bg (lib/highlight.ts); switch to them, for the
+   explicit toggle and for the OS preference, like the palette in global.css. */
+:root[data-theme="dark"] .chroma,
+:root[data-theme="dark"] .chroma span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .chroma,
+  :root:not([data-theme="light"]) .chroma span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+  }
 }

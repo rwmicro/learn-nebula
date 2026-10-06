@@ -1,4 +1,4 @@
-import { getPostTree, getWikiLinkEdges, type TreeNode } from "./content";
+import { getPostTree, getReadingPaths, getWikiLinkEdges, type TreeNode } from "./content";
 import { folderAnchor } from "./slug";
 
 export type GraphKind = "root" | "dir" | "note" | "asset";
@@ -31,9 +31,36 @@ export interface GraphLink {
   kind?: "tree" | "wikilink";
 }
 
+/** A reading path (/parcours/<slug>/), for the /graph "Parcours" filter.
+ *  Compact on purpose: note slugs (node id = `file:/posts/<slug>/`) and its
+ *  prerequisite edges as index pairs into `notes`. */
+export interface GraphPath {
+  slug: string;
+  name: string;
+  notes: string[];
+  edges: [number, number][];
+}
+
 export interface GraphData {
   nodes: GraphNode[];
   links: GraphLink[];
+  /** Full graph only. */
+  paths?: GraphPath[];
+}
+
+/** Reading paths in the graph JSON's compact form. */
+export function graphPaths(): GraphPath[] {
+  return getReadingPaths().map((p) => {
+    const idx = new Map(p.notes.map((n, i) => [n.slug, i]));
+    return {
+      slug: p.slug,
+      name: p.name,
+      notes: p.notes.map((n) => n.slug),
+      edges: p.edges
+        .filter(([a, b]) => idx.has(a) && idx.has(b))
+        .map(([a, b]) => [idx.get(a)!, idx.get(b)!] as [number, number]),
+    };
+  });
 }
 
 /** Build a containment graph from the on-disk folder tree:
@@ -119,5 +146,7 @@ export function buildGraph(opts: { foldersOnly?: boolean } = {}): GraphData {
     }
   }
 
-  return { nodes, links };
+  if (opts.foldersOnly) return { nodes, links };
+  const paths = graphPaths().filter((p) => p.notes.every((s) => noteIds.has(`file:/posts/${s}/`)));
+  return { nodes, links, paths };
 }

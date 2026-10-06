@@ -20,11 +20,24 @@ name: Docker image (GHCR)
 # a secret. Pairs with the runtime TURNSTILE_SECRET_KEY for comments to
 # auto-approve instead of queuing for manual moderation.
 
+#
+# The notes live in another repo, so a push to pensine alone used to leave the
+# live site on stale notes until the next learn-nebula merge. Two more
+# triggers close that gap, both behind the same ENABLE_DOCKER_BUILD opt-in:
+#   - repository_dispatch `pensine-updated`, sent by pensine's own
+#     rebuild-site.yml on every push to its main (needs a token there);
+#   - a nightly schedule, the safety net, which builds only when pensine's
+#     main has moved since the last image (see the `pensine` job).
+
 on:
   workflow_run:
     workflows: [CI]
     types: [completed]
     branches: [main]
+  repository_dispatch:
+    types: [pensine-updated]
+  schedule:
+    - cron: "17 3 * * *"
   workflow_dispatch:
 
 concurrency:
@@ -36,10 +49,34 @@ permissions:
   packages: write
 
 jobs:
+  # Which pensine commit this run would build, and whether an image already
+  # holds it. A successful build saves an empty cache entry keyed on that
+  # commit (last step below); the nightly run looks it up and stands down on
+  # a hit. Other triggers build regardless.
+  pensine:
+    name: Pensine revision
+    runs-on: ubuntu-latest
+    outputs:
+      sha: ${{ steps.rev.outputs.sha }}
+      built: ${{ steps.marker.outputs.cache-hit }}
+    steps:
+      - id: rev
+        run: echo "sha=$(git ls-remote https://github.com/rwmicro/pensine.git refs/heads/main | cut -f1)" >> "$GITHUB_OUTPUT"
+      - id: marker
+        uses: actions/cache/restore@v4
+        with:
+          path: .pensine-built
+          key: pensine-built-${{ steps.rev.outputs.sha }}
+          lookup-only: true
+
   build-and-push:
+    needs: pensine
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && vars.ENABLE_DOCKER_BUILD == 'true')
+      (vars.ENABLE_DOCKER_BUILD == 'true' && (
+        (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+        github.event_name == 'repository_dispatch' ||
+        (github.event_name == 'schedule' && needs.pensine.outputs.built != 'true')))
     name: Build & push
     runs-on: ubuntu-latest
     timeout-minutes: 40
@@ -144,3 +181,12 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Record the pensine revision this image holds
+        run: mkdir -p .pensine-built && echo "${{ needs.pensine.outputs.sha }}" > .pensine-built/sha
+
+      - name: Save revision marker
+        uses: actions/cache/save@v4
+        with:
+          path: .pensine-built
+          key: pensine-built-${{ needs.pensine.outputs.sha }}

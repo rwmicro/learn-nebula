@@ -18,21 +18,21 @@ body {
   margin: 4rem auto;
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-weight: 440;
-  background-color: #fcfcfc;
-  color: #111;
+  background-color: var(--paper);
+  color: var(--ink);
   width: 100%;
   max-width: 1300px;
   counter-reset: margin-counter;
 }
 
 ::selection {
-  background-color: #ffcf33; /* Couleur de l'arrière-plan (surlignage) */
+  background-color: var(--mark); /* Couleur de l'arrière-plan (surlignage) */
   color: #000000; /* Couleur du texte sélectionné */
 }
 
 /* Version pour les navigateurs Firefox */
 ::-moz-selection {
-  background-color: #ffcf33;
+  background-color: var(--mark);
   color: #000000;
 }
 
@@ -49,7 +49,7 @@ footer {
    pressed=true gets the link-blue accent + thin underline. */
 
 h1 {
-  border-top: 1px solid #111;
+  border-top: 1px solid var(--ink);
   padding-top: 0.4rem;
   font-weight: 420;
   margin-bottom: clamp(1.2rem, 0.6rem + 2vw, 2.2rem);
@@ -84,6 +84,53 @@ h3 {
   margin-bottom: 0.5rem;
   margin-top: 1.9rem;
   text-transform: lowercase;
+}
+
+/* Section headings inside a note. The bare h2/h3 above (bold Alegreya SC, up
+   to 37px — every letter a capital, small or full) are kept for the page's own
+   chrome (comments title, 404), but in the body they shouted: a two-line
+   all-caps h2 every few paragraphs outweighed the text it introduced. Here:
+   - h2: the body serif in normal case, medium weight, a size that fits most
+     section titles on one line;
+   - h3: true small caps, tracked, a step down — a label rather than a title,
+     still unmistakably above the body.
+   Hierarchy comes from size and case, not from weight. */
+.article-body h2 {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: clamp(1.4rem, 1.2rem + 0.75vw, 1.85rem);
+  font-weight: 560;
+  letter-spacing: 0;
+  line-height: 1.2;
+  text-transform: none;
+  text-wrap: balance;
+  margin-top: 2.6rem;
+  margin-bottom: 0.7rem;
+}
+.article-body h3 {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-size: clamp(1.2rem, 1.1rem + 0.45vw, 1.5rem);
+  /* Alegreya SC ships 500 and 700 only (fonts.css); 600 would resolve to 700. */
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  line-height: 1.25;
+  text-transform: lowercase;
+  text-wrap: balance;
+  margin-top: 2rem;
+  margin-bottom: 0.45rem;
+}
+.article-body h4 {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: clamp(1.15rem, 1.05rem + 0.4vw, 1.4rem);
+  font-weight: 600;
+  font-style: italic;
+  text-transform: none;
+}
+.article-body h5 {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: clamp(1.15rem, 1rem + 0.3vw, 1.3rem);
+  font-weight: 500;
+  font-style: italic;
+  text-transform: none;
 }
 
 /* h4–h6 had been left to the same Preflight reset h3 above escapes, which put
@@ -256,7 +303,7 @@ figcaption p {
 blockquote {
   margin: 1.5rem 0;
   padding-inline-start: 1.15rem;
-  border-inline-start: 2px solid #111;
+  border-inline-start: 2px solid var(--ink);
   font-style: italic;
 }
 blockquote > :last-child {
@@ -266,7 +313,7 @@ blockquote > :last-child {
    nesting is legible without a second heavy rule. */
 blockquote blockquote {
   margin: 0.8rem 0;
-  border-inline-start-color: #bbb;
+  border-inline-start-color: var(--faint);
 }
 /* The attribution line authors write as a trailing `— Someone`. */
 blockquote p:last-child {
@@ -281,7 +328,7 @@ main hr {
   width: 38%;
   margin: 2.4rem auto;
   border: 0;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--rule-strong);
 }
 
 /* Definition lists: `dd` was in the body-type rule above but `dt` never was,
@@ -301,22 +348,29 @@ main dd {
   padding: 0;
   margin-bottom: 0.4rem;
   margin-top: 4rem;
-  gap: 1.4rem;
+  gap: 0.6rem 1.4rem;
   display: flex;
+  /* Five entries no longer fit one line on a phone. */
+  flex-wrap: wrap;
   align-items: center;
 }
 
 .site-nav li {
   margin: 0 !important;
   padding: 0;
+  white-space: nowrap;
 }
 
 .site-nav li a {
-  color: #111;
+  color: var(--ink);
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-size: 1.2rem;
   text-transform: uppercase;
   font-weight: 500;
+}
+/* The theme toggle closes the row, pushed to the far end. */
+.site-nav li.site-nav-theme {
+  margin-inline-start: auto !important;
 }
 
 /* footer border + paragraph styles moved to Tailwind in components/Footer.tsx.
@@ -332,12 +386,12 @@ table {
   border: none;
   border-collapse: collapse;
   font-size: 1.2rem;
-  border-block: 2px solid #111;
+  border-block: 2px solid var(--ink);
   margin: 1.6rem auto;
 }
 
 table tbody tr:first-child td {
-  border-top: 1px solid #111;
+  border-top: 1px solid var(--ink);
   padding-top: 0.6rem;
 }
 
@@ -347,12 +401,12 @@ table td {
 }
 
 a {
-  color: #003366;
+  color: var(--link);
   text-decoration: none;
 }
 
 a:hover {
-  background: #f0f7ff;
+  background: var(--link-wash);
   transition-property: background;
   transition-duration: 0.2s;
   border-radius: 4px;
@@ -366,7 +420,7 @@ a:hover {
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
-  text-decoration-color: #9fb3c8; /* muted tint of the link blue, not shouty */
+  text-decoration-color: var(--link-soft); /* muted tint of the link blue, not shouty */
 }
 .article-body a:not(.anchor):hover {
   text-decoration-color: currentColor;
@@ -405,8 +459,8 @@ a:hover {
   height: auto;
   margin: 0;
   padding: 0.55rem;
-  background: #fcfcfc;
-  border: 1px solid #ddd;
+  background: var(--paper);
+  border: 1px solid var(--rule);
   border-radius: 2px;
   box-shadow: 0 2px 14px rgba(0, 0, 0, 0.13);
 }
@@ -423,14 +477,14 @@ a:hover {
      other three sides — including a 3px left rule — drawing a frame around the
      plate. Same for the padding and width it sets there. */
   border: 0;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--rule-strong);
   padding: 0.5rem 0 0;
   text-align: center;
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-style: italic;
   font-size: 1.05rem;
   line-height: 1.4;
-  color: #555;
+  color: var(--ink-2);
 }
 
 main img {
@@ -438,13 +492,16 @@ main img {
   height: auto;
   margin-top: 0.2rem;
   cursor: zoom-in;
+  /* Many vault images are transparent PNG/SVG diagrams drawn in black: a
+     light sheet keeps them legible in dark mode (invisible on the light page). */
+  background-color: #fcfcfc;
 }
 
 /* Lightbox overlay styles moved to global.css — lightbox.js runs site-wide
    (layout.tsx), so its CSS must load everywhere, not only on /posts/*. */
 
 sup {
-  color: #660000;
+  color: var(--danger-ink);
   line-height: 0;
 }
 
@@ -518,19 +575,32 @@ code {
 
 code:not(.chroma code) {
   font-weight: 530;
-  color: #660000;
+  color: var(--danger-ink);
   /* fluid: ~16.5px on phones → 1.33rem on desktop (was a fixed 1.33rem, too big
      next to body text on mobile) */
   font-size: clamp(1.1rem, 1rem + 0.45vw, 1.33rem);
   overflow-wrap: anywhere;
 }
 
+/* Heading anchor ("#", appended by rehype-autolink-headings). Appears on
+   hover/focus of an h2–h4; a click copies the section URL
+   (public/js/copy-links.js), which then flashes a small "lien copié" tag. */
 .anchor {
-  padding: 0 0.4rem;
+  padding: 0 0.35rem;
   position: relative;
   transition: opacity 0.2s;
   opacity: 0;
-  font-size: 1.4rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.8em;
+  font-weight: 400;
+  color: var(--muted);
+  text-decoration: none;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.anchor:hover,
+.anchor:focus-visible {
+  color: var(--link);
 }
 .anchor::before {
   content: "";
@@ -542,18 +612,42 @@ code:not(.chroma code) {
   background: transparent;
   pointer-events: auto;
 }
+.anchor[data-copied="true"]::after {
+  content: attr(data-copied-label);
+  position: absolute;
+  inset-inline-start: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.25rem 0.45rem;
+  color: var(--paper);
+  background: var(--ink);
+  border-radius: 3px;
+}
 
 h2:hover .anchor,
-h2:focus-within .anchor {
+h2:focus-within .anchor,
+h3:hover .anchor,
+h3:focus-within .anchor,
+h4:hover .anchor,
+h4:focus-within .anchor,
+.anchor[data-copied="true"] {
   opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .anchor {
+    transition: none;
+  }
 }
 
 .chroma {
   font-size: 1.15rem;
   overflow-x: auto;
   padding: 0.4rem 0.6rem;
-  border: 1px solid #ccc;
-  border-left: 3px solid #ccc;
+  border: 1px solid var(--rule-strong);
+  border-left: 3px solid var(--rule-strong);
   background-color: inherit;
 }
 
@@ -571,6 +665,51 @@ h2:focus-within .anchor {
   margin: 1.6rem auto;
   text-align: center;
   overflow-x: auto;
+  /* Rendered with a fixed light theme (MERMAID_CONFIG), so the figure is a
+     .keep-light island: in dark mode it becomes a light card (--island-pad is
+     0 in light, where the card is invisible anyway). */
+  background: var(--paper);
+  padding: var(--island-pad);
+  border-radius: 4px;
+}
+
+/* A diagram wider than the column (a fifteen-event timeline is ~3300px) scrolls,
+   but nothing said so: with overlay scrollbars (macOS, phones) the figure just
+   looked cut off at the column edge. Two cues, both inert when it fits:
+   - scroll shadows — the paper-coloured covers travel with the content
+     (`local`), the soft shadows stay on the box edges (`scroll`), so a shadow
+     shows only on a side that has more to see;
+   - a scrollbar that is always drawn. ::-webkit-scrollbar forces a classic one
+     in Chromium/WebKit; the standard properties are kept for the rest because
+     Chromium ignores ::-webkit-scrollbar as soon as scrollbar-color is set. */
+.mermaid-diagram {
+  --scroll-shade: color-mix(in srgb, var(--ink) 16%, transparent);
+  background:
+    linear-gradient(to right, var(--paper) 40%, transparent) left center / 2.5rem 100% no-repeat local,
+    linear-gradient(to left, var(--paper) 40%, transparent) right center / 2.5rem 100% no-repeat local,
+    radial-gradient(farthest-side at 0 50%, var(--scroll-shade), transparent) left center / 0.8rem 100% no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, var(--scroll-shade), transparent) right center / 0.8rem 100% no-repeat scroll,
+    var(--paper);
+}
+.mermaid-diagram::-webkit-scrollbar {
+  height: 9px;
+}
+.mermaid-diagram::-webkit-scrollbar-track {
+  background: var(--rule-soft);
+  border-radius: 5px;
+}
+.mermaid-diagram::-webkit-scrollbar-thumb {
+  background: var(--rule-strong);
+  border-radius: 5px;
+}
+.mermaid-diagram::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+}
+@supports not selector(::-webkit-scrollbar) {
+  .mermaid-diagram {
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule-strong) var(--rule-soft);
+  }
 }
 
 /* A wide diagram must keep its natural size and let the figure scroll, the way
@@ -623,8 +762,8 @@ h2:focus-within .anchor {
   overflow-x: auto;
   margin: 1.6rem 0;
   padding: 0.4rem 0.6rem;
-  border: 1px solid #ccc;
-  border-left: 3px solid #c0392b;
+  border: 1px solid var(--rule-strong);
+  border-left: 3px solid var(--danger);
 }
 
 .title-note{
@@ -646,7 +785,7 @@ h2:focus-within .anchor {
    the divider more breathing room than a regular gap would, so it reads as
    a group separator and not just another button. */
 .note-actions-sep {
-  color: #bbb;
+  color: var(--faint);
   font-weight: 400;
   font-size: 1.1rem;
   line-height: 1;
@@ -663,7 +802,7 @@ h2:focus-within .anchor {
   text-transform: lowercase;
   letter-spacing: -0.01rem;
   font-size: 1.2rem;
-  color: #111;
+  color: var(--ink);
   background: transparent;
   border: none;
   padding: 0.15rem 0.4rem;
@@ -686,7 +825,7 @@ h2:focus-within .anchor {
 .text-size-btn:hover,
 .wide-text-btn:hover,
 .translate-btn:hover {
-  background: #f0f7ff;
+  background: var(--link-wash);
   border-radius: 4px;
   transition: background 0.2s;
 }
@@ -695,13 +834,13 @@ h2:focus-within .anchor {
 .text-size-btn:focus-visible,
 .wide-text-btn:focus-visible,
 .translate-btn:focus-visible {
-  outline: 1px solid #003366;
+  outline: 1px solid var(--link);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
 .translate-icon {
-  color: #555;
+  color: var(--ink-2);
   align-self: center;
 }
 
@@ -722,8 +861,8 @@ h2:focus-within .anchor {
   display: flex;
   flex-direction: column;
   min-width: 12rem;
-  background: #fcfcfc;
-  border: 1px solid #ccc;
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
 }
 
@@ -738,18 +877,18 @@ h2:focus-within .anchor {
   padding: 0.45rem 0.9rem;
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1rem;
-  color: #111;
+  color: var(--ink);
   background: transparent;
   border: none;
-  border-bottom: 1px solid #e4e2dd;
+  border-bottom: 1px solid var(--rule);
   outline: none;
 }
 .translate-filter::placeholder {
-  color: #787369;
+  color: var(--muted-warm);
   font-style: italic;
 }
 .translate-filter:focus {
-  border-bottom-color: #111;
+  border-bottom-color: var(--ink);
 }
 
 .translate-menu-list {
@@ -773,7 +912,7 @@ h2:focus-within .anchor {
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.95rem;
   font-style: italic;
-  color: #787369;
+  color: var(--muted-warm);
 }
 .translate-menu-empty[hidden] {
   display: none;
@@ -788,7 +927,7 @@ h2:focus-within .anchor {
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
-  color: #111;
+  color: var(--ink);
   background: transparent;
   border: none;
   padding: 0.35rem 0.9rem;
@@ -798,21 +937,21 @@ h2:focus-within .anchor {
 
 .translate-menu-item:hover,
 .translate-menu-item:focus-visible {
-  background: #f0f7ff;
-  color: #003366;
+  background: var(--link-wash);
+  color: var(--link);
   outline: none;
 }
 
 .translate-btn[data-state="translated"] {
-  color: #003366;
+  color: var(--link);
 }
 
 .translate-btn[data-state="translated"] .translate-icon {
-  color: #003366;
+  color: var(--link);
 }
 
 .translate-btn[data-state="loading"] {
-  color: #6f6f6f;
+  color: var(--muted);
   cursor: progress;
 }
 
@@ -837,7 +976,7 @@ h2:focus-within .anchor {
 }
 
 .wide-icon {
-  color: #555;
+  color: var(--ink-2);
   align-self: center;
 }
 
@@ -849,7 +988,7 @@ h2:focus-within .anchor {
   font-style: italic;
   font-weight: 400;
   font-size: 1rem;
-  color: #6f6f6f;
+  color: var(--muted);
   padding: 0.15rem 0;
   align-self: baseline;
   /* Sits inline after the action buttons. (It used to be pushed to the far
@@ -862,12 +1001,12 @@ h2:focus-within .anchor {
    reads as "engaged". */
 .wide-text-btn[data-state="wide"],
 .wide-text-btn[data-state="widest"] {
-  color: #003366;
+  color: var(--link);
 }
 
 .wide-text-btn[data-state="wide"] .wide-icon,
 .wide-text-btn[data-state="widest"] .wide-icon {
-  color: #003366;
+  color: var(--link);
 }
 
 /* Icon flip: expand arrow until widest, then collapse arrow inviting the
@@ -910,18 +1049,18 @@ body[data-wide-text="widest"] footer {
 }
 
 .audio-icon {
-  color: #555;
+  color: var(--ink-2);
   align-self: center;
 }
 
 .audio-btn[data-state="playing"],
 .audio-btn[data-state="paused"] {
-  color: #003366;
+  color: var(--link);
 }
 
 .audio-btn[data-state="playing"] .audio-icon,
 .audio-btn[data-state="paused"] .audio-icon {
-  color: #003366;
+  color: var(--link);
 }
 
 .audio-btn .audio-icon-pause {
@@ -946,7 +1085,7 @@ body[data-wide-text="widest"] footer {
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
-  color: #555;
+  color: var(--ink-2);
   line-height: 1;
 }
 
@@ -960,9 +1099,9 @@ body[data-wide-text="widest"] footer {
 
 .text-size-btn[data-size="sm"] .text-size-small,
 .text-size-btn[data-size="lg"] .text-size-large {
-  color: #003366;
+  color: var(--link);
   font-weight: 700;
-  border-bottom: 1px solid #003366;
+  border-bottom: 1px solid var(--link);
 }
 
 body[data-text-size="sm"] main p,
@@ -992,10 +1131,10 @@ body[data-text-size="lg"] main ol li {
   margin: -0.2rem 0 0.9rem;
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1.02rem;
-  color: #6f6f6f;
+  color: var(--muted);
 }
 .growth-sep {
-  color: #bbb;
+  color: var(--faint);
 }
 .growth-tended time {
   font-style: italic;
@@ -1003,7 +1142,7 @@ body[data-text-size="lg"] main ol li {
 
 .note-header {
   font-size: 1.05rem;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--rule-strong);
   padding-bottom: 0.3rem;
   margin-bottom: 1.4rem;
   display: flex;
@@ -1025,11 +1164,11 @@ body[data-text-size="lg"] main ol li {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
   font-weight: 700;
-  color: #111;
+  color: var(--ink);
 }
 
 .note-header .crumbs {
-  color: #6f6f6f;
+  color: var(--muted);
   font-size: 0.95rem;
 }
 
@@ -1046,7 +1185,7 @@ body[data-text-size="lg"] main ol li {
 
 .note-header .crumbs a:hover,
 .note-header .crumbs a:focus-visible {
-  color: #111;
+  color: var(--ink);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -1140,7 +1279,7 @@ a.theme-pill:focus-visible {
 
 .toc {
   padding-left: 0.6rem;
-  border-left: 1px solid #ccc;
+  border-left: 1px solid var(--rule-strong);
   font-size: 1.05rem;
   line-height: 1.45;
 }
@@ -1171,16 +1310,165 @@ a.theme-pill:focus-visible {
 }
 
 .toc a {
-  color: #555;
+  color: var(--ink-2);
 }
 
 .toc a.active {
-  color: #111;
+  color: var(--ink);
   font-weight: 700;
 }
 
+/* Left-margin TOC rail (public/js/toc.js clones the aside's TOC into it).
+   Only between 1280px and the 1500px two-column breakpoint, where the article
+   is a centred 680px column with ≥300px of empty margin either side and the
+   aside is a drawer; above 1500px the aside itself is the TOC column. Hidden
+   whenever "élargir" is on — the wider text takes that margin. Right edge
+   pinned 2.5rem short of the text column (body is 680px, centred), width
+   capped by whatever margin is left. Sidenotes are inline in this band, so
+   nothing else lives in the left margin. */
+.toc-rail {
+  display: none;
+}
+@media screen and (min-width: 1280px) and (max-width: 1500px) {
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .toc-rail {
+    display: block;
+    position: fixed;
+    top: 5.5rem;
+    right: calc(50% + 340px + 2.5rem);
+    width: min(16rem, calc(50% - 340px - 4rem));
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    padding: 0 0.4rem 0 0.75rem;
+    font-size: 1rem;
+    z-index: 10;
+  }
+}
+.toc-rail li {
+  font-size: 0.98rem;
+  line-height: 1.35;
+  margin: 0.32rem 0;
+}
+.toc-rail .toc-h3 {
+  font-size: 0.92rem;
+}
+.toc-rail a {
+  display: block;
+  color: var(--muted);
+  text-decoration: none;
+}
+.toc-rail a:hover {
+  color: var(--ink);
+}
+/* The current section: ink + a short accent tick over the rail's own hairline,
+   rather than bold, so entries don't reflow as the highlight moves. */
+.toc-rail a.active {
+  position: relative;
+  color: var(--ink);
+  font-weight: inherit;
+}
+.toc-rail a.active::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: calc(-0.75rem - 1px);
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 2px;
+  background: var(--link);
+}
+.toc-rail .toc-h3 a.active::before {
+  inset-inline-start: calc(-0.75rem - 1rem - 1px);
+}
+
+/* Reading-progress hairline (public/js/sticky-header.js), pinned to the top
+   edge of the viewport — over the condensed sticky bar when that shows, under
+   the drawer/backdrop (z 1100+). Scaled, not resized, so it never relayouts. */
+.reading-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 950;
+  background: var(--link);
+  transform-origin: 0 50%;
+  transform: scaleX(var(--progress, 0));
+  transition: transform 0.12s linear, opacity 0.2s;
+  pointer-events: none;
+}
+[dir="rtl"] .reading-progress {
+  transform-origin: 100% 50%;
+}
+.reading-progress[data-empty="true"] {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-progress {
+    transition: none;
+  }
+}
+
+/* Code-block copy button (public/js/copy-links.js wraps each pre.chroma in
+   .code-block). Quiet until the block is hovered or the button focused; always
+   visible on touch screens, which have no hover. */
+.code-block {
+  position: relative;
+  margin-bottom: 1.2rem; /* the paragraph rhythm; a bare pre had none */
+}
+.code-copy {
+  position: absolute;
+  top: 0.35rem;
+  inset-inline-end: 0.35rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.3rem 0.55rem;
+  color: var(--muted);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+}
+.code-block:hover .code-copy,
+.code-copy:focus-visible,
+.code-copy[data-copied="true"] {
+  opacity: 1;
+}
+.code-copy:hover,
+.code-copy:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+.code-copy[data-copied="true"] {
+  color: var(--garden);
+  border-color: var(--garden);
+}
+@media (hover: none) {
+  .code-copy {
+    opacity: 1;
+  }
+}
+
+/* Screen-only chrome: none of it means anything on paper. */
+@media print {
+  .reading-progress,
+  .toc-rail,
+  .code-copy,
+  .anchor {
+    display: none !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .code-copy {
+    transition: none;
+  }
+}
+
 .siblings {
-  border-top: 1px solid #111;
+  border-top: 1px solid var(--ink);
   margin-top: 2.6rem;
   padding-top: 0.8rem;
 }
@@ -1209,7 +1497,7 @@ a.theme-pill:focus-visible {
 
 /* Backlinks: "notes that link here", reverse [[wikilink]] index. */
 .backlinks {
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--rule-strong);
   margin-top: 2.4rem;
   padding-top: 0.8rem;
 }
@@ -1238,8 +1526,8 @@ a.theme-pill:focus-visible {
   z-index: 900;
   width: min(26rem, calc(100vw - 2rem));
   padding: 0.6rem 0.75rem;
-  background: #fcfcfc;
-  border: 1px solid #111;
+  background: var(--paper);
+  border: 1px solid var(--ink);
   box-shadow: 0 3px 16px rgba(0, 0, 0, 0.14);
   /* The card is decoration over the text; a reader chasing the link should
      never have to route the pointer around it. */
@@ -1255,14 +1543,14 @@ a.theme-pill:focus-visible {
   font-size: 1.15rem;
   line-height: 1.2;
   margin: 0 0 0.25rem;
-  color: #111;
+  color: var(--ink);
 }
 .note-popover-excerpt {
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-size: 1.02rem;
   line-height: 1.4;
   margin: 0;
-  color: #333;
+  color: var(--ink-soft);
 }
 .note-popover-title[hidden],
 .note-popover-excerpt[hidden] {
@@ -1275,7 +1563,7 @@ a.theme-pill:focus-visible {
    than the full-width border the end-of-article apparatus uses. */
 .local-graph {
   padding-left: 0.6rem;
-  border-left: 1px solid #ccc;
+  border-left: 1px solid var(--rule-strong);
 }
 .local-graph-title {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
@@ -1291,28 +1579,28 @@ a.theme-pill:focus-visible {
      instead (LG_MAX_CHARS in lib/html.ts). */
 }
 .lg-edge {
-  stroke: #ccc;
+  stroke: var(--rule-strong);
   stroke-width: 1;
 }
 .lg-dot,
 .lg-self {
-  fill: #111;
+  fill: var(--ink);
 }
 .lg-self {
-  stroke: #fcfcfc;
+  stroke: var(--paper);
   stroke-width: 2;
 }
 .lg-label {
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 15px;
-  fill: #111;
+  fill: var(--ink);
 }
 .lg-svg a:hover .lg-label,
 .lg-svg a:focus-visible .lg-label {
   text-decoration: underline;
 }
 .lg-svg a:focus-visible {
-  outline: 2px solid #003366;
+  outline: 2px solid var(--link);
   outline-offset: 2px;
 }
 .lg-head,
@@ -1320,13 +1608,13 @@ a.theme-pill:focus-visible {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
   font-size: 12px;
-  fill: #6f6f6f;
+  fill: var(--muted);
 }
 
 /* Related notes: semantic neighbours from the RAG embedding index, filled in
    client-side (see /js/related.js — the index only exists at server runtime). */
 .related-notes {
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--rule-strong);
   margin-top: 2.4rem;
   padding-top: 0.8rem;
 }
@@ -1362,7 +1650,7 @@ a.theme-pill:focus-visible {
 }
 
 .sib-current {
-  color: #6f6f6f;
+  color: var(--muted);
 }
 
 .note-search {
@@ -1385,16 +1673,19 @@ a.theme-pill:focus-visible {
    border-bottom, stacking two hairlines under the search box). */
 .note-search {
   border: none;
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 1px solid var(--ink);
   border-radius: 0;
 }
 .note-search::placeholder {
-  color: #6f6f6f;
+  color: var(--muted);
   font-style: italic;
 }
+/* Focus: the field's own bottom rule turns garden green and thickens — the
+   site's focus colour (.lb-btn, the palette) — instead of a blue box. */
 .note-search:focus {
-  outline: 1px solid #003366;
-  outline-offset: 0;
+  outline: none;
+  border-bottom-color: var(--garden);
+  box-shadow: 0 1px 0 var(--garden);
 }
 
 #search {
@@ -1406,13 +1697,14 @@ a.theme-pill:focus-visible {
    declarations on that same element. */
 #search .pagefind-ui {
   --pagefind-ui-font: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-  --pagefind-ui-primary: #003366; /* links/accents — matches site `a` colour */
-  --pagefind-ui-text: #111; /* body text */
-  --pagefind-ui-background: #fcfcfc; /* page background */
-  --pagefind-ui-border: #ccc; /* hairlines, like .toc / .chroma */
-  --pagefind-ui-tag: #f0f7ff; /* filter pills — the link-hover tint */
+  --pagefind-ui-primary: var(--link); /* links/accents — matches site `a` colour */
+  --pagefind-ui-text: var(--ink); /* body text */
+  --pagefind-ui-background: var(--paper); /* page background */
+  --pagefind-ui-border: var(--rule-strong); /* hairlines, like .toc / .chroma */
+  --pagefind-ui-tag: var(--link-wash); /* filter pills — the link-hover tint */
   --pagefind-ui-border-width: 1px; /* flat 1px rules, not the default 2px */
   --pagefind-ui-border-radius: 0; /* sharp corners, like the search input */
+  --pagefind-ui-scale: 0.82; /* the drawer is narrow: tighter type and gaps */
 }
 
 /* Sober styling for the search bar; results inherit the site font set above. */
@@ -1424,7 +1716,7 @@ a.theme-pill:focus-visible {
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1.3rem;
   font-weight: 400;
-  color: #111;
+  color: var(--ink);
   /* Match the home search bar: a transparent field with NO border of its own —
      .note-search on the wrapping #search div (above) draws the single bottom
      rule instead, same split as home's <label border-b> / <input border-0>. */
@@ -1436,19 +1728,93 @@ a.theme-pill:focus-visible {
 }
 
 #search .pagefind-ui__search-input::placeholder {
-  color: #6f6f6f;
+  color: var(--muted);
   font-style: italic;
 }
 
+/* Same garden underline as the dev-mode .note-search:focus above (the
+   wrapper's own rule sits under the whole results list, so the field draws
+   its own while focused). */
 #search .pagefind-ui__search-input:focus {
-  outline: 1px solid #003366;
-  outline-offset: 0;
+  outline: none;
+  box-shadow: inset 0 -2px 0 var(--garden);
+}
+
+/* Search hits: a soft wash of the highlight yellow over the text's own
+   colour (Pagefind's reset turns <mark> back to the browser's solid yellow). */
+#search .pagefind-ui mark {
+  background: var(--mark-soft);
+  color: inherit;
+  padding: 0 0.1em;
+  border-radius: 2px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+#search .pagefind-ui__message {
+  color: var(--muted);
+  font-weight: 400;
+  font-style: italic;
+}
+#search .pagefind-ui__result {
+  padding: 1rem 0 1.1rem;
+  border-top-color: var(--rule);
+}
+#search .pagefind-ui__result:last-of-type {
+  border-bottom-color: var(--rule);
+}
+#search .pagefind-ui__result-inner {
+  margin-top: 0;
+}
+#search .pagefind-ui__result-title {
+  font-weight: 600;
+  line-height: 1.25;
+}
+#search .pagefind-ui__result-excerpt {
+  color: var(--ink-2);
+  line-height: 1.45;
+  min-width: 0;
+}
+#search .pagefind-ui__result-nested {
+  padding-top: 0.45rem;
+}
+#search .pagefind-ui__result-nested .pagefind-ui__result-link {
+  color: var(--ink);
+}
+#search .pagefind-ui__result-nested .pagefind-ui__result-link::before {
+  color: var(--muted);
+}
+#search .pagefind-ui__button {
+  color: var(--ink);
+  background: transparent;
+  border-color: var(--rule-strong);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-weight: 400;
+}
+#search .pagefind-ui__button:hover {
+  border-color: var(--ink);
+  background: var(--wash-2);
+}
+/* Where the note lives (its `section` metadata, see public/js/pagefind-init.js),
+   as a small kicker above the title rather than a tag pill below it. */
+#search .pagefind-ui__result-tags {
+  order: -1;
+  margin: 0 0 0.15rem;
+  gap: 0.5rem;
+}
+#search .pagefind-ui__result-tag {
+  padding: 0;
+  background: none;
+  color: var(--muted-warm);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 #search .pagefind-ui__search-clear {
   background: transparent;
   box-shadow: none;
-  color: #6f6f6f;
+  color: var(--muted);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-weight: 400;
 }
@@ -1468,7 +1834,7 @@ a.theme-pill:focus-visible {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border: 1px solid #ccc;
+  border: 1px solid var(--rule-strong);
 }
 .yt-embed-btn {
   position: relative;
@@ -1508,7 +1874,7 @@ a.theme-pill:focus-visible {
   filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
 }
 .yt-embed-play-bg {
-  fill: var(--color-garden);
+  fill: var(--garden);
   opacity: 0.92;
   transition:
     fill 0.2s,
@@ -1516,22 +1882,22 @@ a.theme-pill:focus-visible {
 }
 .yt-embed-btn:hover .yt-embed-play-bg,
 .yt-embed-btn:focus-visible .yt-embed-play-bg {
-  fill: var(--color-garden-dark);
+  fill: var(--garden-hover);
   opacity: 1;
 }
 .yt-embed-btn:focus-visible {
-  outline: 2px solid var(--color-garden);
+  outline: 2px solid var(--garden);
   outline-offset: 2px;
 }
 .yt-embed-frame {
-  border: 1px solid #ccc;
+  border: 1px solid var(--rule-strong);
 }
 .yt-embed-link {
   display: inline-block;
   margin-top: 0.4rem;
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.95rem;
-  color: #6f6f6f;
+  color: var(--muted);
 }
 
 /* .graph-* styles moved to assets/css/graph.css (loaded only on /graph). */
@@ -1542,7 +1908,7 @@ a.theme-pill:focus-visible {
 .comments {
   margin-top: 3rem;
   padding-top: 1.2rem;
-  border-top: 1px solid #111;
+  border-top: 1px solid var(--ink);
 }
 
 .comments-title {
@@ -1569,13 +1935,13 @@ a.theme-pill:focus-visible {
 .comments-loading,
 .comments-empty {
   font-style: italic;
-  color: #6f6f6f;
+  color: var(--muted);
   font-size: 1.15rem;
   margin: 0 0 1.2rem 0;
 }
 
 .comment {
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--rule-strong);
   padding: 0.9rem 0;
 }
 
@@ -1598,25 +1964,25 @@ a.theme-pill:focus-visible {
   font-weight: 700;
   letter-spacing: -0.01rem;
   font-size: 1.15rem;
-  color: #111;
+  color: var(--ink);
 }
 
 .comment-date {
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.95rem;
-  color: #6f6f6f;
+  color: var(--muted);
   font-style: italic;
 }
 
 .comment-body {
   font-size: 1.2rem;
   line-height: 1.7rem;
-  color: #111;
+  color: var(--ink);
   hyphens: auto;
 }
 
 .comments-form {
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--rule-strong);
   padding-top: 1.4rem;
   display: flex;
   flex-direction: column;
@@ -1636,7 +2002,7 @@ a.theme-pill:focus-visible {
   font-weight: 700;
   letter-spacing: -0.01rem;
   font-size: 1rem;
-  color: #555;
+  color: var(--ink-2);
 }
 
 .comments-name,
@@ -1644,10 +2010,10 @@ a.theme-pill:focus-visible {
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-size: 1.15rem;
   padding: 0.4rem 0.6rem;
-  background: #fcfcfc;
+  background: var(--paper);
   border: 1px solid dimgray;
   border-radius: 0;
-  color: #111;
+  color: var(--ink);
   line-height: 1.5;
 }
 
@@ -1658,7 +2024,7 @@ a.theme-pill:focus-visible {
 
 .comments-name:focus,
 .comments-body:focus {
-  outline: 1px solid #003366;
+  outline: 1px solid var(--link);
   outline-offset: 0;
 }
 
@@ -1676,44 +2042,44 @@ a.theme-pill:focus-visible {
   letter-spacing: -0.01rem;
   font-size: 1.15rem;
   padding: 0.4rem 1.4rem;
-  background: var(--color-garden);
-  border: 1px solid var(--color-garden);
-  color: #fcfcfc;
+  background: var(--garden);
+  border: 1px solid var(--garden);
+  color: var(--paper);
   cursor: pointer;
   line-height: 1.2;
 }
 
 .comments-submit:hover {
-  background: var(--color-garden-dark);
-  border-color: var(--color-garden-dark);
+  background: var(--garden-hover);
+  border-color: var(--garden-hover);
   transition: background 0.2s;
 }
 
 .comments-submit:focus-visible {
-  outline: 2px solid var(--color-garden);
+  outline: 2px solid var(--garden);
   outline-offset: 2px;
 }
 
 .comments-submit:disabled {
-  color: #fcfcfc;
-  background: #c9c6bf;
-  border-color: #c9c6bf;
+  color: var(--paper);
+  background: var(--rule-strong);
+  border-color: var(--rule-strong);
   cursor: not-allowed;
 }
 
 .comments-status {
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 1rem;
-  color: #555;
+  color: var(--ink-2);
   min-height: 1.1em;
 }
 
 .comments-status[data-kind="success"] {
-  color: #003366;
+  color: var(--link);
 }
 
 .comments-status[data-kind="error"] {
-  color: #660000;
+  color: var(--danger-ink);
 }
 
 /* Below 1500px there isn't room for the reading column AND the 30rem fixed
@@ -1759,8 +2125,8 @@ a.theme-pill:focus-visible {
     margin: 0.4rem 0;
     width: calc(100% - 1.2rem - 1px);
     padding: 0.4rem 0.5rem;
-    border: 1px solid #ccc;
-    border-left: 3px solid #ccc;
+    border: 1px solid var(--rule-strong);
+    border-left: 3px solid var(--rule-strong);
   }
 
   figure {
@@ -1791,8 +2157,8 @@ a.theme-pill:focus-visible {
     width: min(22rem, 88vw);
     max-height: none;
     padding: 3rem 1.2rem 1.2rem 1.2rem;
-    background: #fcfcfc;
-    border-left: 1px solid #ccc;
+    background: var(--paper);
+    border-left: 1px solid var(--rule-strong);
     box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
     z-index: 1200;
     overflow-y: auto;
@@ -1820,13 +2186,13 @@ a.theme-pill:focus-visible {
     background: transparent;
     border: none;
     cursor: pointer;
-    color: #555;
+    color: var(--ink-2);
     font-size: 1.6rem;
     line-height: 1;
     padding: 0.2rem 0.4rem;
   }
   .aside-close:hover {
-    color: #111;
+    color: var(--ink);
   }
 
   /* The in-flow header stays a normal block at the top of the article; it
@@ -1850,8 +2216,8 @@ a.theme-pill:focus-visible {
     right: 0;
     z-index: 900;
     padding: 0.5rem 0.9rem;
-    background: #fcfcfc;
-    border-bottom: 1px solid #ccc;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule-strong);
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
     transform: translateY(-100%);
     transition: transform 0.18s ease-out;
@@ -1874,7 +2240,7 @@ a.theme-pill:focus-visible {
   .note-header-title {
     font-family: "Alegreya", "Alegreya Fallback", serif;
     font-weight: 500;
-    color: #111;
+    color: var(--ink);
     font-size: 1.05rem;
     line-height: 1.2;
     white-space: nowrap;
@@ -1887,7 +2253,7 @@ a.theme-pill:focus-visible {
     font-family: "Alegreya", "Alegreya Fallback", serif;
     font-style: italic;
     font-size: 0.8rem;
-    color: #6f6f6f;
+    color: var(--muted);
     line-height: 1.2;
     margin-top: 0.05rem;
   }
@@ -1903,9 +2269,9 @@ a.theme-pill:focus-visible {
     letter-spacing: -0.01rem;
     font-size: 1rem;
     padding: 0.3rem 0.75rem;
-    border: 1px solid #111;
-    background: #fcfcfc;
-    color: #111;
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
     cursor: pointer;
     border-radius: 999px;
     line-height: 1.2;
@@ -1916,7 +2282,7 @@ a.theme-pill:focus-visible {
   }
   .aside-toggle:hover,
   .aside-toggle:focus-visible {
-    background: #f0f7ff;
+    background: var(--link-wash);
     outline: none;
   }
 
@@ -1982,8 +2348,8 @@ a.theme-pill:focus-visible {
   display: flex;
   flex-direction: column;
   max-height: min(26rem, calc(100vh - 8rem));
-  background: #fcfcfc;
-  border: 1px solid #111;
+  background: var(--paper);
+  border: 1px solid var(--ink);
   box-shadow: 0 6px 30px rgba(0, 0, 0, 0.18);
 }
 .ask-answer[hidden] {
@@ -1994,7 +2360,7 @@ a.theme-pill:focus-visible {
   align-items: center;
   justify-content: space-between;
   padding: 0.35rem 0.3rem 0.35rem 0.7rem;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--rule-strong);
 }
 .ask-answer-title {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
@@ -2007,12 +2373,12 @@ a.theme-pill:focus-visible {
   background: transparent;
   font-size: 1.4rem;
   line-height: 1;
-  color: #555;
+  color: var(--ink-2);
   cursor: pointer;
   padding: 0 0.3rem;
 }
 .ask-close:hover {
-  color: #111;
+  color: var(--ink);
 }
 
 .ask-output {
@@ -2028,7 +2394,7 @@ a.theme-pill:focus-visible {
    hardcoded French string here, untranslatable by nature. */
 .ask-output:empty::before {
   content: attr(data-placeholder);
-  color: #6f6f6f;
+  color: var(--muted);
   font-style: italic;
 }
 .ask-answer[data-busy="true"] .ask-output:empty::before {
@@ -2052,7 +2418,7 @@ a.theme-pill:focus-visible {
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1rem;
-  color: #555;
+  color: var(--ink-2);
   margin: 0 0 0.2rem;
 }
 .ask-sources ul {
@@ -2071,8 +2437,8 @@ a.theme-pill:focus-visible {
   align-items: center;
   gap: 0.5rem;
   padding: 0.4rem 0.5rem;
-  background: #fcfcfc;
-  border: 1px solid #111;
+  background: var(--paper);
+  border: 1px solid var(--ink);
   box-shadow: 0 2px 14px rgba(0, 0, 0, 0.14);
 }
 
@@ -2083,7 +2449,7 @@ a.theme-pill:focus-visible {
   align-items: center;
   gap: 0.4rem;
   padding-bottom: 0.35rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--rule-soft);
 }
 .ask-chip[hidden] {
   display: none;
@@ -2093,7 +2459,7 @@ a.theme-pill:focus-visible {
   min-width: 0;
   font-style: italic;
   font-size: 1.05rem;
-  color: #555;
+  color: var(--ink-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2102,14 +2468,14 @@ a.theme-pill:focus-visible {
   flex: none;
   border: none;
   background: transparent;
-  color: #555;
+  color: var(--ink-2);
   font-size: 1.2rem;
   line-height: 1;
   cursor: pointer;
   padding: 0 0.2rem;
 }
 .ask-chip-clear:hover {
-  color: #111;
+  color: var(--ink);
 }
 
 /* Floating "ask about this selection" button, shown near a text selection. */
@@ -2124,9 +2490,9 @@ a.theme-pill:focus-visible {
   font-weight: 700;
   font-size: 1rem;
   padding: 0.3rem 0.6rem;
-  color: #111;
-  background: #fcfcfc;
-  border: 1px solid #111;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--ink);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.18);
   cursor: pointer;
 }
@@ -2134,7 +2500,7 @@ a.theme-pill:focus-visible {
   display: none;
 }
 .ask-sel-btn:hover {
-  background: #f0f7ff;
+  background: var(--link-wash);
 }
 .ask-sel-btn svg {
   display: block;
@@ -2142,7 +2508,7 @@ a.theme-pill:focus-visible {
 .ask-grip {
   display: flex;
   flex: none;
-  color: #111;
+  color: var(--ink);
   padding: 0 0.2rem;
   cursor: move;
   touch-action: none; /* JS owns the drag gesture on touch */
@@ -2151,7 +2517,7 @@ a.theme-pill:focus-visible {
 }
 /* Hover tint (with the move cursor) signals the bar is draggable by its grip. */
 .ask-grip:hover {
-  background: #f0eee9;
+  background: var(--wash-2);
 }
 .ask-input {
   flex: 1;
@@ -2161,7 +2527,7 @@ a.theme-pill:focus-visible {
   padding: 0.35rem 0.3rem;
   border: none;
   background: transparent;
-  color: #111;
+  color: var(--ink);
 }
 .ask-input:focus {
   outline: none;
@@ -2173,17 +2539,17 @@ a.theme-pill:focus-visible {
   font-weight: 700;
   font-size: 1.05rem;
   padding: 0.3rem 1rem;
-  border: 1px solid var(--color-garden);
-  background: var(--color-garden);
-  color: #fcfcfc;
+  border: 1px solid var(--garden);
+  background: var(--garden);
+  color: var(--paper);
   cursor: pointer;
 }
 .ask-submit:hover {
-  background: var(--color-garden-dark);
-  border-color: var(--color-garden-dark);
+  background: var(--garden-hover);
+  border-color: var(--garden-hover);
 }
 .ask-submit:focus-visible {
-  outline: 2px solid var(--color-garden);
+  outline: 2px solid var(--garden);
   outline-offset: 2px;
 }
 .ask-input:disabled,
@@ -2215,9 +2581,9 @@ a.theme-pill:focus-visible {
   letter-spacing: -0.01rem;
   font-size: 1.05rem;
   padding: 0.55rem 1.1rem;
-  border: 1px solid var(--color-garden);
-  background: var(--color-garden);
-  color: #fcfcfc;
+  border: 1px solid var(--garden);
+  background: var(--garden);
+  color: var(--paper);
   cursor: pointer;
   border-radius: 999px;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
@@ -2228,8 +2594,8 @@ a.theme-pill:focus-visible {
 }
 .ask-trigger:hover,
 .ask-trigger:focus-visible {
-  background: var(--color-garden-dark);
-  border-color: var(--color-garden-dark);
+  background: var(--garden-hover);
+  border-color: var(--garden-hover);
   outline: none;
 }
 
@@ -2239,7 +2605,7 @@ a.theme-pill:focus-visible {
   justify-content: center;
   background: transparent;
   border: none;
-  color: #555;
+  color: var(--ink-2);
   cursor: pointer;
   font-size: 1.4rem;
   line-height: 1;
@@ -2247,7 +2613,7 @@ a.theme-pill:focus-visible {
   margin-right: 0.2rem;
 }
 .ask-minimize:hover {
-  color: #111;
+  color: var(--ink);
 }
 
 @media screen and (max-width: 1080px) {
@@ -2337,13 +2703,13 @@ a.theme-pill:focus-visible {
 
 /* Obsidian-style callouts (built by rehypeCallouts in lib/markdown.ts). */
 .callout {
-  --c: #2d6cc0;
+  --c: var(--callout-blue);
   margin: 1.4rem 0;
   padding: 0.55rem 0.9rem;
-  border: 1px solid #ddd;
+  border: 1px solid var(--rule);
   border-left: 4px solid var(--c);
   border-radius: 2px;
-  background: color-mix(in srgb, var(--c) 7%, #fcfcfc);
+  background: color-mix(in srgb, var(--c) 7%, var(--paper));
 }
 .callout-title,
 .callout summary.callout-title {
@@ -2382,34 +2748,34 @@ a.theme-pill:focus-visible {
 .callout-note,
 .callout-info,
 .callout-todo {
-  --c: #2d6cc0;
+  --c: var(--callout-blue);
 }
 .callout-abstract,
 .callout-tip {
-  --c: #009b8f;
+  --c: var(--callout-teal);
 }
 .callout-success {
-  --c: #2e8b3d;
+  --c: var(--callout-green);
 }
 .callout-question {
-  --c: #b8740f;
+  --c: var(--callout-orange);
 }
 .callout-warning {
   /* Was #c08a00: 2.78:1 against its own 7% tint, the one callout that failed
      even the large-text 3:1 floor (axe flags it in tests/a11y.spec.js). Same
      hue, walked down until the title clears normal-text AA at 4.59:1. */
-  --c: #8f6600;
+  --c: var(--callout-amber);
 }
 .callout-failure,
 .callout-danger,
 .callout-bug {
-  --c: #b3322f;
+  --c: var(--callout-red);
 }
 .callout-example {
-  --c: #6b4fbb;
+  --c: var(--callout-violet);
 }
 .callout-quote {
-  --c: #6b6b6b;
+  --c: var(--callout-grey);
 }
 
 /* ---------------------------------------------------------------------------
@@ -2436,20 +2802,20 @@ a.theme-pill:focus-visible {
 .manim-figure .manim-source {
   width: 100%;
   font-size: 0.95rem;
-  border: 1px solid #ccc;
-  border-left: 3px solid #ccc;
+  border: 1px solid var(--rule-strong);
+  border-left: 3px solid var(--rule-strong);
   background: inherit;
 }
 .manim-figure .manim-source > summary {
   cursor: pointer;
   padding: 0.3rem 0.6rem;
-  color: #555;
+  color: var(--ink-2);
   user-select: none;
   font-family: "Inconsolata", monospace;
   font-size: 1.05rem;
 }
 .manim-figure .manim-source[open] > summary {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--rule-strong);
 }
 .manim-figure .manim-source .chroma {
   border: 0;
@@ -2461,10 +2827,10 @@ a.theme-pill:focus-visible {
   padding: 0.5rem 0.8rem;
   font-size: 1.1rem;
   font-style: italic;
-  color: #6b6b6b;
-  border: 1px dashed #ccc;
+  color: var(--muted);
+  border: 1px dashed var(--rule-strong);
   border-radius: 4px;
-  background: #faf9f5;
+  background: var(--wash);
   width: 100%;
   text-align: center;
 }
@@ -2490,14 +2856,14 @@ main video {
 .widget-fallback {
   margin: 0;
   padding: 0.7rem 0.9rem;
-  border: 1px solid #ccc;
-  color: #6f6f6f;
+  border: 1px solid var(--rule-strong);
+  color: var(--muted);
   font-size: var(--text-small);
 }
 .widget.is-live .w-root {
-  border: 1px solid #ccc;
+  border: 1px solid var(--rule-strong);
   padding: 0.9rem;
-  background: #fcfcfc;
+  background: var(--paper);
 }
 .w-controls {
   display: flex;
@@ -2508,16 +2874,16 @@ main video {
   font-size: var(--text-small);
 }
 .w-hint {
-  color: #6f6f6f;
+  color: var(--muted);
   font-size: var(--text-meta);
 }
 .w-btn,
 .w-input {
   font: inherit;
   font-size: var(--text-small);
-  border: 1px solid #ccc;
-  background: #fcfcfc;
-  color: #111;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
   padding: 0.25rem 0.6rem;
   border-radius: 0;
   cursor: pointer;
@@ -2528,13 +2894,13 @@ main video {
   font-variant-numeric: tabular-nums;
 }
 .w-btn:hover {
-  background: #f0f7ff;
-  border-color: #003366;
+  background: var(--link-wash);
+  border-color: var(--link);
 }
 .w-btn.is-active {
-  background: #f0f7ff;
-  border-color: #003366;
-  color: #003366;
+  background: var(--link-wash);
+  border-color: var(--link);
+  color: var(--link);
 }
 
 /* Bit rows: monospace cells, grouped with a caption under each run. */
@@ -2557,29 +2923,29 @@ main video {
 .w-group-label {
   font-size: var(--text-micro);
   font-style: normal;
-  color: #6f6f6f;
+  color: var(--muted);
   white-space: nowrap;
 }
 .w-bit {
   font: 500 var(--text-meta) / 1 ui-monospace, "SFMono-Regular", Menlo, monospace;
   width: 1.5em;
   height: 1.8em;
-  border: 1px solid #ccc;
-  background: #fcfcfc;
-  color: #6f6f6f;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--muted);
   padding: 0;
   cursor: pointer;
   border-radius: 0;
 }
 .w-bit.is-on {
-  background: #f0f7ff;
-  border-color: #003366;
-  color: #003366;
+  background: var(--link-wash);
+  border-color: var(--link);
+  color: var(--link);
   font-weight: 700;
 }
 .w-group-sign .w-bit.is-on {
-  background: #003366;
-  color: #fcfcfc;
+  background: var(--link);
+  color: var(--paper);
 }
 
 .w-table {
@@ -2591,12 +2957,12 @@ main video {
 .w-table td {
   text-align: left;
   padding: 0.25rem 0.5rem 0.25rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--rule-soft);
   vertical-align: top;
 }
 .w-table th {
   font-weight: 500;
-  color: #6f6f6f;
+  color: var(--muted);
   white-space: nowrap;
   width: 14em;
 }
@@ -2610,7 +2976,7 @@ main video {
 .w-steps code {
   display: block;
   font-size: var(--text-meta);
-  color: #555;
+  color: var(--ink-2);
   white-space: pre;
   overflow-x: auto;
 }
@@ -2622,25 +2988,25 @@ main video {
   gap: 1px;
   max-width: 26rem;
   margin-bottom: 0.9rem;
-  background: #eee;
-  border: 1px solid #ccc;
+  background: var(--wash-2);
+  border: 1px solid var(--rule-strong);
 }
 .w-cell {
   aspect-ratio: 1;
-  background: #fcfcfc;
+  background: var(--paper);
   display: block;
 }
 .w-cell.is-line {
-  background: #f0f7ff;
+  background: var(--link-wash);
 }
 .w-cell.is-read {
-  background: #e4ecf4;
+  background: var(--link-wash);
 }
 .w-cell.is-cached {
-  background: #cfe0f0;
+  background: var(--link-soft);
 }
 .w-cell.is-now {
-  background: #003366;
+  background: var(--link);
 }
 
 @media (max-width: 640px) {
@@ -2656,16 +3022,16 @@ main video {
 /* Controls and surfaces shared by the later widgets. */
 .w-range {
   width: 12rem;
-  accent-color: #003366;
+  accent-color: var(--link);
   vertical-align: middle;
 }
 .w-area {
   font: inherit;
   font-size: var(--text-small);
   width: 100%;
-  border: 1px solid #ccc;
-  background: #fcfcfc;
-  color: #111;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
   padding: 0.4rem 0.5rem;
   border-radius: 0;
   resize: vertical;
@@ -2678,13 +3044,13 @@ main video {
 }
 .w-warn {
   margin: 0;
-  color: #b3322f;
+  color: var(--danger);
   font-size: var(--text-small);
 }
 .w-note {
   margin: 0.7rem 0 0;
   font-size: var(--text-small);
-  color: #555;
+  color: var(--ink-2);
 }
 
 /* Hash avalanche: one square per output bit, filled when the bit flipped. */
@@ -2697,11 +3063,11 @@ main video {
 }
 .w-hbit {
   aspect-ratio: 1;
-  background: #eee;
+  background: var(--wash-2);
   display: block;
 }
 .w-hbit.is-flip {
-  background: #003366;
+  background: var(--link);
 }
 
 /* Endianness: byte boxes carrying their offset. */
@@ -2709,15 +3075,15 @@ main video {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid #ccc;
-  background: #f0f7ff;
+  border: 1px solid var(--rule-strong);
+  background: var(--link-wash);
   padding: 0.2rem 0.45rem;
   font: 500 var(--text-meta) / 1.3 ui-monospace, Menlo, monospace;
 }
 .w-byte em {
   font-style: normal;
   font-size: var(--text-micro);
-  color: #6f6f6f;
+  color: var(--muted);
 }
 
 /* Regex: the sample text with matches marked. */
@@ -2725,15 +3091,15 @@ main video {
   font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
   font-size: var(--text-meta);
   white-space: pre-wrap;
-  border: 1px solid #ccc;
+  border: 1px solid var(--rule-strong);
   padding: 0.5rem;
   margin-bottom: 0.8rem;
   overflow-wrap: anywhere;
 }
 .w-highlight mark {
-  background: #f0f7ff;
-  outline: 1px solid #003366;
-  color: #003366;
+  background: var(--link-wash);
+  outline: 1px solid var(--link);
+  color: var(--link);
 }
 
 /* Threshold plot. */
@@ -2745,7 +3111,7 @@ main video {
   gap: 0.9rem;
   align-items: center;
   font-size: var(--text-meta);
-  color: #6f6f6f;
+  color: var(--muted);
 }
 .w-key::before {
   content: "";
@@ -2755,10 +3121,10 @@ main video {
   margin-right: 0.3em;
 }
 .w-key-neg::before {
-  background: #ccc;
+  background: var(--rule-strong);
 }
 .w-key-pos::before {
-  background: #9fc0dd;
+  background: var(--link-mid);
 }
 
 .w-table-3 td:first-of-type {
@@ -2774,7 +3140,7 @@ main video {
   text-align: left;
 }
 .w-truth td.is-true {
-  color: #003366;
+  color: var(--link);
   font-weight: 700;
 }
 
@@ -2794,11 +3160,11 @@ main video {
 }
 .w-prog li {
   white-space: pre;
-  color: #6f6f6f;
+  color: var(--muted);
 }
 .w-prog li.is-now {
-  color: #003366;
-  background: #f0f7ff;
+  color: var(--link);
+  background: var(--link-wash);
   font-weight: 700;
 }
 .w-stack {
@@ -2808,25 +3174,25 @@ main video {
   display: flex;
   align-items: baseline;
   gap: 0.6rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--rule-strong);
   border-bottom: none;
   padding: 0.25rem 0.5rem;
   font-size: var(--text-meta);
 }
 .w-slot:last-child {
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--rule-strong);
 }
 .w-addr {
   font-family: ui-monospace, Menlo, monospace;
-  color: #6f6f6f;
+  color: var(--muted);
   font-size: var(--text-micro);
 }
 .w-slot-v {
   flex: 1;
 }
 .w-reg {
-  background: #003366;
-  color: #fcfcfc;
+  background: var(--link);
+  color: var(--paper);
   padding: 0 0.35em;
   font: 700 var(--text-micro) / 1.6 ui-monospace, Menlo, monospace;
   margin-left: 0.25em;
@@ -2844,14 +3210,14 @@ main video {
 .w-pipe-label {
   flex: 0 0 11rem;
   font: var(--text-meta) / 1.9 ui-monospace, Menlo, monospace;
-  color: #555;
+  color: var(--ink-2);
   white-space: pre;
 }
 .w-pipe-c {
   flex: 0 0 2.6rem;
   text-align: center;
   font: 500 var(--text-micro) / 1.9 ui-monospace, Menlo, monospace;
-  color: #6f6f6f;
+  color: var(--muted);
   border: 1px solid transparent;
 }
 .w-pipe-c.is-if,
@@ -2859,13 +3225,13 @@ main video {
 .w-pipe-c.is-ex,
 .w-pipe-c.is-mem,
 .w-pipe-c.is-wb {
-  border-color: #ccc;
-  background: #f0f7ff;
-  color: #003366;
+  border-color: var(--rule-strong);
+  background: var(--link-wash);
+  color: var(--link);
 }
 .w-pipe-c.is-ex {
-  background: #003366;
-  color: #fcfcfc;
+  background: var(--link);
+  color: var(--paper);
 }
 
 @media (max-width: 640px) {
@@ -2882,7 +3248,7 @@ main video {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
   max-width: 21rem;
-  border: 1px solid #ccc;
+  border: 1px solid var(--rule-strong);
   margin-bottom: 0.8rem;
 }
 .w-sq {
@@ -2891,14 +3257,14 @@ main video {
   place-items: center;
   font-size: 1.5rem;
   line-height: 1;
-  background: #fcfcfc;
+  background: var(--paper);
   font-style: normal;
 }
 .w-sq.is-dark {
-  background: #e4ecf4;
+  background: var(--link-wash);
 }
 .w-sq.is-last {
-  box-shadow: inset 0 0 0 2px #003366;
+  box-shadow: inset 0 0 0 2px var(--link);
 }
 
 /* Vowel trapezoid. */
@@ -2918,7 +3284,7 @@ main video {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #b8740f;
+  background: var(--warn);
   pointer-events: none;
 }
 
@@ -2930,11 +3296,11 @@ main video {
   text-align: center;
 }
 .w-payoff td.is-true {
-  background: #f0f7ff;
-  outline: 1px solid #003366;
+  background: var(--link-wash);
+  outline: 1px solid var(--link);
 }
 .w-payoff td.is-true .w-input {
-  color: #003366;
+  color: var(--link);
   font-weight: 700;
 }
 
@@ -2945,22 +3311,22 @@ main video {
   gap: 0.6rem;
   align-items: baseline;
   padding: 0.2rem 0;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--rule-soft);
 }
 .w-step code {
   font-size: var(--text-small);
-  color: #003366;
+  color: var(--link);
   min-width: 18rem;
 }
 .w-step em {
   font-style: normal;
   font-size: var(--text-micro);
-  color: #6f6f6f;
+  color: var(--muted);
 }
 .w-result {
   font-size: var(--text-lead);
   font-weight: 700;
-  color: #003366;
+  color: var(--link);
   margin: 0.8rem 0 0.6rem;
 }
 
@@ -2982,11 +3348,11 @@ main video {
 .w-ar-big {
   font-size: 1.5em;
   line-height: 1.8;
-  color: #003366;
+  color: var(--link);
 }
 .w-roots th {
   width: 7em;
-  color: #6f6f6f;
+  color: var(--muted);
 }
 
 /* Abugida composition. */
@@ -2999,17 +3365,17 @@ main video {
 }
 .w-glyph-parts {
   font-size: 2rem;
-  color: #6f6f6f;
+  color: var(--muted);
   font-weight: 400;
 }
 .w-glyph-parts i {
   font-style: normal;
   margin: 0 0.4rem;
-  color: #ccc;
+  color: var(--rule-strong);
 }
 .w-glyph-out {
   font-size: 3rem;
-  color: #003366;
+  color: var(--link);
   line-height: 1.2;
 }
 .w-chars {
@@ -3022,16 +3388,16 @@ main video {
   font: 1.25rem/1 inherit;
   min-width: 2.1em;
   padding: 0.25em 0;
-  border: 1px solid #ccc;
-  background: #fcfcfc;
-  color: #111;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
   cursor: pointer;
   border-radius: 0;
 }
 .w-char.is-active {
-  background: #f0f7ff;
-  border-color: #003366;
-  color: #003366;
+  background: var(--link-wash);
+  border-color: var(--link);
+  color: var(--link);
 }
 
 /* Word order: constituents as labelled blocks in the language's order. */
@@ -3044,7 +3410,7 @@ main video {
 .w-cst {
   display: flex;
   flex-direction: column;
-  border: 1px solid #ccc;
+  border: 1px solid var(--rule-strong);
   padding: 0.45rem 0.8rem;
   min-width: 6rem;
 }
@@ -3054,26 +3420,26 @@ main video {
 .w-cst em {
   font-style: normal;
   font-size: var(--text-micro);
-  color: #6f6f6f;
+  color: var(--muted);
 }
 .w-sujet {
-  background: #f0f7ff;
-  border-color: #003366;
+  background: var(--link-wash);
+  border-color: var(--link);
 }
 .w-verbe {
-  background: #f5f1e9;
-  border-color: #b8740f;
+  background: var(--wash-2);
+  border-color: var(--warn);
 }
 .w-objet {
-  background: #eef3ee;
-  border-color: #3f6b4a;
+  background: var(--garden-wash);
+  border-color: var(--garden);
 }
 
 /* Screening: four-colour legend matching the population square. */
-.w-key-vp::before { background: #003366; }
-.w-key-fn::before { background: #9fc0dd; }
-.w-key-fp::before { background: #b8740f; }
-.w-key-vn::before { background: #eee; outline: 1px solid #ccc; }
+.w-key-vp::before { background: var(--link); }
+.w-key-fn::before { background: var(--link-mid); }
+.w-key-fp::before { background: var(--warn); }
+.w-key-vn::before { background: var(--wash-2); outline: 1px solid var(--rule-strong); }
 
 /* Framing: the two options as full-width choices, not inline buttons. */
 .w-frame p {
@@ -3090,4 +3456,247 @@ main video {
   padding: 0.6rem 0.8rem;
   white-space: normal;
   line-height: 1.45;
+}
+
+/* ---------------------------------------------------------------------------
+ * Retrieval-practice cards: `> [!quiz] Question` (lib/markdown.ts quizCallout)
+ * wired by /js/quiz.js. A callout in the garden accent: the question in the
+ * body face, the answer behind a disclosure button, then self-grading and
+ * "add to my reviews" (created by the script, never indexed by Pagefind).
+ * ------------------------------------------------------------------------- */
+.callout-quiz {
+  --c: var(--garden);
+}
+.quiz-question {
+  margin: 0.4rem 0 0;
+  color: var(--ink);
+  font-weight: 600;
+  /* The body size (main p), so the question reads as prose, not a caption. */
+  font-size: clamp(1.15rem, 1rem + 0.7vw, 1.4rem);
+  line-height: 1.4;
+}
+.quiz-controls {
+  margin-top: 0.65rem;
+}
+.quiz-reveal,
+.quiz-btn {
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.92rem;
+  line-height: 1.1;
+  padding: 0.42rem 0.8rem;
+  color: var(--c);
+  background: var(--paper);
+  border: 1px solid var(--c);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.quiz-self-btn[aria-pressed="true"] {
+  color: var(--paper);
+  background: var(--c);
+}
+/* Hover only where it exists: on touch a tapped button would stay "hovered". */
+@media (hover: hover) {
+  .quiz-reveal:hover,
+  .quiz-btn:hover {
+    color: var(--paper);
+    background: var(--c);
+  }
+  .quiz-reveal[aria-expanded="true"]:hover {
+    color: var(--paper);
+    background: var(--muted-warm);
+  }
+}
+.quiz-reveal:focus-visible,
+.quiz-btn:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 2px;
+}
+.quiz-reveal[aria-expanded="true"] {
+  color: var(--muted-warm);
+  border-color: var(--rule-strong);
+}
+.quiz-answer {
+  margin-top: 0.75rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed color-mix(in srgb, var(--c) 45%, var(--rule));
+}
+.quiz-grade {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 1rem;
+  margin-top: 0.8rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--rule);
+}
+.quiz-grade[hidden] {
+  display: none;
+}
+.quiz-self {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+.quiz-prompt {
+  color: var(--ink-2);
+  font-style: italic;
+  font-size: 0.98rem;
+  margin-inline-end: 0.2rem;
+}
+.quiz-add {
+  margin-inline-start: auto;
+  border-style: dashed;
+}
+.quiz-status {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted-warm);
+  font-size: 0.92rem;
+}
+.quiz-status:empty {
+  display: none;
+}
+.article-body .quiz-status a.quiz-review-link {
+  color: var(--link);
+}
+@media (max-width: 34rem) {
+  .quiz-add {
+    margin-inline-start: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Glossary marks (lib/glossary.ts) and their card (/js/glossary.js, which
+ * reuses the link-preview card above). A dotted underline in the text colour:
+ * a hint, not a link-blue call to click.
+ * ------------------------------------------------------------------------- */
+.article-body a.gloss {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--muted-warm);
+  cursor: help;
+}
+.article-body a.gloss:hover,
+.article-body a.gloss:focus-visible,
+.article-body a.gloss[aria-describedby] {
+  background: var(--garden-wash);
+  text-decoration-color: var(--garden);
+  border-radius: 2px;
+}
+.gloss-kicker {
+  margin: 0 0 0.1rem;
+  color: var(--garden);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.gloss-popover .note-popover-excerpt {
+  font-size: 0.98rem;
+}
+.gloss-source {
+  display: inline-block;
+  margin-top: 0.45rem;
+  color: var(--link);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.88rem;
+  text-decoration: underline;
+  text-decoration-color: var(--link-soft);
+  text-underline-offset: 2px;
+}
+.gloss-source::after {
+  content: " →";
+}
+
+/* ---------------------------------------------------------------------------
+ * Selection toolbar (/js/selection-menu.js): fixed to the viewport, above the
+ * article and the link cards, below the drawer/backdrop (z 1100+).
+ * ------------------------------------------------------------------------- */
+.sel-menu {
+  position: fixed;
+  z-index: 1003;
+  display: flex;
+  gap: 1px;
+  padding: 0;
+  background: var(--rule-strong);
+  border: 1px solid var(--ink);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: sel-menu-in 0.12s ease-out;
+}
+.sel-menu[hidden] {
+  display: none;
+}
+.sel-menu-btn {
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.92rem;
+  line-height: 1;
+  padding: 0.55rem 0.8rem;
+  min-height: 2.25rem;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 0;
+  border-radius: 0;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sel-menu-btn:hover,
+.sel-menu-btn:focus-visible {
+  background: var(--wash-2);
+}
+.sel-menu-btn:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: -2px;
+}
+.sel-menu-explain {
+  color: var(--garden);
+  font-weight: 700;
+}
+.sel-menu[data-copied="true"] .sel-menu-btn:not(.sel-menu-explain) {
+  color: var(--garden);
+}
+@keyframes sel-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+}
+@media (pointer: coarse) {
+  .sel-menu-btn {
+    min-height: 2.75rem;
+    padding-inline: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quiz-reveal,
+  .quiz-btn {
+    transition: none;
+  }
+  .sel-menu {
+    animation: none;
+  }
+}
+
+/* Interactive chrome means nothing on paper; a printed quiz shows its answer. */
+@media print {
+  .quiz-controls,
+  .quiz-grade,
+  .sel-menu,
+  .gloss-popover {
+    display: none !important;
+  }
+  .quiz-answer[hidden] {
+    display: block !important;
+  }
+  .article-body a.gloss {
+    text-decoration: none;
+  }
 }

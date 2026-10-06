@@ -5,7 +5,7 @@
 .graph-page {
   position: fixed;
   inset: 0;
-  background: #fcfcfc;
+  background: var(--paper);
   z-index: 1;
 }
 
@@ -29,15 +29,15 @@
   font-weight: 700;
   letter-spacing: -0.01rem;
   font-size: 1.15rem;
-  color: #111;
+  color: var(--ink);
   text-decoration: none;
   padding: 0.25rem 0.6rem;
-  background: rgba(252, 252, 252, 0.85);
+  background: color-mix(in srgb, var(--paper) 85%, transparent);
   border-radius: 4px;
 }
 
 .graph-back:hover {
-  background: #f0f7ff;
+  background: var(--link-wash);
 }
 
 /* Locate-a-note search, top-right (mirrors .graph-back top-left). */
@@ -51,20 +51,20 @@
 }
 .cg-locate-input {
   width: 100%;
-  border: 1px solid #e4e2dd;
+  border: 1px solid var(--rule);
   border-radius: 4px;
-  background: rgba(252, 252, 252, 0.92);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
   padding: 0.35rem 0.6rem;
   font: inherit;
   font-size: 0.9rem;
-  color: #111;
+  color: var(--ink);
 }
 .cg-locate-input::placeholder {
-  color: #888;
+  color: var(--faint);
   font-style: italic;
 }
 .cg-locate-input:focus-visible {
-  outline: 2px solid var(--color-garden, #3f6b4a);
+  outline: 2px solid var(--garden);
   outline-offset: 1px;
 }
 .cg-locate-results {
@@ -73,8 +73,8 @@
   padding: 0.3rem;
   max-height: 50vh;
   overflow-y: auto;
-  background: rgba(252, 252, 252, 0.97);
-  border: 1px solid #e4e2dd;
+  background: color-mix(in srgb, var(--paper) 97%, transparent);
+  border: 1px solid var(--rule);
   border-radius: 4px;
 }
 .cg-locate-results li {
@@ -92,11 +92,11 @@
   border-radius: 3px;
   font: inherit;
   font-size: 0.88rem;
-  color: #222;
+  color: var(--ink);
   cursor: pointer;
 }
 .cg-locate-results button:hover {
-  background: #f0f0ec;
+  background: var(--wash-2);
 }
 
 .graph-hint {
@@ -106,10 +106,10 @@
   z-index: 2;
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.9rem;
-  color: #6f6f6f;
+  color: var(--muted);
   font-style: italic;
   padding: 0.2rem 0.55rem;
-  background: rgba(252, 252, 252, 0.7);
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
   border-radius: 4px;
   pointer-events: none;
 }
@@ -122,7 +122,7 @@
   text-transform: lowercase;
   letter-spacing: -0.01rem;
   font-size: 0.95rem;
-  color: #111;
+  color: var(--ink);
 }
 
 /* ---- Circular dendrogram (CircularGraph.tsx) --------------------------- */
@@ -138,18 +138,18 @@
   cursor: grabbing;
 }
 .cg-links path {
-  stroke: #d7d4cd;
+  stroke: var(--rule);
   stroke-width: 1;
   vector-effect: non-scaling-stroke;
 }
 .cg-nodes circle {
-  stroke: #fcfcfc;
+  stroke: var(--paper);
   stroke-width: 0.5;
   vector-effect: non-scaling-stroke;
   transition: opacity 0.2s;
 }
 .cg-nodes circle[data-node]:hover {
-  stroke: #003366;
+  stroke: var(--link);
   stroke-width: 2;
 }
 /* Radial labels for every sub-folder + file (dendrogram style). Halo keeps
@@ -158,23 +158,23 @@
 .cg-labels text {
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   paint-order: stroke;
-  stroke: #fcfcfc;
+  stroke: var(--paper);
   stroke-width: 2.5px;
   stroke-linejoin: round;
   user-select: none;
 }
 /* Clicking a label opens the note / spins the folder, like clicking the dot. */
 .cg-labels text:hover {
-  fill: #003366;
+  fill: var(--link);
 }
 .cg-dlabel {
   font-size: 9px;
   font-weight: 600;
-  fill: #222;
+  fill: var(--ink);
 }
 .cg-flabel {
   font-size: 7px;
-  fill: #555;
+  fill: var(--ink-2);
 }
 .cg-svg:not([data-zoomed]) .cg-flabel {
   display: none;
@@ -184,7 +184,7 @@
   font-size: 15px;
   font-weight: 700;
   text-transform: lowercase;
-  fill: #111;
+  fill: var(--ink);
 }
 
 /* Panel: roulette + discipline legend, bottom-right. */
@@ -197,8 +197,8 @@
   max-height: 60vh;
   overflow-y: auto;
   padding: 0.7rem 0.8rem;
-  background: rgba(252, 252, 252, 0.92);
-  border: 1px solid #e4e2dd;
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
+  border: 1px solid var(--rule);
   border-radius: 6px;
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
 }
@@ -208,7 +208,7 @@
   gap: 0.5rem;
   margin-bottom: 0.6rem;
   font-size: 0.85rem;
-  color: #555;
+  color: var(--ink-2);
 }
 .cg-rot-label {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
@@ -222,24 +222,24 @@
   justify-content: center;
   width: 1.9rem;
   height: 1.9rem;
-  border: 1px solid #ccc;
-  background: #fcfcfc;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
   border-radius: 3px;
-  color: #333;
+  color: var(--ink-soft);
   cursor: pointer;
 }
 .cg-rot-btn:hover {
-  background: #eef3ec;
-  color: var(--color-garden, #3f6b4a);
-  border-color: var(--color-garden, #3f6b4a);
+  background: var(--garden-wash);
+  color: var(--garden);
+  border-color: var(--garden);
 }
 .cg-rot-btn:focus-visible {
-  outline: 2px solid var(--color-garden, #3f6b4a);
+  outline: 2px solid var(--garden);
   outline-offset: 2px;
 }
 .cg-reset {
-  border: 1px solid #ccc;
-  background: #fcfcfc;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
   border-radius: 3px;
   padding: 0.15rem 0.5rem;
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
@@ -250,7 +250,7 @@
   white-space: nowrap;
 }
 .cg-reset:hover {
-  background: #f0f7ff;
+  background: var(--link-wash);
 }
 .cg-legend {
   list-style: none;
@@ -273,15 +273,15 @@
   border-radius: 3px;
   font: inherit;
   font-size: 0.82rem;
-  color: #333;
+  color: var(--ink-soft);
   cursor: pointer;
 }
 .cg-legend button:hover {
-  background: #f0f0ec;
+  background: var(--wash-2);
 }
 .cg-legend button.on {
-  background: #eef3ec;
-  color: #111;
+  background: var(--garden-wash);
+  color: var(--ink);
   font-weight: 600;
 }
 .cg-swatch {
@@ -335,7 +335,7 @@
     text-transform: lowercase;
     font-weight: 700;
     font-size: 0.85rem;
-    color: #333;
+    color: var(--ink-soft);
     cursor: pointer;
   }
   /* Tailwind's Preflight sets [hidden] to display:none !important — too
@@ -359,8 +359,8 @@
   position: absolute;
   z-index: 3;
   pointer-events: none;
-  background: rgba(17, 17, 17, 0.9);
-  color: #fcfcfc;
+  background: color-mix(in srgb, var(--ink) 90%, transparent);
+  color: var(--paper);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.85rem;
   padding: 0.2rem 0.5rem;
@@ -369,4 +369,68 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Reading-path filter (/parcours/): the chosen path's notes and prerequisite
+   edges in the link colour, everything else dimmed (node opacity, as the
+   discipline filter does). */
+.cg-path {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+.cg-path-label {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+}
+.cg-path select {
+  min-width: 0;
+  flex: 1;
+  max-width: 14rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.15rem 0.3rem;
+  font: inherit;
+}
+.cg-path select:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 1px;
+}
+.cg-path-edges path {
+  stroke: var(--link);
+  stroke-width: 2.2;
+  vector-effect: non-scaling-stroke;
+}
+.cg-path-arrowhead {
+  fill: var(--link);
+}
+.cg-nodes circle.cg-path-node {
+  stroke: var(--link);
+  stroke-width: 2;
+}
+.cg-svg[data-path] .cg-links path {
+  opacity: 0.35;
+}
+.cg-svg[data-path] .cg-flabel,
+.cg-svg[data-path] .cg-dlabel {
+  opacity: 0.25;
+}
+/* On a phone the two-line touch hint sits at the bottom too: keep the
+   (now taller) panel above it. */
+@media (max-width: 640px) {
+  .cg-panel {
+    bottom: 4.6rem;
+  }
+}
+.cg-svg .cg-flabel.is-path {
+  display: inline;
+  opacity: 1;
+  fill: var(--ink);
+  font-weight: 700;
 }

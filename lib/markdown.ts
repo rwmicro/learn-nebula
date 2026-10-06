@@ -14,7 +14,7 @@ import katex from "katex";
 import type { Root, Element, ElementContent, RootContent } from "hast";
 import { createHash } from "node:crypto";
 import { rehypeShiki } from "./highlight";
-import { resolveWikiLink } from "./content";
+import { resolveRelativeNoteLink, resolveWikiLink } from "./content";
 import {
   resolveVaultAsset,
   isVideoSrc,
@@ -22,6 +22,14 @@ import {
   getVaultImage,
 } from "./vault-assets";
 import { t } from "./i18n";
+import { cardId } from "./srs";
+import {
+  definitionAnchor,
+  definitionTerm,
+  isDefinitionTitle,
+  rehypeGlossary,
+  type GlossaryEntry,
+} from "./glossary";
 
 // ---------------------------------------------------------------------------
 // Preprocessing (runs on the raw Markdown, before the unified pipeline so that
@@ -177,6 +185,10 @@ const CALLOUT_ALIAS: Record<string, string> = {
   example: "example",
   quote: "quote",
   cite: "quote",
+  // Retrieval-practice card (question in the title, answer in the body),
+  // rendered by quizCallout() below — a type of its own, since Obsidian's
+  // `question` already means a plain FAQ-style callout in the vault.
+  quiz: "quiz",
 };
 // Default (French) title when the callout has none.
 const CALLOUT_LABEL: Record<string, string> = {
@@ -193,6 +205,7 @@ const CALLOUT_LABEL: Record<string, string> = {
   bug: "Bug",
   example: "Exemple",
   quote: "Citation",
+  quiz: "Question",
 };
 const CALLOUT_ICON: Record<string, string> = {
   note: calloutSvg(
@@ -230,6 +243,9 @@ const CALLOUT_ICON: Record<string, string> = {
   quote: calloutSvg(
     '<path d="M10 8H6a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2v2H6"/><path d="M20 8h-4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h2v2h-2"/>',
   ),
+  quiz: calloutSvg(
+    '<rect x="3" y="6" width="14" height="14" rx="1.5"/><path d="M7 3h12.5A1.5 1.5 0 0 1 21 4.5V17"/><path d="M8 11.2a2 2 0 0 1 3.9.6c0 1.2-1.9 1.5-1.9 2.6"/><path d="M10 17h.01"/>',
+  ),
 };
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -257,9 +273,123 @@ function splitAtBreak(
   return [children, []];
 }
 
+/** Text of a hast subtree with the math placeholders resolved to their
+ *  rendered KaTeX, so two questions differing only by a formula hash apart. */
+function stableText(node: ElementContent, ph: Map<string, string>): string {
+  if (node.type === "text") return node.value;
+  if (node.type !== "element") return "";
+  const id = node.properties?.dataPh;
+  if (typeof id === "string") return ph.get(id) ?? "";
+  return node.children.map((c) => stableText(c, ph)).join("");
+}
+
+/** Stable identity of a quiz question (lib/srs.ts's content hash): the same
+ *  question keeps its spaced-repetition record across rebuilds. */
+export function quizId(question: string): string {
+  return cardId(question.replace(/\s+/g, " ").trim(), "");
+}
+
+/**
+ * `> [!quiz] Question` + answer body → a retrieval-practice card: the question
+ * shows, the answer is hidden behind a disclosure button (public/js/quiz.js
+ * wires it, plus self-grading and "add to my reviews"). `[!quiz]+` starts
+ * revealed; `[!quiz]-` (Obsidian's folded form) is the same as plain `[!quiz]`.
+ */
+function quizCallout(
+  titleNodes: ElementContent[],
+  bodyChildren: ElementContent[],
+  fold: string,
+  icon: Element,
+  ph: Map<string, string>,
+  seen: Set<string>,
+): Element {
+  let question = titleNodes;
+  let answer = bodyChildren;
+  // No title: the first body paragraph is the question.
+  if (
+    !question.length &&
+    answer[0]?.type === "element" &&
+    answer[0].tagName === "p"
+  ) {
+    question = answer[0].children;
+    answer = answer.slice(1);
+  }
+  const id = quizId(question.map((n) => stableText(n, ph)).join(""));
+  let domId = `q-${id}`;
+  for (let i = 2; seen.has(domId); i++) domId = `q-${id}-${i}`;
+  seen.add(domId);
+  const open = fold === "+";
+  const btnKey = open ? "quiz.hide" : "quiz.reveal";
+  return {
+    type: "element",
+    tagName: "div",
+    properties: {
+      className: ["callout", "callout-quiz"],
+      dataCallout: "quiz",
+      dataQuizId: id,
+      id: domId,
+    },
+    children: [
+      {
+        type: "element",
+        tagName: "div",
+        properties: { className: ["callout-title"], dataPagefindIgnore: "" },
+        children: [
+          icon,
+          {
+            type: "element",
+            tagName: "span",
+            properties: { dataI18n: "quiz.label" },
+            children: [{ type: "text", value: t("quiz.label") }],
+          },
+        ],
+      },
+      {
+        type: "element",
+        tagName: "p",
+        properties: { className: ["quiz-question"] },
+        children: question,
+      },
+      {
+        type: "element",
+        tagName: "div",
+        properties: { className: ["quiz-controls"], dataPagefindIgnore: "" },
+        children: [
+          {
+            type: "element",
+            tagName: "button",
+            properties: {
+              type: "button",
+              className: ["quiz-reveal"],
+              ariaExpanded: open ? "true" : "false",
+              ariaControls: `${domId}-a`,
+              dataI18n: btnKey,
+            },
+            children: [{ type: "text", value: t(btnKey) }],
+          },
+        ],
+      },
+      {
+        type: "element",
+        tagName: "div",
+        properties: {
+          className: ["callout-body", "quiz-answer"],
+          id: `${domId}-a`,
+          // The answer stays out of the Pagefind index, or the search
+          // excerpts would spoil it; the question above stays searchable.
+          ...(open ? {} : { hidden: true }),
+          dataPagefindIgnore: true,
+        },
+        children: answer,
+      },
+    ],
+  };
+}
+
 /** Render Obsidian callouts (`> [!type] Title`) as styled `<div class="callout">`. */
-function rehypeCallouts() {
+function rehypeCallouts(ph: Map<string, string> = new Map()) {
   return (tree: Root) => {
+    const seenQuiz = new Set<string>();
     visit(tree, "element", (node: Element, index, parent) => {
       if (node.tagName !== "blockquote" || !parent || index == null) return;
       const firstP = node.children.find(
@@ -327,6 +457,24 @@ function rehypeCallouts() {
         children: bodyChildren,
       };
 
+      if (canon === "quiz") {
+        parent.children[index] = quizCallout(
+          hasTitle ? titleNodes : [],
+          bodyChildren,
+          fold,
+          icon,
+          ph,
+          seenQuiz,
+        );
+        return SKIP;
+      }
+
+      // A definition that names its term ("Définition — Matrice de passage")
+      // gets an anchor, so glossary marks in other notes can link to it.
+      const titleText = titleNodes.map((n) => stableText(n, ph)).join("");
+      const term = hasTitle ? definitionTerm(type, titleText) : null;
+      const isDef = isDefinitionTitle(type, hasTitle ? titleText : "");
+
       const inner: ElementContent[] = fold
         ? [
             {
@@ -344,6 +492,8 @@ function rehypeCallouts() {
         properties: {
           className: ["callout", `callout-${canon}`],
           dataCallout: type,
+          ...(term ? { id: definitionAnchor(term) } : {}),
+          ...(isDef ? { dataDefinition: "" } : {}),
         },
         children: inner,
       };
@@ -1158,6 +1308,17 @@ function remarkWikiLinks() {
   };
 }
 
+/** Point relative `[text](Other note.md)` links at the note's page; left as
+ *  written they would 404, since only the vault's assets are copied. */
+function remarkRelativeNoteLinks(dir: string) {
+  return (tree: Root) => {
+    visit(tree as any, "link", (node: any) => {
+      const url = resolveRelativeNoteLink(dir, node.url ?? "");
+      if (url) node.url = url;
+    });
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Processors
 // ---------------------------------------------------------------------------
@@ -1167,11 +1328,19 @@ export interface Rendered {
   plain: string;
   /** Whether any math was rendered (so the page can load the KaTeX stylesheet). */
   hasMath: boolean;
+  /** A `[!quiz]` card (quizCallout): the page loads /js/quiz.bundle.js. */
+  hasQuiz: boolean;
+  /** A glossary mark (lib/glossary.ts): the page loads /js/glossary.bundle.js. */
+  hasGlossary: boolean;
 }
 
 export async function renderMarkdown(
   raw: string,
-  opts: { dir?: string } = {},
+  opts: {
+    dir?: string;
+    /** Glossary terms to mark (lib/content.ts getGlossaryFor); none if unset. */
+    glossary?: GlossaryEntry[];
+  } = {},
 ): Promise<Rendered> {
   const dir = opts.dir ?? "";
   const ph = newPlaceholders();
@@ -1181,11 +1350,12 @@ export async function renderMarkdown(
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkWikiLinks)
+    .use(remarkRelativeNoteLinks, dir)
     .use(remarkSmartypants)
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeRaw)
     .use(rehypeStripUnsafe)
-    .use(rehypeCallouts)
+    .use(rehypeCallouts, ph.map)
     .use(rehypeManim, dir)
     .use(rehypeWidgets)
     .use(rehypeShiki)
@@ -1194,8 +1364,11 @@ export async function renderMarkdown(
     .use(rehypeSlug)
     .use(rehypeAutolinkHeadings, {
       behavior: "append",
-      properties: { className: ["anchor"] },
-      content: { type: "text", value: "§" },
+      // className first: buildToc (lib/html.ts) strips `<a class="anchor"…`.
+      // Kept out of the search index — the "#" is chrome, not heading text.
+      // public/js/copy-links.js labels it and turns a click into "copy link".
+      properties: { className: ["anchor"], dataPagefindIgnore: "" },
+      content: { type: "text", value: "#" },
     })
     .use(rehypeVaultAssets, dir)
     .use(rehypeYouTube)
@@ -1204,10 +1377,19 @@ export async function renderMarkdown(
     // after rehypeSidenotes, so an image pulled into a margin note is left
     // alone rather than boxed into a figure inside the margin.
     .use(rehypeFigures)
+    // Last content pass: math, callouts and links are final by now, so the
+    // glossary can tell body text from what it must leave alone.
+    .use(rehypeGlossary, opts.glossary)
     .use(rehypeStringify, { allowDangerousHtml: true });
 
   const html = String(await processor.process(text));
-  return { html, plain: extractPlain(raw), hasMath: ph.map.size > 0 };
+  return {
+    html,
+    plain: extractPlain(raw),
+    hasMath: ph.map.size > 0,
+    hasQuiz: /class="[^"]*\bcallout-quiz\b/.test(html),
+    hasGlossary: /<a class="gloss"/.test(html),
+  };
 }
 
 /** Plain-text rendering for meta descriptions and list excerpts. */

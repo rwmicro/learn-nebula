@@ -1,0 +1,111 @@
+/* Scoped to the /cartes/ index — same per-route pattern and document-flow
+   layout as frise.css. The per-deck study view has its own cartes.css. */
+
+.cartes-index {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.2rem 4rem;
+}
+
+.cartes-index-back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.cartes-index-back:hover {
+  text-decoration: underline;
+}
+
+.cartes-index-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  letter-spacing: -0.01rem;
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+}
+
+.cartes-index-intro {
+  color: var(--ink-2);
+  margin: 0 0 2.5rem;
+  font-size: 1.1rem;
+}
+
+.cartes-index-empty {
+  font-style: italic;
+  color: var(--muted-warm);
+}
+
+.cartes-index-group + .cartes-index-group {
+  margin-top: 2rem;
+}
+
+.cartes-index-folder {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--garden); /* the site's one accent */
+  margin: 0 0 0.4rem;
+}
+
+.cartes-index-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule-strong);
+}
+
+.cartes-index-deck {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.2rem 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.cartes-index-deck a {
+  font-size: 1.15rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.cartes-index-deck a:hover {
+  text-decoration: underline;
+}
+
+.cartes-index-count {
+  color: var(--muted-warm);
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+/* "Questions de notes à revoir" — the note-questions review (NoteQuestionsEntry). */
+.cartes-index-notes {
+  margin-bottom: 2.5rem;
+}
+.cartes-index-due {
+  color: var(--garden);
+  font-weight: 700;
+}
+.cartes-index-note-intro {
+  margin: 0.5rem 0 0;
+  color: var(--muted-warm);
+  font-size: 0.98rem;
+}
+
+/* Link to /progression/ (export / import of the SRS state). */
+.cartes-index-progress {
+  margin: 0.6rem 0 0;
+  font-size: 0.98rem;
+}
+.cartes-index-progress a {
+  color: var(--muted-warm);
+}
+.cartes-index-progress a::after {
+  content: " →";
+}

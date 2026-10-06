@@ -3,6 +3,7 @@ import type { Doc } from "@/lib/content";
 import { t } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
 import { EditionDate } from "@/components/EditionDate";
+import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
 
 // Blackletter wordmark, à la New York Times. next/font self-hosts the file at
 // build time (served from our origin), so `font-src 'self'` keeps holding and
@@ -15,7 +16,7 @@ const blackletter = UnifrakturMaguntia({
 });
 
 const navLink =
-  "text-black no-underline underline-offset-[3px] hover:bg-transparent hover:underline focus-visible:underline";
+  "text-ink no-underline underline-offset-[3px] hover:bg-transparent hover:underline focus-visible:underline";
 
 /** New-York-Times-style masthead in three tiers:
  *  1. utility bar — search · language "editions" · graph CTA
@@ -27,7 +28,7 @@ export default function Header({ doc }: { doc: Doc }) {
   const editionIso = new Date().toISOString();
 
   return (
-    <header className="relative mx-auto max-w-300 px-4 text-black @container">
+    <header className="relative mx-auto max-w-300 px-4 text-ink @container">
       {/* Peer checkbox drives the mobile section-nav dropdown (#6). CSS-only, so
           it works in the static export with no JS. */}
       <input
@@ -37,9 +38,20 @@ export default function Header({ doc }: { doc: Doc }) {
         aria-label={t("nav.menu")}
       />
 
-      {/* 1. utility bar: language "editions" — always visible, mobile included. */}
-      <div className="py-2 text-center">
+      {/* 1. utility bar: language "editions" + the light/dark toggle (same
+          markup as the note nav's, wired by /js/theme.js) — always visible,
+          mobile included. */}
+      <div className="flex flex-wrap items-center justify-center gap-x-2 py-2">
         <LangSwitcher />
+        <span
+          className="contents"
+          dangerouslySetInnerHTML={{ __html: themeToggleHtml() }}
+        />
+        {/* Command palette trigger (⌘K / Ctrl+K, wired by /js/palette.js). */}
+        <span
+          className="contents"
+          dangerouslySetInnerHTML={{ __html: paletteButtonHtml() }}
+        />
       </div>
 
       {/* 2. masthead: dateline · wordmark · tagline. On mobile the dateline is
@@ -52,11 +64,11 @@ export default function Header({ doc }: { doc: Doc }) {
             // and the wordmark: on long days ("dimanche") the date used to fill
             // its column right up to the title. 1rem is the widest padding that
             // still fits "DIMANCHE" without breaking at the ≥640px column width.
-            className="hidden sm:block sm:pr-4 text-micro uppercase tracking-[0.04em] text-[#787369]"
+            className="hidden sm:block sm:pr-4 text-micro uppercase tracking-[0.04em] text-muted-warm"
           />
           <a
             href="/"
-            className="justify-self-center text-black no-underline hover:bg-transparent"
+            className="justify-self-center text-ink no-underline hover:bg-transparent"
           >
             <h1
               className={`${blackletter.className} m-0 border-0 p-0 font-normal text-wordmark not-italic leading-[0.9] whitespace-nowrap`}
@@ -66,8 +78,8 @@ export default function Header({ doc }: { doc: Doc }) {
           </a>
       </div>
             {/* Double rule under the masthead — desktop only (#6: dropped on phones). */}
-      <div className="max-sm:hidden border-t-[1.5px] border-black" />
-      <div className="max-sm:hidden mt-0.5 border-t-[1.5px] border-black" />
+      <div className="max-sm:hidden border-t-[1.5px] border-ink" />
+      <div className="max-sm:hidden mt-0.5 border-t-[1.5px] border-ink" />
       
       {/* 3. section nav — horizontal bar on desktop; a right-anchored dropdown
           popover on mobile, revealed by the hamburger in the corner (#6). */}
@@ -75,7 +87,7 @@ export default function Header({ doc }: { doc: Doc }) {
         aria-label={t("home.footerNavAria")}
         className="relative hidden peer-checked:block sm:block"
       >
-        <ul className="absolute right-2 top-1 z-30 m-0 flex w-max list-none flex-col items-end gap-2.5 rounded-[4px] border border-neutral-300 bg-white px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-7 sm:gap-y-1 sm:border-0 sm:border-b sm:border-neutral-200 sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none">
+        <ul className="absolute right-2 top-1 z-30 m-0 flex w-max list-none flex-col items-end gap-2.5 rounded-[4px] border border-rule-strong bg-paper px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-7 sm:gap-y-1 sm:border-0 sm:border-b sm:border-rule sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none">
           <li className="m-0">
             <a href="/#applied-sciences" className={navLink} data-i18n="nav.appliedsciences">
               {t("nav.appliedsciences")}
@@ -91,6 +103,18 @@ export default function Header({ doc }: { doc: Doc }) {
           <li className="m-0">
             <a href="/graph/" className={navLink} data-i18n="nav.graph">
               {t("nav.graph")}
+            </a>
+          </li>
+          <li className="m-0 hidden sm:block">·</li>
+          <li className="m-0">
+            <a href="/themes/" className={navLink} data-i18n="nav.themes">
+              {t("nav.themes")}
+            </a>
+          </li>
+          <li className="m-0 hidden sm:block">·</li>
+          <li className="m-0">
+            <a href="/hasard/" className={navLink} data-i18n="nav.random">
+              {t("nav.random")}
             </a>
           </li>
         </ul>

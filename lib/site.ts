@@ -21,7 +21,18 @@ export const NAV = [
   { name: "nav.home", href: "/" },
   { name: "nav.graph", href: "/graph/" },
   { name: "nav.frise", href: "/frise/" },
+  { name: "nav.themes", href: "/themes/" },
+  { name: "nav.cartes", href: "/cartes/" },
+  { name: "nav.random", href: "/hasard/" },
 ];
+
+/** RSS autodiscovery (app/feed.xml) for `metadata.alternates.types`. Shared
+ *  by the root layout and lib/seo.ts: Next merges metadata shallowly, so a
+ *  page that sets its own `alternates` (the canonical URL) would otherwise
+ *  drop the layout's feed link. */
+export const FEED_ALTERNATES = {
+  "application/rss+xml": [{ url: "/feed.xml", title: SITE_TITLE }],
+};
 
 // Social profiles for the Person JSON-LD (none yet).
 export const SAME_AS: string[] = [];
