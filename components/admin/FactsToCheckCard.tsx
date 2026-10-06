@@ -6,7 +6,7 @@
 // with the note's page and its file on GitHub to fix it; ticking the line
 // (`- [x]`) in the checklist removes it at the next build.
 
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import {
   CardHeader,
   CountBadge,
@@ -15,11 +15,11 @@ import {
   FOCUS_RING,
   Muted,
   RefreshButton,
-  Unauthorized,
-  adminFetch,
   fmtDateTime,
   plural,
+  type AdminCardProps,
 } from "./shared";
+import { URLS, useAdminResource } from "./store";
 
 interface Item {
   line: number;
@@ -36,7 +36,7 @@ interface Group {
   editUrl: string | null;
   items: Item[];
 }
-interface Report {
+export interface FactsReport {
   generatedAt: string;
   source: { path: string; found: boolean; editUrl: string | null };
   total: number;
@@ -74,35 +74,19 @@ function withLinks(text: string, urls: string[]): ReactNode[] {
   return out;
 }
 
-export function FactsToCheckCard({ token, onUnauthorized }: { token: string; onUnauthorized: () => void }) {
-  const [report, setReport] = useState<Report | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [missing, setMissing] = useState(false);
-  const [busy, setBusy] = useState(false);
+type Report = FactsReport;
 
-  const load = useCallback(async () => {
-    setBusy(true);
-    try {
-      setReport(await adminFetch<Report>("/api/admin/facts", token));
-      setError(null);
-      setMissing(false);
-    } catch (e) {
-      if (e instanceof Unauthorized) onUnauthorized();
-      else if (e instanceof Error && e.message === "HTTP 404") setMissing(true);
-      else setError("Impossible de charger les faits à vérifier.");
-    } finally {
-      setBusy(false);
-    }
-  }, [token, onUnauthorized]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+export function FactsToCheckCard({ token, onUnauthorized }: AdminCardProps) {
+  const res = useAdminResource<Report>(URLS.facts, token, onUnauthorized);
+  const report = res.data;
+  const missing = res.missing;
+  const busy = res.busy;
+  const error = res.failed ? (res.error ?? "Impossible de charger les faits à vérifier.") : null;
 
   return (
     <section id="admin-facts" className="admin-card">
       <CardHeader title="faits à vérifier" count={report ? report.open : undefined}>
-        <RefreshButton busy={busy} onClick={load} label="Recharger les faits à vérifier" />
+        <RefreshButton busy={busy} onClick={() => res.reload()} label="Recharger les faits à vérifier" />
       </CardHeader>
       {error && <ErrorLine>{error}</ErrorLine>}
       {missing && (

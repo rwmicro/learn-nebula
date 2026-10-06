@@ -6,7 +6,7 @@
 // candidate with its scores, without generating an answer. For tuning why a
 // question does or doesn't find a note. Disabled when EMBED_BASE_URL is unset.
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import {
   BUTTON_CLASS,
   CardHeader,
@@ -15,9 +15,12 @@ import {
   FOCUS_RING,
   INPUT_CLASS,
   Muted,
+  RefreshButton,
   Unauthorized,
+  type AdminCardProps,
 } from "./shared";
 import { adminJson, answerError } from "./admin-api";
+import { URLS, setResource, useAdminResource } from "./store";
 
 interface Info {
   enabled: boolean;
@@ -58,35 +61,30 @@ const STATE_LABEL: Record<string, string> = {
   error: "en erreur",
 };
 
-export function RagDebugCard({ token, onUnauthorized }: { token: string; onUnauthorized: () => void }) {
-  const [info, setInfo] = useState<Info | null>(null);
+export function RagDebugCard({ token, onUnauthorized }: AdminCardProps) {
+  const res = useAdminResource<Info>(URLS.ragDebug, token, onUnauthorized);
+  const info = res.data;
+  const setInfo = (i: Info) =>
+    setResource<Info>(URLS.ragDebug, {
+      enabled: i.enabled,
+      state: i.state,
+      rerank: i.rerank,
+      topK: i.topK,
+      minScore: i.minScore,
+    });
   const [q, setQ] = useState("");
   const [scope, setScope] = useState("");
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [benchError, setError] = useState<string | null>(null);
   const [bench, setBench] = useState<Bench | null>(null);
-
-  const loadInfo = useCallback(async () => {
-    try {
-      const a = await adminJson<Info>("/api/admin/rag-debug", token);
-      if (a.ok && a.data) setInfo(a.data);
-      else setError(answerError(a, "État de l'index indisponible"));
-    } catch (e) {
-      if (e instanceof Unauthorized) onUnauthorized();
-      else setError("État de l'index indisponible.");
-    }
-  }, [token, onUnauthorized]);
-
-  useEffect(() => {
-    loadInfo();
-  }, [loadInfo]);
+  const error = benchError ?? (res.failed ? (res.error ?? "État de l'index indisponible.") : null);
 
   const run = async (e: FormEvent) => {
     e.preventDefault();
     if (!q.trim()) return;
     setBusy(true);
     try {
-      const a = await adminJson<Bench>("/api/admin/rag-debug", token, {
+      const a = await adminJson<Bench>(URLS.ragDebug, token, {
         method: "POST",
         body: JSON.stringify({ q, scope: scope.trim() || undefined }),
       });
@@ -110,7 +108,9 @@ export function RagDebugCard({ token, onUnauthorized }: { token: string; onUnaut
 
   return (
     <section id="admin-rag-debug" className="admin-card">
-      <CardHeader title="banc d'essai de l'assistant" />
+      <CardHeader title="banc d'essai de l'assistant">
+        <RefreshButton busy={res.busy} onClick={() => res.reload()} label="Revérifier l'état de l'index" />
+      </CardHeader>
       <p className="m-0 mb-3 text-small text-muted-warm">
         La recherche de l&apos;assistant, sans génération : quels extraits une question ramène, et
         avec quels scores (cosinus, BM25, fusion RRF, reranker).

@@ -18,6 +18,10 @@ import { VaultHealthCard, HEALTH_SECTION_IDS, type VaultReport } from "./VaultHe
 import { PrereqSuggestionsCard, livePrereqCount, type PrereqReport } from "./PrereqSuggestionsCard";
 import { AssistantCard } from "./AssistantCard";
 import { VersionCard, type VersionStatus } from "./VersionCard";
+import { SearchMissesCard, type MissesData } from "./SearchMissesCard";
+import { FactsToCheckCard, type FactsReport } from "./FactsToCheckCard";
+import { RebuildCard } from "./RebuildCard";
+import { RagDebugCard } from "./RagDebugCard";
 
 export type TabId = "lecteurs" | "contenu" | "site";
 
@@ -33,17 +37,17 @@ export const ADMIN_TABS: AdminTab[] = [
   {
     id: "lecteurs",
     label: "Lecteurs",
-    cards: [PendingComments, PublishedComments, QuestionsCard],
+    cards: [PendingComments, PublishedComments, QuestionsCard, SearchMissesCard],
   },
   {
     id: "contenu",
     label: "Contenu",
-    cards: [VaultHealthCard, PrereqSuggestionsCard],
+    cards: [VaultHealthCard, PrereqSuggestionsCard, FactsToCheckCard],
   },
   {
     id: "site",
     label: "Site",
-    cards: [AssistantCard, VersionCard],
+    cards: [AssistantCard, VersionCard, RebuildCard, RagDebugCard],
   },
 ];
 
@@ -84,6 +88,14 @@ export const DASHBOARD_TILES: DashboardTile[] = [
       useAdminResource<QuestionsData>(URLS.questions, token, onUnauthorized).data?.weak.length ?? null,
   },
   {
+    id: "search-misses",
+    label: "recherches sans résultat",
+    tab: "lecteurs",
+    target: "admin-search-misses",
+    useCount: ({ token, onUnauthorized }) =>
+      useAdminResource<MissesData>(URLS.searchMisses, token, onUnauthorized).data?.total ?? null,
+  },
+  {
     id: "broken-links",
     label: "notes aux liens cassés",
     tab: "contenu",
@@ -108,6 +120,16 @@ export const DASHBOARD_TILES: DashboardTile[] = [
       const report = useAdminResource<PrereqReport>(URLS.prereqs, token, onUnauthorized).data;
       const ignored = useIgnoredPrereqs();
       return report ? livePrereqCount(report, ignored) : null;
+    },
+  },
+  {
+    id: "facts",
+    label: "faits à vérifier",
+    tab: "contenu",
+    target: "admin-facts",
+    useCount: function useFactsCount({ token, onUnauthorized }) {
+      const r = useAdminResource<FactsReport>(URLS.facts, token, onUnauthorized).data;
+      return r?.source.found ? r.open : null;
     },
   },
   {

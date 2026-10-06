@@ -18,6 +18,9 @@ export interface Resource<T> {
   busy: boolean;
   /** At least one load finished (successfully or not). */
   settled: boolean;
+  /** The server's own reason for the last failure (a JSON `{ error }` body,
+   *  as the admin tool routes send), when it gave one. */
+  error: string | null;
 }
 
 interface Entry {
@@ -26,8 +29,11 @@ interface Entry {
   inflight: Promise<void> | null;
 }
 
-const EMPTY: Resource<never> = { data: null, failed: false, missing: false, busy: false, settled: false };
+const EMPTY: Resource<never> = { data: null, failed: false, missing: false, busy: false, settled: false, error: null };
 const entries = new Map<string, Entry>();
+
+/** A failure the server explained in its `{ error }` body. */
+class ServerReason extends Error {}
 
 function entry(url: string): Entry {
   let e = entries.get(url);
@@ -55,14 +61,23 @@ export function loadResource(url: string, token: string, opts: { silent?: boolea
       const r = await fetch(url, token ? { headers: { authorization: `Bearer ${token}` } } : undefined);
       if (r.status === 401) throw new Unauthorized();
       if (r.status === 404) {
-        patch(url, { missing: true, failed: false, data: null });
+        patch(url, { missing: true, failed: false, data: null, error: null });
         return;
       }
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      patch(url, { data: await r.json(), failed: false, missing: false });
+      if (!r.ok) {
+        let reason: string | null = null;
+        try {
+          const body = (await r.json()) as { error?: unknown };
+          if (typeof body?.error === "string") reason = body.error;
+        } catch {
+          /* not JSON */
+        }
+        throw reason ? new ServerReason(reason) : new Error(`HTTP ${r.status}`);
+      }
+      patch(url, { data: await r.json(), failed: false, missing: false, error: null });
     } catch (err) {
       if (err instanceof Unauthorized) throw err;
-      if (!opts.silent) patch(url, { failed: true });
+      if (!opts.silent) patch(url, { failed: true, error: err instanceof ServerReason ? err.message : null });
     } finally {
       e.inflight = null;
       patch(url, { busy: false, settled: true });
@@ -76,7 +91,7 @@ export function loadResource(url: string, token: string, opts: { silent?: boolea
 export function setResource<T>(url: string, update: T | ((prev: T | null) => T)) {
   const prev = entry(url).snap.data as T | null;
   const data = typeof update === "function" ? (update as (p: T | null) => T)(prev) : update;
-  patch(url, { data, failed: false, missing: false, settled: true });
+  patch(url, { data, failed: false, missing: false, settled: true, error: null });
 }
 
 /** Forget everything (disconnect): the next token starts from scratch. */
@@ -174,6 +189,10 @@ export const URLS = {
   vaultHealth: "/api/admin/vault-health",
   prereqs: "/api/admin/prereq-suggestions",
   blockedWords: "/api/admin/blocked-words",
+  searchMisses: "/api/admin/search-misses",
+  facts: "/api/admin/facts",
+  builds: "/api/admin/builds",
+  ragDebug: "/api/admin/rag-debug",
 } as const;
 
 // --- Ignored prerequisite suggestions: per-browser (localStorage), shared

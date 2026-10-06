@@ -7,7 +7,7 @@
 // "version en ligne" card tells when that has happened). Disabled, naming the
 // variable, when GITHUB_TOKEN is unset.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   BUTTON_CLASS,
   CardHeader,
@@ -18,8 +18,10 @@ import {
   RefreshButton,
   Unauthorized,
   fmtDateTime,
+  type AdminCardProps,
 } from "./shared";
 import { adminJson, answerError } from "./admin-api";
+import { URLS, useAdminResource } from "./store";
 
 interface Run {
   id: number;
@@ -69,58 +71,29 @@ function runState(r: Run): { label: string; color: string } {
   }
 }
 
-export function RebuildCard({
-  token,
-  onUnauthorized,
-  onToast,
-}: {
-  token: string;
-  onUnauthorized: () => void;
-  onToast?: (message: string) => void;
-}) {
-  const [data, setData] = useState<Builds | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+export function RebuildCard({ token, onUnauthorized, onToast }: AdminCardProps) {
+  const [active, setActive] = useState(false);
+  // While a run is queued or running, keep its status fresh (silent re-poll).
+  const res = useAdminResource<Builds>(URLS.builds, token, onUnauthorized, {
+    pollMs: active ? POLL_ACTIVE_MS : undefined,
+  });
+  const data = res.data;
+  const [dispatchError, setDispatchError] = useState<string | null>(null);
   const [dispatching, setDispatching] = useState(false);
-  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const load = useCallback(
-    async (opts: { silent?: boolean } = {}) => {
-      if (!opts.silent) setBusy(true);
-      try {
-        const a = await adminJson<Builds>("/api/admin/builds", token);
-        if (a.data) setData(a.data);
-        setError(a.ok ? null : answerError(a, "Impossible de lister les builds"));
-      } catch (e) {
-        if (e instanceof Unauthorized) onUnauthorized();
-        else if (!opts.silent) setError("Impossible de lister les builds.");
-      } finally {
-        if (!opts.silent) setBusy(false);
-      }
-    },
-    [token, onUnauthorized],
-  );
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  // While a run is queued or running, keep its status fresh.
-  const active = data?.runs.some((r) => r.status && ACTIVE.has(r.status)) ?? false;
-  useEffect(() => {
-    if (!active) return;
-    pollRef.current = setTimeout(() => load({ silent: true }), POLL_ACTIVE_MS);
-    return () => {
-      if (pollRef.current) clearTimeout(pollRef.current);
-    };
-  }, [active, data, load]);
+  const nowActive = data?.runs.some((r) => r.status && ACTIVE.has(r.status)) ?? false;
+  if (nowActive !== active) setActive(nowActive);
+  const error = dispatchError ?? (res.failed ? (res.error ?? "Impossible de lister les builds.") : null);
+  const setError = setDispatchError;
+  const load = res.reload;
 
   const rebuild = async () => {
     setDispatching(true);
     try {
       const a = await adminJson<{ ok: boolean }>("/api/admin/rebuild", token, { method: "POST" });
       if (a.ok) {
-        onToast?.("Reconstruction lancée — le run apparaît dans quelques secondes.");
+        setError(null);
+        onToast("Reconstruction lancée — le run apparaît dans quelques secondes.");
         // GitHub lists the dispatched run a few seconds later.
         setTimeout(() => load({ silent: true }), 4_000);
       } else {
@@ -139,7 +112,7 @@ export function RebuildCard({
   return (
     <section id="admin-rebuild" className="admin-card">
       <CardHeader title="reconstruire le site">
-        <RefreshButton busy={busy} onClick={() => load()} label="Actualiser la liste des builds" />
+        <RefreshButton busy={res.busy} onClick={() => { setDispatchError(null); load(); }} label="Actualiser la liste des builds" />
       </CardHeader>
       <p className="m-0 mb-3 text-small text-muted-warm">
         Relance le workflow d&apos;image Docker
