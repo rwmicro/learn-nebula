@@ -22,7 +22,13 @@ import {
   type AdminCardProps,
 } from "./shared";
 import PrereqAcceptButton from "./PrereqAcceptButton";
-import { URLS, ignoredKey as keyOf, toggleIgnored, useAdminResource, useIgnoredPrereqs } from "./store";
+import {
+  URLS,
+  ignoredKey as keyOf,
+  toggleIgnored,
+  useAdminResource,
+  useIgnoredPrereqs,
+} from "./store";
 
 interface Suggestion {
   slug: string;
@@ -63,7 +69,10 @@ type Report = PrereqReport;
 
 /** Suggestions still to decide on (not ignored in this browser) — the card's
  *  count and the dashboard tile's. */
-export function livePrereqCount(report: PrereqReport | null, ignored: Set<string>): number {
+export function livePrereqCount(
+  report: PrereqReport | null,
+  ignored: Set<string>,
+): number {
   let n = 0;
   for (const g of report?.byNote ?? []) {
     for (const s of g.suggestions) if (!ignored.has(keyOf(g.slug, s.slug))) n++;
@@ -94,12 +103,17 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
-export function PrereqSuggestionsCard({ token, onUnauthorized, onToast }: AdminCardProps) {
+export function PrereqSuggestionsCard({
+  token,
+  onUnauthorized,
+  onToast,
+}: AdminCardProps) {
   const res = useAdminResource<Report>(URLS.prereqs, token, onUnauthorized);
   const report = res.data;
   const ignored = useIgnoredPrereqs();
   const [showIgnored, setShowIgnored] = useState(false);
-  const toggleIgnore = (note: string, prereq: string) => toggleIgnored(keyOf(note, prereq));
+  const toggleIgnore = (note: string, prereq: string) =>
+    toggleIgnored(keyOf(note, prereq));
 
   const copy = async (text: string) => {
     onToast(
@@ -149,7 +163,11 @@ export function PrereqSuggestionsCard({ token, onUnauthorized, onToast }: AdminC
           label="Recharger les suggestions de prérequis"
         />
       </CardHeader>
-      {res.failed && <ErrorLine>Impossible de charger les suggestions de prérequis.</ErrorLine>}
+      {res.failed && (
+        <ErrorLine>
+          Impossible de charger les suggestions de prérequis.
+        </ErrorLine>
+      )}
       {res.missing && (
         <Muted>
           Pas de suggestions sur ce serveur — elles sont produites par le build
@@ -215,25 +233,30 @@ export function PrereqSuggestionsCard({ token, onUnauthorized, onToast }: AdminC
                           </span>
                         )}
                       </span>
-                      {live.length > 1 && g.notePath && (
-                        <PrereqAcceptButton
-                          token={token}
-                          onUnauthorized={onUnauthorized}
-                          onToast={onToast}
-                          items={live
-                            .filter((s) => s.link)
-                            .map((s) => ({ notePath: g.notePath!, link: s.link! }))}
-                        />
-                      )}
                       {live.length > 1 && (
-                        <button
-                          type="button"
-                          className={BUTTON_CLASS}
-                          onClick={() => copy(g.yamlAll)}
-                          aria-label={`Copier la ligne prerequis avec les ${live.length} suggestions pour ${g.title}`}
-                        >
-                          Tout copier
-                        </button>
+                        <span className="flex flex-wrap gap-1">
+                          {g.notePath && (
+                            <PrereqAcceptButton
+                              token={token}
+                              onUnauthorized={onUnauthorized}
+                              onToast={onToast}
+                              items={live
+                                .filter((s) => s.link)
+                                .map((s) => ({
+                                  notePath: g.notePath!,
+                                  link: s.link!,
+                                }))}
+                            />
+                          )}
+                          <button
+                            type="button"
+                            className={BUTTON_CLASS}
+                            onClick={() => copy(g.yamlAll)}
+                            aria-label={`Copier la ligne prerequis avec les ${live.length} suggestions pour ${g.title}`}
+                          >
+                            Tout copier
+                          </button>
+                        </span>
                       )}
                     </div>
                     <ul className="admin-prereq-list">
@@ -263,7 +286,9 @@ export function PrereqSuggestionsCard({ token, onUnauthorized, onToast }: AdminC
                                     token={token}
                                     onUnauthorized={onUnauthorized}
                                     onToast={onToast}
-                                    items={[{ notePath: g.notePath, link: s.link }]}
+                                    items={[
+                                      { notePath: g.notePath, link: s.link },
+                                    ]}
                                     disabled={ign}
                                   />
                                 )}
