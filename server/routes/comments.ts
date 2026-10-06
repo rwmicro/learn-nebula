@@ -7,7 +7,11 @@
 //                                     → admin list of published comments,
 //                                       newest first, { comments, total }
 //   POST /api/comments                → submit { slug, name?, body, turnstileToken? }
-//   PATCH /api/comments               → admin { id, action: "approve"|"delete" }
+//   PATCH /api/comments               → admin { id | ids, action: "approve"|"delete" }
+//
+// Pending comments come back with `flagged`: the blocked words (edited at
+// /api/admin/blocked-words) they contain. With the "hold" setting on, a
+// comment containing one stays pending even when Turnstile would publish it.
 
 import { Hono } from "hono";
 import { env } from "../env.ts";
@@ -21,7 +25,13 @@ import {
   insertComment,
   setStatus,
   deleteComment,
+  moderateMany,
+  blockedWords,
+  holdBlocked,
 } from "../db.ts";
+import { matchBlocked } from "../blocked-words.ts";
+
+const MAX_BULK = 100;
 
 const MAX_NAME = 80;
 const MAX_BODY = 2000;
@@ -85,7 +95,12 @@ commentsRoute.get("/", (c) => {
       if (!isAdmin(c.req.header("authorization"), getIp(c))) {
         return c.json({ error: "Non autorisé." }, 401);
       }
-      return c.json({ comments: pending() });
+      const words = blockedWords();
+      const comments = pending().map((row) => ({
+        ...row,
+        flagged: matchBlocked(`${row.name ?? ""}\n${row.body}`, words),
+      }));
+      return c.json({ comments });
     }
     if (status === "approved") {
       if (!isAdmin(c.req.header("authorization"), getIp(c))) {
@@ -134,6 +149,13 @@ commentsRoute.post("/", async (c) => {
   } else {
     status = "pending";
   }
+  if (status === "approved") {
+    try {
+      if (holdBlocked() && matchBlocked(`${name}\n${body}`, blockedWords()).length) status = "pending";
+    } catch (e) {
+      console.error("comments: word filter unavailable", e);
+    }
+  }
 
   try {
     insertComment(slug, name || null, body, status);
@@ -149,11 +171,26 @@ commentsRoute.patch("/", async (c) => {
   if (!isAdmin(c.req.header("authorization"), getIp(c))) {
     return c.json({ error: "Non autorisé." }, 401);
   }
-  let payload: { id?: number; action?: "approve" | "delete" };
+  let payload: { id?: number; ids?: unknown; action?: "approve" | "delete" };
   try {
     payload = await c.req.json();
   } catch {
     return c.json({ error: "Requête invalide." }, 400);
+  }
+  if (payload.ids !== undefined) {
+    const ids = Array.isArray(payload.ids) ? payload.ids.map(Number) : [];
+    if (!ids.length || ids.length > MAX_BULK || !ids.every((n) => Number.isInteger(n) && n > 0)) {
+      return c.json({ error: `ids : 1 à ${MAX_BULK} entiers positifs.` }, 400);
+    }
+    if (payload.action !== "approve" && payload.action !== "delete") {
+      return c.json({ error: "Action inconnue." }, 400);
+    }
+    try {
+      return c.json({ ok: true, changed: moderateMany([...new Set(ids)], payload.action) });
+    } catch (e) {
+      console.error("comments: bulk write failed", e);
+      return c.json({ error: "Base de commentaires indisponible." }, 503);
+    }
   }
   const id = Number(payload.id);
   if (!Number.isInteger(id) || id <= 0) return c.json({ error: "id requis." }, 400);

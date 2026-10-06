@@ -6,7 +6,7 @@
 // couvertes" — the vault's gaps, i.e. what to write next). Grouping and the
 // weak threshold live server-side (server/questions-agg.ts).
 
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import {
   CardHeader,
   ErrorLine,
@@ -14,11 +14,11 @@ import {
   INPUT_CLASS,
   Muted,
   RefreshButton,
-  Unauthorized,
-  adminFetch,
   fmtDateTime,
   plural,
+  type AdminCardProps,
 } from "./shared";
+import { URLS, useAdminResource } from "./store";
 
 interface LogEntry {
   id: number;
@@ -39,7 +39,7 @@ interface Group {
   measured: number;
   weak: number;
 }
-interface QuestionsData {
+export interface QuestionsData {
   questions: LogEntry[];
   frequent: Group[];
   weak: Group[];
@@ -71,34 +71,15 @@ function scoreLabel(score: number | null, hits: number | null): string {
   return `score ${fr2(score)}`;
 }
 
-export function QuestionsCard({ token, onUnauthorized }: { token: string; onUnauthorized: () => void }) {
-  const [data, setData] = useState<QuestionsData | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+/** Id of the "mal couvertes" view button — the dashboard tile clicks it. */
+export const QUESTIONS_WEAK_ID = "admin-questions-weak";
+
+export function QuestionsCard({ token, onUnauthorized }: AdminCardProps) {
+  const res = useAdminResource<QuestionsData>(URLS.questions, token, onUnauthorized, { pollMs: POLL_MS });
+  const data = res.data;
+  const error = res.failed ? "Impossible de charger le journal des questions." : null;
   const [view, setView] = useState<View>("recent");
   const [query, setQuery] = useState("");
-
-  const load = useCallback(
-    async (opts: { silent?: boolean } = {}) => {
-      if (!opts.silent) setBusy(true);
-      try {
-        setData(await adminFetch<QuestionsData>("/api/questions", token));
-        setError(null);
-      } catch (e) {
-        if (e instanceof Unauthorized) onUnauthorized();
-        else if (!opts.silent) setError("Impossible de charger le journal des questions.");
-      } finally {
-        if (!opts.silent) setBusy(false);
-      }
-    },
-    [token, onUnauthorized],
-  );
-
-  useEffect(() => {
-    load();
-    const id = setInterval(() => load({ silent: true }), POLL_MS);
-    return () => clearInterval(id);
-  }, [load]);
 
   const q = query.trim().toLowerCase();
   const matches = (text: string, scopes: (string | null)[]) =>
@@ -116,7 +97,7 @@ export function QuestionsCard({ token, onUnauthorized }: { token: string; onUnau
   return (
     <section id="admin-questions" className="admin-card">
       <CardHeader title="questions posées">
-        <RefreshButton busy={busy} onClick={() => load()} label="Actualiser le journal des questions" />
+        <RefreshButton busy={res.busy} onClick={() => res.reload()} label="Actualiser le journal des questions" />
       </CardHeader>
       <p className="m-0 mb-3 text-small text-muted-warm">
         Ce que les visiteurs demandent à l&apos;assistant — utile pour repérer les sujets mal couverts
@@ -127,6 +108,7 @@ export function QuestionsCard({ token, onUnauthorized }: { token: string; onUnau
         {VIEWS.map((v) => (
           <button
             key={v.id}
+            id={v.id === "weak" ? QUESTIONS_WEAK_ID : undefined}
             type="button"
             aria-pressed={view === v.id}
             onClick={() => setView(v.id)}

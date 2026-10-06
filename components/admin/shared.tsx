@@ -8,6 +8,14 @@ export const FOCUS_RING =
 export const INPUT_CLASS = `min-w-0 rounded border border-rule-strong bg-transparent px-2 py-1 text-small ${FOCUS_RING}`;
 export const BUTTON_CLASS = `shrink-0 rounded border border-rule-strong px-2 py-1 text-small hover:bg-wash-2 disabled:opacity-40 ${FOCUS_RING}`;
 
+/** What every card in the /admin tabs receives (components/admin/tabs.tsx). */
+export interface AdminCardProps {
+  token: string;
+  /** The token stopped working: hand the session back to the panel. */
+  onUnauthorized: () => void;
+  onToast: (message: string) => void;
+}
+
 /** Thrown by adminFetch on a 401, so a card can hand the session back to the
  *  panel (which disconnects) instead of showing a generic error. */
 export class Unauthorized extends Error {}

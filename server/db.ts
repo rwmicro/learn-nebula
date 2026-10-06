@@ -46,6 +46,18 @@ export function initDb(): Database.Database {
       created_at INTEGER NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_translations_created ON translations(created_at DESC);
+
+    -- Comment word filter, edited from /admin (server/blocked-words.ts).
+    CREATE TABLE IF NOT EXISTS blocked_words (
+      word TEXT PRIMARY KEY,
+      created_at INTEGER NOT NULL
+    );
+    -- Small owner settings (key/value), e.g. whether blocked words hold a
+    -- comment for moderation even when Turnstile would publish it.
+    CREATE TABLE IF NOT EXISTS admin_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
   `);
   migrateQuestions(db);
   return db;
@@ -137,6 +149,62 @@ export function setStatus(id: number, status: "approved"): void {
 
 export function deleteComment(id: number): void {
   get().prepare("DELETE FROM comments WHERE id = ?").run(id);
+}
+
+/** Bulk moderation: one transaction, so a batch is all-or-nothing. Returns
+ *  how many rows were touched. */
+export function moderateMany(ids: number[], action: "approve" | "delete"): number {
+  const d = get();
+  const stmt =
+    action === "approve"
+      ? d.prepare("UPDATE comments SET status = 'approved' WHERE id = ?")
+      : d.prepare("DELETE FROM comments WHERE id = ?");
+  const run = d.transaction((list: number[]) => {
+    let n = 0;
+    for (const id of list) n += stmt.run(id).changes;
+    return n;
+  });
+  return run(ids);
+}
+
+/** Blocked words in the order they were added. */
+export function blockedWords(): string[] {
+  return (
+    get().prepare("SELECT word FROM blocked_words ORDER BY created_at, rowid").all() as {
+      word: string;
+    }[]
+  ).map((r) => r.word);
+}
+
+/** Replace the whole list (the admin UI edits it as one text area). Callers
+ *  pass it through sanitizeWords() first. */
+export function setBlockedWords(words: string[]): void {
+  const d = get();
+  const insert = d.prepare("INSERT OR IGNORE INTO blocked_words (word, created_at) VALUES (?, ?)");
+  d.transaction((list: string[]) => {
+    d.prepare("DELETE FROM blocked_words").run();
+    const now = Date.now();
+    list.forEach((w, i) => insert.run(w, now + i));
+  })(words);
+}
+
+export function getSetting(key: string): string | null {
+  const row = get().prepare("SELECT value FROM admin_settings WHERE key = ?").get(key) as
+    | { value: string }
+    | undefined;
+  return row?.value ?? null;
+}
+
+export function setSetting(key: string, value: string): void {
+  get()
+    .prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES (?, ?)")
+    .run(key, value);
+}
+
+/** Setting key: hold comments containing a blocked word for moderation. */
+export const HOLD_BLOCKED_KEY = "blocked_words_hold";
+export function holdBlocked(): boolean {
+  return getSetting(HOLD_BLOCKED_KEY) !== "0"; // on by default
 }
 
 export interface QuestionRow {
