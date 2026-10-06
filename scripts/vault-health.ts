@@ -40,7 +40,15 @@ const OUT = path.join(ROOT, "data", "vault-health.json");
 interface NoteRef {
   slug: string;
   title: string;
+  /** The note's file, relative to the vault repo root (for /admin's
+   *  "Modifier sur GitHub" link). Includes NOTES_SUBDIR when the site only
+   *  uses part of the repo. */
+  path?: string;
 }
+
+const VAULT_SUBDIR = (process.env.NOTES_SUBDIR || "").replace(/^\/+|\/+$/g, "");
+const vaultPath = (rawPath: string) => (VAULT_SUBDIR ? `${VAULT_SUBDIR}/` : "") + `${rawPath}.md`;
+const pathBySlug = new Map<string, string>();
 
 const report = {
   generatedAt: new Date().toISOString(),
@@ -65,7 +73,8 @@ function assetFile(url: string): string {
 
 for (const slug of slugs) {
   const doc = getPost(slug);
-  const ref: NoteRef = { slug, title: doc.frontmatter.title };
+  const ref: NoteRef = { slug, title: doc.frontmatter.title, path: vaultPath(doc.rawPath) };
+  pathBySlug.set(slug, ref.path!);
   const dir = doc.rawPath.includes("/") ? doc.rawPath.slice(0, doc.rawPath.lastIndexOf("/")) : "";
   report.notes++;
 
@@ -151,7 +160,11 @@ report.frontmatter.sort(byTitle);
 report.audio.sort(byTitle);
 report.english.sort((a, b) => b.ratio - a.ratio || byTitle(a, b));
 
-report.prereqCycles = getPrereqCycles();
+const withPath = (n: NoteRef): NoteRef => ({ ...n, path: pathBySlug.get(n.slug) });
+report.prereqCycles = getPrereqCycles().map((c) => ({
+  members: c.members.map(withPath),
+  broken: c.broken.map(([a, b]) => [withPath(a), withPath(b)] as [NoteRef, NoteRef]),
+}));
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(report));

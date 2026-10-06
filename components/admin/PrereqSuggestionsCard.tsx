@@ -7,7 +7,7 @@
 // so the action is copying the ready-to-paste frontmatter line; "Ignorer" is
 // remembered in this browser only.
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   BUTTON_CLASS,
   CardHeader,
@@ -17,11 +17,11 @@ import {
   Muted,
   NoteLink,
   RefreshButton,
-  Unauthorized,
-  adminFetch,
   fmtDateTime,
   plural,
+  type AdminCardProps,
 } from "./shared";
+import { URLS, ignoredKey as keyOf, toggleIgnored, useAdminResource, useIgnoredPrereqs } from "./store";
 
 interface Suggestion {
   slug: string;
@@ -39,7 +39,7 @@ interface NoteGroup {
   best: number;
   suggestions: Suggestion[];
 }
-interface Report {
+export interface PrereqReport {
   generatedAt: string;
   notes: number;
   total: number;
@@ -54,27 +54,16 @@ interface Report {
   };
   byNote: NoteGroup[];
 }
+type Report = PrereqReport;
 
-const IGNORED_KEY = "gkPrereqIgnored";
-const keyOf = (note: string, prereq: string) => `${note}>${prereq}`;
-
-function loadIgnored(): Set<string> {
-  try {
-    const v = JSON.parse(localStorage.getItem(IGNORED_KEY) ?? "[]");
-    return new Set(
-      Array.isArray(v) ? v.filter((x) => typeof x === "string") : [],
-    );
-  } catch {
-    return new Set();
+/** Suggestions still to decide on (not ignored in this browser) — the card's
+ *  count and the dashboard tile's. */
+export function livePrereqCount(report: PrereqReport | null, ignored: Set<string>): number {
+  let n = 0;
+  for (const g of report?.byNote ?? []) {
+    for (const s of g.suggestions) if (!ignored.has(keyOf(g.slug, s.slug))) n++;
   }
-}
-function saveIgnored(s: Set<string>) {
-  try {
-    if (s.size) localStorage.setItem(IGNORED_KEY, JSON.stringify([...s]));
-    else localStorage.removeItem(IGNORED_KEY);
-  } catch {
-    /* storage blocked: ignoring lasts for this visit */
-  }
+  return n;
 }
 
 async function copyText(text: string): Promise<boolean> {
@@ -100,57 +89,12 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
-export function PrereqSuggestionsCard({
-  token,
-  onUnauthorized,
-  onToast,
-}: {
-  token: string;
-  onUnauthorized: () => void;
-  onToast: (message: string) => void;
-}) {
-  const [report, setReport] = useState<Report | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [missing, setMissing] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [ignored, setIgnored] = useState<Set<string>>(() => new Set());
+export function PrereqSuggestionsCard({ token, onUnauthorized, onToast }: AdminCardProps) {
+  const res = useAdminResource<Report>(URLS.prereqs, token, onUnauthorized);
+  const report = res.data;
+  const ignored = useIgnoredPrereqs();
   const [showIgnored, setShowIgnored] = useState(false);
-
-  useEffect(() => {
-    setIgnored(loadIgnored());
-  }, []);
-
-  const load = useCallback(async () => {
-    setBusy(true);
-    try {
-      setReport(
-        await adminFetch<Report>("/api/admin/prereq-suggestions", token),
-      );
-      setError(null);
-      setMissing(false);
-    } catch (e) {
-      if (e instanceof Unauthorized) onUnauthorized();
-      else if (e instanceof Error && e.message === "HTTP 404") setMissing(true);
-      else setError("Impossible de charger les suggestions de prérequis.");
-    } finally {
-      setBusy(false);
-    }
-  }, [token, onUnauthorized]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const toggleIgnore = (note: string, prereq: string) => {
-    setIgnored((prev) => {
-      const next = new Set(prev);
-      const k = keyOf(note, prereq);
-      if (next.has(k)) next.delete(k);
-      else next.add(k);
-      saveIgnored(next);
-      return next;
-    });
-  };
+  const toggleIgnore = (note: string, prereq: string) => toggleIgnored(keyOf(note, prereq));
 
   const copy = async (text: string) => {
     onToast(
@@ -195,19 +139,19 @@ export function PrereqSuggestionsCard({
         count={report ? visible : undefined}
       >
         <RefreshButton
-          busy={busy}
-          onClick={load}
+          busy={res.busy}
+          onClick={() => res.reload()}
           label="Recharger les suggestions de prérequis"
         />
       </CardHeader>
-      {error && <ErrorLine>{error}</ErrorLine>}
-      {missing && (
+      {res.failed && <ErrorLine>Impossible de charger les suggestions de prérequis.</ErrorLine>}
+      {res.missing && (
         <Muted>
           Pas de suggestions sur ce serveur — elles sont produites par le build
           (scripts/prereq-suggestions.ts).
         </Muted>
       )}
-      {!report && !error && !missing && <Muted>Chargement…</Muted>}
+      {!report && !res.failed && !res.missing && <Muted>Chargement…</Muted>}
       {report && (
         <>
           <p className="m-0 mb-1 flex items-center gap-2 text-small text-muted-warm">
