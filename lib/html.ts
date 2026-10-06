@@ -10,7 +10,7 @@ import {
 } from "./content";
 import { folderAnchor } from "./slug";
 import { escapeHtml } from "./escape";
-import { t, i18nAttrs, i18nAttr } from "./i18n";
+import { t, i18nAttrs, i18nAttr, folderKey } from "./i18n";
 
 // Re-exported for the many modules (SinglePage, tests) that import it from here.
 export { escapeHtml };
@@ -332,7 +332,46 @@ export function growthHtml(
     badge && tendedHtml
       ? `<span class="growth-sep" aria-hidden="true">·</span>`
       : "";
-  return `<div class="note-growth">${badge}${sep}${tendedHtml}</div>`;
+  return `<div class="note-growth" data-pagefind-ignore>${badge}${sep}${tendedHtml}</div>`;
+}
+
+/** A vault folder name as shown to readers: the top groups and disciplines
+ * translated (build-time `fr`, swapped at runtime via data-i18n), any other
+ * folder as named on disk. */
+export function folderLabel(name: string): string {
+  const key = folderKey(name);
+  return key ? t(key) : name;
+}
+function folderI18n(name: string): string {
+  const key = folderKey(name);
+  return key ? i18nAttrs(key) : "";
+}
+
+/** Where a note lives, for search results: its discipline and sub-folders
+ * ("Philosophie › Philosophes"), the top group dropped as the home search
+ * does — kept only for a note filed directly under it. */
+export function noteSectionLabel(rawPath: string): string {
+  const folders = rawPath.split("/").slice(0, -1);
+  const shown = folders.length > 1 ? folders.slice(1) : folders;
+  return shown.map(folderLabel).join(" › ");
+}
+
+/** Pagefind metadata for a note: `section` (see {@link noteSectionLabel}),
+ * shown under each result of the note-page search (public/js/pagefind-init.js),
+ * plus `dkey`, the discipline's i18n key, so that script can re-translate the
+ * discipline for a reader on another locale. Hidden and out of the indexed
+ * text (`data-pagefind-ignore` still lets Pagefind read the metadata). */
+export function noteSectionMetaHtml(rawPath: string): string {
+  const section = noteSectionLabel(rawPath);
+  if (!section) return "";
+  const folders = rawPath.split("/").slice(0, -1);
+  const key = folderKey(folders.length > 1 ? folders[1] : (folders[0] ?? ""));
+  return (
+    `<span hidden data-pagefind-ignore>` +
+    `<span data-pagefind-meta="section">${escapeHtml(section)}</span>` +
+    (key ? `<span data-pagefind-meta="dkey">${escapeHtml(key)}</span>` : "") +
+    `</span>`
+  );
 }
 
 export function noteHeaderHtml(
@@ -349,7 +388,7 @@ export function noteHeaderHtml(
     ? `<span class="crumbs">${folders
         .map(
           (name, i) =>
-            `<a href="/#${folderAnchor(folders.slice(0, i + 1).join("/"))}">${escapeHtml(name)}</a>`,
+            `<a href="/#${folderAnchor(folders.slice(0, i + 1).join("/"))}"${folderI18n(name)}>${escapeHtml(folderLabel(name))}</a>`,
         )
         .join(" › ")}</span>`
     : "";

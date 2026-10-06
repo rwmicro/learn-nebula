@@ -33,6 +33,7 @@ import {
   furtherHtml,
   readBadgeHtml,
   readStateHtml,
+  noteSectionMetaHtml,
 } from "@/lib/html";
 import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
 import { JsonLd } from "@/components/JsonLd";
@@ -156,12 +157,16 @@ export async function SinglePage({
     katex +
     dropcapHtml(plain, fm.dropcap) +
     // On notes, the date sits on a row with the TOC/sidebar toggle (mobile).
+    // Out of the search index: every excerpt that starts at the top of a note
+    // used to open on its date ("avril 2026. …").
     (note
-      ? `<div class="subtitle-row">${subtitle}${asideToggleHtml()}</div>`
+      ? `<div class="subtitle-row" data-pagefind-ignore>${subtitle}${asideToggleHtml()}</div>`
       : subtitle) +
     `<h1 class='title-note'>${escapeHtml(fm.title)}</h1>` +
     // Growth stage + "last tended", when the note declares them.
     (note ? growthHtml(fm.stage, fm.date, fm.updated) : "") +
+    // Where the note lives, as Pagefind metadata for the search results.
+    (note ? noteSectionMetaHtml(doc.rawPath) : "") +
     (note
       ? `<div class="note-actions" data-pagefind-ignore>` +
         // Display preferences first (visual settings — set once per session)
@@ -191,7 +196,17 @@ export async function SinglePage({
 
   return (
     <>
-      <main id="main" lang={lang} dangerouslySetInnerHTML={{ __html: main }} />
+      {/* data-pagefind-body: once any page carries it, Pagefind indexes only
+          those pages and only inside it — so the search (home "Dans le
+          contenu", the note drawer) lists notes, never theme/discipline/
+          parcours pages, and the skip link, masthead and footer outside
+          <main> stay out of the excerpts. */}
+      <main
+        id="main"
+        lang={lang}
+        {...(note ? { "data-pagefind-body": "" } : {})}
+        dangerouslySetInnerHTML={{ __html: main }}
+      />
       {jsonLd && <JsonLd data={jsonLd} />}
       {note && <PagefindAssets />}
       {note && <NoteFeatureScripts quiz={hasQuiz} glossary={hasGlossary} />}

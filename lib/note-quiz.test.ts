@@ -121,8 +121,9 @@ describe("[!quiz] callouts", () => {
     expect(html).toContain(`data-quiz-id="${id}"`);
     expect(html).toContain('class="quiz-question"');
     expect(html).toMatch(/<button type="button" class="quiz-reveal" aria-expanded="false" aria-controls="q-[a-z0-9]+-a" data-i18n="quiz.reveal">Afficher la réponse<\/button>/);
-    expect(html).toMatch(/<div class="callout-body quiz-answer" id="q-[a-z0-9]+-a" hidden><p>Une famille/);
-    expect(html).toContain("data-pagefind-ignore");
+    // The hidden answer stays out of the search index; the question does not.
+    expect(html).toMatch(/<div class="callout-body quiz-answer" id="q-[a-z0-9]+-a" hidden data-pagefind-ignore><p>Une famille/);
+    expect(html).not.toMatch(/class="quiz-question"[^>]*data-pagefind-ignore/);
   });
   it("accepts Obsidian's foldable forms (+ starts revealed)", async () => {
     const minus = (await renderMarkdown("> [!quiz]- Q ?\n> R.")).html;

@@ -1680,9 +1680,12 @@ a.theme-pill:focus-visible {
   color: var(--muted);
   font-style: italic;
 }
+/* Focus: the field's own bottom rule turns garden green and thickens — the
+   site's focus colour (.lb-btn, the palette) — instead of a blue box. */
 .note-search:focus {
-  outline: 1px solid var(--link);
-  outline-offset: 0;
+  outline: none;
+  border-bottom-color: var(--garden);
+  box-shadow: 0 1px 0 var(--garden);
 }
 
 #search {
@@ -1701,6 +1704,7 @@ a.theme-pill:focus-visible {
   --pagefind-ui-tag: var(--link-wash); /* filter pills — the link-hover tint */
   --pagefind-ui-border-width: 1px; /* flat 1px rules, not the default 2px */
   --pagefind-ui-border-radius: 0; /* sharp corners, like the search input */
+  --pagefind-ui-scale: 0.82; /* the drawer is narrow: tighter type and gaps */
 }
 
 /* Sober styling for the search bar; results inherit the site font set above. */
@@ -1728,9 +1732,83 @@ a.theme-pill:focus-visible {
   font-style: italic;
 }
 
+/* Same garden underline as the dev-mode .note-search:focus above (the
+   wrapper's own rule sits under the whole results list, so the field draws
+   its own while focused). */
 #search .pagefind-ui__search-input:focus {
-  outline: 1px solid var(--link);
-  outline-offset: 0;
+  outline: none;
+  box-shadow: inset 0 -2px 0 var(--garden);
+}
+
+/* Search hits: a soft wash of the highlight yellow over the text's own
+   colour (Pagefind's reset turns <mark> back to the browser's solid yellow). */
+#search .pagefind-ui mark {
+  background: var(--mark-soft);
+  color: inherit;
+  padding: 0 0.1em;
+  border-radius: 2px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+#search .pagefind-ui__message {
+  color: var(--muted);
+  font-weight: 400;
+  font-style: italic;
+}
+#search .pagefind-ui__result {
+  padding: 1rem 0 1.1rem;
+  border-top-color: var(--rule);
+}
+#search .pagefind-ui__result:last-of-type {
+  border-bottom-color: var(--rule);
+}
+#search .pagefind-ui__result-inner {
+  margin-top: 0;
+}
+#search .pagefind-ui__result-title {
+  font-weight: 600;
+  line-height: 1.25;
+}
+#search .pagefind-ui__result-excerpt {
+  color: var(--ink-2);
+  line-height: 1.45;
+  min-width: 0;
+}
+#search .pagefind-ui__result-nested {
+  padding-top: 0.45rem;
+}
+#search .pagefind-ui__result-nested .pagefind-ui__result-link {
+  color: var(--ink);
+}
+#search .pagefind-ui__result-nested .pagefind-ui__result-link::before {
+  color: var(--muted);
+}
+#search .pagefind-ui__button {
+  color: var(--ink);
+  background: transparent;
+  border-color: var(--rule-strong);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-weight: 400;
+}
+#search .pagefind-ui__button:hover {
+  border-color: var(--ink);
+  background: var(--wash-2);
+}
+/* Where the note lives (its `section` metadata, see public/js/pagefind-init.js),
+   as a small kicker above the title rather than a tag pill below it. */
+#search .pagefind-ui__result-tags {
+  order: -1;
+  margin: 0 0 0.15rem;
+  gap: 0.5rem;
+}
+#search .pagefind-ui__result-tag {
+  padding: 0;
+  background: none;
+  color: var(--muted-warm);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 #search .pagefind-ui__search-clear {

@@ -32,6 +32,18 @@ import { downloadExport } from "../../lib/progress-transfer";
     }
     return s;
   }
+  // A note's folder hint ("Mathematics › Lycée") names its discipline as on
+  // disk; show it in the reader's language (the `discipline.*` keys, same
+  // normalisation as disciplineKey in lib/i18n.ts).
+  function folderHint(hint) {
+    const parts = hint.split(" › ");
+    const k =
+      "discipline." +
+      parts[0].normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const label = tt(k);
+    if (label && label !== k) parts[0] = label;
+    return parts.join(" › ");
+  }
   const esc = (s) =>
     String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 
@@ -236,7 +248,7 @@ import { downloadExport } from "../../lib/progress-transfer";
           `<div role="option" id="palette-o${i}" class="palette-opt palette-opt--${it.kind}" data-i="${i}" aria-selected="false">` +
           `<span class="palette-opt-icon">${icon(it.kind)}</span>` +
           `<span class="palette-opt-text"><span class="palette-opt-title">${highlight(it.title, q)}</span>` +
-          (it.hint && it.hint !== "·" ? `<span class="palette-opt-hint">${esc(it.hint)}</span>` : "") +
+          (it.hint && it.hint !== "·" ? `<span class="palette-opt-hint">${esc(it.kind === "note" ? folderHint(it.hint) : it.hint)}</span>` : "") +
           `</span></div>`;
       }
       html += `</div>`;

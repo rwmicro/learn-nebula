@@ -3,6 +3,7 @@ import {
   getAllPosts,
   getDomains,
   getHomeTree,
+  getTags,
   homeFolderLabel,
   type DomainGroup,
   type HomeTreeNode,
@@ -21,6 +22,10 @@ export interface HomeData {
   tree: HomeTreeNode[];
   domains: DomainGroup[];
   graph: GraphData;
+  /** Every tag with a /themes/<slug>/ page, as [name, slug, note count]
+   *  (most used first) — the home search's "Thèmes" scope matches them.
+   *  Tuples, not objects: ~350 entries, a few KB. */
+  tags: [string, string, number][];
 }
 
 let cache: { data: HomeData; json: string; version: string } | null = null;
@@ -30,6 +35,7 @@ function load() {
     tree: getHomeTree(),
     domains: getDomains(),
     graph: buildGraph({ foldersOnly: true }),
+    tags: getTags().map((g) => [g.name, g.slug, g.notes.length]),
   };
   const json = JSON.stringify(data);
   const version = crypto

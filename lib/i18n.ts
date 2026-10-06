@@ -83,3 +83,13 @@ export function disciplineKey(name: string): string | null {
   const key = `discipline.${k}`;
   return k && lookup(BUNDLES[DEFAULT_LOCALE], key) != null ? key : null;
 }
+
+/** The i18n key of a vault folder name as shown in breadcrumbs and search
+ * results: the two top groups ("Social Sciences" → "nav.socialsciences"), a
+ * discipline (see {@link disciplineKey}), or null for any other folder, which
+ * keeps its on-disk name. */
+export function folderKey(name: string): string | null {
+  if (name === "Applied Sciences") return "nav.appliedsciences";
+  if (name === "Social Sciences") return "nav.socialsciences";
+  return disciplineKey(name);
+}
