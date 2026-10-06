@@ -109,8 +109,8 @@ export function SearchMissesCard({ token, onUnauthorized, onToast }: AdminCardPr
             return (
               <li key={key}>
                 <span className="admin-group-count tabular-nums">{m.count}×</span>
-                <span className="flex min-w-0 flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                  <span className="min-w-0">
+                <span className="flex min-w-0 items-start justify-between gap-3">
+                  <span className="min-w-0 flex-1">
                     <a
                       href={`/?q=${encodeURIComponent(m.q)}`}
                       className={`block break-words rounded text-ink underline-offset-2 hover:underline ${FOCUS_RING}`}
