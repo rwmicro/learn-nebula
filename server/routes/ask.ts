@@ -8,12 +8,12 @@ import { stream } from "hono/streaming";
 import { env, canGenerate } from "../env.ts";
 import { Cooldown, InFlight, Quota } from "../ratelimit.ts";
 import { getIp, ndLine } from "../http.ts";
-import { search, scopePrefix, ragState } from "../rag.ts";
+import { search, scopePrefix, ragState, ASK_TOP_K, ASK_MIN_SCORE } from "../rag.ts";
 import { anthropicDeltas, chatConfig, openaiChatDeltas } from "../llm.ts";
 import { logQuestion, type RetrievalStats } from "../db.ts";
 
-const TOP_K = 5;
-const MIN_SCORE = 0.4;
+const TOP_K = ASK_TOP_K;
+const MIN_SCORE = ASK_MIN_SCORE;
 const MAX_QUESTION = 1000;
 const MAX_SELECTION = 4000;
 const MAX_TOKENS = 1024;

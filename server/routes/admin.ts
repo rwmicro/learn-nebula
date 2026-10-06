@@ -4,6 +4,10 @@
 //   GET /api/admin/version      → served build vs. pensine's latest commit (server/version.ts)
 //   GET /api/admin/vault-health → the build-time vault report (scripts/vault-health.ts)
 //   GET /api/admin/prereq-suggestions → draft `prerequis` edges (scripts/prereq-suggestions.ts)
+//   GET /api/admin/blocked-words → { words, hold } — the comment word filter
+//   PUT /api/admin/blocked-words { words: string[], hold?: boolean } → same shape back
+//   …plus the tools in admin-tools.ts (search misses, rebuild, prereq PR,
+//   retrieval bench, facts to check), mounted at the end of this file.
 
 import fs from "node:fs";
 import { Hono } from "hono";
@@ -11,6 +15,9 @@ import { isAdmin } from "../auth.ts";
 import { getIp } from "../http.ts";
 import { env } from "../env.ts";
 import { versionStatus } from "../version.ts";
+import { HOLD_BLOCKED_KEY, blockedWords, holdBlocked, setBlockedWords, setSetting } from "../db.ts";
+import { MAX_WORDS, sanitizeWords } from "../blocked-words.ts";
+import { adminToolsRoute } from "./admin-tools.ts";
 
 export const adminRoute = new Hono();
 
@@ -47,3 +54,33 @@ adminRoute.get("/prereq-suggestions", (c) => {
   }
   return c.body(raw, 200, { "content-type": "application/json; charset=utf-8" });
 });
+
+adminRoute.get("/blocked-words", (c) => {
+  try {
+    return c.json({ words: blockedWords(), hold: holdBlocked(), max: MAX_WORDS });
+  } catch (e) {
+    console.error("admin: blocked words read failed", e);
+    return c.json({ error: "Base de commentaires indisponible." }, 503);
+  }
+});
+
+adminRoute.put("/blocked-words", async (c) => {
+  let payload: { words?: unknown; hold?: unknown };
+  try {
+    payload = await c.req.json();
+  } catch {
+    return c.json({ error: "Requête invalide." }, 400);
+  }
+  if (!Array.isArray(payload.words)) return c.json({ error: "words : liste attendue." }, 400);
+  try {
+    setBlockedWords(sanitizeWords(payload.words));
+    if (typeof payload.hold === "boolean") setSetting(HOLD_BLOCKED_KEY, payload.hold ? "1" : "0");
+    return c.json({ words: blockedWords(), hold: holdBlocked(), max: MAX_WORDS });
+  } catch (e) {
+    console.error("admin: blocked words write failed", e);
+    return c.json({ error: "Base de commentaires indisponible." }, 503);
+  }
+});
+
+// Mounted after the gate above, so every tool route is token-checked too.
+adminRoute.route("/", adminToolsRoute);

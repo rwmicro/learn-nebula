@@ -46,6 +46,27 @@ export function initDb(): Database.Database {
       created_at INTEGER NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_translations_created ON translations(created_at DESC);
+
+    -- Comment word filter, edited from /admin (server/blocked-words.ts).
+    CREATE TABLE IF NOT EXISTS blocked_words (
+      word TEXT PRIMARY KEY,
+      created_at INTEGER NOT NULL
+    );
+    -- Small owner settings (key/value), e.g. whether blocked words hold a
+    -- comment for moderation even when Turnstile would publish it.
+    CREATE TABLE IF NOT EXISTS admin_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS search_misses (
+      q TEXT NOT NULL,
+      "where" TEXT NOT NULL,
+      count INTEGER NOT NULL DEFAULT 1,
+      first_seen INTEGER NOT NULL,
+      last_seen INTEGER NOT NULL,
+      PRIMARY KEY (q, "where")
+    );
+    CREATE INDEX IF NOT EXISTS idx_search_misses_last ON search_misses(last_seen DESC);
   `);
   migrateQuestions(db);
   return db;
@@ -139,6 +160,62 @@ export function deleteComment(id: number): void {
   get().prepare("DELETE FROM comments WHERE id = ?").run(id);
 }
 
+/** Bulk moderation: one transaction, so a batch is all-or-nothing. Returns
+ *  how many rows were touched. */
+export function moderateMany(ids: number[], action: "approve" | "delete"): number {
+  const d = get();
+  const stmt =
+    action === "approve"
+      ? d.prepare("UPDATE comments SET status = 'approved' WHERE id = ?")
+      : d.prepare("DELETE FROM comments WHERE id = ?");
+  const run = d.transaction((list: number[]) => {
+    let n = 0;
+    for (const id of list) n += stmt.run(id).changes;
+    return n;
+  });
+  return run(ids);
+}
+
+/** Blocked words in the order they were added. */
+export function blockedWords(): string[] {
+  return (
+    get().prepare("SELECT word FROM blocked_words ORDER BY created_at, rowid").all() as {
+      word: string;
+    }[]
+  ).map((r) => r.word);
+}
+
+/** Replace the whole list (the admin UI edits it as one text area). Callers
+ *  pass it through sanitizeWords() first. */
+export function setBlockedWords(words: string[]): void {
+  const d = get();
+  const insert = d.prepare("INSERT OR IGNORE INTO blocked_words (word, created_at) VALUES (?, ?)");
+  d.transaction((list: string[]) => {
+    d.prepare("DELETE FROM blocked_words").run();
+    const now = Date.now();
+    list.forEach((w, i) => insert.run(w, now + i));
+  })(words);
+}
+
+export function getSetting(key: string): string | null {
+  const row = get().prepare("SELECT value FROM admin_settings WHERE key = ?").get(key) as
+    | { value: string }
+    | undefined;
+  return row?.value ?? null;
+}
+
+export function setSetting(key: string, value: string): void {
+  get()
+    .prepare("INSERT OR REPLACE INTO admin_settings (key, value) VALUES (?, ?)")
+    .run(key, value);
+}
+
+/** Setting key: hold comments containing a blocked word for moderation. */
+export const HOLD_BLOCKED_KEY = "blocked_words_hold";
+export function holdBlocked(): boolean {
+  return getSetting(HOLD_BLOCKED_KEY) !== "0"; // on by default
+}
+
 export interface QuestionRow {
   id: number;
   question: string;
@@ -216,6 +293,54 @@ export function storeTranslation(key: string, markdown: string): void {
   d.prepare(
     "DELETE FROM translations WHERE key NOT IN (SELECT key FROM translations ORDER BY created_at DESC LIMIT ?)",
   ).run(MAX_TRANSLATIONS);
+}
+
+export interface SearchMissRow {
+  q: string;
+  where: string;
+  count: number;
+  first_seen: number;
+  last_seen: number;
+}
+
+const MAX_SEARCH_MISSES = 1000;
+
+/** Count one zero-result search (already normalised by lib/search-miss.ts).
+ *  Like the questions log: no IP, nothing about who searched; self-trims to
+ *  the MAX_SEARCH_MISSES most recently seen queries. */
+export function recordSearchMiss(q: string, where: string, now = Date.now()): void {
+  const d = get();
+  d.prepare(
+    'INSERT INTO search_misses (q, "where", count, first_seen, last_seen) VALUES (?, ?, 1, ?, ?) ' +
+      'ON CONFLICT (q, "where") DO UPDATE SET count = count + 1, last_seen = excluded.last_seen',
+  ).run(q, where, now, now);
+  d.prepare(
+    'DELETE FROM search_misses WHERE rowid NOT IN (SELECT rowid FROM search_misses ORDER BY last_seen DESC LIMIT ?)',
+  ).run(MAX_SEARCH_MISSES);
+}
+
+const MISS_COLS = 'q, "where" AS "where", count, first_seen, last_seen';
+
+/** The most frequent misses and the most recent ones, for /admin. */
+export function searchMisses(limit = 50): { top: SearchMissRow[]; recent: SearchMissRow[]; total: number } {
+  const d = get();
+  const top = d
+    .prepare(`SELECT ${MISS_COLS} FROM search_misses ORDER BY count DESC, last_seen DESC LIMIT ?`)
+    .all(limit) as SearchMissRow[];
+  const recent = d
+    .prepare(`SELECT ${MISS_COLS} FROM search_misses ORDER BY last_seen DESC LIMIT ?`)
+    .all(limit) as SearchMissRow[];
+  const total = (d.prepare("SELECT count(*) AS n FROM search_misses").get() as { n: number }).n;
+  return { top, recent, total };
+}
+
+/** Dismiss one query (in one place, or everywhere when `where` is omitted). */
+export function deleteSearchMiss(q: string, where?: string): number {
+  const d = get();
+  const r = where
+    ? d.prepare('DELETE FROM search_misses WHERE q = ? AND "where" = ?').run(q, where)
+    : d.prepare("DELETE FROM search_misses WHERE q = ?").run(q);
+  return r.changes;
 }
 
 // Fallback if schema/comments.sql isn't shipped (kept in sync with that file).

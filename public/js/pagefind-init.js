@@ -65,6 +65,63 @@
     return s && s !== key ? s : fallback;
   }
 
+  // "Recherches sans résultat" for /admin — the same rule as the home search
+  // (lib/search-miss.ts, which this unbundled script can't import): a query
+  // of 3+ characters that stays unchanged for 1.5s and that Pagefind answers
+  // with nothing is POSTed once per page view. The check re-runs the search
+  // through the same pagefind.js module the UI loaded (cached, so cheap)
+  // rather than scraping the UI's localised "no results" message.
+  var MISS_MIN = 3;
+  var MISS_MAX = 100;
+  var MISS_SETTLE_MS = 1500;
+  var missSent = {};
+  var missTimer = null;
+
+  function normaliseMiss(q) {
+    var s = String(q)
+      .replace(/[\u0000-\u001f\u007f\u200b-\u200f\u202a-\u202e\u2066-\u2069\ufeff]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase()
+      .slice(0, MISS_MAX)
+      .trim();
+    return Array.from(s).length >= MISS_MIN ? s : null;
+  }
+
+  function checkMiss(raw) {
+    var q = normaliseMiss(raw);
+    if (!q || missSent[q]) return;
+    var mod = "/pagefind/pagefind.js";
+    import(mod)
+      .then(function (pf) {
+        return pf.search(raw.trim());
+      })
+      .then(function (res) {
+        if (!res || (res.results && res.results.length) || missSent[q]) return;
+        missSent[q] = true;
+        return fetch("/api/search-miss", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ q: q, where: "note" }),
+          keepalive: true,
+        });
+      })
+      .catch(function () {});
+  }
+
+  function watchMisses(el) {
+    el.addEventListener("input", function (e) {
+      var target = e.target;
+      if (!target || !target.classList || !target.classList.contains("pagefind-ui__search-input")) return;
+      clearTimeout(missTimer);
+      var value = target.value || "";
+      if (value.trim().length < MISS_MIN) return;
+      missTimer = setTimeout(function () {
+        if ((target.value || "") === value) checkMiss(value);
+      }, MISS_SETTLE_MS);
+    });
+  }
+
   function init() {
     if (window.PagefindUI) {
       const el = document.querySelector("#search");
@@ -78,6 +135,7 @@
           placeholder: t("sidebar.searchPlaceholder", "Rechercher dans les notes…"),
         },
       });
+      watchMisses(el);
       new MutationObserver(function () {
         stripMetaLabels(el);
       }).observe(el, { childList: true, subtree: true });

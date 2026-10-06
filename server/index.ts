@@ -16,6 +16,7 @@ import { translateRoute } from "./routes/translate.ts";
 import { relatedRoute } from "./routes/related.ts";
 import { questionsRoute } from "./routes/questions.ts";
 import { adminRoute } from "./routes/admin.ts";
+import { searchMissRoute } from "./routes/search-miss.ts";
 import { buildCSP, SITE_URL } from "../lib/site.ts";
 import { staticEntry, isFresh, cacheControlFor } from "./static-cache.ts";
 
@@ -57,6 +58,7 @@ app.route("/api/translate", translateRoute);
 app.route("/api/related", relatedRoute);
 app.route("/api/questions", questionsRoute);
 app.route("/api/admin", adminRoute);
+app.route("/api/search-miss", searchMissRoute);
 
 // serveStatic sends no Cache-Control at all, so every response — HTML pages
 // included — is subject to the browser's own heuristic caching (freshness ≈

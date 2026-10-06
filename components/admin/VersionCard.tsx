@@ -4,20 +4,10 @@
 // (server/version.ts): what the running image was built from vs. pensine's
 // latest commit on GitHub.
 
-import { useCallback, useEffect, useState } from "react";
-import {
-  CardHeader,
-  Dot,
-  ErrorLine,
-  FOCUS_RING,
-  Muted,
-  RefreshButton,
-  Unauthorized,
-  adminFetch,
-  fmtDateTime,
-} from "./shared";
+import { CardHeader, Dot, ErrorLine, FOCUS_RING, Muted, RefreshButton, fmtDateTime, type AdminCardProps } from "./shared";
+import { URLS, useAdminResource } from "./store";
 
-interface VersionStatus {
+export interface VersionStatus {
   build: {
     builtAt: string | null;
     site: { sha: string | null };
@@ -43,27 +33,10 @@ function Sha({ repo, sha }: { repo: string; sha: string | null | undefined }) {
   );
 }
 
-export function VersionCard({ token, onUnauthorized }: { token: string; onUnauthorized: () => void }) {
-  const [data, setData] = useState<VersionStatus | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-
-  const load = useCallback(async () => {
-    setBusy(true);
-    try {
-      setData(await adminFetch<VersionStatus>("/api/admin/version", token));
-      setError(null);
-    } catch (e) {
-      if (e instanceof Unauthorized) onUnauthorized();
-      else setError("Impossible de lire la version en ligne.");
-    } finally {
-      setBusy(false);
-    }
-  }, [token, onUnauthorized]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+export function VersionCard({ token, onUnauthorized }: AdminCardProps) {
+  const res = useAdminResource<VersionStatus>(URLS.version, token, onUnauthorized);
+  const data = res.data;
+  const error = res.failed ? "Impossible de lire la version en ligne." : null;
 
   const vaultRepo = data?.build?.pensine.repo ?? DEFAULT_VAULT_REPO;
   const served = data?.build?.pensine;
@@ -71,14 +44,14 @@ export function VersionCard({ token, onUnauthorized }: { token: string; onUnauth
   return (
     <section id="admin-version" className="admin-card">
       <CardHeader title="version en ligne">
-        <RefreshButton busy={busy} onClick={load} label="Revérifier la version en ligne" />
+        <RefreshButton busy={res.busy} onClick={() => res.reload()} label="Revérifier la version en ligne" />
       </CardHeader>
       {error && <ErrorLine>{error}</ErrorLine>}
       {!data && !error && <Muted>Chargement…</Muted>}
       {data && (
         <>
           <StatusLine data={data} vaultRepo={vaultRepo} />
-          <dl className="admin-dl m-0 mt-3 grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-small">
+          <dl className="admin-dl m-0 mt-3">
             <dt className="text-muted-warm">Build</dt>
             <dd className="m-0">
               {data.build ? (
