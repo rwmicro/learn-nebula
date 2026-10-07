@@ -53,7 +53,7 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   in `server/`. To exercise the assistant / comments / translate, build (`out/`)
   then `pnpm server` with the relevant env vars (see `.env.example`).
 - **Full-text search (Pagefind) only exists after `pnpm build`** (indexes `out/`).
-  In dev the home search gracefully falls back to title/folder filtering.
+  In dev the command palette's "Dans le texte" group simply never appears.
 - **`public/js/note.bundle.js` is generated** by `bundle-js.mjs` (git-ignored) —
   never edit it; edit the source `public/js/*.js` and re-run bundle-js.
 - Verify UI changes **visually** (Playwright screenshots, desktop+mobile) — much
@@ -79,8 +79,12 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   (unified pipeline: callouts, manim, YouTube facade, vault assets, sidenotes),
   `lib/graph-data.ts` (`buildGraph`; `theme` = level-2 discipline), `lib/html.ts`
   (note HTML fragments), `lib/site.ts` (config + CSP), `lib/seo.ts`/`lib/jsonld.ts`.
-- **Client components**: `components/HomeContent.tsx` (search with scopes
-  notes/pdf/anki/themes, browse tree, RAG assistant, lazy graph preview),
+- **Search** is the command palette, `public/js/palette.js` (⌘K / Ctrl K, "/",
+  or the home's search field): note titles (`/notes-index.json`), disciplines,
+  tags, PDFs and Anki decks (`/palette-extra.json`), and note bodies via
+  Pagefind; "?" opens the keyboard shortcuts help.
+- **Client components**: `components/HomeContent.tsx` (browse tree, RAG
+  assistant, lazy graph preview; its search field opens the palette),
   `components/Graph.tsx` (force-graph), `Header.tsx` (masthead + mobile hamburger),
   `LangSwitcher.tsx`, etc.
 - **Backend** (`server/`, Hono on Node, typecheck with `tsc -p server/tsconfig.json`):

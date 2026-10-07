@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import { getIndexDoc, getPdfAssets, getLangs, getReadingPaths, getRecentNotes } from "@/lib/content";
+import { getIndexDoc, getReadingPaths, getRecentNotes } from "@/lib/content";
 import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
 import { renderMarkdown } from "@/lib/markdown";
 import { buildMetadata } from "@/lib/seo";
@@ -64,14 +64,12 @@ export default async function HomePage() {
       </div>
       <main id="main" className={newsreader.variable}>
         <RecentNotes notes={getRecentNotes()} />
-        {/* The full tree, the domains scope and the folder-graph preview
+        {/* The full tree and the folder-graph preview
             arrive as /home-data.json (lib/home-data.ts); the shell covers the
             first paint. */}
         <HomeContent
           shell={homeTreeShell()}
           dataVersion={homeDataVersion()}
-          pdfs={getPdfAssets()}
-          langs={getLangs()}
           hasPaths={getReadingPaths().length > 0}
         />
       </main>
