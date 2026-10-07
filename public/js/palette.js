@@ -6,9 +6,11 @@
 //
 // Lists: notes (title + folder, fuzzy and accent-insensitive via
 // lib/palette-match.ts), words found inside note bodies (Pagefind, the same
-// static full-text index as the home search, loaded only once a query is
-// typed; absent under `next dev`), the current note's sections (h2/h3),
-// actions (theme, random note, assistant) and the site's index pages. ARIA combobox +
+// static full-text index, loaded only once a query is typed; absent under
+// `next dev`), disciplines and tags with a page, PDF attachments and Anki
+// decks (/palette-extra.json), the current note's sections (h2/h3), actions
+// (theme, random note, assistant) and the site's index pages. It is the
+// site's one search: the home page's search field opens it too. ARIA combobox +
 // listbox inside a modal dialog: arrows move, Enter opens (Ctrl/⌘+Enter in a
 // new tab for links), Esc closes, Tab stays inside, focus returns to where it
 // was.
@@ -17,6 +19,7 @@
 // opens a small dialog listing the site's keyboard shortcuts.
 import { fold, rankItems, scoreItem } from "../../lib/palette-match";
 import { downloadExport } from "../../lib/progress-transfer";
+import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
 
 (function () {
   if (window.__palette) return;
@@ -65,6 +68,8 @@ import { downloadExport } from "../../lib/progress-transfer";
   let lastFocus = null;
   let notes = null; // [{kind, title, hint, href}]
   let notesState = "idle"; // idle | loading | ready | error
+  let themes = []; // [{kind: "theme", title, hint, href, keywords}]
+  let docs = []; // [{kind: "doc", title, hint, href, newTab}]
   let shown = []; // flat list of rendered items
   let active = 0;
   // Full-text hits for `textQuery`: [{kind: "text", title, hint, href, excerpt}].
@@ -78,6 +83,8 @@ import { downloadExport } from "../../lib/progress-transfer";
 
   const ICON = {
     note: '<path d="M7 3.5h7l4 4V20.5H7z M14 3.5v4h4" />',
+    theme: '<path d="M4 12.5V4h8.5L20 11.5 12.5 19z" /><circle cx="8.5" cy="8.5" r="1.3" />',
+    doc: '<path d="M6 3.5h12v17H6z M9 8h6M9 12h6M9 16h3" />',
     section: '<path d="M5 7h14M5 12h10M5 17h12" />',
     action: '<path d="M13 3L5 13h6l-1 8 8-10h-6z" />',
     nav: '<path d="M5 12h13M13 6l6 6-6 6" />',
@@ -111,6 +118,54 @@ import { downloadExport } from "../../lib/progress-transfer";
         notesState = "error";
         if (isOpen()) render();
       });
+    loadExtra();
+  }
+
+  // Disciplines, tags, PDFs and decks. Best effort: without it the palette
+  // still finds notes.
+  function loadExtra() {
+    const v = doc.querySelector('meta[name="gk-palette-extra"]');
+    fetch("/palette-extra.json" + (v && v.content ? "?v=" + encodeURIComponent(v.content) : ""))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) return;
+        themes = (data.themes || []).map(([title, href, n, dkey]) => ({
+          kind: "theme",
+          title: String(title),
+          dkey: dkey ? String(dkey) : "",
+          n: Number(n) || 0,
+          hint: "",
+          href: String(href),
+          keywords: dkey ? String(title) : "",
+        }));
+        docs = (data.docs || []).map(([title, href, where, type]) => ({
+          kind: "doc",
+          title: String(title),
+          where: where ? String(where) : "",
+          type: type === "deck" ? "deck" : "pdf",
+          hint: "",
+          href: String(href),
+          newTab: type !== "deck",
+          keywords: `${type === "deck" ? "anki cartes deck flashcards" : "pdf"} ${where || ""}`,
+        }));
+        localizeExtra();
+        if (isOpen()) render();
+      })
+      .catch(() => {});
+  }
+  // Titles and hints in the reader's language (re-run on i18n:change).
+  function localizeExtra() {
+    for (const t of themes) {
+      if (t.dkey) {
+        const label = tt(t.dkey);
+        if (label && label !== t.dkey) t.title = label;
+      }
+      t.meta = `${tt(t.dkey ? "themes.disciplineKicker" : "themes.tagKicker")} · ${tt(t.n === 1 ? "themes.countOne" : "themes.count", { n: t.n })}`;
+    }
+    for (const d of docs) {
+      const what = tt(d.type === "deck" ? "palette.deck" : "palette.pdf");
+      d.meta = d.where ? `${what} · ${folderHint(d.where)}` : what;
+    }
   }
 
   // --- full-text (Pagefind) --------------------------------------------------
@@ -302,6 +357,12 @@ import { downloadExport } from "../../lib/progress-transfer";
     const s = rankItems(q, secs, 8);
     if (s.length) out.push({ label: tt("palette.sections"), items: s });
     const seen = new Set(found.map((n) => pathOf(n.href)));
+    // Names only, no scattered-letter fallback: these lists are long and
+    // their misses would crowd the real results.
+    const th = rankItems(q, themes, 6, false);
+    if (th.length) out.push({ label: tt("palette.themes"), items: th });
+    const dc = rankItems(q, docs, 6, false);
+    if (dc.length) out.push({ label: tt("palette.docs"), items: dc });
     const t = text.filter((h) => !seen.has(pathOf(h.href))).slice(0, TEXT_MAX);
     if (t.length) out.push({ label: tt("palette.inText"), items: t });
     const a = rankItems(q, actions(), 5);
@@ -349,7 +410,9 @@ import { downloadExport } from "../../lib/progress-transfer";
           `<div role="option" id="palette-o${i}" class="palette-opt palette-opt--${it.kind}" data-i="${i}" aria-selected="false">` +
           `<span class="palette-opt-icon">${icon(it.kind)}</span>` +
           `<span class="palette-opt-text"><span class="palette-opt-title">${highlight(it.title, q)}</span>` +
-          (it.kind === "text"
+          (it.meta
+            ? `<span class="palette-opt-hint">${esc(it.meta)}</span>`
+            : it.kind === "text"
             ? `<span class="palette-opt-hint">${esc([it.hint && folderHint(it.hint), it.sub].filter(Boolean).join(" › "))}</span>` +
               (it.excerpt ? `<span class="palette-opt-excerpt">${it.excerpt}</span>` : "")
             : it.hint && it.hint !== "·"
@@ -368,12 +431,25 @@ import { downloadExport } from "../../lib/progress-transfer";
     }
     list.innerHTML = html;
     statusEl.textContent = q ? status || tt("palette.results", { n: shown.length }) : "";
+    watchMiss(q, !status && !shown.length);
     const keep = prev ? shown.indexOf(prev) : -1;
     if (keep < 0 && prev && prev.kind !== "action") {
       const same = shown.findIndex((it) => it.kind === prev.kind && it.href === prev.href);
       if (same >= 0) active = same;
     } else if (keep >= 0) active = keep;
     setActive(Math.min(active, Math.max(0, shown.length - 1)), false);
+  }
+
+  // "Recherches sans résultat" for /admin (lib/search-miss.ts): a query that
+  // stays unchanged and empty-handed once every source has answered. Reported
+  // as "home": the palette is the site's main search.
+  let missTimer = 0;
+  function watchMiss(q, empty) {
+    clearTimeout(missTimer);
+    if (!empty) return;
+    missTimer = setTimeout(() => {
+      if (isOpen() && input.value.trim() === q && !shown.length) reportSearchMiss(q, "home");
+    }, SEARCH_MISS_SETTLE_MS);
   }
 
   function setActive(i, scroll = true) {
@@ -408,7 +484,7 @@ import { downloadExport } from "../../lib/progress-transfer";
       }
       return;
     }
-    if (newTab) {
+    if (newTab || item.newTab) {
       window.open(item.href, "_blank", "noopener");
       return;
     }
@@ -669,6 +745,7 @@ import { downloadExport } from "../../lib/progress-transfer";
   });
   doc.addEventListener("i18n:change", () => {
     label();
+    localizeExtra();
     if (helpOpen()) renderHelp();
     if (isOpen()) render();
   });
