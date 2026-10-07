@@ -242,13 +242,19 @@
     "intro": "按学科和主题浏览花园中的笔记。",
     "disciplines": "学科",
     "tags": "主题",
-    "tagsIntro": "至少两篇笔记共有的主题，按出现次数排序。",
+    "tagsIntro": "至少两篇笔记共有的主题，归入出现最多的学科之下。主题越常见，字号越大。",
     "count": "{n} 篇笔记",
+    "countOne": "1 篇笔记",
     "tagKicker": "主题",
     "disciplineKicker": "学科",
     "root": "综合",
     "topTags": "常见主题",
-    "all": "全部主题"
+    "all": "全部主题",
+    "allPaths": "全部路径（{n}）",
+    "more": "另外 {n} 个",
+    "filterPlaceholder": "筛选主题…",
+    "filterCount": "{n} 个主题",
+    "filterEmpty": "没有匹配的主题。"
   },
   "cartesIndex": {
     "title": "复习卡片",

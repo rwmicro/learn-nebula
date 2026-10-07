@@ -14,7 +14,7 @@ export default function ThemesPage() {
     <ThemesIndex
       disciplines={getDisciplines()}
       tags={getTags()}
-      hasPaths={getReadingPaths().length > 0}
+      paths={getReadingPaths()}
     />
   );
 }

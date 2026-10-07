@@ -242,13 +242,19 @@
     "intro": "Las notas del jardín por disciplina y por tema.",
     "disciplines": "Disciplinas",
     "tags": "Temas",
-    "tagsIntro": "Los temas que comparten al menos dos notas, del más frecuente al menos.",
+    "tagsIntro": "Los temas que comparten al menos dos notas, ordenados bajo la disciplina donde más aparecen. Cuanto más frecuente es un tema, más grande se escribe.",
     "count": "{n} notas",
+    "countOne": "1 nota",
     "tagKicker": "Tema",
     "disciplineKicker": "Disciplina",
     "root": "General",
     "topTags": "Temas frecuentes",
-    "all": "Todos los temas"
+    "all": "Todos los temas",
+    "allPaths": "Todos los recorridos ({n})",
+    "more": "{n} más",
+    "filterPlaceholder": "Filtrar temas…",
+    "filterCount": "{n} temas",
+    "filterEmpty": "Ningún tema coincide."
   },
   "cartesIndex": {
     "title": "Tarjetas de repaso",
