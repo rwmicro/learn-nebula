@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { tagSlug } from "./slug";
+import { TAG_ALIASES, tagKey, tagSlug } from "./slug";
 
 describe("tagSlug", () => {
   it("folds accents instead of dropping the letters", () => {
@@ -13,5 +13,21 @@ describe("tagSlug", () => {
   });
   it("keeps dotted numeric tags readable", () => {
     expect(tagSlug("802.11")).toBe("802-11");
+  });
+});
+
+describe("tagKey", () => {
+  it("folds synonyms onto one page", () => {
+    expect(tagKey("Deutsch")).toBe("allemand");
+    expect(tagKey("network")).toBe("reseau");
+    expect(tagKey("réseau")).toBe("reseau");
+  });
+  it("leaves other tags alone", () => {
+    expect(tagKey("Sécurité")).toBe("securite");
+  });
+  it("never points an alias at another alias", () => {
+    for (const target of Object.values(TAG_ALIASES)) {
+      expect(TAG_ALIASES[target]).toBeUndefined();
+    }
   });
 });

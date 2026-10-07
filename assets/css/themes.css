@@ -30,10 +30,13 @@
 }
 
 .themes-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-  text-transform: lowercase;
-  letter-spacing: -0.01rem;
-  font-size: 2rem;
+  /* Page titles in normal case, like a note's H1; small caps stay for
+     the small labels (kicker, back link, section headings). */
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.5rem);
   margin: 0 0 0.5rem;
   overflow-wrap: anywhere;
 }
@@ -116,6 +119,225 @@
   }
 }
 
+/* --- /themes/ index: wider page, cards, grouped cloud ---------------------- */
+.themes-page--index {
+  max-width: 72rem;
+}
+.themes-page--index > .themes-intro {
+  max-width: 46rem;
+}
+.themes-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 2.5rem 0 0.75rem;
+  border-bottom: 1px solid var(--rule-strong);
+}
+.themes-section-head .themes-h2 {
+  margin: 0;
+  border-bottom: 0;
+}
+.themes-page a.themes-more-link {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  color: var(--garden);
+  white-space: nowrap;
+}
+
+.themes-path-cards,
+.themes-disc-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+.themes-path-cards {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+}
+/* A path's colour family (lib/path-family.ts) as a stripe on its card. */
+.themes-page .themes-path-cards a.themes-card {
+  border-left: 4px solid var(--fam, var(--rule));
+  border-radius: 0 8px 8px 0; /* square on the stripe side */
+}
+.themes-page a.themes-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem 0.9rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  text-decoration: none;
+  transition: border-color 0.12s, background-color 0.12s;
+}
+.themes-page a.themes-card:hover {
+  border-color: var(--ink);
+  background: var(--wash);
+  text-decoration: none;
+}
+.themes-page a.themes-card:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.themes-card-title {
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+.themes-card:hover .themes-card-title {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.themes-card-meta {
+  font-size: 0.9rem;
+  color: var(--muted-warm);
+}
+.themes-card-tags {
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Read progress (components/ReadMarks.tsx sets --read and the text). */
+.themes-read {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: auto;
+  padding-top: 0.45rem;
+  font-size: 0.78rem;
+  color: var(--muted-warm);
+  font-variant-numeric: tabular-nums;
+}
+.themes-read-bar {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--rule);
+  overflow: hidden;
+}
+.themes-read-bar > span {
+  display: block;
+  height: 100%;
+  width: calc(var(--read, 0) * 100%);
+  background: var(--garden);
+}
+.themes-read:not(.is-started) .themes-read-text {
+  opacity: 0.7;
+}
+.themes-top + .themes-top {
+  margin-top: 0.5rem;
+}
+
+/* Tag cloud: size by frequency (themes-tier-1…4), one group per discipline. */
+.themes-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 26rem;
+  margin: -1rem 0 1.25rem;
+  padding: 0.35rem 0.1rem;
+  border-bottom: 1px solid var(--ink);
+  color: var(--muted-warm);
+}
+.themes-filter input {
+  flex: 1;
+  min-width: 0;
+  appearance: none;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 1.05rem;
+}
+.themes-filter input::placeholder {
+  color: var(--muted-warm);
+  font-style: italic;
+}
+.themes-filter input::-webkit-search-cancel-button {
+  appearance: none;
+}
+.themes-filter-count {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+.themes-groups {
+  columns: 3 20rem;
+  column-gap: 2.5rem;
+}
+.themes-group {
+  break-inside: avoid;
+  padding-bottom: 1rem;
+}
+.themes-group[hidden],
+.themes-rare[hidden] {
+  display: none;
+}
+.themes-group .themes-h3 {
+  margin-top: 0.25rem;
+}
+.themes-cloud li[hidden] {
+  display: none;
+}
+.themes-tier-1 > a {
+  font-size: 0.95rem;
+}
+.themes-tier-2 > a {
+  font-size: 1.05rem;
+}
+.themes-tier-3 > a {
+  font-size: 1.25rem;
+}
+.themes-tier-4 > a {
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+.themes-rare {
+  margin-top: 0.5rem;
+}
+.themes-rare > summary {
+  cursor: pointer;
+  width: fit-content;
+  font-size: 0.9rem;
+  color: var(--muted-warm);
+}
+.themes-rare > summary:hover {
+  color: var(--ink);
+}
+.themes-rare[open] > summary {
+  margin-bottom: 0.4rem;
+}
+/* Phones: two discipline cards per row, without the tag line. */
+@media (max-width: 560px) {
+  .themes-disc-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
+  .themes-disc-cards .themes-card-tags {
+    display: none;
+  }
+  .themes-page a.themes-card {
+    padding: 0.6rem 0.7rem 0.55rem;
+  }
+  .themes-card-title {
+    font-size: 1.05rem;
+  }
+}
+.themes-filter-empty {
+  color: var(--muted-warm);
+  font-style: italic;
+}
+
 /* Read checkmark after a note link (components/ReadMarks.tsx, from the
    reader's localStorage). Also used by /parcours/, which loads this file. */
 .read-check {
@@ -127,21 +349,6 @@
 }
 .themes-notes li.is-read > a {
   color: var(--ink-2);
-}
-
-/* Link to /parcours/ from the themes index. */
-.themes-paths {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  margin: -1rem 0 2rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-  text-transform: lowercase;
-  font-weight: 700;
-  font-size: 1.1rem;
-}
-.themes-page a.themes-paths {
-  color: var(--garden);
 }
 
 @media print {

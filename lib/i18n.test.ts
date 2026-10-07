@@ -47,7 +47,7 @@ describe("message bundles", () => {
     for (const loc of LOCALES) {
       expect(t("nav.appliedsciences", undefined, loc)).not.toBe("nav.appliedsciences");
       expect(t("nav.socialsciences", undefined, loc)).not.toBe("nav.socialsciences");
-      expect(t("home.searchClear", undefined, loc)).not.toBe("home.searchClear");
+      expect(t("home.searchPlaceholder", undefined, loc)).not.toBe("home.searchPlaceholder");
     }
   });
 

@@ -107,11 +107,16 @@ const collator = new Intl.Collator("fr", { numeric: true, sensitivity: "base" })
  * Items matching `query`, best first (ties: shorter title, then A→Z), at most
  * `limit`. Subsequence matches are only a fallback: as soon as one item
  * contains every token as a substring, scattered-letter matches ("kant" in
- * "Kata Ganti") are noise and are left out.
+ * "Kata Ganti") are noise and are left out. `fuzzy: false` never falls back.
  */
-export function rankItems<T extends Matchable>(query: string, items: T[], limit = Infinity): T[] {
+export function rankItems<T extends Matchable>(
+  query: string,
+  items: T[],
+  limit = Infinity,
+  fuzzy = true,
+): T[] {
   let scored = collect(query, items, false);
-  if (!scored.length) scored = collect(query, items, true);
+  if (!scored.length && fuzzy) scored = collect(query, items, true);
   scored.sort(
     (a, b) =>
       b.score - a.score ||
