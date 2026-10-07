@@ -427,7 +427,8 @@
     "assistant": "打开助手",
     "current": "当前",
     "exportProgress": "导出我的进度",
-    "importProgress": "导入进度"
+    "importProgress": "导入进度",
+    "shortcuts": "键盘快捷键"
   },
   "progression": {
     "title": "我的进度",
@@ -531,5 +532,27 @@
     "religion": "宗教",
     "sociology": "社会学",
     "theatre": "戏剧"
+  },
+  "shortcuts": {
+    "title": "键盘快捷键",
+    "everywhere": "全站",
+    "openPalette": "打开搜索",
+    "help": "显示此帮助",
+    "closeAny": "关闭窗口",
+    "paletteGroup": "搜索中",
+    "move": "在结果间移动",
+    "jump": "跳过 8 个结果",
+    "open": "打开",
+    "openTab": "在新标签页打开",
+    "cards": "卡片与复习",
+    "flip": "翻转卡片，显示答案",
+    "grade": "给答案评分",
+    "prevNext": "上一张、下一张卡片",
+    "images": "放大的图片",
+    "imgPrevNext": "上一张、下一张图片",
+    "paths": "路径图",
+    "zoom": "放大、缩小、适应",
+    "pan": "移动图",
+    "close": "关闭"
   }
 }

@@ -427,7 +427,8 @@
     "assistant": "Ouvrir l’assistant",
     "current": "actuel",
     "exportProgress": "Exporter ma progression",
-    "importProgress": "Importer une progression"
+    "importProgress": "Importer une progression",
+    "shortcuts": "Raccourcis clavier"
   },
   "progression": {
     "title": "Ma progression",
@@ -531,5 +532,27 @@
     "religion": "Religion",
     "sociology": "Sociologie",
     "theatre": "Théâtre"
+  },
+  "shortcuts": {
+    "title": "Raccourcis clavier",
+    "everywhere": "Partout",
+    "openPalette": "Ouvrir la recherche",
+    "help": "Afficher cette aide",
+    "closeAny": "Fermer une fenêtre",
+    "paletteGroup": "Dans la recherche",
+    "move": "Passer d’un résultat à l’autre",
+    "jump": "Sauter de 8 résultats",
+    "open": "Ouvrir",
+    "openTab": "Ouvrir dans un nouvel onglet",
+    "cards": "Cartes et révision",
+    "flip": "Retourner la carte, montrer la réponse",
+    "grade": "Noter sa réponse",
+    "prevNext": "Carte précédente, suivante",
+    "images": "Images agrandies",
+    "imgPrevNext": "Image précédente, suivante",
+    "paths": "Graphe d’un parcours",
+    "zoom": "Zoomer, dézoomer, ajuster",
+    "pan": "Déplacer le graphe",
+    "close": "Fermer"
   }
 }

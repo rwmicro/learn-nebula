@@ -12,6 +12,9 @@
 // listbox inside a modal dialog: arrows move, Enter opens (Ctrl/⌘+Enter in a
 // new tab for links), Esc closes, Tab stays inside, focus returns to where it
 // was.
+//
+// "?" (outside text fields) or the palette's "Raccourcis clavier" action
+// opens a small dialog listing the site's keyboard shortcuts.
 import { fold, rankItems, scoreItem } from "../../lib/palette-match";
 import { downloadExport } from "../../lib/progress-transfer";
 
@@ -257,6 +260,7 @@ import { downloadExport } from "../../lib/progress-transfer";
       { kind: "action", title: tt("palette.assistant"), hint: "", keywords: "assistant ia ai question chat demander", run: openAssistant },
       { kind: "action", title: tt("palette.exportProgress"), hint: "", keywords: "exporter export progression sauvegarde backup lues cartes", run: exportProgress },
       { kind: "action", title: tt("palette.importProgress"), hint: "", keywords: "importer import progression restaurer transfert appareil", run: () => (location.href = "/progression/#importer") },
+      { kind: "action", title: tt("palette.shortcuts"), hint: "?", keywords: "raccourcis clavier shortcuts keyboard aide help touches", run: () => openHelp() },
     ];
   }
 
@@ -526,6 +530,106 @@ import { downloadExport } from "../../lib/progress-transfer";
     if (restoreFocus && lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
+  // --- keyboard shortcuts help ------------------------------------------------
+  let help = null;
+  let helpLastFocus = null;
+  const kbd = (k) => `<kbd>${esc(k)}</kbd>`;
+  function helpRows() {
+    const mod = isMac ? "⌘" : "Ctrl";
+    return [
+      ["shortcuts.everywhere", [
+        [[`${mod} K`, "/"], "shortcuts.openPalette"],
+        [["?"], "shortcuts.help"],
+        [["Esc"], "shortcuts.closeAny"],
+      ]],
+      ["shortcuts.paletteGroup", [
+        [["↑", "↓"], "shortcuts.move"],
+        [["PgUp", "PgDn"], "shortcuts.jump"],
+        [["Entrée"], "shortcuts.open"],
+        [[`${mod} Entrée`], "shortcuts.openTab"],
+      ]],
+      ["shortcuts.cards", [
+        [["Espace", "Entrée"], "shortcuts.flip"],
+        [["1", "2", "3", "4"], "shortcuts.grade"],
+        [["←", "→"], "shortcuts.prevNext"],
+      ]],
+      ["shortcuts.images", [[["←", "→"], "shortcuts.imgPrevNext"]]],
+      ["shortcuts.paths", [
+        [["+", "−", "0"], "shortcuts.zoom"],
+        [["←", "↑", "→", "↓"], "shortcuts.pan"],
+      ]],
+    ];
+  }
+  // Key names in the reader's language where they are words.
+  function keyLabel(k) {
+    const words = { Entrée: "Enter", Espace: "Space" };
+    if (!words[k]) return k;
+    const loc = (window.__i18n && window.__i18n.locale) || root.getAttribute("lang") || "fr";
+    return String(loc).startsWith("fr") ? k : words[k];
+  }
+  function renderHelp() {
+    const body = helpRows()
+      .map(
+        ([g, rows]) =>
+          `<section class="kbd-help-group"><h3>${esc(tt(g))}</h3><dl>` +
+          rows
+            .map(
+              ([keys, label]) =>
+                `<div class="kbd-help-row"><dt>${keys.map((k) => kbd(k.split(" ").map(keyLabel).join(" "))).join(" ")}</dt><dd>${esc(tt(label))}</dd></div>`,
+            )
+            .join("") +
+          `</dl></section>`,
+      )
+      .join("");
+    help.querySelector(".kbd-help-title").textContent = tt("shortcuts.title");
+    help.querySelector(".kbd-help-close").setAttribute("aria-label", tt("shortcuts.close"));
+    help.querySelector(".kbd-help-body").innerHTML = body;
+  }
+  function buildHelp() {
+    if (help) return;
+    help = doc.createElement("div");
+    help.className = "palette kbd-help";
+    help.hidden = true;
+    help.setAttribute("data-pagefind-ignore", "all");
+    help.innerHTML =
+      `<div class="palette-backdrop" data-help-close></div>` +
+      `<div class="palette-panel kbd-help-panel" role="dialog" aria-modal="true" aria-labelledby="kbd-help-title">` +
+      `<div class="kbd-help-head"><h2 id="kbd-help-title" class="kbd-help-title"></h2>` +
+      `<button type="button" class="palette-close kbd-help-close" data-help-close><kbd>Esc</kbd></button></div>` +
+      `<div class="kbd-help-body"></div></div>`;
+    doc.body.appendChild(help);
+    help.addEventListener("click", (e) => {
+      if (e.target instanceof Element && e.target.closest("[data-help-close]")) closeHelp();
+    });
+    help.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        closeHelp();
+      } else if (e.key === "Tab") {
+        // Only one stop: the close button.
+        e.preventDefault();
+        help.querySelector(".kbd-help-close").focus();
+      }
+    });
+  }
+  const helpOpen = () => !!help && !help.hidden;
+  function openHelp() {
+    buildHelp();
+    if (isOpen()) close(false);
+    helpLastFocus = doc.activeElement;
+    renderHelp();
+    help.hidden = false;
+    root.classList.add("palette-open");
+    help.querySelector(".kbd-help-close").focus();
+  }
+  function closeHelp() {
+    if (!helpOpen()) return;
+    help.hidden = true;
+    root.classList.remove("palette-open");
+    if (helpLastFocus && helpLastFocus.focus) helpLastFocus.focus();
+  }
+
   function editable(t) {
     return (
       t instanceof Element &&
@@ -537,7 +641,17 @@ import { downloadExport } from "../../lib/progress-transfer";
     if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") {
       e.preventDefault();
       if (isOpen()) close(true);
-      else open("");
+      else {
+        closeHelp();
+        open("");
+      }
+      return;
+    }
+    // "?" shows the shortcuts — unless typing.
+    if (e.key === "?" && !e.metaKey && !e.ctrlKey && !e.altKey && !isOpen() && !editable(e.target)) {
+      e.preventDefault();
+      if (helpOpen()) closeHelp();
+      else openHelp();
       return;
     }
     // "/" opens it too, as on most sites with a search box — unless typing.
@@ -555,6 +669,7 @@ import { downloadExport } from "../../lib/progress-transfer";
   });
   doc.addEventListener("i18n:change", () => {
     label();
+    if (helpOpen()) renderHelp();
     if (isOpen()) render();
   });
   doc.addEventListener("theme:change", () => {
@@ -562,9 +677,12 @@ import { downloadExport } from "../../lib/progress-transfer";
   });
   // bfcache restore: never come back to a page with the palette still open.
   window.addEventListener("pageshow", (e) => {
-    if (e.persisted) close(false);
+    if (e.persisted) {
+      close(false);
+      closeHelp();
+    }
   });
 
   syncKbd();
-  window.__palette = { open, close };
+  window.__palette = { open, close, help: openHelp };
 })();

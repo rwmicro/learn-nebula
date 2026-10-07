@@ -241,6 +241,69 @@ html.palette-open {
   color: var(--muted-warm);
 }
 
+/* --- keyboard shortcuts help ("?") --------------------------------------- */
+.kbd-help-panel {
+  width: min(34rem, 100%);
+}
+.kbd-help-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--rule);
+}
+.kbd-help-title {
+  margin: 0;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-size: 1.15rem;
+}
+.kbd-help-body {
+  overflow-y: auto;
+  padding: 0.3rem 1rem 1rem;
+}
+.kbd-help-group h3 {
+  margin: 0.8rem 0 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted-warm);
+}
+.kbd-help-group dl {
+  margin: 0;
+}
+.kbd-help-row {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.kbd-help-row dt {
+  flex: none;
+  width: 9.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.kbd-help-row dd {
+  margin: 0;
+  color: var(--ink-2);
+}
+.kbd-help kbd {
+  font-family: inherit;
+  font-size: 0.8rem;
+  min-width: 1.3em;
+  text-align: center;
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0 0.35rem;
+  background: var(--wash);
+}
+
 /* Phones: a full-width sheet from the top, keyboard-friendly (the input stays
    above the on-screen keyboard). */
 @media (max-width: 640px) {
