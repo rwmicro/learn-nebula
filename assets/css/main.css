@@ -3804,7 +3804,7 @@ main video {
 /* Stacked above the assistant's "Demander" button (bottom-right on notes). */
 body:has(.gk-pinned-trigger) .to-top,
 body:has(.gk-pinned) .to-top {
-  bottom: 4.4rem;
+  bottom: 5rem;
 }
 
 /* "Et ensuite ?" right after the text. */
