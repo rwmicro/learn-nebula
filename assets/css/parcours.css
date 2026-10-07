@@ -64,7 +64,7 @@ body:has(.parcours-page) footer {
   padding: 0.9rem 1rem;
   border: 1px solid var(--rule);
   border-left: 4px solid var(--fam, var(--rule));
-  border-radius: 6px;
+  border-radius: 0 6px 6px 0; /* square on the stripe side */
   background: var(--paper);
 }
 .themes-page a.parcours-card-link:hover {
