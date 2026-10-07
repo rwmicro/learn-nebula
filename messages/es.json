@@ -138,6 +138,9 @@
     "progression": "Mi progreso: exportar, importar"
   },
   "home": {
+    "intro1": "Este archivo reúne todo lo que he llegado a dominar a lo largo de mi vida.",
+    "intro2": "Creo en compartir el conocimiento: el conocimiento debe compartirse, para no olvidarlo nunca y para entender cómo funcionan las cosas.",
+    "intro3": "Está escrito principalmente en inglés y en francés, pero puede traducirse fácilmente a otro idioma.",
     "searchPlaceholder": "Buscar una nota, una palabra, un tema, un PDF…",
     "notesLabel": "Notas",
     "assetSize": "{size} MB",

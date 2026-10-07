@@ -138,6 +138,9 @@
     "progression": "Ma progression : exporter, importer"
   },
   "home": {
+    "intro1": "Ce fichier rassemble tout ce que j’ai appris à maîtriser au fil de ma vie.",
+    "intro2": "Je crois au partage du savoir : le savoir doit être partagé, pour ne jamais être oublié et pour comprendre comment les choses fonctionnent.",
+    "intro3": "Il est écrit principalement en anglais et en français, mais peut facilement être traduit dans une autre langue.",
     "searchPlaceholder": "Rechercher une note, un mot, un thème, un PDF…",
     "notesLabel": "Notes",
     "assetSize": "{size} Mo",
