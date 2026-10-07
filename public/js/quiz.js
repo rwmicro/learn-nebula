@@ -8,6 +8,7 @@
 // Click handling is delegated from the document, so it keeps working after
 // /js/translate.js swaps the article body. The self-grade row is created
 // here, after the build, so Pagefind never indexes it; print hides it.
+import { recordActivity } from "../../lib/personal";
 import {
   SELF_GRADE,
   addQuestion,
@@ -207,6 +208,7 @@ import { dayKey } from "../../lib/srs.ts";
       return;
     }
     window.dispatchEvent(new CustomEvent("gk:quiz-change"));
+    if (g) recordActivity("c");
     showStatus(card, deck, id);
   });
 

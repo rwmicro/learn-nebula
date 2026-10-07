@@ -61,6 +61,9 @@ export function Account() {
   const [msg, setMsg] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [expired, setExpired] = useState(false);
+  useEffect(() => {
+    if (new URLSearchParams(location.search).get("login") === "expired") setExpired(true);
+  }, []);
 
   const load = useCallback(async () => {
     const user = await fetchMe();
@@ -83,16 +86,43 @@ export function Account() {
   }, []);
 
   useEffect(() => {
-    setExpired(new URLSearchParams(location.search).get("login") === "expired");
-    void authConfig().then((c) => {
-      setCfg(c);
-      if (c.enabled) {
-        // Back from the e-mail link: the cookie is set, the hint not yet.
-        writeHint({ ...readHint(), in: true });
-        void load().then((u) => {
-          if (u) void syncNow({ force: true }).then(() => load());
-        });
-      } else setMe(null);
+    // Back from the e-mail link: /compte/#login=<token>&next=…. The token is
+    // handed to the server here (POST), never by a GET a mail scanner could
+    // spend; then the fragment is wiped from the address bar and history.
+    const hash = new URLSearchParams(location.hash.slice(1));
+    const token = hash.get("login");
+    const next = hash.get("next");
+    const signIn = token
+      ? fetch("/api/auth/verify", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ token }),
+        })
+          .then((r) => {
+            history.replaceState(null, "", location.pathname);
+            if (!r.ok) {
+              setExpired(true);
+              return false;
+            }
+            writeHint({ ...readHint(), in: true });
+            return true;
+          })
+          .catch(() => false)
+      : Promise.resolve(false);
+    void signIn.then((justIn) => {
+      if (justIn && next && /^\/(?!\/)/.test(next) && !next.startsWith("/compte/")) {
+        // First sync before leaving, so the coins are waiting there.
+        void syncNow({ force: true }).finally(() => location.assign(next));
+        return;
+      }
+      void authConfig().then((c) => {
+        setCfg(c);
+        if (c.enabled) {
+          void load().then((u) => {
+            if (u) void syncNow({ force: true }).then(() => load());
+          });
+        } else setMe(null);
+      });
     });
   }, [load]);
 
@@ -127,7 +157,7 @@ export function Account() {
         body: JSON.stringify({ id }),
       });
       const j = (await r.json().catch(() => ({}))) as { error?: string };
-      if (!r.ok) setMsg(tr(j.error === "funds" ? "shop.noFunds" : "shop.error"));
+      if (!r.ok) setMsg(tr(j.error === "insufficient" ? "shop.noFunds" : "shop.error"));
       else {
         setMsg(tr("shop.bought"));
         const item = ITEMS.find((i) => i.id === id);
@@ -299,7 +329,9 @@ export function Account() {
                 <span className="ledger-day">{e.day}</span>
                 <span className="ledger-what">
                   {tr(`coins.kind.${e.kind}`)}
-                  {e.ref && e.kind !== "active_day" && <span className="ledger-ref"> · {prettyRef(e.ref)}</span>}
+                  {e.ref && (e.kind === "read" || e.kind === "purchase") && (
+                    <span className="ledger-ref"> · {e.kind === "purchase" ? itemName(e.ref, tr) : prettyRef(e.ref)}</span>
+                  )}
                 </span>
                 <span className={`ledger-amount${e.amount < 0 ? " is-neg" : ""}`}>
                   {e.amount > 0 ? `+${e.amount}` : e.amount}
@@ -336,6 +368,13 @@ export function Account() {
       </section>
     </div>
   );
+}
+
+function itemName(ref: string, tr: (k: string) => string): string {
+  const id = ref.split("#")[0];
+  if (id === STREAK_FREEZE.id) return tr("shop.freezeName");
+  const item = ITEMS.find((i) => i.id === id);
+  return item ? tr(`avatar.items.${item.name}`) : id;
 }
 
 function prettyRef(ref: string): string {

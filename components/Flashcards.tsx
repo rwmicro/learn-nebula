@@ -1,5 +1,6 @@
 "use client";
 
+import { recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -188,6 +189,7 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
       const next = gradeCard(progress, ids[head], g, today);
       const q = g === "again" ? [...rest, head] : rest;
       saveProgress(slug, next);
+      recordActivity("c");
       setProgress(next);
       setQueue(q);
       setFlipped(false);

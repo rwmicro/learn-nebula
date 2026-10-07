@@ -4,7 +4,13 @@
 //
 //   GET  /api/auth/config  → { enabled, turnstileSiteKey? }
 //   POST /api/auth/request { email, turnstileToken?, next? } → { ok: true }
-//   GET  /api/auth/verify?token=…&next=… → 302 (sets gk_session)
+//   POST /api/auth/verify  { token } → { ok: true } (sets gk_session) | 400 { error: "expired" }
+//
+// The e-mail links to /compte/#login=<token>&next=…, a static page whose
+// script POSTs the token here. A GET that consumed the token would be spent
+// by the mail scanners that open every link of an incoming message before the
+// reader does; they don't run the page's script. The token sits in the
+// fragment, which no server or log ever sees.
 //   POST /api/auth/logout  → { ok: true } (clears gk_session)
 
 import { Hono } from "hono";
@@ -81,7 +87,7 @@ authRoute.post("/request", async (c) => {
     console.error("auth: token write failed", e);
     return c.json({ error: "unavailable" }, 503);
   }
-  const link = `${publicBase()}/api/auth/verify?token=${token}&next=${encodeURIComponent(next)}`;
+  const link = `${publicBase()}${ACCOUNT_PATH}#login=${token}&next=${encodeURIComponent(next)}`;
 
   if (mailConfigured()) {
     try {
@@ -97,23 +103,25 @@ authRoute.post("/request", async (c) => {
   return c.json({ ok: true });
 });
 
-authRoute.get("/verify", (c) => {
-  // The token is in this URL, but it is consumed before we redirect, so a
-  // Referer carrying it (same-origin only, per the site's Referrer-Policy)
-  // is worthless.
-  const token = c.req.query("token") ?? "";
-  let email: string | null;
+authRoute.post("/verify", async (c) => {
+  let token = "";
   try {
-    email = consumeLoginToken(database(), token);
-    if (!email) return c.redirect(`${ACCOUNT_PATH}?login=expired`, 302);
+    const body = (await c.req.json()) as { token?: unknown };
+    token = typeof body.token === "string" ? body.token : "";
+  } catch {
+    return c.json({ error: "invalid" }, 400);
+  }
+  try {
+    const email = consumeLoginToken(database(), token);
+    if (!email) return c.json({ error: "expired" }, 400);
     const db = database();
     const { id } = upsertUser(db, email);
     setSessionCookie(c, createSession(db, id));
   } catch (e) {
     console.error("auth: verify failed", e);
-    return c.redirect(`${ACCOUNT_PATH}?login=error`, 302);
+    return c.json({ error: "unavailable" }, 503);
   }
-  return c.redirect(safeNext(c.req.query("next")) ?? ACCOUNT_PATH, 302);
+  return c.json({ ok: true });
 });
 
 authRoute.post("/logout", (c) => {

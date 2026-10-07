@@ -60,7 +60,12 @@
     "linkCopied": "link copied",
     "copyCode": "copy",
     "copyCodeAria": "Copy the code",
-    "codeCopied": "copied"
+    "codeCopied": "copied",
+    "bookmark": "read later",
+    "bookmarked": "saved",
+    "focus": "focus",
+    "focusTitle": "Focus mode: the text alone (f)",
+    "focusExit": "Leave focus mode (Esc)"
   },
   "growth": {
     "tended": "last tended",
@@ -291,7 +296,8 @@
     "copyLink": "Copy link",
     "copyLinkAria": "Copy a link to this passage",
     "linkCopied": "Link copied",
-    "copyFailed": "Copy failed"
+    "copyFailed": "Copy failed",
+    "highlight": "Highlight"
   },
   "glossary": {
     "kicker": "Glossary",
@@ -490,7 +496,12 @@
     "errVersion": "This file comes from a newer version of the site: reload the page and try again.",
     "errEmpty": "The file holds no usable progress.",
     "errLink": "This transfer link is incomplete or damaged.",
-    "errRead": "Couldn’t read this file."
+    "errRead": "Couldn’t read this file.",
+    "statBookmarks": "notes to read later",
+    "statHighlights": "highlighted passages",
+    "kindBookmarks": "To read later",
+    "kindHighlights": "Highlights",
+    "kindActivity": "Activity days"
   },
   "pathStep": {
     "label": "Path",
@@ -554,6 +565,164 @@
     "paths": "Reading path graph",
     "zoom": "Zoom in, out, fit",
     "pan": "Pan the graph",
-    "close": "Close"
+    "close": "Close",
+    "reading": "In a note",
+    "nextPrevNote": "Next, previous note",
+    "top": "Back to top",
+    "contents": "Open the contents",
+    "focus": "Focus mode",
+    "bookmark": "Read later",
+    "home": "Go home"
+  },
+  "siteBar": {
+    "brand": "The garden",
+    "navAria": "Site menu"
+  },
+  "account": {
+    "title": "My account",
+    "myAccount": "My account",
+    "login": "Sign in",
+    "loading": "Loading…",
+    "offTitle": "Accounts aren’t open here",
+    "offText": "This site doesn’t offer accounts yet (or the server isn’t answering). Your progress is still kept in this browser.",
+    "offLink": "Export or import my progress",
+    "loginTitle": "Sign in to the garden",
+    "loginIntro": "No password: enter your address and you’ll get a link valid for 15 minutes.",
+    "perkSync": "Your progress saved and shared across your devices",
+    "perkCoins": "Coins for every note read and every review, and a daily streak",
+    "perkAvatar": "A little gardener to dress up with your coins",
+    "emailLabel": "E-mail address",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Send me the link",
+    "sent": "Done: a link was sent to {email}. It’s valid for 15 minutes.",
+    "expired": "This link has expired or was already used. Ask for a new one.",
+    "err": {
+      "invalid": "This address doesn’t look valid.",
+      "limited": "Too many requests: try again in a few minutes.",
+      "disabled": "Accounts aren’t open on this site for now.",
+      "error": "Sending failed. Try again a bit later."
+    },
+    "privacy": "Only your address, time zone, progress and coins are kept. You can delete the account at any time.",
+    "hello": "Hello, gardener!",
+    "private": "Only you can see this page.",
+    "settings": "Account and sync",
+    "syncedAt": "Last synced: {time}",
+    "notSynced": "Not synced from this browser yet.",
+    "syncNow": "Sync now",
+    "synced": "Synced",
+    "logout": "Sign out",
+    "delete": "Delete my account",
+    "deleteConfirm": "Delete the account, its coins and its copy of your progress? This browser’s progress stays."
+  },
+  "avatar": {
+    "aria": "Your little gardener",
+    "title": "My gardener",
+    "intro": "Try an item by clicking it, buy the missing ones with your coins, then save.",
+    "save": "Save this look",
+    "saved": "Look saved.",
+    "slot": {
+      "body": "Colour",
+      "hat": "Hat",
+      "accessory": "Accessory",
+      "background": "Background"
+    },
+    "items": {
+      "leaf": "Leaf",
+      "sky": "Sky",
+      "sun": "Sun",
+      "plum": "Plum",
+      "coral": "Coral",
+      "ink": "Ink",
+      "none": "None",
+      "beret": "Beret",
+      "cap": "Graduation cap",
+      "wizard": "Wizard hat",
+      "crown": "Crown",
+      "glasses": "Glasses",
+      "scarf": "Scarf",
+      "book": "Book",
+      "paper": "Paper",
+      "garden": "Garden",
+      "night": "Starry night"
+    }
+  },
+  "coins": {
+    "unit": "coins",
+    "toast": "+{n} coins",
+    "kind": {
+      "welcome": "Welcome",
+      "read": "Note read",
+      "review": "Review",
+      "active": "Active day",
+      "streak": "Streak milestone",
+      "purchase": "Purchase"
+    },
+    "howTitle": "How to earn coins",
+    "ruleRead": "Note read to the end: 5 coins (at most 10 notes a day)",
+    "ruleReview": "Card or question reviewed: 1 coin (at most 50 a day)",
+    "ruleDay": "Active day (at least one note or review): 10 coins",
+    "ruleStreak": "Streaks of 7, 30 and 100 days: 50, 200 and 500 coins",
+    "ledgerTitle": "Coin history"
+  },
+  "streak": {
+    "days": "days in a row",
+    "best": "best",
+    "freezes": "streak freezes"
+  },
+  "shop": {
+    "title": "Shop",
+    "freezeName": "Streak freeze",
+    "freezeText": "A missed day doesn’t break your streak. At most {max} in reserve.",
+    "bought": "Bought!",
+    "noFunds": "Not enough coins yet.",
+    "error": "That didn’t work, try again."
+  },
+  "review": {
+    "pill": "{n} to review",
+    "pillTitle": "{n} cards or questions to review today"
+  },
+  "calendar": {
+    "title": "My regularity",
+    "last30": "{n} active days in the last 30",
+    "run": "current streak: {n} d",
+    "aria": "Calendar of the last six months: {n} active days in the last 30",
+    "cell": "{r} notes read, {c} reviews",
+    "none": "nothing that day",
+    "less": "less",
+    "more": "more"
+  },
+  "marks": {
+    "bookmarksTitle": "To read later",
+    "bookmarksEmpty": "No note kept for later. The “to read later” button is at the top of every note.",
+    "highlightsTitle": "My highlights",
+    "highlightsEmpty": "No passage highlighted. Select a passage in a note, then “Highlight”.",
+    "remove": "Remove “{title}” from the list",
+    "more": "and {n} more"
+  },
+  "offline": {
+    "save": "Make available offline",
+    "saving": "Saving… {n}/{total}",
+    "saved": "The {n} notes read offline.",
+    "remove": "Remove"
+  },
+  "nextUp": {
+    "title": "What next?",
+    "pathNext": "Next step · {path}",
+    "folderNext": "Next note in this folder",
+    "unread": "Not read yet, in {discipline}",
+    "allRead": "You’ve read everything in {discipline}!",
+    "seeAll": "The whole discipline: {discipline}"
+  },
+  "condensed": {
+    "left": "{min} min left"
+  },
+  "toTop": {
+    "aria": "Back to the top of the note"
+  },
+  "highlight": {
+    "open": "Highlight: add a note or remove it",
+    "noteLabel": "My note on this passage",
+    "save": "Save",
+    "remove": "Remove highlight"
   }
 }

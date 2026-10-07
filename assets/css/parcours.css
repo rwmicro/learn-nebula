@@ -1043,3 +1043,41 @@ body:has(.parcours-page) footer {
     opacity: 1 !important;
   }
 }
+
+/* "Disponible hors ligne" (components/OfflinePath.tsx). */
+.offline-path {
+  margin: 0.4rem 0 0.8rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.9rem;
+}
+.offline-path-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink-soft);
+  padding: 0.2rem 0.8rem;
+  font: inherit;
+  cursor: pointer;
+}
+.offline-path-btn::before {
+  content: "";
+  width: 0.9em;
+  height: 0.9em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.offline-path-btn:hover:not(:disabled) {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.offline-path-ok {
+  color: var(--garden);
+  font-weight: 600;
+}
+.offline-path-ok + .offline-path-btn::before {
+  display: none;
+}

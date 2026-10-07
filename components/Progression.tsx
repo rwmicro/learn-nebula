@@ -6,6 +6,7 @@
 // and a transfer link that holds the data compressed in its #fragment. All of
 // it runs client-side; the format and merge rules are lib/progress-transfer.ts.
 
+import { MyMarks } from "@/components/MyMarks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -236,6 +237,9 @@ export function Progression() {
     ["questions", "kindQuestions"],
     ["known", "kindKnown"],
     ["targets", "kindTargets"],
+    ["bookmarks", "kindBookmarks"],
+    ["highlights", "kindHighlights"],
+    ["activity", "kindActivity"],
   ];
 
   return (
@@ -265,6 +269,8 @@ export function Progression() {
               <Stat n={summary?.cards} label={tr("statCards")} />
               <Stat n={summary?.questions} label={tr("statQuestions")} />
               <Stat n={summary?.known} label={tr("statKnown")} />
+              <Stat n={summary?.bookmarks} label={tr("statBookmarks")} />
+              <Stat n={summary?.highlights} label={tr("statHighlights")} />
             </dl>
             {summary &&
               !summary.read &&
@@ -272,12 +278,17 @@ export function Progression() {
               !summary.cards &&
               !summary.questions &&
               !summary.known &&
-              !summary.targets && (
+              !summary.targets &&
+              !summary.bookmarks &&
+              !summary.highlights &&
+              !summary.activeDays && (
                 <p className="progression-muted">{tr("empty")}</p>
               )}
           </>
         )}
       </section>
+
+      <MyMarks />
 
       <section className="progression-actions" aria-label={tr("title")}>
         <div className="progression-action">

@@ -34,9 +34,9 @@ import { loginMail } from "./mail";
 
 describe("login mail", () => {
   it("carries the link in both parts, escaped in the HTML", () => {
-    const m = loginMail("https://4d52.net/api/auth/verify?token=abc&next=%2F");
-    expect(m.text).toContain("https://4d52.net/api/auth/verify?token=abc&next=%2F");
-    expect(m.html).toContain("token=abc&#38;next=%2F");
+    const m = loginMail("https://4d52.net/compte/#login=abc&next=%2F");
+    expect(m.text).toContain("https://4d52.net/compte/#login=abc&next=%2F");
+    expect(m.html).toContain("login=abc&#38;next=%2F");
     expect(m.subject).toMatch(/connexion/);
   });
 });

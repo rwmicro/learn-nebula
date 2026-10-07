@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Progression } from "@/components/Progression";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/progression.css";
+import "@/assets/css/account.css";
 
 // noindex: the page is a tool over the reader's own browser storage, empty
 // for a crawler. Linked from /cartes/, the footer and the command palette.
