@@ -242,13 +242,19 @@
     "intro": "The garden's notes by discipline and by theme.",
     "disciplines": "Disciplines",
     "tags": "Themes",
-    "tagsIntro": "Themes shared by at least two notes, most common first.",
+    "tagsIntro": "Themes shared by at least two notes, filed under the discipline where they come up most. The more common a theme, the larger it is written.",
     "count": "{n} notes",
+    "countOne": "1 note",
     "tagKicker": "Theme",
     "disciplineKicker": "Discipline",
     "root": "General",
     "topTags": "Common themes",
-    "all": "All themes"
+    "all": "All themes",
+    "allPaths": "All paths ({n})",
+    "more": "{n} more",
+    "filterPlaceholder": "Filter themes…",
+    "filterCount": "{n} themes",
+    "filterEmpty": "No theme matches."
   },
   "cartesIndex": {
     "title": "Flashcards",

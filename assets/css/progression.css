@@ -23,10 +23,13 @@
 }
 
 .progression-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-  text-transform: lowercase;
-  letter-spacing: -0.01rem;
-  font-size: 2rem;
+  /* Page titles in normal case, like a note's H1; small caps stay for
+     the small labels (kicker, back link, section headings). */
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.5rem);
   margin: 0 0 0.5rem;
 }
 .progression-intro {
