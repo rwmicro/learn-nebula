@@ -162,6 +162,7 @@
 /* A path's colour family (lib/path-family.ts) as a stripe on its card. */
 .themes-page .themes-path-cards a.themes-card {
   border-left: 4px solid var(--fam, var(--rule));
+  border-radius: 0 8px 8px 0; /* square on the stripe side */
 }
 .themes-page a.themes-card {
   display: flex;
