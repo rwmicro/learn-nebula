@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
 import { getIndexDoc, getReadingPaths, getRecentNotes } from "@/lib/content";
 import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
-import { renderMarkdown } from "@/lib/markdown";
+import { t } from "@/lib/i18n";
 import { buildMetadata } from "@/lib/seo";
 import { JsonLd } from "@/components/JsonLd";
 import { graph, personJsonLd, websiteJsonLd } from "@/lib/jsonld";
@@ -39,19 +39,21 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const doc = getIndexDoc();
-  const { html, hasMath } = await renderMarkdown(doc.body);
-
-  // Masthead body (rendered Markdown + intro image) — kept as HTML since
-  // Markdown→HTML can't become components. The <h1> lives in <Header>.
-  const masthead =
-    (hasMath ? `<link rel="stylesheet" href="/katex/katex.min.css">` : "");
-
   return (
     <>
-      <div dangerouslySetInnerHTML={{ __html: masthead }} />
       <Header doc={doc} />
       <div className='w-11/12 mx-auto text-center text-lead text-muted mt-5 md:mt-10'>
-      <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-ink-2 mt-5 md:mt-10" />
+      {/* The index note's text lives in messages/*.json (home.intro1-3), not in
+          the vault note, so the language switcher swaps it like any UI string
+          with no call to /api/translate. Edit it there in all five locales. */}
+      <div className="mb-5 text-ink-2 mt-5 md:mt-10">
+        <p>
+          <span data-i18n="home.intro1">{t("home.intro1")}</span>{" "}
+          <span data-i18n="home.intro2">{t("home.intro2")}</span>{" "}
+          <span data-i18n="home.intro3">{t("home.intro3")}</span>
+        </p>
+        <p><em lang="en" dir="ltr">The Gardener.</em></p>
+      </div>
           <div className="w-full md:w-11/12 max-w-11/12 mx-auto">
             <span className="home-frame mb-2 block">
               <picture>
