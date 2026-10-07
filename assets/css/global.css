@@ -978,3 +978,377 @@ footer {
 [data-family="arts"] { --fam-h: 332; --fam-s: 52%; }
 [data-family="langues"] { --fam-h: 270; --fam-s: 45%; }
 [data-family="jeux"] { --fam-h: 210; --fam-s: 12%; }
+
+/* ---------------------------------------------------------------------------
+   Site bar (components/SiteBar.tsx): the one menu, the same on every page.
+   The home's masthead carries the same links, so the bar steps aside there. */
+.site-bar {
+  margin: -1.2rem 2rem 1.4rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  border-bottom: 1px solid var(--rule);
+}
+body:has(.home-masthead) .site-bar {
+  display: none;
+}
+.site-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem 1.2rem;
+  min-height: 2.6rem;
+  padding: 0.25rem 0;
+}
+.site-bar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--ink);
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-bar-brand:hover {
+  background: transparent;
+  color: var(--garden);
+}
+.site-bar-nav ul,
+.site-bar-menu-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.site-bar-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 1rem;
+}
+.site-bar-nav li,
+.site-bar-menu-panel li {
+  margin: 0;
+}
+.site-bar-nav a,
+.site-bar-menu-panel a,
+.home-nav a {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-underline-offset: 4px;
+}
+.site-bar-nav a:hover,
+.site-bar-menu-panel a:hover,
+.home-nav a:hover {
+  background: transparent;
+  color: var(--ink);
+  text-decoration: underline;
+}
+.site-bar-nav a[aria-current="page"],
+.site-bar-menu-panel a[aria-current="page"],
+.home-nav a[aria-current="page"] {
+  color: var(--garden);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+.home-nav ul {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.home-nav li {
+  margin: 0;
+}
+@media (min-width: 640px) {
+  .home-nav ul {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 1.75rem;
+  }
+  .home-nav a {
+    font-size: var(--text-small);
+    color: var(--ink);
+  }
+}
+.site-bar-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-inline-start: auto;
+}
+.site-bar-menu {
+  display: none;
+  position: relative;
+}
+.site-bar-menu summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.site-bar-menu summary::-webkit-details-marker {
+  display: none;
+}
+.site-bar-menu[open] summary,
+.site-bar-menu summary:hover {
+  background: var(--wash-2);
+  color: var(--ink);
+}
+.site-bar-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 60;
+  min-width: 12rem;
+  padding: 0.6rem 1.1rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+}
+.site-bar-menu-panel li + li {
+  margin-top: 0.55rem;
+}
+@media (max-width: 1080px) {
+  .site-bar {
+    margin: -1.2rem 1.2rem 1.2rem;
+  }
+}
+@media (max-width: 860px) {
+  .site-bar-nav {
+    display: none;
+  }
+  .site-bar-menu {
+    display: block;
+  }
+}
+@media (max-width: 640px) {
+  .site-bar {
+    margin: -1.4rem 0.9rem 1rem;
+  }
+  .site-bar .palette-kbd {
+    display: none;
+  }
+}
+@media print {
+  .site-bar {
+    display: none;
+  }
+}
+
+/* Account button (components/AccountChip.tsx) and the review reminder. */
+.account-login {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.75rem;
+  border-radius: 999px;
+  background: var(--garden);
+  color: var(--paper);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.account-login:hover {
+  background: var(--garden-hover);
+  color: var(--paper);
+}
+.account-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.12rem 0.55rem 0.12rem 0.12rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  color: var(--ink);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+.account-chip:hover {
+  border-color: var(--ink);
+  background: var(--wash);
+}
+.account-chip-coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.coin-dot {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffe28a, #e0a526 65%, #b9801a);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+}
+.review-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.6rem;
+  border-radius: 999px;
+  background: var(--garden-wash);
+  color: var(--garden);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.review-pill:hover {
+  background: var(--garden);
+  color: var(--paper);
+}
+.review-pill-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  animation: review-pulse 2.4s ease-in-out infinite;
+}
+@keyframes review-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+.coin-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.4rem;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem 0.55rem 0.7rem;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.25);
+  animation: coin-toast-in 3.8s ease both;
+}
+.coin-toast-why {
+  font-weight: 400;
+  opacity: 0.8;
+}
+.coin-toast-coin {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffe28a, #e0a526 65%, #b9801a);
+  animation: coin-spin 0.9s ease-out 2;
+}
+@keyframes coin-toast-in {
+  0% {
+    transform: translate(-50%, 140%);
+    opacity: 0;
+  }
+  10%,
+  85% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, 140%);
+    opacity: 0;
+  }
+}
+@keyframes coin-spin {
+  50% {
+    transform: scaleX(0.15);
+  }
+}
+
+/* The sprout avatar (components/Avatar.tsx). */
+.avatar {
+  display: block;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.avatar-bob {
+  transform-origin: 50% 90%;
+  animation: avatar-breathe 3.6s ease-in-out infinite;
+}
+.avatar-sprout {
+  transform-origin: 50px 40px;
+  transform-box: view-box;
+  animation: avatar-sway 4.2s ease-in-out infinite;
+}
+.avatar-eyes {
+  transform-origin: 50px 61px;
+  transform-box: view-box;
+  animation: avatar-blink 5s infinite;
+}
+.avatar-star {
+  animation: avatar-twinkle 2.6s ease-in-out infinite;
+}
+.avatar-star--late {
+  animation-delay: 1.3s;
+}
+.avatar--still .avatar-bob,
+.avatar--still .avatar-sprout,
+.avatar--still .avatar-eyes,
+.avatar--still .avatar-star {
+  animation: none;
+}
+@keyframes avatar-breathe {
+  50% {
+    transform: translateY(-2.5px) scale(1.015, 0.985);
+  }
+}
+@keyframes avatar-sway {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+@keyframes avatar-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes avatar-twinkle {
+  50% {
+    opacity: 0.25;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatar-bob,
+  .avatar-sprout,
+  .avatar-eyes,
+  .avatar-star,
+  .review-pill-dot,
+  .coin-toast-coin {
+    animation: none;
+  }
+  .coin-toast {
+    animation-name: none;
+    transform: translateX(-50%);
+  }
+}

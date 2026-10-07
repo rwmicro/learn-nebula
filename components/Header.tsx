@@ -4,6 +4,9 @@ import { t } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
 import { EditionDate } from "@/components/EditionDate";
 import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
+import { NAV } from "@/lib/site";
+import { SiteNavLinks } from "@/components/SiteNavLinks";
+import { AccountChip, ReviewPill } from "@/components/AccountChip";
 
 // Blackletter wordmark, à la New York Times. next/font self-hosts the file at
 // build time (served from our origin), so `font-src 'self'` keeps holding and
@@ -15,9 +18,6 @@ const blackletter = UnifrakturMaguntia({
   fallback: ["Georgia", "serif"],
 });
 
-const navLink =
-  "text-ink no-underline underline-offset-[3px] hover:bg-transparent hover:underline focus-visible:underline";
-
 /** New-York-Times-style masthead in three tiers:
  *  1. utility bar — search · language "editions" · graph CTA
  *  2. masthead — dateline (left) · blackletter wordmark (center) · tagline (right)
@@ -28,7 +28,9 @@ export default function Header({ doc }: { doc: Doc }) {
   const editionIso = new Date().toISOString();
 
   return (
-    <header className="relative mx-auto max-w-300 px-4 text-ink @container">
+    // `home-masthead`: the site bar (components/SiteBar.tsx) hides itself on
+    // the page that carries this masthead, which lists the same links.
+    <header className="home-masthead relative mx-auto max-w-300 px-4 text-ink @container">
       {/* Peer checkbox drives the mobile section-nav dropdown (#6). CSS-only, so
           it works in the static export with no JS. */}
       <input
@@ -52,6 +54,8 @@ export default function Header({ doc }: { doc: Doc }) {
           className="contents"
           dangerouslySetInnerHTML={{ __html: paletteButtonHtml() }}
         />
+        <ReviewPill />
+        <AccountChip />
       </div>
 
       {/* 2. masthead: dateline · wordmark · tagline. On mobile the dateline is
@@ -87,37 +91,16 @@ export default function Header({ doc }: { doc: Doc }) {
         aria-label={t("home.footerNavAria")}
         className="relative hidden peer-checked:block sm:block"
       >
-        <ul className="absolute right-2 top-1 z-30 m-0 flex w-max list-none flex-col items-end gap-2.5 rounded-[4px] border border-rule-strong bg-paper px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-7 sm:gap-y-1 sm:border-0 sm:border-b sm:border-rule sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none">
-          <li className="m-0">
-            <a href="/#applied-sciences" className={navLink} data-i18n="nav.appliedsciences">
-              {t("nav.appliedsciences")}
-            </a>
-          </li>
-          <li className="m-0 hidden sm:block">·</li>
-          <li className="m-0">
-            <a href="/#social-sciences" className={navLink} data-i18n="nav.socialsciences">
-              {t("nav.socialsciences")}
-            </a>
-          </li>
-          <li className="m-0 hidden sm:block">·</li>
-          <li className="m-0">
-            <a href="/graph/" className={navLink} data-i18n="nav.graph">
-              {t("nav.graph")}
-            </a>
-          </li>
-          <li className="m-0 hidden sm:block">·</li>
-          <li className="m-0">
-            <a href="/themes/" className={navLink} data-i18n="nav.themes">
-              {t("nav.themes")}
-            </a>
-          </li>
-          <li className="m-0 hidden sm:block">·</li>
-          <li className="m-0">
-            <a href="/hasard/" className={navLink} data-i18n="nav.random">
-              {t("nav.random")}
-            </a>
-          </li>
-        </ul>
+        {/* The same links as the site bar on every other page
+            (components/SiteBar.tsx), from lib/site.ts NAV. */}
+        <div className="home-nav absolute right-2 top-1 z-30 w-max rounded-[4px] border border-rule-strong bg-paper px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:border-0 sm:border-b sm:border-rule sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none">
+          <SiteNavLinks
+            links={[
+              ...NAV.filter((n) => n.href !== "/"),
+              { name: "nav.progression", href: "/progression/" },
+            ].map((n) => ({ href: n.href, key: n.name, label: t(n.name) }))}
+          />
+        </div>
       </nav>
     </header>
   );
