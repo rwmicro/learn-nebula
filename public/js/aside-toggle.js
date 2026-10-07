@@ -16,10 +16,8 @@
   function setOpen(open) {
     if (open) {
       document.body.dataset.asideOpen = "true";
-      const input =
-        aside.querySelector(".pagefind-ui__search-input") ||
-        aside.querySelector(".note-search");
-      if (input) setTimeout(() => input.focus(), 50);
+      // Focus the drawer itself (its first control is the close button).
+      if (closeBtn) setTimeout(() => closeBtn.focus(), 50);
     } else {
       document.body.dataset.asideOpen = "false";
       try {

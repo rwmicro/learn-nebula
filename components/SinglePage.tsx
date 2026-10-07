@@ -37,7 +37,6 @@ import {
 } from "@/lib/html";
 import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
 import { JsonLd } from "@/components/JsonLd";
-import { PagefindAssets } from "@/components/PagefindAssets";
 import { NoteFeatureScripts } from "@/components/NoteScripts";
 import { franc } from "franc-min";
 
@@ -208,7 +207,6 @@ export async function SinglePage({
         dangerouslySetInnerHTML={{ __html: main }}
       />
       {jsonLd && <JsonLd data={jsonLd} />}
-      {note && <PagefindAssets />}
       {note && <NoteFeatureScripts quiz={hasQuiz} glossary={hasGlossary} />}
     </>
   );

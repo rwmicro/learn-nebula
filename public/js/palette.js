@@ -356,6 +356,16 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
       // Scattered-letter title matches ("entropie" in "anthropologie") are a
       // last resort; once the text has real hits they are only noise.
       if (text.length) found = found.filter((n) => scoreItem(q, n, false) !== null);
+      // A note found by its title and by its text shows both: the title row
+      // carries the passage, and links to its section, so a word that is
+      // also in the title ("kabyle") still shows where the text uses it.
+      if (text.length) {
+        const byPath = new Map(text.map((h) => [pathOf(h.href), h]));
+        found = found.map((n) => {
+          const h = byPath.get(pathOf(n.href));
+          return h ? { ...n, href: h.href, sub: h.sub, excerpt: h.excerpt } : n;
+        });
+      }
       if (found.length) out.push({ label: tt("palette.notes"), items: found });
     }
     const s = rankItems(q, secs, 8);
@@ -415,9 +425,13 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
             : it.kind === "text"
             ? `<span class="palette-opt-hint">${esc([it.hint && folderHint(it.hint), it.sub].filter(Boolean).join(" › "))}</span>` +
               (it.excerpt ? `<span class="palette-opt-excerpt">${it.excerpt}</span>` : "")
-            : it.hint && it.hint !== "·"
-              ? `<span class="palette-opt-hint">${esc(it.kind === "note" ? folderHint(it.hint) : it.hint)}</span>`
-              : "") +
+            : (it.hint && it.hint !== "·"
+                ? `<span class="palette-opt-hint">${esc(
+                    it.kind === "note"
+                      ? [folderHint(it.hint), it.sub].filter(Boolean).join(" › ")
+                      : it.hint,
+                  )}</span>`
+                : "") + (it.excerpt ? `<span class="palette-opt-excerpt">${it.excerpt}</span>` : "")) +
           `</span></div>`;
       }
       html += `</div>`;
