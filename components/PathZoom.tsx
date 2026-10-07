@@ -46,7 +46,7 @@ export function PathZoom({ children, label }: { children: ReactNode; label: stri
     const ch = Number(svg.getAttribute("height")) || 0;
     const vw = vp.clientWidth;
     // Viewport height: the drawing's own, up to most of the screen.
-    const vh = Math.min(ch, Math.max(260, Math.round(window.innerHeight * 0.72)));
+    const vh = Math.min(ch, Math.max(260, Math.round(window.innerHeight * 0.82)));
     const b = { vw, vh, cw, ch };
     boxRef.current = b;
     setBox(b);

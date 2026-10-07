@@ -8,7 +8,39 @@
    dashed check — close to lue), maîtrisée (solid green + star); plus "next"
    (blue frame) and the target (violet ring). */
 
+/* The body is a centred 1100px column (global.css), sized for notes; these
+   pages escape it like /cartes/ does (cartes.css), and the footer stays in
+   a centred column. Scoped with :has() because route CSS stays loaded after a
+   client-side navigation away. */
+body:has(.parcours-page) {
+  max-width: none;
+}
+body:has(.parcours-page) footer {
+  max-width: 43rem;
+  margin-inline: auto;
+}
+@media (max-width: 640px) {
+  body:has(.parcours-page) footer {
+    margin-inline: 0.9rem;
+  }
+}
+.parcours-page {
+  max-width: 76rem;
+  padding-inline: clamp(1.2rem, 4vw, 3.5rem);
+}
+/* One path: the graph gets most of a wide screen (a path can fan out to
+   seven or more notes side by side); the prose around it keeps a readable
+   measure. */
 .parcours-page--path {
+  max-width: 100rem;
+  padding-inline: clamp(1.2rem, 4vw, 3.5rem);
+}
+.parcours-page--path > .themes-intro,
+.parcours-page--path > .parcours-next {
+  max-width: 46rem;
+}
+.parcours-page--path > .themes-h2,
+.parcours-page--path > .parcours-order {
   max-width: 60rem;
 }
 
@@ -18,7 +50,12 @@
   margin: 0;
   padding: 0;
   display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 30rem), 1fr));
   gap: 0.8rem;
+}
+.parcours-card,
+.parcours-card-link {
+  height: 100%;
 }
 .parcours-card-link {
   display: flex;
@@ -65,7 +102,8 @@
 /* Thumbnail graph: dots for notes, filled by state. */
 .pm {
   flex: none;
-  max-width: 5.5rem;
+  max-width: 7rem;
+  max-height: 7rem;
   height: auto;
 }
 .pm-edge {
