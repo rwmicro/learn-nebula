@@ -1,5 +1,6 @@
 "use client";
 
+import { HomeBookmarks } from "@/components/HomeBookmarks";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { HomeTreeNode } from "@/lib/content";
 import type { HomeData } from "@/lib/home-data";
@@ -602,6 +603,8 @@ export function HomeContent({
           </span>
         </a>
       )}
+
+      <HomeBookmarks />
 
       {/* 2. two columns spread across the full body width */}
       <div className="grid grid-cols-1 gap-10 min-[700px]:items-start min-[700px]:justify-between min-[700px]:gap-y-0 min-[700px]:[grid-template-columns:minmax(240px,360px)_minmax(340px,580px)]">

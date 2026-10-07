@@ -60,7 +60,12 @@
     "linkCopied": "链接已复制",
     "copyCode": "复制",
     "copyCodeAria": "复制代码",
-    "codeCopied": "已复制"
+    "codeCopied": "已复制",
+    "bookmark": "稍后阅读",
+    "bookmarked": "已保存",
+    "focus": "专注",
+    "focusTitle": "专注模式：只显示正文（f）",
+    "focusExit": "退出专注模式（Esc）"
   },
   "growth": {
     "tended": "最近修订",
@@ -291,7 +296,8 @@
     "copyLink": "复制链接",
     "copyLinkAria": "复制指向这段文字的链接",
     "linkCopied": "链接已复制",
-    "copyFailed": "复制失败"
+    "copyFailed": "复制失败",
+    "highlight": "高亮"
   },
   "glossary": {
     "kicker": "术语表",
@@ -490,7 +496,12 @@
     "errVersion": "此文件来自较新版本的网站：请刷新页面后重试。",
     "errEmpty": "文件中没有可用的进度。",
     "errLink": "此转移链接不完整或已损坏。",
-    "errRead": "无法读取此文件。"
+    "errRead": "无法读取此文件。",
+    "statBookmarks": "篇稍后阅读",
+    "statHighlights": "处高亮",
+    "kindBookmarks": "稍后阅读",
+    "kindHighlights": "高亮",
+    "kindActivity": "活跃天数"
   },
   "pathStep": {
     "label": "路径",
@@ -554,6 +565,164 @@
     "paths": "路径图",
     "zoom": "放大、缩小、适应",
     "pan": "移动图",
-    "close": "关闭"
+    "close": "关闭",
+    "reading": "在笔记中",
+    "nextPrevNote": "下一篇、上一篇",
+    "top": "回到顶部",
+    "contents": "打开目录",
+    "focus": "专注模式",
+    "bookmark": "稍后阅读",
+    "home": "回到首页"
+  },
+  "siteBar": {
+    "brand": "花园",
+    "navAria": "网站菜单"
+  },
+  "account": {
+    "title": "我的账户",
+    "myAccount": "我的账户",
+    "login": "登录",
+    "loading": "加载中…",
+    "offTitle": "此处尚未开放账户",
+    "offText": "本网站暂未提供账户（或服务器无响应）。你的进度仍保存在此浏览器中。",
+    "offLink": "导出或导入我的进度",
+    "loginTitle": "登录花园",
+    "loginIntro": "无需密码：输入邮箱，你会收到一个 15 分钟内有效的链接。",
+    "perkSync": "进度保存并在设备间同步",
+    "perkCoins": "每读完一篇笔记、每次复习都能得金币，还有连续天数",
+    "perkAvatar": "用金币装扮你的小园丁",
+    "emailLabel": "电子邮箱",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "发送链接",
+    "sent": "已向 {email} 发送链接，15 分钟内有效。",
+    "expired": "此链接已过期或已使用，请重新获取。",
+    "err": {
+      "invalid": "邮箱地址似乎无效。",
+      "limited": "请求过多，请几分钟后再试。",
+      "disabled": "本站暂未开放账户。",
+      "error": "发送失败，请稍后再试。"
+    },
+    "privacy": "仅保存你的邮箱、时区、进度和金币。你可以随时删除账户。",
+    "hello": "你好，园丁！",
+    "private": "此页面仅你可见。",
+    "settings": "账户与同步",
+    "syncedAt": "上次同步：{time}",
+    "notSynced": "此浏览器尚未同步。",
+    "syncNow": "立即同步",
+    "synced": "已同步",
+    "logout": "退出登录",
+    "delete": "删除我的账户",
+    "deleteConfirm": "删除账户、金币及其进度副本？此浏览器中的进度会保留。"
+  },
+  "avatar": {
+    "aria": "你的小园丁",
+    "title": "我的园丁",
+    "intro": "点击试穿，用金币购买缺少的物品，然后保存。",
+    "save": "保存造型",
+    "saved": "造型已保存。",
+    "slot": {
+      "body": "颜色",
+      "hat": "帽子",
+      "accessory": "配饰",
+      "background": "背景"
+    },
+    "items": {
+      "leaf": "叶绿",
+      "sky": "天蓝",
+      "sun": "阳光",
+      "plum": "李紫",
+      "coral": "珊瑚",
+      "ink": "墨色",
+      "none": "无",
+      "beret": "贝雷帽",
+      "cap": "学位帽",
+      "wizard": "巫师帽",
+      "crown": "王冠",
+      "glasses": "眼镜",
+      "scarf": "围巾",
+      "book": "书",
+      "paper": "纸张",
+      "garden": "花园",
+      "night": "星夜"
+    }
+  },
+  "coins": {
+    "unit": "金币",
+    "toast": "+{n} 金币",
+    "kind": {
+      "welcome": "欢迎",
+      "read": "读完笔记",
+      "review": "复习",
+      "active": "活跃日",
+      "streak": "连续里程碑",
+      "purchase": "购买"
+    },
+    "howTitle": "如何获得金币",
+    "ruleRead": "读完一篇笔记：5 金币（每天最多 10 篇）",
+    "ruleReview": "复习一张卡片或一道题：1 金币（每天最多 50）",
+    "ruleDay": "活跃日（至少一篇笔记或一次复习）：10 金币",
+    "ruleStreak": "连续 7、30、100 天：50、200、500 金币",
+    "ledgerTitle": "金币记录"
+  },
+  "streak": {
+    "days": "天连续",
+    "best": "最佳",
+    "freezes": "连续保护"
+  },
+  "shop": {
+    "title": "商店",
+    "freezeName": "连续保护",
+    "freezeText": "错过一天不会中断连续记录。最多储备 {max} 个。",
+    "bought": "已购买！",
+    "noFunds": "金币还不够。",
+    "error": "操作失败，请重试。"
+  },
+  "review": {
+    "pill": "{n} 待复习",
+    "pillTitle": "今天有 {n} 张卡片或题目待复习"
+  },
+  "calendar": {
+    "title": "我的坚持",
+    "last30": "过去 30 天中有 {n} 天活跃",
+    "run": "当前连续：{n} 天",
+    "aria": "最近六个月日历：过去 30 天中有 {n} 天活跃",
+    "cell": "读完 {r} 篇笔记，复习 {c} 次",
+    "none": "这天没有活动",
+    "less": "少",
+    "more": "多"
+  },
+  "marks": {
+    "bookmarksTitle": "稍后阅读",
+    "bookmarksEmpty": "还没有稍后阅读的笔记。每篇笔记顶部都有“稍后阅读”按钮。",
+    "highlightsTitle": "我的高亮",
+    "highlightsEmpty": "还没有高亮。在笔记中选中一段文字，然后点击“高亮”。",
+    "remove": "从列表中移除“{title}”",
+    "more": "还有 {n} 篇"
+  },
+  "offline": {
+    "save": "离线可用",
+    "saving": "保存中… {n}/{total}",
+    "saved": "这 {n} 篇笔记可离线阅读。",
+    "remove": "移除"
+  },
+  "nextUp": {
+    "title": "接下来？",
+    "pathNext": "下一步 · {path}",
+    "folderNext": "本文件夹的下一篇",
+    "unread": "尚未阅读 · {discipline}",
+    "allRead": "你已读完 {discipline} 的全部笔记！",
+    "seeAll": "整个学科：{discipline}"
+  },
+  "condensed": {
+    "left": "还剩 {min} 分钟"
+  },
+  "toTop": {
+    "aria": "回到笔记顶部"
+  },
+  "highlight": {
+    "open": "高亮：添加备注或移除",
+    "noteLabel": "我对这段的备注",
+    "save": "保存",
+    "remove": "移除高亮"
   }
 }

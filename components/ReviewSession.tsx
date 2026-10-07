@@ -1,5 +1,6 @@
 "use client";
 
+import { recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -53,6 +54,7 @@ export function ReviewSession({
     (g: Grade) => {
       if (!revealed || !head) return;
       const state = onGrade(head, g);
+      recordActivity("c");
       const rest = queue.slice(1);
       const q = g === "again" ? [...rest, { ...head, state }] : rest;
       setQueue(q);
