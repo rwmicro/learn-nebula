@@ -40,6 +40,25 @@ interface AccountData {
   stats?: { notesRead?: number; reviews?: number; activeDays?: number };
 }
 
+/** One row per day for the small, repeated earnings (a review is 1 coin, so a
+ *  session would otherwise fill the list with "+1" rows). */
+function groupLedger(ledger: Ledger[]): (Ledger & { n: number })[] {
+  const out: (Ledger & { n: number })[] = [];
+  for (const e of ledger) {
+    const last = out[out.length - 1];
+    if (last && e.kind === "review" && last.kind === "review" && last.day === e.day) {
+      last.amount += e.amount;
+      last.n += 1;
+    } else out.push({ ...e, n: 1 });
+  }
+  return out;
+}
+
+function dayLabel(day: string, locale: string): string {
+  const d = new Date(`${day}T12:00:00`);
+  return Number.isNaN(d.getTime()) ? day : new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(d);
+}
+
 const SLOTS: Slot[] = ["body", "hat", "accessory", "background"];
 
 /**
@@ -331,11 +350,12 @@ export function Account() {
         <section className="acct-card" aria-labelledby="acct-ledger">
           <h2 id="acct-ledger">{tr("coins.ledgerTitle")}</h2>
           <ul className="ledger">
-            {data.ledger.slice(0, 20).map((e, i) => (
+            {groupLedger(data.ledger).slice(0, 20).map((e, i) => (
               <li key={`${e.day}-${e.kind}-${e.ref}-${i}`}>
-                <span className="ledger-day">{e.day}</span>
+                <span className="ledger-day">{dayLabel(e.day, locale)}</span>
                 <span className="ledger-what">
                   {tr(`coins.kind.${e.kind}`)}
+                  {e.n > 1 && <span className="ledger-ref"> × {e.n}</span>}
                   {e.ref && (e.kind === "read" || e.kind === "purchase") && (
                     <span className="ledger-ref"> · {e.kind === "purchase" ? itemName(e.ref, tr) : prettyRef(e.ref)}</span>
                   )}

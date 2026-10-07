@@ -983,6 +983,9 @@ footer {
    Site bar (components/SiteBar.tsx): the one menu, the same on every page.
    The home's masthead carries the same links, so the bar steps aside there. */
 .site-bar {
+  /* Sized by its own width, not the viewport: on a note it only spans the
+     text column, where the links would wrap onto three lines. */
+  container-type: inline-size;
   margin: -1.2rem 2rem 1.4rem;
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   border-bottom: 1px solid var(--rule);
@@ -1125,7 +1128,7 @@ body:has(.home-masthead) .site-bar {
     margin: -1.2rem 1.2rem 1.2rem;
   }
 }
-@media (max-width: 860px) {
+@container (max-width: 900px) {
   .site-bar-nav {
     display: none;
   }
