@@ -343,12 +343,16 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
       return out;
     }
     // Titles first; words from the text come after, minus notes the titles
-    // already listed. Fewer title rows once the text has answered, so both
-    // groups fit in view.
+    // already listed. Fewer title rows once other groups have answers, so
+    // they stay in view.
     const text = q === textQuery ? textHits : [];
+    // Names only, no scattered-letter fallback: these lists are long and
+    // their misses would crowd the real results.
+    const th = rankItems(q, themes, 6, false);
+    const dc = rankItems(q, docs, 6, false);
     let found = [];
     if (notes) {
-      found = rankItems(q, notes, text.length ? 12 : 30);
+      found = rankItems(q, notes, text.length || th.length || dc.length ? 12 : 30);
       // Scattered-letter title matches ("entropie" in "anthropologie") are a
       // last resort; once the text has real hits they are only noise.
       if (text.length) found = found.filter((n) => scoreItem(q, n, false) !== null);
@@ -357,11 +361,7 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
     const s = rankItems(q, secs, 8);
     if (s.length) out.push({ label: tt("palette.sections"), items: s });
     const seen = new Set(found.map((n) => pathOf(n.href)));
-    // Names only, no scattered-letter fallback: these lists are long and
-    // their misses would crowd the real results.
-    const th = rankItems(q, themes, 6, false);
     if (th.length) out.push({ label: tt("palette.themes"), items: th });
-    const dc = rankItems(q, docs, 6, false);
     if (dc.length) out.push({ label: tt("palette.docs"), items: dc });
     const t = text.filter((h) => !seen.has(pathOf(h.href))).slice(0, TEXT_MAX);
     if (t.length) out.push({ label: tt("palette.inText"), items: t });
