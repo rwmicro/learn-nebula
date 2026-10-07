@@ -63,6 +63,13 @@ export function Account() {
   const [expired, setExpired] = useState(false);
   useEffect(() => {
     if (new URLSearchParams(location.search).get("login") === "expired") setExpired(true);
+    // Opening the e-mail link while already on this page only changes the
+    // fragment, which mounts nothing: reload so the sign-in below runs.
+    const onHash = () => {
+      if (new URLSearchParams(location.hash.slice(1)).get("login")) location.reload();
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
   const load = useCallback(async () => {
