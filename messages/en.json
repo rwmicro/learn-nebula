@@ -138,6 +138,9 @@
     "progression": "My progress: export, import"
   },
   "home": {
+    "intro1": "This file contains all the work I mastered over my journey of life.",
+    "intro2": "I’m a believer in knowledge sharing: I think knowledge has to be shared, to never forget and to know how things work.",
+    "intro3": "It is primarily written in English and French but can be easily translated into another language.",
     "searchPlaceholder": "Search a note, a word, a theme, a PDF…",
     "notesLabel": "Notes",
     "assetSize": "{size} MB",
