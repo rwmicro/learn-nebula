@@ -3,6 +3,7 @@ import type { Discipline, ReadingPathView, TagGroup, ThemeNote } from "@/lib/con
 import { ReadMarks } from "@/components/ReadMarks";
 import { ThemesFilter } from "@/components/ThemesFilter";
 import { tagSlug } from "@/lib/slug";
+import { pathFamily } from "@/lib/path-family";
 
 /**
  * The /themes/ pages: an index of disciplines and tags, one page per tag
@@ -87,7 +88,7 @@ export function ThemesIndex({
           </div>
           <ul className="themes-path-cards">
             {paths.slice(0, PATHS_SHOWN).map((p) => (
-              <li key={p.slug}>
+              <li key={p.slug} data-family={pathFamily(p.discipline) ?? undefined}>
                 <a href={`/parcours/${p.slug}/`} className="themes-card">
                   <span className="themes-card-title">{p.name}</span>
                   <span className="themes-card-meta">

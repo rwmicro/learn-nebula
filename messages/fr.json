@@ -376,7 +376,17 @@
     "zoomHint": "Glisser pour déplacer · Ctrl + molette ou pincer pour zoomer · + − 0 au clavier",
     "pReadOne": "{n} lue",
     "pKnownOne": "{n} connue",
-    "pMasteredOne": "{n} maîtrisée"
+    "pMasteredOne": "{n} maîtrisée",
+    "family": {
+      "sciences": "Sciences",
+      "informatique": "Informatique",
+      "vivant": "Vivant",
+      "pensee": "Histoire et pensée",
+      "societe": "Sociétés",
+      "arts": "Arts et lettres",
+      "langues": "Langues",
+      "jeux": "Jeux"
+    }
   },
   "reading": {
     "read": "Lue",

@@ -376,7 +376,17 @@
     "zoomHint": "拖动移动 · Ctrl + 滚轮或双指缩放 · 键盘 + − 0",
     "pReadOne": "已读 {n}",
     "pKnownOne": "已了解 {n}",
-    "pMasteredOne": "已精通 {n}"
+    "pMasteredOne": "已精通 {n}",
+    "family": {
+      "sciences": "科学",
+      "informatique": "计算机",
+      "vivant": "生命科学",
+      "pensee": "历史与思想",
+      "societe": "社会",
+      "arts": "文学艺术",
+      "langues": "语言",
+      "jeux": "棋类"
+    }
   },
   "reading": {
     "read": "已读",

@@ -376,7 +376,17 @@
     "zoomHint": "اسحب للتحريك · Ctrl + العجلة أو القرص للتكبير · + − 0 بلوحة المفاتيح",
     "pReadOne": "{n} مقروءة",
     "pKnownOne": "{n} معروفة",
-    "pMasteredOne": "{n} متقنة"
+    "pMasteredOne": "{n} متقنة",
+    "family": {
+      "sciences": "العلوم",
+      "informatique": "المعلوماتية",
+      "vivant": "علوم الحياة",
+      "pensee": "التاريخ والفكر",
+      "societe": "المجتمعات",
+      "arts": "الفنون والآداب",
+      "langues": "اللغات",
+      "jeux": "الألعاب"
+    }
   },
   "reading": {
     "read": "مقروءة",
