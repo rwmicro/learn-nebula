@@ -9,6 +9,8 @@ import { graph, personJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import Header from "@/components/Header";
 import { HomeContent } from "@/components/HomeContent";
 import { RecentNotes } from "@/components/RecentNotes";
+import { HomeIntro } from "@/components/HomeIntro";
+import { franc } from "franc-min";
 
 // Editorial serif for the content zone. next/font self-hosts the files at build
 // time, so they are served from our own origin — no Google CDN request, and the
@@ -40,6 +42,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function HomePage() {
   const doc = getIndexDoc();
   const { html, hasMath } = await renderMarkdown(doc.body);
+  // The index note's prose language (fr or en, same heuristic as note pages):
+  // <HomeIntro> translates it whenever the interface language differs.
+  const introLang =
+    franc(doc.body, { only: ["fra", "eng"], minLength: 30 }) === "eng" ? "en" : "fr";
 
   // Masthead body (rendered Markdown + intro image) — kept as HTML since
   // Markdown→HTML can't become components. The <h1> lives in <Header>.
@@ -51,7 +57,7 @@ export default async function HomePage() {
       <div dangerouslySetInnerHTML={{ __html: masthead }} />
       <Header doc={doc} />
       <div className='w-11/12 mx-auto text-center text-lead text-muted mt-5 md:mt-10'>
-      <div dangerouslySetInnerHTML={{ __html: html }} className="mb-5 text-ink-2 mt-5 md:mt-10" />
+      <HomeIntro html={html} markdown={doc.body} sourceLang={introLang} className="mb-5 text-ink-2 mt-5 md:mt-10" />
           <div className="w-full md:w-11/12 max-w-11/12 mx-auto">
             <span className="home-frame mb-2 block">
               <picture>
