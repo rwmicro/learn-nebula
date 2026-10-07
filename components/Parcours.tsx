@@ -9,6 +9,7 @@ import { ReadMarks } from "@/components/ReadMarks";
 import { PathZoom } from "@/components/PathZoom";
 import { ParcoursStudy, type StudyNoteView } from "@/components/ParcoursStudy";
 import type { PathExtras } from "@/lib/path-extras";
+import { PATH_FAMILIES, familyRank, pathFamily } from "@/lib/path-family";
 
 /**
  * /parcours/ (an index of reading paths, one card each) and /parcours/<slug>/
@@ -28,6 +29,14 @@ export function ParcoursIndex({
   const groups = new Map<string, ReadingPathView[]>();
   for (const p of paths)
     groups.set(p.discipline, [...(groups.get(p.discipline) ?? []), p]);
+  // Sections run by colour family (sciences, informatique, vivant…), so the
+  // page reads as bands of one colour; the sort is stable within a family.
+  const sections = [...groups.entries()].sort(
+    ([a], [b]) => familyRank(a) - familyRank(b),
+  );
+  const families = PATH_FAMILIES.filter((f) =>
+    paths.some((p) => pathFamily(p.discipline) === f),
+  );
   return (
     <main id="main" className="themes-page parcours-page">
       <Back href="/themes/" labelKey="nav.themes" />
@@ -42,8 +51,22 @@ export function ParcoursIndex({
           {t("parcours.empty")}
         </p>
       )}
-      {[...groups.entries()].map(([discipline, list]) => (
-        <section key={discipline || "_"}>
+      {families.length > 1 && (
+        <ul className="parcours-families">
+          {families.map((f) => (
+            <li key={f} data-family={f}>
+              <span {...attrs(i18nAttrs(`parcours.family.${f}`))}>
+                {t(`parcours.family.${f}`)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {sections.map(([discipline, list]) => (
+        <section
+          key={discipline || "_"}
+          data-family={pathFamily(discipline) ?? undefined}
+        >
           <h2 className="themes-h2">
             {discipline ? (
               <DisciplineName name={discipline} />
@@ -138,6 +161,7 @@ export function ParcoursPage({
       className="themes-page parcours-page parcours-page--path"
       data-parcours
       data-path={path.slug}
+      data-family={pathFamily(path.discipline) ?? undefined}
     >
       {/* Revision answers can hold KaTeX markup from the notes. */}
       {extras.items.some((i) => /katex/.test(i.q + i.a)) && (

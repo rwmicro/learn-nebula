@@ -63,13 +63,15 @@ body:has(.parcours-page) footer {
   align-items: center;
   padding: 0.9rem 1rem;
   border: 1px solid var(--rule);
+  border-left: 4px solid var(--fam, var(--rule));
   border-radius: 6px;
   background: var(--paper);
 }
 .themes-page a.parcours-card-link:hover {
   text-decoration: none;
   border-color: var(--rule-strong);
-  background: var(--wash);
+  border-left-color: var(--fam, var(--rule-strong));
+  background: var(--fam-wash, var(--wash));
 }
 .parcours-card-link:hover .parcours-card-title {
   text-decoration: underline;
@@ -97,6 +99,38 @@ body:has(.parcours-page) footer {
 .parcours-card-meta {
   color: var(--muted-warm);
   font-size: 0.95rem;
+}
+
+/* Colour families (lib/path-family.ts, tokens in global.css): a key under
+   the intro, a dot before each discipline heading, a stripe on each card,
+   and the kicker of a path's own page. */
+.parcours-families {
+  list-style: none;
+  margin: 0.4rem 0 0.6rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+}
+.parcours-families li,
+.parcours-page section[data-family] > .themes-h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.parcours-families li::before,
+.parcours-page section[data-family] > .themes-h2::before {
+  content: "";
+  flex: none;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--fam);
+}
+.parcours-page--path[data-family] > .themes-kicker {
+  color: var(--fam);
 }
 
 /* Thumbnail graph: dots for notes, filled by state. */
