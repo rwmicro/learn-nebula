@@ -11,7 +11,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "types": ["node"],
-    "lib": ["ES2023"]
+    "lib": ["ES2023", "DOM"]
   },
   "include": ["**/*.ts"]
 }
