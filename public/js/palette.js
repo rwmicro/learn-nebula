@@ -5,12 +5,14 @@
 // <meta name="gk-notes-index">) is only fetched then too.
 //
 // Lists: notes (title + folder, fuzzy and accent-insensitive via
-// lib/palette-match.ts), the current note's sections (h2/h3), actions (theme,
-// random note, assistant) and the site's index pages. ARIA combobox +
+// lib/palette-match.ts), words found inside note bodies (Pagefind, the same
+// static full-text index as the home search, loaded only once a query is
+// typed; absent under `next dev`), the current note's sections (h2/h3),
+// actions (theme, random note, assistant) and the site's index pages. ARIA combobox +
 // listbox inside a modal dialog: arrows move, Enter opens (Ctrl/⌘+Enter in a
 // new tab for links), Esc closes, Tab stays inside, focus returns to where it
 // was.
-import { fold, rankItems } from "../../lib/palette-match";
+import { fold, rankItems, scoreItem } from "../../lib/palette-match";
 import { downloadExport } from "../../lib/progress-transfer";
 
 (function () {
@@ -62,12 +64,21 @@ import { downloadExport } from "../../lib/progress-transfer";
   let notesState = "idle"; // idle | loading | ready | error
   let shown = []; // flat list of rendered items
   let active = 0;
+  // Full-text hits for `textQuery`: [{kind: "text", title, hint, href, excerpt}].
+  let pf = null; // the pagefind.js module, once imported
+  let pfState = "idle"; // idle | ready | off (no index: dev, or it failed)
+  let textQuery = "";
+  let textHits = [];
+  let textPending = false;
+  let textTimer = 0;
+  let textSeq = 0;
 
   const ICON = {
     note: '<path d="M7 3.5h7l4 4V20.5H7z M14 3.5v4h4" />',
     section: '<path d="M5 7h14M5 12h10M5 17h12" />',
     action: '<path d="M13 3L5 13h6l-1 8 8-10h-6z" />',
     nav: '<path d="M5 12h13M13 6l6 6-6 6" />',
+    text: '<path d="M4 6h16M4 10h16M4 14h10" /><circle cx="17.5" cy="17.5" r="2.5" /><path d="M19.4 19.4L21 21" />',
   };
   const icon = (k) =>
     `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>`;
@@ -98,6 +109,79 @@ import { downloadExport } from "../../lib/progress-transfer";
         if (isOpen()) render();
       });
   }
+
+  // --- full-text (Pagefind) --------------------------------------------------
+  const TEXT_MIN = 2;
+  const TEXT_MAX = 15;
+
+  // Pagefind's excerpt is HTML whose only markup is <mark>; rebuild it from
+  // the parsed text so nothing else can slip into the list.
+  function safeExcerpt(html) {
+    const body = new DOMParser().parseFromString("<body>" + String(html || ""), "text/html").body;
+    let out = "";
+    body.childNodes.forEach((n) => {
+      const t = esc(n.textContent || "");
+      out += n.nodeName === "MARK" ? "<mark>" + t + "</mark>" : t;
+    });
+    return out;
+  }
+
+  // The best place to land: the sub-result (heading section) with the most
+  // matches, when it has its own anchor; else the page itself.
+  function toTextHit(d) {
+    const meta = d.meta || {};
+    let best = null;
+    for (const s of d.sub_results || []) {
+      const n = (s.locations || []).length;
+      if (!best || n > best.n) best = { s, n };
+    }
+    const sub = best && best.s.url && best.s.url.includes("#") && best.s.title !== meta.title ? best.s : null;
+    return {
+      kind: "text",
+      title: String(meta.title || d.url),
+      hint: meta.section ? String(meta.section) : "",
+      sub: sub ? String(sub.title) : "",
+      href: String(sub ? sub.url : d.url),
+      excerpt: safeExcerpt(sub ? sub.excerpt : d.excerpt),
+    };
+  }
+
+  function searchText(q) {
+    clearTimeout(textTimer);
+    if (pfState === "off" || q.length < TEXT_MIN) {
+      textQuery = "";
+      textHits = [];
+      textPending = false;
+      return;
+    }
+    if (q === textQuery && !textPending) return;
+    textPending = true;
+    const seq = ++textSeq;
+    textTimer = setTimeout(async () => {
+      try {
+        if (!pf) {
+          // Variable specifier: esbuild leaves it as a runtime URL import (the
+          // file only exists in a built out/, written by `pagefind --site out`).
+          const mod = "/pagefind/pagefind.js";
+          pf = await import(mod);
+          pfState = "ready";
+        }
+        const res = await pf.search(q);
+        const data = await Promise.all(((res && res.results) || []).slice(0, TEXT_MAX + 5).map((r) => r.data()));
+        if (seq !== textSeq) return;
+        textQuery = q;
+        textHits = data.map(toTextHit);
+      } catch {
+        if (seq !== textSeq) return;
+        pfState = "off";
+        textHits = [];
+      }
+      textPending = false;
+      if (isOpen()) render();
+    }, 160);
+  }
+
+  const pathOf = (href) => href.replace(/#.*$/, "").replace(/\/?$/, "/");
 
   function sections() {
     const body = doc.querySelector(".article-body");
@@ -199,12 +283,23 @@ import { downloadExport } from "../../lib/progress-transfer";
       out.push({ label: tt("palette.goTo"), items: navItems() });
       return out;
     }
+    // Titles first; words from the text come after, minus notes the titles
+    // already listed. Fewer title rows once the text has answered, so both
+    // groups fit in view.
+    const text = q === textQuery ? textHits : [];
+    let found = [];
     if (notes) {
-      const found = rankItems(q, notes, 30);
+      found = rankItems(q, notes, text.length ? 12 : 30);
+      // Scattered-letter title matches ("entropie" in "anthropologie") are a
+      // last resort; once the text has real hits they are only noise.
+      if (text.length) found = found.filter((n) => scoreItem(q, n, false) !== null);
       if (found.length) out.push({ label: tt("palette.notes"), items: found });
     }
     const s = rankItems(q, secs, 8);
     if (s.length) out.push({ label: tt("palette.sections"), items: s });
+    const seen = new Set(found.map((n) => pathOf(n.href)));
+    const t = text.filter((h) => !seen.has(pathOf(h.href))).slice(0, TEXT_MAX);
+    if (t.length) out.push({ label: tt("palette.inText"), items: t });
     const a = rankItems(q, actions(), 5);
     if (a.length) out.push({ label: tt("palette.actions"), items: a });
     const n = rankItems(q, navItems(), 6);
@@ -235,6 +330,8 @@ import { downloadExport } from "../../lib/progress-transfer";
   // --- rendering ------------------------------------------------------------
   function render() {
     const q = input.value.trim();
+    // Keep the highlighted row when a group lands asynchronously above it.
+    const prev = shown[active];
     const gs = groups(q);
     shown = [];
     let html = "";
@@ -248,7 +345,12 @@ import { downloadExport } from "../../lib/progress-transfer";
           `<div role="option" id="palette-o${i}" class="palette-opt palette-opt--${it.kind}" data-i="${i}" aria-selected="false">` +
           `<span class="palette-opt-icon">${icon(it.kind)}</span>` +
           `<span class="palette-opt-text"><span class="palette-opt-title">${highlight(it.title, q)}</span>` +
-          (it.hint && it.hint !== "·" ? `<span class="palette-opt-hint">${esc(it.kind === "note" ? folderHint(it.hint) : it.hint)}</span>` : "") +
+          (it.kind === "text"
+            ? `<span class="palette-opt-hint">${esc([it.hint && folderHint(it.hint), it.sub].filter(Boolean).join(" › "))}</span>` +
+              (it.excerpt ? `<span class="palette-opt-excerpt">${it.excerpt}</span>` : "")
+            : it.hint && it.hint !== "·"
+              ? `<span class="palette-opt-hint">${esc(it.kind === "note" ? folderHint(it.hint) : it.hint)}</span>`
+              : "") +
           `</span></div>`;
       }
       html += `</div>`;
@@ -256,11 +358,17 @@ import { downloadExport } from "../../lib/progress-transfer";
     let status = "";
     if (q && notesState === "loading") status = tt("palette.loading");
     else if (q && notesState === "error") status = tt("palette.loadError");
+    else if (q && textPending) status = tt("palette.searchingText");
     if (!shown.length) {
       html += `<p class="palette-empty">${esc(status || tt("palette.empty"))}</p>`;
     }
     list.innerHTML = html;
     statusEl.textContent = q ? status || tt("palette.results", { n: shown.length }) : "";
+    const keep = prev ? shown.indexOf(prev) : -1;
+    if (keep < 0 && prev && prev.kind !== "action") {
+      const same = shown.findIndex((it) => it.kind === prev.kind && it.href === prev.href);
+      if (same >= 0) active = same;
+    } else if (keep >= 0) active = keep;
     setActive(Math.min(active, Math.max(0, shown.length - 1)), false);
   }
 
@@ -331,6 +439,8 @@ import { downloadExport } from "../../lib/progress-transfer";
 
     input.addEventListener("input", () => {
       active = 0;
+      shown = [];
+      searchText(input.value.trim());
       render();
       list.scrollTop = 0;
     });
@@ -401,6 +511,8 @@ import { downloadExport } from "../../lib/progress-transfer";
     input.value = initial || "";
     active = 0;
     loadNotes();
+    shown = [];
+    searchText(input.value.trim());
     render();
     input.focus();
     doc.querySelectorAll("[data-palette-open]").forEach((b) => b.setAttribute("aria-expanded", "true"));

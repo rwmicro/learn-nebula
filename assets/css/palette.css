@@ -79,8 +79,8 @@ html.palette-open {
   position: relative;
   display: flex;
   flex-direction: column;
-  width: min(40rem, 100%);
-  max-height: min(34rem, 76vh);
+  width: min(50rem, 100%);
+  max-height: min(40rem, 78vh);
   background: var(--paper-raised);
   color: var(--ink);
   border: 1px solid var(--rule-strong);
@@ -197,6 +197,30 @@ html.palette-open {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.palette-opt--text {
+  align-items: flex-start;
+}
+.palette-opt--text .palette-opt-icon {
+  margin-top: 0.15rem;
+}
+/* The matched words in context: two lines at most, marks as in titles. */
+.palette-opt-excerpt {
+  margin-top: 0.1rem;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  color: var(--ink-soft);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+.palette-opt-excerpt mark {
+  background: color-mix(in srgb, var(--garden) 18%, transparent);
+  color: var(--ink);
+  border-radius: 2px;
+  padding: 0 0.1em;
 }
 .palette-opt--section .palette-opt-title {
   font-style: italic;
