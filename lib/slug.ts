@@ -18,3 +18,30 @@ export function folderAnchor(path: string): string {
 export function tagSlug(tag: string): string {
   return folderAnchor(tag.normalize("NFD").replace(/[̀-ͯ]/g, ""));
 }
+
+/** Tags that name the same thing in two spellings or languages, folded onto
+ *  one /themes/ page: alias slug → the slug that keeps the page. Only true
+ *  synonyms; "france"/"français" or "XIXe"/"XXe siècle" are different themes. */
+export const TAG_ALIASES: Readonly<Record<string, string>> = {
+  deutsch: "allemand",
+  spanish: "espagnol",
+  turkish: "turc",
+  azeri: "azerbaijani",
+  malaisian: "malais",
+  fusha: "arabe-standard",
+  network: "reseau",
+  "privilege-escalation": "privesc",
+  recon: "reconnaissance",
+  noyau: "kernel",
+  art: "arts",
+  methode: "methodologie",
+  methodes: "methodologie",
+  medievale: "moyen-age",
+  "apprentissage-ml": "machine-learning",
+};
+
+/** A tag's /themes/ slug, after TAG_ALIASES. */
+export function tagKey(tag: string): string {
+  const slug = tagSlug(tag);
+  return TAG_ALIASES[slug] ?? slug;
+}

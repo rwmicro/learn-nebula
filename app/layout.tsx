@@ -9,7 +9,7 @@ import {
 } from "@/lib/site";
 import { DEFAULT_LOCALE, LOCALES, getMessages, t } from "@/lib/i18n";
 import { getLanguageScopes } from "@/lib/content";
-import { notesIndexVersion } from "@/lib/home-data";
+import { notesIndexVersion, paletteExtraVersion } from "@/lib/home-data";
 import { Footer } from "@/components/Footer";
 import { PinnedAssistant } from "@/components/PinnedAssistant";
 import "../assets/css/fonts.css";
@@ -122,6 +122,7 @@ export default function RootLayout({
         {/* Content hash of /notes-index.json for the command palette's lazy
             fetch (?v=), so a new build never reads a cached old list. */}
         <meta name="gk-notes-index" content={notesIndexVersion()} />
+        <meta name="gk-palette-extra" content={paletteExtraVersion()} />
         <meta name="referrer" content="strict-origin-when-cross-origin" />
         {/* Body font: preloaded so text paints in the real face sooner (the
             metric-matched fallback already prevents layout shift). */}

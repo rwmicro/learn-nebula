@@ -5,13 +5,21 @@
 // <meta name="gk-notes-index">) is only fetched then too.
 //
 // Lists: notes (title + folder, fuzzy and accent-insensitive via
-// lib/palette-match.ts), the current note's sections (h2/h3), actions (theme,
-// random note, assistant) and the site's index pages. ARIA combobox +
+// lib/palette-match.ts), words found inside note bodies (Pagefind, the same
+// static full-text index, loaded only once a query is typed; absent under
+// `next dev`), disciplines and tags with a page, PDF attachments and Anki
+// decks (/palette-extra.json), the current note's sections (h2/h3), actions
+// (theme, random note, assistant) and the site's index pages. It is the
+// site's one search: the home page's search field opens it too. ARIA combobox +
 // listbox inside a modal dialog: arrows move, Enter opens (Ctrl/⌘+Enter in a
 // new tab for links), Esc closes, Tab stays inside, focus returns to where it
 // was.
-import { fold, rankItems } from "../../lib/palette-match";
+//
+// "?" (outside text fields) or the palette's "Raccourcis clavier" action
+// opens a small dialog listing the site's keyboard shortcuts.
+import { fold, rankItems, scoreItem } from "../../lib/palette-match";
 import { downloadExport } from "../../lib/progress-transfer";
+import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
 
 (function () {
   if (window.__palette) return;
@@ -60,14 +68,27 @@ import { downloadExport } from "../../lib/progress-transfer";
   let lastFocus = null;
   let notes = null; // [{kind, title, hint, href}]
   let notesState = "idle"; // idle | loading | ready | error
+  let themes = []; // [{kind: "theme", title, hint, href, keywords}]
+  let docs = []; // [{kind: "doc", title, hint, href, newTab}]
   let shown = []; // flat list of rendered items
   let active = 0;
+  // Full-text hits for `textQuery`: [{kind: "text", title, hint, href, excerpt}].
+  let pf = null; // the pagefind.js module, once imported
+  let pfState = "idle"; // idle | ready | off (no index: dev, or it failed)
+  let textQuery = "";
+  let textHits = [];
+  let textPending = false;
+  let textTimer = 0;
+  let textSeq = 0;
 
   const ICON = {
     note: '<path d="M7 3.5h7l4 4V20.5H7z M14 3.5v4h4" />',
+    theme: '<path d="M4 12.5V4h8.5L20 11.5 12.5 19z" /><circle cx="8.5" cy="8.5" r="1.3" />',
+    doc: '<path d="M6 3.5h12v17H6z M9 8h6M9 12h6M9 16h3" />',
     section: '<path d="M5 7h14M5 12h10M5 17h12" />',
     action: '<path d="M13 3L5 13h6l-1 8 8-10h-6z" />',
     nav: '<path d="M5 12h13M13 6l6 6-6 6" />',
+    text: '<path d="M4 6h16M4 10h16M4 14h10" /><circle cx="17.5" cy="17.5" r="2.5" /><path d="M19.4 19.4L21 21" />',
   };
   const icon = (k) =>
     `<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>`;
@@ -97,7 +118,128 @@ import { downloadExport } from "../../lib/progress-transfer";
         notesState = "error";
         if (isOpen()) render();
       });
+    loadExtra();
   }
+
+  // Disciplines, tags, PDFs and decks. Best effort: without it the palette
+  // still finds notes.
+  function loadExtra() {
+    const v = doc.querySelector('meta[name="gk-palette-extra"]');
+    fetch("/palette-extra.json" + (v && v.content ? "?v=" + encodeURIComponent(v.content) : ""))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!data) return;
+        themes = (data.themes || []).map(([title, href, n, dkey]) => ({
+          kind: "theme",
+          title: String(title),
+          dkey: dkey ? String(dkey) : "",
+          n: Number(n) || 0,
+          hint: "",
+          href: String(href),
+          keywords: dkey ? String(title) : "",
+        }));
+        docs = (data.docs || []).map(([title, href, where, type]) => ({
+          kind: "doc",
+          title: String(title),
+          where: where ? String(where) : "",
+          type: type === "deck" ? "deck" : "pdf",
+          hint: "",
+          href: String(href),
+          newTab: type !== "deck",
+          keywords: `${type === "deck" ? "anki cartes deck flashcards" : "pdf"} ${where || ""}`,
+        }));
+        localizeExtra();
+        if (isOpen()) render();
+      })
+      .catch(() => {});
+  }
+  // Titles and hints in the reader's language (re-run on i18n:change).
+  function localizeExtra() {
+    for (const t of themes) {
+      if (t.dkey) {
+        const label = tt(t.dkey);
+        if (label && label !== t.dkey) t.title = label;
+      }
+      t.meta = `${tt(t.dkey ? "themes.disciplineKicker" : "themes.tagKicker")} · ${tt(t.n === 1 ? "themes.countOne" : "themes.count", { n: t.n })}`;
+    }
+    for (const d of docs) {
+      const what = tt(d.type === "deck" ? "palette.deck" : "palette.pdf");
+      d.meta = d.where ? `${what} · ${folderHint(d.where)}` : what;
+    }
+  }
+
+  // --- full-text (Pagefind) --------------------------------------------------
+  const TEXT_MIN = 2;
+  const TEXT_MAX = 15;
+
+  // Pagefind's excerpt is HTML whose only markup is <mark>; rebuild it from
+  // the parsed text so nothing else can slip into the list.
+  function safeExcerpt(html) {
+    const body = new DOMParser().parseFromString("<body>" + String(html || ""), "text/html").body;
+    let out = "";
+    body.childNodes.forEach((n) => {
+      const t = esc(n.textContent || "");
+      out += n.nodeName === "MARK" ? "<mark>" + t + "</mark>" : t;
+    });
+    return out;
+  }
+
+  // The best place to land: the sub-result (heading section) with the most
+  // matches, when it has its own anchor; else the page itself.
+  function toTextHit(d) {
+    const meta = d.meta || {};
+    let best = null;
+    for (const s of d.sub_results || []) {
+      const n = (s.locations || []).length;
+      if (!best || n > best.n) best = { s, n };
+    }
+    const sub = best && best.s.url && best.s.url.includes("#") && best.s.title !== meta.title ? best.s : null;
+    return {
+      kind: "text",
+      title: String(meta.title || d.url),
+      hint: meta.section ? String(meta.section) : "",
+      sub: sub ? String(sub.title) : "",
+      href: String(sub ? sub.url : d.url),
+      excerpt: safeExcerpt(sub ? sub.excerpt : d.excerpt),
+    };
+  }
+
+  function searchText(q) {
+    clearTimeout(textTimer);
+    if (pfState === "off" || q.length < TEXT_MIN) {
+      textQuery = "";
+      textHits = [];
+      textPending = false;
+      return;
+    }
+    if (q === textQuery && !textPending) return;
+    textPending = true;
+    const seq = ++textSeq;
+    textTimer = setTimeout(async () => {
+      try {
+        if (!pf) {
+          // Variable specifier: esbuild leaves it as a runtime URL import (the
+          // file only exists in a built out/, written by `pagefind --site out`).
+          const mod = "/pagefind/pagefind.js";
+          pf = await import(mod);
+          pfState = "ready";
+        }
+        const res = await pf.search(q);
+        const data = await Promise.all(((res && res.results) || []).slice(0, TEXT_MAX + 5).map((r) => r.data()));
+        if (seq !== textSeq) return;
+        textQuery = q;
+        textHits = data.map(toTextHit);
+      } catch {
+        if (seq !== textSeq) return;
+        pfState = "off";
+        textHits = [];
+      }
+      textPending = false;
+      if (isOpen()) render();
+    }, 160);
+  }
+
+  const pathOf = (href) => href.replace(/#.*$/, "").replace(/\/?$/, "/");
 
   function sections() {
     const body = doc.querySelector(".article-body");
@@ -173,6 +315,7 @@ import { downloadExport } from "../../lib/progress-transfer";
       { kind: "action", title: tt("palette.assistant"), hint: "", keywords: "assistant ia ai question chat demander", run: openAssistant },
       { kind: "action", title: tt("palette.exportProgress"), hint: "", keywords: "exporter export progression sauvegarde backup lues cartes", run: exportProgress },
       { kind: "action", title: tt("palette.importProgress"), hint: "", keywords: "importer import progression restaurer transfert appareil", run: () => (location.href = "/progression/#importer") },
+      { kind: "action", title: tt("palette.shortcuts"), hint: "?", keywords: "raccourcis clavier shortcuts keyboard aide help touches", run: () => openHelp() },
     ];
   }
 
@@ -199,12 +342,29 @@ import { downloadExport } from "../../lib/progress-transfer";
       out.push({ label: tt("palette.goTo"), items: navItems() });
       return out;
     }
+    // Titles first; words from the text come after, minus notes the titles
+    // already listed. Fewer title rows once other groups have answers, so
+    // they stay in view.
+    const text = q === textQuery ? textHits : [];
+    // Names only, no scattered-letter fallback: these lists are long and
+    // their misses would crowd the real results.
+    const th = rankItems(q, themes, 6, false);
+    const dc = rankItems(q, docs, 6, false);
+    let found = [];
     if (notes) {
-      const found = rankItems(q, notes, 30);
+      found = rankItems(q, notes, text.length || th.length || dc.length ? 12 : 30);
+      // Scattered-letter title matches ("entropie" in "anthropologie") are a
+      // last resort; once the text has real hits they are only noise.
+      if (text.length) found = found.filter((n) => scoreItem(q, n, false) !== null);
       if (found.length) out.push({ label: tt("palette.notes"), items: found });
     }
     const s = rankItems(q, secs, 8);
     if (s.length) out.push({ label: tt("palette.sections"), items: s });
+    const seen = new Set(found.map((n) => pathOf(n.href)));
+    if (th.length) out.push({ label: tt("palette.themes"), items: th });
+    if (dc.length) out.push({ label: tt("palette.docs"), items: dc });
+    const t = text.filter((h) => !seen.has(pathOf(h.href))).slice(0, TEXT_MAX);
+    if (t.length) out.push({ label: tt("palette.inText"), items: t });
     const a = rankItems(q, actions(), 5);
     if (a.length) out.push({ label: tt("palette.actions"), items: a });
     const n = rankItems(q, navItems(), 6);
@@ -235,6 +395,8 @@ import { downloadExport } from "../../lib/progress-transfer";
   // --- rendering ------------------------------------------------------------
   function render() {
     const q = input.value.trim();
+    // Keep the highlighted row when a group lands asynchronously above it.
+    const prev = shown[active];
     const gs = groups(q);
     shown = [];
     let html = "";
@@ -248,7 +410,14 @@ import { downloadExport } from "../../lib/progress-transfer";
           `<div role="option" id="palette-o${i}" class="palette-opt palette-opt--${it.kind}" data-i="${i}" aria-selected="false">` +
           `<span class="palette-opt-icon">${icon(it.kind)}</span>` +
           `<span class="palette-opt-text"><span class="palette-opt-title">${highlight(it.title, q)}</span>` +
-          (it.hint && it.hint !== "·" ? `<span class="palette-opt-hint">${esc(it.kind === "note" ? folderHint(it.hint) : it.hint)}</span>` : "") +
+          (it.meta
+            ? `<span class="palette-opt-hint">${esc(it.meta)}</span>`
+            : it.kind === "text"
+            ? `<span class="palette-opt-hint">${esc([it.hint && folderHint(it.hint), it.sub].filter(Boolean).join(" › "))}</span>` +
+              (it.excerpt ? `<span class="palette-opt-excerpt">${it.excerpt}</span>` : "")
+            : it.hint && it.hint !== "·"
+              ? `<span class="palette-opt-hint">${esc(it.kind === "note" ? folderHint(it.hint) : it.hint)}</span>`
+              : "") +
           `</span></div>`;
       }
       html += `</div>`;
@@ -256,12 +425,31 @@ import { downloadExport } from "../../lib/progress-transfer";
     let status = "";
     if (q && notesState === "loading") status = tt("palette.loading");
     else if (q && notesState === "error") status = tt("palette.loadError");
+    else if (q && textPending) status = tt("palette.searchingText");
     if (!shown.length) {
       html += `<p class="palette-empty">${esc(status || tt("palette.empty"))}</p>`;
     }
     list.innerHTML = html;
     statusEl.textContent = q ? status || tt("palette.results", { n: shown.length }) : "";
+    watchMiss(q, !status && !shown.length);
+    const keep = prev ? shown.indexOf(prev) : -1;
+    if (keep < 0 && prev && prev.kind !== "action") {
+      const same = shown.findIndex((it) => it.kind === prev.kind && it.href === prev.href);
+      if (same >= 0) active = same;
+    } else if (keep >= 0) active = keep;
     setActive(Math.min(active, Math.max(0, shown.length - 1)), false);
+  }
+
+  // "Recherches sans résultat" for /admin (lib/search-miss.ts): a query that
+  // stays unchanged and empty-handed once every source has answered. Reported
+  // as "home": the palette is the site's main search.
+  let missTimer = 0;
+  function watchMiss(q, empty) {
+    clearTimeout(missTimer);
+    if (!empty) return;
+    missTimer = setTimeout(() => {
+      if (isOpen() && input.value.trim() === q && !shown.length) reportSearchMiss(q, "home");
+    }, SEARCH_MISS_SETTLE_MS);
   }
 
   function setActive(i, scroll = true) {
@@ -296,7 +484,7 @@ import { downloadExport } from "../../lib/progress-transfer";
       }
       return;
     }
-    if (newTab) {
+    if (newTab || item.newTab) {
       window.open(item.href, "_blank", "noopener");
       return;
     }
@@ -331,6 +519,8 @@ import { downloadExport } from "../../lib/progress-transfer";
 
     input.addEventListener("input", () => {
       active = 0;
+      shown = [];
+      searchText(input.value.trim());
       render();
       list.scrollTop = 0;
     });
@@ -401,6 +591,8 @@ import { downloadExport } from "../../lib/progress-transfer";
     input.value = initial || "";
     active = 0;
     loadNotes();
+    shown = [];
+    searchText(input.value.trim());
     render();
     input.focus();
     doc.querySelectorAll("[data-palette-open]").forEach((b) => b.setAttribute("aria-expanded", "true"));
@@ -414,6 +606,106 @@ import { downloadExport } from "../../lib/progress-transfer";
     if (restoreFocus && lastFocus && lastFocus.focus) lastFocus.focus();
   }
 
+  // --- keyboard shortcuts help ------------------------------------------------
+  let help = null;
+  let helpLastFocus = null;
+  const kbd = (k) => `<kbd>${esc(k)}</kbd>`;
+  function helpRows() {
+    const mod = isMac ? "⌘" : "Ctrl";
+    return [
+      ["shortcuts.everywhere", [
+        [[`${mod} K`, "/"], "shortcuts.openPalette"],
+        [["?"], "shortcuts.help"],
+        [["Esc"], "shortcuts.closeAny"],
+      ]],
+      ["shortcuts.paletteGroup", [
+        [["↑", "↓"], "shortcuts.move"],
+        [["PgUp", "PgDn"], "shortcuts.jump"],
+        [["Entrée"], "shortcuts.open"],
+        [[`${mod} Entrée`], "shortcuts.openTab"],
+      ]],
+      ["shortcuts.cards", [
+        [["Espace", "Entrée"], "shortcuts.flip"],
+        [["1", "2", "3", "4"], "shortcuts.grade"],
+        [["←", "→"], "shortcuts.prevNext"],
+      ]],
+      ["shortcuts.images", [[["←", "→"], "shortcuts.imgPrevNext"]]],
+      ["shortcuts.paths", [
+        [["+", "−", "0"], "shortcuts.zoom"],
+        [["←", "↑", "→", "↓"], "shortcuts.pan"],
+      ]],
+    ];
+  }
+  // Key names in the reader's language where they are words.
+  function keyLabel(k) {
+    const words = { Entrée: "Enter", Espace: "Space" };
+    if (!words[k]) return k;
+    const loc = (window.__i18n && window.__i18n.locale) || root.getAttribute("lang") || "fr";
+    return String(loc).startsWith("fr") ? k : words[k];
+  }
+  function renderHelp() {
+    const body = helpRows()
+      .map(
+        ([g, rows]) =>
+          `<section class="kbd-help-group"><h3>${esc(tt(g))}</h3><dl>` +
+          rows
+            .map(
+              ([keys, label]) =>
+                `<div class="kbd-help-row"><dt>${keys.map((k) => kbd(k.split(" ").map(keyLabel).join(" "))).join(" ")}</dt><dd>${esc(tt(label))}</dd></div>`,
+            )
+            .join("") +
+          `</dl></section>`,
+      )
+      .join("");
+    help.querySelector(".kbd-help-title").textContent = tt("shortcuts.title");
+    help.querySelector(".kbd-help-close").setAttribute("aria-label", tt("shortcuts.close"));
+    help.querySelector(".kbd-help-body").innerHTML = body;
+  }
+  function buildHelp() {
+    if (help) return;
+    help = doc.createElement("div");
+    help.className = "palette kbd-help";
+    help.hidden = true;
+    help.setAttribute("data-pagefind-ignore", "all");
+    help.innerHTML =
+      `<div class="palette-backdrop" data-help-close></div>` +
+      `<div class="palette-panel kbd-help-panel" role="dialog" aria-modal="true" aria-labelledby="kbd-help-title">` +
+      `<div class="kbd-help-head"><h2 id="kbd-help-title" class="kbd-help-title"></h2>` +
+      `<button type="button" class="palette-close kbd-help-close" data-help-close><kbd>Esc</kbd></button></div>` +
+      `<div class="kbd-help-body"></div></div>`;
+    doc.body.appendChild(help);
+    help.addEventListener("click", (e) => {
+      if (e.target instanceof Element && e.target.closest("[data-help-close]")) closeHelp();
+    });
+    help.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        e.stopPropagation();
+        closeHelp();
+      } else if (e.key === "Tab") {
+        // Only one stop: the close button.
+        e.preventDefault();
+        help.querySelector(".kbd-help-close").focus();
+      }
+    });
+  }
+  const helpOpen = () => !!help && !help.hidden;
+  function openHelp() {
+    buildHelp();
+    if (isOpen()) close(false);
+    helpLastFocus = doc.activeElement;
+    renderHelp();
+    help.hidden = false;
+    root.classList.add("palette-open");
+    help.querySelector(".kbd-help-close").focus();
+  }
+  function closeHelp() {
+    if (!helpOpen()) return;
+    help.hidden = true;
+    root.classList.remove("palette-open");
+    if (helpLastFocus && helpLastFocus.focus) helpLastFocus.focus();
+  }
+
   function editable(t) {
     return (
       t instanceof Element &&
@@ -425,7 +717,17 @@ import { downloadExport } from "../../lib/progress-transfer";
     if ((e.metaKey || e.ctrlKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "k") {
       e.preventDefault();
       if (isOpen()) close(true);
-      else open("");
+      else {
+        closeHelp();
+        open("");
+      }
+      return;
+    }
+    // "?" shows the shortcuts — unless typing.
+    if (e.key === "?" && !e.metaKey && !e.ctrlKey && !e.altKey && !isOpen() && !editable(e.target)) {
+      e.preventDefault();
+      if (helpOpen()) closeHelp();
+      else openHelp();
       return;
     }
     // "/" opens it too, as on most sites with a search box — unless typing.
@@ -443,6 +745,8 @@ import { downloadExport } from "../../lib/progress-transfer";
   });
   doc.addEventListener("i18n:change", () => {
     label();
+    localizeExtra();
+    if (helpOpen()) renderHelp();
     if (isOpen()) render();
   });
   doc.addEventListener("theme:change", () => {
@@ -450,9 +754,12 @@ import { downloadExport } from "../../lib/progress-transfer";
   });
   // bfcache restore: never come back to a page with the palette still open.
   window.addEventListener("pageshow", (e) => {
-    if (e.persisted) close(false);
+    if (e.persisted) {
+      close(false);
+      closeHelp();
+    }
   });
 
   syncKbd();
-  window.__palette = { open, close };
+  window.__palette = { open, close, help: openHelp };
 })();

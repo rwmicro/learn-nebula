@@ -100,3 +100,11 @@ describe("rankItems substring-first", () => {
     ]);
   });
 });
+
+describe("rankItems without fuzzy fallback", () => {
+  it("returns nothing rather than scattered-letter matches", () => {
+    const items = [{ title: "Kata Ganti" }];
+    expect(rankItems("kant", items).length).toBe(1);
+    expect(rankItems("kant", items, Infinity, false)).toEqual([]);
+  });
+});

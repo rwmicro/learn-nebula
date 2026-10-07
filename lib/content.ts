@@ -6,7 +6,7 @@ import { INCLUDE_DRAFTS } from "./site";
 import { resolveVaultAssetByName, listVaultAssets } from "./vault-assets";
 import { joinNotePath } from "./vault-health";
 import { getAnkiManifest } from "./anki";
-import { tagSlug } from "./slug";
+import { tagKey, tagSlug } from "./slug";
 import {
   definitionAnchor,
   glossaryDiscipline,
@@ -489,6 +489,9 @@ export interface Discipline {
   count: number;
   /** The discipline's most used tags that have a page, most used first. */
   tags: { slug: string; name: string; count: number }[];
+  /** Slug prefix shared by its notes ("applied-sciences/biology/"), for
+   *  counting read notes without listing every slug in the page. */
+  prefix: string;
 }
 
 function disciplineOf(rawPath: string): { top: string; name: string } | null {
@@ -520,10 +523,11 @@ export function getTags(): TagGroup[] {
     for (const raw of d.frontmatter.tags ?? []) {
       // YAML turns tokens like `802.11` into numbers.
       const name = String(raw).trim();
-      const slug = tagSlug(name);
+      const slug = tagKey(name);
       if (!slug) continue;
       const e = map.get(slug) ?? { spellings: new Map(), notes: new Map() };
-      e.spellings.set(name, (e.spellings.get(name) ?? 0) + 1);
+      // An alias ("deutsch") joins its page but never names it.
+      if (tagSlug(name) === slug) e.spellings.set(name, (e.spellings.get(name) ?? 0) + 1);
       e.notes.set(d.slug, themeNote(d));
       map.set(slug, e);
     }
@@ -532,7 +536,7 @@ export function getTags(): TagGroup[] {
     .filter(([, e]) => e.notes.size >= MIN_TAG_NOTES)
     .map(([slug, e]) => ({
       slug,
-      name: [...e.spellings.entries()].sort((a, b) => b[1] - a[1])[0][0],
+      name: [...e.spellings.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? slug,
       notes: [...e.notes.values()].sort(byTitle),
     }))
     .sort(
@@ -544,7 +548,7 @@ export function getTags(): TagGroup[] {
 
 /** The /themes/ page of a tag, or null when it is too rare to have one. */
 export function tagHref(tag: unknown): string | null {
-  const slug = tagSlug(String(tag));
+  const slug = tagKey(String(tag));
   return getTags().some((g) => g.slug === slug) ? `/themes/${slug}/` : null;
 }
 
@@ -560,6 +564,7 @@ export function getDisciplines(): Discipline[] {
       folder: string;
       sections: Map<string, ThemeNote[]>;
       tags: Map<string, number>;
+      prefix: string;
     }
   >();
   for (const d of getAllPosts()) {
@@ -571,12 +576,13 @@ export function getDisciplines(): Discipline[] {
       folder: disc.name,
       sections: new Map(),
       tags: new Map(),
+      prefix: d.slug.split("/").slice(0, 2).join("/") + "/",
     };
     const parts = d.rawPath.split("/");
     const section = parts.length > 3 ? parts[2] : "";
     e.sections.set(section, [...(e.sections.get(section) ?? []), themeNote(d)]);
     for (const raw of d.frontmatter.tags ?? []) {
-      const slug = tagSlug(String(raw));
+      const slug = tagKey(String(raw));
       if (withPage.has(slug)) e.tags.set(slug, (e.tags.get(slug) ?? 0) + 1);
     }
     map.set(key, e);
@@ -605,6 +611,7 @@ export function getDisciplines(): Discipline[] {
         sections,
         count,
         tags,
+        prefix: e.prefix,
       };
     })
     .sort(

@@ -1,31 +1,28 @@
 import crypto from "node:crypto";
 import {
   getAllPosts,
-  getDomains,
+  getDisciplines,
   getHomeTree,
+  getPdfAssets,
   getTags,
   homeFolderLabel,
-  type DomainGroup,
   type HomeTreeNode,
 } from "./content";
 import { buildGraph, type GraphData } from "./graph-data";
 import type { NoteIndexEntry } from "./note-suggest";
+import { disciplineKey } from "./i18n";
 
 /**
  * What the home page needs beyond its first paint: the full browse tree (every
- * note), the "Domaines" search scope and the folder-graph preview. Inlined as
+ * note) and the folder-graph preview. (Its search is the command palette,
+ * which reads /notes-index.json and /palette-extra.json.) Inlined as
  * props they were ~670 KB of RSC payload in index.html, re-downloaded on every
  * visit because documents are revalidated; as /home-data.json they are fetched
  * once per build (the URL carries a content hash) and then served from cache.
  */
 export interface HomeData {
   tree: HomeTreeNode[];
-  domains: DomainGroup[];
   graph: GraphData;
-  /** Every tag with a /themes/<slug>/ page, as [name, slug, note count]
-   *  (most used first) — the home search's "Thèmes" scope matches them.
-   *  Tuples, not objects: ~350 entries, a few KB. */
-  tags: [string, string, number][];
 }
 
 let cache: { data: HomeData; json: string; version: string } | null = null;
@@ -33,9 +30,7 @@ function load() {
   if (cache) return cache;
   const data: HomeData = {
     tree: getHomeTree(),
-    domains: getDomains(),
     graph: buildGraph({ foldersOnly: true }),
-    tags: getTags().map((g) => [g.name, g.slug, g.notes.length]),
   };
   const json = JSON.stringify(data);
   const version = crypto
@@ -99,3 +94,54 @@ export const notesIndexJson = () => loadNotesIndex().json;
  *  (exposed on <meta name="gk-notes-index"> by app/layout.tsx), so a new
  *  build never reads last build's list from the cache. */
 export const notesIndexVersion = () => loadNotesIndex().version;
+
+/**
+ * /palette-extra.json — what the command palette finds besides notes, so it
+ * covers everything the home search did: disciplines and tags with a page
+ * ("Thèmes"), PDF attachments and Anki decks ("Documents"). Tuples to stay
+ * small (~30 KB); fetched with /notes-index.json on the palette's first open.
+ *
+ * themes: [title, href, note count, discipline i18n key or ""]
+ * docs:   [title, href, folder breadcrumb, "pdf" | "deck"]
+ */
+export interface PaletteExtra {
+  themes: [string, string, number, string][];
+  docs: [string, string, string, "pdf" | "deck"][];
+}
+
+let paletteExtra: { json: string; version: string } | null = null;
+function loadPaletteExtra() {
+  if (paletteExtra) return paletteExtra;
+  const decks: PaletteExtra["docs"] = [];
+  const walk = (nodes: HomeTreeNode[], parents: string[]) => {
+    for (const n of nodes) {
+      if (n.type === "dir") walk(n.children, [...parents, n.name]);
+      else if (n.deck) decks.push([n.title, n.href, parents.slice(1).join(" › "), "deck"]);
+    }
+  };
+  walk(getHomeTree(), []);
+  const data: PaletteExtra = {
+    themes: [
+      ...getDisciplines().map((d): PaletteExtra["themes"][number] => [
+        d.name,
+        `/disciplines/${d.slug}/`,
+        d.count,
+        disciplineKey(d.name) ?? "",
+      ]),
+      ...getTags().map((g): PaletteExtra["themes"][number] => [g.name, `/themes/${g.slug}/`, g.notes.length, ""]),
+    ],
+    docs: [
+      ...getPdfAssets().map((p): PaletteExtra["docs"][number] => [p.title, p.href, p.where.replace(/ · /g, " › "), "pdf"]),
+      ...decks,
+    ],
+  };
+  const json = JSON.stringify(data);
+  paletteExtra = {
+    json,
+    version: crypto.createHash("sha1").update(json).digest("hex").slice(0, 12),
+  };
+  return paletteExtra;
+}
+export const paletteExtraJson = () => loadPaletteExtra().json;
+/** Its content hash, on <meta name="gk-palette-extra"> (app/layout.tsx). */
+export const paletteExtraVersion = () => loadPaletteExtra().version;

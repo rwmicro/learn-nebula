@@ -110,6 +110,7 @@
    purpose — an island has to inherit the dark value, not reset it. */
 :root {
   --island-pad: 0;
+  --fam-l: 42%;
 }
 
 :root[data-theme="dark"] {
@@ -150,12 +151,14 @@
   --callout-grey: #a29d93;
   --mark-soft: color-mix(in srgb, var(--mark) 24%, transparent);
   --island-pad: 0.8rem 1rem;
+  --fam-l: 68%;
 }
 /* Same dark palette when the OS asks for it and the reader has not pinned
    light. Kept in step with the block above. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     color-scheme: dark;
+    --fam-l: 68%;
     --paper: #1c1b19;
     --paper-raised: #242320;
     --wash: #22211e;
@@ -959,3 +962,19 @@ footer {
 :root[data-theme="dark"] .theme-icon-dark {
   display: block;
 }
+
+/* Reading-path colour families (lib/path-family.ts): an element with
+   data-family gets --fam (accent) and --fam-wash (tint) for its subtree.
+   Hues kept apart from each other; lightness follows light/dark (--fam-l). */
+[data-family] {
+  --fam: hsl(var(--fam-h) var(--fam-s) var(--fam-l));
+  --fam-wash: hsl(var(--fam-h) var(--fam-s) var(--fam-l) / 0.13);
+}
+[data-family="sciences"] { --fam-h: 218; --fam-s: 62%; }
+[data-family="informatique"] { --fam-h: 186; --fam-s: 70%; }
+[data-family="vivant"] { --fam-h: 135; --fam-s: 42%; }
+[data-family="pensee"] { --fam-h: 40; --fam-s: 75%; }
+[data-family="societe"] { --fam-h: 12; --fam-s: 62%; }
+[data-family="arts"] { --fam-h: 332; --fam-s: 52%; }
+[data-family="langues"] { --fam-h: 270; --fam-s: 45%; }
+[data-family="jeux"] { --fam-h: 210; --fam-s: 12%; }

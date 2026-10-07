@@ -25,6 +25,8 @@ import {
  *
  * - `[data-read-marks] a[href^="/posts/"]` — a checkmark after each read note;
  * - `[data-read-progress][data-slugs]` — "x/y lues" plus a bar (`--read`);
+ * - `[data-read-progress][data-prefix][data-total]` — the same, counting the
+ *   read notes under a slug prefix (a discipline) instead of a slug list;
  * - `[data-path-progress]` (reading paths) — the same with the path states
  *   of lib/path-study.ts: "12 lues · 4 maîtrisées / 20", known notes too,
  *   and the state of each dot of the path's thumbnail.
@@ -125,6 +127,25 @@ function decorate(store: ReadingStore) {
         .forEach((n) =>
           n.classList.toggle("is-read", isRead(store, n.dataset.slug)),
         );
+    });
+
+  // 3. Progress by slug prefix (the /themes/ discipline cards): every read
+  // note whose slug starts with `data-prefix`, out of `data-total`. Clamped,
+  // since the store can still hold notes renamed or removed since.
+  document
+    .querySelectorAll<HTMLElement>("[data-read-progress][data-prefix]")
+    .forEach((el) => {
+      const prefix = el.dataset.prefix ?? "";
+      const total = Number(el.dataset.total) || 0;
+      const read = prefix
+        ? Math.min(total, Object.keys(store).filter((s) => s.startsWith(prefix) && isRead(store, s)).length)
+        : 0;
+      el.style.setProperty("--read", total ? String(read / total) : "0");
+      el.classList.toggle("is-started", read > 0);
+      el.classList.toggle("is-done", total > 0 && read === total);
+      const text = el.querySelector("[data-read-count]");
+      if (text) text.textContent = tr("reading.count", { read, total });
+      el.setAttribute("aria-label", tr("reading.countAria", { read, total }));
     });
 }
 
