@@ -11,7 +11,6 @@ declare global {
       setLocale?: (locale: string) => void;
       t?: (key: string, vars?: Record<string, string | number>) => string;
       applyAll?: (root?: ParentNode) => void;
-      hash?: (s: string) => string;
     };
   }
 }
