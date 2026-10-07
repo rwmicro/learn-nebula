@@ -2,6 +2,7 @@
 // - "Expliquer" hands the passage to the site's assistant (<PinnedAssistant>,
 //   via a `gk:explain` event), which opens with the passage pinned as context
 //   and asks the server's default "explain this passage" question;
+// - "Surligner" keeps the passage highlighted (public/js/highlights.js);
 // - "Copier le lien" copies the page URL with a text fragment (#:~:text=…,
 //   lib/text-fragment.ts) that scrolls to and highlights the passage.
 // Shown for 3+ words and at most 1000 characters, inside .article-body but not
@@ -55,11 +56,18 @@ import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fr
   copyBtn.setAttribute("data-i18n-aria-label", "selMenu.copyLinkAria");
   label(copyBtn, "selMenu.copyLink");
 
+  // "Surligner": kept in this browser (lib/personal.ts), drawn and edited by
+  // /js/highlights.js, which listens for this event.
+  const hlBtn = document.createElement("button");
+  hlBtn.type = "button";
+  hlBtn.className = "sel-menu-btn sel-menu-hl";
+  label(hlBtn, "selMenu.highlight");
+
   const live = document.createElement("span");
   live.className = "sr-only";
   live.setAttribute("aria-live", "polite");
 
-  menu.append(explain, copyBtn, live);
+  menu.append(explain, hlBtn, copyBtn, live);
   document.body.appendChild(menu);
 
   // Keep the page selection alive while the toolbar is pressed.
@@ -167,7 +175,10 @@ import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fr
     // role="toolbar": arrow keys move between its two buttons.
     if (menu.contains(e.target) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
       e.preventDefault();
-      (e.target === explain ? copyBtn : explain).focus();
+      const btns = [explain, hlBtn, copyBtn];
+      const i = btns.indexOf(e.target);
+      const d = e.key === "ArrowRight" ? 1 : btns.length - 1;
+      btns[(Math.max(0, i) + d) % btns.length].focus();
     }
   });
   document.addEventListener("keyup", (e) => {
@@ -175,6 +186,14 @@ import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fr
   });
   window.addEventListener("scroll", hide, { passive: true });
   window.addEventListener("resize", hide, { passive: true });
+
+  hlBtn.addEventListener("click", () => {
+    const sel = window.getSelection();
+    const range = sel && sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+    hide();
+    sel?.removeAllRanges();
+    if (range) window.dispatchEvent(new CustomEvent("gk:highlight", { detail: { range, text } }));
+  });
 
   explain.addEventListener("click", () => {
     const passage = text.replace(/\s+/g, " ").trim();

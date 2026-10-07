@@ -19,9 +19,10 @@ export const ORIGINAL_AUTHOR_URL = "https://david.alvarezrosa.com";
  * change. */
 export const NAV = [
   { name: "nav.home", href: "/" },
+  { name: "nav.parcours", href: "/parcours/" },
+  { name: "nav.themes", href: "/themes/" },
   { name: "nav.graph", href: "/graph/" },
   { name: "nav.frise", href: "/frise/" },
-  { name: "nav.themes", href: "/themes/" },
   { name: "nav.cartes", href: "/cartes/" },
   { name: "nav.random", href: "/hasard/" },
 ];

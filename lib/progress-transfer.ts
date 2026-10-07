@@ -9,12 +9,31 @@
 import { parseStore as parseReading } from "./reading-progress";
 import { parseNoteDeck } from "./note-quiz";
 import { parseProgress, type CardState, type Progress } from "./srs";
+import {
+  parseBookmarks,
+  parseHighlights,
+  parseActivity,
+  mergeBookmarks,
+  mergeHighlights,
+  mergeActivity,
+  type Bookmarks,
+  type Highlights,
+  type Activity,
+} from "./personal";
 
 export const FORMAT = "jardin-progression";
 /** Bumped when the file layout changes; older files stay importable. */
 export const VERSION = 1;
 
-export type KindId = "reading" | "known" | "targets" | "questions" | "decks";
+export type KindId =
+  | "reading"
+  | "known"
+  | "targets"
+  | "questions"
+  | "decks"
+  | "bookmarks"
+  | "highlights"
+  | "activity";
 
 export interface KeySpec {
   kind: KindId;
@@ -38,6 +57,10 @@ export const PROGRESS_KEYS: KeySpec[] = [
   { kind: "known", key: "gkKnown" },
   // The note each reading path is aimed at, {pathSlug: noteSlug} (/parcours/).
   { kind: "targets", key: "gkPathTarget" },
+  // "À lire plus tard", highlights and the per-day activity log (lib/personal.ts).
+  { kind: "bookmarks", key: "gkBookmarks" },
+  { kind: "highlights", key: "gkHighlights" },
+  { kind: "activity", key: "gkActivity" },
   // Questions saved from notes, with their SRS state (lib/note-quiz.ts).
   { kind: "questions", prefix: "srs:note:" },
   // Anki deck SRS state, one key per deck (components/Flashcards.tsx).
@@ -103,6 +126,18 @@ function sanitize(kind: KindId, value: unknown): unknown {
       if (Object.keys(ok).length) d.ok = ok;
       return Object.keys(d.items).length || d.ok ? d : null;
     }
+    case "bookmarks": {
+      const b = parseBookmarks(value);
+      return Object.keys(b).length ? b : null;
+    }
+    case "highlights": {
+      const h = parseHighlights(value);
+      return Object.keys(h).length ? h : null;
+    }
+    case "activity": {
+      const a = parseActivity(value);
+      return Object.keys(a).length ? a : null;
+    }
     case "decks": {
       if ((value as { v?: unknown }).v !== 1) return null;
       const p = parseProgress(json);
@@ -164,6 +199,12 @@ export interface Summary {
   known: number;
   /** Reading paths with a chosen target note. */
   targets: number;
+  /** Notes kept "to read later". */
+  bookmarks: number;
+  /** Passages highlighted. */
+  highlights: number;
+  /** Days with some activity logged. */
+  activeDays: number;
 }
 
 export function summarize(items: Record<string, unknown>): Summary {
@@ -176,6 +217,9 @@ export function summarize(items: Record<string, unknown>): Summary {
     questionNotes: 0,
     known: 0,
     targets: 0,
+    bookmarks: 0,
+    highlights: 0,
+    activeDays: 0,
   };
   for (const [k, v] of Object.entries(items)) {
     const kind = specFor(k)?.kind;
@@ -197,6 +241,13 @@ export function summarize(items: Record<string, unknown>): Summary {
       s.known += Object.keys(v as object).length;
     } else if (kind === "targets") {
       s.targets += Object.keys(v as object).length;
+    } else if (kind === "bookmarks") {
+      s.bookmarks += Object.values(v as Bookmarks).filter((b) => !b.del).length;
+    } else if (kind === "highlights") {
+      for (const n of Object.values(v as Highlights))
+        s.highlights += Object.values(n.items).filter((h) => !h.del).length;
+    } else if (kind === "activity") {
+      s.activeDays += Object.keys(v as object).length;
     }
   }
   return s;
@@ -389,6 +440,12 @@ export function mergeValue(
         local as Record<string, KnownEntry>,
         incoming as Record<string, KnownEntry>,
       );
+    case "bookmarks":
+      return mergeBookmarks(local as Bookmarks, incoming as Bookmarks);
+    case "highlights":
+      return mergeHighlights(local as Highlights, incoming as Highlights);
+    case "activity":
+      return mergeActivity(local as Activity, incoming as Activity);
     case "targets":
       return mergeTargets(
         local as Record<string, string>,
@@ -404,9 +461,19 @@ function unitsOf(key: string, v: unknown): Record<string, string> {
   const kind = specFor(key)?.kind;
   const out: Record<string, string> = {};
   if (!v) return out;
-  if (kind === "reading" || kind === "known" || kind === "targets") {
+  if (
+    kind === "reading" ||
+    kind === "known" ||
+    kind === "targets" ||
+    kind === "bookmarks" ||
+    kind === "activity"
+  ) {
     for (const [s, e] of Object.entries(v as Record<string, unknown>))
       out[s] = JSON.stringify(e);
+  } else if (kind === "highlights") {
+    for (const [slug, n] of Object.entries(v as Highlights))
+      for (const [id, h] of Object.entries(n.items))
+        out[`${slug}#${id}`] = JSON.stringify(h);
   } else if (kind === "decks") {
     for (const [id, c] of Object.entries((v as Progress).cards))
       out[id] = JSON.stringify(c);
@@ -463,6 +530,9 @@ export function planImport(
     targets: zero(),
     questions: zero(),
     decks: zero(),
+    bookmarks: zero(),
+    highlights: zero(),
+    activity: zero(),
   };
   const write: Record<string, unknown> = {};
   const remove: string[] = [];
