@@ -16,8 +16,6 @@
     "progression": "My progress"
   },
   "sidebar": {
-    "searchPlaceholder": "Search the notes…",
-    "searchAriaLabel": "Search the notes",
     "tocTitle": "Contents",
     "themesAriaLabel": "Themes",
     "toggleOpen": "contents",
