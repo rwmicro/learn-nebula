@@ -66,6 +66,28 @@ export const env = {
   // plain-text POST body works — e.g. an ntfy.sh topic.
   commentWebhookUrl: process.env.COMMENT_WEBHOOK_URL || "",
 
+  // Reader accounts (server/routes/auth.ts): login by e-mailed magic link.
+  // SMTP_HOST unset → login is disabled (503), unless AUTH_DEV_LOG=true, which
+  // prints the link to the console instead of mailing it (local dev only).
+  smtpHost: process.env.SMTP_HOST || "",
+  smtpPort: Number(process.env.SMTP_PORT || 587),
+  smtpUser: process.env.SMTP_USER || "",
+  smtpPass: process.env.SMTP_PASS || "",
+  // Implicit TLS (port 465). Default: on for 465, STARTTLS otherwise.
+  smtpSecure: process.env.SMTP_SECURE
+    ? process.env.SMTP_SECURE === "true"
+    : Number(process.env.SMTP_PORT || 587) === 465,
+  mailFrom: process.env.MAIL_FROM || "",
+  authDevLog: process.env.AUTH_DEV_LOG === "true",
+  // Base URL of the login links and the origin mutating account requests must
+  // come from. Defaults to the site's SITE_URL (lib/site.ts); override for a
+  // local test (e.g. http://localhost:8085).
+  publicUrl: (process.env.PUBLIC_URL || "").replace(/\/$/, ""),
+  // Public Turnstile site key handed to the login form by /api/auth/config.
+  // The static site already inlines NEXT_PUBLIC_TURNSTILE_SITE_KEY at build;
+  // this is the runtime copy (same value).
+  turnstileSiteKey: process.env.TURNSTILE_SITE_KEY || process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "",
+
   // Trust X-Forwarded-For (set true only behind a reverse proxy you control).
   trustProxy: process.env.TRUST_PROXY !== "false",
 
