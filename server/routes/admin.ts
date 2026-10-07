@@ -6,6 +6,8 @@
 //   GET /api/admin/prereq-suggestions → draft `prerequis` edges (scripts/prereq-suggestions.ts)
 //   GET /api/admin/blocked-words → { words, hold } — the comment word filter
 //   PUT /api/admin/blocked-words { words: string[], hold?: boolean } → same shape back
+//   GET /api/admin/accounts → { accounts, active7d, coinsInCirculation } — reader
+//                             accounts in aggregate, never an address
 //   …plus the tools in admin-tools.ts (search misses, rebuild, prereq PR,
 //   retrieval bench, facts to check), mounted at the end of this file.
 
@@ -18,6 +20,8 @@ import { versionStatus } from "../version.ts";
 import { HOLD_BLOCKED_KEY, blockedWords, holdBlocked, setBlockedWords, setSetting } from "../db.ts";
 import { MAX_WORDS, sanitizeWords } from "../blocked-words.ts";
 import { adminToolsRoute } from "./admin-tools.ts";
+import { database } from "../db.ts";
+import { accountStats } from "../account-store.ts";
 
 export const adminRoute = new Hono();
 
@@ -53,6 +57,15 @@ adminRoute.get("/prereq-suggestions", (c) => {
     );
   }
   return c.body(raw, 200, { "content-type": "application/json; charset=utf-8" });
+});
+
+adminRoute.get("/accounts", (c) => {
+  try {
+    return c.json(accountStats(database()));
+  } catch (e) {
+    console.error("admin: account stats failed", e);
+    return c.json({ error: "Base indisponible." }, 503);
+  }
 });
 
 adminRoute.get("/blocked-words", (c) => {

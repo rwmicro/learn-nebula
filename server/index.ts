@@ -17,6 +17,8 @@ import { relatedRoute } from "./routes/related.ts";
 import { questionsRoute } from "./routes/questions.ts";
 import { adminRoute } from "./routes/admin.ts";
 import { searchMissRoute } from "./routes/search-miss.ts";
+import { authRoute } from "./routes/auth.ts";
+import { meRoute, progressRoute, accountRoute, shopRoute } from "./routes/account.ts";
 import { buildCSP, SITE_URL } from "../lib/site.ts";
 import { staticEntry, isFresh, cacheControlFor } from "./static-cache.ts";
 
@@ -59,6 +61,12 @@ app.route("/api/related", relatedRoute);
 app.route("/api/questions", questionsRoute);
 app.route("/api/admin", adminRoute);
 app.route("/api/search-miss", searchMissRoute);
+// Reader accounts: magic-link login, progress sync, coins, streaks, shop.
+app.route("/api/auth", authRoute);
+app.route("/api/me", meRoute);
+app.route("/api/progress", progressRoute);
+app.route("/api/account", accountRoute);
+app.route("/api/shop", shopRoute);
 
 // serveStatic sends no Cache-Control at all, so every response — HTML pages
 // included — is subject to the browser's own heuristic caching (freshness ≈
