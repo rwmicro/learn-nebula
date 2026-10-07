@@ -427,7 +427,8 @@
     "assistant": "Abrir el asistente",
     "current": "actual",
     "exportProgress": "Exportar mi progreso",
-    "importProgress": "Importar un progreso"
+    "importProgress": "Importar un progreso",
+    "shortcuts": "Atajos de teclado"
   },
   "progression": {
     "title": "Mi progreso",
@@ -531,5 +532,27 @@
     "religion": "Religión",
     "sociology": "Sociología",
     "theatre": "Teatro"
+  },
+  "shortcuts": {
+    "title": "Atajos de teclado",
+    "everywhere": "En todo el sitio",
+    "openPalette": "Abrir la búsqueda",
+    "help": "Mostrar esta ayuda",
+    "closeAny": "Cerrar una ventana",
+    "paletteGroup": "En la búsqueda",
+    "move": "Pasar de un resultado a otro",
+    "jump": "Saltar 8 resultados",
+    "open": "Abrir",
+    "openTab": "Abrir en una pestaña nueva",
+    "cards": "Tarjetas y repaso",
+    "flip": "Girar la tarjeta, mostrar la respuesta",
+    "grade": "Calificar tu respuesta",
+    "prevNext": "Tarjeta anterior, siguiente",
+    "images": "Imágenes ampliadas",
+    "imgPrevNext": "Imagen anterior, siguiente",
+    "paths": "Grafo de un recorrido",
+    "zoom": "Acercar, alejar, ajustar",
+    "pan": "Mover el grafo",
+    "close": "Cerrar"
   }
 }

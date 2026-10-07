@@ -427,7 +427,8 @@
     "assistant": "Open the assistant",
     "current": "current",
     "exportProgress": "Export my progress",
-    "importProgress": "Import progress"
+    "importProgress": "Import progress",
+    "shortcuts": "Keyboard shortcuts"
   },
   "progression": {
     "title": "My progress",
@@ -531,5 +532,27 @@
     "religion": "Religion",
     "sociology": "Sociology",
     "theatre": "Theatre"
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "everywhere": "Everywhere",
+    "openPalette": "Open search",
+    "help": "Show this help",
+    "closeAny": "Close a dialog",
+    "paletteGroup": "In search",
+    "move": "Move between results",
+    "jump": "Jump 8 results",
+    "open": "Open",
+    "openTab": "Open in a new tab",
+    "cards": "Flashcards and review",
+    "flip": "Flip the card, show the answer",
+    "grade": "Grade your answer",
+    "prevNext": "Previous, next card",
+    "images": "Enlarged images",
+    "imgPrevNext": "Previous, next image",
+    "paths": "Reading path graph",
+    "zoom": "Zoom in, out, fit",
+    "pan": "Pan the graph",
+    "close": "Close"
   }
 }
