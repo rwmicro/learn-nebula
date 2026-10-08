@@ -54,6 +54,9 @@ function buildSystem(scope: string): string {
 
 const cooldown = new Cooldown(3);
 const quota = new Quota(env.askHourly, 3_600_000);
+// Instance-wide daily backstop (all IPs together), keyed on one constant.
+const daily = env.askDaily > 0 ? new Quota(env.askDaily, 86_400_000) : null;
+const DAILY_KEY = "ask:all";
 const inflight = new InFlight();
 
 export const askRoute = new Hono();
@@ -83,6 +86,9 @@ askRoute.post("/", async (c) => {
   }
   if (env.askHourly > 0 && ip !== "anon" && quota.exceeded(`ask:${ip}`)) {
     return c.json({ error: "Limite horaire atteinte — réessaie plus tard." }, 429);
+  }
+  if (daily && daily.exceeded(DAILY_KEY)) {
+    return c.json({ error: "Service momentanément indisponible — réessaie plus tard." }, 429);
   }
   if (inflight.has(ip)) {
     return c.json({ error: "Une requête est déjà en cours." }, 429);
