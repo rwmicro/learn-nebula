@@ -10,7 +10,9 @@ import { ReadMarks } from "@/components/ReadMarks";
 import { PathZoom } from "@/components/PathZoom";
 import { ParcoursStudy, type StudyNoteView } from "@/components/ParcoursStudy";
 import type { PathExtras } from "@/lib/path-extras";
-import { PATH_FAMILIES, familyRank, pathFamily } from "@/lib/path-family";
+import { PATH_FAMILIES, pathFamily, type PathFamily } from "@/lib/path-family";
+import { ParcoursBrowse, type BrowsePath } from "@/components/ParcoursBrowse";
+import { fold } from "@/lib/palette-match";
 
 /**
  * /parcours/ (an index of reading paths, one card each) and /parcours/<slug>/
@@ -27,17 +29,28 @@ export function ParcoursIndex({
   /** Per path slug: reading times and quiz ids (for the "maîtrisées" count). */
   extras: Record<string, PathExtras>;
 }) {
-  const groups = new Map<string, ReadingPathView[]>();
-  for (const p of paths)
-    groups.set(p.discipline, [...(groups.get(p.discipline) ?? []), p]);
-  // Sections run by colour family (sciences, informatique, vivant…), so the
-  // page reads as bands of one colour; the sort is stable within a family.
-  const sections = [...groups.entries()].sort(
-    ([a], [b]) => familyRank(a) - familyRank(b),
-  );
-  const families = PATH_FAMILIES.filter((f) =>
-    paths.some((p) => pathFamily(p.discipline) === f),
-  );
+  // One section per colour family (sciences, informatique, vivant…), not per
+  // discipline: most disciplines hold a single path, and 22 headings of one
+  // card each made a very long page. The discipline moves onto the card.
+  // Within a family, paths keep their discipline grouping (stable order).
+  const disciplineOrder = [...new Set(paths.map((p) => p.discipline))];
+  const byDiscipline = (a: ReadingPathView, b: ReadingPathView) =>
+    disciplineOrder.indexOf(a.discipline) - disciplineOrder.indexOf(b.discipline);
+  const families: [PathFamily | null, ReadingPathView[]][] = [
+    ...PATH_FAMILIES,
+    null,
+  ]
+    .map((f): [PathFamily | null, ReadingPathView[]] => [
+      f,
+      paths.filter((p) => pathFamily(p.discipline) === f).sort(byDiscipline),
+    ])
+    .filter(([, list]) => list.length > 0);
+  const browse: BrowsePath[] = paths.map((p) => ({
+    slug: p.slug,
+    name: splitName(p.name)[0],
+    family: pathFamily(p.discipline),
+    notes: p.notes.map((n) => [n.slug, n.title]),
+  }));
   return (
     <main id="main" className="themes-page parcours-page">
       <Back href="/themes/" labelKey="nav.themes" />
@@ -52,83 +65,133 @@ export function ParcoursIndex({
           {t("parcours.empty")}
         </p>
       )}
-      {families.length > 1 && (
-        <ul className="parcours-families">
-          {families.map((f) => (
-            <li key={f} data-family={f}>
-              <span {...attrs(i18nAttrs(`parcours.family.${f}`))}>
-                {t(`parcours.family.${f}`)}
-              </span>
-            </li>
-          ))}
-        </ul>
+      {paths.length > 0 && (
+        <ParcoursBrowse
+          paths={browse}
+          families={families.map(([f, list]) => ({ id: f, count: list.length }))}
+        />
       )}
-      {sections.map(([discipline, list]) => (
-        <section
-          key={discipline || "_"}
-          data-family={pathFamily(discipline) ?? undefined}
-        >
-          <h2 className="themes-h2">
-            {discipline ? (
-              <DisciplineName name={discipline} />
-            ) : (
-              <span {...attrs(i18nAttrs("parcours.other"))}>
-                {t("parcours.other")}
+      {families.map(([family, list]) => {
+        // The discipline goes on each card only when the family mixes several.
+        const mixed = new Set(list.map((p) => p.discipline)).size > 1;
+        const tiles = list.filter((p) => TILE_DISCIPLINES.has(p.discipline));
+        const cards = list.filter((p) => !TILE_DISCIPLINES.has(p.discipline));
+        const label = family ? `parcours.family.${family}` : "parcours.other";
+        return (
+          <section
+            key={family ?? "_"}
+            className="parcours-family"
+            data-family={family ?? undefined}
+            data-path-family
+          >
+            <h2 className="themes-h2">
+              <span {...attrs(i18nAttrs(label))}>{t(label)}</span>
+              <span
+                className="parcours-family-count"
+                {...attrs(i18nAttrs(countKey(list.length), { n: list.length }))}
+              >
+                {t(countKey(list.length), { n: list.length })}
               </span>
+            </h2>
+            {tiles.length > 0 && (
+              <div className="parcours-tiles-block" data-path-block>
+                <p className="parcours-tiles-intro" {...attrs(i18nAttrs("parcours.langIntro"))}>
+                  {t("parcours.langIntro")}
+                </p>
+                <ul className="parcours-tiles">
+                  {[...tiles]
+                    .sort((a, b) => splitName(a.name)[0].localeCompare(splitName(b.name)[0], "fr"))
+                    .map((p) => (
+                      <li
+                        key={p.slug}
+                        className="parcours-tile"
+                        data-read-group
+                        data-path-card
+                        data-search={searchText(p)}
+                      >
+                        <a href={`/parcours/${p.slug}/`} className="parcours-tile-link" title={p.name}>
+                          <span className="parcours-tile-name">{splitName(p.name)[0]}</span>
+                          <Progress
+                            slugs={p.notes.map((n) => n.slug)}
+                            total={p.notes.length}
+                            extras={extras[p.slug]}
+                          />
+                        </a>
+                      </li>
+                    ))}
+                </ul>
+              </div>
             )}
-          </h2>
-          <ul className="parcours-cards">
-            {list.map((p) => (
-              <li key={p.slug} className="parcours-card" data-read-group>
-                <a href={`/parcours/${p.slug}/`} className="parcours-card-link">
-                  <MiniGraph path={p} />
-                  <span className="parcours-card-body">
-                    <span className="parcours-card-title">{p.name}</span>
-                    {p.description && (
-                      <span className="parcours-card-desc">
-                        {p.description}
-                      </span>
-                    )}
-                    <span className="parcours-card-meta">
-                      <span
-                        {...attrs(
-                          i18nAttrs("parcours.count", { n: p.notes.length }),
-                        )}
+            {cards.length > 0 && (
+              <div className="parcours-cards-block" data-path-block>
+                {tiles.length > 0 && (
+                  <p className="parcours-cards-label" {...attrs(i18nAttrs("parcours.langAround"))}>
+                    {t("parcours.langAround")}
+                  </p>
+                )}
+                <ul className="parcours-cards">
+                  {cards.map((p) => {
+                    const [title, sub] = splitName(p.name);
+                    return (
+                      <li
+                        key={p.slug}
+                        className="parcours-card"
+                        data-read-group
+                        data-path-card
+                        data-search={searchText(p)}
                       >
-                        {t("parcours.count", { n: p.notes.length })}
-                      </span>
-                      {" · "}
-                      <span
-                        {...attrs(
-                          i18nAttrs("parcours.from", {
-                            first: p.notes[0].title,
-                            last: p.notes[p.notes.length - 1].title,
-                          }),
-                        )}
-                      >
-                        {t("parcours.from", {
-                          first: p.notes[0].title,
-                          last: p.notes[p.notes.length - 1].title,
-                        })}
-                      </span>
-                    </span>
-                    <Progress
-                      slugs={p.notes.map((n) => n.slug)}
-                      total={p.notes.length}
-                      extras={extras[p.slug]}
-                    />
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ))}
+                        <a href={`/parcours/${p.slug}/`} className="parcours-card-link">
+                          {(mixed || !family) && p.discipline && (
+                            <span className="parcours-card-kicker">
+                              <DisciplineName name={p.discipline} />
+                            </span>
+                          )}
+                          <span className="parcours-card-title">{title}</span>
+                          {sub && <span className="parcours-card-sub">{sub}</span>}
+                          {p.description && (
+                            <span className="parcours-card-desc">{p.description}</span>
+                          )}
+                          <Progress
+                            slugs={p.notes.map((n) => n.slug)}
+                            total={p.notes.length}
+                            extras={extras[p.slug]}
+                          />
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </section>
+        );
+      })}
       <p className="parcours-privacy" {...attrs(i18nAttrs("reading.privacy"))}>
         {t("reading.privacy")}
       </p>
       <ReadMarks />
     </main>
+  );
+}
+
+/** Disciplines whose paths share one shape ("<Langue> : des premiers mots à
+ *  la culture"): shown as small tiles under one shared line, not as cards. */
+const TILE_DISCIPLINES = new Set(["Languages & Dialects"]);
+
+const countKey = (n: number) => (n === 1 ? "parcours.familyCountOne" : "parcours.familyCount");
+
+/** "Physique : du lycée à la prépa" → ["Physique", "du lycée à la prépa"]. */
+function splitName(name: string): [string, string] {
+  const i = name.indexOf(" : ");
+  return i > 0 ? [name.slice(0, i), name.slice(i + 3)] : [name, ""];
+}
+
+/** What the index filter matches against: the path's name, its discipline
+ *  (folder and French name) and its notes' titles, folded like the query. */
+function searchText(p: ReadingPathView): string {
+  const key = disciplineKey(p.discipline);
+  return fold(
+    [p.name, p.discipline, key ? t(key) : "", ...p.notes.map((n) => n.title)].join(" "),
   );
 }
 
@@ -455,52 +518,6 @@ function PathSvg({
           );
         })}
       </g>
-    </svg>
-  );
-}
-
-/** Thumbnail of a path's graph for its index card: dots and lines, same
- *  layout code with tiny boxes. Decorative (the card says it all in words). */
-function MiniGraph({ path }: { path: ReadingPathView }) {
-  const g = layoutPrereqGraph(
-    path.notes.map((n) => n.slug),
-    path.edges,
-    (s) => s,
-    {
-      nodeWidth: 12,
-      nodeHeight: 12,
-      gapX: 10,
-      gapY: 12,
-      dummyWidth: 4,
-      padding: 6,
-    },
-  );
-  return (
-    <svg
-      className="pm"
-      viewBox={`0 0 ${g.width} ${g.height}`}
-      width={g.width}
-      height={g.height}
-      aria-hidden="true"
-      focusable="false"
-    >
-      {g.edges.map((e) => (
-        <path
-          key={`${e.from}>${e.to}`}
-          className="pm-edge"
-          d={edgePath(e.points)}
-        />
-      ))}
-      {g.nodes.map((n) => (
-        <circle
-          key={n.slug}
-          className="pm-dot"
-          data-slug={n.slug}
-          cx={n.x + n.w / 2}
-          cy={n.y + n.h / 2}
-          r={n.w / 2 - 1}
-        />
-      ))}
     </svg>
   );
 }
