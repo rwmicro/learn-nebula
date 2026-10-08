@@ -276,7 +276,6 @@
     "root": "General",
     "topTags": "Common themes",
     "all": "All themes",
-    "allPaths": "All paths ({n})",
     "more": "{n} more",
     "filterPlaceholder": "Filter themes…",
     "filterCount": "{n} themes",
