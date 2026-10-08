@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getDisciplines, getReadingPaths, getTags } from "@/lib/content";
+import { getDisciplines, getTags } from "@/lib/content";
 import { ThemesIndex } from "@/components/Themes";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/themes.css";
@@ -11,10 +11,6 @@ export const metadata: Metadata = {
 
 export default function ThemesPage() {
   return (
-    <ThemesIndex
-      disciplines={getDisciplines()}
-      tags={getTags()}
-      paths={getReadingPaths()}
-    />
+    <ThemesIndex disciplines={getDisciplines()} tags={getTags()} />
   );
 }
