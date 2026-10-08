@@ -9,12 +9,12 @@ import {
   getDependents,
   getReadingPathOf,
   getReadingPaths,
+  getDisciplines,
 } from "@/lib/content";
 import { pathStepHtml, pathStepOf } from "@/lib/path-step";
 import { renderMarkdown } from "@/lib/markdown";
 import {
   dropcapHtml,
-  navHtml,
   escapeHtml,
   noteHeaderHtml,
   buildToc,
@@ -34,6 +34,12 @@ import {
   readBadgeHtml,
   readStateHtml,
   noteSectionMetaHtml,
+  folderLabel,
+  bookmarkButtonHtml,
+  focusButtonHtml,
+  nextUpHtml,
+  prerenderNextHtml,
+  type NextUp,
 } from "@/lib/html";
 import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
 import { JsonLd } from "@/components/JsonLd";
@@ -145,13 +151,52 @@ export async function SinglePage({
       }).replace(/</g, "\\u003c")}</script>`
     : "";
 
+  // "Et ensuite ?": the next step of the reading path, else the next note of
+  // the folder, plus a dozen notes of the discipline (in its page's order,
+  // starting after this one) for the browser to pick an unread one from.
+  const sibNav = note ? getSiblings(doc.slug) : null;
+  const disc = note
+    ? getDisciplines().find((d) => doc.slug.startsWith(d.prefix)) ?? null
+    : null;
+  const discNotes = disc
+    ? disc.sections.flatMap((s) =>
+        s.notes.map((n) => ({
+          slug: n.href.slice("/posts/".length, -1),
+          title: n.title,
+        })),
+      )
+    : [];
+  const here = discNotes.findIndex((n) => n.slug === doc.slug);
+  const nextUp: NextUp = {
+    next: step?.next
+      ? { slug: step.next.slug, title: step.next.title, path: step.path.name }
+      : sibNav?.next
+        ? { slug: sibNav.next.slug, title: sibNav.next.title }
+        : null,
+    discipline: disc
+      ? {
+          name: folderLabel(doc.rawPath.split("/")[1] ?? ""),
+          href: `/disciplines/${disc.slug}/`,
+          notes: [...discNotes.slice(here + 1), ...discNotes.slice(0, Math.max(0, here))].slice(0, 24),
+        }
+      : null,
+  };
+  const nextBlock = note ? nextUpHtml(nextUp) : "";
+
   const headerTitle = fm.title;
   const headerDate = fm.date
     ? { iso: fm.date.toISOString(), formatted: formatDateLong(fm.date) }
     : undefined;
 
   const main =
-    (note ? noteHeaderHtml(doc.rawPath, headerTitle, headerDate) : "") +
+    (note
+      ? noteHeaderHtml(
+          doc.rawPath,
+          headerTitle,
+          headerDate,
+          disc ? { href: `/disciplines/${disc.slug}/`, depth: 1 } : null,
+        )
+      : "") +
     (note ? buildToc(html, fm.tags, localGraph) : "") +
     katex +
     dropcapHtml(plain, fm.dropcap) +
@@ -171,11 +216,13 @@ export async function SinglePage({
         // Display preferences first (visual settings — set once per session)
         fontSizeButtonHtml() +
         wideTextButtonHtml() +
+        focusButtonHtml() +
         // Visual divider between preference and action groups
         `<span class="note-actions-sep" aria-hidden="true">·</span>` +
         // Content actions (audio playback, translation)
         audioButtonHtml() +
         translateButtonHtml(detectedLang) +
+        bookmarkButtonHtml() +
         // Reading time pushed to the right edge as passive metadata
         readingTime +
         // "Lue" once the reader has finished it (/js/reading-state.js).
@@ -186,12 +233,13 @@ export async function SinglePage({
     `<div class="article-body">${html}</div>` +
     articleSource +
     (note ? readStateHtml(doc.slug, readingMinutes) : "") +
+    nextBlock +
+    (note ? prerenderNextHtml(nextUp.next?.slug) : "") +
     further +
     backlinks +
     related +
     (note ? commentsHtml(doc.slug) : "") +
-    siblings +
-    navHtml();
+    siblings;
 
   return (
     <>

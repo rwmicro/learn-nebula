@@ -99,6 +99,18 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   embedding model and is discarded when it changes. Config is
   centralised in `server/env.ts` (all `process.env`); everything degrades to
   "disabled" when its vars are unset.
+  **Reader accounts** (same SQLite file): magic-link login by e-mail
+  (`routes/auth.ts`, nodemailer via `SMTP_*`, or `AUTH_DEV_LOG=true` to print
+  the link in dev), `gk_session` HttpOnly cookie (only SHA-256 hashes of login
+  tokens and sessions are stored), and `routes/account.ts`: `/api/me`,
+  `/api/progress/sync` (merges with `lib/progress-transfer.ts`'s
+  `validateImport`/`mergeValue`, so new `PROGRESS_KEYS` sync with no server
+  change), `/api/account`, `/api/shop` (items from `lib/avatar.ts`). Coins are
+  decided server-side only, from the stored-vs-merged diff (`accounts.ts`,
+  pure + tested; SQL in `account-store.ts`) into an append-only `coin_events`
+  ledger. Mutating account routes require a same-site `Origin`
+  (`session.ts`). `server/tsconfig.json` includes the DOM lib because
+  `progress-transfer.ts` carries browser glue.
 - **`/admin/`** (`components/AdminPanel.tsx`, `robots: {index:false}`): owner-only
   comment moderation (approve/delete the pending queue) + RAG health from
   `GET /healthz`, gated client-side by pasting `COMMENTS_ADMIN_TOKEN` — no

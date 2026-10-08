@@ -1,5 +1,6 @@
 "use client";
 
+import { recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -107,6 +108,7 @@ export function ReviewSession({
       if (!revealed || !head) return;
       const res = onGrade(head, g);
       recordReview(today, g);
+      recordActivity("c");
       const rest = queue.slice(1);
       const q = g === "again" ? [...rest, { ...head, state: res?.state }] : rest;
       setHistory((h) => [...h.slice(-49), { queue, g, undo: res?.undo ?? (() => {}) }]);

@@ -12,6 +12,7 @@ import { getLanguageScopes } from "@/lib/content";
 import { notesIndexVersion, paletteExtraVersion } from "@/lib/home-data";
 import { Footer } from "@/components/Footer";
 import { PinnedAssistant } from "@/components/PinnedAssistant";
+import { SiteBar } from "@/components/SiteBar";
 import "../assets/css/fonts.css";
 // Global frame only (Tailwind + @theme + html/body/main margins). Article
 // typography lives in main.css, loaded per-route on note pages / 404.
@@ -150,6 +151,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: I18N_BOOTSTRAP }}
         />
         <Script src="/js/i18n.js" strategy="afterInteractive" />
+        <SiteBar />
         {children}
         <Footer />
         {/* Pinnable "Ask the garden" — hidden until pinned from the home chat,

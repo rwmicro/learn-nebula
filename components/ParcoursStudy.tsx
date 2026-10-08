@@ -1,5 +1,6 @@
 "use client";
 
+import { recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -521,6 +522,7 @@ function Placement({
       try {
         const deck = recordCorrect(loadNoteDeck(localStorage, note.slug), quiz.id, dayKey());
         saveNoteDeck(localStorage, note.slug, deck);
+        recordActivity("c");
         window.dispatchEvent(new CustomEvent(QUIZ_EVENT));
       } catch {
         /* storage blocked: the known mark is enough */

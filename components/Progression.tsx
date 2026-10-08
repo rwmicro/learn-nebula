@@ -6,6 +6,7 @@
 // and a transfer link that holds the data compressed in its #fragment. All of
 // it runs client-side; the format and merge rules are lib/progress-transfer.ts.
 
+import { MyMarks } from "@/components/MyMarks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -238,6 +239,9 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
     ["questions", "kindQuestions"],
     ["known", "kindKnown"],
     ["targets", "kindTargets"],
+    ["bookmarks", "kindBookmarks"],
+    ["highlights", "kindHighlights"],
+    ["activity", "kindActivity"],
     ["reviewLog", "kindReviewLog"],
   ];
 
@@ -268,6 +272,8 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
               <Stat n={summary?.cards} label={tr("statCards")} />
               <Stat n={summary?.questions} label={tr("statQuestions")} />
               <Stat n={summary?.known} label={tr("statKnown")} />
+              <Stat n={summary?.bookmarks} label={tr("statBookmarks")} />
+              <Stat n={summary?.highlights} label={tr("statHighlights")} />
             </dl>
             {summary &&
               !summary.read &&
@@ -275,13 +281,17 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
               !summary.cards &&
               !summary.questions &&
               !summary.known &&
-              !summary.targets && (
+              !summary.targets &&
+              !summary.bookmarks &&
+              !summary.highlights &&
+              !summary.activeDays && (
                 <p className="progression-muted">{tr("empty")}</p>
               )}
           </>
         )}
       </section>
 
+      <MyMarks />
       <ReviewStats decks={decks} />
 
       <section className="progression-actions" aria-label={tr("title")}>
