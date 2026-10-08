@@ -110,13 +110,15 @@ export function LangSwitcher() {
         <button
           ref={toggleRef}
           type="button"
-          className={`${btn(false)} inline-flex items-center gap-1`}
+          // Same pill as the search trigger next to it (.palette-btn, palette.css),
+          // so the three controls read as one row.
+          className="palette-btn font-semibold tracking-[0.06em]"
           aria-expanded={open}
           aria-controls={menuId}
           aria-label={`Langue / Language : ${current.label}`}
           onClick={() => setOpen((v) => !v)}
         >
-          <span lang={current.code}>{current.label}</span>
+          <span>{current.code.toUpperCase()}</span>
           <svg
             viewBox="0 0 12 12"
             width="9"
