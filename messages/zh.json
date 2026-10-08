@@ -249,7 +249,9 @@
     "lapses": "遗忘 {count} 次",
     "suspended": "已暂停",
     "suspend": "暂停",
-    "unsuspend": "恢复"
+    "unsuspend": "恢复",
+    "progress": "本次复习进度",
+    "sessionTally": "已复习 {count} 张 · 记住 {pct}%"
   },
   "youtube": {
     "play": "播放 YouTube 视频",
@@ -282,7 +284,7 @@
   },
   "cartesIndex": {
     "title": "复习卡片",
-    "intro": "花园中的 Anki 卡组，可逐张翻阅，按文件夹分组。",
+    "intro": "花园里的 Anki 卡组，采用间隔重复：每张卡片会在你快要忘记时再次出现。",
     "empty": "目前还没有可用的卡组。",
     "count": "{count} 张卡片",
     "noteQuestions": "待复习的笔记问题",
@@ -296,7 +298,9 @@
     "paused": "已暂停",
     "upToDate": "已完成",
     "deckDue": "待复习 {count}",
-    "deckFresh": "新卡 {count}"
+    "deckFresh": "新卡 {count}",
+    "todayStart": "在下方打开一个卡组即可开始：它的卡片会加入“全部复习”。",
+    "started": "进行中"
   },
   "notFound": {
     "suggestions": "你是否在找……",
@@ -354,7 +358,8 @@
     "remove": "移除",
     "removeAria": "从复习中移除此问题",
     "noStorage": "浏览器存储不可用：无法在此保存笔记问题。",
-    "hintReview": "空格：显示答案 · 1 2 3 4：评分 · Z：撤销"
+    "hintReview": "空格：显示答案 · 1 2 3 4：评分 · Z：撤销",
+    "hintTouch": "点击卡片查看答案 · 然后滑动：→ 良好，← 重来"
   },
   "prereq": {
     "before": "先读",
@@ -796,9 +801,11 @@
   },
   "todayReview": {
     "title": "全部复习",
-    "intro": "今天所有卡组（已暂停的除外）待复习的卡片和笔记问题，然后是各卡组的新卡。",
-    "sources": "来源：{n}。",
+    "intro": "你已开始的卡组（暂停的除外）中今天到期的卡片和你的笔记问题，然后是这些卡组的新卡片。",
     "failed": "无法加载的卡组：{decks}。",
-    "done": "今天的复习已全部完成。"
+    "done": "今天的复习已全部完成。",
+    "loading": "正在加载卡组：{n} / {total}…",
+    "nothingStarted": "暂时没有要复习的内容。从卡片列表打开一个卡组，它的卡片就会出现在这里。",
+    "tomorrow": "明天到期：{count}"
   }
 }

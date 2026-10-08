@@ -249,7 +249,9 @@
     "lapses": "Olvidada: {count} veces",
     "suspended": "suspendida",
     "suspend": "Suspender",
-    "unsuspend": "Reactivar"
+    "unsuspend": "Reactivar",
+    "progress": "Avance de la sesión",
+    "sessionTally": "{count} tarjetas repasadas · {pct} % recordadas"
   },
   "youtube": {
     "play": "Reproducir el vídeo de YouTube",
@@ -282,7 +284,7 @@
   },
   "cartesIndex": {
     "title": "Tarjetas de repaso",
-    "intro": "Los mazos Anki del jardín, para repasar tarjeta a tarjeta, ordenados por carpeta.",
+    "intro": "Los mazos Anki del jardín, con repetición espaciada: cada tarjeta vuelve justo cuando vas a olvidarla.",
     "empty": "Todavía no hay ningún mazo de tarjetas disponible.",
     "count": "{count} tarjetas",
     "noteQuestions": "Preguntas de notas para repasar",
@@ -296,7 +298,9 @@
     "paused": "en pausa",
     "upToDate": "al día",
     "deckDue": "pendientes: {count}",
-    "deckFresh": "nuevas: {count}"
+    "deckFresh": "nuevas: {count}",
+    "todayStart": "Abre un mazo abajo para empezar: sus tarjetas se sumarán a «Repasarlo todo».",
+    "started": "En curso"
   },
   "notFound": {
     "suggestions": "Quizás buscabas…",
@@ -354,7 +358,8 @@
     "remove": "Quitar",
     "removeAria": "Quitar esta pregunta de mis repasos",
     "noStorage": "El almacenamiento del navegador no está disponible: aquí no se pueden guardar preguntas.",
-    "hintReview": "Espacio: mostrar la respuesta · 1 2 3 4: calificar · Z: deshacer"
+    "hintReview": "Espacio: mostrar la respuesta · 1 2 3 4: calificar · Z: deshacer",
+    "hintTouch": "Toca la tarjeta para ver la respuesta · luego desliza: → Bien, ← Otra vez"
   },
   "prereq": {
     "before": "Leer antes",
@@ -796,9 +801,11 @@
   },
   "todayReview": {
     "title": "Repasarlo todo",
-    "intro": "Las tarjetas y preguntas de notas pendientes de hoy, de todos los mazos (salvo los pausados), y luego las tarjetas nuevas de cada mazo.",
-    "sources": "Fuentes: {n}.",
+    "intro": "Las tarjetas que tocan hoy en los mazos que has empezado (salvo los pausados) y tus preguntas de notas, y luego las tarjetas nuevas de esos mazos.",
     "failed": "Mazos no disponibles: {decks}.",
-    "done": "Todo repasado por hoy."
+    "done": "Todo repasado por hoy.",
+    "loading": "Cargando mazos: {n} / {total}…",
+    "nothingStarted": "Nada que repasar por ahora. Abre un mazo desde la lista de tarjetas: sus tarjetas aparecerán aquí.",
+    "tomorrow": "Para mañana: {count}"
   }
 }
