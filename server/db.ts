@@ -6,6 +6,7 @@ import Database from "better-sqlite3";
 import fs from "node:fs";
 import path from "node:path";
 import { env } from "./env.ts";
+import { ACCOUNT_SCHEMA } from "./account-store.ts";
 
 export interface CommentRow {
   id: number;
@@ -23,6 +24,9 @@ export function initDb(): Database.Database {
   fs.mkdirSync(path.dirname(env.dbPath), { recursive: true });
   db = new Database(env.dbPath);
   db.pragma("journal_mode = WAL"); // better concurrency for reads during writes
+  // Off by default in SQLite, per connection: the account tables rely on
+  // ON DELETE CASCADE so deleting a user takes everything of theirs with it.
+  db.pragma("foreign_keys = ON");
   const schemaPath = path.join(process.cwd(), "schema", "comments.sql");
   const schema = fs.existsSync(schemaPath)
     ? fs.readFileSync(schemaPath, "utf8")
@@ -68,6 +72,9 @@ export function initDb(): Database.Database {
     );
     CREATE INDEX IF NOT EXISTS idx_search_misses_last ON search_misses(last_seen DESC);
   `);
+  // Reader accounts, progress sync, coins, streaks, avatar items
+  // (server/account-store.ts).
+  db.exec(ACCOUNT_SCHEMA);
   migrateQuestions(db);
   return db;
 }
@@ -89,6 +96,10 @@ function migrateQuestions(d: Database.Database): void {
 function get(): Database.Database {
   return db ?? initDb();
 }
+
+/** The shared handle, for modules that keep their queries elsewhere
+ *  (server/account-store.ts takes it as a parameter). */
+export const database = get;
 
 const PAGE_LIMIT = 100;
 

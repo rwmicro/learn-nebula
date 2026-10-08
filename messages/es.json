@@ -58,7 +58,12 @@
     "linkCopied": "enlace copiado",
     "copyCode": "copiar",
     "copyCodeAria": "Copiar el código",
-    "codeCopied": "copiado"
+    "codeCopied": "copiado",
+    "bookmark": "leer después",
+    "bookmarked": "guardada",
+    "focus": "concentración",
+    "focusTitle": "Modo concentración: solo el texto (f)",
+    "focusExit": "Salir del modo concentración (Esc)"
   },
   "growth": {
     "tended": "retocada el",
@@ -330,7 +335,8 @@
     "copyLink": "Copiar enlace",
     "copyLinkAria": "Copiar un enlace a este pasaje",
     "linkCopied": "Enlace copiado",
-    "copyFailed": "No se pudo copiar"
+    "copyFailed": "No se pudo copiar",
+    "highlight": "Subrayar"
   },
   "glossary": {
     "kicker": "Glosario",
@@ -530,6 +536,11 @@
     "errEmpty": "El archivo no contiene ningún progreso utilizable.",
     "errLink": "Este enlace de transferencia está incompleto o dañado.",
     "errRead": "No se pudo leer este archivo.",
+    "statBookmarks": "notas para leer después",
+    "statHighlights": "pasajes subrayados",
+    "kindBookmarks": "Para leer después",
+    "kindHighlights": "Subrayados",
+    "kindActivity": "Días de actividad",
     "kindReviewLog": "Días de repaso",
     "statsTitle": "Repasos",
     "statsRate": "Aciertos (30 d)",
@@ -604,7 +615,184 @@
     "paths": "Grafo de un recorrido",
     "zoom": "Acercar, alejar, ajustar",
     "pan": "Mover el grafo",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "reading": "En una nota",
+    "nextPrevNote": "Nota siguiente, anterior",
+    "top": "Volver arriba",
+    "contents": "Abrir el índice",
+    "focus": "Modo concentración",
+    "bookmark": "Leer después",
+    "home": "Ir al inicio"
+  },
+  "siteBar": {
+    "brand": "El jardín",
+    "navAria": "Menú del sitio"
+  },
+  "account": {
+    "title": "Mi cuenta",
+    "myAccount": "Mi cuenta",
+    "login": "Iniciar sesión",
+    "loading": "Cargando…",
+    "offTitle": "Las cuentas no están abiertas aquí",
+    "offText": "Este sitio aún no ofrece cuentas (o el servidor no responde). Tu progreso sigue guardado en este navegador.",
+    "offLink": "Exportar o importar mi progreso",
+    "loginTitle": "Entrar en el jardín",
+    "loginIntro": "Sin contraseña: escribe tu dirección y recibirás un enlace válido 15 minutos.",
+    "perkSync": "Tu progreso guardado y compartido entre tus dispositivos",
+    "perkCoins": "Monedas por cada nota leída y cada repaso, y una racha diaria",
+    "perkAvatar": "Un pequeño jardinero que vestir con tus monedas",
+    "emailLabel": "Correo electrónico",
+    "emailPlaceholder": "tu@ejemplo.es",
+    "sendLink": "Recibir el enlace",
+    "sent": "Listo: se envió un enlace a {email}. Es válido 15 minutos.",
+    "expired": "Este enlace ha caducado o ya se usó. Pide uno nuevo.",
+    "err": {
+      "invalid": "Esta dirección no parece válida.",
+      "limited": "Demasiadas solicitudes: inténtalo en unos minutos.",
+      "disabled": "Las cuentas no están abiertas en este sitio por ahora.",
+      "error": "El envío falló. Inténtalo más tarde."
+    },
+    "privacy": "Solo se guardan tu dirección, tu zona horaria, tu progreso y tus monedas. Puedes borrar la cuenta cuando quieras.",
+    "hello": "¡Hola, jardinero!",
+    "private": "Solo tú puedes ver esta página.",
+    "settings": "Cuenta y sincronización",
+    "syncedAt": "Última sincronización: {time}",
+    "notSynced": "Aún no sincronizado desde este navegador.",
+    "syncNow": "Sincronizar ahora",
+    "synced": "Sincronizado",
+    "logout": "Cerrar sesión",
+    "delete": "Borrar mi cuenta",
+    "dangerTitle": "Borrar la cuenta",
+    "deleteText": "La cuenta, sus monedas, su jardinero y su copia del progreso se borran para siempre. El progreso guardado en este navegador se queda.",
+    "deleteWord": "borrar",
+    "deleteType": "Para confirmar, escribe «{word}»:",
+    "deleteNow": "Borrar para siempre",
+    "cancel": "Cancelar"
+  },
+  "avatar": {
+    "aria": "Tu pequeño jardinero",
+    "title": "Mi jardinero",
+    "intro": "Prueba una prenda haciendo clic, compra las que faltan con tus monedas y guarda.",
+    "save": "Guardar este look",
+    "saved": "Look guardado.",
+    "slot": {
+      "body": "Color",
+      "hat": "Sombrero",
+      "accessory": "Accesorio",
+      "background": "Fondo"
+    },
+    "items": {
+      "leaf": "Hoja",
+      "sky": "Cielo",
+      "sun": "Sol",
+      "plum": "Ciruela",
+      "coral": "Coral",
+      "ink": "Tinta",
+      "none": "Ninguno",
+      "beret": "Boina",
+      "cap": "Birrete",
+      "wizard": "Sombrero de mago",
+      "crown": "Corona",
+      "glasses": "Gafas",
+      "scarf": "Bufanda",
+      "book": "Libro",
+      "paper": "Papel",
+      "garden": "Jardín",
+      "night": "Noche estrellada"
+    },
+    "cancel": "Cancelar",
+    "unsaved": "Cambios sin guardar"
+  },
+  "coins": {
+    "unit": "monedas",
+    "toast": "+{n} monedas",
+    "kind": {
+      "welcome": "Bienvenida",
+      "read": "Nota leída",
+      "review": "Repaso",
+      "active": "Día activo",
+      "streak": "Hito de racha",
+      "purchase": "Compra"
+    },
+    "howTitle": "Cómo ganar monedas",
+    "ruleRead": "Nota leída hasta el final: 5 monedas (10 notas al día como máximo)",
+    "ruleReview": "Tarjeta o pregunta repasada: 1 moneda (50 al día como máximo)",
+    "ruleDay": "Día activo (al menos una nota o un repaso): 10 monedas",
+    "ruleStreak": "Rachas de 7, 30 y 100 días: 50, 200 y 500 monedas",
+    "ledgerTitle": "Historial de monedas",
+    "unitOne": "moneda",
+    "today": "+{n} hoy",
+    "more": "Ver más",
+    "less": "Ver menos"
+  },
+  "streak": {
+    "days": "días seguidos",
+    "best": "récord",
+    "freezes": "congeladores de racha",
+    "daysOne": "día seguido",
+    "freezesOne": "congelador de racha",
+    "next": "Faltan {n} días para la racha de {m} días: +{bonus} monedas",
+    "nextOne": "Falta {n} día para la racha de {m} días: +{bonus} monedas",
+    "nextAria": "Progreso hacia la racha de {m} días"
+  },
+  "shop": {
+    "title": "Tienda",
+    "freezeName": "Congelador de racha",
+    "freezeText": "Un día perdido no rompe tu racha. Como máximo {max} en reserva.",
+    "bought": "¡Comprado!",
+    "noFunds": "Aún no tienes suficientes monedas.",
+    "error": "No funcionó, inténtalo de nuevo.",
+    "buy": "Comprar",
+    "missing": "faltan {n}",
+    "held": "{n} / {max} en reserva"
+  },
+  "review": {
+    "pill": "{n} por repasar",
+    "pillTitle": "{n} tarjetas o preguntas por repasar hoy"
+  },
+  "calendar": {
+    "title": "Mi constancia",
+    "last30": "{n} días activos en los últimos 30",
+    "run": "racha actual: {n} d",
+    "aria": "Calendario de los últimos seis meses: {n} días activos en los últimos 30",
+    "cell": "{r} notas leídas, {c} repasos",
+    "none": "nada ese día",
+    "less": "menos",
+    "more": "más"
+  },
+  "marks": {
+    "bookmarksTitle": "Para leer más tarde",
+    "bookmarksEmpty": "Ninguna nota guardada. El botón «para leer más tarde» está arriba de cada nota.",
+    "highlightsTitle": "Mis subrayados",
+    "highlightsEmpty": "Ningún pasaje subrayado. Selecciona un pasaje en una nota y luego «Subrayar».",
+    "remove": "Quitar «{title}» de la lista",
+    "more": "y {n} más"
+  },
+  "offline": {
+    "save": "Disponible sin conexión",
+    "saving": "Guardando… {n}/{total}",
+    "saved": "Las {n} notas se leen sin conexión.",
+    "remove": "Quitar"
+  },
+  "nextUp": {
+    "title": "¿Y ahora?",
+    "pathNext": "Siguiente paso · {path}",
+    "folderNext": "Siguiente nota de la carpeta",
+    "unread": "Aún sin leer, en {discipline}",
+    "allRead": "¡Lo has leído todo en {discipline}!",
+    "seeAll": "Toda la disciplina: {discipline}"
+  },
+  "condensed": {
+    "left": "quedan {min} min"
+  },
+  "toTop": {
+    "aria": "Volver arriba de la nota"
+  },
+  "highlight": {
+    "open": "Subrayado: añadir una nota o quitarlo",
+    "noteLabel": "Mi nota sobre este pasaje",
+    "save": "Guardar",
+    "remove": "Quitar subrayado"
   },
   "todayReview": {
     "title": "Repasarlo todo",

@@ -1,4 +1,5 @@
 import { t, i18nAttrs, disciplineKey } from "@/lib/i18n";
+import { OfflinePath } from "@/components/OfflinePath";
 import type { ReadingPathView } from "@/lib/content";
 import {
   edgePath,
@@ -187,6 +188,7 @@ export function ParcoursPage({
           extras={extras}
         />
       </div>
+      <OfflinePath slug={path.slug} hrefs={path.notes.map((n) => n.href)} />
       <p className="parcours-next" data-parcours-next hidden>
         <span {...attrs(i18nAttrs("parcours.next"))}>{t("parcours.next")}</span>{" "}
         <a href="#">…</a>

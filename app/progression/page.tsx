@@ -3,6 +3,7 @@ import { Progression } from "@/components/Progression";
 import { getAnkiManifest } from "@/lib/anki";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/progression.css";
+import "@/assets/css/account.css";
 
 // noindex: the page is a tool over the reader's own browser storage, empty
 // for a crawler. Linked from /cartes/, the footer and the command palette.

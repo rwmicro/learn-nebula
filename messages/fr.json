@@ -58,7 +58,12 @@
     "linkCopied": "lien copié",
     "copyCode": "copier",
     "copyCodeAria": "Copier le code",
-    "codeCopied": "copié"
+    "codeCopied": "copié",
+    "bookmark": "à lire plus tard",
+    "bookmarked": "gardée",
+    "focus": "concentration",
+    "focusTitle": "Mode concentration : le texte seul (f)",
+    "focusExit": "Quitter la concentration (Échap)"
   },
   "growth": {
     "tended": "retouché le",
@@ -330,7 +335,8 @@
     "copyLink": "Copier le lien",
     "copyLinkAria": "Copier un lien vers ce passage",
     "linkCopied": "Lien copié",
-    "copyFailed": "Copie impossible"
+    "copyFailed": "Copie impossible",
+    "highlight": "Surligner"
   },
   "glossary": {
     "kicker": "Glossaire",
@@ -530,6 +536,11 @@
     "errEmpty": "Le fichier ne contient aucune progression utilisable.",
     "errLink": "Ce lien de transfert est incomplet ou abîmé.",
     "errRead": "Impossible de lire ce fichier.",
+    "statBookmarks": "notes à lire plus tard",
+    "statHighlights": "passages surlignés",
+    "kindBookmarks": "À lire plus tard",
+    "kindHighlights": "Surlignages",
+    "kindActivity": "Jours d’activité",
     "kindReviewLog": "Jours de révision",
     "statsTitle": "Révisions",
     "statsRate": "Réussite (30 j)",
@@ -604,7 +615,184 @@
     "paths": "Graphe d’un parcours",
     "zoom": "Zoomer, dézoomer, ajuster",
     "pan": "Déplacer le graphe",
-    "close": "Fermer"
+    "close": "Fermer",
+    "reading": "Dans une note",
+    "nextPrevNote": "Note suivante, précédente",
+    "top": "Remonter en haut",
+    "contents": "Ouvrir le sommaire",
+    "focus": "Mode concentration",
+    "bookmark": "À lire plus tard",
+    "home": "Aller à l’accueil"
+  },
+  "siteBar": {
+    "brand": "Le jardin",
+    "navAria": "Menu du site"
+  },
+  "account": {
+    "title": "Mon compte",
+    "myAccount": "Mon compte",
+    "login": "Se connecter",
+    "loading": "Chargement…",
+    "offTitle": "Les comptes ne sont pas ouverts ici",
+    "offText": "Ce site ne propose pas encore de compte (ou le serveur ne répond pas). Votre progression reste enregistrée dans ce navigateur.",
+    "offLink": "Exporter ou importer ma progression",
+    "loginTitle": "Se connecter au jardin",
+    "loginIntro": "Pas de mot de passe : entrez votre adresse, vous recevez un lien valable 15 minutes.",
+    "perkSync": "Votre progression sauvegardée et partagée entre vos appareils",
+    "perkCoins": "Des pièces pour chaque note lue et chaque révision, et une série de jours",
+    "perkAvatar": "Un petit jardinier à habiller avec vos pièces",
+    "emailLabel": "Adresse e-mail",
+    "emailPlaceholder": "vous@exemple.fr",
+    "sendLink": "Recevoir le lien",
+    "sent": "C’est parti : un lien vient d’être envoyé à {email}. Il est valable 15 minutes.",
+    "expired": "Ce lien a expiré ou a déjà servi. Demandez-en un nouveau.",
+    "err": {
+      "invalid": "Cette adresse ne semble pas valide.",
+      "limited": "Trop de demandes : réessayez dans quelques minutes.",
+      "disabled": "Les comptes ne sont pas ouverts sur ce site pour l’instant.",
+      "error": "L’envoi a échoué. Réessayez un peu plus tard."
+    },
+    "privacy": "Seuls votre adresse, votre fuseau horaire, votre progression et vos pièces sont gardés. Vous pouvez supprimer le compte à tout moment.",
+    "hello": "Bonjour, jardinier !",
+    "private": "Cette page n’est visible que par vous.",
+    "settings": "Compte et synchronisation",
+    "syncedAt": "Dernière synchronisation : {time}",
+    "notSynced": "Pas encore synchronisé depuis ce navigateur.",
+    "syncNow": "Synchroniser maintenant",
+    "synced": "Synchronisé",
+    "logout": "Se déconnecter",
+    "delete": "Supprimer mon compte",
+    "dangerTitle": "Supprimer le compte",
+    "deleteText": "Le compte, ses pièces, son jardinier et sa copie de la progression sont effacés pour de bon. La progression gardée dans ce navigateur reste là.",
+    "deleteWord": "supprimer",
+    "deleteType": "Pour confirmer, tapez « {word} » :",
+    "deleteNow": "Supprimer définitivement",
+    "cancel": "Annuler"
+  },
+  "avatar": {
+    "aria": "Votre petit jardinier",
+    "title": "Mon jardinier",
+    "intro": "Essayez une pièce en cliquant dessus, achetez celles qui manquent avec vos pièces, puis enregistrez.",
+    "save": "Enregistrer ce look",
+    "saved": "Look enregistré.",
+    "slot": {
+      "body": "Couleur",
+      "hat": "Chapeau",
+      "accessory": "Accessoire",
+      "background": "Fond"
+    },
+    "items": {
+      "leaf": "Feuille",
+      "sky": "Ciel",
+      "sun": "Soleil",
+      "plum": "Prune",
+      "coral": "Corail",
+      "ink": "Encre",
+      "none": "Aucun",
+      "beret": "Béret",
+      "cap": "Toque de diplômé",
+      "wizard": "Chapeau de mage",
+      "crown": "Couronne",
+      "glasses": "Lunettes",
+      "scarf": "Écharpe",
+      "book": "Livre",
+      "paper": "Papier",
+      "garden": "Jardin",
+      "night": "Nuit étoilée"
+    },
+    "cancel": "Annuler",
+    "unsaved": "Modifications non enregistrées"
+  },
+  "coins": {
+    "unit": "pièces",
+    "toast": "+{n} pièces",
+    "kind": {
+      "welcome": "Bienvenue",
+      "read": "Note lue",
+      "review": "Révision",
+      "active": "Journée active",
+      "streak": "Palier de série",
+      "purchase": "Achat"
+    },
+    "howTitle": "Comment gagner des pièces",
+    "ruleRead": "Note lue jusqu’au bout : 5 pièces (10 notes par jour au plus)",
+    "ruleReview": "Carte ou question révisée : 1 pièce (50 par jour au plus)",
+    "ruleDay": "Journée active (au moins une note ou une révision) : 10 pièces",
+    "ruleStreak": "Série de 7, 30 et 100 jours : 50, 200 et 500 pièces",
+    "ledgerTitle": "Historique des pièces",
+    "unitOne": "pièce",
+    "today": "+{n} aujourd’hui",
+    "more": "Voir plus",
+    "less": "Voir moins"
+  },
+  "streak": {
+    "days": "jours de suite",
+    "best": "record",
+    "freezes": "gels de série",
+    "daysOne": "jour de suite",
+    "freezesOne": "gel de série",
+    "next": "Encore {n} jours pour la série de {m} jours : +{bonus} pièces",
+    "nextOne": "Encore {n} jour pour la série de {m} jours : +{bonus} pièces",
+    "nextAria": "Progression vers la série de {m} jours"
+  },
+  "shop": {
+    "title": "Boutique",
+    "freezeName": "Gel de série",
+    "freezeText": "Un jour manqué ne casse pas votre série. {max} en réserve au plus.",
+    "bought": "Acheté !",
+    "noFunds": "Pas encore assez de pièces.",
+    "error": "Ça n’a pas marché, réessayez.",
+    "buy": "Acheter",
+    "missing": "encore {n}",
+    "held": "{n} / {max} en réserve"
+  },
+  "review": {
+    "pill": "{n} à revoir",
+    "pillTitle": "{n} cartes ou questions à revoir aujourd’hui"
+  },
+  "calendar": {
+    "title": "Ma régularité",
+    "last30": "{n} jours actifs sur les 30 derniers",
+    "run": "série en cours : {n} j",
+    "aria": "Calendrier des six derniers mois : {n} jours actifs sur les 30 derniers",
+    "cell": "{r} notes lues, {c} révisions",
+    "none": "rien ce jour-là",
+    "less": "moins",
+    "more": "plus"
+  },
+  "marks": {
+    "bookmarksTitle": "À lire plus tard",
+    "bookmarksEmpty": "Aucune note gardée pour plus tard. Le bouton « à lire plus tard » est en haut de chaque note.",
+    "highlightsTitle": "Mes surlignages",
+    "highlightsEmpty": "Aucun passage surligné. Sélectionnez un passage dans une note puis « Surligner ».",
+    "remove": "Retirer « {title} » de la liste",
+    "more": "et {n} autres"
+  },
+  "offline": {
+    "save": "Disponible hors ligne",
+    "saving": "Enregistrement… {n}/{total}",
+    "saved": "Les {n} notes se lisent hors ligne.",
+    "remove": "Retirer"
+  },
+  "nextUp": {
+    "title": "Et ensuite ?",
+    "pathNext": "Étape suivante · {path}",
+    "folderNext": "Note suivante du dossier",
+    "unread": "Pas encore lue, en {discipline}",
+    "allRead": "Vous avez tout lu en {discipline} !",
+    "seeAll": "Toute la discipline : {discipline}"
+  },
+  "condensed": {
+    "left": "encore {min} min"
+  },
+  "toTop": {
+    "aria": "Remonter en haut de la note"
+  },
+  "highlight": {
+    "open": "Surlignage : ajouter une note ou le retirer",
+    "noteLabel": "Ma note sur ce passage",
+    "save": "Enregistrer",
+    "remove": "Retirer le surlignage"
   },
   "todayReview": {
     "title": "Tout réviser",

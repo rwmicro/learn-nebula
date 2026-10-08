@@ -632,6 +632,14 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
         [["?"], "shortcuts.help"],
         [["Esc"], "shortcuts.closeAny"],
       ]],
+      ["shortcuts.reading", [
+        [["n", "p"], "shortcuts.nextPrevNote"],
+        [["t"], "shortcuts.top"],
+        [["s"], "shortcuts.contents"],
+        [["f"], "shortcuts.focus"],
+        [["b"], "shortcuts.bookmark"],
+        [["g a"], "shortcuts.home"],
+      ]],
       ["shortcuts.paletteGroup", [
         [["↑", "↓"], "shortcuts.move"],
         [["PgUp", "PgDn"], "shortcuts.jump"],

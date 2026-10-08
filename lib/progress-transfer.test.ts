@@ -105,6 +105,9 @@ describe("collect / summarize / export", () => {
       questionNotes: 1,
       known: 0,
       targets: 0,
+      bookmarks: 0,
+      highlights: 0,
+      activeDays: 0,
     });
   });
 
