@@ -284,7 +284,7 @@ export function ReviewSession({
                     <kbd className="mr-1.5 font-mono font-normal opacity-60">{i + 1}</kbd>
                     {tr(`flashcards.${g}`)}
                   </span>
-                  <span className="font-normal normal-case tracking-normal opacity-75 tabular-nums">{iv}</span>
+                  <span className="font-normal normal-case tracking-normal tabular-nums">{iv}</span>
                 </button>
               );
             })}
