@@ -38,3 +38,84 @@ body:has(.flashcards-main) {
   display: inline;
   margin: 0;
 }
+
+/* An Anki card face (components/DeckFace.tsx). The deck's own CSS, scoped by
+   lib/deck-css.ts, comes after this file and wins over it: these :where()
+   rules are only the defaults a deck doesn't set — the site's serif, the
+   theme's ink, and a size that grows with the card. --deck-px is what the
+   deck's `px` font sizes are multiplied by: Anki's 20px reads at ~21px on a
+   phone and ~29px on a wide screen. */
+.deck-scope {
+  container-type: inline-size;
+  width: 100%;
+}
+:where(.deck-scope) > :where(.card) {
+  --deck-px: clamp(1.05px, 0.75px + 0.09cqi, 1.5px);
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: calc(20 * var(--deck-px));
+  line-height: 1.45;
+  color: var(--ink);
+  text-align: center;
+  overflow-wrap: break-word;
+}
+:where(.deck-scope) :where(hr) {
+  width: min(100%, 22rem);
+  margin: 0.75em auto;
+  border: 0;
+  border-top: 1px solid var(--rule);
+}
+:where(.deck-scope) :where(h1, h2, h3, h4, h5, h6) {
+  margin: 0.3em 0;
+  font-size: 1.2em;
+  font-weight: 600;
+  line-height: 1.25;
+}
+:where(.deck-scope) :where(img) {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Keyboard hints on a keyboard, touch hints on a touch screen
+   (components/ReviewSession.tsx, Flashcards.tsx). */
+.touch-only {
+  display: none;
+}
+@media (hover: none) and (pointer: coarse) {
+  .kbd-only {
+    display: none !important;
+  }
+  .touch-only {
+    display: block;
+  }
+}
+
+/* Deck settings (Flashcards.tsx): the selects read as controls — a frame,
+   their own width, a caret drawn in the theme's ink — not as loose text. */
+.deck-field select {
+  appearance: none;
+  width: fit-content;
+  min-width: 9rem;
+  max-width: 100%;
+  padding: 0.35rem 2rem 0.35rem 0.6rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 2px;
+  color: var(--ink);
+  font: inherit;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ink-2) 50%),
+    linear-gradient(135deg, var(--ink-2) 50%, transparent 50%);
+  background-position:
+    calc(100% - 15px) 55%,
+    calc(100% - 10px) 55%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+.deck-field select:hover {
+  border-color: var(--ink-2);
+}
+.deck-field select:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 1px;
+}
