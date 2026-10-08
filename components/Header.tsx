@@ -76,7 +76,7 @@ export default function Header({ doc }: { doc: Doc }) {
             className="justify-self-center text-ink no-underline hover:bg-transparent"
           >
             <h1
-              className={`${blackletter.className} m-0 border-0 p-0 font-normal text-wordmark not-italic leading-[0.9] whitespace-nowrap`}
+              className={`${blackletter.className} m-0 border-0 p-0 font-normal text-wordmark max-sm:text-[clamp(1.55rem,10cqi,6rem)] not-italic leading-[0.9] whitespace-nowrap`}
             >
               {doc.frontmatter.title}
             </h1>
