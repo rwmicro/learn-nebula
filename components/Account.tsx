@@ -255,7 +255,7 @@ export function Account() {
         </div>
       </section>
 
-      <section className="acct-card" aria-labelledby="acct-wardrobe">
+      <section className="acct-card acct-card--wide" aria-labelledby="acct-wardrobe">
         <h2 id="acct-wardrobe">{tr("avatar.title")}</h2>
         <p className="acct-muted">{tr("avatar.intro")}</p>
         <div className="wardrobe-tabs" role="tablist">
@@ -347,7 +347,7 @@ export function Account() {
       </section>
 
       {data && data.ledger.length > 0 && (
-        <section className="acct-card" aria-labelledby="acct-ledger">
+        <section className="acct-card acct-card--ledger" aria-labelledby="acct-ledger">
           <h2 id="acct-ledger">{tr("coins.ledgerTitle")}</h2>
           <ul className="ledger">
             {groupLedger(data.ledger).slice(0, 20).map((e, i) => (
@@ -369,7 +369,7 @@ export function Account() {
         </section>
       )}
 
-      <section className="acct-card" aria-labelledby="acct-settings">
+      <section className="acct-card acct-card--settings" aria-labelledby="acct-settings">
         <h2 id="acct-settings">{tr("account.settings")}</h2>
         <p className="acct-muted">
           {lastSync
