@@ -1131,6 +1131,19 @@ body:has(.home-masthead) .site-bar {
     margin: 0 1.2rem 1.2rem;
   }
 }
+/* "Garden of Knowledge" plus search, theme, account and menu don't fit a
+   phone's width: keep the sprout as the home link and leave the name to
+   screen readers. */
+@container (max-width: 480px) {
+  .site-bar-brand span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
 @container (max-width: 900px) {
   .site-bar-nav {
     display: none;
