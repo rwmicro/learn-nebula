@@ -136,6 +136,9 @@
     "progression": "Mi progreso: exportar, importar"
   },
   "home": {
+    "intro1": "Este archivo reúne todo lo que he llegado a dominar a lo largo de mi vida.",
+    "intro2": "Creo en compartir el conocimiento: el conocimiento debe compartirse, para no olvidarlo nunca y para entender cómo funcionan las cosas.",
+    "intro3": "Está escrito principalmente en inglés y en francés, pero puede traducirse fácilmente a otro idioma.",
     "searchPlaceholder": "Buscar una nota, una palabra, un tema, un PDF…",
     "notesLabel": "Notas",
     "assetSize": "{size} MB",
@@ -194,7 +197,7 @@
     "empty": "Mazo vacío.",
     "err": "No se pudo cargar el mazo.",
     "hint": "Clic / Espacio: voltear · ← → : navegar",
-    "hintReview": "Clic / Espacio: voltear · 1 2 3 4: calificar",
+    "hintReview": "Clic / Espacio: voltear · 1 2 3 4: calificar · Z: deshacer",
     "modeReview": "Repaso del día",
     "modeBrowse": "Ver todo",
     "modes": "Modo de estudio",
@@ -210,7 +213,38 @@
     "done": "Nada que repasar hoy.",
     "doneNext": "Nada que repasar hoy — próximo repaso: {date}",
     "reset": "Reiniciar el progreso",
-    "resetConfirm": "¿Reiniciar todo el progreso de este mazo? No se puede deshacer."
+    "resetConfirm": "¿Reiniciar todo el progreso de este mazo? No se puede deshacer.",
+    "ivNow": "< 1 d",
+    "ivDays": "{n} d",
+    "ivMonths": "{n} meses",
+    "ivYears": "{n} años",
+    "undo": "Deshacer la última calificación (Z)",
+    "typeLabel": "Tu respuesta",
+    "typeEmpty": "No escribiste ninguna respuesta.",
+    "typeRight": "Es la respuesta correcta.",
+    "typeYours": "Escrito",
+    "typeExpected": "Esperado",
+    "pausedNote": "Este mazo está en pausa: queda fuera de «Repasarlo todo».",
+    "settings": "Ajustes del mazo",
+    "newPerDay": "Tarjetas nuevas por día",
+    "subdeck": "Submazo",
+    "allCards": "Todas las tarjetas",
+    "tag": "Etiqueta",
+    "direction": "Sentido",
+    "dir_fwd": "Anverso → reverso",
+    "dir_rev": "Reverso → anverso",
+    "dir_both": "Ambos sentidos",
+    "retention": "Retención deseada",
+    "retentionHint": "Para todos los mazos y preguntas. Más alto: más repasos.",
+    "typed": "Escribir la respuesta antes de verla",
+    "autoplay": "Reproducir el audio automáticamente",
+    "paused": "Pausar este mazo",
+    "leeches": "Tarjetas difíciles ({count})",
+    "leechesIntro": "Olvidadas seis veces o más. Suspenderlas las saca de los repasos; a menudo ayuda más reformularlas.",
+    "lapses": "Olvidada: {count} veces",
+    "suspended": "suspendida",
+    "suspend": "Suspender",
+    "unsuspend": "Reactivar"
   },
   "youtube": {
     "play": "Reproducir el vídeo de YouTube",
@@ -250,7 +284,14 @@
     "noteQuestionsIntro": "Preguntas de repaso que añadiste desde las notas.",
     "noteQuestionsDue": "{count} pendientes",
     "noteQuestionsSaved": "{count} guardadas",
-    "progression": "Guardar o transferir mi progreso"
+    "progression": "Guardar o transferir mi progreso",
+    "today": "Repasarlo todo",
+    "todayNothing": "Nada que repasar hoy.",
+    "todayCounts": "Pendientes: {due} · nuevas: {fresh}",
+    "paused": "en pausa",
+    "upToDate": "al día",
+    "deckDue": "pendientes: {count}",
+    "deckFresh": "nuevas: {count}"
   },
   "notFound": {
     "suggestions": "Quizás buscabas…",
@@ -307,7 +348,7 @@
     "remove": "Quitar",
     "removeAria": "Quitar esta pregunta de mis repasos",
     "noStorage": "El almacenamiento del navegador no está disponible: aquí no se pueden guardar preguntas.",
-    "hintReview": "Espacio: mostrar la respuesta · 1 2 3 4: calificar"
+    "hintReview": "Espacio: mostrar la respuesta · 1 2 3 4: calificar · Z: deshacer"
   },
   "prereq": {
     "before": "Leer antes",
@@ -488,7 +529,18 @@
     "errVersion": "Este archivo viene de una versión más reciente del sitio: recarga la página y vuelve a intentarlo.",
     "errEmpty": "El archivo no contiene ningún progreso utilizable.",
     "errLink": "Este enlace de transferencia está incompleto o dañado.",
-    "errRead": "No se pudo leer este archivo."
+    "errRead": "No se pudo leer este archivo.",
+    "kindReviewLog": "Días de repaso",
+    "statsTitle": "Repasos",
+    "statsRate": "Aciertos (30 d)",
+    "statsReviews": "Repasos (30 d)",
+    "statsWeek": "Previstos (7 d)",
+    "statsForecast": "Repasos previstos",
+    "statsToday": "hoy",
+    "statsLeeches": "Tarjetas difíciles",
+    "statsNoLeech": "Ninguna tarjeta olvidada seis veces o más.",
+    "statsLeechesIntro": "Olvidadas seis veces o más. Puedes suspenderlas en la página del mazo.",
+    "statsLeechCount": "tarjetas: {count}"
   },
   "pathStep": {
     "label": "Itinerario",
@@ -553,5 +605,12 @@
     "zoom": "Acercar, alejar, ajustar",
     "pan": "Mover el grafo",
     "close": "Cerrar"
+  },
+  "todayReview": {
+    "title": "Repasarlo todo",
+    "intro": "Las tarjetas y preguntas de notas pendientes de hoy, de todos los mazos (salvo los pausados), y luego las tarjetas nuevas de cada mazo.",
+    "sources": "Fuentes: {n}.",
+    "failed": "Mazos no disponibles: {decks}.",
+    "done": "Todo repasado por hoy."
   }
 }

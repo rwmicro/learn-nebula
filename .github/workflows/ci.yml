@@ -114,13 +114,29 @@ jobs:
           restore-keys: |
             vault-images-
 
+      # Next's own build cache ("No build cache found" otherwise). Same
+      # unique-key + prefix-restore pattern as the caches above.
+      - name: Cache Next build
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.run_id }}
+          restore-keys: |
+            next-${{ hashFiles('pnpm-lock.yaml') }}-
+
       # Full production build → catches export-time breakage the typecheck can't
       # (bad page imports, invalid generateStaticParams, broken static export).
       # Fetches notes from the public pensine repo and pre-renders every mermaid
       # diagram with the Chromium installed above.
       - name: Build
+        #
+        # Brotli 11 over the export (scripts/precompress.mjs) was ~12 of this
+        # step's ~17 minutes. Nothing in this job serves the .br files (the
+        # browser tests use `npx serve`), so a fast quality still runs the
+        # script without the cost; the shipped image keeps 11 (docker.yml).
         env:
           NOTES_REPO_TOKEN: ${{ secrets.NOTES_REPO_TOKEN }}
+          PRECOMPRESS_BROTLI_QUALITY: "4"
         run: pnpm build
 
       # Browser checks against the export this job just produced. Only the specs
