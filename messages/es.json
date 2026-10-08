@@ -274,7 +274,6 @@
     "root": "General",
     "topTags": "Temas frecuentes",
     "all": "Todos los temas",
-    "allPaths": "Todos los recorridos ({n})",
     "more": "{n} más",
     "filterPlaceholder": "Filtrar temas…",
     "filterCount": "{n} temas",
