@@ -199,7 +199,7 @@
     "empty": "Deck vide.",
     "err": "Impossible de charger le deck.",
     "hint": "Clic / Espace : retourner · ← → : naviguer",
-    "hintReview": "Clic / Espace : retourner · 1 2 3 4 : noter",
+    "hintReview": "Clic / Espace : retourner · 1 2 3 4 : noter · Z : annuler",
     "modeReview": "Révision du jour",
     "modeBrowse": "Tout parcourir",
     "modes": "Mode d’étude",
@@ -215,7 +215,38 @@
     "done": "Rien à réviser aujourd’hui.",
     "doneNext": "Rien à réviser aujourd’hui — prochaine révision : {date}",
     "reset": "Réinitialiser la progression",
-    "resetConfirm": "Réinitialiser toute la progression de ce deck ? Cette action est irréversible."
+    "resetConfirm": "Réinitialiser toute la progression de ce deck ? Cette action est irréversible.",
+    "ivNow": "< 1 j",
+    "ivDays": "{n} j",
+    "ivMonths": "{n} mois",
+    "ivYears": "{n} an",
+    "undo": "Annuler la dernière note (Z)",
+    "typeLabel": "Votre réponse",
+    "typeEmpty": "Pas de réponse tapée.",
+    "typeRight": "C’est la bonne réponse.",
+    "typeYours": "Tapé",
+    "typeExpected": "Attendu",
+    "pausedNote": "Ce paquet est en pause : il reste hors de « Tout réviser ».",
+    "settings": "Réglages du paquet",
+    "newPerDay": "Nouvelles cartes par jour",
+    "subdeck": "Sous-paquet",
+    "allCards": "Toutes les cartes",
+    "tag": "Étiquette",
+    "direction": "Sens",
+    "dir_fwd": "Recto → verso",
+    "dir_rev": "Verso → recto",
+    "dir_both": "Les deux sens",
+    "retention": "Mémorisation visée",
+    "retentionHint": "Pour tous les paquets et les questions. Plus haut : plus de révisions.",
+    "typed": "Taper la réponse avant de la voir",
+    "autoplay": "Lire l’audio automatiquement",
+    "paused": "Mettre le paquet en pause",
+    "leeches": "Cartes difficiles ({count})",
+    "leechesIntro": "Oubliées au moins six fois. Les suspendre les sort des révisions ; mieux vaut souvent les reformuler.",
+    "lapses": "Oubliée : {count} fois",
+    "suspended": "suspendue",
+    "suspend": "Suspendre",
+    "unsuspend": "Réactiver"
   },
   "youtube": {
     "play": "Lire la vidéo YouTube",
@@ -255,7 +286,14 @@
     "noteQuestionsIntro": "Les questions de révision que vous avez ajoutées depuis les notes.",
     "noteQuestionsDue": "{count} à revoir",
     "noteQuestionsSaved": "{count} enregistrées",
-    "progression": "Sauvegarder ou transférer ma progression"
+    "progression": "Sauvegarder ou transférer ma progression",
+    "today": "Tout réviser",
+    "todayNothing": "Rien à réviser aujourd’hui.",
+    "todayCounts": "À revoir : {due} · nouvelles : {fresh}",
+    "paused": "en pause",
+    "upToDate": "à jour",
+    "deckDue": "à revoir : {count}",
+    "deckFresh": "nouvelles : {count}"
   },
   "notFound": {
     "suggestions": "Vous cherchiez peut-être…",
@@ -312,7 +350,7 @@
     "remove": "Retirer",
     "removeAria": "Retirer cette question de mes révisions",
     "noStorage": "Le stockage du navigateur est indisponible : les questions de notes ne peuvent pas être enregistrées ici.",
-    "hintReview": "Espace : afficher la réponse · 1 2 3 4 : noter"
+    "hintReview": "Espace : afficher la réponse · 1 2 3 4 : noter · Z : annuler"
   },
   "prereq": {
     "before": "À lire avant",
@@ -493,7 +531,18 @@
     "errVersion": "Ce fichier vient d’une version plus récente du site : rechargez la page et réessayez.",
     "errEmpty": "Le fichier ne contient aucune progression utilisable.",
     "errLink": "Ce lien de transfert est incomplet ou abîmé.",
-    "errRead": "Impossible de lire ce fichier."
+    "errRead": "Impossible de lire ce fichier.",
+    "kindReviewLog": "Jours de révision",
+    "statsTitle": "Révisions",
+    "statsRate": "Réussite (30 j)",
+    "statsReviews": "Révisions (30 j)",
+    "statsWeek": "Prévues (7 j)",
+    "statsForecast": "Révisions prévues",
+    "statsToday": "auj.",
+    "statsLeeches": "Cartes difficiles",
+    "statsNoLeech": "Aucune carte oubliée six fois ou plus.",
+    "statsLeechesIntro": "Oubliées au moins six fois. Sur la page du paquet, vous pouvez les suspendre.",
+    "statsLeechCount": "cartes : {count}"
   },
   "pathStep": {
     "label": "Parcours",
@@ -558,5 +607,12 @@
     "zoom": "Zoomer, dézoomer, ajuster",
     "pan": "Déplacer le graphe",
     "close": "Fermer"
+  },
+  "todayReview": {
+    "title": "Tout réviser",
+    "intro": "Les cartes et questions de notes à revoir aujourd’hui, tous paquets confondus (sauf ceux en pause), puis les nouvelles cartes de chaque paquet.",
+    "sources": "Sources : {n}.",
+    "failed": "Paquets indisponibles : {decks}.",
+    "done": "Tout est révisé pour aujourd’hui."
   }
 }
