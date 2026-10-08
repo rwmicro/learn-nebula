@@ -56,9 +56,3 @@ const FAMILY_OF: Record<string, PathFamily> = {
 export function pathFamily(discipline: string): PathFamily | null {
   return FAMILY_OF[discipline] ?? null;
 }
-
-/** Sort rank of a discipline: by family (in PATH_FAMILIES order), unknown last. */
-export function familyRank(discipline: string): number {
-  const f = pathFamily(discipline);
-  return f ? PATH_FAMILIES.indexOf(f) : PATH_FAMILIES.length;
-}

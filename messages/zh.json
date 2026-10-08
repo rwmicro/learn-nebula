@@ -430,7 +430,17 @@
       "arts": "文学艺术",
       "langues": "语言",
       "jeux": "棋类"
-    }
+    },
+    "resume": "继续阅读",
+    "familyCount": "{n} 条路径",
+    "familyCountOne": "1 条路径",
+    "langIntro": "从入门词汇到文化：字母与发音、语法、词汇、资源。",
+    "langAround": "语言相关",
+    "filterPlaceholder": "筛选：康德、网络、印地语…",
+    "filterAria": "筛选阅读路径",
+    "filterFamilies": "类别",
+    "filterAll": "全部",
+    "filterNone": "没有匹配的路径。"
   },
   "reading": {
     "read": "已读",
