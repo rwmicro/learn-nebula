@@ -430,7 +430,17 @@
       "arts": "Artes y letras",
       "langues": "Lenguas",
       "jeux": "Juegos"
-    }
+    },
+    "resume": "Retomar",
+    "familyCount": "{n} recorridos",
+    "familyCountOne": "1 recorrido",
+    "langIntro": "De las primeras palabras a la cultura: alfabeto y pronunciación, gramática, vocabulario, recursos.",
+    "langAround": "En torno a las lenguas",
+    "filterPlaceholder": "Filtrar: Kant, redes, hindi…",
+    "filterAria": "Filtrar los recorridos",
+    "filterFamilies": "Familias",
+    "filterAll": "Todos",
+    "filterNone": "Ningún recorrido coincide."
   },
   "reading": {
     "read": "Leída",
