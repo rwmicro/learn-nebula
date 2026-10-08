@@ -1,12 +1,25 @@
 /* /compte/ (components/Account.tsx) and the regularity calendar, which
    /progression/ shows too (components/ActivityCalendar.tsx). The page escapes
-   the global note gutter (`main { margin-right: 26rem }`). */
+   the global note gutter (`main { margin-right: 26rem }`) and the body's
+   centred 1100px column, like /parcours/ (parcours.css): a 76rem frame whose
+   cards pair up two by two on a wide screen. The footer stays in a centred
+   reading column. */
 body:has(.acct-page) {
-  max-width: 1000px;
+  max-width: none;
+}
+body:has(.acct-page) footer {
+  max-width: 43rem;
+  margin-inline: auto;
+}
+@media (max-width: 640px) {
+  body:has(.acct-page) footer {
+    margin-inline: 0.9rem;
+  }
 }
 main.acct-page {
+  max-width: 76rem;
   margin: 0 auto !important;
-  padding: 0 1rem 2rem;
+  padding: 0 clamp(1rem, 3vw, 2.5rem) 2rem;
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   color: var(--ink);
 }
@@ -20,6 +33,23 @@ main.acct-page {
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
+}
+/* Wide screen: the hero and the wardrobe take the full width, the other
+   cards pair up in DOM order (shop | calendar, ledger | settings). A card
+   left alone on its row (no ledger yet) takes the full width again. */
+@media (min-width: 1000px) {
+  .acct {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+  .acct > .acct-hero,
+  .acct > .acct-card--wide {
+    grid-column: 1 / -1;
+  }
+  .acct:not(:has(.acct-card--ledger)) > .acct-card--settings {
+    grid-column: 1 / -1;
+  }
 }
 .acct-loading,
 .acct-muted {
@@ -290,6 +320,7 @@ main.acct-page {
 }
 
 .acct-login {
+  max-width: 56rem;
   display: flex;
   gap: 1.6rem;
   align-items: flex-start;
