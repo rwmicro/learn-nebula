@@ -1198,12 +1198,16 @@ body[data-text-size="lg"] main ol li {
   display: none;
 }
 
+/* Top lines up with the article's breadcrumb, i.e. just under the site bar
+   (global.css `.site-bar`: body's 4rem top margin − 1.2rem, ~2.7rem of bar,
+   1.4rem below it). At 4rem the themes landed on the bar's search and theme
+   buttons, which reach past the text column into this one. */
 .note-aside {
   position: fixed;
-  top: 4rem;
+  top: 7rem;
   right: max(1rem, calc((100vw - 100rem) / 2 + 1rem));
   width: 30rem;
-  max-height: calc(100vh - 6rem);
+  max-height: calc(100vh - 9rem);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
