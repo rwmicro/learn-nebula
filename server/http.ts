@@ -24,6 +24,21 @@ import { env } from "./env.ts";
  *  firewalling direct access to the container's port. */
 export function getIp(c: Context): string {
   if (env.trustProxy) {
+    // Pinned single header (recommended): trust only the one header the
+    // trusted proxy sets itself, nothing the client can pre-populate.
+    if (env.clientIpHeader) {
+      const v = c.req.header(env.clientIpHeader);
+      // Only this header is trusted. If it's missing, fall through to the
+      // socket address rather than the cascade — never to a header a client
+      // could have set — so pinning can't be bypassed by simply omitting it.
+      if (v) {
+        // XFF-style lists: the last hop is the one the trusted proxy observed.
+        const parts = v.split(",");
+        return parts[parts.length - 1].trim();
+      }
+      const incoming = (c.env as { incoming?: { socket?: { remoteAddress?: string } } })?.incoming;
+      return incoming?.socket?.remoteAddress || "anon";
+    }
     const cf = c.req.header("cf-connecting-ip");
     if (cf) return cf;
     const real = c.req.header("x-real-ip");

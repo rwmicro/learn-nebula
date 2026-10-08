@@ -20,6 +20,7 @@ import {
   type Highlights,
   type Activity,
 } from "./personal";
+import { LOG_KEY, mergeLogs, parseLog, type ReviewLog } from "./srs-log";
 
 export const FORMAT = "jardin-progression";
 /** Bumped when the file layout changes; older files stay importable. */
@@ -31,6 +32,7 @@ export type KindId =
   | "targets"
   | "questions"
   | "decks"
+  | "reviewLog"
   | "bookmarks"
   | "highlights"
   | "activity";
@@ -66,6 +68,9 @@ export const PROGRESS_KEYS: KeySpec[] = [
   // Anki deck SRS state, one key per deck (components/Flashcards.tsx).
   // "srs:probe" is a write test, never data.
   { kind: "decks", prefix: "srs:", exclude: ["srs:probe"] },
+  // Reviews per day, {day: [reviews, failed]} (lib/srs-log.ts). No "srs:"
+  // prefix, so it never reads as a deck.
+  { kind: "reviewLog", key: LOG_KEY },
 ];
 
 export function specFor(key: string): KeySpec | null {
@@ -142,6 +147,10 @@ function sanitize(kind: KindId, value: unknown): unknown {
       if ((value as { v?: unknown }).v !== 1) return null;
       const p = parseProgress(json);
       return Object.keys(p.cards).length || p.newCount ? p : null;
+    }
+    case "reviewLog": {
+      const log = parseLog(json);
+      return Object.keys(log).length ? log : null;
     }
   }
 }
@@ -357,9 +366,10 @@ function mergeReading(
   return out;
 }
 
-/** Cards carry no timestamp: the one reviewed furthest (later due date,
- *  then more repetitions) is the newer state. */
+/** The card reviewed last is the newer state; on the same day, the one
+ *  reviewed furthest (later due date, then more repetitions). */
 function newerCard(a: CardState, b: CardState): CardState {
+  if (b.last !== a.last) return b.last > a.last ? b : a;
   if (b.due !== a.due) return b.due > a.due ? b : a;
   return b.reps > a.reps ? b : a;
 }
@@ -440,6 +450,8 @@ export function mergeValue(
         local as Record<string, KnownEntry>,
         incoming as Record<string, KnownEntry>,
       );
+    case "reviewLog":
+      return mergeLogs(local as ReviewLog, incoming as ReviewLog);
     case "bookmarks":
       return mergeBookmarks(local as Bookmarks, incoming as Bookmarks);
     case "highlights":
@@ -465,6 +477,7 @@ function unitsOf(key: string, v: unknown): Record<string, string> {
     kind === "reading" ||
     kind === "known" ||
     kind === "targets" ||
+    kind === "reviewLog" ||
     kind === "bookmarks" ||
     kind === "activity"
   ) {
@@ -530,6 +543,7 @@ export function planImport(
     targets: zero(),
     questions: zero(),
     decks: zero(),
+    reviewLog: zero(),
     bookmarks: zero(),
     highlights: zero(),
     activity: zero(),

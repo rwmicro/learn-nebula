@@ -63,9 +63,9 @@ describe("add / grade / remove", () => {
   });
   it("schedules with the self-grade given before adding", () => {
     const knew = addQuestion(emptyNoteDeck(), "q1", item("Q1"), "good", T);
-    expect(knew.cards.q1.due).toBe("2026-10-01");
+    expect(knew.cards.q1.due).toBe("2026-10-03");
     expect(dueQuestions({ n: knew }, T)).toEqual([]);
-    expect(nextDueDay({ n: knew }, T)).toBe("2026-10-01");
+    expect(nextDueDay({ n: knew }, T)).toBe("2026-10-03");
     const notYet = addQuestion(emptyNoteDeck(), "q1", item("Q1"), "again", T);
     expect(notYet.cards.q1.due).toBe(T);
   });

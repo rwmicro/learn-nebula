@@ -6,13 +6,13 @@ import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
 import { dayKey, type Grade } from "@/lib/srs";
+import { loadSettings } from "@/lib/srs-settings";
 import {
   addQuestion,
   gradeQuestion,
   loadNoteDeck,
   recordCorrect,
   saveNoteDeck,
-  type DueItem,
 } from "@/lib/note-quiz";
 import {
   QUIZ_EVENT,
@@ -41,7 +41,7 @@ import {
   type PlacementAnswer,
 } from "@/lib/path-study";
 import type { PathQuizItem } from "@/lib/path-extras";
-import { ReviewSession } from "@/components/ReviewSession";
+import { ReviewSession, type Graded, type ReviewItem } from "@/components/ReviewSession";
 
 export interface StudyNoteView {
   slug: string;
@@ -639,7 +639,10 @@ function PathReview({
   tr: Tr;
   locale: string;
 }) {
-  const [today] = useState(() => dayKey());
+  const [today] = useState(() => {
+    loadSettings(); // the reader's target retention, for the grades below
+    return dayKey();
+  });
   // Earliest later review among the eligible cards (for the "done" screen).
   const [nextDay, setNextDay] = useState<string | null>(() => {
     let best: string | null = null;
@@ -655,9 +658,9 @@ function PathReview({
   });
   // Today's queue, built once when the session opens: due cards (most overdue
   // first), then the ones never reviewed, in path order.
-  const [queue, setQueue] = useState<DueItem[]>(() => {
-    const due: DueItem[] = [];
-    const fresh: DueItem[] = [];
+  const [queue, setQueue] = useState<ReviewItem[]>(() => {
+    const due: ReviewItem[] = [];
+    const fresh: ReviewItem[] = [];
     for (const it of eligible) {
       let state;
       try {
@@ -665,7 +668,8 @@ function PathReview({
       } catch {
         state = undefined;
       }
-      const d: DueItem = {
+      const d: ReviewItem = {
+        kind: "note",
         slug: it.slug,
         id: it.id,
         item: { q: it.q, a: it.a, url: it.url, title: it.title, added: "" },
@@ -679,9 +683,11 @@ function PathReview({
   });
 
   const onGrade = useCallback(
-    (head: DueItem, g: Grade) => {
+    (head: ReviewItem, g: Grade): Graded | undefined => {
+      if (head.kind !== "note") return undefined;
       try {
-        let deck = loadNoteDeck(localStorage, head.slug);
+        const before = loadNoteDeck(localStorage, head.slug);
+        let deck = before;
         // Graded here = saved in the reviews, so /cartes/revision/ sees it too.
         deck = deck.items[head.id]
           ? gradeQuestion(deck, head.id, g, today)
@@ -690,7 +696,17 @@ function PathReview({
         window.dispatchEvent(new CustomEvent(QUIZ_EVENT));
         const st = deck.cards[head.id];
         if (st && st.due > today) setNextDay((d) => (!d || st.due < d ? st.due : d));
-        return st;
+        return {
+          state: st,
+          undo: () => {
+            try {
+              saveNoteDeck(localStorage, head.slug, before);
+              window.dispatchEvent(new CustomEvent(QUIZ_EVENT));
+            } catch {
+              /* storage gone */
+            }
+          },
+        };
       } catch {
         return undefined;
       }
@@ -739,6 +755,7 @@ function PathReview({
         queue={queue}
         setQueue={setQueue}
         onGrade={onGrade}
+        today={today}
         autoFocus
         done={nextDay ? tr("flashcards.doneNext", { date: fmt(nextDay) }) : tr("flashcards.done")}
       />

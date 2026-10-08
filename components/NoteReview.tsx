@@ -12,10 +12,10 @@ import {
   nextDueDay,
   removeQuestion,
   saveNoteDeck,
-  type DueItem,
   type NoteDeck,
 } from "@/lib/note-quiz";
-import { ReviewSession } from "@/components/ReviewSession";
+import { loadSettings } from "@/lib/srs-settings";
+import { ReviewSession, type Graded, type ReviewItem } from "@/components/ReviewSession";
 
 /**
  * /cartes/revision/ — review the note questions (`> [!quiz]` callouts) the
@@ -32,18 +32,19 @@ export function NoteReview() {
     t(k, vars, locale);
   // null = not loaded yet; false = no storage.
   const [decks, setDecks] = useState<Record<string, NoteDeck> | null | false>(null);
-  const [queue, setQueue] = useState<DueItem[]>([]);
+  const [queue, setQueue] = useState<ReviewItem[]>([]);
   const [today, setToday] = useState(() => dayKey());
 
   useEffect(() => {
     try {
       localStorage.setItem("srs:probe", "1");
       localStorage.removeItem("srs:probe");
+      loadSettings();
       const all = loadAllNoteDecks(localStorage);
       const day = dayKey();
       setToday(day);
       setDecks(all);
-      setQueue(dueQuestions(all, day));
+      setQueue(dueQuestions(all, day).map((d) => ({ kind: "note", ...d })));
     } catch {
       setDecks(false);
     }
@@ -58,12 +59,19 @@ export function NoteReview() {
   }, []);
 
   const onGrade = useCallback(
-    (head: DueItem, g: Grade) => {
-      if (!decks) return undefined;
-      const deck = gradeQuestion(decks[head.slug], head.id, g, today);
+    (head: ReviewItem, g: Grade): Graded | undefined => {
+      if (!decks || head.kind !== "note") return undefined;
+      const before = decks[head.slug];
+      const deck = gradeQuestion(before, head.id, g, today);
       persist(head.slug, deck);
       setDecks({ ...decks, [head.slug]: deck });
-      return deck.cards[head.id];
+      return {
+        state: deck.cards[head.id],
+        undo: () => {
+          persist(head.slug, before);
+          setDecks((d) => (d ? { ...d, [head.slug]: before } : d));
+        },
+      };
     },
     [decks, today, persist],
   );
@@ -131,6 +139,7 @@ export function NoteReview() {
           queue={queue}
           setQueue={setQueue}
           onGrade={onGrade}
+          today={today}
           done={
             nextDay
               ? tr("flashcards.doneNext", {

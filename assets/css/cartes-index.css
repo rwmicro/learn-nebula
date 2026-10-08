@@ -89,7 +89,7 @@
 
 /* "Questions de notes à revoir" — the note-questions review (NoteQuestionsEntry). */
 .cartes-index-notes {
-  margin-bottom: 2.5rem;
+  margin-bottom: 1rem;
 }
 .cartes-index-due {
   color: var(--garden);
@@ -103,7 +103,7 @@
 
 /* Link to /progression/ (export / import of the SRS state). */
 .cartes-index-progress {
-  margin: 0.6rem 0 0;
+  margin: 0 0 2.5rem;
   font-size: 0.98rem;
 }
 .cartes-index-progress a {
@@ -111,4 +111,49 @@
 }
 .cartes-index-progress a::after {
   content: " →";
+}
+
+/* "Tout réviser" (CartesToday): the one call to action of the page. */
+.cartes-today {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin: 0 0 2.5rem;
+}
+.cartes-today-btn {
+  display: inline-block;
+  padding: 0.55rem 1.1rem;
+  border-radius: 2px;
+  background: var(--color-garden, var(--garden));
+  color: var(--paper);
+  font-weight: 700;
+  text-decoration: none;
+}
+.cartes-today-btn:hover {
+  filter: brightness(1.08);
+  color: var(--paper);
+}
+.cartes-today-count {
+  color: var(--ink-2);
+  font-size: 0.98rem;
+}
+
+/* Per-deck "12 à revoir · 20 nouvelles" (DeckDue), before the card count. */
+.cartes-index-meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0 0.8rem;
+  align-items: baseline;
+}
+.cartes-index-meta .cartes-index-due,
+.cartes-index-paused,
+.cartes-index-uptodate {
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+.cartes-index-paused,
+.cartes-index-uptodate {
+  color: var(--muted-warm);
+  font-style: italic;
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Progression } from "@/components/Progression";
+import { getAnkiManifest } from "@/lib/anki";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/progression.css";
 import "@/assets/css/account.css";
@@ -13,5 +14,5 @@ export const metadata: Metadata = {
 };
 
 export default function ProgressionPage() {
-  return <Progression />;
+  return <Progression decks={getAnkiManifest()} />;
 }
