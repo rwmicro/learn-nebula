@@ -16,8 +16,6 @@
     "progression": "我的进度"
   },
   "sidebar": {
-    "searchPlaceholder": "搜索笔记…",
-    "searchAriaLabel": "搜索笔记",
     "tocTitle": "目录",
     "themesAriaLabel": "主题",
     "toggleOpen": "目录",

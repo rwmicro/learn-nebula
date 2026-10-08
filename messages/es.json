@@ -16,8 +16,6 @@
     "progression": "Mi progreso"
   },
   "sidebar": {
-    "searchPlaceholder": "Buscar en las notas…",
-    "searchAriaLabel": "Buscar en las notas",
     "tocTitle": "Contenido",
     "themesAriaLabel": "Temas",
     "toggleOpen": "contenido",
