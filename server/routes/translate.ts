@@ -48,6 +48,9 @@ const fingerprint = (s: string) =>
 
 const cooldown = new Cooldown(5);
 const quota = new Quota(env.translateHourly, 3_600_000);
+// Instance-wide daily backstop (all IPs together), keyed on one constant.
+const daily = env.translateDaily > 0 ? new Quota(env.translateDaily, 86_400_000) : null;
+const DAILY_KEY = "translate:all";
 const inflight = new InFlight();
 
 export const translateRoute = new Hono();
@@ -96,6 +99,9 @@ translateRoute.post("/", async (c) => {
   }
   if (env.translateHourly > 0 && ip !== "anon" && quota.exceeded(`translate:${ip}`)) {
     return c.json({ error: "Limite horaire de traduction atteinte — réessaie plus tard." }, 429);
+  }
+  if (daily && daily.exceeded(DAILY_KEY)) {
+    return c.json({ error: "Traduction momentanément indisponible — réessaie plus tard." }, 429);
   }
   const key = `${ip}:${fingerprint(markdown)}:${targetLang}`;
   if (inflight.has(key)) return c.json({ error: "Traduction déjà en cours." }, 429);
@@ -154,10 +160,9 @@ translateRoute.post("/", async (c) => {
     }
     return render(c, translated, dir, targetLang);
   } catch (e) {
-    return c.json(
-      { error: "Échec de la traduction.", detail: e instanceof Error ? e.message : String(e) },
-      502,
-    );
+    // Log the backend error server-side; don't leak it to the client.
+    console.error("translate: failed", e instanceof Error ? e.message : e);
+    return c.json({ error: "Échec de la traduction." }, 502);
   } finally {
     inflight.delete(key);
   }
@@ -168,13 +173,9 @@ async function render(c: Context, translated: string, dir: string, targetLang: s
     const rendered = await renderMarkdown(translated, { dir });
     return c.json({ html: rendered.html, targetLang });
   } catch (e) {
-    return c.json(
-      {
-        error: "Rendu échoué côté serveur.",
-        fallback: translated,
-        detail: e instanceof Error ? e.message : String(e),
-      },
-      500,
-    );
+    // Keep the plain-text fallback so the client can still show the
+    // translation, but don't echo the internal error message.
+    console.error("translate: render failed", e instanceof Error ? e.message : e);
+    return c.json({ error: "Rendu échoué côté serveur.", fallback: translated }, 500);
   }
 }
