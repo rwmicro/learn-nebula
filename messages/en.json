@@ -192,7 +192,7 @@
     "next": "Next"
   },
   "flashcards": {
-    "home": "The garden",
+    "home": "Garden of Knowledge",
     "flip": "Flip",
     "next": "Next",
     "prev": "Previous",
@@ -625,7 +625,7 @@
     "home": "Go home"
   },
   "siteBar": {
-    "brand": "The garden",
+    "brand": "Garden of Knowledge",
     "navAria": "Site menu"
   },
   "account": {
