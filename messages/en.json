@@ -435,7 +435,17 @@
       "arts": "Arts and letters",
       "langues": "Languages",
       "jeux": "Games"
-    }
+    },
+    "resume": "Pick up where you left off",
+    "familyCount": "{n} paths",
+    "familyCountOne": "1 path",
+    "langIntro": "From first words to culture: alphabet and pronunciation, grammar, vocabulary, resources.",
+    "langAround": "Around languages",
+    "filterPlaceholder": "Filter: Kant, network, Hindi…",
+    "filterAria": "Filter the paths",
+    "filterFamilies": "Families",
+    "filterAll": "All",
+    "filterNone": "No path matches."
   },
   "reading": {
     "read": "Read",

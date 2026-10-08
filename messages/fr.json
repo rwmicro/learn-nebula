@@ -435,7 +435,17 @@
       "arts": "Arts et lettres",
       "langues": "Langues",
       "jeux": "Jeux"
-    }
+    },
+    "resume": "Reprendre",
+    "familyCount": "{n} parcours",
+    "familyCountOne": "1 parcours",
+    "langIntro": "Des premiers mots à la culture : alphabet et prononciation, grammaire, vocabulaire, ressources.",
+    "langAround": "Autour des langues",
+    "filterPlaceholder": "Filtrer : Kant, réseau, hindi…",
+    "filterAria": "Filtrer les parcours",
+    "filterFamilies": "Familles",
+    "filterAll": "Tous",
+    "filterNone": "Aucun parcours ne correspond."
   },
   "reading": {
     "read": "Lue",
