@@ -97,6 +97,12 @@ export function saveDeckProgress(slug: string, p: Progress | null): void {
   }
 }
 
+/** Has the reader started this deck (graded at least one of its cards)?
+ *  Only started decks feed "Tout réviser" and the index's totals. */
+export function isStarted(p: Progress): boolean {
+  return Object.keys(p.cards).length > 0;
+}
+
 /**
  * Today's counts for a deck from its stored progress alone, without fetching
  * the deck (the /cartes/ index, "Tout réviser"'s total): seen cards due, and

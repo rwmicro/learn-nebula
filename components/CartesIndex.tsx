@@ -1,19 +1,24 @@
 import { t, i18nAttrs } from "@/lib/i18n";
 import type { AnkiDeck } from "@/lib/anki";
 import { NoteQuestionsEntry } from "@/components/NoteQuestionsEntry";
-import { CartesToday, DeckDue } from "@/components/CartesToday";
+import { CartesToday, DeckDue, StartedDecks } from "@/components/CartesToday";
+import { homeFolderLabel } from "@/lib/content";
 
 /**
  * /cartes/ — every Anki deck (lib/anki.ts's manifest), grouped under the vault
- * folder its .apkg sat in, so a deck reads next to the notes it drills.
+ * folder its .apkg sat in, so a deck reads next to the notes it drills (the
+ * label keeps only the telling part: "Arabe › Libanais", not "Social
+ * Sciences › Languages - Dialects › Arabe › Libanais › Anki"). Decks the
+ * reader has started are listed again on top, with today's load.
  * Same plain document-flow layout as /frise/ (components/Frise.tsx).
  */
 export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
   const groups = new Map<string, AnkiDeck[]>();
   for (const d of decks) {
-    const list = groups.get(d.folder) ?? [];
+    const label = folderLabel(d.folder);
+    const list = groups.get(label) ?? [];
     list.push(d);
-    groups.set(d.folder, list);
+    groups.set(label, list);
   }
   const folders = [...groups.keys()].sort((a, b) => a.localeCompare(b));
 
@@ -31,6 +36,7 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
 
       {/* Everything due today, all decks and note questions together. */}
       <CartesToday decks={decks} />
+      <StartedDecks decks={decks} />
 
       {/* Questions saved from the notes' [!quiz] cards (public/js/quiz.js). */}
       <NoteQuestionsEntry />
@@ -47,7 +53,7 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
       ) : (
         folders.map((folder) => (
           <section key={folder} className="cartes-index-group">
-            <h2 className="cartes-index-folder">{folderLabel(folder)}</h2>
+            <h2 className="cartes-index-folder">{folder}</h2>
             <ul className="cartes-index-list">
               {groups
                 .get(folder)!
@@ -76,11 +82,17 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
   );
 }
 
-/** "Social Sciences/Languages - Dialects/Spanish" → "Social Sciences ›
- *  Languages - Dialects › Spanish"; a deck at the vault root has folder ".". */
+/** "Social Sciences/Languages - Dialects/Arabe/Libanais/Anki" → "Arabe ›
+ *  Libanais": the notes tree's label (top group dropped, display names),
+ *  without the "Anki" folder the decks sit in nor the "Languages" level
+ *  that every language repeats. A deck at the vault root has folder ".". */
 function folderLabel(folder: string): string {
-  const parts = folder.split(/[\\/]/).filter((p) => p && p !== ".");
-  return parts.length ? parts.join(" › ") : "—";
+  const parts = homeFolderLabel(`${folder.replace(/\\/g, "/")}/deck`)
+    .split(" › ")
+    .filter((p) => p && p !== "." && !/^anki$/i.test(p) && !/^languages\b/i.test(p));
+  if (parts.length) return parts.join(" › ");
+  const last = folder.split(/[\\/]/).filter((p) => p && p !== "." && !/^anki$/i.test(p)).pop();
+  return last ?? "—";
 }
 
 // lib/i18n's helpers emit attribute *strings* for the HTML-string builders in

@@ -157,3 +157,8 @@
   color: var(--muted-warm);
   font-style: italic;
 }
+
+/* "En cours" (StartedDecks): the reader's decks, above the folder list. */
+.cartes-index-started {
+  margin-bottom: 2.5rem;
+}

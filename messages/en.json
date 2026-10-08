@@ -249,7 +249,9 @@
     "lapses": "Forgotten: {count} times",
     "suspended": "suspended",
     "suspend": "Suspend",
-    "unsuspend": "Reactivate"
+    "unsuspend": "Reactivate",
+    "progress": "Session progress",
+    "sessionTally": "{count} cards reviewed · {pct}% remembered"
   },
   "youtube": {
     "play": "Play the YouTube video",
@@ -281,7 +283,7 @@
   },
   "cartesIndex": {
     "title": "Flashcards",
-    "intro": "The garden's Anki decks, to flip through card by card, grouped by folder.",
+    "intro": "The garden’s Anki decks, with spaced repetition: each card comes back just as you are about to forget it.",
     "empty": "No flashcard deck is available yet.",
     "count": "{count} cards",
     "noteQuestions": "Note questions to review",
@@ -295,7 +297,9 @@
     "paused": "paused",
     "upToDate": "up to date",
     "deckDue": "due: {count}",
-    "deckFresh": "new: {count}"
+    "deckFresh": "new: {count}",
+    "todayStart": "Open a deck below to start: its cards will join “Review everything”.",
+    "started": "In progress"
   },
   "notFound": {
     "suggestions": "Perhaps you were looking for…",
@@ -353,7 +357,8 @@
     "remove": "Remove",
     "removeAria": "Remove this question from my reviews",
     "noStorage": "Browser storage is unavailable: note questions can’t be saved here.",
-    "hintReview": "Space: show the answer · 1 2 3 4: grade · Z: undo"
+    "hintReview": "Space: show the answer · 1 2 3 4: grade · Z: undo",
+    "hintTouch": "Tap the card for the answer · then swipe: → Good, ← Again"
   },
   "prereq": {
     "before": "Read first",
@@ -805,9 +810,11 @@
   },
   "todayReview": {
     "title": "Review everything",
-    "intro": "Today’s due cards and note questions from every deck (except paused ones), then each deck’s new cards.",
-    "sources": "Sources: {n}.",
+    "intro": "The cards due today in the decks you have started (except paused ones) and your note questions, then the new cards from those decks.",
     "failed": "Decks unavailable: {decks}.",
-    "done": "All done for today."
+    "done": "All done for today.",
+    "loading": "Loading decks: {n} / {total}…",
+    "nothingStarted": "Nothing to review yet. Open a deck from the card list: its cards will show up here.",
+    "tomorrow": "Due tomorrow: {count}"
   }
 }

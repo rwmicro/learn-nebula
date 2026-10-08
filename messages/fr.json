@@ -249,7 +249,9 @@
     "lapses": "Oubliée : {count} fois",
     "suspended": "suspendue",
     "suspend": "Suspendre",
-    "unsuspend": "Réactiver"
+    "unsuspend": "Réactiver",
+    "progress": "Avancement de la séance",
+    "sessionTally": "{count} cartes revues · {pct} % retenues"
   },
   "youtube": {
     "play": "Lire la vidéo YouTube",
@@ -281,7 +283,7 @@
   },
   "cartesIndex": {
     "title": "Cartes de révision",
-    "intro": "Les paquets Anki du jardin, à feuilleter carte par carte, rangés par dossier.",
+    "intro": "Les paquets Anki du jardin, en répétition espacée : chaque carte revient au moment où vous allez l’oublier.",
     "empty": "Aucun paquet de cartes n'est disponible pour l'instant.",
     "count": "{count} cartes",
     "noteQuestions": "Questions de notes à revoir",
@@ -295,7 +297,9 @@
     "paused": "en pause",
     "upToDate": "à jour",
     "deckDue": "à revoir : {count}",
-    "deckFresh": "nouvelles : {count}"
+    "deckFresh": "nouvelles : {count}",
+    "todayStart": "Ouvrez un paquet ci-dessous pour commencer : ses cartes rejoindront « Tout réviser ».",
+    "started": "En cours"
   },
   "notFound": {
     "suggestions": "Vous cherchiez peut-être…",
@@ -353,7 +357,8 @@
     "remove": "Retirer",
     "removeAria": "Retirer cette question de mes révisions",
     "noStorage": "Le stockage du navigateur est indisponible : les questions de notes ne peuvent pas être enregistrées ici.",
-    "hintReview": "Espace : afficher la réponse · 1 2 3 4 : noter · Z : annuler"
+    "hintReview": "Espace : afficher la réponse · 1 2 3 4 : noter · Z : annuler",
+    "hintTouch": "Touchez la carte pour la réponse · puis balayez : → Bien, ← À revoir"
   },
   "prereq": {
     "before": "À lire avant",
@@ -805,9 +810,11 @@
   },
   "todayReview": {
     "title": "Tout réviser",
-    "intro": "Les cartes et questions de notes à revoir aujourd’hui, tous paquets confondus (sauf ceux en pause), puis les nouvelles cartes de chaque paquet.",
-    "sources": "Sources : {n}.",
+    "intro": "Les cartes à revoir aujourd’hui dans les paquets que vous avez commencés (sauf ceux en pause) et vos questions de notes, puis les nouvelles cartes de ces paquets.",
     "failed": "Paquets indisponibles : {decks}.",
-    "done": "Tout est révisé pour aujourd’hui."
+    "done": "Tout est révisé pour aujourd’hui.",
+    "loading": "Chargement des paquets : {n} / {total}…",
+    "nothingStarted": "Rien à réviser pour l’instant. Ouvrez un paquet depuis la liste des cartes : ses cartes viendront ici.",
+    "tomorrow": "À revoir demain : {count}"
   }
 }
