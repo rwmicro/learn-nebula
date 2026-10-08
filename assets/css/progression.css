@@ -342,3 +342,73 @@
     display: none !important;
   }
 }
+
+/* Review statistics (components/ReviewStats.tsx). */
+.progression-review {
+  margin: 0 0 2rem;
+}
+.progression-stats--review {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.progression-h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  margin: 1.4rem 0 0.6rem;
+}
+.progression-forecast {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  height: 8.5rem;
+}
+.progression-forecast li {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 0;
+  font-variant-numeric: tabular-nums;
+}
+.progression-forecast-bar {
+  display: block;
+  width: 100%;
+  max-width: 2.6rem;
+  min-height: 2px;
+  background: var(--garden);
+  border-radius: 2px 2px 0 0;
+}
+.progression-forecast-n {
+  font-size: 0.85rem;
+  color: var(--ink-2);
+  margin-bottom: 0.2rem;
+}
+.progression-forecast-day {
+  font-size: 0.8rem;
+  color: var(--muted-warm);
+  margin-top: 0.3rem;
+  border-top: 1px solid var(--rule-strong);
+  width: 100%;
+  text-align: center;
+  padding-top: 0.2rem;
+}
+.progression-leeches {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--rule);
+}
+.progression-leeches li {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.progression-leeches span {
+  color: var(--muted-warm);
+  white-space: nowrap;
+}

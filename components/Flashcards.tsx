@@ -1,80 +1,89 @@
 "use client";
 
-import { recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import {
-  GRADES,
+  RETENTIONS,
   buildQueue,
-  cardId,
   dayKey,
   emptyProgress,
   grade as gradeCard,
+  isLeech,
   nextReviewDay,
-  parseProgress,
+  setSuspended,
   summarize,
   type Grade,
   type Progress,
 } from "@/lib/srs";
-import { GRADE_COLOR, btn, btnGrade, btnOn, quiet } from "@/components/srs-ui";
-
-interface Card {
-  front: string;
-  back: string;
-}
-interface Deck {
-  name: string;
-  css: string;
-  cards: Card[];
-}
+import {
+  DIRECTIONS,
+  NEW_PER_DAY_CHOICES,
+  deckSettings,
+  loadSettings,
+  saveSettings,
+  withDeck,
+  type DeckSettings,
+  type SrsSettings,
+} from "@/lib/srs-settings";
+import {
+  canReverse,
+  faces,
+  firstLine,
+  migrateDeck,
+  studyCards,
+  tagCounts,
+  tagLabel,
+  type DeckData,
+} from "@/lib/deck-cards";
+import {
+  deckReviewItem,
+  loadDeckProgress,
+  saveDeckProgress,
+  storageOk,
+  type Graded,
+  type ReviewItem,
+} from "@/lib/review-item";
+import { ReviewSession } from "@/components/ReviewSession";
+import { btn, btnOn, quiet } from "@/components/srs-ui";
 
 // Card zoom levels (whole card content scales: text + images).
 const SIZES = [1, 1.3, 1.6, 2];
 
 type Mode = "review" | "browse";
 
-// Per-deck spaced-repetition progress (lib/srs.ts). Every access is guarded:
-// without storage the page falls back to the plain flip-through.
-const storeKey = (slug: string) => `srs:${slug}`;
-function loadProgress(slug: string): Progress | null {
-  try {
-    const raw = localStorage.getItem(storeKey(slug));
-    // Probe writability too (Safari private mode used to throw on setItem).
-    localStorage.setItem("srs:probe", "1");
-    localStorage.removeItem("srs:probe");
-    return parseProgress(raw);
-  } catch {
-    return null;
-  }
-}
-function saveProgress(slug: string, p: Progress | null) {
-  try {
-    if (p) localStorage.setItem(storeKey(slug), JSON.stringify(p));
-    else localStorage.removeItem(storeKey(slug));
-  } catch {
-    /* localStorage unavailable — progress lives for this visit only */
-  }
-}
-
+/**
+ * /cartes/<slug>/ — one Anki deck: today's review (spaced repetition,
+ * lib/srs.ts, through components/ReviewSession.tsx) or a free flip-through,
+ * the deck's settings (new cards per day, sub-deck, tag, direction, typed
+ * answer, audio, pause; lib/srs-settings.ts) and its leeches. Progress is
+ * per deck in localStorage (`srs:<slug>`); without storage the page falls
+ * back to the plain flip-through.
+ */
 export function Flashcards({ slug, name }: { slug: string; name: string }) {
   const locale = useLocale();
   const tr = (k: string, vars?: Record<string, string | number>) =>
     t(`flashcards.${k}`, vars, locale);
-  const [deck, setDeck] = useState<Deck | null>(null);
+  const [deck, setDeck] = useState<DeckData | null>(null);
   const [error, setError] = useState(false);
   const [order, setOrder] = useState<number[]>([]);
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
   const [sizeIdx, setSizeIdx] = useState(0);
   // null = no storage → browse mode only, exactly the pre-SRS behaviour.
-  const [progress, setProgress] = useState<Progress | null>(null);
+  const [progress, setProgressState] = useState<Progress | null>(null);
+  // Mirror for the grade/undo callbacks, which must see the latest progress
+  // even when two run before a re-render.
+  const progressRef = useRef<Progress | null>(null);
+  const setProgress = useCallback((p: Progress | null) => {
+    progressRef.current = p;
+    setProgressState(p);
+  }, []);
+  const [settings, setSettings] = useState<SrsSettings | null>(null);
   const [mode, setMode] = useState<Mode>("browse");
-  // Review session: indices into deck.cards, head = current card.
-  const [queue, setQueue] = useState<number[]>([]);
+  const [queue, setQueue] = useState<ReviewItem[]>([]);
   const [today, setToday] = useState(() => dayKey());
   const cardRef = useRef<HTMLButtonElement>(null);
-  const doneRef = useRef<HTMLHeadingElement>(null);
 
   // Restore + cycle the card size, persisted across cards/sessions.
   useEffect(() => {
@@ -97,69 +106,134 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
     });
   }, []);
 
+  const cfg: DeckSettings = useMemo(
+    () => deckSettings(settings ?? { retention: 0.9, decks: {} }, slug),
+    [settings, slug],
+  );
+  const study = useMemo(() => (deck ? studyCards(deck, cfg) : []), [deck, cfg]);
+  const ids = useMemo(() => study.map((c) => c.key), [study]);
+
+  const makeQueue = useCallback(
+    (d: DeckData, p: Progress, c: DeckSettings, day: string) => {
+      const sc = studyCards(d, c);
+      return buildQueue(
+        sc.map((x) => x.key),
+        p,
+        day,
+        c.newPerDay,
+      ).map((i) => deckReviewItem(slug, d, sc[i], c, p.cards[sc[i].key]));
+    },
+    [slug],
+  );
+
   useEffect(() => {
     let cancel = false;
     fetch(`/anki/${slug}.json`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((d: Deck) => {
+      .then((d: DeckData) => {
         if (cancel) return;
         setDeck(d);
         setOrder(d.cards.map((_, i) => i));
-        const p = loadProgress(slug);
+        if (!storageOk()) return;
+        const s = loadSettings();
+        setSettings(s);
+        const stored = loadDeckProgress(slug);
+        const p = migrateDeck(stored, d);
+        if (p !== stored) saveDeckProgress(slug, p);
         setProgress(p);
-        if (p) {
-          const day = dayKey();
-          const q = buildQueue(
-            d.cards.map((c) => cardId(c.front, c.back)),
-            p,
-            day,
-          );
-          setToday(day);
-          setQueue(q);
-          if (q.length) setMode("review");
-        }
+        const day = dayKey();
+        const q = makeQueue(d, p, deckSettings(s, slug), day);
+        setToday(day);
+        setQueue(q);
+        if (q.length) setMode("review");
       })
       .catch(() => !cancel && setError(true));
     return () => {
       cancel = true;
     };
-  }, [slug]);
+  }, [slug, makeQueue, setProgress]);
 
-  const cards = useMemo(() => deck?.cards ?? [], [deck]);
-  const ids = useMemo(() => cards.map((c) => cardId(c.front, c.back)), [cards]);
   const reviewing = mode === "review" && progress !== null;
-  const card = cards[(reviewing ? queue[0] : order[pos]) ?? 0];
   const summary = useMemo(
-    () => (progress ? summarize(ids, progress, today) : null),
-    [ids, progress, today],
+    () => (progress ? summarize(ids, progress, today, cfg.newPerDay) : null),
+    [ids, progress, today, cfg.newPerDay],
   );
 
   const startMode = useCallback(
-    (m: Mode, p: Progress | null = progress) => {
+    (m: Mode, p: Progress | null = progressRef.current, c: DeckSettings = cfg) => {
       setFlipped(false);
       setMode(m);
-      if (m === "review" && p) {
+      if (m === "review" && p && deck) {
         const day = dayKey();
         setToday(day);
-        setQueue(buildQueue(ids, p, day));
+        setQueue(makeQueue(deck, p, c, day));
       } else setPos(0);
     },
-    [ids, progress],
+    [cfg, deck, makeQueue],
   );
+
+  const onGrade = useCallback(
+    (head: ReviewItem, g: Grade): Graded | undefined => {
+      const before = progressRef.current;
+      if (!before || head.kind !== "deck") return undefined;
+      const next = gradeCard(before, head.id, g, today);
+      saveDeckProgress(slug, next);
+      setProgress(next);
+      return {
+        state: next.cards[head.id],
+        undo: () => {
+          saveDeckProgress(slug, before);
+          setProgress(before);
+        },
+      };
+    },
+    [today, slug, setProgress],
+  );
+
+  const updateDeck = (patch: Partial<DeckSettings>) => {
+    if (!settings) return;
+    const s = withDeck(settings, slug, patch);
+    saveSettings(s);
+    setSettings(s);
+    if (mode === "review") startMode("review", progressRef.current, deckSettings(s, slug));
+    else setPos(0);
+  };
+  const setRetention = (r: number) => {
+    if (!settings) return;
+    const s = { ...settings, retention: r };
+    saveSettings(s);
+    setSettings(s);
+  };
+
+  const toggleSuspend = (id: string, on: boolean) => {
+    const p = progressRef.current;
+    if (!p) return;
+    const next = setSuspended(p, id, on);
+    saveDeckProgress(slug, next);
+    setProgress(next);
+    if (on) setQueue((q) => q.filter((x) => x.id !== id));
+  };
+
+  // --- browse mode ----------------------------------------------------------
+  const browse = useMemo(() => {
+    // The free flip-through follows the order (shuffle) over the cards in play.
+    const inPlay = new Map(study.map((c) => [c.idx, c] as const));
+    return order.flatMap((i) => (inPlay.has(i) ? [inPlay.get(i)!] : []));
+  }, [order, study]);
+  const browseCard = deck && browse.length ? browse[Math.min(pos, browse.length - 1)] : null;
+  const browseFaces = deck && browseCard ? faces(deck.cards[browseCard.idx], browseCard.rev) : null;
 
   const go = useCallback(
     (delta: number) => {
       setFlipped(false);
-      setPos((p) =>
-        cards.length ? (p + delta + cards.length) % cards.length : 0,
-      );
+      setPos((p) => (browse.length ? (p + delta + browse.length) % browse.length : 0));
     },
-    [cards.length],
+    [browse.length],
   );
   const flip = useCallback(() => setFlipped((f) => !f), []);
-  // The card's front/back HTML (dangerouslySetInnerHTML) can itself contain a
-  // `.pron-btn` pronunciation player nested inside this flip button; let that
-  // handle its own click instead of also flipping the card away under it.
+  // The card's front/back HTML can itself contain a `.pron-btn` pronunciation
+  // player nested inside this flip button; let that handle its own click
+  // instead of also flipping the card away under it.
   const handleCardClick = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {
       if ((e.target as HTMLElement).closest(".pron-btn")) return;
@@ -180,91 +254,87 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
     setFlipped(false);
   }, []);
 
-  // Grade the current review card: persist, then drop it from the session
-  // ("again" sends it to the back of the queue so it returns today).
-  const grade = useCallback(
-    (g: Grade) => {
-      if (mode !== "review" || !progress || !flipped || !queue.length) return;
-      const [head, ...rest] = queue;
-      const next = gradeCard(progress, ids[head], g, today);
-      const q = g === "again" ? [...rest, head] : rest;
-      saveProgress(slug, next);
-      recordActivity("c");
-      setProgress(next);
-      setQueue(q);
-      setFlipped(false);
-      // Keep keyboard focus on the study surface: the next card (Space flips
-      // it) or, once the session is over, the end-of-session heading.
-      requestAnimationFrame(() =>
-        (q.length ? cardRef.current : doneRef.current)?.focus(),
-      );
-    },
-    [mode, flipped, queue, progress, ids, today, slug],
-  );
-
-  const reset = () => {
-    if (!window.confirm(tr("resetConfirm"))) return;
-    const p = emptyProgress();
-    saveProgress(slug, null);
-    setProgress(p);
-    startMode("review", p);
-  };
-
   useEffect(() => {
+    if (reviewing) return; // ReviewSession has its own keys
     const onKey = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return;
       const el = e.target as HTMLElement | null;
+      if (el?.closest("input, textarea, select, [contenteditable], summary")) return;
       if (e.key === " " || e.key === "Enter") {
         // Let a focused control (Prev/Next/Shuffle/…) activate natively; the card
         // is itself a <button> so it still flips on Space/Enter when focused.
-        if (el?.closest("button, a, input, textarea, select")) return;
+        if (el?.closest("button, a")) return;
         e.preventDefault();
         flip();
-      } else if (reviewing && /^[1-4]$/.test(e.key)) {
-        if (el?.closest("input, textarea, select, [contenteditable]")) return;
-        grade(GRADES[Number(e.key) - 1]);
-      } else if (reviewing) return;
-      else if (e.key === "ArrowRight") go(1);
+      } else if (e.key === "ArrowRight") go(1);
       else if (e.key === "ArrowLeft") go(-1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [flip, go, grade, reviewing]);
+  }, [flip, go, reviewing]);
+
+  const reset = () => {
+    if (!window.confirm(tr("resetConfirm"))) return;
+    const p = emptyProgress();
+    saveDeckProgress(slug, null);
+    setProgress(p);
+    startMode("review", p);
+  };
 
   const nextDay =
-    reviewing && progress && !queue.length
-      ? nextReviewDay(ids, progress, today)
-      : null;
+    reviewing && progress && !queue.length ? nextReviewDay(ids, progress, today) : null;
+  const fmtDay = (day: string) =>
+    new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long" }).format(
+      new Date(`${day}T12:00:00`),
+    );
+
+  // Leeches and suspended cards of the deck, in deck order.
+  const troubled = useMemo(() => {
+    if (!deck || !progress) return [];
+    return study.filter((c) => {
+      const st = progress.cards[c.key];
+      return st && (isLeech(st) || st.sus);
+    });
+  }, [deck, progress, study]);
+
+  const hasAudio = useMemo(
+    () => !!deck?.cards.slice(0, 200).some((c) => /pron-btn/.test(c.front + c.back)),
+    [deck],
+  );
+  const tags = useMemo(() => (deck ? tagCounts(deck) : []), [deck]);
+  const zoom = SIZES[sizeIdx];
+  const cardCount = study.length;
 
   return (
     <main
       id="main"
       className="flashcards-main mx-auto px-5 py-12 text-ink transition-[max-width] duration-200"
-      style={{ maxWidth: `${60 * SIZES[sizeIdx]}rem` }}
+      style={{ maxWidth: `${60 * zoom}rem` }}
     >
-      {deck?.css && <style dangerouslySetInnerHTML={{ __html: deck.css }} />}
+      {!reviewing && deck?.css && <style dangerouslySetInnerHTML={{ __html: deck.css }} />}
 
+      {/* A plain link, like the rest of /cartes/: next/link would make scripts/prune-rsc.mjs keep RSC payloads. */}
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a
-        href="/"
+        href="/cartes/"
         className="text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
       >
-        ← {tr("home")}
+        ← {t("cartesIndex.title", undefined, locale)}
       </a>
 
       <header className="mb-6 mt-3 flex items-baseline justify-between gap-4 border-b border-ink pb-2">
         <h1 className="m-0 text-balance text-[clamp(1.25rem,1rem+1.8vw,2.2rem)] font-medium leading-tight">
           {name}
+          {cfg.sub && <span className="text-muted-warm"> › {cfg.sub}</span>}
         </h1>
-        {cards.length > 0 && !(reviewing && !queue.length) && (
+        {cardCount > 0 && !(reviewing && !queue.length) && (
           <span className="shrink-0 text-meta tabular-nums text-muted-warm">
-            {reviewing
-              ? `${queue.length} ${tr("left")}`
-              : `${pos + 1} / ${cards.length}`}
+            {reviewing ? `${queue.length} ${tr("left")}` : `${pos + 1} / ${browse.length}`}
           </span>
         )}
       </header>
 
-      {cards.length > 0 && summary && (
+      {deck && progress && summary && (
         <div className="mb-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <div role="group" aria-label={tr("modes")} className="flex">
             {(["review", "browse"] as const).map((m) => (
@@ -296,120 +366,178 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
         </div>
       )}
 
+      {cfg.paused && progress && (
+        <p className="mb-5 mt-0 text-small italic text-muted-warm">{tr("pausedNote")}</p>
+      )}
+
       {error ? (
         <p className="italic text-muted-warm">{tr("err")}</p>
       ) : !deck ? (
         <p className="italic text-muted-warm">{tr("loading")}</p>
-      ) : !cards.length ? (
+      ) : !cardCount ? (
         <p className="italic text-muted-warm">{tr("empty")}</p>
-      ) : reviewing && !queue.length ? (
-        <section
-          className="flex flex-col items-center justify-center gap-5 rounded-[4px] border border-rule bg-paper p-8 text-center"
-          style={{ minHeight: `${26 * SIZES[sizeIdx]}rem` }}
-        >
-          <h2
-            ref={doneRef}
-            tabIndex={-1}
-            className="m-0 text-balance text-[clamp(1.1rem,1rem+1vw,1.5rem)] font-medium leading-snug outline-none"
-          >
-            {nextDay
-              ? tr("doneNext", {
-                  date: new Intl.DateTimeFormat(locale, {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                  }).format(new Date(`${nextDay}T12:00:00`)),
-                })
-              : tr("done")}
-          </h2>
-          <button
-            type="button"
-            className={btn}
-            onClick={() => startMode("browse")}
-          >
-            {tr("modeBrowse")}
-          </button>
-        </section>
+      ) : reviewing ? (
+        <ReviewSession
+          queue={queue}
+          setQueue={setQueue}
+          onGrade={onGrade}
+          today={today}
+          zoom={zoom}
+          done={nextDay ? tr("doneNext", { date: fmtDay(nextDay) }) : tr("done")}
+        />
       ) : (
-        <>
-          <button
-            ref={cardRef}
-            type="button"
-            onClick={handleCardClick}
-            aria-label={tr("flip")}
-            // keep-light: the card HTML comes with the deck's own CSS (Anki
-            // notetypes assume a white card), so it stays a light card in dark mode.
-            className="keep-light flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-rule bg-paper p-8 text-center transition-[min-height] duration-200 hover:bg-paper"
-            style={{ minHeight: `${26 * SIZES[sizeIdx]}rem` }}
-          >
-            <div
-              className="card [&_.pron]:mt-3"
-              style={{ zoom: SIZES[sizeIdx] }}
-              dangerouslySetInnerHTML={{
-                __html: flipped ? card.back : card.front,
-              }}
-            />
-          </button>
-
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
-            {reviewing ? (
-              flipped ? (
-                <div
-                  role="group"
-                  aria-label={tr("grades")}
-                  className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:gap-3"
-                >
-                  {GRADES.map((g, i) => (
-                    <button
-                      key={g}
-                      type="button"
-                      className={btnGrade}
-                      style={{ "--g": GRADE_COLOR[g] } as React.CSSProperties}
-                      onClick={() => grade(g)}
-                      aria-keyshortcuts={String(i + 1)}
-                    >
-                      <kbd className="mr-1.5 font-mono font-normal opacity-60">
-                        {i + 1}
-                      </kbd>
-                      {tr(g)}
-                    </button>
-                  ))}
-                </div>
-              ) : (
-                <button type="button" className={btn} onClick={flip}>
-                  {tr("flip")}
-                </button>
-              )
-            ) : (
-              <>
-                <button type="button" className={btn} onClick={() => go(-1)}>
-                  {tr("prev")}
-                </button>
-                <button type="button" className={btn} onClick={flip}>
-                  {tr("flip")}
-                </button>
-                <button type="button" className={btn} onClick={() => go(1)}>
-                  {tr("next")}
-                </button>
-                <button type="button" className={btn} onClick={shuffle}>
-                  {tr("shuffle")}
-                </button>
-              </>
-            )}
+        browseFaces && (
+          <>
             <button
+              ref={cardRef}
               type="button"
-              className={btn}
-              onClick={cycleSize}
-              aria-label={tr("size")}
+              onClick={handleCardClick}
+              aria-label={tr("flip")}
+              // keep-light: the card HTML comes with the deck's own CSS (Anki
+              // notetypes assume a white card), so it stays a light card in dark mode.
+              className="keep-light flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-rule bg-paper p-8 text-center transition-[min-height] duration-200 hover:bg-paper"
+              style={{ minHeight: `${26 * zoom}rem` }}
             >
-              {tr("size")}
-              {SIZES[sizeIdx] !== 1 ? ` ×${SIZES[sizeIdx]}` : ""}
+              <div
+                className="card [&_.pron]:mt-3"
+                style={{ zoom }}
+                dangerouslySetInnerHTML={{
+                  __html: flipped ? browseFaces.back : browseFaces.front,
+                }}
+              />
             </button>
+
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+              <button type="button" className={btn} onClick={() => go(-1)}>
+                {tr("prev")}
+              </button>
+              <button type="button" className={btn} onClick={flip}>
+                {tr("flip")}
+              </button>
+              <button type="button" className={btn} onClick={() => go(1)}>
+                {tr("next")}
+              </button>
+              <button type="button" className={btn} onClick={shuffle}>
+                {tr("shuffle")}
+              </button>
+            </div>
+            <p className="mt-4 text-center text-micro italic text-muted-warm">{tr("hint")}</p>
+          </>
+        )
+      )}
+
+      {deck && cardCount > 0 && (
+        <p className="mt-4 text-center">
+          <button type="button" className={quiet} onClick={cycleSize} aria-label={tr("size")}>
+            {tr("size")}
+            {zoom !== 1 ? ` ×${zoom}` : ""}
+          </button>
+        </p>
+      )}
+
+      {deck && progress && settings && (
+        <details className="deck-settings mt-10 border-t border-rule pt-4">
+          <summary className="cursor-pointer text-small font-semibold text-ink-2">{tr("settings")}</summary>
+          <div className="mt-4 grid gap-4 text-small sm:grid-cols-2">
+            <Field label={tr("newPerDay")}>
+              <select
+                value={cfg.newPerDay}
+                onChange={(e) => updateDeck({ newPerDay: Number(e.target.value) })}
+              >
+                {[...new Set([...NEW_PER_DAY_CHOICES, cfg.newPerDay])]
+                  .sort((a, b) => a - b)
+                  .map((n) => (
+                    <option key={n} value={n}>
+                      {n}
+                    </option>
+                  ))}
+              </select>
+            </Field>
+            {deck.subs && deck.subs.length > 1 && (
+              <Field label={tr("subdeck")}>
+                <select value={cfg.sub} onChange={(e) => updateDeck({ sub: e.target.value })}>
+                  <option value="">{tr("allCards")}</option>
+                  {deck.subs.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            )}
+            {tags.length > 0 && (
+              <Field label={tr("tag")}>
+                <select value={cfg.tag} onChange={(e) => updateDeck({ tag: e.target.value })}>
+                  <option value="">{tr("allCards")}</option>
+                  {tags.map(([tag, n]) => (
+                    <option key={tag} value={tag}>
+                      {tagLabel(tag)} ({n})
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            )}
+            {canReverse(deck) && (
+              <Field label={tr("direction")}>
+                <select
+                  value={cfg.dir}
+                  onChange={(e) => updateDeck({ dir: e.target.value as DeckSettings["dir"] })}
+                >
+                  {DIRECTIONS.map((d) => (
+                    <option key={d} value={d}>
+                      {tr(`dir_${d}`)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            )}
+            <Field label={tr("retention")} hint={tr("retentionHint")}>
+              <select value={settings.retention} onChange={(e) => setRetention(Number(e.target.value))}>
+                {RETENTIONS.map((r) => (
+                  <option key={r} value={r}>
+                    {Math.round(r * 100)} %
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <div className="flex flex-col gap-2 sm:col-span-2">
+              <Check checked={cfg.typed} onChange={(v) => updateDeck({ typed: v })} label={tr("typed")} />
+              {hasAudio && (
+                <Check checked={cfg.autoplay} onChange={(v) => updateDeck({ autoplay: v })} label={tr("autoplay")} />
+              )}
+              <Check checked={cfg.paused} onChange={(v) => updateDeck({ paused: v })} label={tr("paused")} />
+            </div>
           </div>
-          <p className="mt-4 text-center text-micro italic text-muted-warm">
-            {tr(reviewing ? "hintReview" : "hint")}
-          </p>
-        </>
+        </details>
+      )}
+
+      {deck && progress && troubled.length > 0 && (
+        <details className="deck-leeches mt-6 border-t border-rule pt-4">
+          <summary className="cursor-pointer text-small font-semibold text-ink-2">
+            {tr("leeches", { count: troubled.length })}
+          </summary>
+          <p className="mt-2 text-small text-ink-2">{tr("leechesIntro")}</p>
+          <ul className="m-0 mt-3 list-none border-t border-rule p-0">
+            {troubled.map((c) => {
+              const st = progress.cards[c.key];
+              const f = faces(deck.cards[c.idx], c.rev);
+              return (
+                <li key={c.key} className="flex items-baseline justify-between gap-4 border-b border-rule py-2.5">
+                  <span className="min-w-0 flex-1" dir="auto">
+                    {firstLine(f.front) || "—"}
+                    <span className="block text-micro text-muted-warm">
+                      {tr("lapses", { count: st.lapses })}
+                      {st.sus ? ` · ${tr("suspended")}` : ""}
+                    </span>
+                  </span>
+                  <button type="button" className={`${quiet} shrink-0`} onClick={() => toggleSuspend(c.key, !st.sus)}>
+                    {st.sus ? tr("unsuspend") : tr("suspend")}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </details>
       )}
 
       {progress && summary && summary.learned > 0 && (
@@ -420,5 +548,24 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
         </p>
       )}
     </main>
+  );
+}
+
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <label className="deck-field flex flex-col gap-1">
+      <span className="text-micro font-semibold uppercase tracking-[0.08em] text-muted-warm">{label}</span>
+      {children}
+      {hint && <span className="text-micro text-muted-warm">{hint}</span>}
+    </label>
+  );
+}
+
+function Check({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <label className="flex cursor-pointer items-baseline gap-2">
+      <input type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <span>{label}</span>
+    </label>
   );
 }

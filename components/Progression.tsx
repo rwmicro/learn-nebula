@@ -35,6 +35,8 @@ import {
   type ProgressFile,
   type Summary,
 } from "@/lib/progress-transfer";
+import type { AnkiDeck } from "@/lib/anki";
+import { ReviewStats } from "@/components/ReviewStats";
 
 interface Pending {
   file: ProgressFile;
@@ -51,7 +53,7 @@ const ERROR_KEY: Record<ImportError, string> = {
   empty: "errEmpty",
 };
 
-export function Progression() {
+export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
   const locale = useLocale();
   const tr = useCallback(
     (k: string, vars?: Record<string, string | number>) =>
@@ -240,6 +242,7 @@ export function Progression() {
     ["bookmarks", "kindBookmarks"],
     ["highlights", "kindHighlights"],
     ["activity", "kindActivity"],
+    ["reviewLog", "kindReviewLog"],
   ];
 
   return (
@@ -289,6 +292,7 @@ export function Progression() {
       </section>
 
       <MyMarks />
+      <ReviewStats decks={decks} />
 
       <section className="progression-actions" aria-label={tr("title")}>
         <div className="progression-action">

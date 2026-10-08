@@ -143,6 +143,9 @@
     "progression": "My progress: export, import"
   },
   "home": {
+    "intro1": "This file contains all the work I mastered over my journey of life.",
+    "intro2": "I’m a believer in knowledge sharing: I think knowledge has to be shared, to never forget and to know how things work.",
+    "intro3": "It is primarily written in English and French but can be easily translated into another language.",
     "searchPlaceholder": "Search a note, a word, a theme, a PDF…",
     "notesLabel": "Notes",
     "assetSize": "{size} MB",
@@ -201,7 +204,7 @@
     "empty": "Empty deck.",
     "err": "Couldn’t load the deck.",
     "hint": "Click / Space: flip · ← → : navigate",
-    "hintReview": "Click / Space: flip · 1 2 3 4: grade",
+    "hintReview": "Click / Space: flip · 1 2 3 4: grade · Z: undo",
     "modeReview": "Today’s review",
     "modeBrowse": "Browse all",
     "modes": "Study mode",
@@ -217,7 +220,38 @@
     "done": "Nothing to review today.",
     "doneNext": "Nothing to review today — next review: {date}",
     "reset": "Reset progress",
-    "resetConfirm": "Reset all progress for this deck? This cannot be undone."
+    "resetConfirm": "Reset all progress for this deck? This cannot be undone.",
+    "ivNow": "< 1 d",
+    "ivDays": "{n} d",
+    "ivMonths": "{n} mo",
+    "ivYears": "{n} yr",
+    "undo": "Undo last grade (Z)",
+    "typeLabel": "Your answer",
+    "typeEmpty": "No answer typed.",
+    "typeRight": "That’s the answer.",
+    "typeYours": "Typed",
+    "typeExpected": "Expected",
+    "pausedNote": "This deck is paused: it stays out of “Review everything”.",
+    "settings": "Deck settings",
+    "newPerDay": "New cards per day",
+    "subdeck": "Sub-deck",
+    "allCards": "All cards",
+    "tag": "Tag",
+    "direction": "Direction",
+    "dir_fwd": "Front → back",
+    "dir_rev": "Back → front",
+    "dir_both": "Both ways",
+    "retention": "Target retention",
+    "retentionHint": "For every deck and question. Higher means more reviews.",
+    "typed": "Type the answer before seeing it",
+    "autoplay": "Play audio automatically",
+    "paused": "Pause this deck",
+    "leeches": "Difficult cards ({count})",
+    "leechesIntro": "Forgotten six times or more. Suspending takes them out of reviews; rewording them often helps more.",
+    "lapses": "Forgotten: {count} times",
+    "suspended": "suspended",
+    "suspend": "Suspend",
+    "unsuspend": "Reactivate"
   },
   "youtube": {
     "play": "Play the YouTube video",
@@ -257,7 +291,14 @@
     "noteQuestionsIntro": "Review questions you added from the notes.",
     "noteQuestionsDue": "{count} due",
     "noteQuestionsSaved": "{count} saved",
-    "progression": "Back up or transfer my progress"
+    "progression": "Back up or transfer my progress",
+    "today": "Review everything",
+    "todayNothing": "Nothing to review today.",
+    "todayCounts": "Due: {due} · new: {fresh}",
+    "paused": "paused",
+    "upToDate": "up to date",
+    "deckDue": "due: {count}",
+    "deckFresh": "new: {count}"
   },
   "notFound": {
     "suggestions": "Perhaps you were looking for…",
@@ -315,7 +356,7 @@
     "remove": "Remove",
     "removeAria": "Remove this question from my reviews",
     "noStorage": "Browser storage is unavailable: note questions can’t be saved here.",
-    "hintReview": "Space: show the answer · 1 2 3 4: grade"
+    "hintReview": "Space: show the answer · 1 2 3 4: grade · Z: undo"
   },
   "prereq": {
     "before": "Read first",
@@ -501,7 +542,18 @@
     "statHighlights": "highlighted passages",
     "kindBookmarks": "To read later",
     "kindHighlights": "Highlights",
-    "kindActivity": "Activity days"
+    "kindActivity": "Activity days",
+    "kindReviewLog": "Review days",
+    "statsTitle": "Reviews",
+    "statsRate": "Success (30 d)",
+    "statsReviews": "Reviews (30 d)",
+    "statsWeek": "Coming (7 d)",
+    "statsForecast": "Reviews coming up",
+    "statsToday": "today",
+    "statsLeeches": "Difficult cards",
+    "statsNoLeech": "No card forgotten six times or more.",
+    "statsLeechesIntro": "Forgotten six times or more. You can suspend them on the deck’s page.",
+    "statsLeechCount": "cards: {count}"
   },
   "pathStep": {
     "label": "Path",
@@ -743,5 +795,12 @@
     "noteLabel": "My note on this passage",
     "save": "Save",
     "remove": "Remove highlight"
+  },
+  "todayReview": {
+    "title": "Review everything",
+    "intro": "Today’s due cards and note questions from every deck (except paused ones), then each deck’s new cards.",
+    "sources": "Sources: {n}.",
+    "failed": "Decks unavailable: {decks}.",
+    "done": "All done for today."
   }
 }

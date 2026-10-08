@@ -11,7 +11,20 @@
 // MUST run last in the build: pagefind writes its index into out/ and
 // render-mermaid rewrites the HTML in place, so anything compressed before them
 // would ship stale.
+//
+// Brotli 11 over the whole export is by far the slowest step of the build
+// (~12 of ~17 minutes on a hosted runner), so two knobs keep it in check:
+//
+//   PRECOMPRESS_BROTLI_QUALITY — 0–11, default 11. CI's check build sets a low
+//     one: nothing there serves the variants (the browser tests use
+//     `npx serve`), it only needs this script to run.
+//   PRECOMPRESS_CACHE_DIR — default .cache/precompress. Variants keyed by the
+//     source bytes' hash and the settings, so a file unchanged since the last
+//     build is copied, not recompressed. CI restores/saves it like the vault
+//     clone. Entries this build didn't use are pruned at the end, so the cache
+//     only ever holds the current site.
 
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
@@ -22,6 +35,15 @@ const brotli = promisify(zlib.brotliCompress);
 const gzip = promisify(zlib.gzip);
 
 const OUT = path.join(process.cwd(), "out");
+
+const BROTLI_QUALITY = (() => {
+  const q = Number(process.env.PRECOMPRESS_BROTLI_QUALITY ?? 11);
+  return Number.isInteger(q) && q >= 0 && q <= 11 ? q : 11;
+})();
+const GZIP_LEVEL = 9;
+const CACHE_DIR =
+  process.env.PRECOMPRESS_CACHE_DIR ||
+  path.join(process.cwd(), ".cache", "precompress");
 
 // Text-ish formats only. Anything already compressed (woff2, png, webp, avif,
 // mp3, mp4, pdf…) gains ~nothing and costs CPU and disk to try.
@@ -71,30 +93,60 @@ function walk(dir, out = []) {
   return out;
 }
 
+// Cache entries this run read or wrote; everything else is pruned at the end.
+const used = new Set();
+let hits = 0;
+
+// A cached variant that wasn't smaller than its source is stored as an empty
+// file: real output for an input of MIN_BYTES or more is never empty.
+function readCached(name) {
+  try {
+    return fs.readFileSync(path.join(CACHE_DIR, name));
+  } catch {
+    return null;
+  }
+}
+
 async function compressOne(file) {
   const raw = fs.readFileSync(file);
   if (raw.length < MIN_BYTES) return null;
 
-  const [br, gz] = await Promise.all([
-    brotli(raw, {
-      params: {
-        [zlib.constants.BROTLI_PARAM_QUALITY]: 11,
-        // Lets brotli size its window to the input instead of guessing.
-        [zlib.constants.BROTLI_PARAM_SIZE_HINT]: raw.length,
-      },
-    }),
-    gzip(raw, { level: 9 }),
-  ]);
+  const key =
+    crypto.createHash("sha256").update(raw).digest("hex") +
+    `-b${BROTLI_QUALITY}-g${GZIP_LEVEL}`;
+  used.add(`${key}.br`);
+  used.add(`${key}.gz`);
+
+  let br = readCached(`${key}.br`);
+  let gz = br && readCached(`${key}.gz`);
+  if (br && gz) {
+    hits++;
+  } else {
+    [br, gz] = await Promise.all([
+      brotli(raw, {
+        params: {
+          [zlib.constants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+          // Lets brotli size its window to the input instead of guessing.
+          [zlib.constants.BROTLI_PARAM_SIZE_HINT]: raw.length,
+        },
+      }),
+      gzip(raw, { level: GZIP_LEVEL }),
+    ]);
+    if (br.length >= raw.length) br = Buffer.alloc(0);
+    if (gz.length >= raw.length) gz = Buffer.alloc(0);
+    fs.writeFileSync(path.join(CACHE_DIR, `${key}.br`), br);
+    fs.writeFileSync(path.join(CACHE_DIR, `${key}.gz`), gz);
+  }
 
   // A variant that isn't smaller is worse than no variant: nginx would serve
   // more bytes than the original for the same content.
   let wroteBr = 0;
   let wroteGz = 0;
-  if (br.length < raw.length) {
+  if (br.length > 0) {
     fs.writeFileSync(`${file}.br`, br);
     wroteBr = br.length;
   }
-  if (gz.length < raw.length) {
+  if (gz.length > 0) {
     fs.writeFileSync(`${file}.gz`, gz);
     wroteGz = gz.length;
   }
@@ -123,11 +175,20 @@ if (!fs.existsSync(OUT)) {
   process.exit(0);
 }
 
+fs.mkdirSync(CACHE_DIR, { recursive: true });
 const files = walk(OUT);
 const started = Date.now();
 // brotli 11 is CPU-bound and zlib runs it off the main thread, so one job per
 // core keeps every core busy without oversubscribing the threadpool.
 const results = await pool(files, Math.max(1, os.cpus().length), compressOne);
+
+let pruned = 0;
+for (const name of fs.readdirSync(CACHE_DIR)) {
+  if (!used.has(name)) {
+    fs.rmSync(path.join(CACHE_DIR, name), { force: true });
+    pruned++;
+  }
+}
 
 let raw = 0;
 let br = 0;
@@ -145,5 +206,6 @@ const mb = (n) => (n / 1048576).toFixed(1);
 const pct = (n) => (raw ? Math.round((1 - n / raw) * 100) : 0);
 console.log(
   `precompress: ${count} file(s) in ${((Date.now() - started) / 1000).toFixed(1)}s — ` +
-    `${mb(raw)} MB → br ${mb(br)} MB (−${pct(br)}%), gz ${mb(gz)} MB (−${pct(gz)}%)`,
+    `${mb(raw)} MB → br ${mb(br)} MB (−${pct(br)}%), gz ${mb(gz)} MB (−${pct(gz)}%) ` +
+    `[brotli ${BROTLI_QUALITY}; ${hits} from cache, ${pruned} stale entr${pruned === 1 ? "y" : "ies"} pruned]`,
 );

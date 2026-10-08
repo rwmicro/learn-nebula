@@ -21,9 +21,12 @@ import {
   saveNoteDeck,
 } from "../../lib/note-quiz.ts";
 import { dayKey } from "../../lib/srs.ts";
+import { loadSettings } from "../../lib/srs-settings.ts";
 
 (function () {
   const slug = noteSlugFromPath(location.pathname);
+  // The reader's target retention (/cartes/ deck settings) for the grades below.
+  loadSettings();
 
   function tt(k, vars) {
     return window.__i18n && window.__i18n.t ? window.__i18n.t(k, vars) : k;
