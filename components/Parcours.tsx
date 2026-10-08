@@ -53,7 +53,7 @@ export function ParcoursIndex({
   }));
   return (
     <main id="main" className="themes-page parcours-page">
-      <Back href="/themes/" labelKey="nav.themes" />
+      <Back href="/" labelKey="nav.home" />
       <h1 className="themes-title" {...attrs(i18nAttrs("parcours.title"))}>
         {t("parcours.title")}
       </h1>

@@ -192,7 +192,7 @@
     "next": "Next"
   },
   "flashcards": {
-    "home": "The garden",
+    "home": "Garden of Knowledge",
     "flip": "Flip",
     "next": "Next",
     "prev": "Previous",
@@ -274,7 +274,6 @@
     "root": "General",
     "topTags": "Common themes",
     "all": "All themes",
-    "allPaths": "All paths ({n})",
     "more": "{n} more",
     "filterPlaceholder": "Filter themes…",
     "filterCount": "{n} themes",
@@ -635,7 +634,7 @@
     "home": "Go home"
   },
   "siteBar": {
-    "brand": "The garden",
+    "brand": "Garden of Knowledge",
     "navAria": "Site menu"
   },
   "account": {

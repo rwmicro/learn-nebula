@@ -192,7 +192,7 @@
     "next": "Suivant"
   },
   "flashcards": {
-    "home": "Le jardin",
+    "home": "Garden of Knowledge",
     "flip": "Retourner",
     "next": "Suivant",
     "prev": "Précédent",
@@ -274,7 +274,6 @@
     "root": "Général",
     "topTags": "Thèmes fréquents",
     "all": "Tous les thèmes",
-    "allPaths": "Tous les parcours ({n})",
     "more": "{n} autres",
     "filterPlaceholder": "Filtrer les thèmes…",
     "filterCount": "{n} thèmes",
@@ -635,7 +634,7 @@
     "home": "Aller à l’accueil"
   },
   "siteBar": {
-    "brand": "Le jardin",
+    "brand": "Garden of Knowledge",
     "navAria": "Menu du site"
   },
   "account": {

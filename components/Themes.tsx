@@ -1,9 +1,7 @@
 import { t, i18nAttrs, disciplineKey } from "@/lib/i18n";
-import type { Discipline, ReadingPathView, TagGroup, ThemeNote } from "@/lib/content";
+import type { Discipline, TagGroup, ThemeNote } from "@/lib/content";
 import { ReadMarks } from "@/components/ReadMarks";
 import { ThemesFilter } from "@/components/ThemesFilter";
-import { tagSlug } from "@/lib/slug";
-import { pathFamily } from "@/lib/path-family";
 
 /**
  * The /themes/ pages: an index of disciplines and tags, one page per tag
@@ -20,9 +18,6 @@ const TOPS = [
 /** Tags that only restate a top folder (on hundreds of notes, they would
  *  dwarf every real theme); their pages stay, the cloud leaves them out. */
 const CLOUD_HIDDEN = new Set(["sciences-sociales", "sciences-appliquees"]);
-
-/** Reading paths shown on the index before "all paths". */
-const PATHS_SHOWN = 6;
 
 /** Size step of a tag in the cloud, from its note count. */
 function tier(n: number): number {
@@ -54,12 +49,9 @@ function tagsByDiscipline(tags: TagGroup[]) {
 export function ThemesIndex({
   disciplines,
   tags,
-  paths = [],
 }: {
   disciplines: Discipline[];
   tags: TagGroup[];
-  /** The /parcours/ reading paths, in their index order. */
-  paths?: ReadingPathView[];
 }) {
   const groups = tagsByDiscipline(tags);
   const shownTags = groups.reduce((n, g) => n + g.list.length, 0);
@@ -73,43 +65,6 @@ export function ThemesIndex({
         {t("themes.intro")}
       </p>
 
-      {paths.length > 0 && (
-        <section className="themes-paths-block" aria-labelledby="themes-paths-h">
-          <div className="themes-section-head">
-            <h2 id="themes-paths-h" className="themes-h2" {...attrs(i18nAttrs("parcours.title"))}>
-              {t("parcours.title")}
-            </h2>
-            <a href="/parcours/" className="themes-more-link">
-              <span {...attrs(i18nAttrs("themes.allPaths", { n: paths.length }))}>
-                {t("themes.allPaths", { n: paths.length })}
-              </span>{" "}
-              →
-            </a>
-          </div>
-          <ul className="themes-path-cards">
-            {paths.slice(0, PATHS_SHOWN).map((p) => (
-              <li key={p.slug} data-family={pathFamily(p.discipline) ?? undefined}>
-                <a href={`/parcours/${p.slug}/`} className="themes-card">
-                  <span className="themes-card-title">{p.name}</span>
-                  <span className="themes-card-meta">
-                    {p.discipline && (
-                      <>
-                        <DisciplineName name={p.discipline} />
-                        {" · "}
-                      </>
-                    )}
-                    <span {...attrs(i18nAttrs("parcours.count", { n: p.notes.length }))}>
-                      {t("parcours.count", { n: p.notes.length })}
-                    </span>
-                  </span>
-                  <ReadBar total={p.notes.length} slugs={p.notes.map((n) => n.slug)} />
-                </a>
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
       <h2 className="themes-h2" {...attrs(i18nAttrs("themes.disciplines"))}>
         {t("themes.disciplines")}
       </h2>
@@ -118,22 +73,16 @@ export function ThemesIndex({
           <h3 className="themes-h3" {...attrs(i18nAttrs(top.key))}>
             {t(top.key)}
           </h3>
-          <ul className="themes-disc-cards">
+          <ul className="themes-cloud themes-cloud--compact">
             {disciplines
               .filter((d) => d.top === top.folder)
               .sort((a, b) => localName(a.name).localeCompare(localName(b.name), "fr"))
               .map((d) => (
                 <li key={d.slug}>
-                  <a href={`/disciplines/${d.slug}/`} className="themes-card">
-                    <span className="themes-card-title">
-                      <DisciplineName name={d.name} />
-                    </span>
-                    <NoteCount n={d.count} className="themes-card-meta" />
-                    {cardTags(d).length > 0 && (
-                      <span className="themes-card-tags">{cardTags(d).join(" · ")}</span>
-                    )}
-                    <ReadBar total={d.count} prefix={d.prefix} />
+                  <a href={`/disciplines/${d.slug}/`}>
+                    <DisciplineName name={d.name} />
                   </a>
+                  <span className="themes-count">{d.count}</span>
                 </li>
               ))}
           </ul>
@@ -198,25 +147,6 @@ function TagCloud({ tags }: { tags: TagGroup[] }) {
   );
 }
 
-/** "x/y lues" and a thin bar, filled from localStorage by <ReadMarks>:
- *  by slug list (a path) or by slug prefix (a discipline). */
-function ReadBar({ total, slugs, prefix }: { total: number; slugs?: string[]; prefix?: string }) {
-  return (
-    <span
-      className="themes-read"
-      data-read-progress
-      {...(slugs ? { "data-slugs": slugs.join(" ") } : { "data-prefix": prefix, "data-total": String(total) })}
-    >
-      <span className="themes-read-bar" aria-hidden="true">
-        <span />
-      </span>
-      <span className="themes-read-text" data-read-count>
-        {t("reading.count", { read: 0, total })}
-      </span>
-    </span>
-  );
-}
-
 /** A discipline's name in the reader's language ("Biology" → "Biologie"),
  *  swapped at runtime like the rest; the folder name when there is no key. */
 function DisciplineName({ name }: { name: string }) {
@@ -233,16 +163,6 @@ function NoteCount({ n, className }: { n: number; className?: string }) {
       {t(key, { n })}
     </span>
   );
-}
-
-/** Three telling tags for a discipline card: not the top-folder tags, not
- *  the discipline's own name ("informatique" on Informatique). */
-function cardTags(d: Discipline): string[] {
-  const own = tagSlug(localName(d.name));
-  return d.tags
-    .filter((g) => !CLOUD_HIDDEN.has(g.slug) && g.slug !== own)
-    .slice(0, 3)
-    .map((g) => g.name);
 }
 
 /** The build-time (French) name of a discipline, for sorting. */
