@@ -199,7 +199,7 @@
     "empty": "空卡组。",
     "err": "无法加载卡组。",
     "hint": "点击 / 空格：翻转 · ← → ：切换",
-    "hintReview": "点击 / 空格：翻转 · 1 2 3 4：评分",
+    "hintReview": "点击 / 空格：翻转 · 1 2 3 4：评分 · Z：撤销",
     "modeReview": "今日复习",
     "modeBrowse": "全部浏览",
     "modes": "学习模式",
@@ -215,7 +215,38 @@
     "done": "今天没有需要复习的卡片。",
     "doneNext": "今天没有需要复习的卡片 — 下次复习：{date}",
     "reset": "重置进度",
-    "resetConfirm": "重置此卡组的全部进度？此操作无法撤销。"
+    "resetConfirm": "重置此卡组的全部进度？此操作无法撤销。",
+    "ivNow": "< 1 天",
+    "ivDays": "{n} 天",
+    "ivMonths": "{n} 个月",
+    "ivYears": "{n} 年",
+    "undo": "撤销上次评分 (Z)",
+    "typeLabel": "你的答案",
+    "typeEmpty": "未输入答案。",
+    "typeRight": "回答正确。",
+    "typeYours": "输入",
+    "typeExpected": "答案",
+    "pausedNote": "此卡组已暂停：不会出现在“全部复习”中。",
+    "settings": "卡组设置",
+    "newPerDay": "每日新卡数",
+    "subdeck": "子卡组",
+    "allCards": "全部卡片",
+    "tag": "标签",
+    "direction": "方向",
+    "dir_fwd": "正面 → 背面",
+    "dir_rev": "背面 → 正面",
+    "dir_both": "双向",
+    "retention": "目标记忆率",
+    "retentionHint": "适用于所有卡组和问题。越高，复习越多。",
+    "typed": "先输入答案再查看",
+    "autoplay": "自动播放音频",
+    "paused": "暂停此卡组",
+    "leeches": "难记卡片 ({count})",
+    "leechesIntro": "已遗忘至少六次。暂停后不再复习；重新表述往往更有效。",
+    "lapses": "遗忘 {count} 次",
+    "suspended": "已暂停",
+    "suspend": "暂停",
+    "unsuspend": "恢复"
   },
   "youtube": {
     "play": "播放 YouTube 视频",
@@ -255,7 +286,14 @@
     "noteQuestionsIntro": "你从笔记中加入的复习题。",
     "noteQuestionsDue": "{count} 待复习",
     "noteQuestionsSaved": "已保存 {count}",
-    "progression": "备份或转移我的进度"
+    "progression": "备份或转移我的进度",
+    "today": "全部复习",
+    "todayNothing": "今天没有要复习的内容。",
+    "todayCounts": "待复习：{due} · 新卡：{fresh}",
+    "paused": "已暂停",
+    "upToDate": "已完成",
+    "deckDue": "待复习 {count}",
+    "deckFresh": "新卡 {count}"
   },
   "notFound": {
     "suggestions": "你是否在找……",
@@ -312,7 +350,7 @@
     "remove": "移除",
     "removeAria": "从复习中移除此问题",
     "noStorage": "浏览器存储不可用：无法在此保存笔记问题。",
-    "hintReview": "空格：显示答案 · 1 2 3 4：评分"
+    "hintReview": "空格：显示答案 · 1 2 3 4：评分 · Z：撤销"
   },
   "prereq": {
     "before": "先读",
@@ -493,7 +531,18 @@
     "errVersion": "此文件来自较新版本的网站：请刷新页面后重试。",
     "errEmpty": "文件中没有可用的进度。",
     "errLink": "此转移链接不完整或已损坏。",
-    "errRead": "无法读取此文件。"
+    "errRead": "无法读取此文件。",
+    "kindReviewLog": "复习记录",
+    "statsTitle": "复习",
+    "statsRate": "正确率（30 天）",
+    "statsReviews": "复习次数（30 天）",
+    "statsWeek": "未来 7 天",
+    "statsForecast": "即将到来的复习",
+    "statsToday": "今天",
+    "statsLeeches": "难记卡片",
+    "statsNoLeech": "没有遗忘六次以上的卡片。",
+    "statsLeechesIntro": "已遗忘至少六次。可在卡组页面暂停它们。",
+    "statsLeechCount": "{count} 张"
   },
   "pathStep": {
     "label": "路径",
@@ -558,5 +607,12 @@
     "zoom": "放大、缩小、适应",
     "pan": "移动图",
     "close": "关闭"
+  },
+  "todayReview": {
+    "title": "全部复习",
+    "intro": "今天所有卡组（已暂停的除外）待复习的卡片和笔记问题，然后是各卡组的新卡。",
+    "sources": "来源：{n}。",
+    "failed": "无法加载的卡组：{decks}。",
+    "done": "今天的复习已全部完成。"
   }
 }
