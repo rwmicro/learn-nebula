@@ -10,6 +10,7 @@
 
 import { createHash, randomBytes } from "node:crypto";
 import { specFor } from "../lib/progress-transfer.ts";
+import { STREAK_MILESTONES } from "../lib/avatar.ts";
 
 export const DEFAULT_TZ = "Europe/Paris";
 
@@ -29,8 +30,9 @@ export const COINS = {
 /** Daily caps, in events (not coins). */
 export const DAILY_MAX = { read: 10, review: 50 } as const;
 
-/** Streak length → bonus, paid on the day the run reaches it. */
-export const MILESTONES: Record<number, number> = { 7: 50, 30: 200, 100: 500 };
+/** Streak length → bonus, paid on the day the run reaches it (lib/avatar.ts,
+ *  shared with the account page). */
+export const MILESTONES = STREAK_MILESTONES;
 
 // --- days -------------------------------------------------------------------
 

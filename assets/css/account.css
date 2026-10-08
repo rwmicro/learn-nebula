@@ -103,31 +103,66 @@ main.acct-page {
   font-size: 0.82rem;
   color: var(--muted-warm);
 }
+/* The four numbers read as one band (not as buttons): number over label,
+   thin rules between them; 2 × 2 on a phone. */
 .acct-stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, max-content));
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper);
+  width: fit-content;
+  max-width: 100%;
 }
 .acct-stat {
   display: flex;
-  align-items: baseline;
-  gap: 0.35rem;
-  padding: 0.45rem 0.8rem;
-  border: 1px solid var(--rule);
-  border-radius: 8px;
-  background: var(--paper);
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.55rem 1.1rem;
+  min-width: 0;
+}
+.acct-stat + .acct-stat {
+  border-left: 1px solid var(--rule-soft);
 }
 .acct-stat strong {
-  font-size: 1.35rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 1.45rem;
+  line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 .acct-stat span {
   color: var(--muted);
   font-size: 0.85rem;
 }
-.acct-stat--coins {
-  align-items: center;
-  border-color: #e0a526;
+.acct-stat .acct-stat-sub {
+  color: var(--garden);
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+/* Next streak bonus: a sentence and a thin bar from the previous milestone. */
+.acct-next {
+  margin: 0.9rem 0 0;
+  max-width: 28rem;
+}
+.acct-next p {
+  margin: 0 0 0.35rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.acct-next-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--rule-soft);
+  overflow: hidden;
+}
+.acct-next-bar span {
+  display: block;
+  height: 100%;
+  min-width: 6px;
+  border-radius: inherit;
+  background: var(--garden);
 }
 .coin-dot--big {
   width: 1.1rem;
@@ -139,7 +174,22 @@ main.acct-page {
     text-align: center;
   }
   .acct-stats {
-    justify-content: center;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    text-align: left;
+  }
+  .acct-stat + .acct-stat {
+    border-left: 0;
+  }
+  .acct-stat:nth-child(even) {
+    border-left: 1px solid var(--rule-soft);
+  }
+  .acct-stat:nth-child(n + 3) {
+    border-top: 1px solid var(--rule-soft);
+  }
+  .acct-next {
+    margin-inline: auto;
+    text-align: left;
   }
 }
 
@@ -173,26 +223,29 @@ main.acct-page {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 0.35rem;
+  border: 2px solid var(--rule);
+  border-radius: 10px;
+  background: var(--paper);
+  overflow: hidden;
+}
+.wardrobe-item:has(.wardrobe-try:hover:not(:disabled)) {
+  border-color: var(--ink-soft);
 }
 .wardrobe-try {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.35rem;
+  flex: 1;
   padding: 0.6rem 0.4rem;
-  border: 2px solid var(--rule);
-  border-radius: 10px;
-  background: var(--paper);
+  border: 0;
+  background: transparent;
   color: var(--ink);
   font: inherit;
   font-size: 0.85rem;
   cursor: pointer;
 }
-.wardrobe-try:hover:not(:disabled) {
-  border-color: var(--ink-soft);
-}
-.wardrobe-item.is-on .wardrobe-try {
+.wardrobe-item.is-on {
   border-color: var(--garden);
   background: var(--garden-wash);
 }
@@ -222,6 +275,32 @@ main.acct-page {
   opacity: 0.45;
   cursor: not-allowed;
 }
+/* Inside a wardrobe card, the price is its bottom strip: "60 · Acheter",
+   or "120 · encore 48" (muted) when the coins are not there yet. */
+.wardrobe-item .wardrobe-buy,
+.wardrobe-short {
+  border: 0;
+  border-top: 1px solid var(--rule-soft);
+  border-radius: 0;
+  padding: 0.35rem 0.4rem;
+  font-size: 0.8rem;
+}
+/* Mixed into the paper so the strip stays gold-tinted in dark mode too. */
+.wardrobe-item .wardrobe-buy {
+  background: color-mix(in srgb, #e0a526 16%, var(--paper));
+  color: var(--ink);
+}
+.wardrobe-item .wardrobe-buy:hover:not(:disabled) {
+  background: color-mix(in srgb, #e0a526 28%, var(--paper));
+}
+.wardrobe-short {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  color: var(--muted);
+  background: var(--wash);
+}
 .shop-freeze {
   display: flex;
   align-items: center;
@@ -230,6 +309,31 @@ main.acct-page {
 }
 .shop-freeze p {
   margin: 0.2rem 0 0;
+}
+.shop-held {
+  display: inline-block;
+  margin-left: 0.3rem;
+  padding: 0.05rem 0.5rem;
+  border-radius: 999px;
+  background: var(--wash-2);
+  color: var(--ink-soft);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+/* The earning rules, folded: the card stays short next to the calendar. */
+.acct-how {
+  margin-top: 1rem;
+}
+.acct-how summary {
+  cursor: pointer;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+.acct-how summary:hover {
+  color: var(--ink);
+}
+.acct-how .acct-rules {
+  margin-top: 0.5rem;
 }
 .acct-rules {
   margin: 0;
@@ -289,23 +393,95 @@ main.acct-page {
   color: var(--garden);
   font-size: 0.9rem;
 }
+.acct-unsaved {
+  color: var(--muted-warm);
+  font-size: 0.88rem;
+  font-style: italic;
+}
+.acct-btn--danger-solid {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: var(--paper);
+  font-weight: 600;
+}
+.acct-btn--danger-solid:hover:not(:disabled) {
+  background: var(--danger);
+  border-color: var(--danger);
+  filter: brightness(0.92);
+}
+/* Account deletion, set apart under the everyday controls. */
+.acct-danger {
+  margin-top: 1.4rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--rule-strong);
+}
+.acct-danger h3 {
+  margin: 0 0 0.3rem;
+  color: var(--danger);
+  font-size: 1rem;
+}
+.acct-danger p {
+  margin: 0 0 0.7rem;
+  font-size: 0.9rem;
+}
+.acct-danger-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-width: 22rem;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.acct-danger-form input {
+  font: inherit;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.acct-danger-form input:focus {
+  outline: 2px solid var(--danger);
+  outline-offset: 1px;
+}
 
+/* Coin history: one block per day (date and net total), its rows under it. */
 .ledger {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-.ledger li {
-  display: grid;
-  grid-template-columns: 6.5rem minmax(0, 1fr) auto;
+.ledger > li + li {
+  margin-top: 0.7rem;
+}
+.ledger-head {
+  display: flex;
+  justify-content: space-between;
   gap: 0.6rem;
-  padding: 0.35rem 0;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.ledger-head .ledger-amount {
+  font-weight: 600;
+}
+.ledger-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ledger-rows li {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.3rem 0 0.3rem 0.6rem;
   border-bottom: 1px solid var(--rule-soft);
   font-size: 0.92rem;
 }
-.ledger-day {
-  color: var(--muted);
-  font-variant-numeric: tabular-nums;
+.ledger-what {
+  min-width: 0;
 }
 .ledger-ref {
   color: var(--muted);
@@ -317,6 +493,18 @@ main.acct-page {
 }
 .ledger-amount.is-neg {
   color: var(--muted-warm);
+}
+.acct-more {
+  margin-top: 0.7rem;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 
 .acct-login {
