@@ -612,7 +612,12 @@
     "synced": "Synced",
     "logout": "Sign out",
     "delete": "Delete my account",
-    "deleteConfirm": "Delete the account, its coins and its copy of your progress? This browser’s progress stays."
+    "dangerTitle": "Delete the account",
+    "deleteText": "The account, its coins, its gardener and its copy of your progress are erased for good. The progress kept in this browser stays.",
+    "deleteWord": "delete",
+    "deleteType": "To confirm, type “{word}”:",
+    "deleteNow": "Delete for good",
+    "cancel": "Cancel"
   },
   "avatar": {
     "aria": "Your little gardener",
@@ -644,7 +649,9 @@
       "paper": "Paper",
       "garden": "Garden",
       "night": "Starry night"
-    }
+    },
+    "cancel": "Cancel",
+    "unsaved": "Unsaved changes"
   },
   "coins": {
     "unit": "coins",
@@ -662,12 +669,21 @@
     "ruleReview": "Card or question reviewed: 1 coin (at most 50 a day)",
     "ruleDay": "Active day (at least one note or review): 10 coins",
     "ruleStreak": "Streaks of 7, 30 and 100 days: 50, 200 and 500 coins",
-    "ledgerTitle": "Coin history"
+    "ledgerTitle": "Coin history",
+    "unitOne": "coin",
+    "today": "+{n} today",
+    "more": "Show more",
+    "less": "Show less"
   },
   "streak": {
     "days": "days in a row",
     "best": "best",
-    "freezes": "streak freezes"
+    "freezes": "streak freezes",
+    "daysOne": "day in a row",
+    "freezesOne": "streak freeze",
+    "next": "{n} more days to the {m}-day streak: +{bonus} coins",
+    "nextOne": "{n} more day to the {m}-day streak: +{bonus} coins",
+    "nextAria": "Progress towards the {m}-day streak"
   },
   "shop": {
     "title": "Shop",
@@ -675,7 +691,10 @@
     "freezeText": "A missed day doesn’t break your streak. At most {max} in reserve.",
     "bought": "Bought!",
     "noFunds": "Not enough coins yet.",
-    "error": "That didn’t work, try again."
+    "error": "That didn’t work, try again.",
+    "buy": "Buy",
+    "missing": "{n} more",
+    "held": "{n} / {max} in reserve"
   },
   "review": {
     "pill": "{n} to review",
