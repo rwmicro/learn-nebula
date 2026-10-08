@@ -30,7 +30,7 @@ export default function Header({ doc }: { doc: Doc }) {
   return (
     // `home-masthead`: the site bar (components/SiteBar.tsx) hides itself on
     // the page that carries this masthead, which lists the same links.
-    <header className="home-masthead relative mx-auto max-w-300 px-4 text-ink @container">
+    <header className="home-masthead relative mx-auto flex max-w-300 flex-col px-4 text-ink @container sm:block">
       {/* Peer checkbox drives the mobile section-nav dropdown (#6). CSS-only, so
           it works in the static export with no JS. */}
       <input
@@ -42,8 +42,9 @@ export default function Header({ doc }: { doc: Doc }) {
 
       {/* 1. utility bar: language "editions" + the light/dark toggle (same
           markup as the note nav's, wired by /js/theme.js) — always visible,
-          mobile included. */}
-      <div className="flex flex-wrap items-center justify-center gap-x-2 py-2">
+          mobile included. On phones it drops below the wordmark (`order-1`,
+          the header being a flex column there), so the title leads the page. */}
+      <div className="flex flex-wrap items-center justify-center gap-x-2 py-2 max-sm:order-1 max-sm:pt-3">
         <LangSwitcher />
         <span
           className="contents"
@@ -89,7 +90,7 @@ export default function Header({ doc }: { doc: Doc }) {
           popover on mobile, revealed by the hamburger in the corner (#6). */}
       <nav
         aria-label={t("home.footerNavAria")}
-        className="relative hidden peer-checked:block sm:block"
+        className="max-sm:order-2 relative hidden peer-checked:block sm:block"
       >
         {/* The same links as the site bar on every other page
             (components/SiteBar.tsx), from lib/site.ts NAV. */}
