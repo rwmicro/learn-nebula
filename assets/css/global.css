@@ -986,7 +986,10 @@ footer {
   /* Sized by its own width, not the viewport: on a note it only spans the
      text column, where the links would wrap onto three lines. */
   container-type: inline-size;
-  margin: -1.2rem 2rem 1.4rem;
+  /* No negative top here: outside the note pages body has no top margin
+     below 1650px, so a pull-up pushed the bar off the top of the screen.
+     main.css restores the pull-up against its own 4rem body margin. */
+  margin: 0 2rem 1.4rem;
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   border-bottom: 1px solid var(--rule);
 }
@@ -1125,7 +1128,7 @@ body:has(.home-masthead) .site-bar {
 }
 @media (max-width: 1080px) {
   .site-bar {
-    margin: -1.2rem 1.2rem 1.2rem;
+    margin: 0 1.2rem 1.2rem;
   }
 }
 @container (max-width: 900px) {
@@ -1138,7 +1141,7 @@ body:has(.home-masthead) .site-bar {
 }
 @media (max-width: 640px) {
   .site-bar {
-    margin: -1.4rem 0.9rem 1rem;
+    margin: 0 0.9rem 1rem;
   }
   .site-bar .palette-kbd {
     display: none;
