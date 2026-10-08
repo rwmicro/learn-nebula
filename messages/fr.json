@@ -612,7 +612,12 @@
     "synced": "Synchronisé",
     "logout": "Se déconnecter",
     "delete": "Supprimer mon compte",
-    "deleteConfirm": "Supprimer le compte, ses pièces et sa copie de la progression ? La progression de ce navigateur reste là."
+    "dangerTitle": "Supprimer le compte",
+    "deleteText": "Le compte, ses pièces, son jardinier et sa copie de la progression sont effacés pour de bon. La progression gardée dans ce navigateur reste là.",
+    "deleteWord": "supprimer",
+    "deleteType": "Pour confirmer, tapez « {word} » :",
+    "deleteNow": "Supprimer définitivement",
+    "cancel": "Annuler"
   },
   "avatar": {
     "aria": "Votre petit jardinier",
@@ -644,7 +649,9 @@
       "paper": "Papier",
       "garden": "Jardin",
       "night": "Nuit étoilée"
-    }
+    },
+    "cancel": "Annuler",
+    "unsaved": "Modifications non enregistrées"
   },
   "coins": {
     "unit": "pièces",
@@ -662,12 +669,21 @@
     "ruleReview": "Carte ou question révisée : 1 pièce (50 par jour au plus)",
     "ruleDay": "Journée active (au moins une note ou une révision) : 10 pièces",
     "ruleStreak": "Série de 7, 30 et 100 jours : 50, 200 et 500 pièces",
-    "ledgerTitle": "Historique des pièces"
+    "ledgerTitle": "Historique des pièces",
+    "unitOne": "pièce",
+    "today": "+{n} aujourd’hui",
+    "more": "Voir plus",
+    "less": "Voir moins"
   },
   "streak": {
     "days": "jours de suite",
     "best": "record",
-    "freezes": "gels de série"
+    "freezes": "gels de série",
+    "daysOne": "jour de suite",
+    "freezesOne": "gel de série",
+    "next": "Encore {n} jours pour la série de {m} jours : +{bonus} pièces",
+    "nextOne": "Encore {n} jour pour la série de {m} jours : +{bonus} pièces",
+    "nextAria": "Progression vers la série de {m} jours"
   },
   "shop": {
     "title": "Boutique",
@@ -675,7 +691,10 @@
     "freezeText": "Un jour manqué ne casse pas votre série. {max} en réserve au plus.",
     "bought": "Acheté !",
     "noFunds": "Pas encore assez de pièces.",
-    "error": "Ça n’a pas marché, réessayez."
+    "error": "Ça n’a pas marché, réessayez.",
+    "buy": "Acheter",
+    "missing": "encore {n}",
+    "held": "{n} / {max} en réserve"
   },
   "review": {
     "pill": "{n} à revoir",

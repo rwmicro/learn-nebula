@@ -612,7 +612,12 @@
     "synced": "Sincronizado",
     "logout": "Cerrar sesión",
     "delete": "Borrar mi cuenta",
-    "deleteConfirm": "¿Borrar la cuenta, sus monedas y su copia del progreso? El progreso de este navegador se queda."
+    "dangerTitle": "Borrar la cuenta",
+    "deleteText": "La cuenta, sus monedas, su jardinero y su copia del progreso se borran para siempre. El progreso guardado en este navegador se queda.",
+    "deleteWord": "borrar",
+    "deleteType": "Para confirmar, escribe «{word}»:",
+    "deleteNow": "Borrar para siempre",
+    "cancel": "Cancelar"
   },
   "avatar": {
     "aria": "Tu pequeño jardinero",
@@ -644,7 +649,9 @@
       "paper": "Papel",
       "garden": "Jardín",
       "night": "Noche estrellada"
-    }
+    },
+    "cancel": "Cancelar",
+    "unsaved": "Cambios sin guardar"
   },
   "coins": {
     "unit": "monedas",
@@ -662,12 +669,21 @@
     "ruleReview": "Tarjeta o pregunta repasada: 1 moneda (50 al día como máximo)",
     "ruleDay": "Día activo (al menos una nota o un repaso): 10 monedas",
     "ruleStreak": "Rachas de 7, 30 y 100 días: 50, 200 y 500 monedas",
-    "ledgerTitle": "Historial de monedas"
+    "ledgerTitle": "Historial de monedas",
+    "unitOne": "moneda",
+    "today": "+{n} hoy",
+    "more": "Ver más",
+    "less": "Ver menos"
   },
   "streak": {
     "days": "días seguidos",
     "best": "récord",
-    "freezes": "congeladores de racha"
+    "freezes": "congeladores de racha",
+    "daysOne": "día seguido",
+    "freezesOne": "congelador de racha",
+    "next": "Faltan {n} días para la racha de {m} días: +{bonus} monedas",
+    "nextOne": "Falta {n} día para la racha de {m} días: +{bonus} monedas",
+    "nextAria": "Progreso hacia la racha de {m} días"
   },
   "shop": {
     "title": "Tienda",
@@ -675,7 +691,10 @@
     "freezeText": "Un día perdido no rompe tu racha. Como máximo {max} en reserva.",
     "bought": "¡Comprado!",
     "noFunds": "Aún no tienes suficientes monedas.",
-    "error": "No funcionó, inténtalo de nuevo."
+    "error": "No funcionó, inténtalo de nuevo.",
+    "buy": "Comprar",
+    "missing": "faltan {n}",
+    "held": "{n} / {max} en reserva"
   },
   "review": {
     "pill": "{n} por repasar",
