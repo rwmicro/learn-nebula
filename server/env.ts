@@ -68,11 +68,24 @@ export const env = {
 
   // Trust X-Forwarded-For (set true only behind a reverse proxy you control).
   trustProxy: process.env.TRUST_PROXY !== "false",
+  // When set, read the client IP from ONLY this request header (e.g.
+  // "cf-connecting-ip") instead of the CF-Connecting-IP → X-Real-IP →
+  // X-Forwarded-For cascade. Pin it to the one header your proxy sets and
+  // overwrites itself, so a client can't pick its own IP and slip every per-IP
+  // limit below (see server/http.ts). Lower-cased; only consulted when
+  // trustProxy is on. Unset → the legacy cascade.
+  clientIpHeader: (process.env.CLIENT_IP_HEADER || "").trim().toLowerCase(),
 
   // Hard per-IP hourly caps on the paid LLM endpoints (cost guard, on top of the
   // short cooldown). 0 disables the cap. Per-instance, in-memory, IP-keyed.
   askHourly: Number(process.env.ASK_HOURLY_LIMIT ?? 40),
   translateHourly: Number(process.env.TRANSLATE_HOURLY_LIMIT ?? 20),
+  // Instance-wide daily caps on the same paid endpoints — a backstop the
+  // per-IP caps can't give, since an attacker who can vary the observed IP
+  // (or simply uses many) bypasses per-IP accounting. Counts every request to
+  // the endpoint, all IPs together. 0 disables. Per-instance, in-memory.
+  askDaily: Number(process.env.ASK_DAILY_LIMIT ?? 1000),
+  translateDaily: Number(process.env.TRANSLATE_DAILY_LIMIT ?? 400),
 };
 
 /** Whether any generation backend is configured. */
