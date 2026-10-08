@@ -1,12 +1,9 @@
 // "Recherches sans résultat": a search that settles on zero results is worth
 // knowing about — it is a note nobody has written yet, or a spelling the
 // index doesn't catch. The client side (the command palette in
-// public/js/palette.js, reported as "home" since it replaced the home search;
-// the note drawer in public/js/pagefind-init.js keeps its own
-// copy of report(), being served unbundled) fires one POST /api/search-miss
-// per query per page view; the server (server/routes/search-miss.ts) stores
-// counts for /admin. The normalisation is shared so both agree on what "the
-// same query" is.
+// public/js/palette.js, the site's only search, reported as "home") fires one
+// POST /api/search-miss per query per page view; the server
+// (server/routes/search-miss.ts) stores counts for /admin.
 
 export const SEARCH_MISS_MIN_CHARS = 3;
 export const SEARCH_MISS_MAX_CHARS = 100;

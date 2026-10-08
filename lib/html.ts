@@ -357,9 +357,8 @@ export function noteSectionLabel(rawPath: string): string {
 }
 
 /** Pagefind metadata for a note: `section` (see {@link noteSectionLabel}),
- * shown under each result of the note-page search (public/js/pagefind-init.js),
- * plus `dkey`, the discipline's i18n key, so that script can re-translate the
- * discipline for a reader on another locale. Hidden and out of the indexed
+ * shown under each "Dans le texte" hit of the command palette
+ * (public/js/palette.js), plus `dkey`, the discipline's i18n key. Hidden and out of the indexed
  * text (`data-pagefind-ignore` still lets Pagefind read the metadata). */
 export function noteSectionMetaHtml(rawPath: string): string {
   const section = noteSectionLabel(rawPath);
@@ -476,14 +475,6 @@ export function buildToc(
       .trim();
     if (text) items.push({ level: m[1], id: idMatch[1], text });
   }
-  const search =
-    process.env.NODE_ENV === "production"
-      ? `<div id="search" class="note-search" data-pagefind-ignore></div>`
-      : `<input type="search" class="note-search" placeholder="${escapeHtml(t("sidebar.searchPlaceholder"))}"` +
-        i18nAttr("placeholder", "sidebar.searchPlaceholder") +
-        ` autocomplete="off" aria-label="${escapeHtml(t("sidebar.searchAriaLabel"))}"` +
-        i18nAttr("aria-label", "sidebar.searchAriaLabel") +
-        ` data-pagefind-ignore>`;
   const toc =
     items.length >= 2
       ? `<nav class="toc" aria-label="${escapeHtml(t("sidebar.tocTitle"))}"${i18nAttr("aria-label", "sidebar.tocTitle")}><p class="toc-title"${i18nAttrs("sidebar.tocTitle")}>${escapeHtml(t("sidebar.tocTitle"))}</p><ul>${items
@@ -503,7 +494,7 @@ export function buildToc(
   // The trigger pill itself lives in noteHeaderHtml so the sticky header can
   // host it directly — kept out of the aside so it stays visible while the
   // aside is hidden behind its drawer transform.
-  return `<aside class="note-aside" data-pagefind-ignore>${close}${search}${themePillsHtml(tags)}${toc}${localGraph}</aside>`;
+  return `<aside class="note-aside" data-pagefind-ignore>${close}${themePillsHtml(tags)}${toc}${localGraph}</aside>`;
 }
 
 /** Comments section mount point; data fetching and form handling live in
