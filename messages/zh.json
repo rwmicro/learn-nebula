@@ -612,7 +612,12 @@
     "synced": "已同步",
     "logout": "退出登录",
     "delete": "删除我的账户",
-    "deleteConfirm": "删除账户、金币及其进度副本？此浏览器中的进度会保留。"
+    "dangerTitle": "删除账户",
+    "deleteText": "账户、金币、小园丁以及进度副本将被永久删除。保存在此浏览器中的进度会保留。",
+    "deleteWord": "删除",
+    "deleteType": "请输入“{word}”以确认：",
+    "deleteNow": "永久删除",
+    "cancel": "取消"
   },
   "avatar": {
     "aria": "你的小园丁",
@@ -644,7 +649,9 @@
       "paper": "纸张",
       "garden": "花园",
       "night": "星夜"
-    }
+    },
+    "cancel": "取消",
+    "unsaved": "尚未保存的更改"
   },
   "coins": {
     "unit": "金币",
@@ -662,12 +669,21 @@
     "ruleReview": "复习一张卡片或一道题：1 金币（每天最多 50）",
     "ruleDay": "活跃日（至少一篇笔记或一次复习）：10 金币",
     "ruleStreak": "连续 7、30、100 天：50、200、500 金币",
-    "ledgerTitle": "金币记录"
+    "ledgerTitle": "金币记录",
+    "unitOne": "金币",
+    "today": "今天 +{n}",
+    "more": "显示更多",
+    "less": "收起"
   },
   "streak": {
     "days": "天连续",
     "best": "最佳",
-    "freezes": "连续保护"
+    "freezes": "连续保护",
+    "daysOne": "天连续",
+    "freezesOne": "连续保护",
+    "next": "再坚持 {n} 天达到 {m} 天连续：+{bonus} 金币",
+    "nextOne": "再坚持 {n} 天达到 {m} 天连续：+{bonus} 金币",
+    "nextAria": "{m} 天连续的进度"
   },
   "shop": {
     "title": "商店",
@@ -675,7 +691,10 @@
     "freezeText": "错过一天不会中断连续记录。最多储备 {max} 个。",
     "bought": "已购买！",
     "noFunds": "金币还不够。",
-    "error": "操作失败，请重试。"
+    "error": "操作失败，请重试。",
+    "buy": "购买",
+    "missing": "还差 {n}",
+    "held": "储备 {n} / {max}"
   },
   "review": {
     "pill": "{n} 待复习",

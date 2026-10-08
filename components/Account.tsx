@@ -20,6 +20,7 @@ import {
   ITEMS,
   MAX_FREEZES,
   STREAK_FREEZE,
+  STREAK_MILESTONES,
   sanitizeLook,
   type Look,
   type Slot,
@@ -80,6 +81,7 @@ export function Account() {
   const [msg, setMsg] = useState<string>("");
   const [busy, setBusy] = useState(false);
   const [expired, setExpired] = useState(false);
+  const [ledgerAll, setLedgerAll] = useState(false);
   useEffect(() => {
     if (new URLSearchParams(location.search).get("login") === "expired") setExpired(true);
     // Opening the e-mail link while already on this page only changes the
@@ -211,7 +213,6 @@ export function Account() {
   }
 
   async function remove() {
-    if (!window.confirm(tr("account.deleteConfirm"))) return;
     setBusy(true);
     try {
       await fetch("/api/account", { method: "DELETE" });
@@ -224,6 +225,12 @@ export function Account() {
 
   const streak = data?.streak ?? me.streak;
   const lastSync = readHint().sync;
+  const run = streak?.current ?? 0;
+  const freezes = freeze?.held ?? streak?.freezes ?? 0;
+  const next = nextMilestone(run);
+  const days = ledgerDays(groupLedger(data?.ledger ?? []));
+  const shownDays = ledgerAll ? days : days.slice(0, LEDGER_DAYS);
+  const savedLook = data?.look ?? me.look;
 
   return (
     <div className="acct">
@@ -234,23 +241,43 @@ export function Account() {
           <p className="acct-email">{me.email}</p>
           <div className="acct-stats">
             <div className="acct-stat acct-stat--coins">
-              <span className="coin-dot coin-dot--big" aria-hidden="true" />
-              <strong>{coins}</strong>
-              <span>{tr("coins.unit")}</span>
+              <strong>
+                <span className="coin-dot coin-dot--big" aria-hidden="true" />
+                {coins}
+              </strong>
+              <span>{plural(tr, locale, "coins.unit", coins)}</span>
+              {(me.todayCoins ?? 0) > 0 && (
+                <span className="acct-stat-sub">{tr("coins.today", { n: me.todayCoins ?? 0 })}</span>
+              )}
             </div>
             <div className="acct-stat">
-              <strong>{streak?.current ?? 0}</strong>
-              <span>{tr("streak.days", { n: streak?.current ?? 0 })}</span>
+              <strong>{run}</strong>
+              <span>{plural(tr, locale, "streak.days", run)}</span>
             </div>
             <div className="acct-stat">
               <strong>{streak?.best ?? 0}</strong>
               <span>{tr("streak.best")}</span>
             </div>
             <div className="acct-stat">
-              <strong>{streak?.freezes ?? 0}</strong>
-              <span>{tr("streak.freezes")}</span>
+              <strong>{freezes}</strong>
+              <span>{plural(tr, locale, "streak.freezes", freezes)}</span>
             </div>
           </div>
+          {next && (
+            <div className="acct-next">
+              <p>{plural(tr, locale, "streak.next", next.at - run, { m: next.at, bonus: next.bonus })}</p>
+              <div
+                className="acct-next-bar"
+                role="progressbar"
+                aria-valuemin={next.from}
+                aria-valuemax={next.at}
+                aria-valuenow={run}
+                aria-label={tr("streak.nextAria", { m: next.at })}
+              >
+                <span style={{ width: `${Math.round(((run - next.from) / (next.at - next.from)) * 100)}%` }} />
+              </div>
+            </div>
+          )}
           <p className="acct-private">{tr("account.private")}</p>
         </div>
       </section>
@@ -290,16 +317,22 @@ export function Account() {
                   <Avatar look={preview} size={64} still />
                   <span className="wardrobe-name">{tr(`avatar.items.${i.name}`)}</span>
                 </button>
-                {!have && (
-                  <button
-                    type="button"
-                    className="wardrobe-buy"
-                    disabled={busy || coins < i.price}
-                    onClick={() => void buy(i.id)}
-                  >
-                    <span className="coin-dot" aria-hidden="true" /> {i.price}
-                  </button>
-                )}
+                {!have &&
+                  (coins >= i.price ? (
+                    <button
+                      type="button"
+                      className="wardrobe-buy"
+                      disabled={busy}
+                      onClick={() => void buy(i.id)}
+                    >
+                      <span className="coin-dot" aria-hidden="true" /> {i.price} · {tr("shop.buy")}
+                    </button>
+                  ) : (
+                    <span className="wardrobe-short">
+                      <span className="coin-dot" aria-hidden="true" /> {i.price} ·{" "}
+                      {tr("shop.missing", { n: i.price - coins })}
+                    </span>
+                  ))}
               </div>
             );
           })}
@@ -308,6 +341,14 @@ export function Account() {
           <button type="button" className="acct-btn acct-btn--primary" disabled={!changed || busy} onClick={() => void saveLook()}>
             {tr("avatar.save")}
           </button>
+          {changed && (
+            <>
+              <button type="button" className="acct-btn" disabled={busy} onClick={() => setDraft(savedLook)}>
+                {tr("avatar.cancel")}
+              </button>
+              <span className="acct-unsaved">{tr("avatar.unsaved")}</span>
+            </>
+          )}
           {msg && (
             <span className="acct-msg" role="status">
               {msg}
@@ -320,25 +361,28 @@ export function Account() {
         <h2 id="acct-shop">{tr("shop.title")}</h2>
         <div className="shop-freeze">
           <div>
-            <strong>{tr("shop.freezeName")}</strong>
+            <strong>{tr("shop.freezeName")}</strong>{" "}
+            <span className="shop-held">{tr("shop.held", { n: freezes, max: freeze?.max ?? MAX_FREEZES })}</span>
             <p className="acct-muted">{tr("shop.freezeText", { max: MAX_FREEZES })}</p>
           </div>
           <button
             type="button"
             className="wardrobe-buy"
-            disabled={busy || coins < (freeze?.price ?? STREAK_FREEZE.price) || (freeze?.held ?? 0) >= MAX_FREEZES}
+            disabled={busy || coins < (freeze?.price ?? STREAK_FREEZE.price) || freezes >= (freeze?.max ?? MAX_FREEZES)}
             onClick={() => void buy(STREAK_FREEZE.id)}
           >
             <span className="coin-dot" aria-hidden="true" /> {freeze?.price ?? STREAK_FREEZE.price}
           </button>
         </div>
-        <h3>{tr("coins.howTitle")}</h3>
-        <ul className="acct-rules">
-          <li>{tr("coins.ruleRead")}</li>
-          <li>{tr("coins.ruleReview")}</li>
-          <li>{tr("coins.ruleDay")}</li>
-          <li>{tr("coins.ruleStreak")}</li>
-        </ul>
+        <details className="acct-how">
+          <summary>{tr("coins.howTitle")}</summary>
+          <ul className="acct-rules">
+            <li>{tr("coins.ruleRead")}</li>
+            <li>{tr("coins.ruleReview")}</li>
+            <li>{tr("coins.ruleDay")}</li>
+            <li>{tr("coins.ruleStreak")}</li>
+          </ul>
+        </details>
       </section>
 
       <section className="acct-card" aria-labelledby="acct-cal">
@@ -346,26 +390,38 @@ export function Account() {
         <ActivityCalendar />
       </section>
 
-      {data && data.ledger.length > 0 && (
+      {days.length > 0 && (
         <section className="acct-card acct-card--ledger" aria-labelledby="acct-ledger">
           <h2 id="acct-ledger">{tr("coins.ledgerTitle")}</h2>
           <ul className="ledger">
-            {groupLedger(data.ledger).slice(0, 20).map((e, i) => (
-              <li key={`${e.day}-${e.kind}-${e.ref}-${i}`}>
-                <span className="ledger-day">{dayLabel(e.day, locale)}</span>
-                <span className="ledger-what">
-                  {tr(`coins.kind.${e.kind}`)}
-                  {e.n > 1 && <span className="ledger-ref"> × {e.n}</span>}
-                  {e.ref && (e.kind === "read" || e.kind === "purchase") && (
-                    <span className="ledger-ref"> · {e.kind === "purchase" ? itemName(e.ref, tr) : prettyRef(e.ref)}</span>
-                  )}
-                </span>
-                <span className={`ledger-amount${e.amount < 0 ? " is-neg" : ""}`}>
-                  {e.amount > 0 ? `+${e.amount}` : e.amount}
-                </span>
+            {shownDays.map((d) => (
+              <li key={d.day}>
+                <div className="ledger-head">
+                  <span>{dayLabel(d.day, locale)}</span>
+                  <span className={`ledger-amount${d.total < 0 ? " is-neg" : ""}`}>{signed(d.total)}</span>
+                </div>
+                <ul className="ledger-rows">
+                  {d.rows.map((e, i) => (
+                    <li key={`${e.kind}-${e.ref}-${i}`}>
+                      <span className="ledger-what">
+                        {tr(`coins.kind.${e.kind}`)}
+                        {e.n > 1 && <span className="ledger-ref"> × {e.n}</span>}
+                        {e.ref && (e.kind === "read" || e.kind === "purchase") && (
+                          <span className="ledger-ref"> · {e.kind === "purchase" ? itemName(e.ref, tr) : prettyRef(e.ref)}</span>
+                        )}
+                      </span>
+                      <span className={`ledger-amount${e.amount < 0 ? " is-neg" : ""}`}>{signed(e.amount)}</span>
+                    </li>
+                  ))}
+                </ul>
               </li>
             ))}
           </ul>
+          {days.length > LEDGER_DAYS && (
+            <button type="button" className="acct-more" aria-expanded={ledgerAll} onClick={() => setLedgerAll((v) => !v)}>
+              {tr(ledgerAll ? "coins.less" : "coins.more")}
+            </button>
+          )}
         </section>
       )}
 
@@ -388,11 +444,117 @@ export function Account() {
           >
             {tr("account.logout")}
           </button>
-          <button type="button" className="acct-btn acct-btn--danger" disabled={busy} onClick={() => void remove()}>
-            {tr("account.delete")}
-          </button>
         </div>
+        <DangerZone tr={tr} busy={busy} onDelete={remove} />
       </section>
+    </div>
+  );
+}
+
+/** Days of the coin history shown before "Voir plus" (the server sends the
+ *  last 50 events). */
+const LEDGER_DAYS = 5;
+
+function signed(n: number): string {
+  return n > 0 ? `+${n}` : String(n);
+}
+
+/** `${key}One` when the locale says `n` is singular (fr: 0 and 1; en: 1),
+ *  else `key`. Every locale file carries both, zh with the same text. */
+function plural(
+  tr: (k: string, v?: Record<string, string | number>) => string,
+  locale: string,
+  key: string,
+  n: number,
+  vars?: Record<string, string | number>,
+): string {
+  let one = false;
+  try {
+    one = new Intl.PluralRules(locale).select(n) === "one";
+  } catch {
+    one = n === 1;
+  }
+  return tr(one ? `${key}One` : key, { n, ...vars });
+}
+
+/** The next streak bonus still ahead of a run of `run` days, and where the
+ *  bar starts (the previous milestone, or 0). Null past the last one. */
+function nextMilestone(run: number): { from: number; at: number; bonus: number } | null {
+  const steps = Object.keys(STREAK_MILESTONES)
+    .map(Number)
+    .sort((a, b) => a - b);
+  const at = steps.find((m) => m > run);
+  if (at === undefined) return null;
+  const from = steps.filter((m) => m <= run).pop() ?? 0;
+  return { from, at, bonus: STREAK_MILESTONES[at] };
+}
+
+/** The grouped history, one block per day with its net total. */
+function ledgerDays(rows: (Ledger & { n: number })[]): { day: string; total: number; rows: (Ledger & { n: number })[] }[] {
+  const out: { day: string; total: number; rows: (Ledger & { n: number })[] }[] = [];
+  for (const e of rows) {
+    const last = out[out.length - 1];
+    if (last && last.day === e.day) {
+      last.rows.push(e);
+      last.total += e.amount;
+    } else out.push({ day: e.day, total: e.amount, rows: [e] });
+  }
+  return out;
+}
+
+/** Deleting the account: set apart at the bottom of the settings, and armed
+ *  only once the reader has typed the confirmation word (the e-mail shown on
+ *  the page is masked, so it cannot be the thing to retype). */
+function DangerZone({
+  tr,
+  busy,
+  onDelete,
+}: {
+  tr: (k: string, v?: Record<string, string | number>) => string;
+  busy: boolean;
+  onDelete: () => Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [typed, setTyped] = useState("");
+  const word = tr("account.deleteWord");
+  const ok = typed.trim().toLocaleLowerCase() === word.toLocaleLowerCase();
+  return (
+    <div className="acct-danger">
+      <h3>{tr("account.dangerTitle")}</h3>
+      <p className="acct-muted">{tr("account.deleteText")}</p>
+      {open ? (
+        <form
+          className="acct-danger-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (ok) void onDelete();
+          }}
+        >
+          <label>
+            {tr("account.deleteType", { word })}
+            <input value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" autoFocus />
+          </label>
+          <div className="acct-row">
+            <button type="submit" className="acct-btn acct-btn--danger-solid" disabled={!ok || busy}>
+              {tr("account.deleteNow")}
+            </button>
+            <button
+              type="button"
+              className="acct-btn"
+              onClick={() => {
+                setOpen(false);
+                setTyped("");
+              }}
+            >
+              {tr("account.cancel")}
+            </button>
+          </div>
+        </form>
+      ) : (
+        <button type="button" className="acct-btn acct-btn--danger" onClick={() => setOpen(true)}>
+          {tr("account.delete")}
+        </button>
+      )}
     </div>
   );
 }

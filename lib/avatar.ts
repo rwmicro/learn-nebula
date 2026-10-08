@@ -47,6 +47,10 @@ export const ITEMS: Item[] = [
 export const STREAK_FREEZE = { id: "streak-freeze", name: "freeze", price: 100 };
 export const MAX_FREEZES = 2;
 
+/** Streak length → bonus, paid on the day the run reaches it. Here rather
+ *  than in server/accounts.ts so the account page can show the next one. */
+export const STREAK_MILESTONES: Record<number, number> = { 7: 50, 30: 200, 100: 500 };
+
 export const ITEM_BY_ID = new Map(ITEMS.map((i) => [i.id, i]));
 
 export interface Look {
