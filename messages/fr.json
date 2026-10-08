@@ -276,7 +276,6 @@
     "root": "Général",
     "topTags": "Thèmes fréquents",
     "all": "Tous les thèmes",
-    "allPaths": "Tous les parcours ({n})",
     "more": "{n} autres",
     "filterPlaceholder": "Filtrer les thèmes…",
     "filterCount": "{n} thèmes",

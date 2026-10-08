@@ -276,7 +276,6 @@
     "root": "综合",
     "topTags": "常见主题",
     "all": "全部主题",
-    "allPaths": "全部路径（{n}）",
     "more": "另外 {n} 个",
     "filterPlaceholder": "筛选主题…",
     "filterCount": "{n} 个主题",
