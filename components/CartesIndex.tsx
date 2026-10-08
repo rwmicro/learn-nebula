@@ -1,6 +1,7 @@
 import { t, i18nAttrs } from "@/lib/i18n";
 import type { AnkiDeck } from "@/lib/anki";
 import { NoteQuestionsEntry } from "@/components/NoteQuestionsEntry";
+import { CartesToday, DeckDue } from "@/components/CartesToday";
 
 /**
  * /cartes/ — every Anki deck (lib/anki.ts's manifest), grouped under the vault
@@ -28,6 +29,9 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
         {t("cartesIndex.intro")}
       </p>
 
+      {/* Everything due today, all decks and note questions together. */}
+      <CartesToday decks={decks} />
+
       {/* Questions saved from the notes' [!quiz] cards (public/js/quiz.js). */}
       <NoteQuestionsEntry />
       <p className="cartes-index-progress">
@@ -51,14 +55,17 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
                 .map((d) => (
                   <li key={d.slug} className="cartes-index-deck">
                     <a href={`/cartes/${d.slug}/`}>{d.name}</a>
-                    {d.count > 0 && (
-                      <span
-                        className="cartes-index-count"
-                        {...attrs(i18nAttrs("cartesIndex.count", { count: d.count }))}
-                      >
-                        {t("cartesIndex.count", { count: d.count })}
-                      </span>
-                    )}
+                    <span className="cartes-index-meta">
+                      <DeckDue deck={d} />
+                      {d.count > 0 && (
+                        <span
+                          className="cartes-index-count"
+                          {...attrs(i18nAttrs("cartesIndex.count", { count: d.count }))}
+                        >
+                          {t("cartesIndex.count", { count: d.count })}
+                        </span>
+                      )}
+                    </span>
                   </li>
                 ))}
             </ul>
