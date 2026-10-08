@@ -6,7 +6,7 @@ export const SITE_URL = (
   process.env.SITE_BASE_URL ?? "https://4d52.net"
 ).replace(/\/$/, "");
 
-export const SITE_TITLE = "The Gardener";
+export const SITE_TITLE = "Garden of Knowledge";
 export const SITE_DESCRIPTION = "Garden of knowledge";
 export const AUTHOR = "The Gardener";
 
@@ -24,7 +24,6 @@ export const NAV = [
   { name: "nav.graph", href: "/graph/" },
   { name: "nav.frise", href: "/frise/" },
   { name: "nav.cartes", href: "/cartes/" },
-  { name: "nav.random", href: "/hasard/" },
 ];
 
 /** RSS autodiscovery (app/feed.xml) for `metadata.alternates.types`. Shared
