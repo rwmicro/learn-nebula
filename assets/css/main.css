@@ -1198,6 +1198,17 @@ body[data-text-size="lg"] main ol li {
   display: none;
 }
 
+/* The site bar tucks up into body's 4rem top margin here (global.css keeps
+   it at 0 for the other pages, whose body has no top margin). */
+body .site-bar {
+  margin-top: -1.2rem;
+}
+@media (max-width: 640px) {
+  body .site-bar {
+    margin-top: -1.4rem;
+  }
+}
+
 /* Top lines up with the article's breadcrumb, i.e. just under the site bar
    (global.css `.site-bar`: body's 4rem top margin − 1.2rem, ~2.7rem of bar,
    1.4rem below it). At 4rem the themes landed on the bar's search and theme
