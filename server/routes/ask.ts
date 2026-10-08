@@ -35,7 +35,7 @@ function scopeName(prefix: string): string {
 
 function buildSystem(scope: string): string {
   return [
-    "Tu es l'assistant de « The Gardener », un jardin de notes personnel.",
+    "Tu es l'assistant de « Garden of Knowledge », un jardin de notes personnel.",
     "Règles :",
     "- Réponds UNIQUEMENT à partir des extraits de notes fournis dans le message de l'utilisateur.",
     ...(scope

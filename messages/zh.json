@@ -192,7 +192,7 @@
     "next": "下一张"
   },
   "flashcards": {
-    "home": "花园",
+    "home": "Garden of Knowledge",
     "flip": "翻转",
     "next": "下一张",
     "prev": "上一张",
@@ -274,7 +274,6 @@
     "root": "综合",
     "topTags": "常见主题",
     "all": "全部主题",
-    "allPaths": "全部路径（{n}）",
     "more": "另外 {n} 个",
     "filterPlaceholder": "筛选主题…",
     "filterCount": "{n} 个主题",
@@ -635,7 +634,7 @@
     "home": "回到首页"
   },
   "siteBar": {
-    "brand": "花园",
+    "brand": "Garden of Knowledge",
     "navAria": "网站菜单"
   },
   "account": {

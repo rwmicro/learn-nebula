@@ -192,7 +192,7 @@
     "next": "Siguiente"
   },
   "flashcards": {
-    "home": "El jardín",
+    "home": "Garden of Knowledge",
     "flip": "Voltear",
     "next": "Siguiente",
     "prev": "Anterior",
@@ -274,7 +274,6 @@
     "root": "General",
     "topTags": "Temas frecuentes",
     "all": "Todos los temas",
-    "allPaths": "Todos los recorridos ({n})",
     "more": "{n} más",
     "filterPlaceholder": "Filtrar temas…",
     "filterCount": "{n} temas",
@@ -635,7 +634,7 @@
     "home": "Ir al inicio"
   },
   "siteBar": {
-    "brand": "El jardín",
+    "brand": "Garden of Knowledge",
     "navAria": "Menú del sitio"
   },
   "account": {
