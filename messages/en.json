@@ -330,7 +330,17 @@
     "savedOn": "In your reviews — next review: {date}.",
     "removed": "Removed from your reviews.",
     "noStorage": "Reviews unavailable: browser storage is blocked.",
-    "reviewLink": "My reviews"
+    "reviewLink": "My reviews",
+    "choicesAria": "Possible answers",
+    "hint": "A hint",
+    "hintMore": "Another hint",
+    "hintN": "Hint {n}/{total}:",
+    "answerIs": "Answer:",
+    "right": "Right!",
+    "notQuite": "Not quite",
+    "retry": "Try again",
+    "showAnswer": "Show the answer",
+    "hintLabel": "Hint:"
   },
   "selMenu": {
     "aria": "Selection actions",
@@ -450,7 +460,24 @@
     "quizMark": "Review questions",
     "graphShow": "Show the prerequisite graph",
     "liMore": "Actions",
-    "reviewLocked": "Review: {n} questions, unlocked as you read."
+    "reviewLocked": "Review: {n} questions, unlocked as you read.",
+    "level": "Level {n}",
+    "levels": "{n} levels",
+    "levelSpan": "From “{from}” to “{to}”",
+    "levelReview": "Level {n} review",
+    "levelReviewMeta": "{n} questions from this level’s read notes",
+    "levelReviewLocked": "Opens once you have read a note of this level",
+    "levelDone": "Level {n} complete",
+    "pathDone": "Path complete",
+    "statNotes": "notes",
+    "statQuiz": "questions right",
+    "statMinutes": "min of reading",
+    "levelNext": "Level {n}:",
+    "dismiss": "Close",
+    "nextPath": "Next path",
+    "followedBy": "Next: {name}",
+    "followsFrom": "After “{name}”",
+    "graphAll": "Show the prerequisite graph"
   },
   "reading": {
     "read": "Read",
@@ -580,7 +607,9 @@
     "next": "Next",
     "othersOne": "+1 other path",
     "othersMany": "+{n} other paths",
-    "othersTitle": "This note is also in:"
+    "othersTitle": "This note is also in:",
+    "dockNext": "Next step",
+    "dockAria": "Next step of the path: {title}"
   },
   "discipline": {
     "agriculture": "Agriculture",
@@ -821,5 +850,29 @@
     "loading": "Loading decks: {n} / {total}…",
     "nothingStarted": "Nothing to review yet. Open a deck from the card list: its cards will show up here.",
     "tomorrow": "Due tomorrow: {count}"
+  },
+  "predict": {
+    "label": "What do you think?",
+    "skip": "Read on anyway",
+    "veiled": "The rest shows once you answer.",
+    "thanks": "Noted. Let’s read on.",
+    "right": "Well spotted!",
+    "wrong": "Not quite: the next part explains why."
+  },
+  "lesson": {
+    "start": "Read as a lesson",
+    "aria": "Lesson mode",
+    "exit": "Leave the lesson",
+    "progress": "Step {n} of {total}",
+    "next": "Continue",
+    "back": "Back",
+    "check": "Let’s check",
+    "answerFirst": "Answer the question to go on, or skip it.",
+    "skip": "Skip",
+    "done": "Lesson complete",
+    "doneStats": "{right}/{total} questions right the first time",
+    "doneNoQuiz": "You have read the whole note.",
+    "toNote": "Back to the note",
+    "nextNote": "Next step: {title}"
   }
 }

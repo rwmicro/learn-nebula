@@ -330,7 +330,17 @@
     "savedOn": "Dans vos révisions — prochaine révision : {date}.",
     "removed": "Retirée de vos révisions.",
     "noStorage": "Révisions indisponibles : le stockage du navigateur est bloqué.",
-    "reviewLink": "Mes révisions"
+    "reviewLink": "Mes révisions",
+    "choicesAria": "Réponses possibles",
+    "hint": "Un indice",
+    "hintMore": "Un autre indice",
+    "hintN": "Indice {n}/{total} :",
+    "answerIs": "Réponse :",
+    "right": "Juste !",
+    "notQuite": "Pas tout à fait",
+    "retry": "Réessayer",
+    "showAnswer": "Voir la réponse",
+    "hintLabel": "Indice :"
   },
   "selMenu": {
     "aria": "Actions sur la sélection",
@@ -450,7 +460,24 @@
     "quizMark": "Questions de révision",
     "graphShow": "Afficher le graphe des prérequis",
     "liMore": "Actions",
-    "reviewLocked": "Révision : {n} questions, ouvertes au fil de vos lectures."
+    "reviewLocked": "Révision : {n} questions, ouvertes au fil de vos lectures.",
+    "level": "Niveau {n}",
+    "levels": "{n} niveaux",
+    "levelSpan": "De « {from} » à « {to} »",
+    "levelReview": "Bilan du niveau {n}",
+    "levelReviewMeta": "{n} questions des notes lues de ce niveau",
+    "levelReviewLocked": "S’ouvre quand tu as lu une note de ce niveau",
+    "levelDone": "Niveau {n} terminé",
+    "pathDone": "Parcours terminé",
+    "statNotes": "notes",
+    "statQuiz": "questions réussies",
+    "statMinutes": "min de lecture",
+    "levelNext": "Niveau {n} :",
+    "dismiss": "Fermer",
+    "nextPath": "Parcours suivant",
+    "followedBy": "Suite : {name}",
+    "followsFrom": "Après « {name} »",
+    "graphAll": "Voir le graphe des prérequis"
   },
   "reading": {
     "read": "Lue",
@@ -580,7 +607,9 @@
     "next": "Suivante",
     "othersOne": "+1 autre parcours",
     "othersMany": "+{n} autres parcours",
-    "othersTitle": "Cette note est aussi dans :"
+    "othersTitle": "Cette note est aussi dans :",
+    "dockNext": "Étape suivante",
+    "dockAria": "Étape suivante du parcours : {title}"
   },
   "discipline": {
     "agriculture": "Agriculture",
@@ -821,5 +850,29 @@
     "loading": "Chargement des paquets : {n} / {total}…",
     "nothingStarted": "Rien à réviser pour l’instant. Ouvrez un paquet depuis la liste des cartes : ses cartes viendront ici.",
     "tomorrow": "À revoir demain : {count}"
+  },
+  "predict": {
+    "label": "À ton avis ?",
+    "skip": "Lire quand même",
+    "veiled": "La suite s’affiche après ta réponse.",
+    "thanks": "Noté. Voyons la suite.",
+    "right": "Bien vu !",
+    "wrong": "Pas tout à fait : la suite explique pourquoi."
+  },
+  "lesson": {
+    "start": "Lire en leçon",
+    "aria": "Mode leçon",
+    "exit": "Quitter la leçon",
+    "progress": "Étape {n} sur {total}",
+    "next": "Continuer",
+    "back": "Précédent",
+    "check": "Vérifions",
+    "answerFirst": "Réponds à la question pour continuer, ou passe-la.",
+    "skip": "Passer",
+    "done": "Leçon terminée",
+    "doneStats": "{right}/{total} questions justes du premier coup",
+    "doneNoQuiz": "Tu as lu toute la note.",
+    "toNote": "Revenir à la note",
+    "nextNote": "Étape suivante : {title}"
   }
 }
