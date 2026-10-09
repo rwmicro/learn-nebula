@@ -63,7 +63,9 @@
     "bookmarked": "已保存",
     "focus": "专注",
     "focusTitle": "专注模式：只显示正文（f）",
-    "focusExit": "退出专注模式（Esc）"
+    "focusExit": "退出专注模式（Esc）",
+    "more": "显示",
+    "moreAria": "显示与翻译"
   },
   "growth": {
     "tended": "最近修订",
@@ -261,7 +263,13 @@
     "title": "时间线",
     "intro": "花园中与历史事件相关的笔记，按日期排序。",
     "empty": "还没有笔记标注历史日期。",
-    "bce": "公元前 {year} 年"
+    "bce": "公元前 {year} 年",
+    "eraAncient": "史前与古代",
+    "eraMedieval": "中世纪",
+    "eraModern": "近代早期",
+    "eraContemporary": "现当代",
+    "erasAria": "跳转到某个时期",
+    "span": "{n} 年"
   },
   "themes": {
     "title": "主题",
@@ -303,7 +311,10 @@
   },
   "notFound": {
     "suggestions": "你是否在找……",
-    "search": "在花园中搜索“{q}”"
+    "search": "在花园中搜索“{q}”",
+    "title": "页面未找到",
+    "body": "此页面不存在（404 错误）。",
+    "home": "返回首页"
   },
   "random": {
     "title": "随机一篇笔记",
@@ -598,7 +609,11 @@
     "statsLeeches": "难记卡片",
     "statsNoLeech": "没有遗忘六次以上的卡片。",
     "statsLeechesIntro": "已遗忘至少六次。可在卡组页面暂停它们。",
-    "statsLeechCount": "{count} 张"
+    "statsLeechCount": "{count} 张",
+    "welcomeTitle": "这里还什么都没有",
+    "welcomeText": "读完一篇笔记、回答一个问题或打开一副卡片：你的进度、学习规律和复习都会显示在这里。",
+    "welcomePaths": "开始一条阅读路径",
+    "welcomeImport": "我在别处已有进度"
   },
   "pathStep": {
     "label": "路径",

@@ -38,6 +38,33 @@
   font-size: 1.1rem;
 }
 
+/* A new visitor: one card and two ways in, instead of a wall of zeros. */
+.progression-welcome {
+  margin: 0 0 2.5rem;
+  padding: 1.4rem 1.5rem 1.2rem;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  background: var(--paper-raised, var(--paper));
+}
+.progression-welcome-title {
+  margin: 0 0 0.4rem;
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-weight: 500;
+  font-size: 1.4rem;
+}
+.progression-welcome p {
+  margin: 0 0 1rem;
+  color: var(--ink-2);
+}
+.progression-welcome-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 !important;
+}
+.progression-welcome-acts .progression-btn {
+  text-decoration: none;
+}
 .progression-h2 {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;

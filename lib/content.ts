@@ -871,6 +871,9 @@ export function homeFolderLabel(rawPath: string): string {
 // folder with how many items it transitively contains.
 function pruneToNotes(node: TreeNode, parentPath: string): HomeTreeNode | null {
   if (node.type === "file") {
+    // An image dropped in the vault ("Map of knowledge.png" at its root) is
+    // an illustration for a note, not something to browse to.
+    if (node.asset && /\.(png|jpe?g|gif|webp|svg|avif)$/i.test(node.href)) return null;
     return {
       type: "note",
       title: node.title,

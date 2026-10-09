@@ -292,14 +292,37 @@
 }
 /* Collapse toggle for the discipline legend — a no-op on desktop, where the
    legend is always visible and this button stays hidden (see below). */
+/* The discipline legend folds behind a toggle on every screen: open, its
+   thirty-odd names took a third of a laptop screen off the ring. */
 .cg-legend-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0.1rem 0;
+  font: inherit;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+/* A data attribute, not [hidden]: Tailwind's Preflight makes [hidden]
+   display:none !important. */
+.cg-legend:not([data-open]) {
   display: none;
+}
+.cg-legend[data-open] {
+  margin-top: 0.4rem;
 }
 .graph-hint-touch {
   display: none;
 }
 
-/* Mobile: the desktop panel (rotate buttons + always-open legend + a hint
+/* Mobile: the desktop panel (rotate buttons + legend + a hint
    line) eats most of a phone screen and leaves almost nothing of the ring
    itself visible. Pinch-to-zoom and one-finger drag (CircularGraph.tsx) cover
    rotate/zoom/pan by touch, so the arrow buttons are redundant here — drop
@@ -321,31 +344,6 @@
   .cg-rot-label,
   .cg-rot-btn {
     display: none;
-  }
-  .cg-legend-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    width: 100%;
-    border: 0;
-    background: transparent;
-    padding: 0.1rem 0;
-    font: inherit;
-    font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-    text-transform: lowercase;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: var(--ink-soft);
-    cursor: pointer;
-  }
-  /* Tailwind's Preflight sets [hidden] to display:none !important — too
-     absolute to use for something that must stay visible above this
-     breakpoint, hence a plain data attribute instead of the hidden attribute. */
-  .cg-legend:not([data-open]) {
-    display: none;
-  }
-  .cg-legend {
-    margin-top: 0.4rem;
   }
   .graph-hint-desktop {
     display: none;

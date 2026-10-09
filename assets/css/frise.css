@@ -44,19 +44,85 @@
   color: var(--muted-warm);
 }
 
+/* Periods: chips at the top jump to each section. */
+.frise-eras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 2rem;
+}
+.frise-era-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.3rem 0.8rem;
+  border: 1.5px solid var(--rule-strong);
+  border-bottom-width: 3px;
+  border-radius: 999px;
+  color: var(--ink);
+  text-decoration: none;
+  font-size: 0.98rem;
+}
+.frise-era-chip:hover {
+  border-color: var(--garden);
+}
+.frise-era-chip:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.frise-era-n {
+  color: var(--muted-warm);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.frise-era {
+  scroll-margin-top: 4rem;
+}
+.frise-era-title {
+  margin: 2rem 0 0.6rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+}
+
+/* The line: a vertical rule down the left edge, a dot per note on it. */
 .frise-list {
+  --rail: 0.45rem;
   list-style: none;
   margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--rule-strong);
+  padding: 0 0 0 1.6rem;
+  position: relative;
+}
+.frise-list::before {
+  content: "";
+  position: absolute;
+  left: var(--rail);
+  top: 0.4rem;
+  bottom: 0.4rem;
+  width: 2px;
+  background: var(--rule-strong);
 }
 
 .frise-entry {
+  position: relative;
   display: grid;
-  grid-template-columns: 7rem 1fr;
+  grid-template-columns: 7.5rem 1fr;
   gap: 1rem;
-  padding: 0.9rem 0;
-  border-bottom: 1px solid var(--rule);
+  padding: 0.65rem 0;
+}
+.frise-entry::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--rail) - 1.6rem - 0.3rem + 1px);
+  top: 1.05rem;
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--garden);
 }
 
 .frise-year {
@@ -67,6 +133,14 @@
      wraps (at the <wbr> after the dash first) instead of running under the
      title. */
   white-space: normal;
+}
+/* How long the period lasted (Frise.tsx: square-root scale). */
+.frise-span {
+  display: block;
+  height: 4px;
+  margin-top: 0.35rem;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--garden) 45%, var(--rule));
 }
 
 .frise-content a {
@@ -89,5 +163,8 @@
   .frise-entry {
     grid-template-columns: 1fr;
     gap: 0.2rem;
+  }
+  .frise-span {
+    max-width: 10rem;
   }
 }
