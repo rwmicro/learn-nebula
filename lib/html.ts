@@ -854,6 +854,22 @@ export function lessonButtonHtml(): string {
   );
 }
 
+/** "Affichage ▾": the note's display tools (text size, width, focus) and
+ *  "Traduire", folded so the action row holds on one line. A <details>, so
+ *  it opens without JavaScript; /js/reader-tools.js closes it on a click
+ *  outside or Escape. */
+export function noteMoreHtml(inner: string): string {
+  return (
+    `<details class="note-more" data-pagefind-ignore>` +
+    `<summary class="note-more-btn"${i18nAttr("aria-label", "noteActions.moreAria")} aria-label="${escapeHtml(t("noteActions.moreAria"))}">` +
+    `<span${i18nAttrs("noteActions.more")}>${escapeHtml(t("noteActions.more"))}</span>` +
+    `<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>` +
+    `</summary>` +
+    `<div class="note-more-panel">${inner}</div>` +
+    `</details>`
+  );
+}
+
 export interface NextUp {
   /** The logical next note: the next step of the reading path, else the next
    *  note of the folder. */

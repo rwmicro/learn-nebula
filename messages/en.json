@@ -63,7 +63,9 @@
     "bookmarked": "saved",
     "focus": "focus",
     "focusTitle": "Focus mode: the text alone (f)",
-    "focusExit": "Leave focus mode (Esc)"
+    "focusExit": "Leave focus mode (Esc)",
+    "more": "display",
+    "moreAria": "Display and translation"
   },
   "growth": {
     "tended": "last tended",
@@ -261,7 +263,13 @@
     "title": "Timeline",
     "intro": "The garden's notes about a historical event, sorted by date.",
     "empty": "No note carries a historical date yet.",
-    "bce": "{year} BCE"
+    "bce": "{year} BCE",
+    "eraAncient": "Prehistory and Antiquity",
+    "eraMedieval": "Middle Ages",
+    "eraModern": "Early modern period",
+    "eraContemporary": "Contemporary period",
+    "erasAria": "Jump to a period",
+    "span": "{n} years"
   },
   "themes": {
     "title": "Themes",
@@ -303,7 +311,10 @@
   },
   "notFound": {
     "suggestions": "Perhaps you were looking for…",
-    "search": "Search the garden for “{q}”"
+    "search": "Search the garden for “{q}”",
+    "title": "Page not found",
+    "body": "This page doesn’t exist (404 error).",
+    "home": "Back to the home page"
   },
   "random": {
     "title": "A random note",
@@ -598,7 +609,11 @@
     "statsLeeches": "Difficult cards",
     "statsNoLeech": "No card forgotten six times or more.",
     "statsLeechesIntro": "Forgotten six times or more. You can suspend them on the deck’s page.",
-    "statsLeechCount": "cards: {count}"
+    "statsLeechCount": "cards: {count}",
+    "welcomeTitle": "Nothing here yet",
+    "welcomeText": "Read a note to the end, answer a question or open a card deck: your progress will show here, with your streak and your reviews.",
+    "welcomePaths": "Start a reading path",
+    "welcomeImport": "I already have progress elsewhere"
   },
   "pathStep": {
     "label": "Path",

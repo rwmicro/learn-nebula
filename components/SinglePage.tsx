@@ -40,6 +40,7 @@ import {
   bookmarkButtonHtml,
   focusButtonHtml,
   lessonButtonHtml,
+  noteMoreHtml,
   nextUpHtml,
   prerenderNextHtml,
   type NextUp,
@@ -223,19 +224,15 @@ export async function SinglePage({
     (note ? noteSectionMetaHtml(doc.rawPath) : "") +
     (note
       ? `<div class="note-actions" data-pagefind-ignore>` +
-        // Display preferences first (visual settings — set once per session)
-        fontSizeButtonHtml() +
-        wideTextButtonHtml() +
-        focusButtonHtml() +
-        // Visual divider between preference and action groups
-        `<span class="note-actions-sep" aria-hidden="true">·</span>` +
-        // Content actions (audio playback, translation)
-        // "Lire en leçon": the note one section at a time, its questions in
-        // between (public/js/lesson.js), when it has two questions or more.
+        // One row: the ways to read it first. "Lire en leçon": the note one
+        // section at a time, its questions in between (public/js/lesson.js),
+        // when it has two questions or more.
         (lessonSteps >= 2 ? lessonButtonHtml() : "") +
         audioButtonHtml() +
-        translateButtonHtml(detectedLang) +
         bookmarkButtonHtml() +
+        // Then the display settings (set once, rarely touched) and the
+        // translation, folded under "Affichage ▾".
+        noteMoreHtml(fontSizeButtonHtml() + wideTextButtonHtml() + focusButtonHtml() + translateButtonHtml(detectedLang)) +
         // Reading time pushed to the right edge as passive metadata
         readingTime +
         // "Lue" once the reader has finished it (/js/reading-state.js).

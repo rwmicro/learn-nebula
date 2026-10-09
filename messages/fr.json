@@ -63,7 +63,9 @@
     "bookmarked": "gardée",
     "focus": "concentration",
     "focusTitle": "Mode concentration : le texte seul (f)",
-    "focusExit": "Quitter la concentration (Échap)"
+    "focusExit": "Quitter la concentration (Échap)",
+    "more": "affichage",
+    "moreAria": "Affichage et traduction"
   },
   "growth": {
     "tended": "retouché le",
@@ -261,7 +263,13 @@
     "title": "Frise chronologique",
     "intro": "Les notes du jardin qui portent sur un événement historique, triées par date.",
     "empty": "Aucune note ne porte encore de date historique.",
-    "bce": "{year} av. J.-C."
+    "bce": "{year} av. J.-C.",
+    "eraAncient": "Préhistoire et Antiquité",
+    "eraMedieval": "Moyen Âge",
+    "eraModern": "Époque moderne",
+    "eraContemporary": "Époque contemporaine",
+    "erasAria": "Aller à une époque",
+    "span": "{n} ans"
   },
   "themes": {
     "title": "Thèmes",
@@ -303,7 +311,10 @@
   },
   "notFound": {
     "suggestions": "Vous cherchiez peut-être…",
-    "search": "Rechercher « {q} » dans le jardin"
+    "search": "Rechercher « {q} » dans le jardin",
+    "title": "Page introuvable",
+    "body": "Cette page n’existe pas (erreur 404).",
+    "home": "Retour à l’accueil"
   },
   "random": {
     "title": "Une note au hasard",
@@ -598,7 +609,11 @@
     "statsLeeches": "Cartes difficiles",
     "statsNoLeech": "Aucune carte oubliée six fois ou plus.",
     "statsLeechesIntro": "Oubliées au moins six fois. Sur la page du paquet, vous pouvez les suspendre.",
-    "statsLeechCount": "cartes : {count}"
+    "statsLeechCount": "cartes : {count}",
+    "welcomeTitle": "Rien encore ici",
+    "welcomeText": "Lis une note jusqu’au bout, réponds à une question ou ouvre un paquet de cartes : ta progression s’affichera ici, avec ta régularité et tes révisions.",
+    "welcomePaths": "Commencer un parcours",
+    "welcomeImport": "J’ai déjà une progression ailleurs"
   },
   "pathStep": {
     "label": "Parcours",

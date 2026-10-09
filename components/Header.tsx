@@ -86,6 +86,24 @@ export default function Header({ doc }: { doc: Doc }) {
       <div className="max-sm:hidden border-t-[1.5px] border-ink" />
       <div className="max-sm:hidden mt-0.5 border-t-[1.5px] border-ink" />
       
+      {/* Mobile hamburger (#6): top-right corner, opens the section-nav
+          dropdown below. Icon toggle and focus ring sit on this div (a direct
+          sibling of the peer checkbox) so peer-checked/peer-focus-visible apply. */}
+      <div className="absolute right-2 top-2 z-20 sm:hidden peer-checked:[&_.gk-ic-open]:hidden peer-checked:[&_.gk-ic-close]:block peer-focus-visible:[&_label]:outline peer-focus-visible:[&_label]:outline-2 peer-focus-visible:[&_label]:outline-offset-2 peer-focus-visible:[&_label]:outline-link">
+        <label
+          htmlFor="gk-menu"
+          aria-label={t("nav.menu")}
+          className="inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-rule-strong bg-paper p-1.5 text-ink"
+        >
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-close hidden">
+            <path d="M6 6l12 12M18 6l-12 12" />
+          </svg>
+        </label>
+      </div>
+
       {/* 3. section nav — horizontal bar on desktop; a right-anchored dropdown
           popover on mobile, revealed by the hamburger in the corner (#6). */}
       <nav

@@ -63,7 +63,9 @@
     "bookmarked": "guardada",
     "focus": "concentración",
     "focusTitle": "Modo concentración: solo el texto (f)",
-    "focusExit": "Salir del modo concentración (Esc)"
+    "focusExit": "Salir del modo concentración (Esc)",
+    "more": "visualización",
+    "moreAria": "Visualización y traducción"
   },
   "growth": {
     "tended": "retocada el",
@@ -261,7 +263,13 @@
     "title": "Cronología",
     "intro": "Las notas del jardín sobre un acontecimiento histórico, ordenadas por fecha.",
     "empty": "Ninguna nota tiene todavía una fecha histórica.",
-    "bce": "{year} a. C."
+    "bce": "{year} a. C.",
+    "eraAncient": "Prehistoria y Antigüedad",
+    "eraMedieval": "Edad Media",
+    "eraModern": "Edad Moderna",
+    "eraContemporary": "Edad Contemporánea",
+    "erasAria": "Ir a una época",
+    "span": "{n} años"
   },
   "themes": {
     "title": "Temas",
@@ -303,7 +311,10 @@
   },
   "notFound": {
     "suggestions": "Quizás buscabas…",
-    "search": "Buscar «{q}» en el jardín"
+    "search": "Buscar «{q}» en el jardín",
+    "title": "Página no encontrada",
+    "body": "Esta página no existe (error 404).",
+    "home": "Volver al inicio"
   },
   "random": {
     "title": "Una nota al azar",
@@ -598,7 +609,11 @@
     "statsLeeches": "Tarjetas difíciles",
     "statsNoLeech": "Ninguna tarjeta olvidada seis veces o más.",
     "statsLeechesIntro": "Olvidadas seis veces o más. Puedes suspenderlas en la página del mazo.",
-    "statsLeechCount": "tarjetas: {count}"
+    "statsLeechCount": "tarjetas: {count}",
+    "welcomeTitle": "Nada por aquí todavía",
+    "welcomeText": "Lee una nota hasta el final, responde una pregunta o abre un mazo de tarjetas: tu progreso aparecerá aquí, con tu constancia y tus repasos.",
+    "welcomePaths": "Empezar un recorrido",
+    "welcomeImport": "Ya tengo un progreso en otro lugar"
   },
   "pathStep": {
     "label": "Itinerario",

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { stratify, cluster, type HierarchyNode } from "d3-hierarchy";
 import type { GraphData, GraphNode } from "@/lib/graph-data";
-import { t } from "@/lib/i18n";
+import { folderKey, t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 
 // --- discipline colours (same golden-angle palette as the old force graph) ---
@@ -116,7 +116,22 @@ export function CircularGraph({
 }) {
   const locale = useLocale();
   const tr = (k: string) => t(k, undefined, locale);
-  const layout = useMemo(() => buildLayout(data), [data]);
+  // Folder names are the vault's English ones ("Applied Sciences",
+  // "Litterature"): shown as the rest of the site names them.
+  const folderName = (name: string) => {
+    const k = folderKey(name);
+    return k ? t(k, undefined, locale) : name;
+  };
+  const shown = useMemo(
+    () => ({
+      ...data,
+      nodes: data.nodes.map((n) => (n.kind === "dir" ? { ...n, label: folderName(n.label) } : n)),
+    }),
+    // folderName only reads the locale.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data, locale],
+  );
+  const layout = useMemo(() => buildLayout(shown), [shown]);
   const palette = useMemo(() => buildPalette(data.nodes), [data.nodes]);
   const rootLabel = useMemo(
     () => layout.nodes.find((n) => n.node.kind === "root")?.node.label ?? "",
@@ -469,8 +484,9 @@ export function CircularGraph({
   }
 
   const disciplines = useMemo(
-    () => [...palette.keys()].sort((a, b) => a.localeCompare(b)),
-    [palette],
+    () => [...palette.keys()].sort((a, b) => folderName(a).localeCompare(folderName(b))),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [palette, locale],
   );
 
   // The home mini-map is a static, non-interactive teaser: no chrome, no labels,
@@ -658,7 +674,7 @@ export function CircularGraph({
                 }}
               >
                 <span className="cg-swatch" style={{ background: themeColor(d, palette) }} />
-                {d}
+                {folderName(d)}
               </button>
             </li>
           ))}
