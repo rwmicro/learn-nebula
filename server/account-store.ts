@@ -31,9 +31,12 @@ import {
   hashToken,
   maskEmail,
   newToken,
+  reviewRefKnown,
   streakView,
+  type ContentKnown,
   type Streak,
 } from "./accounts.ts";
+import { contentKnown } from "./content-manifest.ts";
 
 type DB = Database.Database;
 
@@ -393,7 +396,13 @@ function payActivity(
  * history as is and pays only the welcome bonus. Returns everything stored,
  * so the device can adopt the merged state.
  */
-export function syncProgress(db: DB, userId: number, incoming: Record<string, unknown>, now = Date.now()): SyncResult {
+export function syncProgress(
+  db: DB,
+  userId: number,
+  incoming: Record<string, unknown>,
+  now = Date.now(),
+  known: ContentKnown = contentKnown(),
+): SyncResult {
   return db.transaction((): SyncResult => {
     const user = userRow(db, userId);
     if (!user) throw new Error("no such user");
@@ -436,7 +445,13 @@ export function syncProgress(db: DB, userId: number, incoming: Record<string, un
         ? [{ kind: "welcome", amount: COINS.welcome, ref: "" }]
         : [];
     } else {
-      earned = payActivity(db, userId, day, reads, reviews, now);
+      // Only pay for activity on content that actually exists: a read of a real
+      // note slug, a review whose key points at a real note or deck. Fabricated
+      // slugs/keys still sync (they're stored above) but earn nothing. With no
+      // manifest (dev, no build) `known` passes everything, so this is a no-op.
+      const paidReads = reads.filter((slug) => known.hasNote(slug));
+      const paidReviews = reviews.filter((ref) => reviewRefKnown(ref, known));
+      earned = payActivity(db, userId, day, paidReads, paidReviews, now);
     }
     return {
       items: Object.fromEntries([...stored].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))),
