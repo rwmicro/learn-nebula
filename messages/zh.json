@@ -340,7 +340,8 @@
     "notQuite": "不太对",
     "retry": "再试一次",
     "showAnswer": "查看答案",
-    "hintLabel": "提示："
+    "hintLabel": "提示：",
+    "answerShown": "正确答案"
   },
   "selMenu": {
     "aria": "选中文本操作",

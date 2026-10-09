@@ -450,8 +450,9 @@ function hintsEl(hints: ElementContent[][]): Element {
   );
 }
 
+/** "Un indice", a link-style button at the end of the card's title row. */
 const hintButton = (): Element =>
-  el("button", { type: "button", className: ["quiz-btn", "quiz-hint-btn"], dataI18n: "quiz.hint" }, [txt(t("quiz.hint"))]);
+  el("button", { type: "button", className: ["quiz-hint-btn"], dataI18n: "quiz.hint" }, [txt(t("quiz.hint"))]);
 
 /** Live region for the right / not-quite feedback (public/js/quiz.js). */
 const feedbackEl = (): Element =>
@@ -536,6 +537,7 @@ function quizCallout(
             properties: { dataI18n: "quiz.label" },
             children: [{ type: "text", value: t("quiz.label") }],
           },
+          ...(hints.length ? [hintButton()] : []),
         ],
       },
       {
@@ -551,7 +553,6 @@ function quizCallout(
         tagName: "div",
         properties: { className: ["quiz-controls"], dataPagefindIgnore: "" },
         children: [
-          ...(hints.length ? [hintButton(), txt(" ")] : []),
           {
             type: "element",
             tagName: "button",
@@ -606,6 +607,7 @@ function predictCallout(
     el("div", { className: ["callout-title"], dataPagefindIgnore: "" }, [
       icon,
       el("span", { dataI18n: "predict.label" }, [txt(t("predict.label"))]),
+      ...(hints.length ? [hintButton()] : []),
       el("button", { type: "button", className: ["predict-skip"], dataI18n: "predict.skip", hidden: true }, [
         txt(t("predict.skip")),
       ]),
@@ -613,7 +615,6 @@ function predictCallout(
     el("p", { className: ["quiz-question"] }, question),
     ...(hints.length ? [hintsEl(hints)] : []),
     ...(choices ? [choicesEl(choices), feedbackEl()] : []),
-    ...(hints.length ? [el("div", { className: ["quiz-controls"], dataPagefindIgnore: "" }, [hintButton()])] : []),
     // Anything else in the callout: shown once the reader has answered.
     ...(rest.some((n) => !isBlank(n))
       ? [el("div", { className: ["callout-body", "predict-after"], dataPredictAfter: "" }, rest)]

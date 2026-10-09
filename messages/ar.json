@@ -340,7 +340,8 @@
     "notQuite": "ليس تمامًا",
     "retry": "حاول مجددًا",
     "showAnswer": "عرض الإجابة",
-    "hintLabel": "تلميح:"
+    "hintLabel": "تلميح:",
+    "answerShown": "الإجابة الصحيحة"
   },
   "selMenu": {
     "aria": "إجراءات على التحديد",

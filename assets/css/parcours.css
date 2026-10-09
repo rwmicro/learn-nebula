@@ -928,7 +928,15 @@ body:has(.parcours-page) footer {
 
 /* A (nearly) one-column path: the graph only repeats the list, folded. */
 .parcours-graph-fold {
-  margin: 0.4rem 0 0.8rem;
+  margin: 1rem 0 0.8rem;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 .parcours-graph-fold > summary {
   width: fit-content;
@@ -1449,6 +1457,14 @@ body:has(.parcours-page) footer {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
+@media (min-width: 700px) {
+  .parcours-level-meta {
+    margin-left: auto;
+  }
+  .parcours-level-head::after {
+    margin-left: 0.4rem;
+  }
+}
 .parcours-level.is-complete .parcours-level-name::after {
   content: " ✓";
 }
@@ -1508,7 +1524,41 @@ body:has(.parcours-page) footer {
   grid-column: 2;
 }
 .parcours-path > li > .parcours-li-acts {
-  grid-column: 2;
+  grid-column: 2 / span 2;
+}
+/* Reading time on the right; the state ("À lire ensuite", "Connue") and the
+   prerequisites as a small line under the title. */
+.parcours-path > li {
+  grid-template-columns: var(--disc) minmax(0, 1fr) auto;
+}
+.parcours-path > li > .parcours-dur {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: center;
+}
+.parcours-path .parcours-state,
+.parcours-path .parcours-after {
+  display: block;
+  margin: 0.05rem 0 0;
+  padding: 0;
+  background: none;
+  color: var(--muted-warm);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.3;
+  vertical-align: baseline;
+}
+.parcours-path .parcours-state[hidden] {
+  display: none;
+}
+.parcours-path > li.is-next .parcours-state {
+  color: var(--ink);
+  font-weight: 600;
+}
+.parcours-path > li.is-target .parcours-state {
+  background: none;
+  color: var(--callout-violet);
 }
 .parcours-path > li.is-read .parcours-disc,
 .parcours-path > li.is-mastered .parcours-disc {
@@ -1593,14 +1643,30 @@ body:has(.parcours-page) footer {
   outline-offset: 2px;
   border-radius: 4px;
 }
+/* With a mouse, "Viser" / "Je connais" take the time's place on hover. */
 @media (hover: hover) and (min-width: 700px) {
   .parcours-path > li {
-    padding-right: 15rem;
+    padding-right: 0;
+  }
+  .parcours-path > li > .parcours-li-acts {
+    top: 50%;
+    transform: translateY(-50%);
+    padding-left: 1.5rem;
+  }
+  .parcours-path > li:is(:hover, :focus-within) > .parcours-li-acts {
+    background: linear-gradient(to right, transparent, var(--paper) 1.5rem);
+  }
+  .parcours-path > li:is(:hover, :focus-within) > .parcours-dur {
+    visibility: hidden;
   }
 }
 @media (hover: none), (max-width: 699px) {
   .parcours-path > li {
     padding-right: 2.4rem;
+  }
+  .parcours-path > li > .parcours-li-more {
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
 @media (max-width: 699px) {
@@ -1648,18 +1714,26 @@ body:has(.parcours-page) footer {
 
 /* --- "Niveau 2 terminé" ------------------------------------------------------ */
 .parcours-done {
-  position: relative;
+  position: fixed;
   display: grid;
   justify-items: center;
   gap: 0.75rem;
-  max-width: 28rem;
-  margin: 1.2rem 0 0;
+  width: min(24rem, calc(100vw - 2rem));
+  max-width: none;
+  margin: auto;
+  color: var(--ink);
   padding: 1.4rem 1.2rem 1.2rem;
   border: 1px solid var(--rule);
   border-radius: 16px;
   background: var(--paper);
   text-align: center;
   box-shadow: 0 6px 20px color-mix(in srgb, var(--ink) 8%, transparent);
+}
+.parcours-done:not([open]) {
+  display: none;
+}
+.parcours-done::backdrop {
+  background: color-mix(in srgb, var(--ink) 35%, transparent);
 }
 /* Same diamond medal as the lesson end (main.css .lesson-medal), which this
    page does not load. */

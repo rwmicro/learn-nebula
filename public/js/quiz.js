@@ -225,6 +225,7 @@ import "./lesson.js";
     head.className = "quiz-feedback-title";
     const key = {
       ok: "quiz.right",
+      shown: "quiz.answerShown",
       bad: "quiz.notQuite",
       guess: "predict.thanks",
       predictOk: "predict.right",
@@ -263,6 +264,25 @@ import "./lesson.js";
     });
   }
 
+  // After a pick, a choice card ends on one band (the feedback): the green
+  // answer already says which one is right, so the answer panel only stays
+  // for what else the note says, and "add to my reviews" joins the band.
+  function settle(card) {
+    const answer = card.querySelector(".quiz-answer");
+    const box = card.querySelector(".quiz-feedback");
+    if (answer) {
+      const extra = [...answer.children].some(
+        (n) => !n.matches(".quiz-right, .quiz-right-why") && !n.hidden,
+      );
+      answer.hidden = !extra;
+    }
+    const row = card.querySelector(".quiz-grade");
+    if (box && row) {
+      box.hidden = false;
+      box.appendChild(row);
+    }
+  }
+
   function pickQuiz(card, btn) {
     if (card.classList.contains("is-answered")) return;
     card.querySelectorAll(".quiz-choice.is-wrong-now").forEach((b) => b.classList.remove("is-wrong-now"));
@@ -273,10 +293,9 @@ import "./lesson.js";
       lockChoices(card);
       feedback(card, "ok", whyOf(btn));
       reveal(card, true);
-      // The feedback already explains it: not twice in the answer below.
-      if (whyOf(btn)) card.querySelectorAll(".quiz-right-why").forEach((p) => (p.hidden = true));
       // Right at the first try: "Je savais"; after a miss: "Pas encore".
       record(card, { self: tries === 1 ? "knew" : "notYet" });
+      settle(card);
     } else {
       btn.classList.add("is-wrong", "is-wrong-now");
       btn.disabled = true;
@@ -291,9 +310,11 @@ import "./lesson.js";
     lockChoices(card);
     const right = card.querySelector('.quiz-choice[data-ok="1"]');
     if (card.classList.contains("callout-quiz")) {
-      card.querySelector(".quiz-feedback").hidden = true;
+      // Why the right answer is right, in the same band.
+      feedback(card, "shown", right ? whyOf(right) : "");
       reveal(card, true);
       if (!card.dataset.self) record(card, { self: "notYet" });
+      settle(card);
     } else if (right) {
       feedback(card, "predictBad", whyOf(right));
     }
@@ -407,7 +428,9 @@ import "./lesson.js";
     const id = decodeURIComponent(location.hash.slice(1));
     if (!/^q-[a-z0-9-]+$/.test(id)) return;
     const card = document.getElementById(id);
-    if (card && card.classList.contains("callout-quiz")) reveal(card, true);
+    if (!card || !card.classList.contains("callout-quiz")) return;
+    if (card.classList.contains("quiz--choice")) showAnswer(card);
+    else reveal(card, true);
   }
   // `[!quiz]+` cards are built revealed: give them their grade row too.
   document
