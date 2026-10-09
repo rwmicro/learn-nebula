@@ -340,7 +340,8 @@
     "notQuite": "Pas tout à fait",
     "retry": "Réessayer",
     "showAnswer": "Voir la réponse",
-    "hintLabel": "Indice :"
+    "hintLabel": "Indice :",
+    "answerShown": "La bonne réponse"
   },
   "selMenu": {
     "aria": "Actions sur la sélection",

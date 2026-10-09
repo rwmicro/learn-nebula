@@ -340,7 +340,8 @@
     "notQuite": "Not quite",
     "retry": "Try again",
     "showAnswer": "Show the answer",
-    "hintLabel": "Hint:"
+    "hintLabel": "Hint:",
+    "answerShown": "The right answer"
   },
   "selMenu": {
     "aria": "Selection actions",

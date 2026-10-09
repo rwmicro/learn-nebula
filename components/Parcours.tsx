@@ -13,7 +13,7 @@ import type { PathExtras } from "@/lib/path-extras";
 import { PATH_FAMILIES, pathFamily, type PathFamily } from "@/lib/path-family";
 import { ParcoursBrowse, type BrowsePath } from "@/components/ParcoursBrowse";
 import { fold } from "@/lib/palette-match";
-import { isMostlyLinear, prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
+import { prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
 import { splitMinutes } from "@/lib/path-study";
 import { pathLevels } from "@/lib/path-levels";
 
@@ -245,8 +245,6 @@ export function ParcoursPage({
   const hasQuiz = new Set(study.filter((n) => n.quiz.length).map((n) => n.slug));
   const totalMinutes = study.reduce((sum, n) => sum + n.minutes, 0);
   const levels = pathLevels(path.notes);
-  // A path that is (almost) one column draws the list again: folded away.
-  const linear = isMostlyLinear(layout.nodes);
   const figure = (
     <figure className="parcours-figure">
       <PathZoom label={t("parcours.graphAria")}>
@@ -343,19 +341,14 @@ export function ParcoursPage({
         nextPath={path.next ?? null}
       />
 
-      {linear ? (
-        <details className="parcours-graph-fold">
-          <summary {...attrs(i18nAttrs("parcours.graphShow"))}>{t("parcours.graphShow")}</summary>
-          {figure}
-        </details>
-      ) : (
-        figure
-      )}
-
       {/* Text alternative to the graph, and the reading order on its own:
           a path of discs, cut into levels on a long path (lib/path-levels.ts),
           each closing on a review of its questions. */}
-      <h2 className="themes-h2" {...attrs(i18nAttrs("parcours.order"))}>
+      {/* Level heads name the list on a long path; a short one keeps its title. */}
+      <h2
+        className={levels.length > 1 ? "visually-hidden" : "themes-h2"}
+        {...attrs(i18nAttrs("parcours.order"))}
+      >
         {t("parcours.order")}
       </h2>
       <div className="parcours-levels" data-levels={levels.length}>
@@ -452,6 +445,14 @@ export function ParcoursPage({
           </span>
         </a>
       )}
+      {/* The graph of prerequisites, folded under the list: the levels are
+          the way in, the graph the map for who wants it (and for aiming at
+          a note, ◎). */}
+      <details className="parcours-graph-fold">
+        <summary {...attrs(i18nAttrs("parcours.graphAll"))}>{t("parcours.graphAll")}</summary>
+        {figure}
+      </details>
+
       <p className="parcours-privacy" {...attrs(i18nAttrs("reading.privacy"))}>
         {t("reading.privacy")}
       </p>
@@ -482,17 +483,16 @@ function OrderItem({
         <span className="parcours-disc-n">{i + 1}</span>
       </span>
       <span className="parcours-li-main">
-        <a href={n.href}>{title}</a>{" "}
-        <span className="parcours-dur">
-          <Duration minutes={minutes} />
-        </span>{" "}
+        <a href={n.href}>{title}</a>
         <span className="parcours-state" data-state-label hidden />
         {after.length > 0 && (
           <span className="parcours-after">
-            {" — "}
             <span {...attrs(i18nAttrs("parcours.after"))}>{t("parcours.after")}</span> {after.join(", ")}
           </span>
         )}
+      </span>
+      <span className="parcours-dur">
+        <Duration minutes={minutes} />
       </span>
       {/* Touch screens: the two actions sit behind one "⋯" button. */}
       <button

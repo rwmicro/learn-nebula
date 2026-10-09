@@ -340,7 +340,8 @@
     "notQuite": "No del todo",
     "retry": "Reintentar",
     "showAnswer": "Ver la respuesta",
-    "hintLabel": "Pista:"
+    "hintLabel": "Pista:",
+    "answerShown": "La respuesta correcta"
   },
   "selMenu": {
     "aria": "Acciones sobre la selección",

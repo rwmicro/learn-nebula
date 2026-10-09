@@ -94,6 +94,12 @@ import {
     (document.querySelector("main#main") || document.body).appendChild(root);
     document.documentElement.classList.add("lesson-open");
 
+    // The answered question's feedback docks just above this bar (main.css).
+    const bottom = root.querySelector(".lesson-bottom");
+    const sizeBottom = () =>
+      root.style.setProperty("--lesson-bottom-h", `${bottom.offsetHeight}px`);
+    const ro = new ResizeObserver(sizeBottom);
+    ro.observe(bottom);
     const stage = root.querySelector(".lesson-stage");
     const scroll = root.querySelector(".lesson-scroll");
     const count = root.querySelector(".lesson-count");
@@ -239,6 +245,7 @@ import {
 
     function close() {
       obs.disconnect();
+      ro.disconnect();
       for (const m of marks) m.mark.replaceWith(m.node);
       marks.length = 0;
       root.remove();

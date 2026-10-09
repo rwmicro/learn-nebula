@@ -3396,7 +3396,33 @@ main video {
  * then a feedback band — the garden green when right, amber (never red) when
  * not quite. The explanation of each answer is its own line in the vault. */
 .callout-predict {
+  --c: var(--callout-violet);
+}
+/* Both read as one raised card (not the tinted callout bar): a question in
+   the body face, the answers, and the feedback as a band across the bottom. */
+.callout.quiz--choice,
+.callout-predict {
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 14px;
+  background: var(--paper-raised, var(--paper));
+  padding: 0.7rem 1rem 1rem;
+  overflow: hidden;
+}
+.callout.quiz--choice {
   --c: var(--link);
+}
+.callout-predict {
+  border-color: var(--c);
+}
+.quiz--choice .callout-title,
+.callout-predict .callout-title {
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+.quiz--choice .quiz-controls,
+.quiz--choice .quiz-self,
+.quiz--choice.is-answered .quiz-right {
+  display: none;
 }
 .quiz-choices {
   display: grid;
@@ -3473,15 +3499,49 @@ main video {
 .is-answered .quiz-choice:not(.is-right):not(.is-wrong):not(.is-picked) {
   opacity: 0.6;
 }
+/* A guess has short answers: side by side while they fit. */
+.callout-predict .quiz-choices {
+  display: flex;
+  flex-wrap: wrap;
+}
+.callout-predict .quiz-choice {
+  flex: 1 1 9rem;
+  width: auto;
+}
 .callout-predict .quiz-choice.is-picked:not(.is-right):not(.is-wrong) {
   border-color: var(--c);
 }
 .quiz-feedback {
-  margin-top: 0.7rem;
-  padding: 0.65rem 0.85rem;
-  border-radius: 10px;
-  border-inline-start: 4px solid var(--rule-strong);
+  margin: 1rem -1rem -1rem;
+  padding: 0.75rem 1rem 0.9rem;
+  border-top: 1px solid var(--rule);
   background: var(--paper);
+}
+.quiz-feedback--shown {
+  background: var(--link-wash);
+}
+.quiz-feedback--shown .quiz-feedback-title {
+  color: var(--link);
+}
+/* "Ajouter à mes révisions" and its status, moved into the band once answered. */
+.quiz-feedback .quiz-grade {
+  margin-top: 0.6rem;
+  padding-top: 0;
+  border-top: 0;
+}
+.quiz-feedback .quiz-add {
+  margin-inline-start: 0;
+}
+/* Something shown after the band (the note's own answer text, the rest of a
+   prediction): the band closes on a rule instead of the card's edge. */
+.quiz-feedback:has(~ .quiz-answer:not([hidden])),
+.quiz-feedback:has(~ [data-predict-after]:not([hidden])) {
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--rule);
+}
+/* The answer panel after the band: what else the note says about it. */
+.quiz--choice .quiz-feedback:not([hidden]) ~ .quiz-answer {
+  margin-top: 1.4rem;
 }
 .quiz-feedback[hidden] {
   display: none;
@@ -3498,7 +3558,7 @@ main video {
 }
 .quiz-feedback--guess {
   border-color: var(--c);
-  background: var(--link-wash);
+  background: color-mix(in srgb, var(--c) 9%, var(--paper));
 }
 .quiz-feedback-title {
   margin: 0;
@@ -3541,14 +3601,31 @@ main video {
   font-size: 0.82rem;
   color: var(--link);
 }
+/* "Un indice": a link at the end of the title row. */
 .quiz-hint-btn {
+  margin-inline-start: auto;
+  padding: 0.2rem 0;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--link);
-  border-color: var(--link);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
 }
-@media (hover: hover) {
-  .quiz-hint-btn:hover {
-    background: var(--link);
-  }
+.quiz-hint-btn[hidden] {
+  display: none;
+}
+.quiz-hint-btn + .predict-skip {
+  margin-inline-start: 0.9rem;
+}
+.quiz-hint-btn:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
 }
 .quiz-right {
   margin-top: 0;
@@ -4079,7 +4156,7 @@ html.lesson-open {
 .lesson-segs {
   flex: 1;
   display: flex;
-  gap: 4px;
+  gap: 3px;
   max-width: 40rem;
   margin-inline: auto;
 }
@@ -4089,12 +4166,6 @@ html.lesson-open {
   border-radius: 3px;
   background: var(--rule);
   transition: background-color 0.3s;
-}
-.lesson-seg--question {
-  flex: 0 0 10px;
-  border-radius: 50%;
-  height: 10px;
-  margin-top: -2px;
 }
 .lesson-seg.is-done {
   background: var(--garden);
@@ -4144,6 +4215,43 @@ html.lesson-open {
   /* The buttons line up with the 42rem text column above. */
   padding: 0.75rem max(1.2rem, calc((100% - 42rem) / 2 + 1.2rem))
     calc(0.9rem + env(safe-area-inset-bottom, 0px));
+}
+/* Once a question is answered, its feedback ("Juste !", why, "Ajouter à mes
+   révisions") leaves the card for the foot of the screen, just above
+   "Continuer", and both share its tint: one band under the thumb. It stays
+   in the card's DOM, so quiz.js keeps handling its buttons. */
+.lesson-stage .is-answered > .quiz-feedback:not([hidden]) {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--lesson-bottom-h, 4.5rem);
+  z-index: 2;
+  margin: 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 0;
+  padding: 0.85rem max(1.2rem, calc((100% - 42rem) / 2 + 1.2rem)) 0.2rem;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+.lesson:has(.is-answered > .quiz-feedback:not([hidden])) .lesson-scroll {
+  padding-bottom: 14rem;
+}
+.lesson:has(.is-answered > :is(.quiz-feedback--ok, .quiz-feedback--predictOk):not([hidden])) .lesson-bottom {
+  background: var(--garden-wash);
+  border-top-color: transparent;
+}
+.lesson:has(.is-answered > :is(.quiz-feedback--bad, .quiz-feedback--predictBad, .quiz-feedback--shown):not([hidden]))
+  .lesson-bottom {
+  background: color-mix(in srgb, var(--warn) 10%, var(--paper));
+  border-top-color: transparent;
+}
+.lesson:has(.is-answered > .quiz-feedback--shown:not([hidden])) .lesson-bottom,
+.lesson-stage .is-answered > .quiz-feedback--shown:not([hidden]) {
+  background: var(--link-wash);
+}
+.lesson:has(.is-answered > .quiz-feedback--guess:not([hidden])) .lesson-bottom {
+  background: color-mix(in srgb, var(--callout-violet) 9%, var(--paper));
+  border-top-color: transparent;
 }
 .lesson-back,
 .lesson-skip,

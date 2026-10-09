@@ -187,10 +187,14 @@ export function ParcoursStudy({
             .filter(Boolean)
             .join(" — "),
         );
-      const label = el.querySelector(":scope > [data-state-label]");
+      const label = el.querySelector("[data-state-label]");
       if (label) {
+        // In the list a read note says so by its filled disc; the next one
+        // is the line to spot.
+        const isLi = el.tagName === "LI";
         const parts = [
-          st !== "unread" ? tr(stateKey[st]) : "",
+          st !== "unread" && !(isLi && st === "read") ? tr(stateKey[st]) : "",
+          isLi && slug === next ? tr("parcours.nextShort") : "",
           slug === target ? tr("parcours.targetBadge") : scope?.has(slug) && !isDone(st) ? tr("parcours.toTarget") : "",
         ].filter(Boolean);
         label.textContent = parts.join(" · ");
@@ -603,15 +607,35 @@ function LevelDone({
     }
   }
   const minutes = notes.reduce((sum, n) => sum + n.minutes, 0);
+  // A card on its own, centred over the page (a modal <dialog>: Escape and
+  // a click outside close it, like its × ).
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (d && !d.open) d.showModal();
+  }, []);
   return (
-    <section className="parcours-done" aria-live="polite">
-      <button type="button" className="parcours-done-close" onClick={onClose} aria-label={tr("parcours.dismiss")}>
+    <dialog
+      ref={ref}
+      className="parcours-done"
+      aria-labelledby="parcours-done-title"
+      onClose={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) ref.current?.close();
+      }}
+    >
+      <button
+        type="button"
+        className="parcours-done-close"
+        onClick={() => ref.current?.close()}
+        aria-label={tr("parcours.dismiss")}
+      >
         ×
       </button>
       <div className="parcours-medal" aria-hidden="true">
         <span>{single ? "✓" : level}</span>
       </div>
-      <h2 className="parcours-done-title">
+      <h2 className="parcours-done-title" id="parcours-done-title">
         {single || (!nextLevel && !nextNote) ? tr("parcours.pathDone") : tr("parcours.levelDone", { n: level })}
       </h2>
       <dl className="parcours-done-stats">
@@ -647,7 +671,7 @@ function LevelDone({
           <span aria-hidden="true">→</span>
         </a>
       ) : null}
-    </section>
+    </dialog>
   );
 }
 
