@@ -6,10 +6,12 @@ import {
   diffActivity,
   maskEmail,
   normalizeEmail,
+  reviewRefKnown,
   safeNext,
   streakView,
   validTimezone,
   EMPTY_STREAK,
+  type ContentKnown,
 } from "./accounts";
 import {
   ACCOUNT_SCHEMA,
@@ -125,6 +127,17 @@ describe("helpers", () => {
   });
 });
 
+describe("reviewRefKnown", () => {
+  const known: ContentKnown = { hasNote: (s) => s === "a/b", hasDeck: (s) => s === "deck1", available: true };
+  it("pays only reviews whose key points at a real note or deck", () => {
+    expect(reviewRefKnown("srs:note:a/b#q2", known)).toBe(true);
+    expect(reviewRefKnown("srs:deck1#c3", known)).toBe(true);
+    expect(reviewRefKnown("srs:note:ghost#q2", known)).toBe(false);
+    expect(reviewRefKnown("srs:ghostdeck#c3", known)).toBe(false);
+    expect(reviewRefKnown("weird#x", known)).toBe(false);
+  });
+});
+
 // --- database -----------------------------------------------------------------
 
 let db: Database.Database;
@@ -218,6 +231,47 @@ describe("sync and coins", () => {
     // The five held-back notes pay the next day.
     const r3 = syncProgress(db, id, cleanItems({ gkReading: reading(["n0", "late"], 500) })!, T0 + DAY);
     expect(r3.earned.filter((e) => e.kind === "read").map((e) => e.ref)).toEqual(["late"]);
+  });
+
+  it("pays only for content in the manifest, when one is loaded", () => {
+    const { id } = upsertUser(db, "a@b.fr", T0);
+    const known: ContentKnown = {
+      hasNote: (s) => s === "real-note",
+      hasDeck: (s) => s === "real-deck",
+      available: true,
+    };
+    syncProgress(db, id, {}, T0, known); // first sync: welcome only, imported = 1
+
+    // Fabricated note slugs and a fabricated SRS key earn nothing (they still
+    // sync — they're just not paid).
+    const fake = syncProgress(
+      db,
+      id,
+      cleanItems({
+        gkReading: reading(["ghost-1", "ghost-2"]),
+        "srs:note:does-not-exist": { ok: { q1: "2026-10-07" } },
+      })!,
+      T0 + 1000,
+      known,
+    );
+    expect(fake.earned).toEqual([]);
+    expect(fake.coins).toBe(50);
+
+    // A real note read and a review under a real deck do pay (plus the active day).
+    const card = { ef: 2.5, iv: 1, reps: 1, due: "2026-10-08" };
+    const good = syncProgress(
+      db,
+      id,
+      cleanItems({
+        gkReading: reading(["real-note"]),
+        "srs:real-deck": { v: 1, cards: { c1: card }, newDay: "", newCount: 0 },
+      })!,
+      T0 + 2000,
+      known,
+    );
+    expect(good.earned.filter((e) => e.kind === "read").map((e) => e.ref)).toEqual(["real-note"]);
+    expect(good.earned.some((e) => e.kind === "review")).toBe(true);
+    expect(good.earned.some((e) => e.kind === "active")).toBe(true);
   });
 
   it("pays the 7-day milestone", () => {
