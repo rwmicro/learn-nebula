@@ -373,7 +373,6 @@
     "after": "在其后：",
     "other": "其他",
     "from": "从「{first}」到「{last}」",
-    "next": "下一篇：",
     "nextShort": "下一篇",
     "unread": "未读",
     "order": "阅读顺序",
@@ -445,7 +444,13 @@
     "filterAria": "筛选阅读路径",
     "filterFamilies": "类别",
     "filterAll": "全部",
-    "filterNone": "没有匹配的路径。"
+    "filterNone": "没有匹配的路径。",
+    "start": "开始：",
+    "continue": "继续：",
+    "quizMark": "复习题",
+    "graphShow": "显示先修关系图",
+    "liMore": "操作",
+    "reviewLocked": "复习：共 {n} 道题，随阅读逐步解锁。"
   },
   "reading": {
     "read": "已读",

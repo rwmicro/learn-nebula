@@ -373,7 +373,6 @@
     "after": "después de",
     "other": "Varios",
     "from": "De «{first}» a «{last}»",
-    "next": "Para leer a continuación:",
     "nextShort": "Siguiente lectura",
     "unread": "No leída",
     "order": "En orden",
@@ -445,7 +444,13 @@
     "filterAria": "Filtrar los recorridos",
     "filterFamilies": "Familias",
     "filterAll": "Todos",
-    "filterNone": "Ningún recorrido coincide."
+    "filterNone": "Ningún recorrido coincide.",
+    "start": "Empezar:",
+    "continue": "Continuar:",
+    "quizMark": "Preguntas de repaso",
+    "graphShow": "Mostrar el grafo de requisitos",
+    "liMore": "Acciones",
+    "reviewLocked": "Repaso: {n} preguntas, que se abren a medida que lees."
   },
   "reading": {
     "read": "Leída",

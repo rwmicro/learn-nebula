@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
-import { centreOn, clampView, fits, fitScale, reveal, zoomAt, type Box, type View } from "@/lib/zoom-pan";
+import { centreOn, clampView, fits, fitScale, openingScale, reveal, zoomAt, type Box, type View } from "@/lib/zoom-pan";
 
 /**
  * Zoom and pan for a reading path's graph (/parcours/<slug>/), only when the
@@ -57,7 +57,8 @@ export function PathZoom({ children, label }: { children: ReactNode; label: stri
     }
     if (!centred.current) {
       // First time it overflows: when a modest zoom-out shows it all, fit;
-      // otherwise natural size, on the note to read next.
+      // otherwise on the note to read next, the whole width when that is a
+      // modest zoom-out too (openingScale), else natural size.
       centred.current = true;
       if (fitScale(b) >= 0.75) {
         applyView(clampView({ s: fitScale(b), x: 0, y: 0 }, b));
@@ -68,7 +69,8 @@ export function PathZoom({ children, label }: { children: ReactNode; label: stri
         svg.querySelector<SVGGraphicsElement>(".pg-item.is-target .pg-box") ??
         svg.querySelector<SVGGraphicsElement>(".pg-box");
       const bb = node?.getBBox();
-      applyView(bb ? centreOn(bb.x + bb.width / 2, bb.y + bb.height / 2, 1, b) : clampView({ s: 1, x: 0, y: 0 }, b));
+      const s0 = openingScale(b);
+      applyView(bb ? centreOn(bb.x + bb.width / 2, bb.y + bb.height / 2, s0, b) : clampView({ s: s0, x: 0, y: 0 }, b));
     } else applyView(clampView(viewRef.current, b));
   }, []);
 
