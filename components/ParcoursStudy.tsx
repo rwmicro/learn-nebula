@@ -214,16 +214,6 @@ export function ParcoursStudy({
       e.classList.toggle("in-scope", !!scope?.has(from) && !!scope?.has(to));
       e.classList.toggle("out-scope", !!scope && !(scope.has(from) && scope.has(to)));
     });
-    const callout = root.querySelector<HTMLElement>("[data-parcours-next]");
-    if (callout) {
-      const link = callout.querySelector("a");
-      const n = next ? bySlug.get(next) : null;
-      callout.hidden = !n;
-      if (link && n) {
-        link.setAttribute("href", n.href);
-        link.textContent = n.title;
-      }
-    }
   }, [ready, states, known, next, target, plan, bySlug, tr, done]);
 
   // --- actions (delegated: the buttons are server-rendered) ------------------
@@ -237,6 +227,19 @@ export function ParcoursStudy({
       else toggleKnown(slug);
     };
     const onClick = (e: MouseEvent) => {
+      // "⋯" on a list row (touch screens): show that row's two actions.
+      const more = (e.target as Element).closest?.("[data-li-more]");
+      if (more && root.contains(more)) {
+        const li = more.closest("li");
+        const open = !li?.classList.contains("is-open");
+        root.querySelectorAll(".parcours-order li.is-open").forEach((o) => {
+          o.classList.remove("is-open");
+          o.querySelector("[data-li-more]")?.setAttribute("aria-expanded", "false");
+        });
+        li?.classList.toggle("is-open", open);
+        more.setAttribute("aria-expanded", String(open));
+        return;
+      }
       const el = (e.target as Element).closest?.("[data-act][data-slug]");
       if (!el || !root.contains(el)) return;
       e.preventDefault();
@@ -311,10 +314,57 @@ export function ParcoursStudy({
   const eligible = items.filter((it) => done(it.slug));
   const placed = hasPlacement(known, pathSlug);
 
+  // The main call to action: the note to read next ("Commencer" until one
+  // note is done). Before the reader's storage is read, the first note, so a
+  // new visitor's page doesn't jump.
+  const nextNote = ready ? (next ? (bySlug.get(next) ?? null) : null) : (notes[0] ?? null);
+  const started = ready && notes.some((n) => done(n.slug));
+
   return (
     <section className="parcours-study" aria-label={tr("parcours.studyAria")}>
-      <div className="parcours-target" aria-live="polite">
-        {target && plan ? (
+      <div className="parcours-tools">
+        {nextNote && (
+          <a className="parcours-cta" href={nextNote.href}>
+            <span className="parcours-cta-verb">{tr(started ? "parcours.continue" : "parcours.start")}</span>
+            <span className="parcours-cta-title">{nextNote.title}</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        )}
+        <button type="button" className="parcours-tool" onClick={() => setDialog("placement")} aria-haspopup="dialog">
+          {tr("parcours.placement")}
+        </button>
+        {/* Nothing to review until a note is read or known: disabled, with
+            one quiet line saying why, rather than a dialog that only says so. */}
+        {items.length > 0 && (
+          <button
+            type="button"
+            className="parcours-tool"
+            onClick={() => setDialog("review")}
+            aria-haspopup="dialog"
+            disabled={!eligible.length}
+          >
+            {tr("parcours.review")}
+            {eligible.length > 0 && <span className="parcours-tool-count">{eligible.length}</span>}
+          </button>
+        )}
+        {placed && (
+          <button
+            type="button"
+            className="parcours-tool parcours-tool--quiet"
+            onClick={() => {
+              saveKnown(resetPlacement(known, pathSlug));
+              changed();
+            }}
+          >
+            {tr("parcours.placementReset")}
+          </button>
+        )}
+      </div>
+      {items.length > 0 && !eligible.length && (
+        <p className="parcours-tools-note">{tr("parcours.reviewLocked", { n: items.length })}</p>
+      )}
+      <div className="parcours-target" aria-live="polite" hidden={!(target && plan)}>
+        {target && plan && (
           <>
             <span className="parcours-target-text">
               <TargetIcon />
@@ -334,32 +384,6 @@ export function ParcoursStudy({
               {tr("parcours.targetClear")}
             </button>
           </>
-        ) : (
-          <span className="parcours-tip">
-            <TargetIcon />
-            {tr("parcours.targetTip")}
-          </span>
-        )}
-      </div>
-      <div className="parcours-tools">
-        <button type="button" className="parcours-tool" onClick={() => setDialog("review")} aria-haspopup="dialog">
-          {tr("parcours.review")}
-          {eligible.length > 0 && <span className="parcours-tool-count">{eligible.length}</span>}
-        </button>
-        <button type="button" className="parcours-tool" onClick={() => setDialog("placement")} aria-haspopup="dialog">
-          {tr("parcours.placement")}
-        </button>
-        {placed && (
-          <button
-            type="button"
-            className="parcours-tool parcours-tool--quiet"
-            onClick={() => {
-              saveKnown(resetPlacement(known, pathSlug));
-              changed();
-            }}
-          >
-            {tr("parcours.placementReset")}
-          </button>
         )}
       </div>
 

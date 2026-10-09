@@ -373,7 +373,6 @@
     "after": "بعد",
     "other": "متفرقات",
     "from": "من «{first}» إلى «{last}»",
-    "next": "اقرأ التالي:",
     "nextShort": "التالي",
     "unread": "غير مقروءة",
     "order": "بالترتيب",
@@ -445,7 +444,13 @@
     "filterAria": "تصفية المسارات",
     "filterFamilies": "العائلات",
     "filterAll": "الكل",
-    "filterNone": "لا يوجد مسار مطابق."
+    "filterNone": "لا يوجد مسار مطابق.",
+    "start": "ابدأ:",
+    "continue": "تابع:",
+    "quizMark": "أسئلة المراجعة",
+    "graphShow": "عرض مخطط المتطلبات",
+    "liMore": "إجراءات",
+    "reviewLocked": "المراجعة: {n} سؤالًا، تُفتح مع تقدّم قراءتك."
   },
   "reading": {
     "read": "مقروءة",

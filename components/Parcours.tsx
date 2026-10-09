@@ -13,6 +13,8 @@ import type { PathExtras } from "@/lib/path-extras";
 import { PATH_FAMILIES, pathFamily, type PathFamily } from "@/lib/path-family";
 import { ParcoursBrowse, type BrowsePath } from "@/components/ParcoursBrowse";
 import { fold } from "@/lib/palette-match";
+import { isMostlyLinear, prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
+import { splitMinutes } from "@/lib/path-study";
 
 /**
  * /parcours/ (an index of reading paths, one card each) and /parcours/<slug>/
@@ -202,7 +204,9 @@ export function ParcoursPage({
   path: ReadingPathView;
   extras: PathExtras;
 }) {
-  const titles = new Map(path.notes.map((n) => [n.slug, n.title]));
+  // " — Arabe Libanais" on every note of the Lebanese Arabic path is noise
+  // here: the page shows the shorter titles (lib/path-titles.ts).
+  const titles = shortNoteTitles(path.name, path.notes);
   const order = path.notes.map((n) => n.slug);
   const titleOf = (s: string) => titles.get(s) ?? s;
   const layout = layoutPrereqGraph(order, path.edges, titleOf);
@@ -210,15 +214,61 @@ export function ParcoursPage({
   // paths fit a 390px screen; wider ones zoom and pan (PathZoom), opening on
   // the next note to read. CSS shows one or the other.
   const compact = layoutPrereqGraph(order, path.edges, titleOf, COMPACT);
+  const minutesOf = (s: string) => extras.notes[s]?.minutes ?? 1;
   const study: StudyNoteView[] = path.notes.map((n) => ({
     slug: n.slug,
-    title: n.title,
+    title: titleOf(n.slug),
     href: n.href,
     prereqs: n.prereqs,
-    minutes: extras.notes[n.slug]?.minutes ?? 1,
+    minutes: minutesOf(n.slug),
     quiz: extras.notes[n.slug]?.quiz ?? [],
   }));
   const hasQuiz = new Set(study.filter((n) => n.quiz.length).map((n) => n.slug));
+  const totalMinutes = study.reduce((sum, n) => sum + n.minutes, 0);
+  // A path that is (almost) one column draws the list again: folded away.
+  const linear = isMostlyLinear(layout.nodes);
+  const figure = (
+    <figure className="parcours-figure">
+      <PathZoom label={t("parcours.graphAria")}>
+        <ArrowDefs />
+        <PathSvg path={path} layout={layout} variant="wide" quiz={hasQuiz} />
+        <PathSvg
+          path={path}
+          layout={compact}
+          variant="compact"
+          lineH={15}
+          quiz={hasQuiz}
+        />
+      </PathZoom>
+      <figcaption className="parcours-legend" aria-hidden="true">
+        {(
+          [
+            ["unread", "parcours.unread"],
+            ["next", "parcours.nextShort"],
+            ["read", "reading.read"],
+            ["known", "parcours.known"],
+            ["mastered", "parcours.mastered"],
+            ["target", "parcours.targetBadge"],
+          ] as const
+        ).map(([k, key]) => (
+          <span key={k} className="parcours-legend-item">
+            <span className={`parcours-swatch parcours-swatch--${k}`} />
+            <span {...attrs(i18nAttrs(key))}>{t(key)}</span>
+          </span>
+        ))}
+        {hasQuiz.size > 0 && (
+          <span className="parcours-legend-item">
+            <span className="parcours-swatch parcours-swatch--quiz">?</span>
+            <span {...attrs(i18nAttrs("parcours.quizMark"))}>{t("parcours.quizMark")}</span>
+          </span>
+        )}
+      </figcaption>
+      <p className="parcours-tip">
+        <TargetIcon />
+        <span {...attrs(i18nAttrs("parcours.targetTip"))}>{t("parcours.targetTip")}</span>
+      </p>
+    </figure>
+  );
   return (
     <main
       id="main"
@@ -242,100 +292,121 @@ export function ParcoursPage({
         <p className="themes-intro parcours-desc">{path.description}</p>
       )}
       <div className="parcours-status" data-read-group>
-        <span {...attrs(i18nAttrs("parcours.count", { n: path.notes.length }))}>
-          {t("parcours.count", { n: path.notes.length })}
+        <span>
+          <span {...attrs(i18nAttrs("parcours.count", { n: path.notes.length }))}>
+            {t("parcours.count", { n: path.notes.length })}
+          </span>
+          {" · "}
+          <Duration minutes={totalMinutes} approx />
         </span>
         <Progress
           slugs={path.notes.map((n) => n.slug)}
           total={path.notes.length}
           extras={extras}
         />
+        <OfflinePath slug={path.slug} hrefs={path.notes.map((n) => n.href)} />
       </div>
-      <OfflinePath slug={path.slug} hrefs={path.notes.map((n) => n.href)} />
-      <p className="parcours-next" data-parcours-next hidden>
-        <span {...attrs(i18nAttrs("parcours.next"))}>{t("parcours.next")}</span>{" "}
-        <a href="#">…</a>
-      </p>
 
       <ParcoursStudy pathSlug={path.slug} notes={study} items={extras.items} />
 
-      <figure className="parcours-figure">
-        <PathZoom label={t("parcours.graphAria")}>
-          <ArrowDefs />
-          <PathSvg path={path} layout={layout} variant="wide" quiz={hasQuiz} />
-          <PathSvg
-            path={path}
-            layout={compact}
-            variant="compact"
-            lineH={15}
-            quiz={hasQuiz}
-          />
-        </PathZoom>
-        <figcaption className="parcours-legend" aria-hidden="true">
-          {(
-            [
-              ["unread", "parcours.unread"],
-              ["next", "parcours.nextShort"],
-              ["read", "reading.read"],
-              ["known", "parcours.known"],
-              ["mastered", "parcours.mastered"],
-              ["target", "parcours.targetBadge"],
-            ] as const
-          ).map(([k, key]) => (
-            <span key={k} className="parcours-legend-item">
-              <span className={`parcours-swatch parcours-swatch--${k}`} />
-              <span {...attrs(i18nAttrs(key))}>{t(key)}</span>
-            </span>
-          ))}
-        </figcaption>
-      </figure>
+      {linear ? (
+        <details className="parcours-graph-fold">
+          <summary {...attrs(i18nAttrs("parcours.graphShow"))}>{t("parcours.graphShow")}</summary>
+          {figure}
+        </details>
+      ) : (
+        figure
+      )}
 
       {/* Text alternative to the graph, and the reading order on its own. */}
       <h2 className="themes-h2" {...attrs(i18nAttrs("parcours.order"))}>
         {t("parcours.order")}
       </h2>
       <ol className="parcours-order">
-        {path.notes.map((n) => (
-          <li key={n.slug} data-slug={n.slug}>
-            <a href={n.href}>{n.title}</a>{" "}
-            <span className="parcours-state" data-state-label hidden />
-            {n.prereqs.length > 0 && (
-              <span className="parcours-after">
-                {" — "}
-                <span {...attrs(i18nAttrs("parcours.after"))}>
-                  {t("parcours.after")}
+        {path.notes.map((n, i) => {
+          const after = prereqsToShow(n.prereqs, i > 0 ? path.notes[i - 1].slug : null);
+          return (
+            <li key={n.slug} data-slug={n.slug}>
+              <span className="parcours-li-main">
+                <a href={n.href}>{titleOf(n.slug)}</a>{" "}
+                <span className="parcours-dur">
+                  <Duration minutes={minutesOf(n.slug)} />
                 </span>{" "}
-                {n.prereqs.map((p) => titles.get(p) ?? p).join(", ")}
+                <span className="parcours-state" data-state-label hidden />
+                {after.length > 0 && (
+                  <span className="parcours-after">
+                    {" — "}
+                    <span {...attrs(i18nAttrs("parcours.after"))}>
+                      {t("parcours.after")}
+                    </span>{" "}
+                    {after.map(titleOf).join(", ")}
+                  </span>
+                )}
               </span>
-            )}
-            <span className="parcours-li-acts">
+              {/* Touch screens: the two actions sit behind one "⋯" button. */}
               <button
                 type="button"
-                className="parcours-li-btn"
-                data-act="target"
-                data-slug={n.slug}
-                aria-pressed="false"
+                className="parcours-li-more"
+                data-li-more
+                aria-expanded="false"
+                aria-label={`${t("parcours.liMore")} : ${titleOf(n.slug)}`}
               >
-                {t("parcours.targetThis")}
+                <span aria-hidden="true">⋯</span>
               </button>
-              <button
-                type="button"
-                className="parcours-li-btn"
-                data-act="known"
-                data-slug={n.slug}
-                aria-pressed="false"
-              >
-                {t("parcours.know")}
-              </button>
-            </span>
-          </li>
-        ))}
+              <span className="parcours-li-acts">
+                <button
+                  type="button"
+                  className="parcours-li-btn"
+                  data-act="target"
+                  data-slug={n.slug}
+                  aria-pressed="false"
+                >
+                  {t("parcours.targetThis")}
+                </button>
+                <button
+                  type="button"
+                  className="parcours-li-btn"
+                  data-act="known"
+                  data-slug={n.slug}
+                  aria-pressed="false"
+                >
+                  {t("parcours.know")}
+                </button>
+              </span>
+            </li>
+          );
+        })}
       </ol>
       <p className="parcours-privacy" {...attrs(i18nAttrs("reading.privacy"))}>
         {t("reading.privacy")}
       </p>
       <ReadMarks />
     </main>
+  );
+}
+
+/** A reading time, "8 min" or "5 h 20" ("≈ 5 h 20" for a total), swapped at
+ *  runtime with the locale like the rest. */
+function Duration({ minutes, approx = false }: { minutes: number; approx?: boolean }) {
+  const { h, m } = splitMinutes(minutes);
+  const [key, vars] = h
+    ? (["parcours.hm", { h, mm: String(m).padStart(2, "0") }] as const)
+    : (["parcours.min", { m }] as const);
+  return (
+    <>
+      {approx && "≈ "}
+      <span {...attrs(i18nAttrs(key, vars))}>{t(key, vars)}</span>
+    </>
+  );
+}
+
+function TargetIcon() {
+  return (
+    <svg className="parcours-target-icon" viewBox="0 0 20 20" width="18" height="18" aria-hidden="true" focusable="false">
+      <circle cx="10" cy="10" r="8" />
+      <circle cx="10" cy="10" r="4.5" />
+      <circle cx="10" cy="10" r="1.6" className="dot" />
+    </svg>
   );
 }
 
