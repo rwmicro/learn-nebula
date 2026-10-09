@@ -182,6 +182,30 @@ export function diffActivity(key: string, before: unknown, after: unknown): Acti
   return out;
 }
 
+// --- what activity may be paid ----------------------------------------------
+
+/** The built content a sync is allowed to earn coins for: real note slugs and
+ *  real Anki deck slugs. When no manifest is available (a dev run with no
+ *  build), everything reads as "known", so activity pays exactly as before. */
+export interface ContentKnown {
+  hasNote(slug: string): boolean;
+  hasDeck(deckSlug: string): boolean;
+  /** False when no manifest was loaded (validation then pays everything). */
+  available: boolean;
+}
+
+/** A review ref is `${progressKey}#${id}` (see diffActivity). Its activity is
+ *  real only when the progress key points at a known note (`srs:note:<slug>`)
+ *  or a known deck (`srs:<deck-slug>`); a fabricated key earns nothing. The
+ *  key is everything before the first `#` (slugs never contain one). */
+export function reviewRefKnown(ref: string, known: ContentKnown): boolean {
+  const hash = ref.indexOf("#");
+  const key = hash < 0 ? ref : ref.slice(0, hash);
+  if (key.startsWith("srs:note:")) return known.hasNote(key.slice("srs:note:".length));
+  if (key.startsWith("srs:")) return known.hasDeck(key.slice("srs:".length));
+  return false;
+}
+
 // --- e-mail -----------------------------------------------------------------
 
 // Deliberately loose (one @, a dot in the domain, no spaces): the mail itself

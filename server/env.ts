@@ -30,6 +30,13 @@ export const env = {
   prereqSuggestions:
     process.env.PREREQ_SUGGESTIONS || path.join(cwd, "data", "prereq-suggestions.json"),
   factsToCheck: process.env.FACTS_TO_CHECK || path.join(cwd, "data", "facts-to-check.json"),
+  // The set of real note slugs and Anki deck slugs, written at build by
+  // scripts/build-content-manifest.ts and baked into the image next to the
+  // chunks. The progress-sync coin logic checks a read/review against it before
+  // paying, so fabricated slugs/keys can't mint coins (server/content-manifest.ts).
+  // Absent (e.g. a dev run with no build) → validation is skipped and activity
+  // pays as before, so nothing breaks without a build.
+  contentManifest: process.env.CONTENT_MANIFEST || path.join(cwd, "data", "content-manifest.json"),
 
   // /admin "Reconstruire le site": a fine-grained token with Actions
   // read/write on GITHUB_REPO dispatches .github/workflows/docker.yml and
