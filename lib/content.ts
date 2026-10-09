@@ -871,6 +871,9 @@ export function homeFolderLabel(rawPath: string): string {
 // folder with how many items it transitively contains.
 function pruneToNotes(node: TreeNode, parentPath: string): HomeTreeNode | null {
   if (node.type === "file") {
+    // An image dropped in the vault ("Map of knowledge.png" at its root) is
+    // an illustration for a note, not something to browse to.
+    if (node.asset && /\.(png|jpe?g|gif|webp|svg|avif)$/i.test(node.href)) return null;
     return {
       type: "note",
       title: node.title,
@@ -1220,19 +1223,31 @@ export interface ReadingPathView {
   notes: ReadingPathNote[];
   /** [prerequisite, dependent] slugs, cycle breaks removed. */
   edges: PrereqEdge[];
+  /** The path to read after this one (`suite:` in its `parcours:` block),
+   *  and the one this follows (the reverse link). */
+  next?: { slug: string; name: string; count: number };
+  prev?: { slug: string; name: string };
 }
 
-/** `parcours: "Nom"`, or `parcours: { titre|title: "Nom", description: "…" }`
- *  (plus `parcours-description:` next to the string form). */
-function pathMeta(fm: Frontmatter): { name: string; description?: string } | null {
-  const raw = (fm as unknown as Record<string, unknown>).parcours;
-  const extra = (fm as unknown as Record<string, unknown>)["parcours-description"];
+/** `parcours: "Nom"`, or `parcours: { titre|title: "Nom", description: "…",
+ *  suite: "Nom du parcours suivant" }` (plus `parcours-description:` and
+ *  `parcours-suite:` next to the string form). */
+function pathMeta(fm: Frontmatter): { name: string; description?: string; next?: string } | null {
+  const f = fm as unknown as Record<string, unknown>;
+  const raw = f.parcours;
+  const extra = f["parcours-description"];
   const str = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : undefined);
-  if (str(raw)) return { name: str(raw)!, description: str(extra) };
+  const nextOut = str(f["parcours-suite"]);
+  if (str(raw)) return { name: str(raw)!, description: str(extra), next: nextOut };
   if (raw && typeof raw === "object" && !Array.isArray(raw)) {
     const o = raw as Record<string, unknown>;
     const name = str(o.titre) ?? str(o.title) ?? str(o.nom) ?? str(o.name);
-    if (name) return { name, description: str(o.description) ?? str(extra) };
+    if (name)
+      return {
+        name,
+        description: str(o.description) ?? str(extra),
+        next: str(o.suite) ?? str(o.next) ?? nextOut,
+      };
   }
   return null;
 }
@@ -1269,7 +1284,8 @@ let readingPathsCache: ReadingPathView[] | null = null;
 export function getReadingPaths(): ReadingPathView[] {
   if (readingPathsCache) return readingPathsCache;
   const used = new Set<string>();
-  readingPathsCache = prereqComponents()
+  const nextNames = new Map<string, string>();
+  const paths: ReadingPathView[] = prereqComponents()
     .filter((c) => c.notes.length >= MIN_PATH_NOTES)
     .map((c) => {
       const docs = c.notes.map((s) => getPost(s));
@@ -1281,6 +1297,7 @@ export function getReadingPaths(): ReadingPathView[] {
       let slug = base;
       for (let i = 2; used.has(slug); i++) slug = `${base}-${i}`;
       used.add(slug);
+      if (meta?.next) nextNames.set(slug, meta.next);
       return {
         slug,
         name,
@@ -1295,6 +1312,18 @@ export function getReadingPaths(): ReadingPathView[] {
         edges: c.edges,
       };
     });
+  // `suite:` names the next path by its name (or slug); an unknown name is
+  // ignored, like an unknown `prerequis`.
+  for (const p of paths) {
+    const want = nextNames.get(p.slug);
+    if (!want) continue;
+    const key = tagSlug(want);
+    const next = paths.find((q) => q !== p && (q.slug === key || tagSlug(q.name) === key));
+    if (!next) continue;
+    p.next = { slug: next.slug, name: next.name, count: next.notes.length };
+    next.prev ??= { slug: p.slug, name: p.name };
+  }
+  readingPathsCache = paths;
   return readingPathsCache;
 }
 

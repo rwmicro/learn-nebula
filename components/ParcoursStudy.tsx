@@ -9,6 +9,7 @@ import { dayKey, type Grade } from "@/lib/srs";
 import { loadSettings } from "@/lib/srs-settings";
 import {
   addQuestion,
+  answeredCorrectly,
   gradeQuestion,
   loadNoteDeck,
   recordCorrect,
@@ -72,10 +73,17 @@ export function ParcoursStudy({
   pathSlug,
   notes,
   items,
+  levels,
+  nextPath,
 }: {
   pathSlug: string;
   notes: StudyNoteView[];
   items: PathQuizItem[];
+  /** The path's levels (lib/path-levels.ts), as note slugs; [] for a path
+   *  short enough to stay one. */
+  levels: string[][];
+  /** The path to read after this one (`suite:`), for the last level's card. */
+  nextPath: { slug: string; name: string; count: number } | null;
 }) {
   const locale = useLocale();
   const tr: Tr = useCallback((k, vars) => t(k, vars, locale), [locale]);
@@ -84,6 +92,14 @@ export function ParcoursStudy({
   const [target, setTargetState] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [dialog, setDialog] = useState<"placement" | "review" | null>(null);
+  // A level review: its number, else the whole path ("Réviser ce parcours").
+  const [reviewLevel, setReviewLevel] = useState<number | null>(null);
+  // The levels already celebrated in this browser (one card per level).
+  const [seen, setSeen] = useState<number[] | null>(null);
+  // The main call to action off screen: the pinned "Continuer" bar shows.
+  const [ctaGone, setCtaGone] = useState(false);
+  const ctaRef = useRef<HTMLAnchorElement>(null);
+  const foldedOnce = useRef(false);
   const bySlug = useMemo(() => new Map(notes.map((n) => [n.slug, n])), [notes]);
 
   const reload = useCallback(() => {
@@ -171,10 +187,14 @@ export function ParcoursStudy({
             .filter(Boolean)
             .join(" — "),
         );
-      const label = el.querySelector(":scope > [data-state-label]");
+      const label = el.querySelector("[data-state-label]");
       if (label) {
+        // In the list a read note says so by its filled disc; the next one
+        // is the line to spot.
+        const isLi = el.tagName === "LI";
         const parts = [
-          st !== "unread" ? tr(stateKey[st]) : "",
+          st !== "unread" && !(isLi && st === "read") ? tr(stateKey[st]) : "",
+          isLi && slug === next ? tr("parcours.nextShort") : "",
           slug === target ? tr("parcours.targetBadge") : scope?.has(slug) && !isDone(st) ? tr("parcours.toTarget") : "",
         ].filter(Boolean);
         label.textContent = parts.join(" · ");
@@ -214,7 +234,30 @@ export function ParcoursStudy({
       e.classList.toggle("in-scope", !!scope?.has(from) && !!scope?.has(to));
       e.classList.toggle("out-scope", !!scope && !(scope.has(from) && scope.has(to)));
     });
-  }, [ready, states, known, next, target, plan, bySlug, tr, done]);
+    // Levels: "3/7" on each header, a check once complete; on arrival only
+    // the level holding the next note stays open (the reader's own
+    // open/close after that is left alone).
+    root.querySelectorAll<HTMLDetailsElement>("details[data-level]").forEach((d) => {
+      const slugs = (d.dataset.slugs ?? "").split(" ").filter(Boolean);
+      const n = slugs.filter(done).length;
+      const count = d.querySelector("[data-level-done]");
+      if (count) count.textContent = `${n}/${slugs.length}`;
+      d.classList.toggle("is-complete", n === slugs.length);
+      d.classList.toggle("is-current", !!next && slugs.includes(next));
+      if (!foldedOnce.current && next) d.open = slugs.includes(next);
+    });
+    if (next) foldedOnce.current = true;
+    // Level reviews: open once a note of the level is read or known.
+    root.querySelectorAll<HTMLButtonElement>("[data-level-review-btn]").forEach((b) => {
+      const k = Number(b.dataset.levelReviewBtn);
+      const scopeSlugs = levels.length ? new Set(levels[k - 1] ?? []) : null;
+      const n = items.filter((it) => done(it.slug) && (!scopeSlugs || scopeSlugs.has(it.slug))).length;
+      b.disabled = n === 0;
+      b.closest("li")?.classList.toggle("is-open", n > 0);
+      const meta = b.querySelector("[data-level-review-meta]");
+      if (meta) meta.textContent = n ? tr("parcours.levelReviewMeta", { n }) : tr("parcours.levelReviewLocked");
+    });
+  }, [ready, states, known, next, target, plan, bySlug, tr, done, levels, items]);
 
   // --- actions (delegated: the buttons are server-rendered) ------------------
   useEffect(() => {
@@ -240,6 +283,13 @@ export function ParcoursStudy({
         more.setAttribute("aria-expanded", String(open));
         return;
       }
+      const review = (e.target as Element).closest?.<HTMLButtonElement>("[data-level-review-btn]");
+      if (review && root.contains(review)) {
+        if (review.disabled) return;
+        setReviewLevel(levels.length ? Number(review.dataset.levelReviewBtn) : null);
+        setDialog("review");
+        return;
+      }
       const el = (e.target as Element).closest?.("[data-act][data-slug]");
       if (!el || !root.contains(el)) return;
       e.preventDefault();
@@ -258,7 +308,7 @@ export function ParcoursStudy({
       root.removeEventListener("click", onClick);
       root.removeEventListener("keydown", onKey);
     };
-  }, [bySlug, target, setTarget, toggleKnown]);
+  }, [bySlug, target, setTarget, toggleKnown, levels]);
 
   // --- hover / focus: ancestors and descendants ------------------------------
   useEffect(() => {
@@ -306,6 +356,20 @@ export function ParcoursStudy({
     };
   }, [notes]);
 
+  // --- the pinned "Continuer" bar: shown while the main button is off screen
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([e]) => setCtaGone(!e.isIntersecting && e.boundingClientRect.top < 0));
+    io.observe(el);
+    return () => io.disconnect();
+  }, [ready]);
+
+  // --- levels celebrated already (localStorage, per path) ---------------------
+  useEffect(() => {
+    setSeen(loadSeenLevels(pathSlug));
+  }, [pathSlug]);
+
   // --- render: target summary, tools, dialogs --------------------------------
   const time = (min: number) => {
     const { h, m } = splitMinutes(min);
@@ -319,12 +383,31 @@ export function ParcoursStudy({
   // new visitor's page doesn't jump.
   const nextNote = ready ? (next ? (bySlug.get(next) ?? null) : null) : (notes[0] ?? null);
   const started = ready && notes.some((n) => done(n.slug));
+  const doneCount = notes.filter((n) => done(n.slug)).length;
+
+  // The last level completed and not celebrated yet: one card, on top.
+  const completed = levels.length
+    ? levels.map((l, k) => (l.every(done) ? k + 1 : 0)).filter(Boolean)
+    : notes.length && notes.every((n) => done(n.slug))
+      ? [1]
+      : [];
+  const celebrate = ready && seen && completed.length ? Math.max(...completed) : 0;
+  const showCelebrate = celebrate > 0 && !seen!.includes(celebrate);
+  const dismiss = () => {
+    const all = [...new Set([...(seen ?? []), ...completed])];
+    saveSeenLevels(pathSlug, all);
+    setSeen(all);
+  };
+  const levelOfNext = next ? levels.findIndex((l) => l.includes(next)) : -1;
+  const reviewScope = reviewLevel ? new Set(levels[reviewLevel - 1] ?? []) : null;
+  const reviewItems = reviewScope ? items.filter((it) => reviewScope.has(it.slug)) : items;
+  const reviewEligible = reviewItems.filter((it) => done(it.slug));
 
   return (
     <section className="parcours-study" aria-label={tr("parcours.studyAria")}>
       <div className="parcours-tools">
         {nextNote && (
-          <a className="parcours-cta" href={nextNote.href}>
+          <a className="parcours-cta" href={nextNote.href} ref={ctaRef}>
             <span className="parcours-cta-verb">{tr(started ? "parcours.continue" : "parcours.start")}</span>
             <span className="parcours-cta-title">{nextNote.title}</span>
             <span aria-hidden="true">→</span>
@@ -339,7 +422,10 @@ export function ParcoursStudy({
           <button
             type="button"
             className="parcours-tool"
-            onClick={() => setDialog("review")}
+            onClick={() => {
+              setReviewLevel(null);
+              setDialog("review");
+            }}
             aria-haspopup="dialog"
             disabled={!eligible.length}
           >
@@ -401,10 +487,191 @@ export function ParcoursStudy({
           />
         )}
       </StudyDialog>
-      <StudyDialog open={dialog === "review"} onClose={() => setDialog(null)} title={tr("parcours.review")} tr={tr}>
-        {dialog === "review" && <PathReview items={items} eligible={eligible} tr={tr} locale={locale} />}
+      <StudyDialog
+        open={dialog === "review"}
+        onClose={() => setDialog(null)}
+        title={reviewLevel ? tr("parcours.levelReview", { n: reviewLevel }) : tr("parcours.review")}
+        tr={tr}
+      >
+        {dialog === "review" && (
+          <PathReview
+            key={reviewLevel ?? 0}
+            items={reviewItems}
+            eligible={reviewEligible}
+            tr={tr}
+            locale={locale}
+            all={!!reviewLevel}
+          />
+        )}
       </StudyDialog>
+
+      {showCelebrate && (
+        <LevelDone
+          level={celebrate}
+          single={!levels.length}
+          slugs={levels.length ? levels[celebrate - 1] : notes.map((n) => n.slug)}
+          bySlug={bySlug}
+          nextNote={nextNote && started ? nextNote : null}
+          nextLevel={levelOfNext >= 0 ? levelOfNext + 1 : null}
+          nextPath={next ? null : nextPath}
+          tr={tr}
+          time={time}
+          onClose={dismiss}
+        />
+      )}
+
+      {/* Phones: "Continuer" stays under the thumb once the button above has
+          scrolled away (CSS keeps it to narrow screens). */}
+      {nextNote && (
+        <div className="parcours-dock" hidden={!ctaGone} aria-hidden={!ctaGone}>
+          <div className="parcours-dock-meta">
+            <span>{tr("reading.count", { read: doneCount, total: notes.length })}</span>
+            {levelOfNext >= 0 && (
+              <span>
+                {tr("parcours.level", { n: levelOfNext + 1 })} · {levels[levelOfNext].filter(done).length + 1}/
+                {levels[levelOfNext].length}
+              </span>
+            )}
+          </div>
+          <span className="parcours-dock-bar" aria-hidden="true">
+            <span style={{ width: `${Math.round((doneCount / Math.max(1, notes.length)) * 100)}%` }} />
+          </span>
+          <a className="parcours-cta parcours-cta--dock" href={nextNote.href} tabIndex={ctaGone ? 0 : -1}>
+            <span className="parcours-cta-verb">{tr(started ? "parcours.continue" : "parcours.start")}</span>
+            <span className="parcours-cta-title">{nextNote.title}</span>
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      )}
     </section>
+  );
+}
+
+const SEEN_KEY = "gkLevelsSeen";
+
+function loadSeenLevels(pathSlug: string): number[] {
+  try {
+    const all = JSON.parse(localStorage.getItem(SEEN_KEY) ?? "{}");
+    const v = all?.[pathSlug];
+    return Array.isArray(v) ? v.filter((x) => typeof x === "number") : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveSeenLevels(pathSlug: string, levels: number[]) {
+  try {
+    const all = JSON.parse(localStorage.getItem(SEEN_KEY) ?? "{}") ?? {};
+    all[pathSlug] = levels;
+    localStorage.setItem(SEEN_KEY, JSON.stringify(all));
+  } catch {
+    /* no storage: the card simply comes back next visit */
+  }
+}
+
+/** "Niveau 2 terminé": a short card once every note of a level is read or
+ *  known — notes, questions answered right, reading time — and what comes
+ *  next: the next level, else the next path (`suite:`). Shown once per
+ *  level and browser. */
+function LevelDone({
+  level,
+  single,
+  slugs,
+  bySlug,
+  nextNote,
+  nextLevel,
+  nextPath,
+  tr,
+  time,
+  onClose,
+}: {
+  level: number;
+  single: boolean;
+  slugs: string[];
+  bySlug: Map<string, StudyNoteView>;
+  nextNote: StudyNoteView | null;
+  nextLevel: number | null;
+  nextPath: { slug: string; name: string; count: number } | null;
+  tr: Tr;
+  time: (min: number) => string;
+  onClose: () => void;
+}) {
+  const notes = slugs.map((s) => bySlug.get(s)).filter((n): n is StudyNoteView => !!n);
+  const ids = notes.flatMap((n) => n.quiz.map((id) => [n.slug, id] as const));
+  let right = 0;
+  for (const [slug, id] of ids) {
+    try {
+      if (answeredCorrectly(loadNoteDeck(localStorage, slug), id)) right++;
+    } catch {
+      /* no storage */
+    }
+  }
+  const minutes = notes.reduce((sum, n) => sum + n.minutes, 0);
+  // A card on its own, centred over the page (a modal <dialog>: Escape and
+  // a click outside close it, like its × ).
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    const d = ref.current;
+    if (d && !d.open) d.showModal();
+  }, []);
+  return (
+    <dialog
+      ref={ref}
+      className="parcours-done"
+      aria-labelledby="parcours-done-title"
+      onClose={onClose}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) ref.current?.close();
+      }}
+    >
+      <button
+        type="button"
+        className="parcours-done-close"
+        onClick={() => ref.current?.close()}
+        aria-label={tr("parcours.dismiss")}
+      >
+        ×
+      </button>
+      <div className="parcours-medal" aria-hidden="true">
+        <span>{single ? "✓" : level}</span>
+      </div>
+      <h2 className="parcours-done-title" id="parcours-done-title">
+        {single || (!nextLevel && !nextNote) ? tr("parcours.pathDone") : tr("parcours.levelDone", { n: level })}
+      </h2>
+      <dl className="parcours-done-stats">
+        <div>
+          <dt>{tr("parcours.statNotes")}</dt>
+          <dd>{notes.length}</dd>
+        </div>
+        {ids.length > 0 && (
+          <div>
+            <dt>{tr("parcours.statQuiz")}</dt>
+            <dd>
+              {right}/{ids.length}
+            </dd>
+          </div>
+        )}
+        <div>
+          <dt>{tr("parcours.statMinutes")}</dt>
+          <dd>{time(minutes)}</dd>
+        </div>
+      </dl>
+      {nextNote ? (
+        <a className="parcours-cta" href={nextNote.href} onClick={onClose}>
+          <span className="parcours-cta-verb">
+            {nextLevel && nextLevel !== level ? tr("parcours.levelNext", { n: nextLevel }) : tr("parcours.continue")}
+          </span>
+          <span className="parcours-cta-title">{nextNote.title}</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      ) : nextPath ? (
+        <a className="parcours-cta" href={`/parcours/${nextPath.slug}/`} onClick={onClose}>
+          <span className="parcours-cta-verb">{tr("parcours.nextPath")} :</span>
+          <span className="parcours-cta-title">{nextPath.name}</span>
+          <span aria-hidden="true">→</span>
+        </a>
+      ) : null}
+    </dialog>
   );
 }
 
@@ -657,11 +924,14 @@ function PathReview({
   eligible,
   tr,
   locale,
+  all = false,
 }: {
   items: PathQuizItem[];
   eligible: PathQuizItem[];
   tr: Tr;
   locale: string;
+  /** A level review: every eligible question, not only today's due ones. */
+  all?: boolean;
 }) {
   const [today] = useState(() => {
     loadSettings(); // the reader's target retention, for the grades below
@@ -700,7 +970,7 @@ function PathReview({
         state,
       };
       if (!state) fresh.push(d);
-      else if (state.due <= today) due.push(d);
+      else if (all || state.due <= today) due.push(d);
     }
     due.sort((a, b) => (a.state!.due < b.state!.due ? -1 : a.state!.due > b.state!.due ? 1 : 0));
     return [...due, ...fresh];

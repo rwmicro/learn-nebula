@@ -245,6 +245,20 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
     ["reviewLog", "kindReviewLog"],
   ];
 
+  // Nothing recorded in this browser yet: a word of welcome and a way in,
+  // rather than seven zeros, an empty calendar and empty review charts.
+  const fresh =
+    !!summary &&
+    !summary.read &&
+    !summary.started &&
+    !summary.cards &&
+    !summary.questions &&
+    !summary.known &&
+    !summary.targets &&
+    !summary.bookmarks &&
+    !summary.highlights &&
+    !summary.activeDays;
+
   return (
     <main className="progression" data-pagefind-ignore>
       {/* A plain link: next/link would make scripts/prune-rsc.mjs keep every RSC payload. */}
@@ -258,6 +272,7 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
       <section
         className="progression-summary"
         aria-labelledby="progression-summary-title"
+        hidden={fresh}
       >
         <h2 id="progression-summary-title" className="progression-h2">
           {tr("summaryTitle")}
@@ -275,24 +290,45 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
               <Stat n={summary?.bookmarks} label={tr("statBookmarks")} />
               <Stat n={summary?.highlights} label={tr("statHighlights")} />
             </dl>
-            {summary &&
-              !summary.read &&
-              !summary.started &&
-              !summary.cards &&
-              !summary.questions &&
-              !summary.known &&
-              !summary.targets &&
-              !summary.bookmarks &&
-              !summary.highlights &&
-              !summary.activeDays && (
-                <p className="progression-muted">{tr("empty")}</p>
-              )}
           </>
         )}
       </section>
 
-      <MyMarks />
-      <ReviewStats decks={decks} />
+      {fresh ? (
+        <section
+          className="progression-welcome"
+          aria-labelledby="progression-welcome-title"
+        >
+          <h2
+            id="progression-welcome-title"
+            className="progression-welcome-title"
+          >
+            {tr("welcomeTitle")}
+          </h2>
+          <p>{tr("welcomeText")}</p>
+          <p className="progression-welcome-acts">
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a
+              className="progression-btn progression-btn--primary"
+              href="/parcours/"
+            >
+              {tr("welcomePaths")} →
+            </a>
+            <button
+              type="button"
+              className="progression-btn"
+              onClick={() => fileInput.current?.click()}
+            >
+              {tr("welcomeImport")}
+            </button>
+          </p>
+        </section>
+      ) : (
+        <>
+          <MyMarks />
+          <ReviewStats decks={decks} />
+        </>
+      )}
 
       <section className="progression-actions" aria-label={tr("title")}>
         <div className="progression-action">

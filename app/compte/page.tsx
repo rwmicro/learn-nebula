@@ -16,6 +16,11 @@ export const metadata: Metadata = {
 export default function AccountPage() {
   return (
     <main id="main" className="acct-page">
+      {/* A plain link, like /progression/'s (next/link would keep RSC payloads). */}
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+      <a href="/" className="acct-back">
+        ← <span data-i18n="nav.home">{t("nav.home")}</span>
+      </a>
       <h1 className="acct-title" data-i18n="account.title">
         {t("account.title")}
       </h1>

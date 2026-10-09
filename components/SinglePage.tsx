@@ -7,12 +7,14 @@ import {
   getGlossaryFor,
   getPrerequisites,
   getDependents,
+  getPost,
   getReadingPathOf,
   getReadingPaths,
   getDisciplines,
 } from "@/lib/content";
 import { pathStepHtml, pathStepOf } from "@/lib/path-step";
-import { renderMarkdown } from "@/lib/markdown";
+import { extractPlain, renderMarkdown } from "@/lib/markdown";
+import { readingMinutes as minutesOfText } from "@/lib/path-extras";
 import {
   dropcapHtml,
   escapeHtml,
@@ -37,6 +39,8 @@ import {
   folderLabel,
   bookmarkButtonHtml,
   focusButtonHtml,
+  lessonButtonHtml,
+  noteMoreHtml,
   nextUpHtml,
   prerenderNextHtml,
   type NextUp,
@@ -121,7 +125,12 @@ export async function SinglePage({
   // In a reading path, the step bar ("Parcours : … · Étape 4/20", previous /
   // next) replaces the block's own "Voir le parcours" link and holds the
   // prerequisites under its first row: one compact block, not two.
-  const step = note ? pathStepOf(doc.slug, getReadingPaths()) : null;
+  const found = note ? pathStepOf(doc.slug, getReadingPaths()) : null;
+  // The next step's reading time, for the "Étape suivante" chip (path-dock.js).
+  const step =
+    found?.next != null
+      ? { ...found, next: { ...found.next, minutes: minutesOfText(extractPlain(getPost(found.next.slug).body)) } }
+      : found;
   const prereqBlock = note
     ? prereqHtml(
         getPrerequisites(doc.slug),
@@ -183,6 +192,8 @@ export async function SinglePage({
   };
   const nextBlock = note ? nextUpHtml(nextUp) : "";
 
+  const lessonSteps = (html.match(/class="callout callout-(?:quiz|predict)\b/g) ?? []).length;
+
   const headerTitle = fm.title;
   const headerDate = fm.date
     ? { iso: fm.date.toISOString(), formatted: formatDateLong(fm.date) }
@@ -213,16 +224,15 @@ export async function SinglePage({
     (note ? noteSectionMetaHtml(doc.rawPath) : "") +
     (note
       ? `<div class="note-actions" data-pagefind-ignore>` +
-        // Display preferences first (visual settings — set once per session)
-        fontSizeButtonHtml() +
-        wideTextButtonHtml() +
-        focusButtonHtml() +
-        // Visual divider between preference and action groups
-        `<span class="note-actions-sep" aria-hidden="true">·</span>` +
-        // Content actions (audio playback, translation)
+        // One row: the ways to read it first. "Lire en leçon": the note one
+        // section at a time, its questions in between (public/js/lesson.js),
+        // when it has two questions or more.
+        (lessonSteps >= 2 ? lessonButtonHtml() : "") +
         audioButtonHtml() +
-        translateButtonHtml(detectedLang) +
         bookmarkButtonHtml() +
+        // Then the display settings (set once, rarely touched) and the
+        // translation, folded under "Affichage ▾".
+        noteMoreHtml(fontSizeButtonHtml() + wideTextButtonHtml() + focusButtonHtml() + translateButtonHtml(detectedLang)) +
         // Reading time pushed to the right edge as passive metadata
         readingTime +
         // "Lue" once the reader has finished it (/js/reading-state.js).

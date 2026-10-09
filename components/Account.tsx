@@ -159,11 +159,13 @@ export function Account() {
   }
   if (!cfg.enabled) {
     return (
-      <section className="acct-card">
+      <section className="acct-card acct-card--off">
         <h2>{tr("account.offTitle")}</h2>
         <p>{tr("account.offText")}</p>
         <p>
-          <a href="/progression/">{tr("account.offLink")}</a>
+          <a className="acct-btn" href="/progression/">
+            {tr("account.offLink")} →
+          </a>
         </p>
       </section>
     );

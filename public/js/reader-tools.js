@@ -5,7 +5,8 @@
 //   left ("encore 6 min");
 // - "Et ensuite ?" (lib/html.ts nextUpHtml): picks the first note of the
 //   discipline this browser hasn't read yet;
-// - "À lire plus tard" and the focus mode buttons of the note-actions row;
+// - "À lire plus tard" and the focus mode buttons of the note-actions row,
+//   and its "Affichage" menu;
 // - keyboard: n / p next / previous note (in the reading path, else in the
 //   folder), t top, s contents, f focus mode, b bookmark, g then a home.
 import { scrollProgress, loadStore, isRead } from "../../lib/reading-progress";
@@ -226,4 +227,17 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
       act();
     }
   });
+  // --- "Affichage ▾" (a <details>): closes on a click outside or Escape -----
+  const more = document.querySelector(".note-more");
+  if (more) {
+    document.addEventListener("click", (e) => {
+      if (more.open && e.target instanceof Node && !more.contains(e.target)) more.open = false;
+    });
+    more.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && more.open) {
+        more.open = false;
+        more.querySelector("summary")?.focus();
+      }
+    });
+  }
 })();
