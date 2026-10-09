@@ -24,6 +24,15 @@ export function fitScale(b: Box): number {
   return Math.min(1, b.vw / b.cw, b.vh / b.ch);
 }
 
+/** Opening scale of a drawing too big for its viewport: the whole width
+ *  when that costs at most 30% of the size (boxes cut at both edges read as
+ *  a broken layout), else natural size. */
+export function openingScale(b: Box): number {
+  if (b.cw <= 0) return 1;
+  const w = Math.min(1, b.vw / b.cw);
+  return w >= 0.7 ? w : 1;
+}
+
 /** Does the content fit at its natural size (no zoom needed)? */
 export const fits = (b: Box) => b.cw <= b.vw + 1 && b.ch <= b.vh + 1;
 

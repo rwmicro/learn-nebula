@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { centreOn, clampView, fitScale, fits, reveal, zoomAt, MAX_SCALE } from "./zoom-pan";
+import { centreOn, clampView, fitScale, fits, openingScale, reveal, zoomAt, MAX_SCALE } from "./zoom-pan";
 
 const box = { vw: 400, vh: 300, cw: 800, ch: 300 };
 
@@ -29,5 +29,11 @@ describe("zoom-pan", () => {
     expect(centreOn(600, 150, 1, box)).toEqual({ s: 1, x: -400, y: 0 });
     const v = reveal({ s: 1, x: 0, y: 0 }, { x: 500, y: 10, w: 100, h: 40 }, box, 10);
     expect(v.x).toBe(-210);
+  });
+
+  it("opens at the full width when that is a modest zoom-out", () => {
+    expect(openingScale({ vw: 1200, vh: 700, cw: 1600, ch: 3000 })).toBeCloseTo(0.75);
+    expect(openingScale({ vw: 1200, vh: 700, cw: 3600, ch: 900 })).toBe(1);
+    expect(openingScale({ vw: 1200, vh: 700, cw: 800, ch: 3000 })).toBe(1);
   });
 });

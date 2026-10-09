@@ -373,7 +373,6 @@
     "after": "after",
     "other": "Miscellaneous",
     "from": "From “{first}” to “{last}”",
-    "next": "Read next:",
     "nextShort": "Read next",
     "unread": "Unread",
     "order": "In order",
@@ -445,7 +444,13 @@
     "filterAria": "Filter the paths",
     "filterFamilies": "Families",
     "filterAll": "All",
-    "filterNone": "No path matches."
+    "filterNone": "No path matches.",
+    "start": "Start:",
+    "continue": "Continue:",
+    "quizMark": "Review questions",
+    "graphShow": "Show the prerequisite graph",
+    "liMore": "Actions",
+    "reviewLocked": "Review: {n} questions, unlocked as you read."
   },
   "reading": {
     "read": "Read",

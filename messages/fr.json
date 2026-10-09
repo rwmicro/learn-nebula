@@ -373,7 +373,6 @@
     "after": "après",
     "other": "Divers",
     "from": "De « {first} » à « {last} »",
-    "next": "À lire ensuite :",
     "nextShort": "À lire ensuite",
     "unread": "Non lue",
     "order": "Dans l’ordre",
@@ -445,7 +444,13 @@
     "filterAria": "Filtrer les parcours",
     "filterFamilies": "Familles",
     "filterAll": "Tous",
-    "filterNone": "Aucun parcours ne correspond."
+    "filterNone": "Aucun parcours ne correspond.",
+    "start": "Commencer :",
+    "continue": "Continuer :",
+    "quizMark": "Questions de révision",
+    "graphShow": "Afficher le graphe des prérequis",
+    "liMore": "Actions",
+    "reviewLocked": "Révision : {n} questions, ouvertes au fil de vos lectures."
   },
   "reading": {
     "read": "Lue",
