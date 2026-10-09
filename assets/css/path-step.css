@@ -197,3 +197,114 @@ main .path-step a:focus-visible,
     border-top: 0;
   }
 }
+
+/* "Étape suivante" (public/js/path-dock.js): pinned bottom left on phones and
+   tablets once the path bar has scrolled away, clear of the round "back to
+   top" button on the right. A ring with the note's reading progress and its
+   step, the next title, an arrow in the garden green. */
+.path-dock {
+  display: none;
+}
+@media (max-width: 900px) {
+  .path-dock:not([hidden]) {
+    position: fixed;
+    left: 0.75rem;
+    right: 4.6rem;
+    /* Above the "Demander à l'IA" pill (main.css .ask-trigger), which sits
+       bottom right and is wider than the gap left of it on a phone. */
+    bottom: calc(4.4rem + env(safe-area-inset-bottom, 0px));
+    z-index: 940;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: 24rem;
+    padding: 0.4rem 0.45rem 0.4rem 0.55rem;
+    border: 1px solid var(--rule-strong);
+    border-bottom-width: 3px;
+    border-radius: 14px;
+    background: var(--paper-raised);
+    color: var(--ink);
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.14);
+    animation: path-dock-in 0.2s ease-out;
+  }
+}
+@keyframes path-dock-in {
+  from {
+    transform: translateY(150%);
+  }
+}
+.path-dock:active {
+  transform: translateY(1px);
+}
+.path-dock:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.path-dock-ring {
+  flex: none;
+}
+.path-dock-track,
+.path-dock-fill {
+  fill: none;
+  stroke-width: 3.5;
+}
+.path-dock-track {
+  stroke: var(--rule);
+}
+.path-dock-fill {
+  stroke: var(--fam, var(--garden));
+  stroke-linecap: round;
+}
+.path-dock-ring text {
+  fill: var(--ink);
+  font: 600 8.5px "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.path-dock-text {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  line-height: 1.2;
+}
+.path-dock-k {
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.74rem;
+  color: var(--muted-warm);
+}
+.path-dock-title {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 0.98rem;
+}
+.path-dock-min {
+  color: var(--muted-warm);
+  font-size: 0.85rem;
+}
+.path-dock-go {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 10px;
+  background: var(--garden);
+  color: var(--paper);
+  border-bottom: 3px solid color-mix(in srgb, var(--garden) 60%, #000);
+  font-size: 1.1rem;
+}
+body:has(.gk-pinned) .path-dock,
+body[data-focus="true"] .path-dock,
+html.lesson-open .path-dock {
+  display: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .path-dock:not([hidden]) {
+    animation: none;
+  }
+}
+@media print {
+  .path-dock {
+    display: none !important;
+  }
+}

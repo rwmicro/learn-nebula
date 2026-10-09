@@ -843,6 +843,33 @@ export function focusButtonHtml(): string {
   );
 }
 
+/** "Lire en leçon" (public/js/lesson.js): only on notes with two questions
+ *  or more; hidden until the script (in quiz.bundle.js) is there to run it. */
+export function lessonButtonHtml(): string {
+  return (
+    `<button class="lesson-btn" type="button" hidden data-pagefind-ignore>` +
+    `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h5"/><path d="M14 16.5l2 1.5 3-4"/></svg>` +
+    `<span${i18nAttrs("lesson.start")}>${escapeHtml(t("lesson.start"))}</span>` +
+    `</button>`
+  );
+}
+
+/** "Affichage ▾": the note's display tools (text size, width, focus) and
+ *  "Traduire", folded so the action row holds on one line. A <details>, so
+ *  it opens without JavaScript; /js/reader-tools.js closes it on a click
+ *  outside or Escape. */
+export function noteMoreHtml(inner: string): string {
+  return (
+    `<details class="note-more" data-pagefind-ignore>` +
+    `<summary class="note-more-btn"${i18nAttr("aria-label", "noteActions.moreAria")} aria-label="${escapeHtml(t("noteActions.moreAria"))}">` +
+    `<span${i18nAttrs("noteActions.more")}>${escapeHtml(t("noteActions.more"))}</span>` +
+    `<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>` +
+    `</summary>` +
+    `<div class="note-more-panel">${inner}</div>` +
+    `</details>`
+  );
+}
+
 export interface NextUp {
   /** The logical next note: the next step of the reading path, else the next
    *  note of the folder. */
