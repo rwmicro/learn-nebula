@@ -39,6 +39,8 @@ const SCRIPTS = [
   // Back to top, section + time left, "Et ensuite ?", bookmark, focus mode,
   // reading shortcuts (n/p/t/s/f/b).
   "reader-tools",
+  // On a note of a reading path: "Étape suivante" pinned bottom left.
+  "path-dock",
 ];
 // Not "quiz" nor "glossary": each is its own small bundle (quiz.bundle.js,
 // glossary.bundle.js, built below) that components/NoteScripts.tsx adds only

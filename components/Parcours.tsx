@@ -15,6 +15,7 @@ import { ParcoursBrowse, type BrowsePath } from "@/components/ParcoursBrowse";
 import { fold } from "@/lib/palette-match";
 import { isMostlyLinear, prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
 import { splitMinutes } from "@/lib/path-study";
+import { pathLevels } from "@/lib/path-levels";
 
 /**
  * /parcours/ (an index of reading paths, one card each) and /parcours/<slug>/
@@ -153,6 +154,24 @@ export function ParcoursIndex({
                           {p.description && (
                             <span className="parcours-card-desc">{p.description}</span>
                           )}
+                          {/* Paths that follow one another (`suite:`): the
+                              link both ways, as one quiet line. */}
+                          {(p.prev || p.next) && (
+                            <span className="parcours-card-chain">
+                              {p.prev && (
+                                <span {...attrs(i18nAttrs("parcours.followsFrom", { name: splitName(p.prev.name)[0] }))}>
+                                  {t("parcours.followsFrom", { name: splitName(p.prev.name)[0] })}
+                                </span>
+                              )}
+                              {p.prev && p.next && " · "}
+                              {p.next && (
+                                <span {...attrs(i18nAttrs("parcours.followedBy", { name: splitName(p.next.name)[0] }))}>
+                                  {t("parcours.followedBy", { name: splitName(p.next.name)[0] })}
+                                </span>
+                              )}
+                              {p.next && <span aria-hidden="true"> →</span>}
+                            </span>
+                          )}
                           <Progress
                             slugs={p.notes.map((n) => n.slug)}
                             total={p.notes.length}
@@ -225,6 +244,7 @@ export function ParcoursPage({
   }));
   const hasQuiz = new Set(study.filter((n) => n.quiz.length).map((n) => n.slug));
   const totalMinutes = study.reduce((sum, n) => sum + n.minutes, 0);
+  const levels = pathLevels(path.notes);
   // A path that is (almost) one column draws the list again: folded away.
   const linear = isMostlyLinear(layout.nodes);
   const figure = (
@@ -298,6 +318,14 @@ export function ParcoursPage({
           </span>
           {" · "}
           <Duration minutes={totalMinutes} approx />
+          {levels.length > 1 && (
+            <>
+              {" · "}
+              <span {...attrs(i18nAttrs("parcours.levels", { n: levels.length }))}>
+                {t("parcours.levels", { n: levels.length })}
+              </span>
+            </>
+          )}
         </span>
         <Progress
           slugs={path.notes.map((n) => n.slug)}
@@ -307,7 +335,13 @@ export function ParcoursPage({
         <OfflinePath slug={path.slug} hrefs={path.notes.map((n) => n.href)} />
       </div>
 
-      <ParcoursStudy pathSlug={path.slug} notes={study} items={extras.items} />
+      <ParcoursStudy
+        pathSlug={path.slug}
+        notes={study}
+        items={extras.items}
+        levels={levels.length > 1 ? levels.map((l) => path.notes.slice(l.from, l.to).map((n) => n.slug)) : []}
+        nextPath={path.next ?? null}
+      />
 
       {linear ? (
         <details className="parcours-graph-fold">
@@ -318,70 +352,167 @@ export function ParcoursPage({
         figure
       )}
 
-      {/* Text alternative to the graph, and the reading order on its own. */}
+      {/* Text alternative to the graph, and the reading order on its own:
+          a path of discs, cut into levels on a long path (lib/path-levels.ts),
+          each closing on a review of its questions. */}
       <h2 className="themes-h2" {...attrs(i18nAttrs("parcours.order"))}>
         {t("parcours.order")}
       </h2>
-      <ol className="parcours-order">
-        {path.notes.map((n, i) => {
-          const after = prereqsToShow(n.prereqs, i > 0 ? path.notes[i - 1].slug : null);
-          return (
-            <li key={n.slug} data-slug={n.slug}>
-              <span className="parcours-li-main">
-                <a href={n.href}>{titleOf(n.slug)}</a>{" "}
-                <span className="parcours-dur">
-                  <Duration minutes={minutesOf(n.slug)} />
-                </span>{" "}
-                <span className="parcours-state" data-state-label hidden />
-                {after.length > 0 && (
-                  <span className="parcours-after">
-                    {" — "}
-                    <span {...attrs(i18nAttrs("parcours.after"))}>
-                      {t("parcours.after")}
-                    </span>{" "}
-                    {after.map(titleOf).join(", ")}
+      <div className="parcours-levels" data-levels={levels.length}>
+        {levels.map((lv) => {
+          const notes = path.notes.slice(lv.from, lv.to);
+          const minutes = notes.reduce((sum, n) => sum + minutesOf(n.slug), 0);
+          const quizCount = notes.reduce((sum, n) => sum + (extras.notes[n.slug]?.quiz.length ?? 0), 0);
+          const list = (
+            <ol className="parcours-order parcours-path" start={lv.from + 1}>
+              {notes.map((n, k) => {
+                const i = lv.from + k;
+                return (
+                  <OrderItem
+                    key={n.slug}
+                    n={n}
+                    i={i}
+                    title={titleOf(n.slug)}
+                    minutes={minutesOf(n.slug)}
+                    after={prereqsToShow(n.prereqs, i > 0 ? path.notes[i - 1].slug : null).map(titleOf)}
+                  />
+                );
+              })}
+              {quizCount > 0 && (
+                <li className="parcours-review-stop" data-level-review={lv.n}>
+                  <span className="parcours-disc parcours-disc--review" aria-hidden="true">
+                    <span>★</span>
                   </span>
-                )}
-              </span>
-              {/* Touch screens: the two actions sit behind one "⋯" button. */}
-              <button
-                type="button"
-                className="parcours-li-more"
-                data-li-more
-                aria-expanded="false"
-                aria-label={`${t("parcours.liMore")} : ${titleOf(n.slug)}`}
-              >
-                <span aria-hidden="true">⋯</span>
-              </button>
-              <span className="parcours-li-acts">
-                <button
-                  type="button"
-                  className="parcours-li-btn"
-                  data-act="target"
-                  data-slug={n.slug}
-                  aria-pressed="false"
+                  <button type="button" className="parcours-review-btn" data-level-review-btn={lv.n} disabled>
+                    <span
+                      className="parcours-review-name"
+                      {...attrs(i18nAttrs(levels.length > 1 ? "parcours.levelReview" : "parcours.review", { n: lv.n }))}
+                    >
+                      {t(levels.length > 1 ? "parcours.levelReview" : "parcours.review", { n: lv.n })}
+                    </span>
+                    <span className="parcours-review-meta" data-level-review-meta>
+                      {t("parcours.levelReviewLocked")}
+                    </span>
+                  </button>
+                </li>
+              )}
+            </ol>
+          );
+          if (levels.length === 1) return <div key={lv.n}>{list}</div>;
+          return (
+            <details
+              key={lv.n}
+              className="parcours-level"
+              data-level={lv.n}
+              data-slugs={notes.map((n) => n.slug).join(" ")}
+              open
+            >
+              <summary className="parcours-level-head">
+                <span className="parcours-level-name" {...attrs(i18nAttrs("parcours.level", { n: lv.n }))}>
+                  {t("parcours.level", { n: lv.n })}
+                </span>
+                <span
+                  className="parcours-level-span"
+                  {...attrs(
+                    i18nAttrs("parcours.levelSpan", {
+                      from: titleOf(notes[0].slug),
+                      to: titleOf(notes[notes.length - 1].slug),
+                    }),
+                  )}
                 >
-                  {t("parcours.targetThis")}
-                </button>
-                <button
-                  type="button"
-                  className="parcours-li-btn"
-                  data-act="known"
-                  data-slug={n.slug}
-                  aria-pressed="false"
-                >
-                  {t("parcours.know")}
-                </button>
-              </span>
-            </li>
+                  {t("parcours.levelSpan", {
+                    from: titleOf(notes[0].slug),
+                    to: titleOf(notes[notes.length - 1].slug),
+                  })}
+                </span>
+                <span className="parcours-level-meta">
+                  <span className="parcours-level-done" data-level-done>
+                    0/{notes.length}
+                  </span>
+                  {" · "}
+                  <Duration minutes={minutes} approx />
+                </span>
+              </summary>
+              {list}
+            </details>
           );
         })}
-      </ol>
+      </div>
+      {path.next && (
+        <a className="parcours-next-path" href={`/parcours/${path.next.slug}/`}>
+          <span className="parcours-next-path-k" {...attrs(i18nAttrs("parcours.nextPath"))}>
+            {t("parcours.nextPath")}
+          </span>
+          <span className="parcours-next-path-name">{path.next.name}</span>
+          <span className="parcours-next-path-meta">
+            <span {...attrs(i18nAttrs("parcours.count", { n: path.next.count }))}>
+              {t("parcours.count", { n: path.next.count })}
+            </span>{" "}
+            →
+          </span>
+        </a>
+      )}
       <p className="parcours-privacy" {...attrs(i18nAttrs("reading.privacy"))}>
         {t("reading.privacy")}
       </p>
       <ReadMarks />
     </main>
+  );
+}
+
+/** One note of the "Dans l'ordre" list: its disc (number, or a check once
+ *  read — ParcoursStudy sets the state classes on the <li>), its link and
+ *  time, and the two actions behind "⋯" on touch screens. */
+function OrderItem({
+  n,
+  i,
+  title,
+  minutes,
+  after,
+}: {
+  n: ReadingPathView["notes"][number];
+  i: number;
+  title: string;
+  minutes: number;
+  after: string[];
+}) {
+  return (
+    <li data-slug={n.slug}>
+      <span className="parcours-disc" aria-hidden="true">
+        <span className="parcours-disc-n">{i + 1}</span>
+      </span>
+      <span className="parcours-li-main">
+        <a href={n.href}>{title}</a>{" "}
+        <span className="parcours-dur">
+          <Duration minutes={minutes} />
+        </span>{" "}
+        <span className="parcours-state" data-state-label hidden />
+        {after.length > 0 && (
+          <span className="parcours-after">
+            {" — "}
+            <span {...attrs(i18nAttrs("parcours.after"))}>{t("parcours.after")}</span> {after.join(", ")}
+          </span>
+        )}
+      </span>
+      {/* Touch screens: the two actions sit behind one "⋯" button. */}
+      <button
+        type="button"
+        className="parcours-li-more"
+        data-li-more
+        aria-expanded="false"
+        aria-label={`${t("parcours.liMore")} : ${title}`}
+      >
+        <span aria-hidden="true">⋯</span>
+      </button>
+      <span className="parcours-li-acts">
+        <button type="button" className="parcours-li-btn" data-act="target" data-slug={n.slug} aria-pressed="false">
+          {t("parcours.targetThis")}
+        </button>
+        <button type="button" className="parcours-li-btn" data-act="known" data-slug={n.slug} aria-pressed="false">
+          {t("parcours.know")}
+        </button>
+      </span>
+    </li>
   );
 }
 

@@ -843,6 +843,17 @@ export function focusButtonHtml(): string {
   );
 }
 
+/** "Lire en leçon" (public/js/lesson.js): only on notes with two questions
+ *  or more; hidden until the script (in quiz.bundle.js) is there to run it. */
+export function lessonButtonHtml(): string {
+  return (
+    `<button class="lesson-btn" type="button" hidden data-pagefind-ignore>` +
+    `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h5"/><path d="M14 16.5l2 1.5 3-4"/></svg>` +
+    `<span${i18nAttrs("lesson.start")}>${escapeHtml(t("lesson.start"))}</span>` +
+    `</button>`
+  );
+}
+
 export interface NextUp {
   /** The logical next note: the next step of the reading path, else the next
    *  note of the folder. */

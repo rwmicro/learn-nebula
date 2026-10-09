@@ -3391,6 +3391,239 @@ main video {
   }
 }
 
+/* Multiple-choice cards and "À ton avis ?" (lib/markdown.ts choicesEl):
+ * answers as "pressable" buttons (a thicker bottom edge that gives on press),
+ * then a feedback band — the garden green when right, amber (never red) when
+ * not quite. The explanation of each answer is its own line in the vault. */
+.callout-predict {
+  --c: var(--link);
+}
+.quiz-choices {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+.quiz-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  text-align: start;
+  font: inherit;
+  font-size: 1.02rem;
+  line-height: 1.35;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--rule-strong);
+  border-bottom-width: 4px;
+  border-radius: 10px;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  transition: transform 0.08s, border-color 0.15s, background-color 0.15s;
+}
+.quiz-choice:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  margin-bottom: 2px;
+}
+.quiz-choice:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .quiz-choice:hover:not(:disabled) {
+    border-color: var(--c);
+  }
+}
+.quiz-choice:disabled {
+  cursor: default;
+}
+.quiz-choice-key {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 6px;
+  border: 1.5px solid var(--rule-strong);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.quiz-choice-text > p {
+  margin: 0;
+}
+.quiz-choice.is-wrong {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 9%, var(--paper));
+}
+.quiz-choice.is-wrong .quiz-choice-key {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+.quiz-choice.is-right {
+  border-color: var(--garden);
+  background: var(--garden-wash);
+}
+.quiz-choice.is-right .quiz-choice-key {
+  border-color: var(--garden);
+  background: var(--garden);
+  color: var(--paper);
+}
+.is-answered .quiz-choice:not(.is-right):not(.is-wrong):not(.is-picked) {
+  opacity: 0.6;
+}
+.callout-predict .quiz-choice.is-picked:not(.is-right):not(.is-wrong) {
+  border-color: var(--c);
+}
+.quiz-feedback {
+  margin-top: 0.7rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  border-inline-start: 4px solid var(--rule-strong);
+  background: var(--paper);
+}
+.quiz-feedback[hidden] {
+  display: none;
+}
+.quiz-feedback--ok,
+.quiz-feedback--predictOk {
+  border-color: var(--garden);
+  background: var(--garden-wash);
+}
+.quiz-feedback--bad,
+.quiz-feedback--predictBad {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 10%, var(--paper));
+}
+.quiz-feedback--guess {
+  border-color: var(--c);
+  background: var(--link-wash);
+}
+.quiz-feedback-title {
+  margin: 0;
+  font-weight: 700;
+}
+.quiz-feedback--ok .quiz-feedback-title,
+.quiz-feedback--predictOk .quiz-feedback-title {
+  color: var(--garden);
+}
+.quiz-feedback--bad .quiz-feedback-title,
+.quiz-feedback--predictBad .quiz-feedback-title {
+  color: var(--warn);
+}
+.quiz-feedback-why {
+  margin-top: 0.2rem;
+  color: var(--ink-2);
+}
+.quiz-feedback-why p {
+  margin: 0.3rem 0 0;
+}
+.quiz-feedback-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+.quiz-hints {
+  margin-top: 0.4rem;
+}
+.quiz-hint {
+  margin: 0.4rem 0 0;
+  padding: 0.35rem 0.75rem;
+  border-inline-start: 3px solid var(--link);
+  background: var(--link-wash);
+  border-radius: 0 6px 6px 0;
+  font-size: 0.98rem;
+}
+.quiz-hint-label {
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.82rem;
+  color: var(--link);
+}
+.quiz-hint-btn {
+  color: var(--link);
+  border-color: var(--link);
+}
+@media (hover: hover) {
+  .quiz-hint-btn:hover {
+    background: var(--link);
+  }
+}
+.quiz-right {
+  margin-top: 0;
+}
+.quiz-right-label {
+  color: var(--muted-warm);
+}
+.callout-predict .callout-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.predict-skip {
+  margin-inline-start: auto;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  color: var(--muted-warm);
+  background: none;
+  border: 0;
+  padding: 0.2rem 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.predict-skip[hidden] {
+  display: none;
+}
+.predict-veil-note {
+  margin: 0.8rem 0 0;
+  padding: 0.4rem;
+  text-align: center;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.86rem;
+  color: var(--muted-warm);
+  border: 1px dashed var(--rule-strong);
+  border-radius: 8px;
+}
+.predict-rest {
+  transition: filter 0.35s, opacity 0.35s;
+}
+.predict-rest.is-veiled {
+  filter: blur(6px);
+  opacity: 0.5;
+  user-select: none;
+  max-height: 22rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .quiz-choice,
+  .predict-rest {
+    transition: none;
+  }
+  .quiz-choice:active:not(:disabled) {
+    transform: none;
+  }
+}
+@media print {
+  .predict-rest.is-veiled {
+    filter: none;
+    opacity: 1;
+    max-height: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .predict-veil-note,
+  .predict-skip,
+  .quiz-feedback {
+    display: none;
+  }
+}
+
 /* ---------------------------------------------------------------------------
  * Glossary marks (lib/glossary.ts) and their card (/js/glossary.js, which
  * reuses the link-preview card above). A dotted underline in the text colour:
@@ -3767,6 +4000,266 @@ body:has(.gk-pinned) .to-top {
   .focus-btn span,
   .bookmark-btn .bookmark-label {
     display: none;
+  }
+}
+
+/* "Lire en leçon" (public/js/lesson.js): the one action of the row that
+ * starts something, so it reads as a button — garden green, pressable edge. */
+.lesson-btn {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  text-transform: lowercase;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--garden);
+  background: var(--garden-wash);
+  border: 1.5px solid var(--garden);
+  border-bottom-width: 3px;
+  border-radius: 8px;
+  padding: 0.1rem 0.55rem;
+  cursor: pointer;
+}
+.lesson-btn[hidden] {
+  display: none;
+}
+.lesson-btn:active {
+  transform: translateY(1px);
+  border-bottom-width: 2px;
+}
+.lesson-btn:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+}
+
+/* The lesson itself: full screen over the note, a segmented progress bar on
+ * top, one section (or one question) in the middle, "Continuer" at the
+ * bottom under the thumb. The stage carries .article-body, so the note's
+ * own typography, callouts and quiz styles apply unchanged. */
+html.lesson-open {
+  overflow: hidden;
+}
+.lesson {
+  position: fixed;
+  inset: 0;
+  z-index: 1500;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+}
+.lesson-top {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: calc(0.6rem + env(safe-area-inset-top, 0px)) 1rem 0.6rem;
+  border-bottom: 1px solid var(--rule);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.lesson-exit {
+  font-size: 1.6rem;
+  line-height: 1;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.lesson-exit:hover,
+.lesson-exit:focus-visible {
+  background: var(--link-wash);
+  outline: none;
+}
+.lesson-segs {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  max-width: 40rem;
+  margin-inline: auto;
+}
+.lesson-seg {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--rule);
+  transition: background-color 0.3s;
+}
+.lesson-seg--question {
+  flex: 0 0 10px;
+  border-radius: 50%;
+  height: 10px;
+  margin-top: -2px;
+}
+.lesson-seg.is-done {
+  background: var(--garden);
+}
+.lesson-seg.is-current {
+  background: color-mix(in srgb, var(--garden) 45%, var(--rule));
+}
+.lesson-count {
+  min-width: 4.5rem;
+  text-align: end;
+  white-space: nowrap;
+}
+.lesson-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.lesson-stage {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 1.6rem 1.2rem 2.5rem;
+}
+.lesson-stage > :first-child {
+  margin-top: 0;
+}
+/* The dropcap rule (lib/html.ts) matches the stage too: keep it for the
+   note's opening step only. */
+.lesson-stage[data-later] > p:first-of-type::first-letter {
+  float: none;
+  font: inherit;
+  padding: 0;
+}
+.lesson-check {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--garden);
+  margin: 0 0 0.6rem;
+}
+.lesson-bottom {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 1rem;
+  justify-content: flex-end;
+  border-top: 1px solid var(--rule);
+  /* The buttons line up with the 42rem text column above. */
+  padding: 0.75rem max(1.2rem, calc((100% - 42rem) / 2 + 1.2rem))
+    calc(0.9rem + env(safe-area-inset-bottom, 0px));
+}
+.lesson-back,
+.lesson-skip,
+.lesson-to-note {
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.95rem;
+  color: var(--muted-warm);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  padding: 0.4rem 0.2rem;
+}
+.lesson-back {
+  margin-inline-end: auto;
+}
+.lesson-back[hidden],
+.lesson-skip[hidden],
+.lesson-wait[hidden] {
+  display: none;
+}
+.lesson-wait {
+  margin: 0;
+  flex-basis: 100%;
+  order: -1;
+  text-align: end;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.lesson-next {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--paper);
+  background: var(--garden);
+  border: 1.5px solid var(--garden-hover);
+  border-bottom: 4px solid color-mix(in srgb, var(--garden) 60%, #000);
+  border-radius: 12px;
+  padding: 0.65rem 1.6rem;
+  min-width: 11rem;
+  cursor: pointer;
+}
+.lesson-next:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+}
+.lesson-next:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.lesson-next:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 3px;
+}
+@media (max-width: 639px) {
+  .lesson-next {
+    flex: 1;
+  }
+}
+.lesson-end {
+  display: grid;
+  justify-items: center;
+  gap: 0.8rem;
+  text-align: center;
+  padding-top: 2rem;
+}
+.lesson-medal {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1.1rem;
+  transform: rotate(45deg);
+  display: grid;
+  place-items: center;
+  background: var(--garden);
+  border-bottom: 5px solid color-mix(in srgb, var(--garden) 60%, #000);
+  animation: gk-medal 0.6s ease-out both;
+}
+.lesson-medal span {
+  transform: rotate(-45deg);
+  color: var(--paper);
+  font: 700 1.5rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+@keyframes gk-medal {
+  0% {
+    transform: rotate(45deg) scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: rotate(45deg) scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(45deg) scale(1);
+  }
+}
+.lesson-end-title {
+  margin: 0.6rem 0 0;
+}
+.lesson-end-stats {
+  margin: 0;
+  color: var(--ink-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lesson-medal {
+    animation: none;
+  }
+  .lesson-seg {
+    transition: none;
+  }
+}
+@media print {
+  .lesson,
+  .lesson-btn {
+    display: none !important;
   }
 }
 

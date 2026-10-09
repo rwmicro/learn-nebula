@@ -330,7 +330,17 @@
     "savedOn": "已加入复习——下次复习：{date}。",
     "removed": "已从复习中移除。",
     "noStorage": "无法复习：浏览器存储被禁用。",
-    "reviewLink": "我的复习"
+    "reviewLink": "我的复习",
+    "choicesAria": "可选答案",
+    "hint": "提示",
+    "hintMore": "再给一个提示",
+    "hintN": "提示 {n}/{total}：",
+    "answerIs": "答案：",
+    "right": "答对了！",
+    "notQuite": "不太对",
+    "retry": "再试一次",
+    "showAnswer": "查看答案",
+    "hintLabel": "提示："
   },
   "selMenu": {
     "aria": "选中文本操作",
@@ -450,7 +460,24 @@
     "quizMark": "复习题",
     "graphShow": "显示先修关系图",
     "liMore": "操作",
-    "reviewLocked": "复习：共 {n} 道题，随阅读逐步解锁。"
+    "reviewLocked": "复习：共 {n} 道题，随阅读逐步解锁。",
+    "level": "第 {n} 级",
+    "levels": "{n} 个等级",
+    "levelSpan": "从「{from}」到「{to}」",
+    "levelReview": "第 {n} 级复习",
+    "levelReviewMeta": "本级已读笔记中的 {n} 道题",
+    "levelReviewLocked": "读过本级一篇笔记后开放",
+    "levelDone": "第 {n} 级完成",
+    "pathDone": "路径完成",
+    "statNotes": "篇笔记",
+    "statQuiz": "道题答对",
+    "statMinutes": "分钟阅读",
+    "levelNext": "第 {n} 级：",
+    "dismiss": "关闭",
+    "nextPath": "下一条路径",
+    "followedBy": "接下来：{name}",
+    "followsFrom": "在「{name}」之后",
+    "graphAll": "查看先修关系图"
   },
   "reading": {
     "read": "已读",
@@ -580,7 +607,9 @@
     "next": "下一篇",
     "othersOne": "另有 1 条路径",
     "othersMany": "另有 {n} 条路径",
-    "othersTitle": "这篇笔记也属于："
+    "othersTitle": "这篇笔记也属于：",
+    "dockNext": "下一步",
+    "dockAria": "路径下一步：{title}"
   },
   "discipline": {
     "agriculture": "农业",
@@ -821,5 +850,29 @@
     "loading": "正在加载卡组：{n} / {total}…",
     "nothingStarted": "暂时没有要复习的内容。从卡片列表打开一个卡组，它的卡片就会出现在这里。",
     "tomorrow": "明天到期：{count}"
+  },
+  "predict": {
+    "label": "你怎么看？",
+    "skip": "直接阅读",
+    "veiled": "回答后显示下文。",
+    "thanks": "好的，继续往下读。",
+    "right": "猜对了！",
+    "wrong": "不太对：下文会解释原因。"
+  },
+  "lesson": {
+    "start": "以课程模式阅读",
+    "aria": "课程模式",
+    "exit": "退出课程",
+    "progress": "第 {n} 步，共 {total} 步",
+    "next": "继续",
+    "back": "上一步",
+    "check": "检查一下",
+    "answerFirst": "回答问题后继续，或跳过。",
+    "skip": "跳过",
+    "done": "课程完成",
+    "doneStats": "首次答对 {right}/{total} 题",
+    "doneNoQuiz": "你已读完整篇笔记。",
+    "toNote": "返回笔记",
+    "nextNote": "下一步：{title}"
   }
 }

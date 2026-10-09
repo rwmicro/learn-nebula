@@ -14,6 +14,8 @@ import { i18nAttrs, t } from "./i18n";
 export interface PathStepNote {
   slug: string;
   title: string;
+  /** Reading time, when known (the "Étape suivante" chip shows it). */
+  minutes?: number;
 }
 
 export interface PathStepPath {
@@ -61,7 +63,9 @@ function stepLink(n: PathStepNote, dir: "prev" | "next"): string {
   const title = `<span class="path-step-name">${escapeHtml(n.title)}</span>`;
   const arrow = `<span class="path-step-arrow" aria-hidden="true">${dir === "prev" ? "←" : "→"}</span>`;
   return (
-    `<a class="path-step-link path-step-link--${dir}" rel="${dir}" href="${noteHref(n.slug)}" title="${escapeHtml(n.title)}">` +
+    `<a class="path-step-link path-step-link--${dir}" rel="${dir}" href="${noteHref(n.slug)}" title="${escapeHtml(n.title)}"` +
+    (n.minutes ? ` data-minutes="${n.minutes}"` : "") +
+    `>` +
     (dir === "prev" ? arrow + word + title : word + title + arrow) +
     `</a>`
   );
