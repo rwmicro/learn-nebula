@@ -1131,10 +1131,30 @@ body:has(.home-masthead) .site-bar {
     margin: 0 1.2rem 1.2rem;
   }
 }
-/* "Garden of Knowledge" plus search, theme, account and menu don't fit a
-   phone's width: keep the sprout as the home link and leave the name to
-   screen readers. */
+/* "Garden of Knowledge" on one line plus search, theme, account and menu
+   don't fit a phone's width: stack the name on two smaller lines ("Garden of"
+   / "Knowledge") so every page still says whose site it is. Only on the
+   narrowest phones, or beside the review reminder, does the sprout alone
+   stay, the name left to screen readers. */
 @container (max-width: 480px) {
+  .site-bar-brand span {
+    max-width: 5.5em;
+    font-size: 0.86rem;
+    line-height: 1.05;
+    white-space: normal;
+    text-wrap: balance;
+  }
+  /* A review reminder takes the room the name needed. */
+  .site-bar-inner:has(.review-pill) .site-bar-brand span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@container (max-width: 330px) {
   .site-bar-brand span {
     position: absolute;
     width: 1px;
