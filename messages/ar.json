@@ -489,7 +489,7 @@
     "nextPath": "المسار التالي",
     "followedBy": "التالي: {name}",
     "followsFrom": "بعد «{name}»",
-    "graphAll": "عرض مخطط المتطلبات"
+    "graphAll": "مخطط المتطلبات"
   },
   "reading": {
     "read": "مقروءة",
