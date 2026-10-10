@@ -625,7 +625,11 @@
     "othersMany": "+{n} itinerarios más",
     "othersTitle": "Esta nota también está en:",
     "dockNext": "Paso siguiente",
-    "dockAria": "Paso siguiente del recorrido: {title}"
+    "dockAria": "Paso siguiente del recorrido: {title}",
+    "here": "Estás aquí",
+    "read": "{n} leídas de {total}",
+    "seePath": "Ver el itinerario",
+    "close": "Cerrar"
   },
   "discipline": {
     "agriculture": "Agricultura",

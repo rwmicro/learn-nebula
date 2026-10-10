@@ -41,6 +41,8 @@ const SCRIPTS = [
   "reader-tools",
   // On a note of a reading path: "Étape suivante" pinned bottom left.
   "path-dock",
+  // On a note of a reading path: "Étape 4/20" opens the list of its steps.
+  "path-sheet",
 ];
 // Not "quiz" nor "glossary": each is its own small bundle (quiz.bundle.js,
 // glossary.bundle.js, built below) that components/NoteScripts.tsx adds only

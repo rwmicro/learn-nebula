@@ -625,7 +625,11 @@
     "othersMany": "+{n} مسارات أخرى",
     "othersTitle": "هذه الملاحظة موجودة أيضًا في:",
     "dockNext": "الخطوة التالية",
-    "dockAria": "الخطوة التالية في المسار: {title}"
+    "dockAria": "الخطوة التالية في المسار: {title}",
+    "here": "أنت هنا",
+    "read": "قرأت {n} من {total}",
+    "seePath": "عرض المسار",
+    "close": "إغلاق"
   },
   "discipline": {
     "agriculture": "الزراعة",
