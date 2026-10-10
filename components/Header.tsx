@@ -43,8 +43,11 @@ export default function Header({ doc }: { doc: Doc }) {
       {/* 1. utility bar: language "editions" + the light/dark toggle (same
           markup as the note nav's, wired by /js/theme.js) — always visible,
           mobile included. On phones it drops below the wordmark (`order-1`,
-          the header being a flex column there), so the title leads the page. */}
-      <div className="flex flex-wrap items-center justify-center gap-x-2 py-2 max-sm:order-1 max-sm:pt-3">
+          the header being a flex column there), so the title leads the page.
+          The mobile hamburger (#6) closes this row as one more pill, so the
+          wordmark keeps the full width and stays centred. Icon swap and focus
+          ring hang off this div, a direct sibling of the peer checkbox. */}
+      <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 py-2 max-sm:order-1 max-sm:pt-3 peer-checked:[&_.gk-ic-open]:hidden peer-checked:[&_.gk-ic-close]:block peer-checked:[&_.gk-menu-btn]:border-ink peer-checked:[&_.gk-menu-btn]:bg-wash peer-focus-visible:[&_.gk-menu-btn]:outline peer-focus-visible:[&_.gk-menu-btn]:outline-2 peer-focus-visible:[&_.gk-menu-btn]:outline-offset-2 peer-focus-visible:[&_.gk-menu-btn]:outline-link">
         <LangSwitcher />
         <span
           className="contents"
@@ -57,6 +60,18 @@ export default function Header({ doc }: { doc: Doc }) {
         />
         <ReviewPill />
         <AccountChip />
+        <label
+          htmlFor="gk-menu"
+          aria-label={t("nav.menu")}
+          className="gk-menu-btn inline-flex size-[1.9rem] cursor-pointer items-center justify-center rounded-full border border-rule-strong bg-paper text-ink-soft hover:border-ink hover:bg-wash hover:text-ink sm:hidden"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="gk-ic-close hidden">
+            <path d="M6 6l12 12M18 6l-12 12" />
+          </svg>
+        </label>
       </div>
 
       {/* 2. masthead: dateline · wordmark · tagline. On mobile the dateline is
@@ -86,26 +101,8 @@ export default function Header({ doc }: { doc: Doc }) {
       <div className="max-sm:hidden border-t-[1.5px] border-ink" />
       <div className="max-sm:hidden mt-0.5 border-t-[1.5px] border-ink" />
       
-      {/* Mobile hamburger (#6): top-right corner, opens the section-nav
-          dropdown below. Icon toggle and focus ring sit on this div (a direct
-          sibling of the peer checkbox) so peer-checked/peer-focus-visible apply. */}
-      <div className="absolute right-2 top-2 z-20 sm:hidden peer-checked:[&_.gk-ic-open]:hidden peer-checked:[&_.gk-ic-close]:block peer-focus-visible:[&_label]:outline peer-focus-visible:[&_label]:outline-2 peer-focus-visible:[&_label]:outline-offset-2 peer-focus-visible:[&_label]:outline-link">
-        <label
-          htmlFor="gk-menu"
-          aria-label={t("nav.menu")}
-          className="inline-flex cursor-pointer items-center justify-center rounded-[4px] border border-rule-strong bg-paper p-1.5 text-ink"
-        >
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
-            <path d="M4 7h16M4 12h16M4 17h16" />
-          </svg>
-          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" className="gk-ic-close hidden">
-            <path d="M6 6l12 12M18 6l-12 12" />
-          </svg>
-        </label>
-      </div>
-
       {/* 3. section nav — horizontal bar on desktop; a right-anchored dropdown
-          popover on mobile, revealed by the hamburger in the corner (#6). */}
+          popover on mobile, revealed by the hamburger pill just above (#6). */}
       <nav
         aria-label={t("home.footerNavAria")}
         className="max-sm:order-2 relative hidden peer-checked:block sm:block"
