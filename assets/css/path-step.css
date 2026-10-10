@@ -199,9 +199,10 @@ main .path-step a:focus-visible,
 }
 
 /* "Étape suivante" (public/js/path-dock.js): pinned bottom left on phones and
-   tablets once the path bar has scrolled away, clear of the round "back to
-   top" button on the right. A ring with the note's reading progress and its
-   step, the next title, an arrow in the garden green. */
+   tablets once the path bar has scrolled away, on the same row as the
+   "Demander à l'IA" button on the right ("Remonter" steps aside meanwhile,
+   main.css). A ring with the note's reading progress and its step, the next
+   title, an arrow in the garden green. */
 .path-dock {
   display: none;
 }
@@ -209,10 +210,9 @@ main .path-step a:focus-visible,
   .path-dock:not([hidden]) {
     position: fixed;
     left: 0.75rem;
-    right: 4.6rem;
-    /* Above the "Demander à l'IA" pill (main.css .ask-trigger), which sits
-       bottom right and is wider than the gap left of it on a phone. */
-    bottom: calc(4.4rem + env(safe-area-inset-bottom, 0px));
+    /* Left of the "Demander à l'IA" pill (global.css .gk-pinned-trigger). */
+    right: 16rem;
+    bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
     z-index: 940;
     display: flex;
     align-items: center;
@@ -227,6 +227,12 @@ main .path-step a:focus-visible,
     text-decoration: none;
     box-shadow: 0 4px 16px rgb(0 0 0 / 0.14);
     animation: path-dock-in 0.2s ease-out;
+  }
+}
+@media (max-width: 640px) {
+  /* Phones: the pill is a round button there (global.css). */
+  .path-dock:not([hidden]) {
+    right: 4.5rem;
   }
 }
 @keyframes path-dock-in {

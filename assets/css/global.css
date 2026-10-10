@@ -478,6 +478,55 @@ body {
   background: var(--garden-hover);
   border-color: var(--garden-hover);
 }
+/* Phones: a round sprout button instead of the pill, on one row with
+   "Étape suivante" / "Remonter" (main.css, path-step.css). The label stays
+   for screen readers. */
+@media (max-width: 640px) {
+  .gk-pinned-trigger {
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+  .gk-pinned-trigger svg {
+    width: 22px;
+    height: 22px;
+  }
+  .gk-pinned-trigger-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+/* Touch widths: the bottom buttons slide away while reading down
+   (reader-tools.js sets html.fabs-tucked) and come back on the way up. */
+@media (max-width: 900px) {
+  .gk-pinned-trigger,
+  .to-top,
+  .path-dock {
+    transition:
+      transform 0.25s ease,
+      opacity 0.2s ease;
+  }
+  html.fabs-tucked .gk-pinned-trigger,
+  html.fabs-tucked .to-top,
+  html.fabs-tucked .path-dock:not([hidden]) {
+    transform: translateY(calc(100% + 1.5rem));
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+  .gk-pinned-trigger,
+  .to-top,
+  .path-dock {
+    transition: none;
+  }
+}
 .gk-pinned-title {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
