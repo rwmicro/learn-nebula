@@ -79,7 +79,23 @@
     "playAria": "Listen to the pronunciation",
     "pauseAria": "Pause",
     "loadingAria": "Loading audio…",
-    "errorAria": "Audio playback error"
+    "errorAria": "Audio playback error",
+    "practice": "Practise",
+    "practiceAria": "Practise saying this word",
+    "practiceLocal": "Nothing is sent: the recording stays on this device and is gone when you close.",
+    "practiceClose": "Close",
+    "practiceModel": "Model",
+    "practiceMe": "Me",
+    "practiceBoth": "Model, then me",
+    "practiceRecord": "Record",
+    "practiceStop": "Stop",
+    "practiceAgain": "Again",
+    "practiceDenied": "The microphone is blocked: allow it for this site in your browser.",
+    "practiceNoMic": "Can't record: no usable microphone.",
+    "practiceModelError": "The model couldn't be loaded.",
+    "practiceLonger": "Yours is {s} longer than the model.",
+    "practiceShorter": "Yours is {s} shorter than the model.",
+    "practiceDone": "Same length as the model: play both one after the other."
   },
   "comments": {
     "title": "Comments",
@@ -163,7 +179,8 @@
     "imageCaption": "Camille Pissarro, The Vegetable Garden at Éragny, 1897. — Knowledge, like a garden, is cultivated and passed on.",
     "recentTitle": "latest growth",
     "recentPlanted": "planted",
-    "recentTended": "tended"
+    "recentTended": "tended",
+    "recentStats": "The garden in numbers"
   },
   "graph": {
     "back": "Back to the garden",
@@ -186,7 +203,14 @@
     "localMore": "+{n} more",
     "path": "Reading path",
     "pathNone": "No path",
-    "pathAria": "Highlight a reading path"
+    "pathAria": "Highlight a reading path",
+    "mine": "My reading",
+    "mineCount": "{n} / {total}",
+    "mineNext": "Next to explore, from your links:",
+    "mineNoNeighbour": "To go further, the most cited notes:",
+    "mineStart": "No note read here yet. To start, the most cited:",
+    "mineLocate": "Show in the graph",
+    "mineOpen": "Open {title}"
   },
   "lightbox": {
     "close": "Close",
@@ -489,7 +513,8 @@
     "nextPath": "Next path",
     "followedBy": "Next: {name}",
     "followsFrom": "After “{name}”",
-    "graphAll": "Prerequisite graph"
+    "graphAll": "Prerequisite graph",
+    "sheet": "Revision sheet"
   },
   "reading": {
     "read": "Read",
@@ -890,5 +915,34 @@
     "doneNoQuiz": "You have read the whole note.",
     "toNote": "Back to the note",
     "nextNote": "Next step: {title}"
+  },
+  "jardin": {
+    "title": "The garden in numbers",
+    "intro": "What has been planted, how the garden grew, and the notes everything points to.",
+    "updated": "Updated",
+    "statNotes": "notes planted",
+    "statWords": "words",
+    "statDisciplines": "disciplines",
+    "statClips": "pronunciation clips",
+    "growthTitle": "How it grew",
+    "peak": "The biggest month: {month}, with {n} notes planted.",
+    "chartAria": "Notes planted each month from {from} to {to}, and their running total up to {n}.",
+    "cumul": "total",
+    "perMonth": "/month",
+    "disciplinesTitle": "By discipline",
+    "others": "Other disciplines",
+    "citedTitle": "The most cited notes",
+    "links": "{n} links",
+    "growingTitle": "What grew in the last three months",
+    "newNotes": "+{n} notes"
+  },
+  "fiche": {
+    "back": "Back to the path",
+    "print": "Print",
+    "kicker": "Revision sheet",
+    "meta": "{notes} notes · {questions} questions, answers at the end",
+    "metaNoQuiz": "{notes} notes",
+    "empty": "This path's notes have no definitions, key ideas or questions yet.",
+    "answers": "Answers"
   }
 }

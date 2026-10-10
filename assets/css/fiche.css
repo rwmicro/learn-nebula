@@ -1,0 +1,212 @@
+/* Scoped to /parcours/<slug>/fiche/ (components/PathSheet.tsx): a revision
+   sheet meant as much for paper as for the screen. Same reading column and
+   faces as the note pages; the print block at the end drops the site chrome
+   and keeps each note's block on one page where it fits. */
+
+.fiche-page {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 2rem 1.2rem 4rem;
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+}
+
+.fiche-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.fiche-back {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.fiche-back:hover {
+  text-decoration: underline;
+}
+.fiche-print {
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 3px;
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.3rem 0.9rem;
+  font: inherit;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+.fiche-print:hover {
+  border-color: var(--ink-2);
+}
+.fiche-print:active {
+  transform: translateY(2px);
+}
+.fiche-print:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+
+.fiche-kicker {
+  margin: 0;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--garden);
+}
+.fiche-title {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  font-size: clamp(1.8rem, 1.4rem + 1.4vw, 2.4rem);
+  margin: 0.1rem 0 0.3rem;
+  text-wrap: balance;
+}
+.fiche-meta {
+  margin: 0 0 2rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+}
+.fiche-empty {
+  font-style: italic;
+  color: var(--muted-warm);
+}
+
+.fiche-notes {
+  list-style: none;
+  counter-reset: fiche-note;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 1.8rem;
+}
+.fiche-note {
+  counter-increment: fiche-note;
+  border-top: 1px solid var(--ink);
+  padding-top: 0.6rem;
+}
+.fiche-note.is-empty {
+  border-top-color: var(--rule);
+}
+.fiche-note-title {
+  margin: 0 0 0.6rem;
+  font-weight: 500;
+  font-size: 1.3rem;
+  line-height: 1.25;
+}
+.fiche-note-title::before {
+  content: counter(fiche-note) ". ";
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.fiche-note-title a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.fiche-note-title a:hover {
+  text-decoration: underline;
+}
+.fiche-note.is-empty .fiche-note-title {
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+.fiche-note.is-empty .fiche-note-title a {
+  color: var(--muted);
+}
+
+.fiche-defs {
+  margin: 0 0 0.8rem;
+  display: grid;
+  gap: 0.45rem;
+}
+.fiche-defs > div {
+  padding-left: 0.8rem;
+  border-left: 3px solid var(--garden);
+}
+.fiche-defs dt {
+  font-weight: 700;
+}
+.fiche-defs dd {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.fiche-keys {
+  margin: 0 0 0.8rem;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+.fiche-keys strong {
+  font-weight: 700;
+}
+
+.fiche-questions,
+.fiche-answers ol {
+  margin: 0;
+  padding-left: 1.8rem;
+  display: grid;
+  gap: 0.4rem;
+}
+.fiche-questions li::marker,
+.fiche-answers li::marker {
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-weight: 700;
+  color: var(--link);
+}
+.fiche-questions p,
+.fiche-answers p {
+  margin: 0 0 0.3rem;
+}
+
+.fiche-answers {
+  margin-top: 3rem;
+  padding-top: 0.8rem;
+  border-top: 3px double var(--ink);
+}
+.fiche-answers-title {
+  margin: 0 0 1rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.3rem;
+}
+.fiche-answers li {
+  color: var(--ink-soft);
+}
+
+@media print {
+  html {
+    font-size: 11pt;
+  }
+  .site-bar,
+  footer,
+  .gk-pinned-trigger,
+  .fiche-bar {
+    display: none !important;
+  }
+  main.fiche-page {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  .fiche-note {
+    break-inside: avoid-page;
+  }
+  .fiche-note.is-empty {
+    display: none;
+  }
+  .fiche-answers {
+    break-before: page;
+  }
+  .fiche-note-title a {
+    color: #000;
+  }
+}

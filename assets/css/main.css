@@ -4620,3 +4620,131 @@ mark.hl--new {
     animation: none;
   }
 }
+
+/* Widget goals (public/js/widgets.js, withGoals): the task above the widget,
+   the verdict under it. Same hairline frame as .w-root, the link colour for
+   the task, the garden green for a goal reached and amber, never red, for a
+   miss. */
+.w-goals {
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+}
+.widget.is-live .w-goals .w-root {
+  border: 0;
+}
+.w-goal {
+  padding: 0.7rem 0.9rem;
+  background: var(--link-wash);
+  border-bottom: 1px solid var(--rule);
+}
+.w-goal-top {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.w-goal-k {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: var(--text-meta);
+  letter-spacing: 0.04em;
+  color: var(--link);
+}
+.w-goal-steps {
+  display: flex;
+  gap: 4px;
+  margin-inline-start: auto;
+}
+.w-goal-steps i {
+  display: block;
+  width: 1.3rem;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--rule-strong);
+}
+.w-goal-steps i.is-done {
+  background: var(--garden);
+}
+.w-goal-steps i.is-current {
+  background: var(--link-mid);
+}
+.w-goal-text {
+  margin: 0.25rem 0 0;
+  font-size: var(--text-body);
+  line-height: 1.45;
+}
+.w-goal-hint {
+  margin: 0.4rem 0 0;
+  font-size: var(--text-small);
+  color: var(--ink-2);
+}
+.w-goal-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.9rem;
+  padding: 0.6rem 0.9rem;
+  border-top: 1px solid var(--rule);
+  background: var(--wash);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: var(--text-small);
+}
+.w-goal-foot[data-state="ok"] {
+  background: var(--garden-wash);
+}
+.w-goal-foot[data-state="ok"] b {
+  color: var(--garden);
+}
+.w-goal-foot[data-state="ko"] {
+  background: color-mix(in srgb, var(--warn) 12%, var(--paper));
+}
+.w-goal-foot[data-state="ko"] b {
+  color: var(--warn);
+}
+.w-goal-msg {
+  flex: 1 1 14rem;
+  min-width: 0;
+  margin: 0;
+  color: var(--ink-soft);
+}
+.w-goal-foot[data-state="done"] .w-goal-msg {
+  flex-basis: 0;
+}
+.w-goal-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.w-goal-btn {
+  font: inherit;
+  font-weight: 700;
+  border: 1px solid var(--garden);
+  border-bottom-width: 3px;
+  border-bottom-color: color-mix(in srgb, var(--garden) 60%, #000);
+  border-radius: 8px;
+  background: var(--garden);
+  color: var(--paper);
+  padding: 0.25rem 0.9rem;
+  cursor: pointer;
+}
+.w-goal-btn:hover {
+  background: var(--garden-hover);
+}
+.w-goal-btn:active {
+  transform: translateY(2px);
+}
+.w-goal-link:focus-visible,
+.w-goal-btn:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .w-goal-btn:active {
+    transform: none;
+  }
+}

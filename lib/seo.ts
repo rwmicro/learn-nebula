@@ -51,6 +51,9 @@ interface SeoInput {
   body: string;
   path: string;
   isArticle: boolean;
+  /** Site path of an image to use when the body has none of its own (the
+   *  note's share card, lib/og.ts); else the site-wide default. */
+  fallbackImage?: string | null;
 }
 
 export function buildMetadata({
@@ -58,12 +61,15 @@ export function buildMetadata({
   body,
   path,
   isArticle,
+  fallbackImage,
 }: SeoInput): Metadata {
   const title = fm.seotitle ?? `${fm.title} | ${SITE_TITLE}`;
   const plain = extractPlain(body);
   const description = truncate(plain, 160) || SITE_DESCRIPTION;
   const url = absoluteURL(path);
-  const image = firstImage(body);
+  const own = firstImage(body);
+  const image =
+    fallbackImage && own === absoluteURL(DEFAULT_IMAGE) ? absoluteURL(fallbackImage) : own;
   // A note tagged `lang` (SinglePage sets <main lang> from the same field) is
   // substantially in that language — advertise its likely region (Intl's
   // likely-subtails data, e.g. "es" → "es_ES") instead of the fr/en guess.

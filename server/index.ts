@@ -42,7 +42,9 @@ app.use("*", async (c, next) => {
   c.header("X-Content-Type-Options", "nosniff");
   c.header("X-Frame-Options", "DENY");
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");
-  c.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  // Microphone for this origin only: pronunciation practice (/js/pronounce.js)
+  // records in the browser, nothing is uploaded.
+  c.header("Permissions-Policy", "camera=(), microphone=(self), geolocation=()");
   // Skip on a non-HTTPS SITE_URL (e.g. a Tor .onion build, per lib/site.ts) —
   // HSTS pins the browser to HTTPS-only for this host, which would be wrong
   // for a deployment that's intentionally plain HTTP.

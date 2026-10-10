@@ -45,6 +45,9 @@ export function RecentNotes({ notes }: { notes: RecentNote[] }) {
           );
         })}
       </ul>
+      <a href="/jardin/" className="recent-notes-more">
+        <span {...i18nDataAttrs("home.recentStats")}>{t("home.recentStats")}</span> →
+      </a>
     </section>
   );
 }

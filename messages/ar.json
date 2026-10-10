@@ -79,7 +79,23 @@
     "playAria": "الاستماع إلى النطق",
     "pauseAria": "إيقاف مؤقت",
     "loadingAria": "جارٍ تحميل الصوت…",
-    "errorAria": "خطأ في تشغيل الصوت"
+    "errorAria": "خطأ في تشغيل الصوت",
+    "practice": "تدرّب",
+    "practiceAria": "تدرّب على نطق هذه الكلمة",
+    "practiceLocal": "لا يُرسل شيء: يبقى التسجيل على هذا الجهاز ويختفي عند الإغلاق.",
+    "practiceClose": "إغلاق",
+    "practiceModel": "النموذج",
+    "practiceMe": "أنا",
+    "practiceBoth": "النموذج ثم أنا",
+    "practiceRecord": "سجّل",
+    "practiceStop": "إيقاف",
+    "practiceAgain": "أعد",
+    "practiceDenied": "الميكروفون مرفوض: اسمح به لهذا الموقع في المتصفح.",
+    "practiceNoMic": "تعذّر التسجيل: لا يوجد ميكروفون صالح.",
+    "practiceModelError": "تعذّر تحميل النموذج.",
+    "practiceLonger": "نسختك أطول من النموذج بـ {s}.",
+    "practiceShorter": "نسختك أقصر من النموذج بـ {s}.",
+    "practiceDone": "المدة نفسها كالنموذج: استمع إلى الاثنين تباعًا."
   },
   "comments": {
     "title": "التعليقات",
@@ -163,7 +179,8 @@
     "imageCaption": "كامي بيسارو، حديقة الخُضَر في إيراني، ١٨٩٧. — المعرفة، كالحديقة، تُزرَع وتُورَّث.",
     "recentTitle": "أحدث النموّ",
     "recentPlanted": "زُرعت",
-    "recentTended": "حُدّثت"
+    "recentTended": "حُدّثت",
+    "recentStats": "الحديقة بالأرقام"
   },
   "graph": {
     "back": "العودة إلى الحديقة",
@@ -186,7 +203,14 @@
     "localMore": "+{n} أخرى",
     "path": "مسار القراءة",
     "pathNone": "بلا مسار",
-    "pathAria": "إبراز مسار قراءة"
+    "pathAria": "إبراز مسار قراءة",
+    "mine": "قراءاتي",
+    "mineCount": "{n} / {total}",
+    "mineNext": "للاستكشاف بعد ذلك، بحسب روابطك:",
+    "mineNoNeighbour": "للتعمق أكثر، الملاحظات الأكثر استشهادًا:",
+    "mineStart": "لم تُقرأ أي ملاحظة هنا بعد. للبدء، الأكثر استشهادًا:",
+    "mineLocate": "إظهار في المخطط",
+    "mineOpen": "فتح {title}"
   },
   "lightbox": {
     "close": "إغلاق",
@@ -489,7 +513,8 @@
     "nextPath": "المسار التالي",
     "followedBy": "التالي: {name}",
     "followsFrom": "بعد «{name}»",
-    "graphAll": "مخطط المتطلبات"
+    "graphAll": "مخطط المتطلبات",
+    "sheet": "ورقة مراجعة"
   },
   "reading": {
     "read": "مقروءة",
@@ -890,5 +915,34 @@
     "doneNoQuiz": "لقد قرأت الملاحظة كاملة.",
     "toNote": "العودة إلى الملاحظة",
     "nextNote": "الخطوة التالية: {title}"
+  },
+  "jardin": {
+    "title": "الحديقة بالأرقام",
+    "intro": "ما زُرع، وكيف نمت الحديقة، والملاحظات التي يتجه إليها كل شيء.",
+    "updated": "حُدّث في",
+    "statNotes": "ملاحظة مزروعة",
+    "statWords": "كلمة",
+    "statDisciplines": "تخصصًا",
+    "statClips": "مقطع نطق",
+    "growthTitle": "كيف نمت",
+    "peak": "أكبر شهر: {month}، بزراعة {n} ملاحظة.",
+    "chartAria": "الملاحظات المزروعة كل شهر من {from} إلى {to}، ومجموعها التراكمي حتى {n}.",
+    "cumul": "المجموع",
+    "perMonth": "/شهر",
+    "disciplinesTitle": "حسب التخصص",
+    "others": "تخصصات أخرى",
+    "citedTitle": "الملاحظات الأكثر استشهادًا",
+    "links": "{n} روابط",
+    "growingTitle": "ما نما في الأشهر الثلاثة الأخيرة",
+    "newNotes": "+{n} ملاحظة"
+  },
+  "fiche": {
+    "back": "العودة إلى المسار",
+    "print": "طباعة",
+    "kicker": "ورقة مراجعة",
+    "meta": "{notes} ملاحظة · {questions} سؤالًا، والإجابات في النهاية",
+    "metaNoQuiz": "{notes} ملاحظة",
+    "empty": "لا تحتوي ملاحظات هذا المسار بعد على تعريفات أو أفكار رئيسية أو أسئلة.",
+    "answers": "الإجابات"
   }
 }

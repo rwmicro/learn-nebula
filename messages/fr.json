@@ -79,7 +79,23 @@
     "playAria": "Écouter la prononciation",
     "pauseAria": "Mettre en pause",
     "loadingAria": "Chargement de l'audio…",
-    "errorAria": "Erreur de lecture audio"
+    "errorAria": "Erreur de lecture audio",
+    "practice": "S'entraîner",
+    "practiceAria": "S'entraîner à prononcer ce mot",
+    "practiceLocal": "Rien n'est envoyé : l'enregistrement reste sur cet appareil et disparaît à la fermeture.",
+    "practiceClose": "Fermer",
+    "practiceModel": "Modèle",
+    "practiceMe": "Moi",
+    "practiceBoth": "Modèle puis moi",
+    "practiceRecord": "S'enregistrer",
+    "practiceStop": "Arrêter",
+    "practiceAgain": "Recommencer",
+    "practiceDenied": "Le micro est refusé : autorisez-le pour ce site dans le navigateur.",
+    "practiceNoMic": "Impossible d'enregistrer : aucun micro utilisable.",
+    "practiceModelError": "Le modèle n'a pas pu être chargé.",
+    "practiceLonger": "Votre version dure {s} de plus que le modèle.",
+    "practiceShorter": "Votre version dure {s} de moins que le modèle.",
+    "practiceDone": "Même durée que le modèle : réécoutez les deux à la suite."
   },
   "comments": {
     "title": "Commentaires",
@@ -163,7 +179,8 @@
     "imageCaption": "Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.",
     "recentTitle": "dernières pousses",
     "recentPlanted": "planté",
-    "recentTended": "retouché"
+    "recentTended": "retouché",
+    "recentStats": "Le jardin en chiffres"
   },
   "graph": {
     "back": "Retour au jardin",
@@ -186,7 +203,14 @@
     "localMore": "+{n} autres",
     "path": "Parcours",
     "pathNone": "Aucun parcours",
-    "pathAria": "Mettre en évidence un parcours de lecture"
+    "pathAria": "Mettre en évidence un parcours de lecture",
+    "mine": "Mes lectures",
+    "mineCount": "{n} / {total}",
+    "mineNext": "À explorer ensuite, d'après vos liens :",
+    "mineNoNeighbour": "Pour aller plus loin, les notes les plus citées :",
+    "mineStart": "Aucune note lue ici pour l'instant. Pour commencer, les plus citées :",
+    "mineLocate": "Montrer dans le graphe",
+    "mineOpen": "Ouvrir {title}"
   },
   "lightbox": {
     "close": "Fermer",
@@ -489,7 +513,8 @@
     "nextPath": "Parcours suivant",
     "followedBy": "Suite : {name}",
     "followsFrom": "Après « {name} »",
-    "graphAll": "Graphe des prérequis"
+    "graphAll": "Graphe des prérequis",
+    "sheet": "Fiche de révision"
   },
   "reading": {
     "read": "Lue",
@@ -890,5 +915,34 @@
     "doneNoQuiz": "Tu as lu toute la note.",
     "toNote": "Revenir à la note",
     "nextNote": "Étape suivante : {title}"
+  },
+  "jardin": {
+    "title": "Le jardin en chiffres",
+    "intro": "Ce qui a été planté, comment le jardin a poussé, et les notes vers lesquelles tout converge.",
+    "updated": "Mis à jour le",
+    "statNotes": "notes plantées",
+    "statWords": "mots",
+    "statDisciplines": "disciplines",
+    "statClips": "clips de prononciation",
+    "growthTitle": "Comment il a poussé",
+    "peak": "Le plus gros mois : {month}, avec {n} notes plantées.",
+    "chartAria": "Notes plantées chaque mois de {from} à {to}, et leur cumul jusqu'à {n}.",
+    "cumul": "cumul",
+    "perMonth": "/mois",
+    "disciplinesTitle": "Par discipline",
+    "others": "Autres disciplines",
+    "citedTitle": "Les notes les plus citées",
+    "links": "{n} liens",
+    "growingTitle": "Ce qui pousse ces trois derniers mois",
+    "newNotes": "+{n} notes"
+  },
+  "fiche": {
+    "back": "Retour au parcours",
+    "print": "Imprimer",
+    "kicker": "Fiche de révision",
+    "meta": "{notes} notes · {questions} questions, réponses en fin de fiche",
+    "metaNoQuiz": "{notes} notes",
+    "empty": "Les notes de ce parcours n'ont encore ni définitions, ni idées clés, ni questions.",
+    "answers": "Réponses"
   }
 }

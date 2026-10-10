@@ -79,7 +79,23 @@
     "playAria": "收听发音",
     "pauseAria": "暂停",
     "loadingAria": "音频加载中…",
-    "errorAria": "音频播放出错"
+    "errorAria": "音频播放出错",
+    "practice": "练习",
+    "practiceAria": "练习这个词的发音",
+    "practiceLocal": "不会上传任何内容：录音只保存在本设备上，关闭后即消失。",
+    "practiceClose": "关闭",
+    "practiceModel": "示范",
+    "practiceMe": "我",
+    "practiceBoth": "先示范再我",
+    "practiceRecord": "录音",
+    "practiceStop": "停止",
+    "practiceAgain": "重录",
+    "practiceDenied": "麦克风被拒绝：请在浏览器中为本站允许麦克风。",
+    "practiceNoMic": "无法录音：没有可用的麦克风。",
+    "practiceModelError": "示范音频无法加载。",
+    "practiceLonger": "你的发音比示范长 {s}。",
+    "practiceShorter": "你的发音比示范短 {s}。",
+    "practiceDone": "与示范时长相同：连续听听两者。"
   },
   "comments": {
     "title": "评论",
@@ -163,7 +179,8 @@
     "imageCaption": "卡米耶·毕沙罗，《埃拉尼的菜园》，1897年。— 知识如花园，需精心培育、代代相传。",
     "recentTitle": "最新生长",
     "recentPlanted": "种下",
-    "recentTended": "修订"
+    "recentTended": "修订",
+    "recentStats": "花园数据"
   },
   "graph": {
     "back": "返回花园",
@@ -186,7 +203,14 @@
     "localMore": "另有 {n} 条",
     "path": "阅读路径",
     "pathNone": "无路径",
-    "pathAria": "突出显示一条阅读路径"
+    "pathAria": "突出显示一条阅读路径",
+    "mine": "我的阅读",
+    "mineCount": "{n} / {total}",
+    "mineNext": "接下来可探索（根据你的链接）：",
+    "mineNoNeighbour": "进一步阅读，被引用最多的笔记：",
+    "mineStart": "这里还没有读过的笔记。可以从被引用最多的开始：",
+    "mineLocate": "在图中显示",
+    "mineOpen": "打开 {title}"
   },
   "lightbox": {
     "close": "关闭",
@@ -489,7 +513,8 @@
     "nextPath": "下一条路径",
     "followedBy": "接下来：{name}",
     "followsFrom": "在「{name}」之后",
-    "graphAll": "先修关系图"
+    "graphAll": "先修关系图",
+    "sheet": "复习卡"
   },
   "reading": {
     "read": "已读",
@@ -890,5 +915,34 @@
     "doneNoQuiz": "你已读完整篇笔记。",
     "toNote": "返回笔记",
     "nextNote": "下一步：{title}"
+  },
+  "jardin": {
+    "title": "花园数据",
+    "intro": "种下了什么、花园如何生长，以及所有笔记都指向的那些笔记。",
+    "updated": "更新于",
+    "statNotes": "篇笔记",
+    "statWords": "词",
+    "statDisciplines": "个学科",
+    "statClips": "段发音录音",
+    "growthTitle": "生长历程",
+    "peak": "最多的一个月：{month}，种下 {n} 篇笔记。",
+    "chartAria": "从 {from} 到 {to} 每月种下的笔记及其累计（共 {n} 篇）。",
+    "cumul": "累计",
+    "perMonth": "/月",
+    "disciplinesTitle": "按学科",
+    "others": "其他学科",
+    "citedTitle": "被引用最多的笔记",
+    "links": "{n} 个链接",
+    "growingTitle": "最近三个月的生长",
+    "newNotes": "+{n} 篇"
+  },
+  "fiche": {
+    "back": "返回路线",
+    "print": "打印",
+    "kicker": "复习卡",
+    "meta": "{notes} 篇笔记 · {questions} 个问题，答案在末尾",
+    "metaNoQuiz": "{notes} 篇笔记",
+    "empty": "这条路线的笔记还没有定义、要点或问题。",
+    "answers": "答案"
   }
 }
