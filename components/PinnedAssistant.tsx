@@ -345,7 +345,7 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
         {isNote && (
           <button type="button" className="gk-pinned-trigger" onClick={open}>
             {SPROUT}
-            <span>{tr("askAi.trigger")}</span>
+            <span className="gk-pinned-trigger-label">{tr("askAi.trigger")}</span>
           </button>
         )}
       </>

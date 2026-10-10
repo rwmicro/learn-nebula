@@ -3940,6 +3940,30 @@ body:has(.gk-pinned-trigger) .to-top,
 body:has(.gk-pinned) .to-top {
   bottom: 5rem;
 }
+/* Phones: beside the round "Demander" button, same row, rather than above
+   it — and gone while "Étape suivante" shows, whose ring already says how
+   much is read (path-step.css). */
+@media (max-width: 640px) {
+  .to-top,
+  body:has(.gk-pinned-trigger) .to-top {
+    width: 3rem;
+    height: 3rem;
+    right: 1rem;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+  body:has(.gk-pinned-trigger) .to-top {
+    right: 4.5rem;
+  }
+}
+@media (max-width: 900px) {
+  body:has(.path-dock:not([hidden])) .to-top {
+    display: none;
+  }
+  /* Room under the footer so that row never hides its last line. */
+  body:has(.gk-pinned-trigger) {
+    padding-bottom: 4.5rem;
+  }
+}
 
 /* "Et ensuite ?" right after the text. */
 .next-up {
