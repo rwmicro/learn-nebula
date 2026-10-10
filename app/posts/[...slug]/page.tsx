@@ -5,6 +5,7 @@ import { extractPlain, truncate } from "@/lib/markdown";
 import { SITE_URL, AUTHOR, absoluteURL } from "@/lib/site";
 import { graph, breadcrumbJsonLd } from "@/lib/jsonld";
 import { SinglePage } from "@/components/SinglePage";
+import { ogCardFor, ogImagePath } from "@/lib/og";
 import { NoteScripts } from "@/components/NoteScripts";
 // Article typography + note-widget styles, scoped to this route only.
 import "@/assets/css/main.css";
@@ -27,6 +28,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     body: doc.body,
     path: `/posts/${slugPath}/`,
     isArticle: true,
+    fallbackImage: ogImagePath(ogCardFor(doc)),
   });
 }
 

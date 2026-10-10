@@ -433,6 +433,9 @@ export function ParcoursStudy({
             {eligible.length > 0 && <span className="parcours-tool-count">{eligible.length}</span>}
           </button>
         )}
+        <a className="parcours-tool" href={`/parcours/${pathSlug}/fiche/`}>
+          {tr("parcours.sheet")}
+        </a>
         {placed && (
           <button
             type="button"

@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     .sort((a, b) => b.getTime() - a.getTime())[0];
   const themes = [
     { url: absoluteURL("/themes/") },
+    { url: absoluteURL("/jardin/") },
     ...getDisciplines().map((d) => ({ url: absoluteURL(`/disciplines/${d.slug}/`) })),
   ];
   const paths = getReadingPaths();
