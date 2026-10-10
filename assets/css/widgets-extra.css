@@ -1,0 +1,431 @@
+/* ------------------------------------------------------------ widget packs
+   Styles shared by the packs of lib/widgets-extra.ts (data, sciences,
+   languages) and the data pack's own pieces: OWID charts, prices in euros,
+   the « En quelques chiffres » callout. The base grammar (.w-root, .w-btn,
+   .w-table, .w-range…) is main.css's; this file only adds to it. Pack-specific
+   rules live in widgets-sci.css and widgets-lang.css. Note pages only. */
+
+/* Categorical series colours, fixed order (public/js/widget-kit.js SERIES).
+   Checked with the dataviz palette validator against --paper in each theme:
+   lightness band, chroma, colour-blind separation of neighbours, contrast. */
+:root {
+  --w-s1: #2d6cc0;
+  --w-s2: #b8740f;
+  --w-s3: #009b8f;
+  --w-s4: #7a5bc9;
+  --w-s5: #c4457f;
+  --w-s6: #6f7a2e;
+}
+:root[data-theme="dark"] {
+  --w-s1: #5b92d6;
+  --w-s2: #c2862c;
+  --w-s3: #2fa195;
+  --w-s4: #9278de;
+  --w-s5: #dc6a8e;
+  --w-s6: #8f9a4a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --w-s1: #5b92d6;
+    --w-s2: #c2862c;
+    --w-s3: #2fa195;
+    --w-s4: #9278de;
+    --w-s5: #dc6a8e;
+    --w-s6: #8f9a4a;
+  }
+}
+
+/* No-JS fallback of a data widget: the numbers as a plain table. */
+.widget-fallback-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.4rem;
+  font-size: var(--text-meta);
+  font-variant-numeric: tabular-nums;
+}
+.widget-fallback-table th,
+.widget-fallback-table td {
+  text-align: right;
+  padding: 0.15rem 0.5rem;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.widget-fallback-table th:first-child {
+  text-align: left;
+}
+
+/* Tooltip (widget-kit tooltip()) inside a relatively positioned plot. */
+.w-plot-wrap {
+  position: relative;
+}
+.w-plot-wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: pan-y;
+}
+.w-tip {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.12);
+  padding: 0.35rem 0.5rem;
+  font-size: var(--text-meta);
+  line-height: 1.35;
+  color: var(--ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.w-tip .w-key {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+  vertical-align: baseline;
+}
+.w-tip .w-dim {
+  color: var(--muted);
+}
+
+/* Chart text drawn in SVG takes theme ink, never the series colour. */
+.w-axis text {
+  font-size: 11px;
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.w-gridline {
+  stroke: var(--rule-soft);
+}
+.w-baseline {
+  stroke: var(--rule-strong);
+}
+.w-label {
+  font-size: 12px;
+  font-weight: 500;
+  fill: var(--ink-soft);
+}
+
+/* ---------------------------------------------------------- OWID charts */
+.w-chart-title {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+.w-chart-sub {
+  margin: 0.1rem 0 0.5rem;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.w-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 0.6rem;
+  font-size: var(--text-small);
+}
+.w-tabs button {
+  font: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 0.25rem 0.55rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.w-tabs button[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--link);
+  font-weight: 700;
+}
+.w-tabs .w-tab-spacer {
+  flex: 1;
+}
+.w-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+  margin: 0 0 0.3rem;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-meta);
+  color: var(--ink-soft);
+}
+.w-legend i {
+  display: inline-block;
+  width: 0.9rem;
+  height: 2px;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+}
+.w-source {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-micro);
+}
+.w-source a {
+  color: inherit;
+}
+.w-scroll {
+  overflow: auto;
+  max-height: 18rem;
+}
+.w-scroll .w-table th {
+  position: sticky;
+  top: 0;
+  background: var(--paper);
+  width: auto;
+}
+.w-table.w-num td,
+.w-table.w-num th:not(:first-child) {
+  text-align: right;
+}
+
+/* Guess-the-curve: the area to draw in, and the result line. */
+.w-guess-zone {
+  fill: var(--wash);
+}
+.w-result {
+  min-height: 1.4em;
+  margin-top: 0.5rem;
+  font-size: var(--text-small);
+}
+
+/* Scrollytelling (owid type: recit): chart pinned, steps scroll past it. */
+.w-recit {
+  display: grid;
+  gap: 1rem;
+}
+.w-recit-chart {
+  position: sticky;
+  top: 4rem;
+  z-index: 1;
+  background: var(--paper);
+  padding-block: 0.4rem;
+}
+.w-recit-steps {
+  display: grid;
+  gap: 45vh;
+  padding-block: 10vh 30vh;
+}
+.w-recit-step {
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  padding: 0.7rem 0.9rem;
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+.w-recit-step.is-current {
+  opacity: 1;
+  border-color: var(--link);
+}
+.w-recit-step b {
+  display: block;
+  font-size: var(--text-meta);
+  color: var(--muted);
+  font-weight: 500;
+}
+@media (min-width: 900px) {
+  .w-recit {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: start;
+  }
+  .w-recit-steps {
+    order: 2;
+  }
+}
+
+/* Country fact sheet: three small metrics side by side. */
+.w-fiche {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.9rem;
+}
+.w-fiche-v {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.w-fiche-v small {
+  font-size: var(--text-meta);
+  color: var(--muted);
+}
+.w-fiche-l {
+  font-size: var(--text-meta);
+  color: var(--ink-soft);
+}
+.w-fiche-d {
+  font-size: var(--text-micro);
+  color: var(--muted);
+}
+
+/* True or false, ranking. */
+.w-claim {
+  font-size: 1.1em;
+  margin: 0 0 0.7rem;
+}
+.w-verdict {
+  font-weight: 700;
+  margin: 0.7rem 0 0.2rem;
+}
+.w-ok {
+  color: var(--garden);
+}
+.w-ko {
+  color: var(--danger);
+}
+.w-rank {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+.w-rank li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  padding: 0.3rem 0.5rem;
+  font-size: var(--text-small);
+}
+.w-rank li.is-right {
+  border-color: var(--garden);
+}
+.w-rank li.is-wrong {
+  border-color: var(--danger);
+}
+.w-rank .w-rank-n {
+  width: 1.4em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.w-rank .w-rank-label {
+  flex: 1;
+  min-width: 0;
+}
+.w-rank .w-rank-val {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.w-rank button {
+  font: inherit;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+  width: 1.9rem;
+  height: 1.9rem;
+  cursor: pointer;
+}
+.w-rank button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Bars (pyramid, opening results). */
+.w-bar-row {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: var(--text-meta);
+}
+.w-wdb {
+  display: flex;
+  height: 1.1rem;
+  border: 1px solid var(--rule-strong);
+}
+.w-wdb span {
+  display: block;
+  height: 100%;
+}
+.w-wdb .w-white {
+  background: var(--paper);
+}
+.w-wdb .w-draw {
+  background: var(--rule-strong);
+}
+.w-wdb .w-black {
+  background: var(--ink-soft);
+}
+.w-moves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.8rem;
+  font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------- prices in euros (prix) */
+.prix {
+  border-bottom: 1px dotted var(--garden);
+  cursor: help;
+}
+button.prix {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 1px dotted var(--garden);
+  padding: 0;
+  cursor: pointer;
+}
+button.prix:hover,
+button.prix[aria-expanded="true"] {
+  background: var(--garden-wash);
+}
+.prix-pop {
+  position: absolute;
+  z-index: 30;
+  max-width: 17rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.14);
+  padding: 0.55rem 0.7rem;
+  font-size: var(--text-meta);
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+.prix-pop strong {
+  display: block;
+  font-size: 1.3rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------- « En quelques chiffres » callout */
+.callout-chiffres {
+  --c: var(--garden);
+}
+.callout-chiffres .callout-body > ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.9rem;
+  list-style: none;
+  margin: 0.3rem 0;
+  padding: 0;
+}
+.callout-chiffres .callout-body > ul > li {
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-meta);
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+.callout-chiffres .callout-body > ul > li::before {
+  content: none;
+}
+.callout-chiffres .callout-body > ul > li > strong:first-child {
+  display: block;
+  font-size: 1.7rem;
+  line-height: 1.15;
+  font-weight: 400;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}

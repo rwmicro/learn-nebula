@@ -16,6 +16,7 @@
 /public/js/palette.bundle.js
 /public/js/quiz.bundle.js
 /public/js/glossary.bundle.js
+/public/js/widgets-*.bundle.js
 
 # mermaid UMD bundle copied in by scripts/copy-mermaid.mjs (client-render fallback)
 /public/js/mermaid.min.js
