@@ -489,7 +489,7 @@
     "nextPath": "Next path",
     "followedBy": "Next: {name}",
     "followsFrom": "After “{name}”",
-    "graphAll": "Show the prerequisite graph"
+    "graphAll": "Prerequisite graph"
   },
   "reading": {
     "read": "Read",
