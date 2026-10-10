@@ -489,7 +489,7 @@
     "nextPath": "Recorrido siguiente",
     "followedBy": "Después: {name}",
     "followsFrom": "Después de «{name}»",
-    "graphAll": "Ver el grafo de prerrequisitos"
+    "graphAll": "Grafo de prerrequisitos"
   },
   "reading": {
     "read": "Leída",
