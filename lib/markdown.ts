@@ -23,6 +23,9 @@ import {
 } from "./vault-assets";
 import { t } from "./i18n";
 import { cardId } from "./srs";
+import { EXTRA_WIDGETS } from "./widgets-extra";
+import { enrichWidget } from "./widget-data";
+import { parsePrix, toEuros, formatEuros, IPC_LAST } from "./prix";
 import {
   definitionAnchor,
   definitionTerm,
@@ -194,6 +197,11 @@ const CALLOUT_ALIAS: Record<string, string> = {
   predict: "predict",
   prediction: "predict",
   avis: "predict",
+  // "En quelques chiffres": a few key figures, each list item's leading bold
+  // text set large (assets/css/widgets-extra.css), after the Insee's
+  // « L'essentiel sur… » boxes.
+  chiffres: "chiffres",
+  figures: "chiffres",
 };
 // Default (French) title when the callout has none.
 const CALLOUT_LABEL: Record<string, string> = {
@@ -212,6 +220,7 @@ const CALLOUT_LABEL: Record<string, string> = {
   quote: "Citation",
   quiz: "Question",
   predict: "À ton avis ?",
+  chiffres: "En quelques chiffres",
 };
 const CALLOUT_ICON: Record<string, string> = {
   note: calloutSvg(
@@ -255,6 +264,7 @@ const CALLOUT_ICON: Record<string, string> = {
   predict: calloutSvg(
     '<path d="M12 3a6 6 0 0 0-3.5 10.9V16h7v-2.1A6 6 0 0 0 12 3z"/><path d="M9.5 19h5M10.5 21.5h3"/>',
   ),
+  chiffres: calloutSvg('<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'),
 };
 const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
@@ -1376,7 +1386,8 @@ function widgetProps(source: string): Record<string, string> {
  * visible code block instead of silently rendering nothing.
  */
 function rehypeWidgets() {
-  return (tree: Root) => {
+  return async (tree: Root) => {
+    const jobs: Promise<void>[] = [];
     visit(tree, "element", (node: Element, index, parent) => {
       if (node.tagName !== "pre" || !parent || index == null) return;
       const code = node.children.find(
@@ -1390,10 +1401,11 @@ function rehypeWidgets() {
       );
       if (!cls) return;
       const name = cls.slice("language-widget:".length);
-      if (!WIDGETS.has(name)) return;
+      const extra = EXTRA_WIDGETS[name];
+      if (!WIDGETS.has(name) && !extra) return;
 
       const props = widgetProps(hastText(code));
-      parent.children[index] = {
+      const figure: Element = {
         type: "element",
         tagName: "figure",
         properties: {
@@ -1408,10 +1420,112 @@ function rehypeWidgets() {
             tagName: "p",
             properties: { className: ["widget-fallback"] },
             children: [
-              { type: "text", value: WIDGET_FALLBACK[name] ?? "Widget." },
+              {
+                type: "text",
+                value: WIDGET_FALLBACK[name] ?? extra?.fallback ?? "Widget.",
+              },
             ],
           },
         ],
+      };
+      parent.children[index] = figure;
+      // Data widgets (lib/widget-data.ts) get their numbers now, at build:
+      // OWID / Wikidata from the on-disk cache or the network, the Insee and
+      // Lichess snapshots from lib/data/. The no-JS fallback becomes a table
+      // of the same numbers when there is one.
+      if (extra?.pack === "data") {
+        jobs.push(
+          enrichWidget(name, props).then((d) => {
+            if (!d) return;
+            figure.properties["data-props"] = JSON.stringify(d.props);
+            if (d.error) {
+              figure.children = [
+                {
+                  type: "element",
+                  tagName: "p",
+                  properties: { className: ["widget-fallback"] },
+                  children: [{ type: "text", value: d.error }],
+                },
+              ];
+              figure.properties["data-error"] = "";
+            } else if (d.table) {
+              figure.children.push(fallbackTable(d.table));
+            }
+          }),
+        );
+      }
+    });
+    await Promise.all(jobs);
+  };
+}
+
+/** A plain <table> of a data widget's numbers, for readers without JS. */
+function fallbackTable(rows: string[][]): Element {
+  const cell = (tag: "th" | "td", v: string): Element => ({
+    type: "element",
+    tagName: tag,
+    properties: {},
+    children: [{ type: "text", value: v }],
+  });
+  return {
+    type: "element",
+    tagName: "table",
+    properties: { className: ["widget-fallback-table"] },
+    children: [
+      {
+        type: "element",
+        tagName: "thead",
+        properties: {},
+        children: [
+          {
+            type: "element",
+            tagName: "tr",
+            properties: {},
+            children: rows[0].map((v) => cell("th", v)),
+          },
+        ],
+      },
+      {
+        type: "element",
+        tagName: "tbody",
+        properties: {},
+        children: rows.slice(1).map((r) => ({
+          type: "element",
+          tagName: "tr",
+          properties: {},
+          children: r.map((v, i) => cell(i ? "td" : "th", v)),
+        })),
+      },
+    ],
+  };
+}
+
+/**
+ * Inline `prix: 300 francs 1950` code spans (lib/prix.ts) become the amount as
+ * written, underlined, with its worth in today's euros worked out here at
+ * build. public/js/widgets-data.js turns it into a button with a popover; the
+ * title attribute carries the answer for readers without JavaScript.
+ */
+function rehypePrix() {
+  return (tree: Root) => {
+    visit(tree, "element", (node: Element, index, parent) => {
+      if (node.tagName !== "code" || !parent || index == null) return;
+      if ((parent as Element).tagName === "pre") return;
+      const p = parsePrix(hastText(node));
+      if (!p) return;
+      const eur = toEuros(p.amount, p.unit, p.year);
+      parent.children[index] = {
+        type: "element",
+        tagName: "span",
+        properties: {
+          className: ["prix"],
+          "data-eur": formatEuros(eur),
+          "data-year": String(p.year),
+          "data-unit": p.unit,
+          "data-to": String(IPC_LAST),
+          title: `≈ ${formatEuros(eur)} de ${IPC_LAST} (pouvoir d'achat, Insee)`,
+        },
+        children: [{ type: "text", value: p.label }],
       };
     });
   };
@@ -1629,6 +1743,7 @@ export async function renderMarkdown(
     .use(rehypePredictVeil)
     .use(rehypeManim, dir)
     .use(rehypeWidgets)
+    .use(rehypePrix)
     .use(rehypeShiki)
     .use(rehypePlaceholders, ph.map)
     .use(rehypeHeadingIds)

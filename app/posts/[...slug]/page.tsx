@@ -11,6 +11,10 @@ import "@/assets/css/main.css";
 import "@/assets/css/syntax.css";
 import "@/assets/css/note-paths.css";
 import "@/assets/css/path-step.css";
+// Widget packs (lib/widgets-extra.ts): data figures, sciences, languages.
+import "@/assets/css/widgets-extra.css";
+import "@/assets/css/widgets-sci.css";
+import "@/assets/css/widgets-lang.css";
 
 type Params = { params: Promise<{ slug: string[] }> };
 
