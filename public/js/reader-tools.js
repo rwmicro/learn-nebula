@@ -1,6 +1,9 @@
 // Reading aids on a note page:
 // - "Remonter": a round button bottom-right once the reader is a screen down,
 //   its ring filled with how much of the note is read;
+// - phones and tablets: the floating buttons at the bottom ("Étape suivante",
+//   "Remonter", "Demander à l'IA") slide away while the reader scrolls down
+//   and come back on the way up or at the end of the note;
 // - the condensed header (mobile) shows the section being read and the time
 //   left ("encore 6 min");
 // - "Et ensuite ?" (lib/html.ts nextUpHtml): picks the first note of the
@@ -90,6 +93,39 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll, { passive: true });
   update();
+
+  // --- floating buttons tuck away while reading down (touch widths) ---------
+  // A class on <html> (styled in main.css / path-step.css / global.css), so
+  // the React "Demander à l'IA" pill follows without knowing about it.
+  const narrow = window.matchMedia("(max-width: 900px)");
+  const root = document.documentElement;
+  let lastY = window.scrollY;
+  let tuckQueued = false;
+  function tuck() {
+    tuckQueued = false;
+    const y = window.scrollY;
+    const dy = y - lastY;
+    if (Math.abs(dy) < 6) return;
+    lastY = y;
+    const nearEnd = y + window.innerHeight > document.documentElement.scrollHeight - window.innerHeight * 0.6;
+    root.classList.toggle("fabs-tucked", narrow.matches && dy > 0 && y > 80 && !nearEnd);
+  }
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (tuckQueued) return;
+      tuckQueued = true;
+      requestAnimationFrame(tuck);
+    },
+    { passive: true },
+  );
+  // Tabbing onto a tucked button brings the row back.
+  document.addEventListener("focusin", (e) => {
+    const t = e.target;
+    if (t instanceof Element && t.closest(".to-top, .path-dock, .gk-pinned-trigger")) {
+      root.classList.remove("fabs-tucked");
+    }
+  });
 
   // --- "Et ensuite ?": an unread note of the discipline ---------------------
   const side = document.querySelector(".next-up-side[data-candidates]");
