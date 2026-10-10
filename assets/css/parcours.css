@@ -926,7 +926,7 @@ body:has(.parcours-page) footer {
   line-height: 1;
 }
 
-/* A (nearly) one-column path: the graph only repeats the list, folded. */
+/* The prerequisite graph under the list, open by default (its summary folds it). */
 .parcours-graph-fold {
   margin: 1rem 0 0.8rem;
 }

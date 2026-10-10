@@ -489,7 +489,7 @@
     "nextPath": "下一条路径",
     "followedBy": "接下来：{name}",
     "followsFrom": "在「{name}」之后",
-    "graphAll": "查看先修关系图"
+    "graphAll": "先修关系图"
   },
   "reading": {
     "read": "已读",

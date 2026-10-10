@@ -445,10 +445,10 @@ export function ParcoursPage({
           </span>
         </a>
       )}
-      {/* The graph of prerequisites, folded under the list: the levels are
-          the way in, the graph the map for who wants it (and for aiming at
-          a note, ◎). */}
-      <details className="parcours-graph-fold">
+      {/* The graph of prerequisites, under the list and open by default: the
+          levels are the way in, the graph the map (and for aiming at a note,
+          ◎); its summary folds it away for who doesn't want it. */}
+      <details className="parcours-graph-fold" open>
         <summary {...attrs(i18nAttrs("parcours.graphAll"))}>{t("parcours.graphAll")}</summary>
         {figure}
       </details>
