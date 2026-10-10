@@ -625,7 +625,11 @@
     "othersMany": "+{n} other paths",
     "othersTitle": "This note is also in:",
     "dockNext": "Next step",
-    "dockAria": "Next step of the path: {title}"
+    "dockAria": "Next step of the path: {title}",
+    "here": "You are here",
+    "read": "{n} of {total} read",
+    "seePath": "See the path",
+    "close": "Close"
   },
   "discipline": {
     "agriculture": "Agriculture",
