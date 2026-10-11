@@ -83,6 +83,7 @@
 }
 .fc-dot:hover::after,
 .fc-dot:focus-visible::after {
+  border-radius: var(--radius-md, 0);
   content: attr(data-label);
   position: absolute;
   bottom: calc(100% + 8px);
