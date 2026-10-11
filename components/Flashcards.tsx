@@ -392,7 +392,7 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
               type="button"
               onClick={handleCardClick}
               aria-label={tr("flip")}
-              className="flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-rule bg-paper p-6 text-center transition-[min-height] duration-200 hover:bg-paper sm:p-8"
+              className="flex w-full cursor-pointer items-center justify-center rounded-md border border-rule bg-paper p-6 text-center transition-[min-height] duration-200 hover:bg-paper sm:p-8"
               style={{ minHeight: `${22 * zoom}rem` }}
             >
               <DeckFace

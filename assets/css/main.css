@@ -409,7 +409,7 @@ a:hover {
   background: var(--link-wash);
   transition-property: background;
   transition-duration: 0.2s;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
 }
 
 /* Prose links inside the article body carry a subtle, persistent underline so
@@ -461,7 +461,7 @@ a:hover {
   padding: 0.55rem;
   background: var(--paper);
   border: 1px solid var(--rule);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 2px 14px rgba(0, 0, 0, 0.13);
 }
 .note-figure > figcaption {
@@ -624,7 +624,7 @@ code:not(.chroma code) {
   padding: 0.25rem 0.45rem;
   color: var(--paper);
   background: var(--ink);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
 }
 
 h2:hover .anchor,
@@ -670,7 +670,7 @@ h4:focus-within .anchor,
      0 in light, where the card is invisible anyway). */
   background: var(--paper);
   padding: var(--island-pad);
-  border-radius: 4px;
+  border-radius: var(--radius-md);
 }
 
 /* A diagram wider than the column (a fifteen-event timeline is ~3300px) scrolls,
@@ -696,11 +696,11 @@ h4:focus-within .anchor,
 }
 .mermaid-diagram::-webkit-scrollbar-track {
   background: var(--rule-soft);
-  border-radius: 5px;
+  border-radius: var(--radius-pill);
 }
 .mermaid-diagram::-webkit-scrollbar-thumb {
   background: var(--rule-strong);
-  border-radius: 5px;
+  border-radius: var(--radius-pill);
 }
 .mermaid-diagram::-webkit-scrollbar-thumb:hover {
   background: var(--muted);
@@ -826,7 +826,7 @@ h4:focus-within .anchor,
 .wide-text-btn:hover,
 .translate-btn:hover {
   background: var(--link-wash);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   transition: background 0.2s;
 }
 
@@ -836,7 +836,7 @@ h4:focus-within .anchor,
 .translate-btn:focus-visible {
   outline: 1px solid var(--link);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .translate-icon {
@@ -1250,7 +1250,7 @@ body .site-bar {
   border: 1px solid hsl(var(--theme-h, 210), 35%, 78%);
   background: hsl(var(--theme-h, 210), 30%, 94%);
   color: hsl(var(--theme-h, 210), 50%, 22%);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   line-height: 1.5;
   white-space: nowrap;
   /* Clickable (#12): a theme links to the home search for that term. */
@@ -1421,7 +1421,7 @@ a.theme-pill:focus-visible {
   color: var(--muted);
   background: var(--paper);
   border: 1px solid var(--rule-strong);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   opacity: 0;
   transition: opacity 0.15s, color 0.15s, border-color 0.15s;
@@ -1840,7 +1840,7 @@ a.theme-pill:focus-visible {
   padding: 0.4rem 0.6rem;
   background: var(--paper);
   border: 1px solid dimgray;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   color: var(--ink);
   line-height: 1.5;
 }
@@ -1872,6 +1872,7 @@ a.theme-pill:focus-visible {
   padding: 0.4rem 1.4rem;
   background: var(--garden);
   border: 1px solid var(--garden);
+  border-radius: var(--radius-sm);
   color: var(--paper);
   cursor: pointer;
   line-height: 1.2;
@@ -2101,7 +2102,7 @@ a.theme-pill:focus-visible {
     background: var(--paper);
     color: var(--ink);
     cursor: pointer;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     line-height: 1.2;
     flex-shrink: 0;
   }
@@ -2336,7 +2337,7 @@ a.theme-pill:focus-visible {
   padding: 0 0.2rem;
   cursor: move;
   touch-action: none; /* JS owns the drag gesture on touch */
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   transition: background-color 0.15s ease;
 }
 /* Hover tint (with the move cursor) signals the bar is draggable by its grip. */
@@ -2409,7 +2410,7 @@ a.theme-pill:focus-visible {
   background: var(--garden);
   color: var(--paper);
   cursor: pointer;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
   line-height: 1.2;
 }
@@ -2532,7 +2533,7 @@ a.theme-pill:focus-visible {
   padding: 0.55rem 0.9rem;
   border: 1px solid var(--rule);
   border-left: 4px solid var(--c);
-  border-radius: 2px;
+  border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--c) 7%, var(--paper));
 }
 .callout-title,
@@ -2620,7 +2621,7 @@ a.theme-pill:focus-visible {
   max-width: 100%;
   height: auto;
   background: #000;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
 }
 
 .manim-figure .manim-source {
@@ -2653,7 +2654,7 @@ a.theme-pill:focus-visible {
   font-style: italic;
   color: var(--muted);
   border: 1px dashed var(--rule-strong);
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   background: var(--wash);
   width: 100%;
   text-align: center;
@@ -2681,11 +2682,13 @@ main video {
   margin: 0;
   padding: 0.7rem 0.9rem;
   border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
   color: var(--muted);
   font-size: var(--text-small);
 }
 .widget.is-live .w-root {
   border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
   padding: 0.9rem;
   background: var(--paper);
 }
@@ -2709,7 +2712,7 @@ main video {
   background: var(--paper);
   color: var(--ink);
   padding: 0.25rem 0.6rem;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 .w-input {
@@ -2759,7 +2762,7 @@ main video {
   color: var(--muted);
   padding: 0;
   cursor: pointer;
-  border-radius: 0;
+  border-radius: var(--radius-xs);
 }
 .w-bit.is-on {
   background: var(--link-wash);
@@ -2857,7 +2860,7 @@ main video {
   background: var(--paper);
   color: var(--ink);
   padding: 0.4rem 0.5rem;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
   resize: vertical;
   margin-bottom: 0.7rem;
 }
@@ -3216,7 +3219,7 @@ main video {
   background: var(--paper);
   color: var(--ink);
   cursor: pointer;
-  border-radius: 0;
+  border-radius: var(--radius-sm);
 }
 .w-char.is-active {
   background: var(--link-wash);
@@ -3311,7 +3314,7 @@ main video {
   color: var(--c);
   background: var(--paper);
   border: 1px solid var(--c);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background-color 0.15s, color 0.15s;
 }
@@ -3403,7 +3406,7 @@ main video {
 .callout.quiz--choice,
 .callout-predict {
   border: 1.5px solid var(--rule-strong);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--paper-raised, var(--paper));
   padding: 0.7rem 1rem 1rem;
   overflow: hidden;
@@ -3442,7 +3445,7 @@ main video {
   background: var(--paper);
   border: 1.5px solid var(--rule-strong);
   border-bottom-width: 4px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   padding: 0.6rem 0.8rem;
   cursor: pointer;
   transition: transform 0.08s, border-color 0.15s, background-color 0.15s;
@@ -3470,7 +3473,7 @@ main video {
   place-items: center;
   width: 1.6rem;
   height: 1.6rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   border: 1.5px solid var(--rule-strong);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.8rem;
@@ -3593,7 +3596,7 @@ main video {
   padding: 0.35rem 0.75rem;
   border-inline-start: 3px solid var(--link);
   background: var(--link-wash);
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
   font-size: 0.98rem;
 }
 .quiz-hint-label {
@@ -3663,7 +3666,7 @@ main video {
   font-size: 0.86rem;
   color: var(--muted-warm);
   border: 1px dashed var(--rule-strong);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 .predict-rest {
   transition: filter 0.35s, opacity 0.35s;
@@ -3720,7 +3723,7 @@ main video {
 .article-body a.gloss[aria-describedby] {
   background: var(--garden-wash);
   text-decoration-color: var(--garden);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 .gloss-kicker {
   margin: 0 0 0.1rem;
@@ -3760,7 +3763,7 @@ main video {
   padding: 0;
   background: var(--rule-strong);
   border: 1px solid var(--ink);
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   overflow: hidden;
   animation: sel-menu-in 0.12s ease-out;
@@ -3997,7 +4000,7 @@ body:has(.gk-pinned) .to-top {
   padding: 0.85rem 1rem;
   border: 1px solid var(--rule-strong);
   border-left: 4px solid var(--garden);
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
   color: var(--ink);
   text-decoration: none;
   background: var(--paper);
@@ -4048,7 +4051,7 @@ body:has(.gk-pinned) .to-top {
   margin: 0;
   padding: 0.85rem 1rem;
   border: 1px dashed var(--rule-strong);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   color: var(--garden);
   font-weight: 600;
 }
@@ -4085,13 +4088,13 @@ body:has(.gk-pinned) .to-top {
 .bookmark-btn:hover,
 .focus-btn:hover {
   background: var(--link-wash);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 .bookmark-btn:focus-visible,
 .focus-btn:focus-visible {
   outline: 1px solid var(--link);
   outline-offset: 2px;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 .bookmark-btn[aria-pressed="true"] {
   color: var(--garden);
@@ -4123,7 +4126,7 @@ body:has(.gk-pinned) .to-top {
   gap: 0.3rem;
   cursor: pointer;
   list-style: none;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 .note-more-btn::-webkit-details-marker {
   display: none;
@@ -4151,7 +4154,7 @@ body:has(.gk-pinned) .to-top {
   padding: 0.35rem;
   background: var(--paper);
   border: 1px solid var(--rule-strong);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
 }
 .note-more-panel > button,
@@ -4189,7 +4192,7 @@ body:has(.gk-pinned) .to-top {
   background: var(--garden-wash);
   border: 1.5px solid var(--garden);
   border-bottom-width: 3px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   padding: 0.1rem 0.55rem;
   cursor: pointer;
 }
@@ -4257,7 +4260,7 @@ html.lesson-open {
 .lesson-seg {
   flex: 1;
   height: 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--rule);
   transition: background-color 0.3s;
 }
@@ -4385,7 +4388,7 @@ html.lesson-open {
   background: var(--garden);
   border: 1.5px solid var(--garden-hover);
   border-bottom: 4px solid color-mix(in srgb, var(--garden) 60%, #000);
-  border-radius: 12px;
+  border-radius: var(--radius-sm);
   padding: 0.65rem 1.6rem;
   min-width: 11rem;
   cursor: pointer;
@@ -4417,7 +4420,7 @@ html.lesson-open {
 .lesson-medal {
   width: 4rem;
   height: 4rem;
-  border-radius: 1.1rem;
+  border-radius: var(--radius-lg);
   transform: rotate(45deg);
   display: grid;
   place-items: center;
@@ -4505,7 +4508,7 @@ body[data-focus="true"] .title-note {
   z-index: 960;
   padding: 0.3rem 0.8rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--paper-raised);
   color: var(--ink-soft);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
@@ -4527,7 +4530,7 @@ mark.hl {
   background: var(--mark-soft);
   color: inherit;
   padding: 0.05em 0;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   cursor: pointer;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
@@ -4552,7 +4555,7 @@ mark.hl--new {
   padding: 0.7rem;
   background: var(--paper-raised);
   border: 1px solid var(--rule-strong);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   box-shadow: 0 10px 30px rgb(0 0 0 / 0.16);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
 }
@@ -4574,7 +4577,7 @@ mark.hl--new {
   color: var(--ink);
   background: var(--paper);
   border: 1px solid var(--rule-strong);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 0.4rem;
   resize: vertical;
 }
@@ -4586,7 +4589,7 @@ mark.hl--new {
 }
 .hl-card-actions button {
   border: 1px solid var(--rule-strong);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
   padding: 0.25rem 0.7rem;
