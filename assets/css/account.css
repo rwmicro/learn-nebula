@@ -95,7 +95,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 .acct-hero,
 .acct-login {
   border: 1px solid var(--rule);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--paper);
   padding: 1.2rem 1.4rem;
 }
@@ -142,7 +142,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, max-content));
   border: 1px solid var(--rule);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--paper);
   width: fit-content;
   max-width: 100%;
@@ -186,7 +186,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 }
 .acct-next-bar {
   height: 6px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--rule-soft);
   overflow: hidden;
 }
@@ -234,7 +234,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 }
 .wardrobe-tab {
   border: 1px solid var(--rule-strong);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--paper);
   color: var(--ink-soft);
   padding: 0.25rem 0.85rem;
@@ -257,7 +257,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   flex-direction: column;
   align-items: stretch;
   border: 2px solid var(--rule);
-  border-radius: 10px;
+  border-radius: var(--radius-md);
   background: var(--paper);
   overflow: hidden;
 }
@@ -295,7 +295,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   justify-content: center;
   gap: 0.3rem;
   border: 1px solid #e0a526;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: #fff7e0;
   color: #6b4b00;
   padding: 0.22rem 0.7rem;
@@ -347,7 +347,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   display: inline-block;
   margin-left: 0.3rem;
   padding: 0.05rem 0.5rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--wash-2);
   color: var(--ink-soft);
   font-size: 0.8rem;
@@ -388,7 +388,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--rule-strong);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
   padding: 0.4rem 0.9rem;
@@ -469,7 +469,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   font: inherit;
   padding: 0.45rem 0.6rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
 }
@@ -572,7 +572,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   font-size: 1rem;
   padding: 0.5rem 0.6rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
 }
@@ -585,7 +585,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 }
 .acct-ok {
   padding: 0.7rem 0.9rem;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--garden-wash);
   color: var(--garden);
   font-weight: 600;
@@ -654,7 +654,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   display: inline-block;
   width: 11px;
   height: 11px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 /* /progression/: bookmarks and highlights (components/MyMarks.tsx). */
