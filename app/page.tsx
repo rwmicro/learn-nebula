@@ -9,6 +9,9 @@ import { graph, personJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import Header from "@/components/Header";
 import { HomeContent } from "@/components/HomeContent";
 import { RecentNotes } from "@/components/RecentNotes";
+import { Graphiques } from "@/components/Graphiques";
+import { getGraphiques } from "@/lib/graphiques";
+import "@/assets/css/graphiques.css";
 
 // Editorial serif for the content zone. next/font self-hosts the files at build
 // time, so they are served from our own origin — no Google CDN request, and the
@@ -66,6 +69,7 @@ export default async function HomePage() {
       </div>
       <main id="main" className={newsreader.variable}>
         <RecentNotes notes={getRecentNotes()} />
+        <Graphiques items={getGraphiques(3)} />
         {/* The full tree and the folder-graph preview
             arrive as /home-data.json (lib/home-data.ts); the shell covers the
             first paint. */}

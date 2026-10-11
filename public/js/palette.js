@@ -363,10 +363,12 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
       ["nav.home", "/", "accueil home"],
       ["nav.graph", "/graph/", "graphe graph carte"],
       ["nav.frise", "/frise/", "frise chronologie timeline"],
+      ["carte.nav", "/carte/", "carte monde pays map world countries"],
       ["nav.themes", "/themes/", "themes tags disciplines"],
       ["nav.cartes", "/cartes/", "cartes anki flashcards"],
       ["nav.parcours", "/parcours/", "parcours chemins prerequis paths"],
       ["nav.progression", "/progression/", "progression progress export import sauvegarde"],
+      ["donnees.nav", "/donnees/", "donnees data open json licence citer sources"],
     ]
       .filter(([, href]) => href !== location.pathname)
       .map(([k, href, kw]) => ({ kind: "nav", title: tt(k), hint: "", href, keywords: kw }));

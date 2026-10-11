@@ -1,0 +1,74 @@
+/* Scoped to /donnees — same per-route pattern as frise.css. */
+
+.donnees-page {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.2rem 4rem;
+}
+.donnees-back {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.donnees-back:hover {
+  text-decoration: underline;
+}
+.donnees-title {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.5rem);
+  margin: 0 0 0.5rem;
+}
+.donnees-intro {
+  color: var(--ink-2);
+  margin: 0 0 2rem;
+  font-size: 1.1rem;
+}
+.donnees-h2 {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin: 2rem 0 0.6rem;
+}
+.donnees-text {
+  margin: 0 0 1rem;
+  color: var(--ink-2);
+}
+.donnees-scroll {
+  overflow-x: auto;
+}
+.donnees-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  border-top: 2px solid var(--ink);
+  border-bottom: 2px solid var(--ink);
+}
+.donnees-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--muted);
+  padding: 0.45rem 0.6rem 0.45rem 0;
+  border-bottom: 1px solid var(--rule-strong);
+}
+.donnees-table td {
+  padding: 0.45rem 0.6rem 0.45rem 0;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+.donnees-table tr:last-child td {
+  border-bottom: 0;
+}
+.donnees-table code {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
