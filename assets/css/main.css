@@ -1385,7 +1385,7 @@ a.theme-pill:focus-visible {
   right: 0;
   height: 3px;
   z-index: 950;
-  background: var(--link);
+  background: var(--garden);
   transform-origin: 0 50%;
   transform: scaleX(var(--progress, 0));
   transition: transform 0.12s linear, opacity 0.2s;
