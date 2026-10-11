@@ -38,7 +38,7 @@ export function paires(props) {
     fill(
       opts,
       ...pair.map((side) =>
-        el("button", { type: "button", class: "l-pair", onclick: (ev) => pick(side, ev.currentTarget) }, [side.label]),
+        el("button", { type: "button", class: "l-pair", onclick: (ev) => pick(side, ev.currentTarget) }, labelParts(side.label)),
       ),
     );
     if (autoplay) play();
@@ -71,6 +71,16 @@ export function paires(props) {
     out,
     el("div", { class: "w-controls" }, [next]),
   ]);
+}
+
+/** "四 sì (quatre)" → the word large, "sì · quatre" small under it. */
+function labelParts(label) {
+  const m = /^(\S+)\s*(.*)$/.exec(label.trim());
+  const word = m ? m[1] : label;
+  const rest = m ? m[2] : "";
+  const gloss = /^\((.*)\)$/.exec(rest);
+  const small = gloss ? gloss[1] : rest.replace(/\s*\(([^)]*)\)$/, " · $1");
+  return [word, small && el("small", {}, [small])];
 }
 
 function shuffle(a) {

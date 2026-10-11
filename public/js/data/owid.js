@@ -393,7 +393,7 @@ function pyramide(props, fig) {
   const plot = el("div", { class: "w-plot-wrap" });
   const slider = el("input", { type: "range", class: "w-range", min: years[0], max: years.at(-1), step: 1, value: year, "aria-label": "Année" });
   const yl = el("b", { class: "w-pyr-year" }, [String(year)]);
-  const play = el("button", { type: "button", class: "w-btn" }, ["Lecture"]);
+  const play = el("button", { type: "button", class: "w-btn is-active" }, ["Lecture"]);
   let timer = null;
   let tip;
 
