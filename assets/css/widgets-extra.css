@@ -159,6 +159,7 @@
 }
 .w-legend li,
 main .w-legend li {
+  list-style: none;
   margin: 0;
   font-size: inherit;
   line-height: 1.4;
@@ -465,4 +466,11 @@ button.prix[aria-expanded="true"] {
     grid-template-columns: minmax(0, 1fr);
     gap: 0.15rem;
   }
+}
+
+/* main.css gives lists in .article-body their bullets and indent back
+   (0,1,1); the widgets' own lists are not prose lists. */
+.article-body .widget :is(.w-legend, .w-rank, .w-moves, .w-ouv-rows) {
+  list-style: none;
+  padding-left: 0;
 }
