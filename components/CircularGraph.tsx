@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { stratify, cluster, type HierarchyNode } from "d3-hierarchy";
 import type { GraphData, GraphNode } from "@/lib/graph-data";
-import { t } from "@/lib/i18n";
+import { folderKey, t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
+import { CHANGE_EVENT, loadStore, type ReadingStore } from "@/lib/reading-progress";
+import { readingView } from "@/lib/graph-reading";
 
 // --- discipline colours (same golden-angle palette as the old force graph) ---
 type Palette = Map<string, string>;
@@ -115,8 +117,23 @@ export function CircularGraph({
   preview?: boolean;
 }) {
   const locale = useLocale();
-  const tr = (k: string) => t(k, undefined, locale);
-  const layout = useMemo(() => buildLayout(data), [data]);
+  const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
+  // Folder names are the vault's English ones ("Applied Sciences",
+  // "Litterature"): shown as the rest of the site names them.
+  const folderName = (name: string) => {
+    const k = folderKey(name);
+    return k ? t(k, undefined, locale) : name;
+  };
+  const shown = useMemo(
+    () => ({
+      ...data,
+      nodes: data.nodes.map((n) => (n.kind === "dir" ? { ...n, label: folderName(n.label) } : n)),
+    }),
+    // folderName only reads the locale.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [data, locale],
+  );
+  const layout = useMemo(() => buildLayout(shown), [shown]);
   const palette = useMemo(() => buildPalette(data.nodes), [data.nodes]);
   const rootLabel = useMemo(
     () => layout.nodes.find((n) => n.node.kind === "root")?.node.label ?? "",
@@ -134,6 +151,22 @@ export function CircularGraph({
   const [pathSel, setPathSel] = useState<string | null>(null);
   const [tip, setTip] = useState<{ x: number; y: number; label: string } | null>(null);
   const [legendOpen, setLegendOpen] = useState(false);
+  // "Mes lectures": read notes lit, the rest faded, and where to go next.
+  const [mine, setMine] = useState(false);
+  const [store, setStore] = useState<ReadingStore>({});
+  useEffect(() => {
+    if (preview) return;
+    const sync = () => setStore(loadStore());
+    sync();
+    window.addEventListener(CHANGE_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(CHANGE_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, [preview]);
+  const reading = useMemo(() => (preview ? null : readingView(data, store)), [data, store, preview]);
+  const readIds = mine && reading ? reading.read : null;
 
   // Fit the ring to the viewport once we know the container size.
   useEffect(() => {
@@ -201,6 +234,8 @@ export function CircularGraph({
                 ? themeColor(p.node.theme, palette)
                 : themeColor(p.node.theme, palette, 0.6);
           const onPath = !!pathIds?.has(p.id);
+          const isRead = !!readIds?.has(p.id);
+          const fog = readIds !== null && p.node.kind === "note" && !isRead;
           const dim =
             p.node.kind !== "root" &&
             ((filter !== null && p.node.theme !== filter) || (pathIds !== null && !onPath));
@@ -215,17 +250,17 @@ export function CircularGraph({
               data-label={p.node.label}
               cx={x.toFixed(1)}
               cy={y.toFixed(1)}
-              r={onPath ? Math.max(3, nodeR(p)) : nodeR(p)}
-              fill={fill}
-              className={onPath ? "cg-path-node" : undefined}
-              opacity={dim ? 0.07 : undefined}
+              r={onPath || isRead ? Math.max(3.4, nodeR(p)) : nodeR(p)}
+              fill={isRead ? themeColor(p.node.theme, palette) : fill}
+              className={[onPath && "cg-path-node", isRead && "cg-read-node"].filter(Boolean).join(" ") || undefined}
+              opacity={dim ? 0.07 : fog ? 0.16 : undefined}
               style={p.node.href ? { cursor: "pointer" } : undefined}
             />
           );
         })}
       </g>
     ),
-    [layout.nodes, palette, filter, pathIds],
+    [layout.nodes, palette, filter, pathIds, readIds],
   );
   // The chosen path's prerequisite edges, bowed towards the centre so they
   // read apart from the folder spokes.
@@ -271,7 +306,7 @@ export function CircularGraph({
           return (
             <text
               key={p.id}
-              className={`${isDir ? "cg-dlabel" : "cg-flabel"}${pathIds?.has(p.id) ? " is-path" : ""}`}
+              className={`${isDir ? "cg-dlabel" : "cg-flabel"}${pathIds?.has(p.id) ? " is-path" : ""}${readIds?.has(p.id) ? " is-read" : ""}`}
               data-node
               data-kind={p.node.kind}
               data-href={p.node.href ?? ""}
@@ -288,7 +323,7 @@ export function CircularGraph({
         })}
       </g>
     ),
-    [layout.nodes, rot, pathIds],
+    [layout.nodes, rot, pathIds, readIds],
   );
 
   // --- interaction ---------------------------------------------------------
@@ -469,8 +504,9 @@ export function CircularGraph({
   }
 
   const disciplines = useMemo(
-    () => [...palette.keys()].sort((a, b) => a.localeCompare(b)),
-    [palette],
+    () => [...palette.keys()].sort((a, b) => folderName(a).localeCompare(folderName(b))),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [palette, locale],
   );
 
   // The home mini-map is a static, non-interactive teaser: no chrome, no labels,
@@ -494,6 +530,7 @@ export function CircularGraph({
         height={size.h}
         data-filter={filter ?? pathSel ?? undefined}
         data-path={pathSel ?? undefined}
+        data-mine={readIds ? "" : undefined}
         data-zoomed={!preview && zoom >= fitZoom * 1.8 ? "" : undefined}
         style={preview ? { pointerEvents: "none" } : undefined}
         {...handlers}
@@ -617,6 +654,53 @@ export function CircularGraph({
             {tr("graph.reset")}
           </button>
         </div>
+        {reading && (
+          <div className="cg-mine">
+            <button
+              type="button"
+              className="cg-mine-toggle"
+              aria-pressed={mine}
+              onClick={() => setMine((v) => !v)}
+            >
+              <span className="cg-mine-dot" aria-hidden="true" />
+              {tr("graph.mine")}
+              <span className="cg-mine-count">
+                {tr("graph.mineCount", { n: reading.read.size, total: reading.total })}
+              </span>
+            </button>
+            {mine && (
+              <div className="cg-mine-next">
+                <p className="cg-mine-next-k">
+                  {reading.fromReading
+                    ? tr("graph.mineNext")
+                    : reading.read.size
+                      ? tr("graph.mineNoNeighbour")
+                      : tr("graph.mineStart")}
+                </p>
+                <ul>
+                  {reading.next.map((id) => {
+                    const n = byId.get(id);
+                    if (!n) return null;
+                    return (
+                      <li key={id}>
+                        <button type="button" onClick={() => locate(n)} title={tr("graph.mineLocate")}>
+                          <span
+                            className="cg-swatch"
+                            style={{ background: themeColor(n.node.theme, palette) }}
+                          />
+                          {n.node.label}
+                        </button>
+                        <a href={n.node.href} aria-label={tr("graph.mineOpen", { title: n.node.label })}>
+                          →
+                        </a>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
         {!!data.paths?.length && (
           <label className="cg-path">
             <span className="cg-path-label">{tr("graph.path")}</span>
@@ -658,7 +742,7 @@ export function CircularGraph({
                 }}
               >
                 <span className="cg-swatch" style={{ background: themeColor(d, palette) }} />
-                {d}
+                {folderName(d)}
               </button>
             </li>
           ))}

@@ -5,12 +5,18 @@ import { extractPlain, truncate } from "@/lib/markdown";
 import { SITE_URL, AUTHOR, absoluteURL } from "@/lib/site";
 import { graph, breadcrumbJsonLd } from "@/lib/jsonld";
 import { SinglePage } from "@/components/SinglePage";
+import { ogCardFor, ogImagePath } from "@/lib/og";
 import { NoteScripts } from "@/components/NoteScripts";
 // Article typography + note-widget styles, scoped to this route only.
 import "@/assets/css/main.css";
 import "@/assets/css/syntax.css";
 import "@/assets/css/note-paths.css";
 import "@/assets/css/path-step.css";
+// Widget packs (lib/widgets-extra.ts): data figures, sciences, languages.
+import "@/assets/css/widgets-extra.css";
+import "@/assets/css/widgets-sci.css";
+import "@/assets/css/widgets-lang.css";
+import "@/assets/css/cite.css";
 
 type Params = { params: Promise<{ slug: string[] }> };
 
@@ -27,6 +33,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     body: doc.body,
     path: `/posts/${slugPath}/`,
     isArticle: true,
+    fallbackImage: ogImagePath(ogCardFor(doc)),
   });
 }
 

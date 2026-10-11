@@ -46,6 +46,7 @@ import {
 } from "@/lib/review-item";
 import { ReviewSession } from "@/components/ReviewSession";
 import { btn, btnOn, quiet } from "@/components/srs-ui";
+import { DeckFace } from "@/components/DeckFace";
 
 // Card zoom levels (whole card content scales: text + images).
 const SIZES = [1, 1.3, 1.6, 2];
@@ -311,8 +312,6 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
       className="flashcards-main mx-auto px-5 py-12 text-ink transition-[max-width] duration-200"
       style={{ maxWidth: `${60 * zoom}rem` }}
     >
-      {!reviewing && deck?.css && <style dangerouslySetInnerHTML={{ __html: deck.css }} />}
-
       {/* A plain link, like the rest of /cartes/: next/link would make scripts/prune-rsc.mjs keep RSC payloads. */}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a
@@ -393,17 +392,14 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
               type="button"
               onClick={handleCardClick}
               aria-label={tr("flip")}
-              // keep-light: the card HTML comes with the deck's own CSS (Anki
-              // notetypes assume a white card), so it stays a light card in dark mode.
-              className="keep-light flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-rule bg-paper p-8 text-center transition-[min-height] duration-200 hover:bg-paper"
-              style={{ minHeight: `${26 * zoom}rem` }}
+              className="flex w-full cursor-pointer items-center justify-center rounded-md border border-rule bg-paper p-6 text-center transition-[min-height] duration-200 hover:bg-paper sm:p-8"
+              style={{ minHeight: `${22 * zoom}rem` }}
             >
-              <div
-                className="card [&_.pron]:mt-3"
-                style={{ zoom }}
-                dangerouslySetInnerHTML={{
-                  __html: flipped ? browseFaces.back : browseFaces.front,
-                }}
+              <DeckFace
+                slug={slug}
+                css={deck.css}
+                html={flipped ? browseFaces.back : browseFaces.front}
+                zoom={zoom}
               />
             </button>
 
@@ -421,13 +417,14 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
                 {tr("shuffle")}
               </button>
             </div>
-            <p className="mt-4 text-center text-micro italic text-muted-warm">{tr("hint")}</p>
+            <p className="kbd-only mt-4 text-center text-micro italic text-muted-warm">{tr("hint")}</p>
           </>
         )
       )}
 
       {deck && cardCount > 0 && (
-        <p className="mt-4 text-center">
+        // No room to enlarge on a phone.
+        <p className="mt-4 hidden text-center sm:block">
           <button type="button" className={quiet} onClick={cycleSize} aria-label={tr("size")}>
             {tr("size")}
             {zoom !== 1 ? ` ×${zoom}` : ""}

@@ -6,10 +6,10 @@ import { useLocale } from "@/lib/use-locale";
 import { dayKey } from "@/lib/srs";
 import { deckSettings, loadSettings } from "@/lib/srs-settings";
 import { dueQuestions, loadAllNoteDecks } from "@/lib/note-quiz";
-import { loadDeckProgress, quickCounts, storageOk } from "@/lib/review-item";
+import { isStarted, loadDeckProgress, quickCounts, storageOk } from "@/lib/review-item";
 import type { AnkiDeck } from "@/lib/anki";
 
-type Counts = Record<string, { due: number; fresh: number; paused: boolean }>;
+type Counts = Record<string, { due: number; fresh: number; paused: boolean; started: boolean }>;
 
 function readCounts(decks: AnkiDeck[]): { decks: Counts; notes: number } | null {
   if (!storageOk()) return null;
@@ -18,14 +18,15 @@ function readCounts(decks: AnkiDeck[]): { decks: Counts; notes: number } | null 
   const out: Counts = {};
   for (const d of decks) {
     const cfg = deckSettings(s, d.slug);
-    out[d.slug] = { ...quickCounts(loadDeckProgress(d.slug), d.count, cfg, today), paused: cfg.paused };
+    const p = loadDeckProgress(d.slug);
+    out[d.slug] = { ...quickCounts(p, d.count, cfg, today), paused: cfg.paused, started: isStarted(p) };
   }
   return { decks: out, notes: dueQuestions(loadAllNoteDecks(localStorage), today).length };
 }
 
 /**
- * The /cartes/ index's "Tout réviser" entry: today's total over every deck
- * that isn't paused and the saved note questions (localStorage only, so it
+ * The /cartes/ index's "Tout réviser" entry: today's total over the decks
+ * the reader has started (and not paused) and the saved note questions (localStorage only, so it
  * appears after hydration; the static HTML is just the link).
  */
 export function CartesToday({ decks }: { decks: AnkiDeck[] }) {
@@ -36,8 +37,10 @@ export function CartesToday({ decks }: { decks: AnkiDeck[] }) {
 
   let due = counts?.notes ?? 0;
   let fresh = 0;
+  let started = 0;
   for (const c of Object.values(counts?.decks ?? {}))
-    if (!c.paused) {
+    if (c.started && !c.paused) {
+      started++;
       due += c.due;
       fresh += c.fresh;
     }
@@ -50,9 +53,11 @@ export function CartesToday({ decks }: { decks: AnkiDeck[] }) {
       </a>
       {counts && (
         <span className="cartes-today-count">
-          {due + fresh === 0
-            ? tr("todayNothing")
-            : tr("todayCounts", { due, fresh })}
+          {due + fresh > 0
+            ? tr("todayCounts", { due, fresh })
+            : started || counts.notes
+              ? tr("todayNothing")
+              : tr("todayStart")}
         </span>
       )}
     </section>
@@ -81,5 +86,42 @@ export function DeckDue({ deck }: { deck: AnkiDeck }) {
       {c.due > 0 && c.fresh > 0 && " · "}
       {c.fresh > 0 && tr("deckFresh", { count: c.fresh })}
     </span>
+  );
+}
+
+/**
+ * "En cours" on the /cartes/ index: the decks the reader has started, most
+ * to do first, so today's decks don't hide in the folder list below
+ * (localStorage only: nothing in the static HTML).
+ */
+export function StartedDecks({ decks }: { decks: AnkiDeck[] }) {
+  const locale = useLocale();
+  const tr = (k: string, vars?: Record<string, string | number>) => t(`cartesIndex.${k}`, vars, locale);
+  const [counts, setCounts] = useState<ReturnType<typeof readCounts>>(null);
+  useEffect(() => setCounts(readCounts(decks)), [decks]);
+  if (!counts) return null;
+  const load = (d: AnkiDeck) => {
+    const c = counts.decks[d.slug];
+    return c.paused ? -1 : c.due + c.fresh;
+  };
+  const started = decks
+    .filter((d) => counts.decks[d.slug]?.started)
+    .sort((a, b) => load(b) - load(a) || a.name.localeCompare(b.name));
+  if (!started.length) return null;
+  return (
+    <section className="cartes-index-group cartes-index-started">
+      <h2 className="cartes-index-folder">{tr("started")}</h2>
+      <ul className="cartes-index-list">
+        {started.map((d) => (
+          <li key={d.slug} className="cartes-index-deck">
+            { }
+            <a href={`/cartes/${d.slug}/`}>{d.name}</a>
+            <span className="cartes-index-meta">
+              <DeckDue deck={d} />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

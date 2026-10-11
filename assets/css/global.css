@@ -16,6 +16,34 @@
   --text-wordmark: clamp(1.55rem, 8.6cqi, 6rem);
 }
 
+/* Corner radii — the ONE scale every surface draws from (CSS: var(--radius-md);
+   Tailwind: rounded-md, rounded-pill…). Tailwind's default steps are wiped so
+   an off-scale rounded-xl can't creep back in. Pick by what the element IS,
+   not by how big it looks:
+     xs    4px   inline accents inside text: <mark>, gloss/link hover, kbd keys,
+                 thin progress/timeline bars, swatches.
+     sm    8px   controls: buttons, inputs, selects, tooltips, choice tiles,
+                 images and figures, small tags that are not pills.
+     md    14px  blocks in the page flow and anchored popovers: cards, callouts,
+                 quizzes, code blocks, widgets, diagrams, menus, panels.
+     lg    20px  floating sheets on top of the page: dialogs, the palette, the
+                 assistant window, the parcours dock, end-of-lesson screens.
+     pill  999px chips, badges, segmented pills, rounded progress tracks.
+   Circles (dots, avatars, icon-only round buttons) use 50%; deliberate 0 is
+   kept only for things that are squares by nature (chessboard cells) or that
+   sit flush inside a rounded parent (menu rows, tab strips).
+   Nested surfaces step down one level (an sm button inside an md card), or use
+   calc(var(--radius-md) - 1px) when a child exactly fills its parent's border. */
+@theme static {
+  --radius-*: initial;
+  --radius: 8px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+}
+
 /* Colour tokens as Tailwind utilities (text-ink, border-rule, bg-paper,
    bg-garden…). `inline` so each utility emits var(--ink) itself and resolves
    per element — that is what lets a .keep-light island below re-theme its
@@ -314,12 +342,23 @@ body {
 .recent-meta time {
   font-style: italic;
 }
+.recent-notes-more {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.95rem;
+  color: var(--link);
+  text-decoration: none;
+}
+.recent-notes-more:hover {
+  text-decoration: underline;
+}
 
 /* Home hero image (#10): a plain brown border (no wood effect). */
 .home-frame {
   display: block;
   border: clamp(10px, 2vw, 5px) solid #6e4a2a;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
 .home-frame picture {
@@ -414,7 +453,7 @@ body {
   flex-direction: column;
   background: var(--paper);
   border: 1px solid var(--ink);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-size: 1.08rem;
@@ -432,7 +471,7 @@ body {
   touch-action: none;
   border-left: 2px solid var(--faint);
   border-top: 2px solid var(--faint);
-  border-top-left-radius: 6px;
+  border-top-left-radius: var(--radius-lg);
 }
 .gk-pinned-head {
   display: flex;
@@ -464,7 +503,7 @@ body {
   border: 1px solid var(--garden);
   background: var(--garden);
   color: var(--paper);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
   cursor: pointer;
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
@@ -477,6 +516,55 @@ body {
 .gk-pinned-trigger:hover {
   background: var(--garden-hover);
   border-color: var(--garden-hover);
+}
+/* Phones: a round sprout button instead of the pill, on one row with
+   "Étape suivante" / "Remonter" (main.css, path-step.css). The label stays
+   for screen readers. */
+@media (max-width: 640px) {
+  .gk-pinned-trigger {
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+  .gk-pinned-trigger svg {
+    width: 22px;
+    height: 22px;
+  }
+  .gk-pinned-trigger-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+/* Touch widths: the bottom buttons slide away while reading down
+   (reader-tools.js sets html.fabs-tucked) and come back on the way up. */
+@media (max-width: 900px) {
+  .gk-pinned-trigger,
+  .to-top,
+  .path-dock {
+    transition:
+      transform 0.25s ease,
+      opacity 0.2s ease;
+  }
+  html.fabs-tucked .gk-pinned-trigger,
+  html.fabs-tucked .to-top,
+  html.fabs-tucked .path-dock:not([hidden]) {
+    transform: translateY(calc(100% + 1.5rem));
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+  .gk-pinned-trigger,
+  .to-top,
+  .path-dock {
+    transition: none;
+  }
 }
 .gk-pinned-title {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
@@ -512,7 +600,7 @@ body {
   padding: 0.35rem 0.6rem;
   background: var(--garden-wash);
   border-left: 2px solid var(--garden);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   font-size: 0.98rem;
   color: var(--ink-soft);
 }
@@ -536,7 +624,7 @@ body {
   border: 1px solid var(--garden);
   background: var(--garden);
   color: var(--paper);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
@@ -582,7 +670,7 @@ body {
 }
 .gk-pinned-answer code {
   background: var(--link-wash);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   padding: 0.05rem 0.3rem;
   font-size: 0.95em;
 }
@@ -644,7 +732,7 @@ body {
   flex: none;
   cursor: pointer;
   border: 0;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: var(--garden);
   color: var(--paper);
   padding: 0.4rem 0.95rem;
@@ -749,7 +837,7 @@ footer {
      transparent diagram needs a light sheet under it to stay legible. */
   background: #fcfcfc;
   border: 1px solid rgba(252, 252, 252, 0.25);
-  border-radius: 2px; /* same value as .home-frame — the one other framed image */
+  border-radius: var(--radius-sm); /* same value as .home-frame — the one other framed image */
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
   cursor: zoom-in;
   touch-action: none;
@@ -978,3 +1066,587 @@ footer {
 [data-family="arts"] { --fam-h: 332; --fam-s: 52%; }
 [data-family="langues"] { --fam-h: 270; --fam-s: 45%; }
 [data-family="jeux"] { --fam-h: 210; --fam-s: 12%; }
+
+/* ---------------------------------------------------------------------------
+   Site bar (components/SiteBar.tsx): the one menu, the same on every page.
+   The home's masthead carries the same links, so the bar steps aside there. */
+.site-bar {
+  /* Sized by its own width, not the viewport: on a note it only spans the
+     text column, where the links would wrap onto three lines. */
+  container-type: inline-size;
+  /* No negative top here: outside the note pages body has no top margin
+     below 1650px, so a pull-up pushed the bar off the top of the screen.
+     main.css restores the pull-up against its own 4rem body margin. */
+  margin: 0 2rem 1.4rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  border-bottom: 1px solid var(--rule);
+}
+body:has(.home-masthead) .site-bar {
+  display: none;
+}
+.site-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem 1.2rem;
+  min-height: 2.6rem;
+  padding: 0.25rem 0;
+}
+.site-bar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--ink);
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-bar-brand:hover {
+  background: transparent;
+  color: var(--garden);
+}
+.site-bar-nav ul,
+.site-bar-menu-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.site-bar-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 1rem;
+}
+.site-bar-nav li,
+.site-bar-menu-panel li {
+  margin: 0;
+}
+.site-bar-nav a,
+.site-bar-menu-panel a,
+.home-nav a {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-underline-offset: 4px;
+}
+.site-bar-nav a:hover,
+.site-bar-menu-panel a:hover,
+.home-nav a:hover {
+  background: transparent;
+  color: var(--ink);
+  text-decoration: underline;
+}
+.site-bar-nav a[aria-current="page"],
+.site-bar-menu-panel a[aria-current="page"],
+.home-nav a[aria-current="page"] {
+  color: var(--garden);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+.home-nav ul {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.home-nav li {
+  margin: 0;
+}
+@media (min-width: 640px) {
+  .home-nav ul {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 1.75rem;
+  }
+  .home-nav a {
+    font-size: var(--text-small);
+    color: var(--ink);
+  }
+}
+.site-bar-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-inline-start: auto;
+}
+.site-bar-menu {
+  display: none;
+  position: relative;
+}
+.site-bar-menu summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.site-bar-menu summary::-webkit-details-marker {
+  display: none;
+}
+.site-bar-menu[open] summary,
+.site-bar-menu summary:hover {
+  background: var(--wash-2);
+  color: var(--ink);
+}
+.site-bar-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 60;
+  min-width: 12rem;
+  padding: 0.6rem 1.1rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+}
+.site-bar-menu-panel li + li {
+  margin-top: 0.55rem;
+}
+@media (max-width: 1080px) {
+  .site-bar {
+    margin: 0 1.2rem 1.2rem;
+  }
+}
+/* "Garden of Knowledge" on one line plus search, theme, account and menu
+   don't fit a phone's width: stack the name on two smaller lines ("Garden of"
+   / "Knowledge") so every page still says whose site it is. Only on the
+   narrowest phones, or beside the review reminder, does the sprout alone
+   stay, the name left to screen readers. */
+@container (max-width: 480px) {
+  .site-bar-brand span {
+    max-width: 5.5em;
+    font-size: 0.86rem;
+    line-height: 1.05;
+    white-space: normal;
+    text-wrap: balance;
+  }
+  /* A review reminder takes the room the name needed. */
+  .site-bar-inner:has(.review-pill) .site-bar-brand span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@container (max-width: 330px) {
+  .site-bar-brand span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@container (max-width: 900px) {
+  .site-bar-nav {
+    display: none;
+  }
+  .site-bar-menu {
+    display: block;
+  }
+}
+@media (max-width: 640px) {
+  .site-bar {
+    margin: 0 0.9rem 1rem;
+  }
+  .site-bar .palette-kbd {
+    display: none;
+  }
+}
+@media print {
+  .site-bar {
+    display: none;
+  }
+}
+
+/* Account button (components/AccountChip.tsx) and the review reminder. */
+.account-login {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.22rem 0.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--garden);
+  color: var(--paper);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.account-login:hover {
+  background: var(--garden-hover);
+  color: var(--paper);
+}
+.account-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.12rem 0.55rem 0.12rem 0.12rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  font-variant-numeric: tabular-nums;
+}
+.account-chip:hover {
+  border-color: var(--ink);
+  background: var(--wash);
+}
+.account-chip-coins {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.coin-dot {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffe28a, #e0a526 65%, #b9801a);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.12);
+}
+.review-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.6rem;
+  border-radius: var(--radius-pill);
+  background: var(--garden-wash);
+  color: var(--garden);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.review-pill:hover {
+  background: var(--garden);
+  color: var(--paper);
+}
+.review-pill-dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  animation: review-pulse 2.4s ease-in-out infinite;
+}
+@keyframes review-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+.coin-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.4rem;
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1rem 0.55rem 0.7rem;
+  border-radius: var(--radius-pill);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.25);
+  animation: coin-toast-in 3.8s ease both;
+}
+.coin-toast-why {
+  font-weight: 400;
+  opacity: 0.8;
+}
+.coin-toast-coin {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffe28a, #e0a526 65%, #b9801a);
+  animation: coin-spin 0.9s ease-out 2;
+}
+@keyframes coin-toast-in {
+  0% {
+    transform: translate(-50%, 140%);
+    opacity: 0;
+  }
+  10%,
+  85% {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, 140%);
+    opacity: 0;
+  }
+}
+@keyframes coin-spin {
+  50% {
+    transform: scaleX(0.15);
+  }
+}
+
+/* The sprout avatar (components/Avatar.tsx). */
+.avatar {
+  display: block;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.avatar-bob {
+  transform-origin: 50% 90%;
+  animation: avatar-breathe 3.6s ease-in-out infinite;
+}
+.avatar-sprout {
+  transform-origin: 50px 40px;
+  transform-box: view-box;
+  animation: avatar-sway 4.2s ease-in-out infinite;
+}
+.avatar-eyes {
+  transform-origin: 50px 61px;
+  transform-box: view-box;
+  animation: avatar-blink 5s infinite;
+}
+.avatar-star {
+  animation: avatar-twinkle 2.6s ease-in-out infinite;
+}
+.avatar-star--late {
+  animation-delay: 1.3s;
+}
+.avatar--still .avatar-bob,
+.avatar--still .avatar-sprout,
+.avatar--still .avatar-eyes,
+.avatar--still .avatar-star {
+  animation: none;
+}
+@keyframes avatar-breathe {
+  50% {
+    transform: translateY(-2.5px) scale(1.015, 0.985);
+  }
+}
+@keyframes avatar-sway {
+  0%,
+  100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+@keyframes avatar-blink {
+  0%,
+  92%,
+  100% {
+    transform: scaleY(1);
+  }
+  95% {
+    transform: scaleY(0.1);
+  }
+}
+@keyframes avatar-twinkle {
+  50% {
+    opacity: 0.25;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatar-bob,
+  .avatar-sprout,
+  .avatar-eyes,
+  .avatar-star,
+  .review-pill-dot,
+  .coin-toast-coin {
+    animation: none;
+  }
+  .coin-toast {
+    animation-name: none;
+    transform: translateX(-50%);
+  }
+}
+
+/* Pronunciation practice (/js/pronounce.js): the microphone that appears
+   next to a clip once it has been heard, and the panel it opens at the
+   bottom of the screen — the clip's waveform over the reader's, one time
+   scale, replayed one after the other. */
+.pron-mic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1px solid var(--garden);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--garden);
+  cursor: pointer;
+}
+.pron-mic:hover {
+  background: var(--garden-wash);
+}
+.pron-mic:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.pron-coach {
+  position: fixed;
+  z-index: 1500;
+  left: 50%;
+  bottom: calc(0.8rem + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  width: min(36rem, calc(100vw - 1.6rem));
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem 0.9rem;
+  background: var(--paper-raised);
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.35);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.95rem;
+}
+.pron-coach:focus {
+  outline: none;
+}
+.pron-coach-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.8rem;
+}
+.pron-coach-word {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+.pron-coach-note {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.pron-coach-close {
+  margin-inline-start: auto;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.pron-coach-track {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr) 3rem;
+  align-items: center;
+  gap: 0.6rem;
+}
+.pron-coach-lab {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+.pron-coach-track canvas {
+  display: block;
+  width: 100%;
+  height: 40px;
+}
+.pron-coach-dur {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.pron-coach-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.pron-coach-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 3px;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.25rem 0.9rem;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.pron-coach-btn:hover:not(:disabled) {
+  border-color: var(--ink-2);
+}
+.pron-coach-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.pron-coach-btn:focus-visible,
+.pron-coach-close:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.pron-coach-rec {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.pron-coach-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.pron-coach.is-recording .pron-coach-dot {
+  animation: pron-pulse 1s ease-in-out infinite;
+}
+.pron-coach-main {
+  background: var(--garden);
+  border-color: var(--garden);
+  border-bottom-color: color-mix(in srgb, var(--garden) 60%, #000);
+  color: var(--paper);
+}
+.pron-coach-main:hover:not(:disabled) {
+  background: var(--garden-hover);
+  border-color: var(--garden-hover);
+}
+.pron-coach-msg {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pron-coach.is-recording .pron-coach-dot {
+    animation: none;
+  }
+}
+@media print {
+  .pron-mic,
+  .pron-coach {
+    display: none;
+  }
+}

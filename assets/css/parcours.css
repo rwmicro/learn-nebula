@@ -35,8 +35,7 @@ body:has(.parcours-page) footer {
   max-width: 100rem;
   padding-inline: clamp(1.2rem, 4vw, 3.5rem);
 }
-.parcours-page--path > .themes-intro,
-.parcours-page--path > .parcours-next {
+.parcours-page--path > .themes-intro {
   max-width: 46rem;
 }
 .parcours-page--path > .themes-h2,
@@ -44,84 +43,18 @@ body:has(.parcours-page) footer {
   max-width: 60rem;
 }
 
-/* --- index cards ---------------------------------------------------------- */
-.parcours-cards {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 30rem), 1fr));
-  gap: 0.8rem;
-}
-.parcours-card,
-.parcours-card-link {
-  height: 100%;
-}
-.parcours-card-link {
-  display: flex;
-  gap: 1.1rem;
-  align-items: center;
-  padding: 0.9rem 1rem;
-  border: 1px solid var(--rule);
-  border-left: 4px solid var(--fam, var(--rule));
-  border-radius: 0 6px 6px 0; /* square on the stripe side */
-  background: var(--paper);
-}
-.themes-page a.parcours-card-link:hover {
-  text-decoration: none;
-  border-color: var(--rule-strong);
-  border-left-color: var(--fam, var(--rule-strong));
-  background: var(--fam-wash, var(--wash));
-}
-.parcours-card-link:hover .parcours-card-title {
-  text-decoration: underline;
-}
-.parcours-card-link:focus-visible {
-  outline: 2px solid var(--link);
-  outline-offset: 2px;
-}
-.parcours-card-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  min-width: 0;
-}
-.parcours-card-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-  text-transform: lowercase;
-  font-weight: 700;
-  font-size: 1.25rem;
-  line-height: 1.2;
-}
-.parcours-card-desc {
-  color: var(--ink-2);
-}
-.parcours-card-meta {
-  color: var(--muted-warm);
-  font-size: 0.95rem;
-}
-
-/* Colour families (lib/path-family.ts, tokens in global.css): a key under
-   the intro, a dot before each discipline heading, a stripe on each card,
-   and the kicker of a path's own page. */
-.parcours-families {
-  list-style: none;
-  margin: 0.4rem 0 0.6rem;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem 1.1rem;
-  color: var(--ink-2);
-  font-size: 0.95rem;
-}
-.parcours-families li,
-.parcours-page section[data-family] > .themes-h2 {
+/* --- index ------------------------------------------------------------------
+   One section per colour family (lib/path-family.ts, tokens in global.css):
+   a dot before its heading, the family colour on each card's top edge and
+   discipline kicker. Language paths (all "<Langue> : des premiers mots à la
+   culture") are small tiles under one shared line. */
+.parcours-family > .themes-h2 {
   display: flex;
   align-items: center;
   gap: 0.45rem;
 }
-.parcours-families li::before,
-.parcours-page section[data-family] > .themes-h2::before {
+.parcours-family > .themes-h2::before,
+.parcours-chip[data-family]::before {
   content: "";
   flex: none;
   width: 0.7rem;
@@ -129,39 +62,231 @@ body:has(.parcours-page) footer {
   border-radius: 50%;
   background: var(--fam);
 }
+.parcours-family-count {
+  margin-inline-start: 0.3rem;
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 0.85rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--muted-warm);
+}
 .parcours-page--path[data-family] > .themes-kicker {
   color: var(--fam);
 }
 
-/* Thumbnail graph: dots for notes, filled by state. */
-.pm {
-  flex: none;
-  max-width: 7rem;
-  max-height: 7rem;
-  height: auto;
+.parcours-cards,
+.parcours-tiles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
 }
-.pm-edge {
-  fill: none;
-  stroke: var(--rule-strong);
-  stroke-width: 1.4;
+.parcours-cards {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr));
 }
-.pm-dot {
-  fill: var(--paper);
-  stroke: var(--muted-warm);
-  stroke-width: 1.4;
+.parcours-tiles {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+  gap: 0.55rem;
 }
-.pm-dot.is-read {
-  fill: var(--garden-wash);
-  stroke: var(--garden);
+.parcours-card,
+.parcours-card-link,
+.parcours-tile,
+.parcours-tile-link {
+  height: 100%;
 }
-.pm-dot.is-known {
-  fill: var(--garden-wash);
-  stroke: var(--garden);
-  stroke-dasharray: 2 1.5;
+.parcours-card-link,
+.parcours-tile-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+  padding: 0.75rem 0.9rem 0.8rem;
+  border: 1px solid var(--rule);
+  border-top: 3px solid var(--fam, var(--rule));
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  color: inherit;
 }
-.pm-dot.is-mastered {
-  fill: var(--garden);
-  stroke: var(--garden);
+.parcours-tile-link {
+  padding: 0.55rem 0.75rem 0.6rem;
+}
+.themes-page a.parcours-card-link:hover,
+.themes-page a.parcours-tile-link:hover {
+  text-decoration: none;
+  border-color: var(--rule-strong);
+  border-top-color: var(--fam, var(--rule-strong));
+  background: var(--fam-wash, var(--wash));
+}
+.parcours-card-link:hover .parcours-card-title,
+.parcours-tile-link:hover .parcours-tile-name {
+  text-decoration: underline;
+}
+.parcours-card-link:focus-visible,
+.parcours-tile-link:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.parcours-card-kicker {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--fam, var(--muted-warm));
+}
+.parcours-card-title,
+.parcours-tile-name {
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.parcours-tile-name {
+  font-size: 1.05rem;
+}
+.parcours-card-sub,
+.parcours-card-desc {
+  color: var(--ink-2);
+  line-height: 1.3;
+}
+.parcours-card-desc {
+  font-size: 0.92rem;
+}
+/* The progress line sits at the bottom of every card, so bars line up. */
+.parcours-card-link > .parcours-progress,
+.parcours-tile-link > .parcours-progress {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  font-size: 0.85rem;
+}
+.parcours-card-link .parcours-bar,
+.parcours-tile-link .parcours-bar {
+  flex: 1;
+  width: auto;
+  min-width: 2.5rem;
+}
+.parcours-tiles-intro,
+.parcours-cards-label {
+  margin: -0.2rem 0 0.7rem;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+}
+.parcours-cards-label {
+  margin: 1.1rem 0 0.5rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-warm);
+}
+
+/* "Reprendre" and the filter bar (components/ParcoursBrowse.tsx). */
+.parcours-browse {
+  margin: 0.6rem 0 0.4rem;
+}
+.parcours-resume-list {
+  list-style: none;
+  margin: 0 0 1.2rem;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 16.5rem), 1fr));
+  gap: 0.7rem;
+}
+.parcours-resume-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  align-content: flex-start;
+  gap: 0.25rem 0.6rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: var(--radius-md);
+  background: var(--fam-wash, var(--wash));
+  min-width: 0;
+}
+.parcours-resume-path {
+  flex: 1 1 100%;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.parcours-resume-meta {
+  color: var(--muted-warm);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.parcours-resume-list .parcours-bar {
+  flex: 1;
+  width: auto;
+}
+.parcours-resume-next {
+  flex: 1 1 100%;
+  font-size: 0.92rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.parcours-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.8rem;
+}
+.parcours-filter-q {
+  flex: 1 1 14rem;
+  max-width: 20rem;
+  min-width: 0;
+  font: inherit;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--ink);
+}
+.parcours-filter-q:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 1px;
+}
+.parcours-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.parcours-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font: inherit;
+  font-size: 0.9rem;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.parcours-chip[data-family]::before {
+  width: 0.55rem;
+  height: 0.55rem;
+}
+.parcours-chip > span {
+  color: var(--muted-warm);
+  font-variant-numeric: tabular-nums;
+}
+.parcours-chip:hover {
+  border-color: var(--rule-strong);
+}
+.parcours-chip[aria-pressed="true"] {
+  color: var(--ink);
+  border-color: var(--fam, var(--ink-2));
+  background: var(--fam-wash, var(--wash-2));
+}
+.parcours-chip:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.parcours-filter-status {
+  margin: 0.4rem 0 0;
+  min-height: 1.2em;
+  color: var(--muted-warm);
+  font-size: 0.9rem;
 }
 
 /* --- progress ("12 lues · 4 maîtrisées / 20" + bar) ------------------------ */
@@ -178,7 +303,7 @@ body:has(.parcours-page) footer {
   display: inline-block;
   width: 6rem;
   height: 5px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--rule);
   overflow: hidden;
 }
@@ -206,30 +331,68 @@ body:has(.parcours-page) footer {
   align-items: center;
   gap: 0.4rem 1.2rem;
   color: var(--muted-warm);
-  margin: 0 0 0.8rem;
-}
-.parcours-next {
   margin: 0 0 1rem;
-  font-size: 1.1rem;
 }
-.themes-page .parcours-next a {
-  color: var(--link);
+/* "Disponible hors ligne" is a side tool: a quiet link in the status line. */
+.parcours-status .offline-path {
+  margin: 0;
+}
+.parcours-status .offline-path-btn {
+  border: 0;
+  padding: 0;
+  background: none;
   text-decoration: underline;
+  text-decoration-color: var(--rule-strong);
   text-underline-offset: 3px;
 }
 
-/* --- study bar: target summary + tools -------------------------------------- */
+/* --- study bar: start / continue, placement, review, target ---------------- */
 .parcours-study {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.6rem 1rem;
-  margin: 0 0 0.6rem;
-  padding: 0.6rem 0.8rem;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: var(--wash);
+  margin: 0 0 1.2rem;
+}
+/* The page's main action: the note to read next. */
+.parcours-cta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0 0.4rem;
+  max-width: 100%;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-sm);
+  background: var(--garden);
+  color: var(--paper);
+  font-weight: 600;
+  font-size: 1.02rem;
+  line-height: 1.35;
+  text-decoration: none;
+}
+.themes-page a.parcours-cta,
+.themes-page a.parcours-cta:hover {
+  color: var(--paper);
+  text-decoration: none;
+}
+.parcours-cta:hover {
+  background: color-mix(in srgb, var(--garden) 85%, var(--ink));
+}
+.parcours-cta:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.parcours-cta-verb {
+  flex: none;
+  font-weight: 500;
+  opacity: 0.9;
+}
+.parcours-cta-title {
+  min-width: 0;
+}
+.parcours-cta > [aria-hidden] {
+  flex: none;
+  margin-left: auto;
+}
+.parcours-tools-note {
+  margin: 0.45rem 0 0;
+  color: var(--muted-warm);
+  font-size: 0.88rem;
 }
 .parcours-target {
   display: flex;
@@ -237,7 +400,14 @@ body:has(.parcours-page) footer {
   align-items: center;
   gap: 0.35rem 0.6rem;
   min-width: 0;
-  flex: 1 1 100%;
+  margin-top: 0.8rem;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  background: var(--wash);
+}
+.parcours-target[hidden] {
+  display: none;
 }
 .parcours-target-text {
   min-width: 0;
@@ -254,12 +424,16 @@ body:has(.parcours-page) footer {
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+/* Under the graph's legend: how to use the ◎ buttons. */
 .parcours-tip {
-  display: inline-flex;
+  display: flex;
+  justify-content: center;
   align-items: center;
   gap: 0.45rem;
+  margin: 0.4rem 0 0;
   color: var(--muted-warm);
-  font-size: 0.95rem;
+  font-size: 0.88rem;
+  text-align: center;
 }
 .parcours-target-icon {
   display: inline-block;
@@ -275,7 +449,8 @@ body:has(.parcours-page) footer {
 .parcours-tools {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  align-items: center;
+  gap: 0.5rem;
 }
 .parcours-tool {
   display: inline-flex;
@@ -283,7 +458,7 @@ body:has(.parcours-page) footer {
   gap: 0.4rem;
   padding: 0.3rem 0.75rem;
   border: 1px solid var(--ink);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
   font: inherit;
@@ -292,9 +467,17 @@ body:has(.parcours-page) footer {
   line-height: 1.3;
   cursor: pointer;
 }
-.parcours-tool:hover {
+a.parcours-tool {
+  text-decoration: none;
+}
+.parcours-tool:hover:not(:disabled) {
   background: var(--ink);
   color: var(--paper);
+}
+.parcours-tool:disabled {
+  border-color: var(--rule-strong);
+  color: var(--muted-warm);
+  cursor: default;
 }
 .parcours-tool:focus-visible,
 .parcours-li-btn:focus-visible,
@@ -328,7 +511,7 @@ body:has(.parcours-page) footer {
 .parcours-tool-count {
   min-width: 1.4em;
   padding: 0 0.35em;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--garden);
   color: var(--paper);
   font-size: 0.8rem;
@@ -359,7 +542,7 @@ body:has(.parcours-page) footer {
   overflow: hidden;
   padding: 0;
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   cursor: grab;
   /* Vertical swipes still scroll the page; sideways drags and pinches pan
      and zoom the graph. */
@@ -401,7 +584,7 @@ body:has(.parcours-page) footer {
   height: 2rem;
   padding: 0 0.55rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
   font: inherit;
@@ -483,9 +666,9 @@ body:has(.parcours-page) footer {
   font-size: 14.5px;
 }
 .pg-quiz {
-  fill: var(--muted-warm);
+  fill: var(--callout-violet);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
 }
 .pg-node {
@@ -602,9 +785,11 @@ body:has(.parcours-page) footer {
 .pg-act[aria-pressed="true"] {
   opacity: 1;
 }
+/* Touch screens: no hover to reveal them, and ✓ ◎ on every 140px box was
+   clutter; the list's "⋯" carries both actions there. Pressed ones stay. */
 @media (hover: none) {
-  .pg-act {
-    opacity: 0.85;
+  .pg-act:not([aria-pressed="true"]) {
+    display: none;
   }
 }
 .pg-act.is-hidden {
@@ -711,7 +896,7 @@ body:has(.parcours-page) footer {
   display: inline-block;
   width: 1.1rem;
   height: 0.75rem;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   border: 1.3px solid var(--rule-strong);
   background: var(--paper);
 }
@@ -734,6 +919,37 @@ body:has(.parcours-page) footer {
 .parcours-swatch--target {
   border: 2.5px solid var(--callout-violet);
 }
+.parcours-swatch--quiz {
+  width: auto;
+  height: auto;
+  border: 0;
+  background: none;
+  color: var(--callout-violet);
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* The prerequisite graph under the list, open by default (its summary folds it). */
+.parcours-graph-fold {
+  margin: 1rem 0 0.8rem;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.parcours-graph-fold > summary {
+  width: fit-content;
+  color: var(--muted-warm);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.parcours-graph-fold > summary:hover {
+  color: var(--ink);
+}
 
 /* --- ordered list (text alternative) -------------------------------------- */
 .parcours-order {
@@ -742,8 +958,15 @@ body:has(.parcours-page) footer {
   list-style: decimal;
 }
 .parcours-order li {
+  position: relative;
   padding: 0.35rem 0;
   border-bottom: 1px solid var(--rule);
+}
+.parcours-dur {
+  color: var(--muted-warm);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 .parcours-order li::marker {
   color: var(--muted-warm);
@@ -768,7 +991,7 @@ body:has(.parcours-page) footer {
   display: inline-block;
   margin-left: 0.25rem;
   padding: 0 0.45rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--garden-wash);
   color: var(--garden);
   font-size: 0.82rem;
@@ -793,7 +1016,7 @@ body:has(.parcours-page) footer {
 .parcours-li-btn {
   padding: 0 0.45rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--muted-warm);
   font: inherit;
@@ -828,16 +1051,62 @@ body:has(.parcours-page) footer {
 .parcours-li-btn[aria-pressed="true"] {
   opacity: 1;
 }
-@media (hover: none) {
-  .parcours-li-btn {
-    opacity: 1;
-    font-size: 0.74rem;
-    line-height: 1.5;
-    padding: 0 0.35rem;
+/* With a mouse, the buttons sit in a column of their own on the right, so
+   a hidden pair never pushes a long line onto an empty second one. */
+@media (hover: hover) and (min-width: 700px) {
+  .parcours-order li {
+    padding-right: 15rem;
   }
   .parcours-li-acts {
-    gap: 0.25rem;
-    margin-left: 0.3rem;
+    position: absolute;
+    top: 0.45rem;
+    right: 0;
+    flex-wrap: nowrap;
+    margin: 0;
+  }
+}
+/* "⋯": touch screens (and narrow windows), where the two buttons hide
+   behind it. */
+.parcours-li-more {
+  display: none;
+}
+@media (hover: none), (max-width: 699px) {
+  .parcours-order li {
+    padding-right: 2.4rem;
+  }
+  .parcours-li-more {
+    display: block;
+    position: absolute;
+    top: 0.2rem;
+    right: 0;
+    width: 2.2rem;
+    height: 2.2rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--muted-warm);
+    font: inherit;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .parcours-li-more[aria-expanded="true"] {
+    background: var(--wash);
+    color: var(--ink);
+  }
+  .parcours-li-acts {
+    display: none;
+    gap: 0.4rem;
+    margin: 0.35rem 0 0.1rem;
+  }
+  .parcours-order li.is-open .parcours-li-acts {
+    display: flex;
+  }
+  .parcours-li-btn {
+    opacity: 1;
+    font-size: 0.85rem;
+    line-height: 1.9;
+    padding: 0 0.6rem;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -859,7 +1128,7 @@ body:has(.parcours-page) footer {
   max-height: calc(100dvh - 2rem);
   padding: 0;
   border: 1px solid var(--rule-strong);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   background: var(--paper);
   color: var(--ink);
 }
@@ -888,7 +1157,7 @@ body:has(.parcours-page) footer {
   width: 2rem;
   height: 2rem;
   border: 0;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--ink-2);
   font-size: 1.5rem;
@@ -944,7 +1213,7 @@ body:has(.parcours-page) footer {
   margin: 0 0 1rem;
   padding: 0.9rem 1rem;
   border: 1px solid var(--rule);
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   font-size: 1.1rem;
 }
 .placement-answer {
@@ -982,7 +1251,7 @@ body:has(.parcours-page) footer {
 .path-review-empty pre {
   margin: 0.6rem 0;
   padding: 0.6rem 0.8rem;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   background: var(--wash-2);
   color: var(--ink);
   font-size: 0.9rem;
@@ -993,16 +1262,27 @@ body:has(.parcours-page) footer {
 }
 
 @media (max-width: 560px) {
+  /* Two columns of cards on a phone: one column made the page 6 000px. */
+  .parcours-cards,
+  .parcours-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
   .parcours-card-link {
-    align-items: flex-start;
-    gap: 0.8rem;
-    padding: 0.8rem;
+    padding: 0.6rem 0.65rem 0.65rem;
   }
-  .pm {
-    max-width: 3.6rem;
+  .parcours-card-title {
+    font-size: 1.02rem;
   }
-  .parcours-study {
-    padding: 0.55rem 0.6rem;
+  .parcours-card-sub,
+  .parcours-card-desc {
+    font-size: 0.88rem;
+  }
+  .parcours-card-kicker {
+    font-size: 0.68rem;
+  }
+  .parcours-cta {
+    width: 100%;
   }
   .parcours-tool {
     font-size: 0.88rem;
@@ -1019,7 +1299,8 @@ body:has(.parcours-page) footer {
 @media print {
   .parcours-progress,
   .parcours-legend,
-  .parcours-next,
+  .parcours-tip,
+  .parcours-li-more,
   .parcours-privacy,
   .parcours-study,
   .parcours-li-acts,
@@ -1042,4 +1323,587 @@ body:has(.parcours-page) footer {
   .pg-edge {
     opacity: 1 !important;
   }
+}
+
+/* "Disponible hors ligne" (components/OfflinePath.tsx). */
+.offline-path {
+  margin: 0.4rem 0 0.8rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.9rem;
+}
+.offline-path-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-pill);
+  background: var(--paper);
+  color: var(--ink-soft);
+  padding: 0.2rem 0.8rem;
+  font: inherit;
+  cursor: pointer;
+}
+.offline-path-btn::before {
+  content: "";
+  width: 0.9em;
+  height: 0.9em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 4v11m0 0l-4.5-4.5M12 15l4.5-4.5M5 19.5h14' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.offline-path-btn:hover:not(:disabled) {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.offline-path-ok {
+  color: var(--garden);
+  font-weight: 600;
+}
+.offline-path-ok + .offline-path-btn::before {
+  display: none;
+}
+
+/* --- "pressable" actions (idea from Brilliant) ------------------------------
+   The page's buttons get a thicker bottom edge that gives on press, so they
+   read as buttons rather than boxed text; links stay links. */
+.parcours-cta,
+.parcours-tool {
+  border-radius: var(--radius-sm);
+  border-bottom-width: 3px;
+  transition: transform 0.08s;
+}
+.parcours-cta {
+  border: 1.5px solid var(--garden);
+  border-bottom: 3px solid color-mix(in srgb, var(--garden) 60%, #000);
+}
+.parcours-tool:not(:disabled) {
+  border-color: var(--rule-strong);
+  border-bottom-color: color-mix(in srgb, var(--ink) 45%, var(--rule-strong));
+}
+.parcours-cta:active,
+.parcours-tool:active:not(:disabled) {
+  transform: translateY(2px);
+}
+
+/* --- levels and the path of discs ------------------------------------------
+   "Dans l'ordre" as a vertical path: one disc per note (a number, a check
+   once read, dashed once known), the next one ringed in the path's family
+   colour; long paths cut into levels (lib/path-levels.ts), each a <details>
+   whose heading stays pinned while its notes scroll by, closing on a
+   diamond: the level's review. */
+.parcours-page--path > .parcours-levels,
+.parcours-page--path > .parcours-next-path {
+  max-width: 60rem;
+}
+.parcours-levels {
+  --disc: 2.4rem;
+  --path-c: var(--fam, var(--garden));
+  --path-wash: var(--fam-wash, var(--garden-wash));
+  display: grid;
+  gap: 0.7rem;
+}
+.parcours-level {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+}
+.parcours-level-head {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.7rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: calc(var(--radius-md) - 1px);
+  background: var(--paper);
+  cursor: pointer;
+  list-style: none;
+}
+.parcours-level-head::-webkit-details-marker {
+  display: none;
+}
+.parcours-level[open] > .parcours-level-head {
+  border-radius: calc(var(--radius-md) - 1px) calc(var(--radius-md) - 1px) 0 0;
+  border-bottom: 1px solid var(--rule);
+  background: color-mix(in srgb, var(--path-wash) 100%, var(--paper));
+  box-shadow: 0 1px 0 var(--rule);
+}
+.parcours-level-head::after {
+  content: "▾";
+  margin-left: auto;
+  color: var(--muted-warm);
+  font-size: 0.85rem;
+  transition: transform 0.15s;
+}
+.parcours-level:not([open]) > .parcours-level-head::after {
+  transform: rotate(-90deg);
+}
+.parcours-level-head:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.parcours-level-name {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--path-c);
+}
+.parcours-level-span {
+  color: var(--ink);
+  min-width: 0;
+}
+.parcours-level-meta {
+  color: var(--muted-warm);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (min-width: 700px) {
+  .parcours-level-meta {
+    margin-left: auto;
+  }
+  .parcours-level-head::after {
+    margin-left: 0.4rem;
+  }
+}
+.parcours-level.is-complete .parcours-level-name::after {
+  content: " ✓";
+}
+.parcours-page--path .parcours-path {
+  list-style: none;
+  padding: 0.5rem 0.9rem 0.7rem;
+  margin: 0;
+}
+.parcours-path > li {
+  display: grid;
+  grid-template-columns: var(--disc) minmax(0, 1fr);
+  align-items: center;
+  column-gap: 0.8rem;
+  border-bottom: 0;
+  padding: 0.3rem 0;
+}
+/* The thread joining the discs. */
+.parcours-path > li::before {
+  content: "";
+  position: absolute;
+  left: calc(var(--disc) / 2 - 1px);
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--rule);
+}
+.parcours-path > li:first-child::before {
+  top: 50%;
+}
+.parcours-path > li:last-child::before {
+  bottom: 50%;
+}
+.parcours-path > li.is-read::before,
+.parcours-path > li.is-known::before,
+.parcours-path > li.is-mastered::before {
+  background: color-mix(in srgb, var(--path-c) 55%, var(--rule));
+}
+.parcours-disc {
+  position: relative;
+  z-index: 1;
+  grid-row: 1 / span 2;
+  display: grid;
+  place-items: center;
+  width: var(--disc);
+  height: var(--disc);
+  border-radius: 50%;
+  border: 2px solid var(--rule-strong);
+  border-bottom-width: 4px;
+  background: var(--paper);
+  color: var(--muted-warm);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+.parcours-path > li > .parcours-li-main {
+  grid-column: 2;
+}
+.parcours-path > li > .parcours-li-acts {
+  grid-column: 2 / span 2;
+}
+/* Reading time on the right; the state ("À lire ensuite", "Connue") and the
+   prerequisites as a small line under the title. */
+.parcours-path > li {
+  grid-template-columns: var(--disc) minmax(0, 1fr) auto;
+}
+.parcours-path > li > .parcours-dur {
+  grid-column: 3;
+  grid-row: 1;
+  align-self: center;
+}
+.parcours-path .parcours-state,
+.parcours-path .parcours-after {
+  display: block;
+  margin: 0.05rem 0 0;
+  padding: 0;
+  background: none;
+  color: var(--muted-warm);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.3;
+  vertical-align: baseline;
+}
+.parcours-path .parcours-state[hidden] {
+  display: none;
+}
+.parcours-path > li.is-next .parcours-state {
+  color: var(--ink);
+  font-weight: 600;
+}
+.parcours-path > li.is-target .parcours-state {
+  background: none;
+  color: var(--callout-violet);
+}
+.parcours-path > li.is-read .parcours-disc,
+.parcours-path > li.is-mastered .parcours-disc {
+  background: var(--path-c);
+  border-color: color-mix(in srgb, var(--path-c) 70%, #000);
+  color: var(--paper);
+}
+.parcours-path > li.is-known .parcours-disc {
+  border-style: dashed;
+  border-bottom-width: 2px;
+  border-color: var(--path-c);
+  color: var(--path-c);
+}
+.parcours-path > li:is(.is-read, .is-known, .is-mastered) .parcours-disc-n {
+  display: none;
+}
+.parcours-path > li:is(.is-read, .is-known) .parcours-disc::after {
+  content: "✓";
+}
+.parcours-path > li.is-mastered .parcours-disc::after {
+  content: "★";
+}
+.parcours-path > li.is-next .parcours-disc {
+  border-color: var(--path-c);
+  color: var(--path-c);
+  box-shadow:
+    0 0 0 4px var(--paper),
+    0 0 0 6px var(--path-c);
+}
+.parcours-path > li.is-next .parcours-li-main > a {
+  font-weight: 700;
+}
+/* The level's review: a diamond on the same thread. */
+.parcours-review-stop {
+  min-height: calc(var(--disc) + 0.6rem);
+}
+.parcours-disc--review {
+  width: calc(var(--disc) * 0.78);
+  height: calc(var(--disc) * 0.78);
+  margin-left: calc(var(--disc) * 0.11);
+  border-radius: var(--radius-md);
+  transform: rotate(45deg);
+}
+.parcours-disc--review > span {
+  transform: rotate(-45deg);
+}
+.parcours-review-stop.is-open .parcours-disc--review {
+  border-color: var(--path-c);
+  color: var(--path-c);
+}
+.parcours-review-btn {
+  grid-column: 2;
+  display: grid;
+  justify-items: start;
+  gap: 0.05rem;
+  padding: 0.2rem 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: start;
+  color: var(--ink);
+  cursor: pointer;
+}
+.parcours-review-btn:disabled {
+  cursor: default;
+  color: var(--muted-warm);
+}
+.parcours-review-name {
+  font-size: 1.05rem;
+}
+.parcours-review-btn:not(:disabled) .parcours-review-name {
+  text-decoration: underline;
+  text-decoration-color: var(--path-c);
+  text-underline-offset: 4px;
+}
+.parcours-review-meta {
+  font-size: 0.85rem;
+  color: var(--muted-warm);
+}
+.parcours-review-btn:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+/* With a mouse, "Viser" / "Je connais" take the time's place on hover. */
+@media (hover: hover) and (min-width: 700px) {
+  .parcours-path > li {
+    padding-right: 0;
+  }
+  .parcours-path > li > .parcours-li-acts {
+    top: 50%;
+    transform: translateY(-50%);
+    padding-left: 1.5rem;
+  }
+  .parcours-path > li:is(:hover, :focus-within) > .parcours-li-acts {
+    background: linear-gradient(to right, transparent, var(--paper) 1.5rem);
+  }
+  .parcours-path > li:is(:hover, :focus-within) > .parcours-dur {
+    visibility: hidden;
+  }
+}
+@media (hover: none), (max-width: 699px) {
+  .parcours-path > li {
+    padding-right: 2.4rem;
+  }
+  .parcours-path > li > .parcours-li-more {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+@media (max-width: 699px) {
+  .parcours-levels {
+    --disc: 2.1rem;
+  }
+  .parcours-page--path .parcours-path {
+    padding-inline: 0.6rem;
+  }
+  .parcours-path > li {
+    column-gap: 0.65rem;
+  }
+}
+
+/* "Parcours suivant" under the list, when the vault names one (`suite:`). */
+.parcours-next-path {
+  display: grid;
+  gap: 0.1rem;
+  margin-top: 1rem;
+  padding: 0.7rem 0.9rem;
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--radius-md);
+  color: var(--ink);
+  text-decoration: none;
+}
+.themes-page a.parcours-next-path:hover {
+  border-color: var(--garden);
+  text-decoration: none;
+}
+.parcours-next-path-k {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.05em;
+  color: var(--muted-warm);
+}
+.parcours-next-path-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.parcours-next-path-meta {
+  color: var(--garden);
+  font-size: 0.9rem;
+}
+
+/* --- "Niveau 2 terminé" ------------------------------------------------------ */
+.parcours-done {
+  position: fixed;
+  display: grid;
+  justify-items: center;
+  gap: 0.75rem;
+  width: min(24rem, calc(100vw - 2rem));
+  max-width: none;
+  margin: auto;
+  color: var(--ink);
+  padding: 1.4rem 1.2rem 1.2rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--paper);
+  text-align: center;
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--ink) 8%, transparent);
+}
+.parcours-done:not([open]) {
+  display: none;
+}
+.parcours-done::backdrop {
+  background: color-mix(in srgb, var(--ink) 35%, transparent);
+}
+/* Same diamond medal as the lesson end (main.css .lesson-medal), which this
+   page does not load. */
+.parcours-medal {
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--radius-lg);
+  transform: rotate(45deg);
+  display: grid;
+  place-items: center;
+  animation: parcours-medal 0.6s ease-out both;
+}
+.parcours-medal span {
+  transform: rotate(-45deg);
+  color: var(--paper);
+  font: 700 1.5rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+@keyframes parcours-medal {
+  0% {
+    transform: rotate(45deg) scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: rotate(45deg) scale(1.08);
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .parcours-medal {
+    animation: none;
+  }
+}
+.parcours-done .parcours-medal {
+  background: var(--fam, var(--garden));
+  border-bottom: 5px solid color-mix(in srgb, var(--fam, var(--garden)) 60%, #000);
+  margin-top: 0.4rem;
+}
+.parcours-done-title {
+  margin: 0.4rem 0 0;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+.parcours-done-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6rem, 1fr));
+  gap: 0.5rem;
+  width: 100%;
+  margin: 0;
+}
+.parcours-done-stats > div {
+  display: grid;
+  padding: 0.45rem 0.3rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+}
+.parcours-done-stats dd {
+  order: -1;
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.parcours-done-stats dt {
+  font-size: 0.8rem;
+  color: var(--muted-warm);
+}
+.parcours-done .parcours-cta {
+  width: 100%;
+  justify-content: center;
+}
+.parcours-done-close {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.5rem;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted-warm);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.parcours-done-close:hover,
+.parcours-done-close:focus-visible {
+  background: var(--wash);
+  color: var(--ink);
+  outline: none;
+}
+
+/* --- pinned "Continuer" (phones) ------------------------------------------ */
+.parcours-dock {
+  display: none;
+}
+@media (max-width: 760px) {
+  .parcours-dock:not([hidden]) {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.55rem 0.9rem calc(0.7rem + env(safe-area-inset-bottom, 0px));
+    background: color-mix(in srgb, var(--paper) 94%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    border-top: 1px solid var(--rule);
+    animation: parcours-dock-in 0.2s ease-out;
+  }
+  .parcours-page--path {
+    padding-bottom: 7rem;
+  }
+}
+@keyframes parcours-dock-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+.parcours-dock-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: var(--muted-warm);
+  font-variant-numeric: tabular-nums;
+}
+.parcours-dock-bar {
+  height: 4px;
+  border-radius: var(--radius-xs);
+  background: var(--rule);
+  overflow: hidden;
+}
+.parcours-dock-bar > span {
+  display: block;
+  height: 100%;
+  background: var(--garden);
+}
+.parcours-dock .parcours-cta {
+  width: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .parcours-cta,
+  .parcours-tool,
+  .parcours-level-head::after {
+    transition: none;
+  }
+  .parcours-dock:not([hidden]) {
+    animation: none;
+  }
+}
+@media print {
+  .parcours-dock,
+  .parcours-done,
+  .parcours-review-stop {
+    display: none !important;
+  }
+  .parcours-level-head {
+    position: static;
+  }
+}
+
+/* "Après « Analyse au lycée »" / "Suite : Réseau" on an index card. */
+.parcours-card-chain {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.85rem;
+  color: var(--garden);
 }

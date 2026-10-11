@@ -1,5 +1,6 @@
 "use client";
 
+import { HomeBookmarks } from "@/components/HomeBookmarks";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { HomeTreeNode } from "@/lib/content";
 import type { HomeData } from "@/lib/home-data";
@@ -585,7 +586,7 @@ export function HomeContent({
         <a
           href={`/posts/${resume.slug}/#reprendre`}
           data-pagefind-ignore
-          className="group mb-10 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[3px] border border-rule border-l-[3px] border-l-garden px-5 py-3 text-ink no-underline hover:bg-wash"
+          className="group mb-10 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-rule border-l-[3px] border-l-garden px-5 py-3 text-ink no-underline hover:bg-wash"
         >
           <span className="text-micro font-semibold uppercase tracking-[0.1em] text-garden">
             {tr("reading.resumeTitle")}
@@ -594,7 +595,7 @@ export function HomeContent({
             {resume.title}
           </span>
           <span className="flex items-center gap-2 text-meta tabular-nums text-muted-warm">
-            <span aria-hidden="true" className="block h-1 w-16 overflow-hidden rounded-sm bg-rule">
+            <span aria-hidden="true" className="block h-1 w-16 overflow-hidden rounded-xs bg-rule">
               <span className="block h-full bg-garden" style={{ width: `${resume.pct}%` }} />
             </span>
             {t("reading.progress", { pct: resume.pct }, locale)}
@@ -602,6 +603,8 @@ export function HomeContent({
           </span>
         </a>
       )}
+
+      <HomeBookmarks />
 
       {/* 2. two columns spread across the full body width */}
       <div className="grid grid-cols-1 gap-10 min-[700px]:items-start min-[700px]:justify-between min-[700px]:gap-y-0 min-[700px]:[grid-template-columns:minmax(240px,360px)_minmax(340px,580px)]">
@@ -628,7 +631,7 @@ export function HomeContent({
             <a
               href="/graph/"
               aria-label={tr("home.mapLabel")}
-              className="group relative block h-[440px] w-full cursor-pointer overflow-hidden rounded-[3px] border border-rule hover:bg-transparent max-[700px]:h-[300px]"
+              className="group relative block h-[440px] w-full cursor-pointer overflow-hidden rounded-md border border-rule hover:bg-transparent max-[700px]:h-[300px]"
             >
               <LazyGraph graphData={graphData} />
               {/* Hover cue: this decorative preview opens the full, labelled graph. */}
@@ -650,7 +653,7 @@ export function HomeContent({
             </p>
           </section>
 
-          <section className="rounded-[3px] border border-rule px-6 py-5">
+          <section className="rounded-md border border-rule px-6 py-5">
             <div className="mb-[0.6rem] flex items-center justify-between gap-2">
               <h2 className={labelCls}>{tr("home.askLabel")}</h2>
               {/* Pushpin: dock the assistant at the bottom-right and keep it there
@@ -700,7 +703,7 @@ export function HomeContent({
               <button
                 type="submit"
                 disabled={busy}
-                className="shrink-0 cursor-pointer rounded-[3px] border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-paper transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-rule-strong disabled:text-paper"
+                className="shrink-0 cursor-pointer rounded-sm border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-paper transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-rule-strong disabled:text-paper"
               >
                 {tr("home.askSend")}
               </button>

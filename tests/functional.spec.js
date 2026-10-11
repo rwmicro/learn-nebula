@@ -252,31 +252,35 @@ test.describe("Widgets", () => {
     const withWidget = findPage('data-widget="');
     test.skip(!withWidget, "no note mounts a widget in this build");
 
+    // The original library or one of the packs (lib/widgets-extra.ts),
+    // whichever the page's widgets need.
+    const isWidgetCode = (u) => /\/js\/widgets(\.js|-[a-z]+\.bundle\.js)$/.test(u);
     const fetched = [];
     page.on("response", (r) => {
-      if (r.url().endsWith("/js/widgets.js")) fetched.push(r.url());
+      if (isWidgetCode(r.url())) fetched.push(r.url());
     });
 
     await page.goto(withWidget);
     await page.waitForLoadState("networkidle");
-    expect(fetched, "widgets.js was not fetched on a page that has one").toHaveLength(1);
+    expect(fetched.length, "no widget code was fetched on a page that has one").toBeGreaterThan(0);
     // Mounted, not just downloaded: the fallback paragraph is gone.
     await expect(page.locator(".widget[data-widget] .widget-fallback")).toHaveCount(0);
 
     fetched.length = 0;
     await page.goto("/");
     await page.waitForLoadState("networkidle");
-    expect(fetched, "widgets.js was fetched on a page with no widget").toHaveLength(0);
+    expect(fetched, "widget code was fetched on a page with no widget").toHaveLength(0);
   });
 
   test("the note bundle does not carry the widget library", () => {
     const bundle = fs.readFileSync("out/js/note.bundle.js", "utf8");
     expect(bundle).toContain("widget[data-widget]"); // the loader is in it
-    // The library alone is 106 KB, so a bundle that carried it would be well
-    // past this; the margin leaves room for the note enhancers themselves
-    // (selection toolbar, reading progress, comments… ≈ 38 KB in 10/2026,
-    // once quiz and glossary moved to their own per-note bundles).
-    expect(bundle.length).toBeLessThan(55_000);
+    // The library alone is 106 KB (and each pack 50 to 80 KB), so a bundle
+    // that carried one would be well past this; the margin leaves room for
+    // the note enhancers themselves (selection toolbar, reading progress,
+    // comments, step list… ≈ 56 KB in 10/2026, once quiz and glossary moved
+    // to their own per-note bundles).
+    expect(bundle.length).toBeLessThan(62_000);
     // Those two load only where they are used (see below).
     expect(bundle).not.toContain("quiz-self-btn");
     expect(bundle).not.toContain("gloss-popover");

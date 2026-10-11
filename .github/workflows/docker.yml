@@ -30,6 +30,9 @@ name: Docker image (GHCR)
 #     main has moved since the last image (see the `pensine` job).
 
 on:
+  # `branches` matches the triggering run's branch *name*, so a fork's PR from
+  # a branch called `main` would match too; the job's `if` below keeps only
+  # CI runs from a push to this repository.
   workflow_run:
     workflows: [CI]
     types: [completed]
@@ -74,7 +77,10 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (vars.ENABLE_DOCKER_BUILD == 'true' && (
-        (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success') ||
+        (github.event_name == 'workflow_run' &&
+          github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.event == 'push' &&
+          github.event.workflow_run.head_repository.full_name == github.repository) ||
         github.event_name == 'repository_dispatch' ||
         (github.event_name == 'schedule' && needs.pensine.outputs.built != 'true')))
     name: Build & push

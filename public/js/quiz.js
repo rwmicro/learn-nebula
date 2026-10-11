@@ -5,9 +5,15 @@
 //   and can add the question to their spaced-repetition reviews, stored with
 //   the Anki decks' scheduler under `srs:note:<note-slug>` (lib/note-quiz.ts)
 //   and reviewed at /cartes/revision/.
+// - multiple-choice cards (`- [ ]` / `- [x]` in the callout): the reader picks
+//   an answer, gets its own explanation, and the pick grades the card;
+//   "Indice : …" lines are hints shown one at a time;
+// - "À ton avis ?" (`[!predict]`): the rest of the section stays veiled until
+//   the reader picks an answer or reads on anyway.
 // Click handling is delegated from the document, so it keeps working after
 // /js/translate.js swaps the article body. The self-grade row is created
 // here, after the build, so Pagefind never indexes it; print hides it.
+import { recordActivity } from "../../lib/personal";
 import {
   SELF_GRADE,
   addQuestion,
@@ -21,6 +27,8 @@ import {
 } from "../../lib/note-quiz.ts";
 import { dayKey } from "../../lib/srs.ts";
 import { loadSettings } from "../../lib/srs-settings.ts";
+// "Lire en leçon" rides along: only notes with questions offer it.
+import "./lesson.js";
 
 (function () {
   const slug = noteSlugFromPath(location.pathname);
@@ -158,28 +166,18 @@ import { loadSettings } from "../../lib/srs-settings.ts";
     };
   }
 
-  document.addEventListener("click", (e) => {
-    const t = e.target;
-    if (!(t instanceof Element)) return;
-    const card = t.closest(".callout-quiz");
-    if (!card) return;
+  // Grade a card ("knew" / "notYet") and, with `add`, toggle it in the
+  // reviews: what the self-grade buttons and "add" do, and what a picked
+  // answer of a multiple-choice card does on its own.
+  function record(card, { self, add } = {}) {
     const id = card.dataset.quizId;
-
-    if (t.closest(".quiz-reveal")) {
-      reveal(card, card.querySelector(".quiz-answer").hidden);
-      return;
-    }
-
-    const self = t.closest(".quiz-self-btn");
-    const add = t.closest(".quiz-add");
-    if (!self && !add) return;
     const s = store();
     const status = card.querySelector(".quiz-status");
     if (self) {
       card.querySelectorAll(".quiz-self-btn").forEach((b) =>
-        b.setAttribute("aria-pressed", String(b === self)),
+        b.setAttribute("aria-pressed", String(b.dataset.self === self)),
       );
-      card.dataset.self = self.dataset.self;
+      card.dataset.self = self;
     }
     if (!s || !slug || !id) {
       if (add && status) say(status, "quiz.noStorage");
@@ -210,7 +208,219 @@ import { loadSettings } from "../../lib/srs-settings.ts";
       return;
     }
     window.dispatchEvent(new CustomEvent("gk:quiz-change"));
+    if (g) recordActivity("c");
     showStatus(card, deck, id);
+  }
+
+  // --- multiple choice ("quiz--choice") and "À ton avis ?" ("callout-predict")
+
+  // The feedback band under the answers: what the picked answer says (its
+  // own line in the vault, else a stock sentence), and what to do next.
+  function feedback(card, kind, whyHtml, actions) {
+    const box = card.querySelector(".quiz-feedback");
+    if (!box) return;
+    box.className = `quiz-feedback quiz-feedback--${kind}`;
+    box.replaceChildren();
+    const head = document.createElement("p");
+    head.className = "quiz-feedback-title";
+    const key = {
+      ok: "quiz.right",
+      shown: "quiz.answerShown",
+      bad: "quiz.notQuite",
+      guess: "predict.thanks",
+      predictOk: "predict.right",
+      predictBad: "predict.wrong",
+    }[kind];
+    setText(head, key);
+    box.appendChild(head);
+    if (whyHtml) {
+      const why = document.createElement("div");
+      why.className = "quiz-feedback-why";
+      why.innerHTML = whyHtml;
+      box.appendChild(why);
+    }
+    if (actions && actions.length) {
+      const row = document.createElement("div");
+      row.className = "quiz-feedback-actions";
+      for (const [cls, k] of actions) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = `quiz-btn ${cls}`;
+        setText(b, k);
+        row.appendChild(b);
+      }
+      box.appendChild(row);
+    }
+    box.hidden = false;
+  }
+
+  const whyOf = (btn) => btn.querySelector(".quiz-why")?.innerHTML || "";
+
+  function lockChoices(card) {
+    card.classList.add("is-answered");
+    card.querySelectorAll(".quiz-choice").forEach((b) => {
+      if (b.dataset.ok === "1") b.classList.add("is-right");
+      b.disabled = true;
+    });
+  }
+
+  // After a pick, a choice card ends on one band (the feedback): the green
+  // answer already says which one is right, so the answer panel only stays
+  // for what else the note says, and "add to my reviews" joins the band.
+  function settle(card) {
+    const answer = card.querySelector(".quiz-answer");
+    const box = card.querySelector(".quiz-feedback");
+    if (answer) {
+      const extra = [...answer.children].some(
+        (n) => !n.matches(".quiz-right, .quiz-right-why") && !n.hidden,
+      );
+      answer.hidden = !extra;
+    }
+    const row = card.querySelector(".quiz-grade");
+    if (box && row) {
+      box.hidden = false;
+      box.appendChild(row);
+    }
+  }
+
+  function pickQuiz(card, btn) {
+    if (card.classList.contains("is-answered")) return;
+    card.querySelectorAll(".quiz-choice.is-wrong-now").forEach((b) => b.classList.remove("is-wrong-now"));
+    const tries = Number(card.dataset.tries || 0) + 1;
+    card.dataset.tries = String(tries);
+    if (btn.dataset.ok === "1") {
+      btn.classList.add("is-picked");
+      lockChoices(card);
+      feedback(card, "ok", whyOf(btn));
+      reveal(card, true);
+      // Right at the first try: "Je savais"; after a miss: "Pas encore".
+      record(card, { self: tries === 1 ? "knew" : "notYet" });
+      settle(card);
+    } else {
+      btn.classList.add("is-wrong", "is-wrong-now");
+      btn.disabled = true;
+      feedback(card, "bad", whyOf(btn) || "", [
+        ["quiz-retry", "quiz.retry"],
+        ["quiz-show", "quiz.showAnswer"],
+      ]);
+    }
+  }
+
+  function showAnswer(card) {
+    lockChoices(card);
+    const right = card.querySelector('.quiz-choice[data-ok="1"]');
+    if (card.classList.contains("callout-quiz")) {
+      // Why the right answer is right, in the same band.
+      feedback(card, "shown", right ? whyOf(right) : "");
+      reveal(card, true);
+      if (!card.dataset.self) record(card, { self: "notYet" });
+      settle(card);
+    } else if (right) {
+      feedback(card, "predictBad", whyOf(right));
+    }
+  }
+
+  // "À ton avis ?": the rest of the section, veiled until an answer.
+  function restOf(card) {
+    const next = card.nextElementSibling;
+    return next && next.matches("[data-predict-rest]") ? next : null;
+  }
+  function unveil(card) {
+    card.classList.add("is-open");
+    const rest = restOf(card);
+    if (rest) {
+      rest.classList.remove("is-veiled");
+      rest.removeAttribute("inert");
+      rest.removeAttribute("aria-hidden");
+    }
+    const after = card.querySelector("[data-predict-after]");
+    if (after) after.hidden = false;
+    const skip = card.querySelector(".predict-skip");
+    if (skip) skip.hidden = true;
+    card.querySelector(".predict-veil-note")?.remove();
+  }
+  function pickPredict(card, btn) {
+    if (card.classList.contains("is-answered")) return;
+    const hasRight = !!card.querySelector('.quiz-choice[data-ok="1"]');
+    btn.classList.add("is-picked");
+    lockChoices(card);
+    if (!hasRight) feedback(card, "guess", whyOf(btn));
+    else if (btn.dataset.ok === "1") feedback(card, "predictOk", whyOf(btn));
+    else {
+      btn.classList.add("is-wrong");
+      const right = card.querySelector('.quiz-choice[data-ok="1"]');
+      feedback(card, "predictBad", [whyOf(btn), whyOf(right)].filter(Boolean).join(" "));
+    }
+    unveil(card);
+  }
+
+  // Veil each "À ton avis ?" section until it is answered. A card linked
+  // to by a hash, or one the reader has scrolled past, stays open.
+  document.querySelectorAll(".callout-predict").forEach((card) => {
+    const rest = restOf(card);
+    const after = card.querySelector("[data-predict-after]");
+    if (after) after.hidden = true;
+    if (!card.querySelector(".quiz-choice") && !rest) return;
+    const skip = card.querySelector(".predict-skip");
+    if (skip) skip.hidden = false;
+    if (!rest) return;
+    if (card.getBoundingClientRect().bottom < 0) return unveil(card);
+    rest.classList.add("is-veiled");
+    rest.setAttribute("inert", "");
+    rest.setAttribute("aria-hidden", "true");
+    const note = document.createElement("p");
+    note.className = "predict-veil-note";
+    setText(note, "predict.veiled");
+    card.appendChild(note);
+  });
+
+  // Hints: one more at each click; the button goes once all are shown.
+  function nextHint(card, btn) {
+    const hidden = card.querySelector(".quiz-hint[hidden]");
+    if (hidden) hidden.hidden = false;
+    if (!card.querySelector(".quiz-hint[hidden]")) btn.hidden = true;
+    else setText(btn, "quiz.hintMore");
+  }
+
+  document.addEventListener("click", (e) => {
+    const t = e.target;
+    if (!(t instanceof Element)) return;
+    const predict = t.closest(".callout-predict");
+    if (predict) {
+      const choice = t.closest(".quiz-choice");
+      if (choice) return pickPredict(predict, choice);
+      if (t.closest(".predict-skip")) return unveil(predict);
+      const hb = t.closest(".quiz-hint-btn");
+      if (hb) return nextHint(predict, hb);
+      return;
+    }
+    const card = t.closest(".callout-quiz");
+    if (!card) return;
+
+    const choice = t.closest(".quiz-choice");
+    if (choice) return pickQuiz(card, choice);
+    if (t.closest(".quiz-retry")) {
+      card.querySelector(".quiz-feedback").hidden = true;
+      card.querySelector(".quiz-choice:not(:disabled)")?.focus();
+      return;
+    }
+    if (t.closest(".quiz-show")) return showAnswer(card);
+    const hb = t.closest(".quiz-hint-btn");
+    if (hb) return nextHint(card, hb);
+
+    if (t.closest(".quiz-reveal")) {
+      const opening = card.querySelector(".quiz-answer").hidden;
+      // Revealing a multiple-choice card before picking gives the answer away.
+      if (opening && card.classList.contains("quiz--choice") && !card.classList.contains("is-answered"))
+        return showAnswer(card);
+      reveal(card, opening);
+      return;
+    }
+
+    const self = t.closest(".quiz-self-btn");
+    const add = t.closest(".quiz-add");
+    if (!self && !add) return;
+    record(card, { self: self ? self.dataset.self : undefined, add: add || undefined });
   });
 
   // A card linked from the review page (/posts/x/#q-…) opens revealed.
@@ -218,7 +428,9 @@ import { loadSettings } from "../../lib/srs-settings.ts";
     const id = decodeURIComponent(location.hash.slice(1));
     if (!/^q-[a-z0-9-]+$/.test(id)) return;
     const card = document.getElementById(id);
-    if (card && card.classList.contains("callout-quiz")) reveal(card, true);
+    if (!card || !card.classList.contains("callout-quiz")) return;
+    if (card.classList.contains("quiz--choice")) showAnswer(card);
+    else reveal(card, true);
   }
   // `[!quiz]+` cards are built revealed: give them their grade row too.
   document

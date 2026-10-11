@@ -357,9 +357,8 @@ export function noteSectionLabel(rawPath: string): string {
 }
 
 /** Pagefind metadata for a note: `section` (see {@link noteSectionLabel}),
- * shown under each result of the note-page search (public/js/pagefind-init.js),
- * plus `dkey`, the discipline's i18n key, so that script can re-translate the
- * discipline for a reader on another locale. Hidden and out of the indexed
+ * shown under each "Dans le texte" hit of the command palette
+ * (public/js/palette.js), plus `dkey`, the discipline's i18n key. Hidden and out of the indexed
  * text (`data-pagefind-ignore` still lets Pagefind read the metadata). */
 export function noteSectionMetaHtml(rawPath: string): string {
   const section = noteSectionLabel(rawPath);
@@ -378,6 +377,7 @@ export function noteHeaderHtml(
   rawPath: string,
   title?: string,
   date?: { iso: string; formatted: string },
+  discipline?: { href: string; depth: number } | null,
 ): string {
   // Each folder segment links to the home browse tree opened at that folder
   // (/#<folderAnchor>), so the breadcrumb doubles as navigation back up the
@@ -388,7 +388,13 @@ export function noteHeaderHtml(
     ? `<span class="crumbs">${folders
         .map(
           (name, i) =>
-            `<a href="/#${folderAnchor(folders.slice(0, i + 1).join("/"))}"${folderI18n(name)}>${escapeHtml(folderLabel(name))}</a>`,
+            `<a href="${
+              // The discipline itself opens its own page (every note of it,
+              // by section); the levels above and below open the home tree.
+              discipline && i === discipline.depth
+                ? escapeHtml(discipline.href)
+                : `/#${folderAnchor(folders.slice(0, i + 1).join("/"))}`
+            }"${folderI18n(name)}>${escapeHtml(folderLabel(name))}</a>`,
         )
         .join(" › ")}</span>`
     : "";
@@ -412,11 +418,17 @@ export function noteHeaderHtml(
     `<div class="note-header-crumb">` +
     `<a href="/">${escapeHtml(INDEX_NOTE)}</a>${crumbs}` +
     `</div>` +
-    // Command palette (⌘K): search notes, jump to a section, switch theme.
-    paletteButtonHtml(true) +
     `</header>` +
     `<div class="note-header-condensed" data-pagefind-ignore>` +
+    // Discipline › title, then the section being read and the time left
+    // (filled by /js/reader-tools.js from the TOC scrollspy).
+    `<div class="note-header-stack">` +
+    (discipline && folders[discipline.depth]
+      ? `<a class="note-header-disc" href="${escapeHtml(discipline.href)}"${folderI18n(folders[discipline.depth])}>${escapeHtml(folderLabel(folders[discipline.depth]))}</a>`
+      : "") +
     meta +
+    `<span class="note-header-now" hidden aria-hidden="true"><span class="note-header-section"></span><span class="note-header-left"></span></span>` +
+    `</div>` +
     asideToggleHtml() +
     `</div>`
   );
@@ -476,14 +488,6 @@ export function buildToc(
       .trim();
     if (text) items.push({ level: m[1], id: idMatch[1], text });
   }
-  const search =
-    process.env.NODE_ENV === "production"
-      ? `<div id="search" class="note-search" data-pagefind-ignore></div>`
-      : `<input type="search" class="note-search" placeholder="${escapeHtml(t("sidebar.searchPlaceholder"))}"` +
-        i18nAttr("placeholder", "sidebar.searchPlaceholder") +
-        ` autocomplete="off" aria-label="${escapeHtml(t("sidebar.searchAriaLabel"))}"` +
-        i18nAttr("aria-label", "sidebar.searchAriaLabel") +
-        ` data-pagefind-ignore>`;
   const toc =
     items.length >= 2
       ? `<nav class="toc" aria-label="${escapeHtml(t("sidebar.tocTitle"))}"${i18nAttr("aria-label", "sidebar.tocTitle")}><p class="toc-title"${i18nAttrs("sidebar.tocTitle")}>${escapeHtml(t("sidebar.tocTitle"))}</p><ul>${items
@@ -503,7 +507,7 @@ export function buildToc(
   // The trigger pill itself lives in noteHeaderHtml so the sticky header can
   // host it directly — kept out of the aside so it stays visible while the
   // aside is hidden behind its drawer transform.
-  return `<aside class="note-aside" data-pagefind-ignore>${close}${search}${themePillsHtml(tags)}${toc}${localGraph}</aside>`;
+  return `<aside class="note-aside" data-pagefind-ignore>${close}${themePillsHtml(tags)}${toc}${localGraph}</aside>`;
 }
 
 /** Comments section mount point; data fetching and form handling live in
@@ -813,3 +817,113 @@ function prettyFolder(name: string): string {
 
 // renderNoteTree()/renderNode() removed — the home notes list is now the
 // <HomeContent> React component (lib/content getHomeTree()).
+
+/** "À lire plus tard" toggle for the note-actions row. Hidden until
+ *  /js/reader-tools.js (which keeps the list in localStorage, lib/personal.ts)
+ *  reveals it with the right state. */
+export function bookmarkButtonHtml(): string {
+  return (
+    `<button class="bookmark-btn" type="button" hidden aria-pressed="false" data-pagefind-ignore` +
+    ` title="${escapeHtml(t("noteActions.bookmark"))}"${i18nAttr("title", "noteActions.bookmark")}>` +
+    `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6 3.5h12v17l-6-4.2-6 4.2z" fill="var(--bm-fill, none)" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>` +
+    `<span class="bookmark-label"${i18nAttrs("noteActions.bookmark")}>${escapeHtml(t("noteActions.bookmark"))}</span>` +
+    `</button>`
+  );
+}
+
+/** Focus mode: only the text, everything else hidden (/js/reader-tools.js,
+ *  also the "f" key; Escape leaves it). */
+export function focusButtonHtml(): string {
+  return (
+    `<button class="focus-btn" type="button" hidden aria-pressed="false" data-pagefind-ignore` +
+    ` title="${escapeHtml(t("noteActions.focusTitle"))}"${i18nAttr("title", "noteActions.focusTitle")}>` +
+    `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>` +
+    `<span${i18nAttrs("noteActions.focus")}>${escapeHtml(t("noteActions.focus"))}</span>` +
+    `</button>`
+  );
+}
+
+/** "Lire en leçon" (public/js/lesson.js): only on notes with two questions
+ *  or more; hidden until the script (in quiz.bundle.js) is there to run it. */
+export function lessonButtonHtml(): string {
+  return (
+    `<button class="lesson-btn" type="button" hidden data-pagefind-ignore>` +
+    `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h5"/><path d="M14 16.5l2 1.5 3-4"/></svg>` +
+    `<span${i18nAttrs("lesson.start")}>${escapeHtml(t("lesson.start"))}</span>` +
+    `</button>`
+  );
+}
+
+/** "Affichage ▾": the note's display tools (text size, width, focus) and
+ *  "Traduire", folded so the action row holds on one line. A <details>, so
+ *  it opens without JavaScript; /js/reader-tools.js closes it on a click
+ *  outside or Escape. */
+export function noteMoreHtml(inner: string): string {
+  return (
+    `<details class="note-more" data-pagefind-ignore>` +
+    `<summary class="note-more-btn"${i18nAttr("aria-label", "noteActions.moreAria")} aria-label="${escapeHtml(t("noteActions.moreAria"))}">` +
+    `<span${i18nAttrs("noteActions.more")}>${escapeHtml(t("noteActions.more"))}</span>` +
+    `<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>` +
+    `</summary>` +
+    `<div class="note-more-panel">${inner}</div>` +
+    `</details>`
+  );
+}
+
+export interface NextUp {
+  /** The logical next note: the next step of the reading path, else the next
+   *  note of the folder. */
+  next: { slug: string; title: string; path?: string } | null;
+  /** The note's discipline, and some of its notes to pick an unread one from
+   *  (in reading order, starting after this note). */
+  discipline: { name: string; href: string; notes: { slug: string; title: string }[] } | null;
+}
+
+/** "Et ensuite ?", right after the text: one clear way on. The unread pick is
+ *  filled in by /js/reader-tools.js from the candidates in `data-candidates`
+ *  (reading state lives in the browser); without JS that half stays hidden. */
+export function nextUpHtml(n: NextUp): string {
+  if (!n.next && !n.discipline) return "";
+  const main = n.next
+    ? `<a class="next-up-main" href="/posts/${encodeSlug(n.next.slug)}/">` +
+      `<span class="next-up-kicker"` +
+      (n.next.path
+        ? `${i18nAttrs("nextUp.pathNext", { path: n.next.path })}>${escapeHtml(t("nextUp.pathNext", { path: n.next.path }))}`
+        : `${i18nAttrs("nextUp.folderNext")}>${escapeHtml(t("nextUp.folderNext"))}`) +
+      `</span>` +
+      `<span class="next-up-title">${escapeHtml(n.next.title)}</span>` +
+      `<span class="next-up-arrow" aria-hidden="true">→</span>` +
+      `</a>`
+    : "";
+  const d = n.discipline;
+  const vars = d ? { discipline: d.name } : undefined;
+  const side = d
+    ? `<div class="next-up-side" data-candidates="${escapeHtml(JSON.stringify(d.notes.map((x) => [x.slug, x.title])))}"` +
+      ` data-exclude="${escapeHtml(n.next?.slug ?? "")}">` +
+      `<a class="next-up-unread" hidden href="#">` +
+      `<span class="next-up-kicker"${i18nAttrs("nextUp.unread", vars)}>${escapeHtml(t("nextUp.unread", vars))}</span>` +
+      `<span class="next-up-title"></span>` +
+      `</a>` +
+      `<p class="next-up-done" hidden${i18nAttrs("nextUp.allRead", vars)}>${escapeHtml(t("nextUp.allRead", vars))}</p>` +
+      `<a class="next-up-all" href="${escapeHtml(d.href)}"${i18nAttrs("nextUp.seeAll", vars)}>${escapeHtml(t("nextUp.seeAll", vars))}</a>` +
+      `</div>`
+    : "";
+  return (
+    `<nav class="next-up" data-pagefind-ignore aria-labelledby="next-up-title">` +
+    `<p class="next-up-heading" id="next-up-title"${i18nAttrs("nextUp.title")}>${escapeHtml(t("nextUp.title"))}</p>` +
+    `<div class="next-up-grid">${main}${side}</div>` +
+    `</nav>`
+  );
+}
+
+/** Ask the browser to prerender the note "Et ensuite ?" points to, so the
+ *  click that follows a finished reading opens instantly (instant.page only
+ *  does it on hover, which a phone never has). Ignored where unsupported. */
+export function prerenderNextHtml(slug: string | undefined): string {
+  if (!slug) return "";
+  const rules = {
+    prerender: [{ urls: [`/posts/${encodeSlug(slug)}/`], eagerness: "moderate" }],
+    prefetch: [{ urls: [`/posts/${encodeSlug(slug)}/`], eagerness: "eager" }],
+  };
+  return `<script type="speculationrules">${JSON.stringify(rules).replace(/</g, "\\u003c")}</script>`;
+}

@@ -16,6 +16,7 @@ const VERSION = "v2";
 const DOC_CACHE = `gk-doc-${VERSION}`;
 const ASSET_CACHE = `gk-asset-${VERSION}`;
 const OFFLINE_URL = "/offline.html";
+const SAVED_CACHE = "gk-saved";
 
 // Kept small on purpose: the vault has ~1000 notes, so an unbounded document
 // cache would grow without end. Assets get a larger budget (fonts, KaTeX,
@@ -44,7 +45,9 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
-      const keep = new Set([DOC_CACHE, ASSET_CACHE]);
+      // gk-saved: reading paths saved for offline reading
+      // (components/OfflinePath.tsx), kept until the reader removes them.
+      const keep = new Set([DOC_CACHE, ASSET_CACHE, SAVED_CACHE]);
       const keys = await caches.keys();
       await Promise.all(
         keys
@@ -97,6 +100,7 @@ async function networkFirst(request) {
   } catch {
     return (
       (await cache.match(request)) ||
+      (await (await caches.open(SAVED_CACHE)).match(request)) ||
       (await cache.match(OFFLINE_URL)) ||
       new Response("", { status: 504, statusText: "Offline" })
     );

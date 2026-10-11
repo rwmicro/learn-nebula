@@ -33,7 +33,18 @@ const SCRIPTS = [
   "youtube",
   "popover",
   "copy-links",
+  // "Citer cette note" under the article: copy buttons, today's date.
+  "cite",
   "selection-menu",
+  // After selection-menu: draws the highlights it creates ("Surligner").
+  "highlights",
+  // Back to top, section + time left, "Et ensuite ?", bookmark, focus mode,
+  // reading shortcuts (n/p/t/s/f/b).
+  "reader-tools",
+  // On a note of a reading path: "Étape suivante" pinned bottom left.
+  "path-dock",
+  // On a note of a reading path: "Étape 4/20" opens the list of its steps.
+  "path-sheet",
 ];
 // Not "quiz" nor "glossary": each is its own small bundle (quiz.bundle.js,
 // glossary.bundle.js, built below) that components/NoteScripts.tsx adds only
@@ -67,7 +78,10 @@ console.log(`bundle-js: bundled ${SCRIPTS.length} scripts → public/js/note.bun
 // so it is loaded from app/layout.tsx rather than being part of the note
 // bundle — bundled (not served raw like theme.js) to share
 // lib/palette-match.ts. quiz and glossary are per-note opt-ins (see above).
-for (const name of ["palette", "quiz", "glossary"]) {
+// The widget packs (lib/widgets-extra.ts): fetched by widgets-loader.js only
+// on a page that mounts one of their widgets. Bundled so they share
+// public/js/widget-kit.js and lib/ code with the build.
+for (const name of ["palette", "quiz", "glossary", "widgets-data", "widgets-sci", "widgets-lang"]) {
   await build({
     entryPoints: [join(JS_DIR, `${name}.js`)],
     outfile: join(JS_DIR, `${name}.bundle.js`),

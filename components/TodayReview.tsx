@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
-import { buildQueue, dayKey, grade as gradeCard, type Grade, type Progress } from "@/lib/srs";
+import { addDays, buildQueue, dayKey, grade as gradeCard, type Grade, type Progress } from "@/lib/srs";
+import { fetchJsonPool } from "@/lib/fetch-pool";
 import { deckSettings, loadSettings } from "@/lib/srs-settings";
 import { migrateDeck, studyCards, type DeckData } from "@/lib/deck-cards";
 import {
@@ -15,6 +16,7 @@ import {
 } from "@/lib/note-quiz";
 import {
   deckReviewItem,
+  isStarted,
   loadDeckProgress,
   quickCounts,
   saveDeckProgress,
@@ -32,9 +34,12 @@ import { ReviewSession } from "@/components/ReviewSession";
  * Reviews first, most overdue first across all sources; then the new cards,
  * taken in turn from each deck so one big deck doesn't fill the session.
  *
- * Only the decks with something to study are fetched (their JSON can be
- * several MB). Progress is the same as on each deck page and on
- * /cartes/revision/, so studying here or there is the same thing.
+ * Only decks the reader has started (at least one card graded on the deck
+ * page) take part: nineteen decks' worth of new cards is nobody's session,
+ * and each deck's JSON can be several MB. Those with something to study are
+ * fetched a few at a time (lib/fetch-pool.ts: the host answers bursts with
+ * 429). Progress is the same as on each deck page and on /cartes/revision/,
+ * so studying here or there is the same thing.
  */
 export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
   const locale = useLocale();
@@ -43,6 +48,10 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
   const [queue, setQueue] = useState<ReviewItem[] | null | false>(null);
   const [today] = useState(() => dayKey());
   const [failed, setFailed] = useState<string[]>([]);
+  // Decks being fetched: [settled, total].
+  const [loading, setLoading] = useState<[number, number] | null>(null);
+  const [started, setStarted] = useState(0);
+  const [hasNotes, setHasNotes] = useState(false);
   const progress = useRef(new Map<string, Progress>());
   const notes = useRef<Record<string, NoteDeck>>({});
 
@@ -55,21 +64,22 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
     const settings = loadSettings();
     const all = loadAllNoteDecks(localStorage);
     notes.current = all;
+    setHasNotes(Object.keys(all).length > 0);
     const reviews: ReviewItem[] = dueQuestions(all, today).map((d) => ({ kind: "note", ...d }));
-    const wanted = decks.filter((d) => {
+    const begun = decks.filter((d) => isStarted(loadDeckProgress(d.slug)));
+    setStarted(begun.length);
+    const wanted = begun.filter((d) => {
       const cfg = deckSettings(settings, d.slug);
       if (cfg.paused) return false;
       const c = quickCounts(loadDeckProgress(d.slug), d.count, cfg, today);
       return c.due + c.fresh > 0;
     });
-    Promise.all(
-      wanted.map((d) =>
-        fetch(`/anki/${d.slug}.json`)
-          .then((r) => (r.ok ? (r.json() as Promise<DeckData>) : Promise.reject()))
-          .then((data) => ({ d, data }))
-          .catch(() => ({ d, data: null })),
-      ),
-    ).then((loaded) => {
+    if (wanted.length) setLoading([0, wanted.length]);
+    fetchJsonPool<DeckData>(
+      wanted.map((d) => `/anki/${d.slug}.json`),
+      { onEach: (n) => !cancel && setLoading([n, wanted.length]) },
+    ).then((datas) => {
+      const loaded = wanted.map((d, i) => ({ d, data: datas[i] }));
       if (cancel) return;
       const fresh: ReviewItem[][] = [];
       const bad: string[] = [];
@@ -104,6 +114,7 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
       for (let i = 0; fresh.some((f) => i < f.length); i++)
         for (const f of fresh) if (i < f.length) interleaved.push(f[i]);
       setFailed(bad);
+      setLoading(null);
       setQueue([...reviews, ...interleaved]);
     });
     return () => {
@@ -151,9 +162,18 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
     [today],
   );
 
-  const sources = queue
-    ? new Set(queue.map((x) => (x.kind === "note" ? "note" : x.slug))).size
-    : 0;
+  // The "done" screen: what tomorrow already holds, from the same progress.
+  const tomorrowLoad = () => {
+    const tomorrow = addDays(today, 1);
+    let n = dueQuestions(notes.current, tomorrow).length;
+    for (const p of progress.current.values())
+      for (const c of Object.values(p.cards)) if (c.due <= tomorrow && !c.sus) n++;
+    return n;
+  };
+  const doneText =
+    queue && queue.length === 0 && started === 0 && !hasNotes
+      ? tr("todayReview.nothingStarted")
+      : tr("todayReview.done");
 
   return (
     <main id="main" className="flashcards-main note-review mx-auto max-w-[60rem] px-5 py-12 text-ink">
@@ -177,7 +197,6 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
       </header>
       <p className="mb-5 mt-0 text-small text-ink-2">
         {tr("todayReview.intro")}
-        {queue && queue.length > 0 && <> {tr("todayReview.sources", { n: sources })}</>}
       </p>
       {failed.length > 0 && (
         <p className="mb-5 mt-0 text-small italic text-muted-warm">
@@ -185,7 +204,9 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
         </p>
       )}
       {queue === null ? (
-        <p className="italic text-muted-warm">{tr("flashcards.loading")}</p>
+        <p className="italic text-muted-warm" aria-live="polite">
+          {loading ? tr("todayReview.loading", { n: loading[0], total: loading[1] }) : tr("flashcards.loading")}
+        </p>
       ) : queue === false ? (
         <p className="italic text-muted-warm">{tr("noteReview.noStorage")}</p>
       ) : (
@@ -195,7 +216,9 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
           onGrade={onGrade}
           today={today}
           autoFocus
-          done={tr("todayReview.done")}
+          showSource
+          done={doneText}
+          doneNote={() => (started > 0 ? tr("todayReview.tomorrow", { count: tomorrowLoad() }) : null)}
         />
       )}
     </main>

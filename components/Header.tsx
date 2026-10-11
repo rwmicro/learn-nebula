@@ -4,6 +4,9 @@ import { t } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
 import { EditionDate } from "@/components/EditionDate";
 import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
+import { NAV } from "@/lib/site";
+import { SiteNavLinks } from "@/components/SiteNavLinks";
+import { AccountChip, ReviewPill } from "@/components/AccountChip";
 
 // Blackletter wordmark, à la New York Times. next/font self-hosts the file at
 // build time (served from our origin), so `font-src 'self'` keeps holding and
@@ -15,9 +18,6 @@ const blackletter = UnifrakturMaguntia({
   fallback: ["Georgia", "serif"],
 });
 
-const navLink =
-  "text-ink no-underline underline-offset-[3px] hover:bg-transparent hover:underline focus-visible:underline";
-
 /** New-York-Times-style masthead in three tiers:
  *  1. utility bar — search · language "editions" · graph CTA
  *  2. masthead — dateline (left) · blackletter wordmark (center) · tagline (right)
@@ -28,7 +28,9 @@ export default function Header({ doc }: { doc: Doc }) {
   const editionIso = new Date().toISOString();
 
   return (
-    <header className="relative mx-auto max-w-300 px-4 text-ink @container">
+    // `home-masthead`: the site bar (components/SiteBar.tsx) hides itself on
+    // the page that carries this masthead, which lists the same links.
+    <header className="home-masthead relative mx-auto flex max-w-300 flex-col px-4 text-ink @container sm:block">
       {/* Peer checkbox drives the mobile section-nav dropdown (#6). CSS-only, so
           it works in the static export with no JS. */}
       <input
@@ -40,8 +42,12 @@ export default function Header({ doc }: { doc: Doc }) {
 
       {/* 1. utility bar: language "editions" + the light/dark toggle (same
           markup as the note nav's, wired by /js/theme.js) — always visible,
-          mobile included. */}
-      <div className="flex flex-wrap items-center justify-center gap-x-2 py-2">
+          mobile included. On phones it drops below the wordmark (`order-1`,
+          the header being a flex column there), so the title leads the page.
+          The mobile hamburger (#6) closes this row as one more pill, so the
+          wordmark keeps the full width and stays centred. Icon swap and focus
+          ring hang off this div, a direct sibling of the peer checkbox. */}
+      <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1.5 py-2 max-sm:order-1 max-sm:pt-3 peer-checked:[&_.gk-ic-open]:hidden peer-checked:[&_.gk-ic-close]:block peer-checked:[&_.gk-menu-btn]:border-ink peer-checked:[&_.gk-menu-btn]:bg-wash peer-focus-visible:[&_.gk-menu-btn]:outline peer-focus-visible:[&_.gk-menu-btn]:outline-2 peer-focus-visible:[&_.gk-menu-btn]:outline-offset-2 peer-focus-visible:[&_.gk-menu-btn]:outline-link">
         <LangSwitcher />
         <span
           className="contents"
@@ -52,6 +58,20 @@ export default function Header({ doc }: { doc: Doc }) {
           className="contents"
           dangerouslySetInnerHTML={{ __html: paletteButtonHtml() }}
         />
+        <ReviewPill />
+        <AccountChip />
+        <label
+          htmlFor="gk-menu"
+          aria-label={t("nav.menu")}
+          className="gk-menu-btn inline-flex size-[1.9rem] cursor-pointer items-center justify-center rounded-full border border-rule-strong bg-paper text-ink-soft hover:border-ink hover:bg-wash hover:text-ink sm:hidden"
+        >
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
+            <path d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="gk-ic-close hidden">
+            <path d="M6 6l12 12M18 6l-12 12" />
+          </svg>
+        </label>
       </div>
 
       {/* 2. masthead: dateline · wordmark · tagline. On mobile the dateline is
@@ -71,7 +91,7 @@ export default function Header({ doc }: { doc: Doc }) {
             className="justify-self-center text-ink no-underline hover:bg-transparent"
           >
             <h1
-              className={`${blackletter.className} m-0 border-0 p-0 font-normal text-wordmark not-italic leading-[0.9] whitespace-nowrap`}
+              className={`${blackletter.className} m-0 border-0 p-0 font-normal text-wordmark max-sm:text-[clamp(1.55rem,10cqi,6rem)] not-italic leading-[0.9] whitespace-nowrap`}
             >
               {doc.frontmatter.title}
             </h1>
@@ -82,42 +102,21 @@ export default function Header({ doc }: { doc: Doc }) {
       <div className="max-sm:hidden mt-0.5 border-t-[1.5px] border-ink" />
       
       {/* 3. section nav — horizontal bar on desktop; a right-anchored dropdown
-          popover on mobile, revealed by the hamburger in the corner (#6). */}
+          popover on mobile, revealed by the hamburger pill just above (#6). */}
       <nav
         aria-label={t("home.footerNavAria")}
-        className="relative hidden peer-checked:block sm:block"
+        className="max-sm:order-2 relative hidden peer-checked:block sm:block"
       >
-        <ul className="absolute right-2 top-1 z-30 m-0 flex w-max list-none flex-col items-end gap-2.5 rounded-[4px] border border-rule-strong bg-paper px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-x-7 sm:gap-y-1 sm:border-0 sm:border-b sm:border-rule sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none">
-          <li className="m-0">
-            <a href="/#applied-sciences" className={navLink} data-i18n="nav.appliedsciences">
-              {t("nav.appliedsciences")}
-            </a>
-          </li>
-          <li className="m-0 hidden sm:block">·</li>
-          <li className="m-0">
-            <a href="/#social-sciences" className={navLink} data-i18n="nav.socialsciences">
-              {t("nav.socialsciences")}
-            </a>
-          </li>
-          <li className="m-0 hidden sm:block">·</li>
-          <li className="m-0">
-            <a href="/graph/" className={navLink} data-i18n="nav.graph">
-              {t("nav.graph")}
-            </a>
-          </li>
-          <li className="m-0 hidden sm:block">·</li>
-          <li className="m-0">
-            <a href="/themes/" className={navLink} data-i18n="nav.themes">
-              {t("nav.themes")}
-            </a>
-          </li>
-          <li className="m-0 hidden sm:block">·</li>
-          <li className="m-0">
-            <a href="/hasard/" className={navLink} data-i18n="nav.random">
-              {t("nav.random")}
-            </a>
-          </li>
-        </ul>
+        {/* The same links as the site bar on every other page
+            (components/SiteBar.tsx), from lib/site.ts NAV. */}
+        <div className="home-nav absolute right-2 top-1 z-30 w-max rounded-md border border-rule-strong bg-paper px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:border-0 sm:border-b sm:border-rule sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none">
+          <SiteNavLinks
+            links={[
+              ...NAV.filter((n) => n.href !== "/"),
+              { name: "nav.progression", href: "/progression/" },
+            ].map((n) => ({ href: n.href, key: n.name, label: t(n.name) }))}
+          />
+        </div>
       </nav>
     </header>
   );

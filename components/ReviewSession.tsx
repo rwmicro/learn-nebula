@@ -1,5 +1,6 @@
 "use client";
 
+import { recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -8,6 +9,7 @@ import { recordReview } from "@/lib/srs-log";
 import { diff, isMatch } from "@/lib/typed-answer";
 import type { Graded, ReviewItem } from "@/lib/review-item";
 import { GRADE_COLOR, btn, btnGrade, quiet } from "@/components/srs-ui";
+import { DeckFace } from "@/components/DeckFace";
 
 export type { Graded, ReviewItem } from "@/lib/review-item";
 
@@ -33,7 +35,11 @@ export function formatInterval(days: number, locale: string, tr: (k: string, v?:
  * at the end, and counts each review in the daily log (lib/srs-log.ts).
  *
  * Note questions show their question, then the answer under it; deck cards
- * flip from front to back in a light card styled by their deck's own CSS.
+ * flip from front to back (components/DeckFace.tsx: the deck's CSS, scoped
+ * and brought to the site's type and theme).
+ * A thin bar shows the share done; the end screen counts the cards
+ * reviewed and how many were remembered. On touch screens a swipe grades
+ * (→ good, ← again) once the answer shows.
  * Card HTML is this site's own build output (rendered notes, or decks
  * sanitized by scripts/build-anki.mjs) — the same trust as the page itself.
  */
@@ -45,6 +51,8 @@ export function ReviewSession({
   today,
   autoFocus = false,
   zoom = 1,
+  showSource = false,
+  doneNote,
 }: {
   queue: ReviewItem[];
   setQueue: (q: ReviewItem[]) => void;
@@ -55,6 +63,10 @@ export function ReviewSession({
   autoFocus?: boolean;
   /** Deck cards' scale (the deck page's size button). */
   zoom?: number;
+  /** Name the deck above each deck card (sessions mixing several decks). */
+  showSource?: boolean;
+  /** Extra line on the end screen (e.g. tomorrow's load). */
+  doneNote?: () => React.ReactNode;
 }) {
   const locale = useLocale();
   const tr = (k: string, vars?: Record<string, string | number>) => t(k, vars, locale);
@@ -67,6 +79,9 @@ export function ReviewSession({
   const [typed, setTyped] = useState("");
   // Undo stack: the queue before each grade, with the caller's undo.
   const [history, setHistory] = useState<{ queue: ReviewItem[]; g: Grade; undo: () => void }[]>([]);
+  // This session's grades (the undo stack is capped, these are not).
+  const [tally, setTally] = useState({ n: 0, again: 0 });
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const revealRef = useRef<HTMLButtonElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const surfaceRef = useRef<HTMLElement>(null);
@@ -107,9 +122,11 @@ export function ReviewSession({
       if (!revealed || !head) return;
       const res = onGrade(head, g);
       recordReview(today, g);
+      recordActivity("c");
       const rest = queue.slice(1);
       const q = g === "again" ? [...rest, { ...head, state: res?.state }] : rest;
       setHistory((h) => [...h.slice(-49), { queue, g, undo: res?.undo ?? (() => {}) }]);
+      setTally((t) => ({ n: t.n + 1, again: t.again + (g === "again" ? 1 : 0) }));
       setQueue(q);
       setRevealedFor(null);
       setTyped("");
@@ -124,6 +141,7 @@ export function ReviewSession({
     last.undo();
     recordReview(today, last.g, true);
     setHistory(history.slice(0, -1));
+    setTally((t) => ({ n: Math.max(0, t.n - 1), again: Math.max(0, t.again - (last.g === "again" ? 1 : 0)) }));
     setQueue(last.queue);
     // Back on the card, answer shown, ready for another grade.
     setRevealedFor(keyOf(last.queue[0]));
@@ -161,7 +179,7 @@ export function ReviewSession({
   if (!head)
     return (
       <>
-        <section className="flex min-h-[14rem] flex-col items-center justify-center gap-5 rounded-[4px] border border-rule bg-paper p-8 text-center">
+        <section className="flex min-h-[14rem] flex-col items-center justify-center gap-5 rounded-md border border-rule bg-paper p-8 text-center">
           <h2
             ref={doneRef}
             tabIndex={-1}
@@ -169,6 +187,15 @@ export function ReviewSession({
           >
             {done}
           </h2>
+          {tally.n > 0 && (
+            <p className="m-0 text-small tabular-nums text-ink-2">
+              {tr("flashcards.sessionTally", {
+                count: tally.n,
+                pct: Math.round((100 * (tally.n - tally.again)) / tally.n),
+              })}
+            </p>
+          )}
+          {doneNote && <p className="m-0 text-small text-muted-warm">{doneNote()}</p>}
         </section>
         {undoButton}
       </>
@@ -177,13 +204,51 @@ export function ReviewSession({
   const next = revealed ? preview(head.state, today) : null;
   const match = revealed && expected != null && typed.trim() ? isMatch(typed, expected) : null;
 
+  const total = tally.n + queue.length;
+  const onTouchStart = (e: React.TouchEvent) => {
+    const t0 = e.touches[0];
+    touchStart.current = e.touches.length === 1 ? { x: t0.clientX, y: t0.clientY } : null;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const s0 = touchStart.current;
+    touchStart.current = null;
+    if (!s0 || !revealed) return;
+    const t1 = e.changedTouches[0];
+    const dx = t1.clientX - s0.x;
+    const dy = t1.clientY - s0.y;
+    if (Math.abs(dx) < 70 || Math.abs(dx) < 2 * Math.abs(dy)) return;
+    grade(dx > 0 ? "good" : "again");
+  };
+
   return (
     <>
+      <div
+        className="review-progress mb-4 h-[2px] w-full overflow-hidden rounded-full bg-rule-soft"
+        role="progressbar"
+        aria-label={tr("flashcards.progress")}
+        aria-valuemin={0}
+        aria-valuemax={total}
+        aria-valuenow={tally.n}
+      >
+        <div
+          className="h-full bg-[var(--garden)] transition-[width] duration-300"
+          style={{ width: `${total ? (100 * tally.n) / total : 0}%` }}
+        />
+      </div>
+      {showSource && head.kind === "deck" && (
+        <p className="m-0 mb-2 text-micro font-semibold uppercase tracking-[0.08em] text-muted-warm">
+          { }
+          <a href={`/cartes/${head.slug}/`} className="text-muted-warm hover:text-ink">
+            {head.deckName}
+          </a>
+        </p>
+      )}
+      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
       {head.kind === "note" ? (
         <article
           ref={surfaceRef}
           tabIndex={-1}
-          className="note-review-card rounded-[4px] border border-rule bg-paper p-6 outline-none sm:p-8"
+          className="note-review-card rounded-md border border-rule bg-paper p-6 outline-none sm:p-8"
         >
           <p className="m-0 mb-3 text-micro font-semibold uppercase tracking-[0.08em] text-muted-warm">
             <a href={head.item.url} className="text-muted-warm hover:text-ink">
@@ -203,22 +268,20 @@ export function ReviewSession({
         </article>
       ) : (
         <section ref={surfaceRef} tabIndex={-1} className="deck-review outline-none" aria-label={head.deckName}>
-          {head.css && <style dangerouslySetInnerHTML={{ __html: head.css }} />}
           <div
-            // keep-light: the card HTML comes with the deck's own CSS (Anki
-            // notetypes assume a white card), so it stays a light card in dark mode.
-            className="keep-light flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-rule bg-paper p-8 text-center"
-            style={{ minHeight: `${(expected != null ? 18 : 26) * zoom}rem` }}
+            className="flex w-full cursor-pointer items-center justify-center rounded-md border border-rule bg-paper p-6 text-center sm:p-8"
+            style={{ minHeight: `${(expected != null ? 16 : 22) * zoom}rem` }}
             onClick={(e) => {
               if ((e.target as HTMLElement).closest(".pron-btn, a")) return;
               if (!revealed) reveal();
             }}
           >
-            <div
-              ref={faceRef}
-              className="card [&_.pron]:mt-3"
-              style={{ zoom }}
-              dangerouslySetInnerHTML={{ __html: revealed ? head.back : head.front }}
+            <DeckFace
+              slug={head.slug}
+              css={head.css}
+              html={revealed ? head.back : head.front}
+              zoom={zoom}
+              faceRef={faceRef}
             />
           </div>
           {expected != null && (
@@ -243,7 +306,7 @@ export function ReviewSession({
                     reveal();
                   }
                 }}
-                className="w-full rounded-[2px] border border-rule bg-paper px-3 py-2 text-ink disabled:opacity-80"
+                className="w-full rounded-sm border border-rule bg-paper px-3 py-2 text-ink disabled:opacity-80"
               />
               {revealed && (
                 <div className="typed-compare mt-3 text-small" aria-live="polite">
@@ -260,6 +323,7 @@ export function ReviewSession({
           )}
         </section>
       )}
+      </div>
 
       <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
         {revealed && next ? (
@@ -281,7 +345,7 @@ export function ReviewSession({
                   aria-label={`${tr(`flashcards.${g}`)} · ${iv}`}
                 >
                   <span>
-                    <kbd className="mr-1.5 font-mono font-normal opacity-60">{i + 1}</kbd>
+                    <kbd className="kbd-only mr-1.5 font-mono font-normal opacity-60">{i + 1}</kbd>
                     {tr(`flashcards.${g}`)}
                   </span>
                   <span className="font-normal normal-case tracking-normal tabular-nums">{iv}</span>
@@ -300,7 +364,8 @@ export function ReviewSession({
           </a>
         )}
       </div>
-      <p className="mt-4 text-center text-micro italic text-muted-warm">{tr("noteReview.hintReview")}</p>
+      <p className="kbd-only mt-4 text-center text-micro italic text-muted-warm">{tr("noteReview.hintReview")}</p>
+      <p className="touch-only mt-4 text-center text-micro italic text-muted-warm">{tr("noteReview.hintTouch")}</p>
       {undoButton}
     </>
   );

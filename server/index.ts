@@ -19,6 +19,8 @@ import { relatedRoute } from "./routes/related.ts";
 import { questionsRoute } from "./routes/questions.ts";
 import { adminRoute } from "./routes/admin.ts";
 import { searchMissRoute } from "./routes/search-miss.ts";
+import { authRoute } from "./routes/auth.ts";
+import { meRoute, progressRoute, accountRoute, shopRoute } from "./routes/account.ts";
 import { buildCSP, SITE_URL } from "../lib/site.ts";
 import { staticEntry, isFresh, cacheControlFor } from "./static-cache.ts";
 
@@ -40,7 +42,9 @@ app.use("*", async (c, next) => {
   c.header("X-Content-Type-Options", "nosniff");
   c.header("X-Frame-Options", "DENY");
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");
-  c.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  // Microphone for this origin only: pronunciation practice (/js/pronounce.js)
+  // records in the browser, nothing is uploaded.
+  c.header("Permissions-Policy", "camera=(), microphone=(self), geolocation=()");
   // Skip on a non-HTTPS SITE_URL (e.g. a Tor .onion build, per lib/site.ts) —
   // HSTS pins the browser to HTTPS-only for this host, which would be wrong
   // for a deployment that's intentionally plain HTTP.
@@ -69,6 +73,12 @@ app.route("/api/related", relatedRoute);
 app.route("/api/questions", questionsRoute);
 app.route("/api/admin", adminRoute);
 app.route("/api/search-miss", searchMissRoute);
+// Reader accounts: magic-link login, progress sync, coins, streaks, shop.
+app.route("/api/auth", authRoute);
+app.route("/api/me", meRoute);
+app.route("/api/progress", progressRoute);
+app.route("/api/account", accountRoute);
+app.route("/api/shop", shopRoute);
 
 // serveStatic sends no Cache-Control at all, so every response — HTML pages
 // included — is subject to the browser's own heuristic caching (freshness ≈

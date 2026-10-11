@@ -16,8 +16,6 @@
     "progression": "我的进度"
   },
   "sidebar": {
-    "searchPlaceholder": "搜索笔记…",
-    "searchAriaLabel": "搜索笔记",
     "tocTitle": "目录",
     "themesAriaLabel": "主题",
     "toggleOpen": "目录",
@@ -60,7 +58,14 @@
     "linkCopied": "链接已复制",
     "copyCode": "复制",
     "copyCodeAria": "复制代码",
-    "codeCopied": "已复制"
+    "codeCopied": "已复制",
+    "bookmark": "稍后阅读",
+    "bookmarked": "已保存",
+    "focus": "专注",
+    "focusTitle": "专注模式：只显示正文（f）",
+    "focusExit": "退出专注模式（Esc）",
+    "more": "显示",
+    "moreAria": "显示与翻译"
   },
   "growth": {
     "tended": "最近修订",
@@ -74,7 +79,23 @@
     "playAria": "收听发音",
     "pauseAria": "暂停",
     "loadingAria": "音频加载中…",
-    "errorAria": "音频播放出错"
+    "errorAria": "音频播放出错",
+    "practice": "练习",
+    "practiceAria": "练习这个词的发音",
+    "practiceLocal": "不会上传任何内容：录音只保存在本设备上，关闭后即消失。",
+    "practiceClose": "关闭",
+    "practiceModel": "示范",
+    "practiceMe": "我",
+    "practiceBoth": "先示范再我",
+    "practiceRecord": "录音",
+    "practiceStop": "停止",
+    "practiceAgain": "重录",
+    "practiceDenied": "麦克风被拒绝：请在浏览器中为本站允许麦克风。",
+    "practiceNoMic": "无法录音：没有可用的麦克风。",
+    "practiceModelError": "示范音频无法加载。",
+    "practiceLonger": "你的发音比示范长 {s}。",
+    "practiceShorter": "你的发音比示范短 {s}。",
+    "practiceDone": "与示范时长相同：连续听听两者。"
   },
   "comments": {
     "title": "评论",
@@ -158,7 +179,8 @@
     "imageCaption": "卡米耶·毕沙罗，《埃拉尼的菜园》，1897年。— 知识如花园，需精心培育、代代相传。",
     "recentTitle": "最新生长",
     "recentPlanted": "种下",
-    "recentTended": "修订"
+    "recentTended": "修订",
+    "recentStats": "花园数据"
   },
   "graph": {
     "back": "返回花园",
@@ -181,7 +203,14 @@
     "localMore": "另有 {n} 条",
     "path": "阅读路径",
     "pathNone": "无路径",
-    "pathAria": "突出显示一条阅读路径"
+    "pathAria": "突出显示一条阅读路径",
+    "mine": "我的阅读",
+    "mineCount": "{n} / {total}",
+    "mineNext": "接下来可探索（根据你的链接）：",
+    "mineNoNeighbour": "进一步阅读，被引用最多的笔记：",
+    "mineStart": "这里还没有读过的笔记。可以从被引用最多的开始：",
+    "mineLocate": "在图中显示",
+    "mineOpen": "打开 {title}"
   },
   "lightbox": {
     "close": "关闭",
@@ -189,7 +218,7 @@
     "next": "下一张"
   },
   "flashcards": {
-    "home": "花园",
+    "home": "Garden of Knowledge",
     "flip": "翻转",
     "next": "下一张",
     "prev": "上一张",
@@ -246,7 +275,9 @@
     "lapses": "遗忘 {count} 次",
     "suspended": "已暂停",
     "suspend": "暂停",
-    "unsuspend": "恢复"
+    "unsuspend": "恢复",
+    "progress": "本次复习进度",
+    "sessionTally": "已复习 {count} 张 · 记住 {pct}%"
   },
   "youtube": {
     "play": "播放 YouTube 视频",
@@ -256,7 +287,75 @@
     "title": "时间线",
     "intro": "花园中与历史事件相关的笔记，按日期排序。",
     "empty": "还没有笔记标注历史日期。",
-    "bce": "公元前 {year} 年"
+    "bce": "公元前 {year} 年",
+    "eraAncient": "史前与古代",
+    "eraMedieval": "中世纪",
+    "eraModern": "近代早期",
+    "eraContemporary": "现当代",
+    "erasAria": "跳转到某个时期",
+    "span": "{n} 年"
+  },
+  "carte": {
+    "title": "地图上的花园",
+    "intro": "{n} 个国家，{notes} 篇笔记：花园通过历史和语言谈到的国家。",
+    "mapAria": "世界地图：每个国家的颜色取决于谈到它的笔记数量",
+    "legendUnit": "篇笔记",
+    "notesWord": "篇笔记",
+    "source": "底图：Natural Earth（公有领域），Equal Earth 投影。",
+    "listTitle": "按笔记数量排列的国家",
+    "kind_histoire": "历史",
+    "kind_langue": "语言",
+    "kind_autre": "笔记",
+    "how": "笔记按其文件夹（历史中的国家、一种语言）或其页眉中的“pays:”一行归入某个国家。",
+    "nav": "世界地图"
+  },
+  "citer": {
+    "title": "引用这篇笔记",
+    "text": "文本",
+    "copy": "复制",
+    "copied": "已复制",
+    "licence": "文本采用 CC BY-NC-SA 4.0 许可：注明出处即可用于非商业目的的再利用。"
+  },
+  "friseCourbe": {
+    "title": "世界人口曲线上的花园笔记",
+    "sub": "自 1500 年起，单位为十亿人。每个点是一篇有日期的笔记（{n}）。",
+    "source": "世界人口：",
+    "before": "早于 {from} 年的 {n} 篇笔记在下方列表中。"
+  },
+  "donnees": {
+    "title": "开放数据",
+    "intro": "网站为机器发布的所有文件、其内容及许可。笔记和这些文件采用以下许可：",
+    "filesTitle": "花园的文件",
+    "colFile": "文件",
+    "colContent": "内容",
+    "colFormat": "格式",
+    "file_notes": "每篇已发布的笔记：标题、地址、文件夹。",
+    "file_graph": "图谱：笔记及其之间的链接。",
+    "file_carte": "笔记谈到的国家，以及每个国家的笔记。",
+    "file_frise": "有日期的笔记（年份、结束、时期），即时间轴上的笔记。",
+    "file_figures": "每个数据图：所在笔记、图的类型、来源。",
+    "file_ipc": "自 1949 年起链接的法国统计局价格指数，用于法郎与欧元的换算。",
+    "file_feed": "最近种下或修改的 30 篇笔记。",
+    "file_llms": "供智能体和问答引擎使用的网站概要。",
+    "sourcesTitle": "图表的来源",
+    "sourcesIntro": "笔记中的 {n} 个数据图在构建网站时根据这些来源计算；每个图都注明自己的来源。",
+    "colSource": "来源",
+    "colUse": "用于",
+    "colLicence": "许可",
+    "use_owid": "曲线、人口金字塔、国家概况、判断真假、排序。",
+    "use_insee": "法郎换算为今日欧元、利息与通胀。",
+    "use_wikidata": "语言概况及时间轴上部分笔记的日期。",
+    "use_lichess": "按等级分的国际象棋开局统计。",
+    "use_naturalearth": "世界地图的底图。",
+    "reuseTitle": "再利用",
+    "reuse": "每次构建网站时都会重新生成这些文件。请注明笔记或网站，以及数字的原始来源。",
+    "seeCarte": "查看世界地图",
+    "seeFrise": "查看时间轴",
+    "nav": "开放数据"
+  },
+  "graphiques": {
+    "title": "一张图，三段话",
+    "rss": "这些笔记的 RSS 订阅"
   },
   "themes": {
     "title": "主题",
@@ -271,7 +370,6 @@
     "root": "综合",
     "topTags": "常见主题",
     "all": "全部主题",
-    "allPaths": "全部路径（{n}）",
     "more": "另外 {n} 个",
     "filterPlaceholder": "筛选主题…",
     "filterCount": "{n} 个主题",
@@ -279,7 +377,7 @@
   },
   "cartesIndex": {
     "title": "复习卡片",
-    "intro": "花园中的 Anki 卡组，可逐张翻阅，按文件夹分组。",
+    "intro": "花园里的 Anki 卡组，采用间隔重复：每张卡片会在你快要忘记时再次出现。",
     "empty": "目前还没有可用的卡组。",
     "count": "{count} 张卡片",
     "noteQuestions": "待复习的笔记问题",
@@ -293,11 +391,16 @@
     "paused": "已暂停",
     "upToDate": "已完成",
     "deckDue": "待复习 {count}",
-    "deckFresh": "新卡 {count}"
+    "deckFresh": "新卡 {count}",
+    "todayStart": "在下方打开一个卡组即可开始：它的卡片会加入“全部复习”。",
+    "started": "进行中"
   },
   "notFound": {
     "suggestions": "你是否在找……",
-    "search": "在花园中搜索“{q}”"
+    "search": "在花园中搜索“{q}”",
+    "title": "页面未找到",
+    "body": "此页面不存在（404 错误）。",
+    "home": "返回首页"
   },
   "random": {
     "title": "随机一篇笔记",
@@ -324,7 +427,18 @@
     "savedOn": "已加入复习——下次复习：{date}。",
     "removed": "已从复习中移除。",
     "noStorage": "无法复习：浏览器存储被禁用。",
-    "reviewLink": "我的复习"
+    "reviewLink": "我的复习",
+    "choicesAria": "可选答案",
+    "hint": "提示",
+    "hintMore": "再给一个提示",
+    "hintN": "提示 {n}/{total}：",
+    "answerIs": "答案：",
+    "right": "答对了！",
+    "notQuite": "不太对",
+    "retry": "再试一次",
+    "showAnswer": "查看答案",
+    "hintLabel": "提示：",
+    "answerShown": "正确答案"
   },
   "selMenu": {
     "aria": "选中文本操作",
@@ -332,7 +446,8 @@
     "copyLink": "复制链接",
     "copyLinkAria": "复制指向这段文字的链接",
     "linkCopied": "链接已复制",
-    "copyFailed": "复制失败"
+    "copyFailed": "复制失败",
+    "highlight": "高亮"
   },
   "glossary": {
     "kicker": "术语表",
@@ -350,7 +465,8 @@
     "remove": "移除",
     "removeAria": "从复习中移除此问题",
     "noStorage": "浏览器存储不可用：无法在此保存笔记问题。",
-    "hintReview": "空格：显示答案 · 1 2 3 4：评分 · Z：撤销"
+    "hintReview": "空格：显示答案 · 1 2 3 4：评分 · Z：撤销",
+    "hintTouch": "点击卡片查看答案 · 然后滑动：→ 良好，← 重来"
   },
   "prereq": {
     "before": "先读",
@@ -365,7 +481,6 @@
     "after": "在其后：",
     "other": "其他",
     "from": "从「{first}」到「{last}」",
-    "next": "下一篇：",
     "nextShort": "下一篇",
     "unread": "未读",
     "order": "阅读顺序",
@@ -427,7 +542,41 @@
       "arts": "文学艺术",
       "langues": "语言",
       "jeux": "棋类"
-    }
+    },
+    "resume": "继续阅读",
+    "familyCount": "{n} 条路径",
+    "familyCountOne": "1 条路径",
+    "langIntro": "从入门词汇到文化：字母与发音、语法、词汇、资源。",
+    "langAround": "语言相关",
+    "filterPlaceholder": "筛选：康德、网络、印地语…",
+    "filterAria": "筛选阅读路径",
+    "filterFamilies": "类别",
+    "filterAll": "全部",
+    "filterNone": "没有匹配的路径。",
+    "start": "开始：",
+    "continue": "继续：",
+    "quizMark": "复习题",
+    "graphShow": "显示先修关系图",
+    "liMore": "操作",
+    "reviewLocked": "复习：共 {n} 道题，随阅读逐步解锁。",
+    "level": "第 {n} 级",
+    "levels": "{n} 个等级",
+    "levelSpan": "从「{from}」到「{to}」",
+    "levelReview": "第 {n} 级复习",
+    "levelReviewMeta": "本级已读笔记中的 {n} 道题",
+    "levelReviewLocked": "读过本级一篇笔记后开放",
+    "levelDone": "第 {n} 级完成",
+    "pathDone": "路径完成",
+    "statNotes": "篇笔记",
+    "statQuiz": "道题答对",
+    "statMinutes": "分钟阅读",
+    "levelNext": "第 {n} 级：",
+    "dismiss": "关闭",
+    "nextPath": "下一条路径",
+    "followedBy": "接下来：{name}",
+    "followsFrom": "在「{name}」之后",
+    "graphAll": "先修关系图",
+    "sheet": "复习卡"
   },
   "reading": {
     "read": "已读",
@@ -532,6 +681,11 @@
     "errEmpty": "文件中没有可用的进度。",
     "errLink": "此转移链接不完整或已损坏。",
     "errRead": "无法读取此文件。",
+    "statBookmarks": "篇稍后阅读",
+    "statHighlights": "处高亮",
+    "kindBookmarks": "稍后阅读",
+    "kindHighlights": "高亮",
+    "kindActivity": "活跃天数",
     "kindReviewLog": "复习记录",
     "statsTitle": "复习",
     "statsRate": "正确率（30 天）",
@@ -542,7 +696,11 @@
     "statsLeeches": "难记卡片",
     "statsNoLeech": "没有遗忘六次以上的卡片。",
     "statsLeechesIntro": "已遗忘至少六次。可在卡组页面暂停它们。",
-    "statsLeechCount": "{count} 张"
+    "statsLeechCount": "{count} 张",
+    "welcomeTitle": "这里还什么都没有",
+    "welcomeText": "读完一篇笔记、回答一个问题或打开一副卡片：你的进度、学习规律和复习都会显示在这里。",
+    "welcomePaths": "开始一条阅读路径",
+    "welcomeImport": "我在别处已有进度"
   },
   "pathStep": {
     "label": "路径",
@@ -552,7 +710,13 @@
     "next": "下一篇",
     "othersOne": "另有 1 条路径",
     "othersMany": "另有 {n} 条路径",
-    "othersTitle": "这篇笔记也属于："
+    "othersTitle": "这篇笔记也属于：",
+    "dockNext": "下一步",
+    "dockAria": "路径下一步：{title}",
+    "here": "你在这里",
+    "read": "已读 {n} / {total}",
+    "seePath": "查看路径",
+    "close": "关闭"
   },
   "discipline": {
     "agriculture": "农业",
@@ -606,13 +770,245 @@
     "paths": "路径图",
     "zoom": "放大、缩小、适应",
     "pan": "移动图",
-    "close": "关闭"
+    "close": "关闭",
+    "reading": "在笔记中",
+    "nextPrevNote": "下一篇、上一篇",
+    "top": "回到顶部",
+    "contents": "打开目录",
+    "focus": "专注模式",
+    "bookmark": "稍后阅读",
+    "home": "回到首页"
+  },
+  "siteBar": {
+    "brand": "Garden of Knowledge",
+    "navAria": "网站菜单"
+  },
+  "account": {
+    "title": "我的账户",
+    "myAccount": "我的账户",
+    "login": "登录",
+    "loading": "加载中…",
+    "offTitle": "此处尚未开放账户",
+    "offText": "本网站暂未提供账户（或服务器无响应）。你的进度仍保存在此浏览器中。",
+    "offLink": "导出或导入我的进度",
+    "loginTitle": "登录花园",
+    "loginIntro": "无需密码：输入邮箱，你会收到一个 15 分钟内有效的链接。",
+    "perkSync": "进度保存并在设备间同步",
+    "perkCoins": "每读完一篇笔记、每次复习都能得金币，还有连续天数",
+    "perkAvatar": "用金币装扮你的小园丁",
+    "emailLabel": "电子邮箱",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "发送链接",
+    "sent": "已向 {email} 发送链接，15 分钟内有效。",
+    "expired": "此链接已过期或已使用，请重新获取。",
+    "err": {
+      "invalid": "邮箱地址似乎无效。",
+      "limited": "请求过多，请几分钟后再试。",
+      "disabled": "本站暂未开放账户。",
+      "error": "发送失败，请稍后再试。"
+    },
+    "privacy": "仅保存你的邮箱、时区、进度和金币。你可以随时删除账户。",
+    "hello": "你好，园丁！",
+    "private": "此页面仅你可见。",
+    "settings": "账户与同步",
+    "syncedAt": "上次同步：{time}",
+    "notSynced": "此浏览器尚未同步。",
+    "syncNow": "立即同步",
+    "synced": "已同步",
+    "logout": "退出登录",
+    "delete": "删除我的账户",
+    "dangerTitle": "删除账户",
+    "deleteText": "账户、金币、小园丁以及进度副本将被永久删除。保存在此浏览器中的进度会保留。",
+    "deleteWord": "删除",
+    "deleteType": "请输入“{word}”以确认：",
+    "deleteNow": "永久删除",
+    "cancel": "取消"
+  },
+  "avatar": {
+    "aria": "你的小园丁",
+    "title": "我的园丁",
+    "intro": "点击试穿，用金币购买缺少的物品，然后保存。",
+    "save": "保存造型",
+    "saved": "造型已保存。",
+    "slot": {
+      "body": "颜色",
+      "hat": "帽子",
+      "accessory": "配饰",
+      "background": "背景"
+    },
+    "items": {
+      "leaf": "叶绿",
+      "sky": "天蓝",
+      "sun": "阳光",
+      "plum": "李紫",
+      "coral": "珊瑚",
+      "ink": "墨色",
+      "none": "无",
+      "beret": "贝雷帽",
+      "cap": "学位帽",
+      "wizard": "巫师帽",
+      "crown": "王冠",
+      "glasses": "眼镜",
+      "scarf": "围巾",
+      "book": "书",
+      "paper": "纸张",
+      "garden": "花园",
+      "night": "星夜"
+    },
+    "cancel": "取消",
+    "unsaved": "尚未保存的更改"
+  },
+  "coins": {
+    "unit": "金币",
+    "toast": "+{n} 金币",
+    "kind": {
+      "welcome": "欢迎",
+      "read": "读完笔记",
+      "review": "复习",
+      "active": "活跃日",
+      "streak": "连续里程碑",
+      "purchase": "购买"
+    },
+    "howTitle": "如何获得金币",
+    "ruleRead": "读完一篇笔记：5 金币（每天最多 10 篇）",
+    "ruleReview": "复习一张卡片或一道题：1 金币（每天最多 50）",
+    "ruleDay": "活跃日（至少一篇笔记或一次复习）：10 金币",
+    "ruleStreak": "连续 7、30、100 天：50、200、500 金币",
+    "ledgerTitle": "金币记录",
+    "unitOne": "金币",
+    "today": "今天 +{n}",
+    "more": "显示更多",
+    "less": "收起"
+  },
+  "streak": {
+    "days": "天连续",
+    "best": "最佳",
+    "freezes": "连续保护",
+    "daysOne": "天连续",
+    "freezesOne": "连续保护",
+    "next": "再坚持 {n} 天达到 {m} 天连续：+{bonus} 金币",
+    "nextOne": "再坚持 {n} 天达到 {m} 天连续：+{bonus} 金币",
+    "nextAria": "{m} 天连续的进度"
+  },
+  "shop": {
+    "title": "商店",
+    "freezeName": "连续保护",
+    "freezeText": "错过一天不会中断连续记录。最多储备 {max} 个。",
+    "bought": "已购买！",
+    "noFunds": "金币还不够。",
+    "error": "操作失败，请重试。",
+    "buy": "购买",
+    "missing": "还差 {n}",
+    "held": "储备 {n} / {max}"
+  },
+  "review": {
+    "pill": "{n} 待复习",
+    "pillTitle": "今天有 {n} 张卡片或题目待复习"
+  },
+  "calendar": {
+    "title": "我的坚持",
+    "last30": "过去 30 天中有 {n} 天活跃",
+    "run": "当前连续：{n} 天",
+    "aria": "最近六个月日历：过去 30 天中有 {n} 天活跃",
+    "cell": "读完 {r} 篇笔记，复习 {c} 次",
+    "none": "这天没有活动",
+    "less": "少",
+    "more": "多"
+  },
+  "marks": {
+    "bookmarksTitle": "稍后阅读",
+    "bookmarksEmpty": "还没有稍后阅读的笔记。每篇笔记顶部都有“稍后阅读”按钮。",
+    "highlightsTitle": "我的高亮",
+    "highlightsEmpty": "还没有高亮。在笔记中选中一段文字，然后点击“高亮”。",
+    "remove": "从列表中移除“{title}”",
+    "more": "还有 {n} 篇"
+  },
+  "offline": {
+    "save": "离线可用",
+    "saving": "保存中… {n}/{total}",
+    "saved": "这 {n} 篇笔记可离线阅读。",
+    "remove": "移除"
+  },
+  "nextUp": {
+    "title": "接下来？",
+    "pathNext": "下一步 · {path}",
+    "folderNext": "本文件夹的下一篇",
+    "unread": "尚未阅读 · {discipline}",
+    "allRead": "你已读完 {discipline} 的全部笔记！",
+    "seeAll": "整个学科：{discipline}"
+  },
+  "condensed": {
+    "left": "还剩 {min} 分钟"
+  },
+  "toTop": {
+    "aria": "回到笔记顶部"
+  },
+  "highlight": {
+    "open": "高亮：添加备注或移除",
+    "noteLabel": "我对这段的备注",
+    "save": "保存",
+    "remove": "移除高亮"
   },
   "todayReview": {
     "title": "全部复习",
-    "intro": "今天所有卡组（已暂停的除外）待复习的卡片和笔记问题，然后是各卡组的新卡。",
-    "sources": "来源：{n}。",
+    "intro": "你已开始的卡组（暂停的除外）中今天到期的卡片和你的笔记问题，然后是这些卡组的新卡片。",
     "failed": "无法加载的卡组：{decks}。",
-    "done": "今天的复习已全部完成。"
+    "done": "今天的复习已全部完成。",
+    "loading": "正在加载卡组：{n} / {total}…",
+    "nothingStarted": "暂时没有要复习的内容。从卡片列表打开一个卡组，它的卡片就会出现在这里。",
+    "tomorrow": "明天到期：{count}"
+  },
+  "predict": {
+    "label": "你怎么看？",
+    "skip": "直接阅读",
+    "veiled": "回答后显示下文。",
+    "thanks": "好的，继续往下读。",
+    "right": "猜对了！",
+    "wrong": "不太对：下文会解释原因。"
+  },
+  "lesson": {
+    "start": "以课程模式阅读",
+    "aria": "课程模式",
+    "exit": "退出课程",
+    "progress": "第 {n} 步，共 {total} 步",
+    "next": "继续",
+    "back": "上一步",
+    "check": "检查一下",
+    "answerFirst": "回答问题后继续，或跳过。",
+    "skip": "跳过",
+    "done": "课程完成",
+    "doneStats": "首次答对 {right}/{total} 题",
+    "doneNoQuiz": "你已读完整篇笔记。",
+    "toNote": "返回笔记",
+    "nextNote": "下一步：{title}"
+  },
+  "jardin": {
+    "title": "花园数据",
+    "intro": "种下了什么、花园如何生长，以及所有笔记都指向的那些笔记。",
+    "updated": "更新于",
+    "statNotes": "篇笔记",
+    "statWords": "词",
+    "statDisciplines": "个学科",
+    "statClips": "段发音录音",
+    "growthTitle": "生长历程",
+    "peak": "最多的一个月：{month}，种下 {n} 篇笔记。",
+    "chartAria": "从 {from} 到 {to} 每月种下的笔记及其累计（共 {n} 篇）。",
+    "cumul": "累计",
+    "perMonth": "/月",
+    "disciplinesTitle": "按学科",
+    "others": "其他学科",
+    "citedTitle": "被引用最多的笔记",
+    "links": "{n} 个链接",
+    "growingTitle": "最近三个月的生长",
+    "newNotes": "+{n} 篇"
+  },
+  "fiche": {
+    "back": "返回路线",
+    "print": "打印",
+    "kicker": "复习卡",
+    "meta": "{notes} 篇笔记 · {questions} 个问题，答案在末尾",
+    "metaNoQuiz": "{notes} 篇笔记",
+    "empty": "这条路线的笔记还没有定义、要点或问题。",
+    "answers": "答案"
   }
 }

@@ -38,6 +38,33 @@
   font-size: 1.1rem;
 }
 
+/* A new visitor: one card and two ways in, instead of a wall of zeros. */
+.progression-welcome {
+  margin: 0 0 2.5rem;
+  padding: 1.4rem 1.5rem 1.2rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised, var(--paper));
+}
+.progression-welcome-title {
+  margin: 0 0 0.4rem;
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-weight: 500;
+  font-size: 1.4rem;
+}
+.progression-welcome p {
+  margin: 0 0 1rem;
+  color: var(--ink-2);
+}
+.progression-welcome-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0 !important;
+}
+.progression-welcome-acts .progression-btn {
+  text-decoration: none;
+}
 .progression-h2 {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
@@ -106,7 +133,7 @@
   flex-direction: column;
   padding: 0.9rem 1rem 1rem;
   border: 1px solid var(--rule);
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   background: var(--paper-raised);
 }
 .progression-action p {
@@ -125,7 +152,7 @@
   min-height: 2.5rem;
   padding: 0.35rem 0.9rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
   font: inherit;
@@ -189,7 +216,7 @@
   margin-top: 0.25rem;
   padding: 0.4rem 0.5rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: var(--paper-raised);
   color: var(--ink);
   font: 0.8rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -211,7 +238,7 @@
   max-height: calc(100dvh - 2rem);
   padding: 1.2rem 1.3rem 1.1rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   background: var(--paper);
   color: var(--ink);
   box-shadow: 0 18px 50px -12px rgb(0 0 0 / 0.35);
@@ -246,7 +273,7 @@
   gap: 0.55rem;
   padding: 0.55rem 0.7rem;
   border: 1px solid var(--rule);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 .progression-mode.is-on {
@@ -379,7 +406,7 @@
   max-width: 2.6rem;
   min-height: 2px;
   background: var(--garden);
-  border-radius: 2px 2px 0 0;
+  border-radius: var(--radius-xs) var(--radius-xs) 0 0;
 }
 .progression-forecast-n {
   font-size: 0.85rem;

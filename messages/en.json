@@ -16,8 +16,6 @@
     "progression": "My progress"
   },
   "sidebar": {
-    "searchPlaceholder": "Search the notes…",
-    "searchAriaLabel": "Search the notes",
     "tocTitle": "Contents",
     "themesAriaLabel": "Themes",
     "toggleOpen": "contents",
@@ -60,7 +58,14 @@
     "linkCopied": "link copied",
     "copyCode": "copy",
     "copyCodeAria": "Copy the code",
-    "codeCopied": "copied"
+    "codeCopied": "copied",
+    "bookmark": "read later",
+    "bookmarked": "saved",
+    "focus": "focus",
+    "focusTitle": "Focus mode: the text alone (f)",
+    "focusExit": "Leave focus mode (Esc)",
+    "more": "display",
+    "moreAria": "Display and translation"
   },
   "growth": {
     "tended": "last tended",
@@ -74,7 +79,23 @@
     "playAria": "Listen to the pronunciation",
     "pauseAria": "Pause",
     "loadingAria": "Loading audio…",
-    "errorAria": "Audio playback error"
+    "errorAria": "Audio playback error",
+    "practice": "Practise",
+    "practiceAria": "Practise saying this word",
+    "practiceLocal": "Nothing is sent: the recording stays on this device and is gone when you close.",
+    "practiceClose": "Close",
+    "practiceModel": "Model",
+    "practiceMe": "Me",
+    "practiceBoth": "Model, then me",
+    "practiceRecord": "Record",
+    "practiceStop": "Stop",
+    "practiceAgain": "Again",
+    "practiceDenied": "The microphone is blocked: allow it for this site in your browser.",
+    "practiceNoMic": "Can't record: no usable microphone.",
+    "practiceModelError": "The model couldn't be loaded.",
+    "practiceLonger": "Yours is {s} longer than the model.",
+    "practiceShorter": "Yours is {s} shorter than the model.",
+    "practiceDone": "Same length as the model: play both one after the other."
   },
   "comments": {
     "title": "Comments",
@@ -158,7 +179,8 @@
     "imageCaption": "Camille Pissarro, The Vegetable Garden at Éragny, 1897. — Knowledge, like a garden, is cultivated and passed on.",
     "recentTitle": "latest growth",
     "recentPlanted": "planted",
-    "recentTended": "tended"
+    "recentTended": "tended",
+    "recentStats": "The garden in numbers"
   },
   "graph": {
     "back": "Back to the garden",
@@ -181,7 +203,14 @@
     "localMore": "+{n} more",
     "path": "Reading path",
     "pathNone": "No path",
-    "pathAria": "Highlight a reading path"
+    "pathAria": "Highlight a reading path",
+    "mine": "My reading",
+    "mineCount": "{n} / {total}",
+    "mineNext": "Next to explore, from your links:",
+    "mineNoNeighbour": "To go further, the most cited notes:",
+    "mineStart": "No note read here yet. To start, the most cited:",
+    "mineLocate": "Show in the graph",
+    "mineOpen": "Open {title}"
   },
   "lightbox": {
     "close": "Close",
@@ -189,7 +218,7 @@
     "next": "Next"
   },
   "flashcards": {
-    "home": "The garden",
+    "home": "Garden of Knowledge",
     "flip": "Flip",
     "next": "Next",
     "prev": "Previous",
@@ -246,7 +275,9 @@
     "lapses": "Forgotten: {count} times",
     "suspended": "suspended",
     "suspend": "Suspend",
-    "unsuspend": "Reactivate"
+    "unsuspend": "Reactivate",
+    "progress": "Session progress",
+    "sessionTally": "{count} cards reviewed · {pct}% remembered"
   },
   "youtube": {
     "play": "Play the YouTube video",
@@ -256,7 +287,75 @@
     "title": "Timeline",
     "intro": "The garden's notes about a historical event, sorted by date.",
     "empty": "No note carries a historical date yet.",
-    "bce": "{year} BCE"
+    "bce": "{year} BCE",
+    "eraAncient": "Prehistory and Antiquity",
+    "eraMedieval": "Middle Ages",
+    "eraModern": "Early modern period",
+    "eraContemporary": "Contemporary period",
+    "erasAria": "Jump to a period",
+    "span": "{n} years"
+  },
+  "carte": {
+    "title": "The garden on the map",
+    "intro": "{n} countries, {notes} notes: the countries the garden talks about, through its history and its languages.",
+    "mapAria": "World map: each country is shaded by the number of notes about it",
+    "legendUnit": "notes",
+    "notesWord": "notes",
+    "source": "Base map: Natural Earth (public domain), Equal Earth projection.",
+    "listTitle": "Countries by number of notes",
+    "kind_histoire": "history",
+    "kind_langue": "language",
+    "kind_autre": "note",
+    "how": "A note is placed on a country by its folder (a country in History, a language) or by the “pays:” line of its header.",
+    "nav": "World map"
+  },
+  "citer": {
+    "title": "Cite this note",
+    "text": "Text",
+    "copy": "Copy",
+    "copied": "Copied",
+    "licence": "Text under CC BY-NC-SA 4.0: free to reuse for non-commercial purposes, with attribution."
+  },
+  "friseCourbe": {
+    "title": "The garden's notes on the curve of world population",
+    "sub": "Since 1500, in billions of people. Each dot is a dated note ({n}).",
+    "source": "World population:",
+    "before": "{n} notes older than {from} are in the list below."
+  },
+  "donnees": {
+    "title": "Open data",
+    "intro": "Everything the site publishes for machines, what it contains and under which licence. The notes and these files are licensed",
+    "filesTitle": "The garden's files",
+    "colFile": "File",
+    "colContent": "Contents",
+    "colFormat": "Format",
+    "file_notes": "Every published note: title, address, folder.",
+    "file_graph": "The graph: the notes and the links between them.",
+    "file_carte": "The countries the notes are about, with each one's notes.",
+    "file_frise": "The dated notes (year, end, period), those on the timeline.",
+    "file_figures": "Every data figure: the note, the kind of figure, its source.",
+    "file_ipc": "The Insee price index chained since 1949, used for franc-euro conversions.",
+    "file_feed": "The last 30 notes planted or tended.",
+    "file_llms": "A summary of the site for agents and answer engines.",
+    "sourcesTitle": "Sources of the figures",
+    "sourcesIntro": "The {n} data figures in the notes are computed when the site is built, from these sources; each figure cites its own.",
+    "colSource": "Source",
+    "colUse": "Used for",
+    "colLicence": "Licence",
+    "use_owid": "Line charts, pyramids, country sheets, true or false, rankings.",
+    "use_insee": "Francs converted to today's euros, interest and inflation.",
+    "use_wikidata": "Language sheets and the dates of some timeline notes.",
+    "use_lichess": "Chess opening statistics by rating.",
+    "use_naturalearth": "The world map's base.",
+    "reuseTitle": "Reuse",
+    "reuse": "The files are rebuilt with every build of the site. Cite the note or the site, and the original source for the numbers.",
+    "seeCarte": "See the world map",
+    "seeFrise": "See the timeline",
+    "nav": "Open data"
+  },
+  "graphiques": {
+    "title": "one chart, three paragraphs",
+    "rss": "RSS feed of these notes"
   },
   "themes": {
     "title": "Themes",
@@ -271,7 +370,6 @@
     "root": "General",
     "topTags": "Common themes",
     "all": "All themes",
-    "allPaths": "All paths ({n})",
     "more": "{n} more",
     "filterPlaceholder": "Filter themes…",
     "filterCount": "{n} themes",
@@ -279,7 +377,7 @@
   },
   "cartesIndex": {
     "title": "Flashcards",
-    "intro": "The garden's Anki decks, to flip through card by card, grouped by folder.",
+    "intro": "The garden’s Anki decks, with spaced repetition: each card comes back just as you are about to forget it.",
     "empty": "No flashcard deck is available yet.",
     "count": "{count} cards",
     "noteQuestions": "Note questions to review",
@@ -293,11 +391,16 @@
     "paused": "paused",
     "upToDate": "up to date",
     "deckDue": "due: {count}",
-    "deckFresh": "new: {count}"
+    "deckFresh": "new: {count}",
+    "todayStart": "Open a deck below to start: its cards will join “Review everything”.",
+    "started": "In progress"
   },
   "notFound": {
     "suggestions": "Perhaps you were looking for…",
-    "search": "Search the garden for “{q}”"
+    "search": "Search the garden for “{q}”",
+    "title": "Page not found",
+    "body": "This page doesn’t exist (404 error).",
+    "home": "Back to the home page"
   },
   "random": {
     "title": "A random note",
@@ -324,7 +427,18 @@
     "savedOn": "In your reviews — next review: {date}.",
     "removed": "Removed from your reviews.",
     "noStorage": "Reviews unavailable: browser storage is blocked.",
-    "reviewLink": "My reviews"
+    "reviewLink": "My reviews",
+    "choicesAria": "Possible answers",
+    "hint": "A hint",
+    "hintMore": "Another hint",
+    "hintN": "Hint {n}/{total}:",
+    "answerIs": "Answer:",
+    "right": "Right!",
+    "notQuite": "Not quite",
+    "retry": "Try again",
+    "showAnswer": "Show the answer",
+    "hintLabel": "Hint:",
+    "answerShown": "The right answer"
   },
   "selMenu": {
     "aria": "Selection actions",
@@ -332,7 +446,8 @@
     "copyLink": "Copy link",
     "copyLinkAria": "Copy a link to this passage",
     "linkCopied": "Link copied",
-    "copyFailed": "Copy failed"
+    "copyFailed": "Copy failed",
+    "highlight": "Highlight"
   },
   "glossary": {
     "kicker": "Glossary",
@@ -350,7 +465,8 @@
     "remove": "Remove",
     "removeAria": "Remove this question from my reviews",
     "noStorage": "Browser storage is unavailable: note questions can’t be saved here.",
-    "hintReview": "Space: show the answer · 1 2 3 4: grade · Z: undo"
+    "hintReview": "Space: show the answer · 1 2 3 4: grade · Z: undo",
+    "hintTouch": "Tap the card for the answer · then swipe: → Good, ← Again"
   },
   "prereq": {
     "before": "Read first",
@@ -365,7 +481,6 @@
     "after": "after",
     "other": "Miscellaneous",
     "from": "From “{first}” to “{last}”",
-    "next": "Read next:",
     "nextShort": "Read next",
     "unread": "Unread",
     "order": "In order",
@@ -427,7 +542,41 @@
       "arts": "Arts and letters",
       "langues": "Languages",
       "jeux": "Games"
-    }
+    },
+    "resume": "Pick up where you left off",
+    "familyCount": "{n} paths",
+    "familyCountOne": "1 path",
+    "langIntro": "From first words to culture: alphabet and pronunciation, grammar, vocabulary, resources.",
+    "langAround": "Around languages",
+    "filterPlaceholder": "Filter: Kant, network, Hindi…",
+    "filterAria": "Filter the paths",
+    "filterFamilies": "Families",
+    "filterAll": "All",
+    "filterNone": "No path matches.",
+    "start": "Start:",
+    "continue": "Continue:",
+    "quizMark": "Review questions",
+    "graphShow": "Show the prerequisite graph",
+    "liMore": "Actions",
+    "reviewLocked": "Review: {n} questions, unlocked as you read.",
+    "level": "Level {n}",
+    "levels": "{n} levels",
+    "levelSpan": "From “{from}” to “{to}”",
+    "levelReview": "Level {n} review",
+    "levelReviewMeta": "{n} questions from this level’s read notes",
+    "levelReviewLocked": "Opens once you have read a note of this level",
+    "levelDone": "Level {n} complete",
+    "pathDone": "Path complete",
+    "statNotes": "notes",
+    "statQuiz": "questions right",
+    "statMinutes": "min of reading",
+    "levelNext": "Level {n}:",
+    "dismiss": "Close",
+    "nextPath": "Next path",
+    "followedBy": "Next: {name}",
+    "followsFrom": "After “{name}”",
+    "graphAll": "Prerequisite graph",
+    "sheet": "Revision sheet"
   },
   "reading": {
     "read": "Read",
@@ -532,6 +681,11 @@
     "errEmpty": "The file holds no usable progress.",
     "errLink": "This transfer link is incomplete or damaged.",
     "errRead": "Couldn’t read this file.",
+    "statBookmarks": "notes to read later",
+    "statHighlights": "highlighted passages",
+    "kindBookmarks": "To read later",
+    "kindHighlights": "Highlights",
+    "kindActivity": "Activity days",
     "kindReviewLog": "Review days",
     "statsTitle": "Reviews",
     "statsRate": "Success (30 d)",
@@ -542,7 +696,11 @@
     "statsLeeches": "Difficult cards",
     "statsNoLeech": "No card forgotten six times or more.",
     "statsLeechesIntro": "Forgotten six times or more. You can suspend them on the deck’s page.",
-    "statsLeechCount": "cards: {count}"
+    "statsLeechCount": "cards: {count}",
+    "welcomeTitle": "Nothing here yet",
+    "welcomeText": "Read a note to the end, answer a question or open a card deck: your progress will show here, with your streak and your reviews.",
+    "welcomePaths": "Start a reading path",
+    "welcomeImport": "I already have progress elsewhere"
   },
   "pathStep": {
     "label": "Path",
@@ -552,7 +710,13 @@
     "next": "Next",
     "othersOne": "+1 other path",
     "othersMany": "+{n} other paths",
-    "othersTitle": "This note is also in:"
+    "othersTitle": "This note is also in:",
+    "dockNext": "Next step",
+    "dockAria": "Next step of the path: {title}",
+    "here": "You are here",
+    "read": "{n} of {total} read",
+    "seePath": "See the path",
+    "close": "Close"
   },
   "discipline": {
     "agriculture": "Agriculture",
@@ -606,13 +770,245 @@
     "paths": "Reading path graph",
     "zoom": "Zoom in, out, fit",
     "pan": "Pan the graph",
-    "close": "Close"
+    "close": "Close",
+    "reading": "In a note",
+    "nextPrevNote": "Next, previous note",
+    "top": "Back to top",
+    "contents": "Open the contents",
+    "focus": "Focus mode",
+    "bookmark": "Read later",
+    "home": "Go home"
+  },
+  "siteBar": {
+    "brand": "Garden of Knowledge",
+    "navAria": "Site menu"
+  },
+  "account": {
+    "title": "My account",
+    "myAccount": "My account",
+    "login": "Sign in",
+    "loading": "Loading…",
+    "offTitle": "Accounts aren’t open here",
+    "offText": "This site doesn’t offer accounts yet (or the server isn’t answering). Your progress is still kept in this browser.",
+    "offLink": "Export or import my progress",
+    "loginTitle": "Sign in to the garden",
+    "loginIntro": "No password: enter your address and you’ll get a link valid for 15 minutes.",
+    "perkSync": "Your progress saved and shared across your devices",
+    "perkCoins": "Coins for every note read and every review, and a daily streak",
+    "perkAvatar": "A little gardener to dress up with your coins",
+    "emailLabel": "E-mail address",
+    "emailPlaceholder": "you@example.com",
+    "sendLink": "Send me the link",
+    "sent": "Done: a link was sent to {email}. It’s valid for 15 minutes.",
+    "expired": "This link has expired or was already used. Ask for a new one.",
+    "err": {
+      "invalid": "This address doesn’t look valid.",
+      "limited": "Too many requests: try again in a few minutes.",
+      "disabled": "Accounts aren’t open on this site for now.",
+      "error": "Sending failed. Try again a bit later."
+    },
+    "privacy": "Only your address, time zone, progress and coins are kept. You can delete the account at any time.",
+    "hello": "Hello, gardener!",
+    "private": "Only you can see this page.",
+    "settings": "Account and sync",
+    "syncedAt": "Last synced: {time}",
+    "notSynced": "Not synced from this browser yet.",
+    "syncNow": "Sync now",
+    "synced": "Synced",
+    "logout": "Sign out",
+    "delete": "Delete my account",
+    "dangerTitle": "Delete the account",
+    "deleteText": "The account, its coins, its gardener and its copy of your progress are erased for good. The progress kept in this browser stays.",
+    "deleteWord": "delete",
+    "deleteType": "To confirm, type “{word}”:",
+    "deleteNow": "Delete for good",
+    "cancel": "Cancel"
+  },
+  "avatar": {
+    "aria": "Your little gardener",
+    "title": "My gardener",
+    "intro": "Try an item by clicking it, buy the missing ones with your coins, then save.",
+    "save": "Save this look",
+    "saved": "Look saved.",
+    "slot": {
+      "body": "Colour",
+      "hat": "Hat",
+      "accessory": "Accessory",
+      "background": "Background"
+    },
+    "items": {
+      "leaf": "Leaf",
+      "sky": "Sky",
+      "sun": "Sun",
+      "plum": "Plum",
+      "coral": "Coral",
+      "ink": "Ink",
+      "none": "None",
+      "beret": "Beret",
+      "cap": "Graduation cap",
+      "wizard": "Wizard hat",
+      "crown": "Crown",
+      "glasses": "Glasses",
+      "scarf": "Scarf",
+      "book": "Book",
+      "paper": "Paper",
+      "garden": "Garden",
+      "night": "Starry night"
+    },
+    "cancel": "Cancel",
+    "unsaved": "Unsaved changes"
+  },
+  "coins": {
+    "unit": "coins",
+    "toast": "+{n} coins",
+    "kind": {
+      "welcome": "Welcome",
+      "read": "Note read",
+      "review": "Review",
+      "active": "Active day",
+      "streak": "Streak milestone",
+      "purchase": "Purchase"
+    },
+    "howTitle": "How to earn coins",
+    "ruleRead": "Note read to the end: 5 coins (at most 10 notes a day)",
+    "ruleReview": "Card or question reviewed: 1 coin (at most 50 a day)",
+    "ruleDay": "Active day (at least one note or review): 10 coins",
+    "ruleStreak": "Streaks of 7, 30 and 100 days: 50, 200 and 500 coins",
+    "ledgerTitle": "Coin history",
+    "unitOne": "coin",
+    "today": "+{n} today",
+    "more": "Show more",
+    "less": "Show less"
+  },
+  "streak": {
+    "days": "days in a row",
+    "best": "best",
+    "freezes": "streak freezes",
+    "daysOne": "day in a row",
+    "freezesOne": "streak freeze",
+    "next": "{n} more days to the {m}-day streak: +{bonus} coins",
+    "nextOne": "{n} more day to the {m}-day streak: +{bonus} coins",
+    "nextAria": "Progress towards the {m}-day streak"
+  },
+  "shop": {
+    "title": "Shop",
+    "freezeName": "Streak freeze",
+    "freezeText": "A missed day doesn’t break your streak. At most {max} in reserve.",
+    "bought": "Bought!",
+    "noFunds": "Not enough coins yet.",
+    "error": "That didn’t work, try again.",
+    "buy": "Buy",
+    "missing": "{n} more",
+    "held": "{n} / {max} in reserve"
+  },
+  "review": {
+    "pill": "{n} to review",
+    "pillTitle": "{n} cards or questions to review today"
+  },
+  "calendar": {
+    "title": "My regularity",
+    "last30": "{n} active days in the last 30",
+    "run": "current streak: {n} d",
+    "aria": "Calendar of the last six months: {n} active days in the last 30",
+    "cell": "{r} notes read, {c} reviews",
+    "none": "nothing that day",
+    "less": "less",
+    "more": "more"
+  },
+  "marks": {
+    "bookmarksTitle": "To read later",
+    "bookmarksEmpty": "No note kept for later. The “to read later” button is at the top of every note.",
+    "highlightsTitle": "My highlights",
+    "highlightsEmpty": "No passage highlighted. Select a passage in a note, then “Highlight”.",
+    "remove": "Remove “{title}” from the list",
+    "more": "and {n} more"
+  },
+  "offline": {
+    "save": "Make available offline",
+    "saving": "Saving… {n}/{total}",
+    "saved": "The {n} notes read offline.",
+    "remove": "Remove"
+  },
+  "nextUp": {
+    "title": "What next?",
+    "pathNext": "Next step · {path}",
+    "folderNext": "Next note in this folder",
+    "unread": "Not read yet, in {discipline}",
+    "allRead": "You’ve read everything in {discipline}!",
+    "seeAll": "The whole discipline: {discipline}"
+  },
+  "condensed": {
+    "left": "{min} min left"
+  },
+  "toTop": {
+    "aria": "Back to the top of the note"
+  },
+  "highlight": {
+    "open": "Highlight: add a note or remove it",
+    "noteLabel": "My note on this passage",
+    "save": "Save",
+    "remove": "Remove highlight"
   },
   "todayReview": {
     "title": "Review everything",
-    "intro": "Today’s due cards and note questions from every deck (except paused ones), then each deck’s new cards.",
-    "sources": "Sources: {n}.",
+    "intro": "The cards due today in the decks you have started (except paused ones) and your note questions, then the new cards from those decks.",
     "failed": "Decks unavailable: {decks}.",
-    "done": "All done for today."
+    "done": "All done for today.",
+    "loading": "Loading decks: {n} / {total}…",
+    "nothingStarted": "Nothing to review yet. Open a deck from the card list: its cards will show up here.",
+    "tomorrow": "Due tomorrow: {count}"
+  },
+  "predict": {
+    "label": "What do you think?",
+    "skip": "Read on anyway",
+    "veiled": "The rest shows once you answer.",
+    "thanks": "Noted. Let’s read on.",
+    "right": "Well spotted!",
+    "wrong": "Not quite: the next part explains why."
+  },
+  "lesson": {
+    "start": "Read as a lesson",
+    "aria": "Lesson mode",
+    "exit": "Leave the lesson",
+    "progress": "Step {n} of {total}",
+    "next": "Continue",
+    "back": "Back",
+    "check": "Let’s check",
+    "answerFirst": "Answer the question to go on, or skip it.",
+    "skip": "Skip",
+    "done": "Lesson complete",
+    "doneStats": "{right}/{total} questions right the first time",
+    "doneNoQuiz": "You have read the whole note.",
+    "toNote": "Back to the note",
+    "nextNote": "Next step: {title}"
+  },
+  "jardin": {
+    "title": "The garden in numbers",
+    "intro": "What has been planted, how the garden grew, and the notes everything points to.",
+    "updated": "Updated",
+    "statNotes": "notes planted",
+    "statWords": "words",
+    "statDisciplines": "disciplines",
+    "statClips": "pronunciation clips",
+    "growthTitle": "How it grew",
+    "peak": "The biggest month: {month}, with {n} notes planted.",
+    "chartAria": "Notes planted each month from {from} to {to}, and their running total up to {n}.",
+    "cumul": "total",
+    "perMonth": "/month",
+    "disciplinesTitle": "By discipline",
+    "others": "Other disciplines",
+    "citedTitle": "The most cited notes",
+    "links": "{n} links",
+    "growingTitle": "What grew in the last three months",
+    "newNotes": "+{n} notes"
+  },
+  "fiche": {
+    "back": "Back to the path",
+    "print": "Print",
+    "kicker": "Revision sheet",
+    "meta": "{notes} notes · {questions} questions, answers at the end",
+    "metaNoQuiz": "{notes} notes",
+    "empty": "This path's notes have no definitions, key ideas or questions yet.",
+    "answers": "Answers"
   }
 }

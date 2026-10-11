@@ -119,93 +119,12 @@
   }
 }
 
-/* --- /themes/ index: wider page, cards, grouped cloud ---------------------- */
+/* --- /themes/ index: wider page, grouped cloud ---------------------- */
 .themes-page--index {
   max-width: 72rem;
 }
 .themes-page--index > .themes-intro {
   max-width: 46rem;
-}
-.themes-section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin: 2.5rem 0 0.75rem;
-  border-bottom: 1px solid var(--rule-strong);
-}
-.themes-section-head .themes-h2 {
-  margin: 0;
-  border-bottom: 0;
-}
-.themes-page a.themes-more-link {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-  text-transform: lowercase;
-  font-weight: 700;
-  color: var(--garden);
-  white-space: nowrap;
-}
-
-.themes-path-cards,
-.themes-disc-cards {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
-}
-.themes-path-cards {
-  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
-}
-/* A path's colour family (lib/path-family.ts) as a stripe on its card. */
-.themes-page .themes-path-cards a.themes-card {
-  border-left: 4px solid var(--fam, var(--rule));
-  border-radius: 0 8px 8px 0; /* square on the stripe side */
-}
-.themes-page a.themes-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  height: 100%;
-  box-sizing: border-box;
-  padding: 0.75rem 0.9rem 0.7rem;
-  border: 1px solid var(--rule);
-  border-radius: 8px;
-  background: var(--paper);
-  color: var(--ink);
-  text-decoration: none;
-  transition: border-color 0.12s, background-color 0.12s;
-}
-.themes-page a.themes-card:hover {
-  border-color: var(--ink);
-  background: var(--wash);
-  text-decoration: none;
-}
-.themes-page a.themes-card:focus-visible {
-  outline: 2px solid var(--link);
-  outline-offset: 2px;
-}
-.themes-card-title {
-  font-size: 1.15rem;
-  line-height: 1.25;
-}
-.themes-card:hover .themes-card-title {
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
-}
-.themes-card-meta {
-  font-size: 0.9rem;
-  color: var(--muted-warm);
-}
-.themes-card-tags {
-  font-size: 0.88rem;
-  color: var(--ink-2);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 /* Read progress (components/ReadMarks.tsx sets --read and the text). */
 .themes-read {
@@ -221,7 +140,7 @@
 .themes-read-bar {
   flex: 1;
   height: 3px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--rule);
   overflow: hidden;
 }
@@ -316,22 +235,6 @@
 }
 .themes-rare[open] > summary {
   margin-bottom: 0.4rem;
-}
-/* Phones: two discipline cards per row, without the tag line. */
-@media (max-width: 560px) {
-  .themes-disc-cards {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.5rem;
-  }
-  .themes-disc-cards .themes-card-tags {
-    display: none;
-  }
-  .themes-page a.themes-card {
-    padding: 0.6rem 0.7rem 0.55rem;
-  }
-  .themes-card-title {
-    font-size: 1.05rem;
-  }
 }
 .themes-filter-empty {
   color: var(--muted-warm);

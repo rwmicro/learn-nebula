@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { getTimeline } from "@/lib/content";
+import { getFriseCurve, getTimelineWithWikidata } from "@/lib/frise-data";
 import { Frise } from "@/components/Frise";
+import { FriseCourbe } from "@/components/FriseCourbe";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/frise.css";
+import "@/assets/css/frise-courbe.css";
 
 export const metadata: Metadata = {
   title: `Frise chronologique · ${SITE_TITLE}`,
@@ -10,7 +12,8 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-export default function FrisePage() {
-  const entries = getTimeline();
-  return <Frise entries={entries} />;
+export default async function FrisePage() {
+  const entries = await getTimelineWithWikidata();
+  const curve = await getFriseCurve(entries);
+  return <Frise entries={entries} before={curve && <FriseCourbe curve={curve} />} />;
 }

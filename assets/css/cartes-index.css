@@ -124,7 +124,7 @@
 .cartes-today-btn {
   display: inline-block;
   padding: 0.55rem 1.1rem;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   background: var(--color-garden, var(--garden));
   color: var(--paper);
   font-weight: 700;
@@ -156,4 +156,9 @@
 .cartes-index-uptodate {
   color: var(--muted-warm);
   font-style: italic;
+}
+
+/* "En cours" (StartedDecks): the reader's decks, above the folder list. */
+.cartes-index-started {
+  margin-bottom: 2.5rem;
 }

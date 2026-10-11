@@ -9,6 +9,7 @@
 //   (the home card's link) scrolls back there.
 // - Fills .read-state at the end of the note (read on… / mark read / unread /
 //   resume) and reveals the .read-badge in the note-actions row.
+import { recordActivity } from "../../lib/personal";
 import {
   CHANGE_EVENT,
   STORAGE_KEY,
@@ -24,6 +25,10 @@ import {
   shouldMarkRead,
   slugFromHref,
 } from "../../lib/reading-progress";
+
+// A goal reached on a widget (public/js/widgets.js, loaded on demand and
+// outside this bundle) counts as a review in the activity calendar.
+document.addEventListener("gk:widget-goal", () => recordActivity("c"));
 
 (function () {
   const body = document.querySelector(".article-body");
@@ -86,6 +91,7 @@ import {
     if (!active()) return;
     if (shouldMarkRead(p, dwell, minutes) && !isRead(loadStore(), slug)) {
       commit(markRead(loadStore(), slug));
+      recordActivity("r");
       announce(tt("reading.read"));
     }
   }
@@ -184,6 +190,7 @@ import {
     if (!btn) return;
     const act = btn.getAttribute("data-act");
     if (act === "read") {
+      if (!isRead(loadStore(), slug)) recordActivity("r");
       commit(markRead(loadStore(), slug));
       announce(tt("reading.read"));
       box.querySelector("[data-act]")?.focus();

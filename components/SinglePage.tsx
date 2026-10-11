@@ -7,14 +7,16 @@ import {
   getGlossaryFor,
   getPrerequisites,
   getDependents,
+  getPost,
   getReadingPathOf,
   getReadingPaths,
+  getDisciplines,
 } from "@/lib/content";
 import { pathStepHtml, pathStepOf } from "@/lib/path-step";
-import { renderMarkdown } from "@/lib/markdown";
+import { extractPlain, renderMarkdown } from "@/lib/markdown";
+import { readingMinutes as minutesOfText } from "@/lib/path-extras";
 import {
   dropcapHtml,
-  navHtml,
   escapeHtml,
   noteHeaderHtml,
   buildToc,
@@ -34,10 +36,18 @@ import {
   readBadgeHtml,
   readStateHtml,
   noteSectionMetaHtml,
+  folderLabel,
+  bookmarkButtonHtml,
+  focusButtonHtml,
+  lessonButtonHtml,
+  noteMoreHtml,
+  nextUpHtml,
+  prerenderNextHtml,
+  type NextUp,
 } from "@/lib/html";
 import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
+import { citeHtml } from "@/lib/cite";
 import { JsonLd } from "@/components/JsonLd";
-import { PagefindAssets } from "@/components/PagefindAssets";
 import { NoteFeatureScripts } from "@/components/NoteScripts";
 import { franc } from "franc-min";
 
@@ -116,7 +126,12 @@ export async function SinglePage({
   // In a reading path, the step bar ("Parcours : … · Étape 4/20", previous /
   // next) replaces the block's own "Voir le parcours" link and holds the
   // prerequisites under its first row: one compact block, not two.
-  const step = note ? pathStepOf(doc.slug, getReadingPaths()) : null;
+  const found = note ? pathStepOf(doc.slug, getReadingPaths()) : null;
+  // The next step's reading time, for the "Étape suivante" chip (path-dock.js).
+  const step =
+    found?.next != null
+      ? { ...found, next: { ...found.next, minutes: minutesOfText(extractPlain(getPost(found.next.slug).body)) } }
+      : found;
   const prereqBlock = note
     ? prereqHtml(
         getPrerequisites(doc.slug),
@@ -146,13 +161,54 @@ export async function SinglePage({
       }).replace(/</g, "\\u003c")}</script>`
     : "";
 
+  // "Et ensuite ?": the next step of the reading path, else the next note of
+  // the folder, plus a dozen notes of the discipline (in its page's order,
+  // starting after this one) for the browser to pick an unread one from.
+  const sibNav = note ? getSiblings(doc.slug) : null;
+  const disc = note
+    ? getDisciplines().find((d) => doc.slug.startsWith(d.prefix)) ?? null
+    : null;
+  const discNotes = disc
+    ? disc.sections.flatMap((s) =>
+        s.notes.map((n) => ({
+          slug: n.href.slice("/posts/".length, -1),
+          title: n.title,
+        })),
+      )
+    : [];
+  const here = discNotes.findIndex((n) => n.slug === doc.slug);
+  const nextUp: NextUp = {
+    next: step?.next
+      ? { slug: step.next.slug, title: step.next.title, path: step.path.name }
+      : sibNav?.next
+        ? { slug: sibNav.next.slug, title: sibNav.next.title }
+        : null,
+    discipline: disc
+      ? {
+          name: folderLabel(doc.rawPath.split("/")[1] ?? ""),
+          href: `/disciplines/${disc.slug}/`,
+          notes: [...discNotes.slice(here + 1), ...discNotes.slice(0, Math.max(0, here))].slice(0, 24),
+        }
+      : null,
+  };
+  const nextBlock = note ? nextUpHtml(nextUp) : "";
+
+  const lessonSteps = (html.match(/class="callout callout-(?:quiz|predict)\b/g) ?? []).length;
+
   const headerTitle = fm.title;
   const headerDate = fm.date
     ? { iso: fm.date.toISOString(), formatted: formatDateLong(fm.date) }
     : undefined;
 
   const main =
-    (note ? noteHeaderHtml(doc.rawPath, headerTitle, headerDate) : "") +
+    (note
+      ? noteHeaderHtml(
+          doc.rawPath,
+          headerTitle,
+          headerDate,
+          disc ? { href: `/disciplines/${disc.slug}/`, depth: 1 } : null,
+        )
+      : "") +
     (note ? buildToc(html, fm.tags, localGraph) : "") +
     katex +
     dropcapHtml(plain, fm.dropcap) +
@@ -169,14 +225,15 @@ export async function SinglePage({
     (note ? noteSectionMetaHtml(doc.rawPath) : "") +
     (note
       ? `<div class="note-actions" data-pagefind-ignore>` +
-        // Display preferences first (visual settings — set once per session)
-        fontSizeButtonHtml() +
-        wideTextButtonHtml() +
-        // Visual divider between preference and action groups
-        `<span class="note-actions-sep" aria-hidden="true">·</span>` +
-        // Content actions (audio playback, translation)
+        // One row: the ways to read it first. "Lire en leçon": the note one
+        // section at a time, its questions in between (public/js/lesson.js),
+        // when it has two questions or more.
+        (lessonSteps >= 2 ? lessonButtonHtml() : "") +
         audioButtonHtml() +
-        translateButtonHtml(detectedLang) +
+        bookmarkButtonHtml() +
+        // Then the display settings (set once, rarely touched) and the
+        // translation, folded under "Affichage ▾".
+        noteMoreHtml(fontSizeButtonHtml() + wideTextButtonHtml() + focusButtonHtml() + translateButtonHtml(detectedLang)) +
         // Reading time pushed to the right edge as passive metadata
         readingTime +
         // "Lue" once the reader has finished it (/js/reading-state.js).
@@ -186,13 +243,17 @@ export async function SinglePage({
     prereqs +
     `<div class="article-body">${html}</div>` +
     articleSource +
+    (note
+      ? citeHtml({ slug: doc.slug, title: fm.title, author: fm.author, date: fm.date, updated: fm.updated })
+      : "") +
     (note ? readStateHtml(doc.slug, readingMinutes) : "") +
+    nextBlock +
+    (note ? prerenderNextHtml(nextUp.next?.slug) : "") +
     further +
     backlinks +
     related +
     (note ? commentsHtml(doc.slug) : "") +
-    siblings +
-    navHtml();
+    siblings;
 
   return (
     <>
@@ -208,7 +269,6 @@ export async function SinglePage({
         dangerouslySetInnerHTML={{ __html: main }}
       />
       {jsonLd && <JsonLd data={jsonLd} />}
-      {note && <PagefindAssets />}
       {note && <NoteFeatureScripts quiz={hasQuiz} glossary={hasGlossary} />}
     </>
   );

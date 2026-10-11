@@ -75,6 +75,7 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
   // Full-text hits for `textQuery`: [{kind: "text", title, hint, href, excerpt}].
   let pf = null; // the pagefind.js module, once imported
   let pfState = "idle"; // idle | ready | off (no index: dev, or it failed)
+  let pfFails = 0; // failed imports of pagefind.js
   let textQuery = "";
   let textHits = [];
   let textPending = false;
@@ -204,6 +205,34 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
     };
   }
 
+  // Each hit's data is one fragment file. Fetched a few at a time, not all at
+  // once: a burst of twenty requests per keystroke got some of them a 429 from
+  // the host in production, and one rejected fragment used to sink the whole
+  // query. A failed fragment is retried once, then left out.
+  const HIT_CONCURRENCY = 4;
+  async function loadHits(results, stale) {
+    const out = new Array(results.length).fill(null);
+    let next = 0;
+    async function worker() {
+      while (next < results.length && !stale()) {
+        const i = next++;
+        try {
+          out[i] = await results[i].data();
+        } catch {
+          await new Promise((r) => setTimeout(r, 400));
+          if (stale()) return;
+          try {
+            out[i] = await results[i].data();
+          } catch {
+            /* left out */
+          }
+        }
+      }
+    }
+    await Promise.all(Array.from({ length: Math.min(HIT_CONCURRENCY, results.length) }, worker));
+    return out.filter(Boolean);
+  }
+
   function searchText(q) {
     clearTimeout(textTimer);
     if (pfState === "off" || q.length < TEXT_MIN) {
@@ -218,20 +247,30 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
     textTimer = setTimeout(async () => {
       try {
         if (!pf) {
-          // Variable specifier: esbuild leaves it as a runtime URL import (the
-          // file only exists in a built out/, written by `pagefind --site out`).
-          const mod = "/pagefind/pagefind.js";
-          pf = await import(mod);
-          pfState = "ready";
+          try {
+            // Variable specifier: esbuild leaves it as a runtime URL import (the
+            // file only exists in a built out/, written by `pagefind --site out`).
+            const mod = "/pagefind/pagefind.js";
+            pf = await import(mod);
+            pfState = "ready";
+          } catch (e) {
+            // No index (`next dev`), or a load that failed: tried again on a
+            // later query, given up after the third miss.
+            if (++pfFails >= 3) pfState = "off";
+            throw e;
+          }
         }
         const res = await pf.search(q);
-        const data = await Promise.all(((res && res.results) || []).slice(0, TEXT_MAX + 5).map((r) => r.data()));
+        const data = await loadHits(((res && res.results) || []).slice(0, TEXT_MAX + 5), () => seq !== textSeq);
         if (seq !== textSeq) return;
         textQuery = q;
         textHits = data.map(toTextHit);
       } catch {
+        // One failed search (network, a 429 from the host on a burst of
+        // fragment requests) must not turn the text search off for the rest
+        // of the visit: it only empties this query's hits.
         if (seq !== textSeq) return;
-        pfState = "off";
+        textQuery = q;
         textHits = [];
       }
       textPending = false;
@@ -324,10 +363,12 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
       ["nav.home", "/", "accueil home"],
       ["nav.graph", "/graph/", "graphe graph carte"],
       ["nav.frise", "/frise/", "frise chronologie timeline"],
+      ["carte.nav", "/carte/", "carte monde pays map world countries"],
       ["nav.themes", "/themes/", "themes tags disciplines"],
       ["nav.cartes", "/cartes/", "cartes anki flashcards"],
       ["nav.parcours", "/parcours/", "parcours chemins prerequis paths"],
       ["nav.progression", "/progression/", "progression progress export import sauvegarde"],
+      ["donnees.nav", "/donnees/", "donnees data open json licence citer sources"],
     ]
       .filter(([, href]) => href !== location.pathname)
       .map(([k, href, kw]) => ({ kind: "nav", title: tt(k), hint: "", href, keywords: kw }));
@@ -356,6 +397,16 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
       // Scattered-letter title matches ("entropie" in "anthropologie") are a
       // last resort; once the text has real hits they are only noise.
       if (text.length) found = found.filter((n) => scoreItem(q, n, false) !== null);
+      // A note found by its title and by its text shows both: the title row
+      // carries the passage, and links to its section, so a word that is
+      // also in the title ("kabyle") still shows where the text uses it.
+      if (text.length) {
+        const byPath = new Map(text.map((h) => [pathOf(h.href), h]));
+        found = found.map((n) => {
+          const h = byPath.get(pathOf(n.href));
+          return h ? { ...n, href: h.href, sub: h.sub, excerpt: h.excerpt } : n;
+        });
+      }
       if (found.length) out.push({ label: tt("palette.notes"), items: found });
     }
     const s = rankItems(q, secs, 8);
@@ -415,9 +466,13 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
             : it.kind === "text"
             ? `<span class="palette-opt-hint">${esc([it.hint && folderHint(it.hint), it.sub].filter(Boolean).join(" › "))}</span>` +
               (it.excerpt ? `<span class="palette-opt-excerpt">${it.excerpt}</span>` : "")
-            : it.hint && it.hint !== "·"
-              ? `<span class="palette-opt-hint">${esc(it.kind === "note" ? folderHint(it.hint) : it.hint)}</span>`
-              : "") +
+            : (it.hint && it.hint !== "·"
+                ? `<span class="palette-opt-hint">${esc(
+                    it.kind === "note"
+                      ? [folderHint(it.hint), it.sub].filter(Boolean).join(" › ")
+                      : it.hint,
+                  )}</span>`
+                : "") + (it.excerpt ? `<span class="palette-opt-excerpt">${it.excerpt}</span>` : "")) +
           `</span></div>`;
       }
       html += `</div>`;
@@ -617,6 +672,14 @@ import { SEARCH_MISS_SETTLE_MS, reportSearchMiss } from "../../lib/search-miss";
         [[`${mod} K`, "/"], "shortcuts.openPalette"],
         [["?"], "shortcuts.help"],
         [["Esc"], "shortcuts.closeAny"],
+      ]],
+      ["shortcuts.reading", [
+        [["n", "p"], "shortcuts.nextPrevNote"],
+        [["t"], "shortcuts.top"],
+        [["s"], "shortcuts.contents"],
+        [["f"], "shortcuts.focus"],
+        [["b"], "shortcuts.bookmark"],
+        [["g a"], "shortcuts.home"],
       ]],
       ["shortcuts.paletteGroup", [
         [["↑", "↓"], "shortcuts.move"],

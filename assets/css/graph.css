@@ -33,7 +33,7 @@
   text-decoration: none;
   padding: 0.25rem 0.6rem;
   background: color-mix(in srgb, var(--paper) 85%, transparent);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
 }
 
 .graph-back:hover {
@@ -52,7 +52,7 @@
 .cg-locate-input {
   width: 100%;
   border: 1px solid var(--rule);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--paper) 92%, transparent);
   padding: 0.35rem 0.6rem;
   font: inherit;
@@ -75,7 +75,7 @@
   overflow-y: auto;
   background: color-mix(in srgb, var(--paper) 97%, transparent);
   border: 1px solid var(--rule);
-  border-radius: 4px;
+  border-radius: var(--radius-md);
 }
 .cg-locate-results li {
   margin: 0;
@@ -89,7 +89,7 @@
   border: 0;
   background: transparent;
   padding: 0.3rem 0.4rem;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   font: inherit;
   font-size: 0.88rem;
   color: var(--ink);
@@ -110,7 +110,7 @@
   font-style: italic;
   padding: 0.2rem 0.55rem;
   background: color-mix(in srgb, var(--paper) 70%, transparent);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   pointer-events: none;
 }
 
@@ -199,7 +199,7 @@
   padding: 0.7rem 0.8rem;
   background: color-mix(in srgb, var(--paper) 92%, transparent);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
 }
 .cg-roulette {
@@ -224,7 +224,7 @@
   height: 1.9rem;
   border: 1px solid var(--rule-strong);
   background: var(--paper);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   color: var(--ink-soft);
   cursor: pointer;
 }
@@ -240,7 +240,7 @@
 .cg-reset {
   border: 1px solid var(--rule-strong);
   background: var(--paper);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   padding: 0.15rem 0.5rem;
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
@@ -270,7 +270,7 @@
   border: 0;
   background: transparent;
   padding: 0.1rem 0.25rem;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   font: inherit;
   font-size: 0.82rem;
   color: var(--ink-soft);
@@ -287,19 +287,42 @@
 .cg-swatch {
   width: 0.7rem;
   height: 0.7rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   flex: none;
 }
 /* Collapse toggle for the discipline legend — a no-op on desktop, where the
    legend is always visible and this button stays hidden (see below). */
+/* The discipline legend folds behind a toggle on every screen: open, its
+   thirty-odd names took a third of a laptop screen off the ring. */
 .cg-legend-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  padding: 0.1rem 0;
+  font: inherit;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+/* A data attribute, not [hidden]: Tailwind's Preflight makes [hidden]
+   display:none !important. */
+.cg-legend:not([data-open]) {
   display: none;
+}
+.cg-legend[data-open] {
+  margin-top: 0.4rem;
 }
 .graph-hint-touch {
   display: none;
 }
 
-/* Mobile: the desktop panel (rotate buttons + always-open legend + a hint
+/* Mobile: the desktop panel (rotate buttons + legend + a hint
    line) eats most of a phone screen and leaves almost nothing of the ring
    itself visible. Pinch-to-zoom and one-finger drag (CircularGraph.tsx) cover
    rotate/zoom/pan by touch, so the arrow buttons are redundant here — drop
@@ -322,31 +345,6 @@
   .cg-rot-btn {
     display: none;
   }
-  .cg-legend-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    width: 100%;
-    border: 0;
-    background: transparent;
-    padding: 0.1rem 0;
-    font: inherit;
-    font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-    text-transform: lowercase;
-    font-weight: 700;
-    font-size: 0.85rem;
-    color: var(--ink-soft);
-    cursor: pointer;
-  }
-  /* Tailwind's Preflight sets [hidden] to display:none !important — too
-     absolute to use for something that must stay visible above this
-     breakpoint, hence a plain data attribute instead of the hidden attribute. */
-  .cg-legend:not([data-open]) {
-    display: none;
-  }
-  .cg-legend {
-    margin-top: 0.4rem;
-  }
   .graph-hint-desktop {
     display: none;
   }
@@ -364,7 +362,7 @@
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.85rem;
   padding: 0.2rem 0.5rem;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   max-width: 22rem;
   white-space: nowrap;
   overflow: hidden;
@@ -392,7 +390,7 @@
   flex: 1;
   max-width: 14rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
   padding: 0.15rem 0.3rem;
@@ -431,6 +429,125 @@
 .cg-svg .cg-flabel.is-path {
   display: inline;
   opacity: 1;
+  fill: var(--ink);
+  font-weight: 700;
+}
+
+/* "Mes lectures": the reader's finished notes in full colour with a garden
+   ring, every other note faded (opacity on the circle, CircularGraph.tsx),
+   and a short list of where to go next under the toggle. */
+.cg-mine {
+  margin-bottom: 0.6rem;
+}
+.cg-mine-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-pill, 999px);
+  background: var(--paper);
+  padding: 0.2rem 0.7rem;
+  font: inherit;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.cg-mine-toggle:hover {
+  border-color: var(--garden);
+  color: var(--garden);
+}
+.cg-mine-toggle[aria-pressed="true"] {
+  background: var(--garden-wash);
+  border-color: var(--garden);
+  color: var(--ink);
+}
+.cg-mine-toggle:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+}
+.cg-mine-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  border: 2px solid var(--garden);
+  flex: none;
+}
+.cg-mine-toggle[aria-pressed="true"] .cg-mine-dot {
+  background: var(--garden);
+}
+.cg-mine-count {
+  margin-left: auto;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  text-transform: none;
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cg-mine-next {
+  margin-top: 0.5rem;
+}
+.cg-mine-next-k {
+  margin: 0 0 0.25rem;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+.cg-mine-next ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+.cg-mine-next li {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+}
+.cg-mine-next button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0.1rem 0.25rem;
+  border-radius: var(--radius-sm, 4px);
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--ink);
+  text-align: start;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cg-mine-next button:hover {
+  background: var(--wash-2);
+}
+.cg-mine-next a {
+  color: var(--link);
+  text-decoration: none;
+  padding: 0 0.3rem;
+}
+.cg-nodes circle.cg-read-node {
+  stroke: var(--garden);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.cg-svg[data-mine] .cg-links path {
+  opacity: 0.45;
+}
+.cg-svg[data-mine] .cg-flabel:not(.is-read) {
+  opacity: 0.3;
+}
+.cg-flabel.is-read {
   fill: var(--ink);
   font-weight: 700;
 }
