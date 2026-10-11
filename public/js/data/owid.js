@@ -468,6 +468,7 @@ function recit(props, fig) {
     lineChart(plot, series, {
       width: drawWidth(chartBox),
       zero: props.zero !== false,
+      log: !!props.log,
       unit: props.unit,
       xDomain: dom,
       highlight: s && s.focus ? s.focus : null,
@@ -495,7 +496,10 @@ function recit(props, fig) {
           draw();
         }
       },
-      { rootMargin: "-45% 0px -45% 0px" },
+      // Side by side (wide screens), a step counts at mid-height. Stacked, the
+      // sticky chart fills the top of the screen: a step counts once it is in
+      // the free band under the chart, where it is read.
+      { rootMargin: window.matchMedia("(min-width: 900px)").matches ? "-45% 0px -45% 0px" : "-68% 0px -18% 0px" },
     );
     items.forEach((n) => io.observe(n));
   };
