@@ -4659,7 +4659,7 @@ mark.hl--new {
   display: block;
   width: 1.3rem;
   height: 5px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs, 2px);
   background: var(--rule-strong);
 }
 .w-goal-steps i.is-done {
@@ -4726,7 +4726,7 @@ mark.hl--new {
   border: 1px solid var(--garden);
   border-bottom-width: 3px;
   border-bottom-color: color-mix(in srgb, var(--garden) 60%, #000);
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 4px);
   background: var(--garden);
   color: var(--paper);
   padding: 0.25rem 0.9rem;
