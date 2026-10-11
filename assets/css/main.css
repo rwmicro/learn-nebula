@@ -4627,12 +4627,14 @@ mark.hl--new {
    miss. */
 .w-goals {
   border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md, 0);
   background: var(--paper);
 }
 .widget.is-live .w-goals .w-root {
   border: 0;
 }
 .w-goal {
+  border-radius: calc(var(--radius-md, 1px) - 1px) calc(var(--radius-md, 1px) - 1px) 0 0;
   padding: 0.7rem 0.9rem;
   background: var(--link-wash);
   border-bottom: 1px solid var(--rule);
@@ -4679,6 +4681,7 @@ mark.hl--new {
   color: var(--ink-2);
 }
 .w-goal-foot {
+  border-radius: 0 0 calc(var(--radius-md, 1px) - 1px) calc(var(--radius-md, 1px) - 1px);
   display: flex;
   flex-wrap: wrap;
   align-items: center;
