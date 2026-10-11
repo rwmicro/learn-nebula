@@ -1385,7 +1385,7 @@ function widgetProps(source: string): Record<string, string> {
  * An unknown widget name is left alone on purpose, so a typo shows up as a
  * visible code block instead of silently rendering nothing.
  */
-function rehypeWidgets() {
+function rehypeWidgets(dir: string) {
   return async (tree: Root) => {
     const jobs: Promise<void>[] = [];
     visit(tree, "element", (node: Element, index, parent) => {
@@ -1433,9 +1433,11 @@ function rehypeWidgets() {
       // OWID / Wikidata from the on-disk cache or the network, the Insee and
       // Lichess snapshots from lib/data/. The no-JS fallback becomes a table
       // of the same numbers when there is one.
-      if (extra?.pack === "data") {
+      // Two language widgets read the vault too: minimal pairs resolve their
+      // note-relative clips, the language tree lists the language folders.
+      if (extra) {
         jobs.push(
-          enrichWidget(name, props).then((d) => {
+          enrichWidget(name, props, { dir }).then((d) => {
             if (!d) return;
             figure.properties["data-props"] = JSON.stringify(d.props);
             if (d.error) {
@@ -1742,7 +1744,7 @@ export async function renderMarkdown(
     .use(rehypeCallouts, ph.map)
     .use(rehypePredictVeil)
     .use(rehypeManim, dir)
-    .use(rehypeWidgets)
+    .use(rehypeWidgets, dir)
     .use(rehypePrix)
     .use(rehypeShiki)
     .use(rehypePlaceholders, ph.map)

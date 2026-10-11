@@ -12,6 +12,10 @@ import { memeMot } from "./lang/meme-mot.js";
 import { casAllemands } from "./lang/cas-allemands.js";
 import { etymologieTokPisin } from "./lang/etymologie-tok-pisin.js";
 import { couvertureMots } from "./lang/couverture-mots.js";
+import { paires } from "./lang/paires.js";
+import { arbreLangues } from "./lang/arbre.js";
+import { conjugaison } from "./lang/conjugaison.js";
+import { fauxAmis } from "./lang/faux-amis.js";
 
 mount({
   "affixes-indonesiens": affixesIndonesiens,
@@ -23,4 +27,8 @@ mount({
   "cas-allemands": casAllemands,
   "etymologie-tok-pisin": etymologieTokPisin,
   "couverture-mots": couvertureMots,
+  paires,
+  "arbre-langues": arbreLangues,
+  conjugaison,
+  "faux-amis": fauxAmis,
 });

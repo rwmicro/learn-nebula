@@ -101,13 +101,17 @@ export function lineChart(host, series, opts) {
     if (opts.log) pts = pts.filter((p) => p[1] > 0);
     if (!pts.length) return;
     // Gaps in the data (a missing decade) break the line instead of bridging it.
+    // A gap counts only against the spacing around it: a series that is
+    // sparse in its early centuries (a value every 50 years, then yearly)
+    // stays one line, a hole in yearly data does not.
     let d = "";
-    let prev = null;
     const step = medianStep(pts);
-    for (const p of pts) {
-      d += `${prev && p[0] - prev[0] <= step * 3 ? "L" : "M"}${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`;
-      prev = p;
-    }
+    pts.forEach((p, k) => {
+      const gap = k ? p[0] - pts[k - 1][0] : 0;
+      const around = Math.max(k > 1 ? pts[k - 1][0] - pts[k - 2][0] : 0, k + 1 < pts.length ? pts[k + 1][0] - p[0] : 0);
+      const joined = k > 0 && (gap <= step * 3 || gap <= around * 3);
+      d += `${joined ? "L" : "M"}${x(p[0]).toFixed(1)},${y(p[1]).toFixed(1)}`;
+    });
     const faded = opts.highlight && opts.highlight !== s.name;
     const path = svg("path", {
       d,

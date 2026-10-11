@@ -6,6 +6,7 @@
 import { mount } from "./widget-kit.js";
 import { owid } from "./data/owid.js";
 import { fichePays, vraiFaux, classer, convertisseur, interets, ouverture, ficheLangue, wirePrix } from "./data/others.js";
+import { partie, durees } from "./data/histoire.js";
 
 mount({
   owid,
@@ -16,5 +17,7 @@ mount({
   interets,
   ouverture,
   "fiche-langue": ficheLangue,
+  partie,
+  durees,
 });
 wirePrix();
