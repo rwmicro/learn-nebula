@@ -295,6 +295,68 @@
     "erasAria": "Jump to a period",
     "span": "{n} years"
   },
+  "carte": {
+    "title": "The garden on the map",
+    "intro": "{n} countries, {notes} notes: the countries the garden talks about, through its history and its languages.",
+    "mapAria": "World map: each country is shaded by the number of notes about it",
+    "legendUnit": "notes",
+    "notesWord": "notes",
+    "source": "Base map: Natural Earth (public domain), Equal Earth projection.",
+    "listTitle": "Countries by number of notes",
+    "kind_histoire": "history",
+    "kind_langue": "language",
+    "kind_autre": "note",
+    "how": "A note is placed on a country by its folder (a country in History, a language) or by the “pays:” line of its header.",
+    "nav": "World map"
+  },
+  "citer": {
+    "title": "Cite this note",
+    "text": "Text",
+    "copy": "Copy",
+    "copied": "Copied",
+    "licence": "Text under CC BY-NC-SA 4.0: free to reuse for non-commercial purposes, with attribution."
+  },
+  "friseCourbe": {
+    "title": "The garden's notes on the curve of world population",
+    "sub": "Since 1500, in billions of people. Each dot is a dated note ({n}).",
+    "source": "World population:",
+    "before": "{n} notes older than {from} are in the list below."
+  },
+  "donnees": {
+    "title": "Open data",
+    "intro": "Everything the site publishes for machines, what it contains and under which licence. The notes and these files are licensed",
+    "filesTitle": "The garden's files",
+    "colFile": "File",
+    "colContent": "Contents",
+    "colFormat": "Format",
+    "file_notes": "Every published note: title, address, folder.",
+    "file_graph": "The graph: the notes and the links between them.",
+    "file_carte": "The countries the notes are about, with each one's notes.",
+    "file_frise": "The dated notes (year, end, period), those on the timeline.",
+    "file_figures": "Every data figure: the note, the kind of figure, its source.",
+    "file_ipc": "The Insee price index chained since 1949, used for franc-euro conversions.",
+    "file_feed": "The last 30 notes planted or tended.",
+    "file_llms": "A summary of the site for agents and answer engines.",
+    "sourcesTitle": "Sources of the figures",
+    "sourcesIntro": "The {n} data figures in the notes are computed when the site is built, from these sources; each figure cites its own.",
+    "colSource": "Source",
+    "colUse": "Used for",
+    "colLicence": "Licence",
+    "use_owid": "Line charts, pyramids, country sheets, true or false, rankings.",
+    "use_insee": "Francs converted to today's euros, interest and inflation.",
+    "use_wikidata": "Language sheets and the dates of some timeline notes.",
+    "use_lichess": "Chess opening statistics by rating.",
+    "use_naturalearth": "The world map's base.",
+    "reuseTitle": "Reuse",
+    "reuse": "The files are rebuilt with every build of the site. Cite the note or the site, and the original source for the numbers.",
+    "seeCarte": "See the world map",
+    "seeFrise": "See the timeline",
+    "nav": "Open data"
+  },
+  "graphiques": {
+    "title": "one chart, three paragraphs",
+    "rss": "RSS feed of these notes"
+  },
   "themes": {
     "title": "Themes",
     "intro": "The garden's notes by discipline and by theme.",

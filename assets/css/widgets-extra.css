@@ -1,0 +1,954 @@
+/* ------------------------------------------------------------ widget packs
+   Styles shared by the packs of lib/widgets-extra.ts (data, sciences,
+   languages) and the data pack's own pieces: OWID charts, prices in euros,
+   the « En quelques chiffres » callout. The base grammar (.w-root, .w-btn,
+   .w-table, .w-range…) is main.css's; this file only adds to it. Pack-specific
+   rules live in widgets-sci.css and widgets-lang.css. Note pages only. */
+
+/* Categorical series colours, fixed order (public/js/widget-kit.js SERIES).
+   Checked with the dataviz palette validator against --paper in each theme:
+   lightness band, chroma, colour-blind separation of neighbours, contrast. */
+:root {
+  --w-s1: #2d6cc0;
+  --w-s2: #b8740f;
+  --w-s3: #009b8f;
+  --w-s4: #7a5bc9;
+  --w-s5: #c4457f;
+  --w-s6: #6f7a2e;
+}
+:root[data-theme="dark"] {
+  --w-s1: #5b92d6;
+  --w-s2: #c2862c;
+  --w-s3: #2fa195;
+  --w-s4: #9278de;
+  --w-s5: #dc6a8e;
+  --w-s6: #8f9a4a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --w-s1: #5b92d6;
+    --w-s2: #c2862c;
+    --w-s3: #2fa195;
+    --w-s4: #9278de;
+    --w-s5: #dc6a8e;
+    --w-s6: #8f9a4a;
+  }
+}
+
+/* No-JS fallback of a data widget: the numbers as a plain table. */
+.widget-fallback-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.4rem;
+  font-size: var(--text-meta);
+  font-variant-numeric: tabular-nums;
+}
+.widget-fallback-table th,
+.widget-fallback-table td {
+  text-align: right;
+  padding: 0.15rem 0.5rem;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.widget-fallback-table th:first-child {
+  text-align: left;
+}
+
+/* Tooltip (widget-kit tooltip()) inside a relatively positioned plot. */
+.w-plot-wrap {
+  position: relative;
+}
+.w-plot-wrap svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  touch-action: pan-y;
+}
+.w-tip {
+  border-radius: var(--radius-md, 0);
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.12);
+  padding: 0.35rem 0.5rem;
+  font-size: var(--text-meta);
+  line-height: 1.35;
+  color: var(--ink);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.w-tip .w-key {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  margin-right: 0.35rem;
+  vertical-align: baseline;
+}
+.w-tip .w-dim {
+  color: var(--muted);
+}
+
+/* Chart text drawn in SVG takes theme ink, never the series colour. */
+.w-axis text {
+  font-size: 11px;
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.w-gridline {
+  stroke: var(--rule-soft);
+}
+.w-baseline {
+  stroke: var(--rule-strong);
+}
+.w-label {
+  font-size: 12px;
+  font-weight: 500;
+  fill: var(--ink-soft);
+}
+
+/* ---------------------------------------------------------- OWID charts */
+.w-chart-title {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+.w-chart-sub {
+  margin: 0.1rem 0 0.5rem;
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.w-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 0.6rem;
+  font-size: var(--text-small);
+}
+.w-tabs button {
+  font: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 0.25rem 0.55rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+.w-tabs button[aria-selected="true"] {
+  color: var(--ink);
+  border-bottom-color: var(--link);
+  font-weight: 700;
+}
+.w-tabs .w-tab-spacer {
+  flex: 1;
+}
+.w-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.9rem;
+  margin: 0 0 0.3rem;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-meta);
+  color: var(--ink-soft);
+}
+.w-legend li,
+main .w-legend li {
+  list-style: none;
+  margin: 0;
+  font-size: inherit;
+  line-height: 1.4;
+}
+.w-legend i {
+  display: inline-block;
+  width: 0.9rem;
+  height: 2px;
+  margin-right: 0.35rem;
+  vertical-align: middle;
+}
+.w-source {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: var(--text-micro);
+}
+.w-source a {
+  color: inherit;
+}
+.w-scroll {
+  overflow: auto;
+  max-height: 18rem;
+}
+.w-scroll .w-table th {
+  position: sticky;
+  top: 0;
+  background: var(--paper);
+  width: auto;
+}
+.w-table.w-num td,
+.w-table.w-num th:not(:first-child) {
+  text-align: right;
+}
+
+/* Guess-the-curve: the area to draw in, and the result line. */
+.w-guess-zone {
+  fill: var(--wash);
+}
+.w-result {
+  min-height: 1.4em;
+  margin-top: 0.5rem;
+  font-size: var(--text-small);
+}
+
+/* Scrollytelling (owid type: recit): chart pinned, steps scroll past it. */
+.w-recit {
+  display: grid;
+  gap: 1rem;
+}
+.w-recit-chart {
+  position: sticky;
+  top: 4rem;
+  z-index: 1;
+  background: var(--paper);
+  padding-block: 0.4rem;
+}
+.w-recit-steps {
+  display: grid;
+  gap: 45vh;
+  padding-block: 10vh 30vh;
+}
+.w-recit-step {
+  border-radius: var(--radius-md, 0);
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  padding: 0.7rem 0.9rem;
+  opacity: 0.55;
+  transition: opacity 0.2s;
+}
+.w-recit-step.is-current {
+  opacity: 1;
+  border-color: var(--link);
+}
+.w-recit-step b {
+  display: block;
+  font-size: var(--text-meta);
+  color: var(--muted);
+  font-weight: 500;
+}
+@media (min-width: 900px) {
+  .w-recit {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: start;
+  }
+  .w-recit-steps {
+    order: 2;
+  }
+}
+
+/* Country fact sheet: three small metrics side by side. */
+.w-fiche {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.9rem;
+}
+.w-fiche-v {
+  font-size: 1.5rem;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.w-fiche-v small {
+  font-size: var(--text-meta);
+  color: var(--muted);
+}
+.w-fiche-l {
+  font-size: var(--text-meta);
+  color: var(--ink-soft);
+}
+.w-fiche-d {
+  font-size: var(--text-micro);
+  color: var(--muted);
+}
+
+/* True or false, ranking. */
+.w-claim {
+  font-size: 1.1em;
+  margin: 0 0 0.7rem;
+}
+.w-verdict {
+  font-weight: 700;
+  margin: 0.7rem 0 0.2rem;
+}
+.w-ok {
+  color: var(--garden);
+}
+.w-ko {
+  color: var(--danger);
+}
+.w-rank {
+  list-style: none;
+  margin: 0 0 0.6rem;
+  padding: 0;
+  display: grid;
+  gap: 0.3rem;
+}
+.w-rank li {
+  border-radius: var(--radius-sm, 0);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  padding: 0.3rem 0.5rem;
+  font-size: var(--text-small);
+}
+.w-rank li.is-right {
+  border-color: var(--garden);
+}
+.w-rank li.is-wrong {
+  border-color: var(--danger);
+}
+.w-rank .w-rank-n {
+  width: 1.4em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.w-rank .w-rank-label {
+  flex: 1;
+  min-width: 0;
+}
+.w-rank .w-rank-val {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.w-rank button {
+  border-radius: var(--radius-sm, 0);
+  font: inherit;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+  width: 1.9rem;
+  height: 1.9rem;
+  cursor: pointer;
+}
+.w-rank button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Bars (pyramid, opening results). */
+.w-bar-row {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  align-items: center;
+  font-size: var(--text-meta);
+}
+.w-wdb {
+  border-radius: var(--radius-xs, 0);
+  display: flex;
+  height: 1.1rem;
+  border: 1px solid var(--rule-strong);
+}
+.w-wdb span {
+  display: block;
+  height: 100%;
+}
+.w-wdb .w-white {
+  background: var(--paper);
+}
+.w-wdb .w-draw {
+  background: var(--rule-strong);
+}
+.w-wdb .w-black {
+  background: var(--ink-soft);
+}
+.w-moves {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.8rem;
+  font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------- prices in euros (prix) */
+.prix {
+  border-bottom: 1px dotted var(--garden);
+  cursor: help;
+}
+button.prix {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-bottom: 1px dotted var(--garden);
+  padding: 0;
+  cursor: pointer;
+}
+button.prix:hover,
+button.prix[aria-expanded="true"] {
+  background: var(--garden-wash);
+}
+.prix-pop {
+  border-radius: var(--radius-md, 0);
+  position: absolute;
+  z-index: 30;
+  max-width: 17rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  box-shadow: 0 6px 18px rgb(0 0 0 / 0.14);
+  padding: 0.55rem 0.7rem;
+  font-size: var(--text-meta);
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+.prix-pop strong {
+  display: block;
+  font-size: 1.3rem;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------- « En quelques chiffres » callout */
+.callout-chiffres {
+  --c: var(--garden);
+}
+.callout-chiffres .callout-body > ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+  gap: 0.9rem;
+  list-style: none;
+  margin: 0.3rem 0;
+  padding: 0;
+}
+.callout-chiffres .callout-body > ul > li {
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-meta);
+  line-height: 1.4;
+  color: var(--ink-soft);
+}
+.callout-chiffres .callout-body > ul > li::before {
+  content: none;
+}
+.callout-chiffres .callout-body > ul > li > strong:first-child {
+  display: block;
+  font-size: 1.7rem;
+  line-height: 1.15;
+  font-weight: 400;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Converter, interest, opening rows. */
+.w-conv-big {
+  font-size: 1.6rem;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.w-pyr-year {
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+}
+.w-ouv-rows {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.7rem;
+}
+.w-root .w-dim {
+  color: var(--muted);
+}
+@media (max-width: 480px) {
+  .w-bar-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
+  }
+}
+
+/* main.css gives lists in .article-body their bullets and indent back
+   (0,1,1); the widgets' own lists are not prose lists. */
+.article-body .widget :is(.w-legend, .w-rank, .w-moves, .w-ouv-rows) {
+  list-style: none;
+  padding-left: 0;
+}
+
+/* ------------------------------------- bubbles, slope, small multiples */
+/* Segmented toggle (total / par habitant, par date / par durée). */
+.w-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  margin: 0 0 0.6rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm, 0);
+  overflow: hidden;
+  font-size: var(--text-small);
+}
+.w-seg button {
+  font: inherit;
+  background: var(--paper);
+  color: var(--ink-soft);
+  border: 0;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+}
+.w-seg button + button {
+  border-left: 1px solid var(--rule-strong);
+}
+.w-seg button[aria-pressed="true"] {
+  background: var(--link-wash);
+  color: var(--ink);
+  font-weight: 700;
+}
+.w-seg button:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: -2px;
+}
+/* The year behind the bubbles: large, faint, under every mark. */
+.w-bubble-year {
+  fill: var(--rule-strong);
+  opacity: 0.55;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.w-legend-dots i {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+}
+.w-slope {
+  cursor: default;
+  transition: opacity 0.15s;
+}
+.w-label.is-strong {
+  font-weight: 700;
+  fill: var(--ink);
+}
+.w-label.w-dim-t,
+.w-axis-t {
+  font-size: 11px;
+  font-weight: 400;
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.w-multiples {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem 1.1rem;
+}
+.w-multiples.is-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.w-multiple {
+  min-width: 0;
+}
+.w-multiple-t {
+  margin: 0 0 0.2rem;
+  font-size: var(--text-meta);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.w-proj {
+  margin-top: 0.8rem;
+  max-width: 30rem;
+}
+.w-scroll-x {
+  overflow-x: auto;
+}
+@media (max-width: 640px) {
+  .w-multiples,
+  .w-multiples.is-two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ------------------------------------------------- chess game replay */
+.l-partie-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+  gap: 1rem 1.4rem;
+  align-items: start;
+}
+.l-board {
+  margin-bottom: 0.5rem;
+}
+.l-board:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+/* Pieces are objects, not text: the same ivory and ebony in both themes,
+   filled glyphs so the two sides differ by more than an outline. */
+.l-pc-w,
+.l-pc-b {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+.l-pc-w {
+  color: #f6f1e4;
+  -webkit-text-stroke: 1px #2a2620;
+  paint-order: stroke fill;
+}
+.l-pc-b {
+  color: #2a2620;
+}
+.l-moves {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.3rem;
+  font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
+  max-height: 14rem;
+  overflow: auto;
+}
+.l-mv {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.1rem;
+  white-space: nowrap;
+}
+.l-moves b {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 0.3rem;
+}
+.l-moves button {
+  font: inherit;
+  background: none;
+  color: var(--ink);
+  border: 0;
+  border-radius: var(--radius-sm, 0);
+  padding: 0.05rem 0.3rem;
+  cursor: pointer;
+}
+.l-moves button:hover {
+  background: var(--wash);
+}
+.l-moves button.is-current {
+  background: var(--link-wash);
+  font-weight: 700;
+}
+.l-move-note {
+  margin: 0.7rem 0 0;
+  font-size: var(--text-small);
+  color: var(--ink-soft);
+  min-height: 3em;
+}
+@media (max-width: 640px) {
+  .l-partie-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ------------------------------------- minimal pairs and false friends */
+.l-pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.6rem 0;
+}
+.l-pair {
+  font: inherit;
+  font-size: 1.25rem;
+  min-width: 6rem;
+  padding: 0.5rem 1rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm, 0);
+  cursor: pointer;
+}
+.l-faux-amis .l-pair {
+  font-size: var(--text-body, 1rem);
+  text-align: left;
+}
+.l-pair:hover {
+  border-color: var(--link);
+}
+.l-pair.is-right {
+  border-color: var(--garden);
+  background: var(--garden-wash);
+}
+.l-pair.is-wrong {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 9%, var(--paper));
+}
+.l-ok {
+  color: var(--garden);
+}
+.l-ko {
+  color: var(--warn);
+}
+.l-paires .w-result,
+.l-faux-amis .w-result {
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--ink-soft);
+  min-height: 1.5em;
+}
+.l-ff-lang {
+  margin: 0;
+  font-size: var(--text-meta);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.l-ff-word {
+  margin: 0.2rem 0 0;
+  font-size: 1.9rem;
+  line-height: 1.2;
+  font-style: italic;
+}
+
+/* ------------------------------------------------------- conjugator */
+.l-conj td:first-child {
+  color: var(--muted);
+  width: 9rem;
+}
+.l-conj td {
+  font-size: 1.05rem;
+}
+.l-mid {
+  color: var(--ink-soft);
+}
+.l-chg {
+  color: var(--w-s1);
+  font-weight: 700;
+}
+.l-tree.is-mine {
+  fill: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--garden, var(--link));
+}
+.l-tree.is-mine:focus-visible {
+  outline: 2px solid var(--link);
+}
+/* A label drawn over marks keeps a ring of page colour around its letters. */
+.w-halo {
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+/* A widget that wraps another (the total / per-capita toggle) keeps one frame. */
+.widget.is-live .w-root .w-root {
+  border: 0;
+  padding: 0;
+  background: none;
+}
+
+/* ------------------------------------------------ the mockups' look
+   Every widget (packs and widgets.js alike) takes the look of the
+   maquettes Martin chose: a figure between two hairlines instead of a box,
+   a serif title over sans-serif chart text, pill buttons in small caps with
+   the garden green as the active colour. Scoped to .widget.is-live so it
+   outranks main.css's base grammar without editing it. */
+.widget.is-live {
+  --w-sans: "Alegreya Sans", "Alegreya Sans Fallback", system-ui, sans-serif;
+  --w-on-accent: var(--paper);
+}
+.widget.is-live .w-root {
+  border: 0;
+  border-block: 1px solid var(--rule);
+  padding: 0.9rem 0 0.7rem;
+  background: none;
+}
+.widget.is-live .w-chart-title {
+  font-size: 1.15rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+.widget.is-live :is(.w-chart-sub, .w-hint, .w-legend, .w-source, .w-note, .w-tabs, .w-controls, .w-table, .w-tip, .w-multiple-t, .w-seg, .l-moves, .l-ff-lang) {
+  font-family: var(--w-sans);
+}
+.widget.is-live .w-chart-sub {
+  font-size: 0.9rem;
+}
+.widget.is-live .w-legend {
+  font-size: 0.85rem;
+}
+.widget.is-live .w-source {
+  font-size: 0.8rem;
+}
+.widget.is-live .w-note {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+.widget.is-live svg text {
+  font-family: var(--w-sans);
+}
+.widget.is-live .w-tabs {
+  font-size: 0.9rem;
+}
+.widget.is-live .w-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--garden);
+}
+/* Buttons: small-caps pills; the active one filled with the garden green. */
+.widget.is-live .w-btn {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  border-radius: var(--radius-pill, 999px);
+  padding: 0.2rem 0.9rem;
+}
+.widget.is-live .w-btn:hover {
+  background: var(--garden-wash);
+  border-color: var(--garden);
+}
+.widget.is-live .w-btn.is-active {
+  background: var(--garden);
+  border-color: var(--garden);
+  color: var(--w-on-accent);
+}
+.widget.is-live .w-btn:disabled {
+  opacity: 0.45;
+}
+.widget.is-live .w-range,
+.widget.is-live input[type="range"] {
+  accent-color: var(--garden);
+}
+.widget.is-live .w-input,
+.widget.is-live select,
+.widget.is-live .l-select {
+  font-family: var(--w-sans);
+  border-radius: var(--radius-sm, 4px);
+}
+/* Segmented toggle: a pill, the pressed half filled. */
+.widget.is-live .w-seg {
+  border-radius: var(--radius-pill, 999px);
+  font-size: 0.85rem;
+}
+.widget.is-live .w-seg button {
+  background: none;
+  color: var(--muted);
+  padding: 0.2rem 0.75rem;
+  border: 0;
+}
+.widget.is-live .w-seg button[aria-pressed="true"] {
+  background: var(--garden);
+  color: var(--w-on-accent);
+  font-weight: 400;
+}
+/* Chess: wooden squares, the last move ringed in green. */
+.widget.is-live .w-sq {
+  background: #eee6d3;
+}
+.widget.is-live .w-sq.is-dark {
+  background: #b59a74;
+}
+.widget.is-live .w-sq.is-last {
+  box-shadow: inset 0 0 0 3px rgb(63 107 74 / 0.75);
+}
+.widget.is-live .l-board {
+  max-width: 22rem;
+}
+.widget.is-live .l-pc-w,
+.widget.is-live .l-pc-b {
+  font-size: clamp(1.2rem, 6vw, 1.9rem);
+}
+.widget.is-live .l-pc-w {
+  color: #fbf8f0;
+  -webkit-text-stroke: 1px #222;
+}
+.widget.is-live .l-pc-b {
+  color: #111;
+}
+.widget.is-live .l-moves {
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+.widget.is-live .l-moves button {
+  color: var(--ink-soft);
+  padding: 0 0.2rem;
+}
+.widget.is-live .l-moves button.is-current {
+  background: var(--garden);
+  color: var(--w-on-accent);
+  font-weight: 400;
+}
+.widget.is-live .l-move-note {
+  font-style: italic;
+  color: var(--ink-soft);
+}
+/* Minimal pairs: the word large, its reading and meaning small under it. */
+.widget.is-live .l-pair {
+  font-size: 1.1rem;
+  border-radius: var(--radius-sm, 6px);
+  background: var(--paper-raised);
+  padding: 0.4rem 0.9rem;
+  min-width: 7rem;
+  text-align: center;
+}
+.widget.is-live .l-pair small {
+  display: block;
+  font-family: var(--w-sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.widget.is-live .l-pair.is-wrong {
+  border-color: var(--danger);
+  background: var(--paper-raised);
+}
+.widget.is-live .l-ko {
+  color: var(--danger);
+}
+.widget.is-live :is(.l-paires, .l-faux-amis) .w-result {
+  font-family: var(--w-sans);
+  font-size: 0.95rem;
+}
+.widget.is-live .l-ff-lang {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: none;
+}
+.widget.is-live .l-ff-word {
+  font-size: 1.6rem;
+  font-style: normal;
+}
+/* Conjugator: endings green, the Turkish tense amber, a changed stem blue. */
+.widget.is-live .l-conj {
+  width: auto;
+  min-width: 16rem;
+}
+.widget.is-live .l-conj td {
+  font-family: inherit;
+  font-size: 1.05rem;
+}
+.widget.is-live .l-conj :is(.l-end, .l-mid, .l-chg) {
+  font-weight: 700;
+}
+.widget.is-live .l-conj .l-end {
+  color: var(--garden);
+}
+.widget.is-live .l-conj .l-mid {
+  color: var(--w-s2);
+}
+.widget.is-live .l-conj-root .w-controls label {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+/* Language tree: sans labels, the garden's languages in green. */
+.widget.is-live .l-tree {
+  font-size: 12px;
+  font-weight: 400;
+  fill: var(--ink-soft);
+}
+.widget.is-live .l-tree.is-mine {
+  fill: var(--garden);
+  font-weight: 700;
+  text-decoration: none;
+}
+.widget.is-live .l-tree.is-mine:hover {
+  text-decoration: underline;
+}

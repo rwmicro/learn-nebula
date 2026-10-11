@@ -295,6 +295,68 @@
     "erasAria": "跳转到某个时期",
     "span": "{n} 年"
   },
+  "carte": {
+    "title": "地图上的花园",
+    "intro": "{n} 个国家，{notes} 篇笔记：花园通过历史和语言谈到的国家。",
+    "mapAria": "世界地图：每个国家的颜色取决于谈到它的笔记数量",
+    "legendUnit": "篇笔记",
+    "notesWord": "篇笔记",
+    "source": "底图：Natural Earth（公有领域），Equal Earth 投影。",
+    "listTitle": "按笔记数量排列的国家",
+    "kind_histoire": "历史",
+    "kind_langue": "语言",
+    "kind_autre": "笔记",
+    "how": "笔记按其文件夹（历史中的国家、一种语言）或其页眉中的“pays:”一行归入某个国家。",
+    "nav": "世界地图"
+  },
+  "citer": {
+    "title": "引用这篇笔记",
+    "text": "文本",
+    "copy": "复制",
+    "copied": "已复制",
+    "licence": "文本采用 CC BY-NC-SA 4.0 许可：注明出处即可用于非商业目的的再利用。"
+  },
+  "friseCourbe": {
+    "title": "世界人口曲线上的花园笔记",
+    "sub": "自 1500 年起，单位为十亿人。每个点是一篇有日期的笔记（{n}）。",
+    "source": "世界人口：",
+    "before": "早于 {from} 年的 {n} 篇笔记在下方列表中。"
+  },
+  "donnees": {
+    "title": "开放数据",
+    "intro": "网站为机器发布的所有文件、其内容及许可。笔记和这些文件采用以下许可：",
+    "filesTitle": "花园的文件",
+    "colFile": "文件",
+    "colContent": "内容",
+    "colFormat": "格式",
+    "file_notes": "每篇已发布的笔记：标题、地址、文件夹。",
+    "file_graph": "图谱：笔记及其之间的链接。",
+    "file_carte": "笔记谈到的国家，以及每个国家的笔记。",
+    "file_frise": "有日期的笔记（年份、结束、时期），即时间轴上的笔记。",
+    "file_figures": "每个数据图：所在笔记、图的类型、来源。",
+    "file_ipc": "自 1949 年起链接的法国统计局价格指数，用于法郎与欧元的换算。",
+    "file_feed": "最近种下或修改的 30 篇笔记。",
+    "file_llms": "供智能体和问答引擎使用的网站概要。",
+    "sourcesTitle": "图表的来源",
+    "sourcesIntro": "笔记中的 {n} 个数据图在构建网站时根据这些来源计算；每个图都注明自己的来源。",
+    "colSource": "来源",
+    "colUse": "用于",
+    "colLicence": "许可",
+    "use_owid": "曲线、人口金字塔、国家概况、判断真假、排序。",
+    "use_insee": "法郎换算为今日欧元、利息与通胀。",
+    "use_wikidata": "语言概况及时间轴上部分笔记的日期。",
+    "use_lichess": "按等级分的国际象棋开局统计。",
+    "use_naturalearth": "世界地图的底图。",
+    "reuseTitle": "再利用",
+    "reuse": "每次构建网站时都会重新生成这些文件。请注明笔记或网站，以及数字的原始来源。",
+    "seeCarte": "查看世界地图",
+    "seeFrise": "查看时间轴",
+    "nav": "开放数据"
+  },
+  "graphiques": {
+    "title": "一张图，三段话",
+    "rss": "这些笔记的 RSS 订阅"
+  },
   "themes": {
     "title": "主题",
     "intro": "按学科和主题浏览花园中的笔记。",

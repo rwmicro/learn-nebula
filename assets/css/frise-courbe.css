@@ -1,0 +1,121 @@
+/* /frise/'s population curve (components/FriseCourbe.tsx). Its own file so
+   frise.css stays the list's. */
+
+.fc {
+  margin: 0 0 2.5rem;
+}
+.fc-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.05rem;
+  text-wrap: balance;
+}
+.fc-sub {
+  margin: 0.15rem 0 0.9rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.fc-plot {
+  position: relative;
+  height: clamp(180px, 40vw, 260px);
+  margin: 0 0 1.6rem 3rem;
+}
+.fc-plot svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.fc-grid {
+  stroke: var(--rule);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.fc-base {
+  stroke: var(--rule-strong);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.fc-line {
+  fill: none;
+  stroke: var(--muted);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.fc-ytick,
+.fc-xtick {
+  position: absolute;
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.fc-ytick {
+  right: calc(100% + 0.4rem);
+  transform: translateY(-50%);
+}
+.fc-xtick {
+  top: calc(100% + 0.3rem);
+  transform: translateX(-50%);
+}
+.fc-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: var(--garden);
+  box-shadow: 0 0 0 2px var(--paper);
+}
+/* A bigger invisible target than the mark. */
+.fc-dot::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+}
+.fc-dot:hover,
+.fc-dot:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+  z-index: 2;
+}
+.fc-dot:hover::after,
+.fc-dot:focus-visible::after {
+  border-radius: var(--radius-md, 0);
+  content: attr(data-label);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: 16rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+  font-size: 0.8rem;
+  line-height: 1.35;
+  pointer-events: none;
+}
+/* Near the edges the label opens inwards instead of off the page. */
+.fc-dot-r:hover::after,
+.fc-dot-r:focus-visible::after {
+  left: auto;
+  right: -4px;
+  transform: none;
+}
+.fc-dot-l:hover::after,
+.fc-dot-l:focus-visible::after {
+  left: -4px;
+  transform: none;
+}
+.fc-source {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.fc-source a {
+  color: inherit;
+}

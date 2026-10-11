@@ -1,0 +1,927 @@
+/* Widget pack "sci" (lib/widgets-extra.ts). Note pages only.
+   Builds on main.css's .w-* grammar and widgets-extra.css's chart classes;
+   every colour is a theme token so light and dark both work. */
+
+/* ------------------------------------------------------------ shared */
+.sci-sliders {
+  display: grid;
+  gap: 0.35rem 1.2rem;
+  margin-bottom: 0.9rem;
+  font-size: var(--text-small);
+}
+.sci-sliders-2 {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+}
+.sci-slider {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(6rem, 1fr) 5.2em;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.sci-slider .w-range {
+  width: 100%;
+  min-width: 0;
+}
+.sci-slider-l {
+  color: var(--ink-soft);
+}
+.sci-val {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  text-align: right;
+  white-space: nowrap;
+}
+.w-controls .sci-slider {
+  flex: 1 1 16rem;
+}
+.sci-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+}
+.sci-seg .w-btn + .w-btn {
+  margin-left: -1px;
+}
+.sci-seg .w-btn.is-active {
+  position: relative;
+}
+.sci-sub {
+  margin: 1.1rem 0 0.4rem;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.02em;
+}
+.sci-ylabel {
+  font-size: 11px;
+}
+.sci-cap {
+  margin: 0 0 0.2rem;
+  font-size: var(--text-meta);
+  color: var(--muted);
+}
+.sci-dash {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  fill: none;
+}
+.sci-zone {
+  fill: var(--wash-2);
+  opacity: 0.7;
+}
+.sci-mark {
+  fill: var(--muted);
+  font-size: 11px;
+}
+.w-legend i.sci-leg-line {
+  background: var(--link);
+  height: 3px;
+}
+.w-legend i.sci-key-1 {
+  background: var(--w-s1);
+  height: 3px;
+}
+.w-legend i.sci-key-2 {
+  background: var(--w-s2);
+  height: 3px;
+}
+.sci-lab-1 {
+  fill: var(--w-s1);
+  font-weight: 700;
+}
+.sci-lab-2 {
+  fill: var(--w-s2);
+  font-weight: 700;
+}
+.sci-cta {
+  border-color: var(--link);
+  color: var(--link);
+  font-weight: 600;
+}
+.sci-check {
+  display: flex;
+  gap: 0.4rem;
+  align-items: baseline;
+  font-size: var(--text-small);
+  color: var(--ink-soft);
+}
+.w-root select.w-input {
+  width: auto;
+  max-width: 100%;
+  cursor: pointer;
+}
+
+/* ------------------------------------------------- supercompensation */
+.sci-cal {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 3px;
+  max-width: 30rem;
+}
+.sci-day {
+  font: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.6rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0.1rem;
+  line-height: 1.1;
+}
+.sci-day:hover {
+  border-color: var(--link);
+}
+.sci-day-n {
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
+}
+.sci-day-i {
+  font-size: var(--text-small);
+  font-weight: 700;
+  min-height: 1.1em;
+}
+.sci-day.is-legere {
+  border-color: var(--w-s3);
+  background: color-mix(in srgb, var(--w-s3) 18%, var(--paper));
+  color: var(--ink);
+}
+.sci-day.is-moderee {
+  border-color: var(--w-s2);
+  background: color-mix(in srgb, var(--w-s2) 22%, var(--paper));
+  color: var(--ink);
+}
+.sci-day.is-intense {
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 20%, var(--paper));
+  color: var(--ink);
+}
+.sci-cal-hint {
+  margin: 0.4rem 0 0.8rem;
+}
+.sci-zone-bas {
+  fill: var(--danger);
+  opacity: 0.07;
+}
+.sci-base {
+  stroke: var(--ink-soft);
+  stroke-width: 1;
+}
+.sci-tick {
+  stroke-width: 2;
+  opacity: 0.55;
+}
+.w-legend i.sci-leg-tick {
+  width: 3px;
+  height: 0.8rem;
+}
+.w-legend i.sci-leg-tick.is-legere {
+  background: var(--w-s3);
+}
+.w-legend i.sci-leg-tick.is-moderee {
+  background: var(--w-s2);
+}
+.w-legend i.sci-leg-tick.is-intense {
+  background: var(--danger);
+}
+
+/* -------------------------------------------------------- circuit RC */
+.sci-rc-top {
+  display: grid;
+  grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+  gap: 0.6rem 1.2rem;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+.sci-rc-top .sci-sliders {
+  margin: 0;
+}
+.sci-rc-svg {
+  display: block;
+  width: 100%;
+  max-width: 18rem;
+  height: auto;
+}
+.sci-wire {
+  stroke: var(--ink-soft);
+  stroke-width: 1.6;
+  fill: none;
+  stroke-linecap: round;
+}
+.sci-wire.sci-thick {
+  stroke-width: 3;
+}
+.sci-wire.sci-switch {
+  stroke: var(--link);
+  stroke-width: 2.4;
+}
+.sci-wire.is-off {
+  stroke: var(--faint);
+}
+.sci-node {
+  fill: var(--paper);
+  stroke: var(--ink-soft);
+  stroke-width: 1.4;
+}
+.sci-part {
+  fill: var(--paper);
+  stroke: var(--ink-soft);
+  stroke-width: 1.6;
+}
+.sci-sch-t {
+  font-size: 12px;
+  font-style: italic;
+  fill: var(--ink);
+}
+.sci-tangent {
+  stroke: var(--w-s2);
+  stroke-width: 1.4;
+  stroke-dasharray: 6 3;
+}
+.w-legend i.sci-leg-tangent {
+  border-top: 2px dashed var(--w-s2);
+  height: 0;
+}
+.w-legend i.sci-leg-zone {
+  background: var(--wash-2);
+  height: 0.8rem;
+  border: 1px solid var(--rule-strong);
+}
+@media (max-width: 640px) {
+  .sci-rc-top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ----------------------------------------------------- lotka-volterra */
+.sci-two {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 1rem;
+  margin-bottom: 0.6rem;
+}
+
+/* ----------------------------------------------------------- datation */
+.sci-dat-top {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.8rem;
+}
+.sci-atoms {
+  display: block;
+  width: 100%;
+  max-width: 18rem;
+  height: auto;
+  margin: 0 auto;
+}
+.sci-atom {
+  fill: var(--w-s1);
+  transition: fill 0.25s;
+}
+.sci-atom.is-fils {
+  fill: var(--paper);
+  stroke: var(--w-s2);
+  stroke-width: 1.5;
+}
+.sci-atom-key {
+  margin: 0.4rem 0 0.6rem;
+}
+.sci-atom-key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.sci-dot {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--w-s1);
+}
+.sci-dot.is-fils {
+  background: var(--paper);
+  border: 1.5px solid var(--w-s2);
+}
+.sci-theory {
+  stroke: var(--muted);
+  stroke-width: 1.4;
+  stroke-dasharray: 5 3;
+}
+.w-legend i.sci-leg-theory {
+  border-top: 2px dashed var(--muted);
+  height: 0;
+}
+.sci-now {
+  stroke: var(--ink-soft);
+  stroke-width: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sci-atom {
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------ ancrage */
+.sci-anc-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 0.8rem;
+}
+.sci-wheel {
+  display: grid;
+  place-items: center;
+  width: 4.6rem;
+  height: 4.6rem;
+  border-radius: 50%;
+  border: 3px double var(--rule-strong);
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  background: var(--wash);
+  flex: none;
+}
+.sci-wheel.is-done {
+  border-color: var(--link);
+  color: var(--link);
+}
+.sci-anc-q {
+  margin: 0;
+  flex: 1 1 14rem;
+}
+
+/* --------------------------------------------------------- syllogisme */
+.sci-syl-form {
+  display: grid;
+  gap: 0.45rem;
+  margin-bottom: 0.9rem;
+  font-size: var(--text-small);
+}
+.sci-syl-terms {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+}
+.sci-syl-terms label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.sci-term-in {
+  width: 7.5em;
+}
+@media (max-width: 480px) {
+  .sci-syl-row .sci-role {
+    flex-basis: 100%;
+  }
+  .sci-term-in {
+    width: 6em;
+  }
+}
+.sci-syl-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+}
+.sci-role {
+  display: inline-block;
+  min-width: 6.2em;
+  color: var(--muted);
+  font-size: var(--text-meta);
+}
+.sci-term {
+  font-weight: 600;
+  padding: 0 0.15em;
+  border-bottom: 2px solid var(--t);
+}
+.sci-term.is-S {
+  --t: var(--w-s1);
+}
+.sci-term.is-M {
+  --t: var(--w-s3);
+}
+.sci-term.is-P {
+  --t: var(--w-s5);
+}
+.sci-syl-main {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.6rem 1.2rem;
+}
+.sci-venn svg {
+  display: block;
+  width: 100%;
+  max-width: 24rem;
+  height: auto;
+  margin: 0 auto;
+}
+.sci-vide {
+  fill: var(--ink-soft);
+  opacity: 0.28;
+}
+.sci-circle {
+  fill: none;
+  stroke-width: 2;
+}
+.sci-circle.is-S {
+  stroke: var(--w-s1);
+}
+.sci-circle.is-M {
+  stroke: var(--w-s3);
+}
+.sci-circle.is-P {
+  stroke: var(--w-s5);
+}
+.sci-venn-l {
+  font-size: 16px;
+  font-weight: 600;
+  fill: var(--ink);
+}
+.sci-cross {
+  font-size: 22px;
+  font-weight: 700;
+  fill: var(--danger);
+}
+.sci-syl-text {
+  margin: 0 0 0.6rem;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-small);
+}
+.sci-syl-text li {
+  margin: 0 0 0.3rem;
+}
+.sci-syl-text li::before {
+  content: none;
+}
+.sci-syl-text .sci-concl {
+  border-top: 1px solid var(--rule-strong);
+  padding-top: 0.3rem;
+}
+.sci-verdict-box .w-verdict {
+  margin-top: 0.2rem;
+}
+
+/* ------------------------------------------------------------ xss-dom */
+.sci-xss-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.sci-xss-in {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: var(--text-meta);
+}
+.sci-xss-panes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.6rem 1rem;
+}
+.sci-xss-panes .sci-sub {
+  text-transform: none;
+  font-variant: normal;
+  letter-spacing: 0;
+  color: var(--ink-soft);
+  margin-top: 0.4rem;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-weight: 500;
+}
+.sci-xss-safe,
+.sci-xss-tree {
+  border: 1px solid var(--rule-strong);
+  padding: 0.5rem 0.6rem;
+  min-height: 3rem;
+  overflow-wrap: anywhere;
+  background: var(--wash);
+}
+.sci-xss-safe {
+  font-size: var(--text-small);
+}
+.sci-xss-tree {
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+.sci-tree-tag {
+  color: var(--link);
+}
+.sci-tree-attr {
+  color: var(--ink-soft);
+}
+.sci-tree-text {
+  color: var(--ink);
+}
+.sci-tree-k {
+  color: var(--muted);
+}
+.sci-tree-tag.is-bad,
+.sci-tree-attr.is-bad {
+  color: var(--danger);
+  font-weight: 700;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  outline: 1px solid var(--danger);
+}
+.sci-xss-report .w-verdict {
+  margin-top: 0.8rem;
+}
+.sci-xss-list {
+  margin: 0.2rem 0 0;
+  padding-left: 1.1rem;
+  font-size: var(--text-small);
+}
+.sci-xss-list code {
+  color: var(--danger);
+  font-size: var(--text-meta);
+  background: none;
+  padding: 0;
+}
+
+/* ------------------------------------------------- rotation-cultures */
+.sci-rot .is-legumineuses {
+  --fam: var(--w-s3);
+}
+.sci-rot .is-feuilles {
+  --fam: var(--w-s6);
+}
+.sci-rot .is-racines {
+  --fam: var(--w-s2);
+}
+.sci-rot .is-fruits {
+  --fam: var(--w-s5);
+}
+.sci-rot .is-cereales {
+  --fam: var(--callout-amber);
+}
+.sci-rot .is-engrais-vert {
+  --fam: var(--garden);
+}
+.sci-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.7rem;
+}
+.sci-fam-btn {
+  border-left: 4px solid var(--fam, var(--rule-strong));
+  font-size: var(--text-meta);
+}
+.sci-rot-scroll {
+  overflow-x: auto;
+  margin-bottom: 0.8rem;
+}
+.sci-rot-grid {
+  display: grid;
+  grid-template-columns: 1.6rem repeat(
+      var(--cols, 4),
+      minmax(3.8rem, 1fr)
+    ) 2.6rem;
+  gap: 3px;
+  min-width: min-content;
+  font-size: var(--text-meta);
+}
+.sci-rot-h {
+  color: var(--muted);
+  text-align: center;
+  font-size: var(--text-micro);
+}
+.sci-rot-p {
+  align-self: center;
+  color: var(--muted);
+  font-weight: 600;
+}
+.sci-rot-cell {
+  font: inherit;
+  font-size: var(--text-meta);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.2rem;
+  min-height: 3.6rem;
+  padding: 0.3rem;
+  text-align: left;
+  border: 1px solid var(--rule-strong);
+  border-left: 4px solid var(--fam, var(--rule-strong));
+  background: color-mix(in srgb, var(--fam, var(--paper)) 14%, var(--paper));
+  color: var(--ink);
+  cursor: pointer;
+}
+.sci-rot-cell.is-vide {
+  background: var(--paper);
+  color: var(--muted);
+}
+.sci-rot-cell:hover {
+  border-color: var(--link);
+}
+.sci-rot-name {
+  font-weight: 600;
+  line-height: 1.15;
+}
+.sci-gauge {
+  display: block;
+  height: 5px;
+  background: var(--rule-soft);
+  border: 1px solid var(--rule);
+}
+.sci-gauge i {
+  display: block;
+  height: 100%;
+  background: var(--garden);
+}
+.sci-gauge i.is-low {
+  background: var(--danger);
+}
+.sci-flag {
+  font-size: var(--text-micro);
+  line-height: 1.1;
+}
+.sci-flag.is-bad {
+  color: var(--danger);
+  font-weight: 700;
+}
+.sci-flag.is-warn {
+  color: var(--warn);
+}
+.sci-rot-end {
+  align-self: center;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  color: var(--garden);
+  font-weight: 700;
+}
+.sci-rot-end.is-low {
+  color: var(--danger);
+}
+
+/* ----------------------------------------------- tableau périodique */
+.sci-ptw .is-alc {
+  --fam: var(--callout-red);
+}
+.sci-ptw .is-ate {
+  --fam: var(--callout-orange);
+}
+.sci-ptw .is-tra {
+  --fam: var(--callout-blue);
+}
+.sci-ptw .is-pau {
+  --fam: var(--callout-teal);
+}
+.sci-ptw .is-mld {
+  --fam: var(--w-s6);
+}
+.sci-ptw .is-nm {
+  --fam: var(--callout-green);
+}
+.sci-ptw .is-hal {
+  --fam: var(--callout-violet);
+}
+.sci-ptw .is-gn {
+  --fam: var(--w-s5);
+}
+.sci-ptw .is-lan {
+  --fam: var(--callout-amber);
+}
+.sci-ptw .is-act {
+  --fam: var(--muted-warm);
+}
+.sci-ptw .is-inc {
+  --fam: var(--callout-grey);
+}
+.sci-pt-count {
+  margin: 0 0 0.4rem;
+}
+.sci-pt-scroll {
+  overflow-x: auto;
+  padding-bottom: 0.3rem;
+  margin-bottom: 0.7rem;
+}
+.sci-pt-scroll:focus-visible {
+  outline: 2px solid var(--link);
+}
+.sci-pt {
+  display: grid;
+  grid-template-columns: repeat(18, minmax(1.85rem, 1fr));
+  grid-template-rows: repeat(7, auto) 0.5rem auto auto;
+  gap: 2px;
+  min-width: 35rem;
+}
+.sci-el {
+  font: inherit;
+  position: relative;
+  aspect-ratio: 1 / 1.05;
+  min-width: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid color-mix(in srgb, var(--fam) 60%, var(--paper));
+  background: color-mix(in srgb, var(--fam) 26%, var(--paper));
+  color: var(--ink);
+  cursor: pointer;
+  line-height: 1;
+  transition: opacity 0.2s;
+}
+.sci-el:hover {
+  border-color: var(--ink-soft);
+}
+.sci-el-z {
+  font-size: 0.6rem;
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+}
+.sci-el-s {
+  font-size: 0.9rem;
+  font-weight: 700;
+  margin-top: 0.1rem;
+}
+.sci-el.is-dim {
+  opacity: 0.25;
+}
+.sci-el.is-unknown {
+  background: var(--paper);
+  border: 1px dashed var(--rule-strong);
+  color: var(--faint);
+}
+.sci-el.is-unknown .sci-el-z {
+  color: var(--faint);
+}
+.sci-el.is-sel {
+  outline: 2px solid var(--ink);
+  outline-offset: 1px;
+  z-index: 1;
+}
+.sci-el-ph {
+  display: grid;
+  place-items: center;
+  font-size: 0.55rem;
+  color: var(--muted);
+  border: 1px dotted color-mix(in srgb, var(--fam) 60%, var(--paper));
+}
+.sci-el-rowlab {
+  align-self: center;
+  font-size: 0.6rem;
+  color: var(--muted);
+  text-align: right;
+  padding-right: 0.3rem;
+  line-height: 1.1;
+}
+.sci-pt-detail {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+  margin-bottom: 0.7rem;
+  min-height: 6rem;
+}
+.sci-pt-big {
+  flex: none;
+  width: 4.6rem;
+  height: 4.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--fam);
+  background: color-mix(in srgb, var(--fam) 20%, var(--paper));
+}
+.sci-pt-big .sci-el-z {
+  font-size: var(--text-meta);
+}
+.sci-pt-sym {
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.sci-pt-info {
+  min-width: 0;
+  font-size: var(--text-small);
+}
+.sci-pt-info p {
+  margin: 0 0 0.2rem;
+}
+.sci-pt-name {
+  font-size: 1.15em;
+  font-weight: 700;
+}
+.sci-pt-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+.sci-pt-fam {
+  font: inherit;
+  font-size: var(--text-meta);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink-soft);
+  padding: 0.15rem 0.45rem;
+  cursor: pointer;
+}
+.sci-pt-fam i {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: color-mix(in srgb, var(--fam) 45%, var(--paper));
+  border: 1px solid var(--fam);
+}
+.sci-pt-fam.is-on {
+  border-color: var(--ink);
+  color: var(--ink);
+  font-weight: 600;
+}
+@media (prefers-reduced-motion: reduce) {
+  .sci-el {
+    transition: none;
+  }
+}
+
+/* List items inside these widgets: not the article's paragraph rhythm
+   (main.css `main ul li`) nor its bullets. */
+.w-root[class*="sci-"] li {
+  font-size: inherit;
+  line-height: 1.4;
+  margin: 0;
+}
+.w-root[class*="sci-"] .w-legend {
+  list-style: none;
+  padding: 0;
+  margin: 0.3rem 0 0.6rem;
+}
+/* Labels drawn over curves keep a paper-coloured halo. */
+.w-root[class*="sci-"] svg .w-label,
+.w-root[class*="sci-"] svg .sci-mark {
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.sci-lv .sci-slider {
+  grid-template-columns: 8.6em minmax(4rem, 1fr) 2.8em;
+}
+
+.sci-el.is-inc {
+  border-style: dashed;
+}
+.sci-pt-hint {
+  display: none;
+  margin: 0 0 0.3rem;
+}
+@media (max-width: 700px) {
+  .sci-pt-hint {
+    display: block;
+  }
+}
+/* Paragraphs inside these widgets: widget text size, not the article's. */
+.w-root[class*="sci-"] p:not([class]),
+.sci-pt-info p {
+  font-size: var(--text-small);
+  line-height: 1.5;
+  margin: 0 0 0.5rem;
+}
+.sci-pt-info p {
+  margin: 0 0 0.15rem;
+}
+.sci-pt-info p.sci-pt-name {
+  font-size: 1.1rem;
+}
+.sci-ancrage .w-controls {
+  margin-top: 0.7rem;
+}
+
+/* Corner radii (radius scale; the 0 fallback keeps the square look). */
+.sci-xss-safe,
+.sci-xss-tree,
+.sci-pt-big {
+  border-radius: var(--radius-md, 0);
+}
+.sci-day,
+.sci-rot-cell,
+.sci-el,
+.sci-pt-fam {
+  border-radius: var(--radius-sm, 0);
+}
+.sci-el-ph,
+.sci-gauge,
+.sci-gauge i,
+.sci-pt-fam i,
+.sci-tree-tag.is-bad,
+.sci-tree-attr.is-bad,
+.w-legend i.sci-leg-zone {
+  border-radius: var(--radius-xs, 0);
+}
+.w-root[class*="sci-"] sup,
+.w-root[class*="sci-"] sub {
+  color: inherit;
+  font-size: 0.75em;
+}
