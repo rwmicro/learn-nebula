@@ -474,3 +474,270 @@ button.prix[aria-expanded="true"] {
   list-style: none;
   padding-left: 0;
 }
+
+/* ------------------------------------- bubbles, slope, small multiples */
+/* Segmented toggle (total / par habitant, par date / par durée). */
+.w-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  margin: 0 0 0.6rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm, 0);
+  overflow: hidden;
+  font-size: var(--text-small);
+}
+.w-seg button {
+  font: inherit;
+  background: var(--paper);
+  color: var(--ink-soft);
+  border: 0;
+  padding: 0.3rem 0.75rem;
+  cursor: pointer;
+}
+.w-seg button + button {
+  border-left: 1px solid var(--rule-strong);
+}
+.w-seg button[aria-pressed="true"] {
+  background: var(--link-wash);
+  color: var(--ink);
+  font-weight: 700;
+}
+.w-seg button:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: -2px;
+}
+/* The year behind the bubbles: large, faint, under every mark. */
+.w-bubble-year {
+  fill: var(--rule-strong);
+  opacity: 0.55;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.w-legend-dots i {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+}
+.w-slope {
+  cursor: default;
+  transition: opacity 0.15s;
+}
+.w-label.is-strong {
+  font-weight: 700;
+  fill: var(--ink);
+}
+.w-label.w-dim-t,
+.w-axis-t {
+  font-size: 11px;
+  font-weight: 400;
+  fill: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.w-multiples {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem 1.1rem;
+}
+.w-multiples.is-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.w-multiple {
+  min-width: 0;
+}
+.w-multiple-t {
+  margin: 0 0 0.2rem;
+  font-size: var(--text-meta);
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+.w-proj {
+  margin-top: 0.8rem;
+  max-width: 30rem;
+}
+.w-scroll-x {
+  overflow-x: auto;
+}
+@media (max-width: 640px) {
+  .w-multiples,
+  .w-multiples.is-two {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ------------------------------------------------- chess game replay */
+.l-partie-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+  gap: 1rem 1.4rem;
+  align-items: start;
+}
+.l-board {
+  margin-bottom: 0.5rem;
+}
+.l-board:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+/* Pieces are objects, not text: the same ivory and ebony in both themes,
+   filled glyphs so the two sides differ by more than an outline. */
+.l-pc-w,
+.l-pc-b {
+  font-size: 1.65rem;
+  line-height: 1;
+}
+.l-pc-w {
+  color: #f6f1e4;
+  -webkit-text-stroke: 1px #2a2620;
+  paint-order: stroke fill;
+}
+.l-pc-b {
+  color: #2a2620;
+}
+.l-moves {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.3rem;
+  font-size: var(--text-small);
+  font-variant-numeric: tabular-nums;
+  max-height: 14rem;
+  overflow: auto;
+}
+.l-mv {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.1rem;
+  white-space: nowrap;
+}
+.l-moves b {
+  color: var(--muted);
+  font-weight: 400;
+  margin-left: 0.3rem;
+}
+.l-moves button {
+  font: inherit;
+  background: none;
+  color: var(--ink);
+  border: 0;
+  border-radius: var(--radius-sm, 0);
+  padding: 0.05rem 0.3rem;
+  cursor: pointer;
+}
+.l-moves button:hover {
+  background: var(--wash);
+}
+.l-moves button.is-current {
+  background: var(--link-wash);
+  font-weight: 700;
+}
+.l-move-note {
+  margin: 0.7rem 0 0;
+  font-size: var(--text-small);
+  color: var(--ink-soft);
+  min-height: 3em;
+}
+@media (max-width: 640px) {
+  .l-partie-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ------------------------------------- minimal pairs and false friends */
+.l-pairs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.6rem 0;
+}
+.l-pair {
+  font: inherit;
+  font-size: 1.25rem;
+  min-width: 6rem;
+  padding: 0.5rem 1rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm, 0);
+  cursor: pointer;
+}
+.l-faux-amis .l-pair {
+  font-size: var(--text-body, 1rem);
+  text-align: left;
+}
+.l-pair:hover {
+  border-color: var(--link);
+}
+.l-pair.is-right {
+  border-color: var(--garden);
+  background: var(--garden-wash);
+}
+.l-pair.is-wrong {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 9%, var(--paper));
+}
+.l-ok {
+  color: var(--garden);
+}
+.l-ko {
+  color: var(--warn);
+}
+.l-paires .w-result,
+.l-faux-amis .w-result {
+  font-size: var(--text-small);
+  font-weight: 400;
+  color: var(--ink-soft);
+  min-height: 1.5em;
+}
+.l-ff-lang {
+  margin: 0;
+  font-size: var(--text-meta);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.l-ff-word {
+  margin: 0.2rem 0 0;
+  font-size: 1.9rem;
+  line-height: 1.2;
+  font-style: italic;
+}
+
+/* ------------------------------------------------------- conjugator */
+.l-conj td:first-child {
+  color: var(--muted);
+  width: 9rem;
+}
+.l-conj td {
+  font-size: 1.05rem;
+}
+.l-mid {
+  color: var(--ink-soft);
+}
+.l-chg {
+  color: var(--w-s1);
+  font-weight: 700;
+}
+.l-tree.is-mine {
+  fill: var(--ink);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--garden, var(--link));
+}
+.l-tree.is-mine:focus-visible {
+  outline: 2px solid var(--link);
+}
+/* A label drawn over marks keeps a ring of page colour around its letters. */
+.w-halo {
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+/* A widget that wraps another (the total / per-capita toggle) keeps one frame. */
+.widget.is-live .w-root .w-root {
+  border: 0;
+  padding: 0;
+  background: none;
+}

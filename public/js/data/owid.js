@@ -1,10 +1,12 @@
 // `widget:owid` — an Our World in Data chart in a note, drawn by the site.
 // Types (prop `type`): courbe (default), devine (draw the rest of the curve,
 // then compare), pyramide (age structure through the years), recit (the chart
-// pinned while the note's steps scroll past it). Data comes in data-props,
-// prepared at build by lib/widget-data.ts.
+// pinned while the note's steps scroll past it), and in owid-more.js bulles,
+// pente, multiples. Data comes in data-props, prepared at build by
+// lib/widget-data.ts.
 import { el, svg, fmt, esc, seriesVar, drawWidth, download, tooltip, reducedMotion } from "../widget-kit.js";
 import { lineChart, tableRows, fmtValue, nearest, legend } from "./chart.js";
+import { bulles, pente, multiples, projectionPanel } from "./owid-more.js";
 
 /** Graphe / Tableau / Sources tabs around a drawing function. */
 function tabbed(props, drawChart, extraTools) {
@@ -132,6 +134,7 @@ function courbe(props, fig) {
       unit: props.unit,
       label: props.title,
     });
+    if (props.doubling) doublingLine(chart, series[0], props.doubling);
   };
   const rows = tableRows(series);
   t.tablePane.appendChild(
@@ -160,6 +163,54 @@ function courbe(props, fig) {
   const root = el("div", { class: "w-root" }, [...header(props), t.bar, legend(series), t.chartPane, t.tablePane, t.srcPane, sourceLine(props)]);
   root.onMount = draw;
   redrawOnResize(root, fig, draw);
+  return root;
+}
+
+/** Dashed "doubles every N years" line from a series' first point, clipped
+ *  to the plot: the yardstick Moore's law is read against. */
+function doublingLine(chart, s, years) {
+  const [ya, va] = s.points[0];
+  const { x, y, m, W, H, x0, x1, svg: root } = chart;
+  let d = "";
+  for (let yr = Math.max(ya, x0); yr <= x1; yr += 0.5) {
+    const py = y(va * 2 ** ((yr - ya) / years));
+    if (py < m.t) break;
+    d += `${d ? "L" : "M"}${x(yr).toFixed(1)},${py.toFixed(1)}`;
+  }
+  if (!d) return;
+  root.insertBefore(svg("path", { d, fill: "none", stroke: "var(--muted)", "stroke-width": 1.4, "stroke-dasharray": "5 4" }), root.children[2] || null);
+  const lab = svg("text", { class: "w-label", x: m.l + 6, y: m.t + 12 });
+  lab.textContent = `pointillés : ×2 tous les ${fmt(years, years % 1 ? 1 : 0)} ans`;
+  root.appendChild(lab);
+  void W;
+  void H;
+}
+
+/** A chart with a second dataset behind a toggle (props.alt), e.g. a
+ *  country's total emissions and the same per head. */
+function withAlt(props, fig) {
+  const alt = props.alt;
+  const views = [
+    { label: props.tab || "Vue 1", props: { ...props, alt: null } },
+    {
+      label: alt.label,
+      props: { ...props, alt: null, doubling: null, series: alt.series, unit: alt.unit, title: alt.title || props.title, subtitle: alt.subtitle || alt.unit, source: alt.source, log: false },
+    },
+  ];
+  const holder = el("div");
+  const seg = el("div", { class: "w-seg", role: "group", "aria-label": "Mesure" });
+  const btns = views.map((v, k) =>
+    el("button", { type: "button", "aria-pressed": k === 0 ? "true" : "false", onclick: () => show(k) }, [v.label]),
+  );
+  btns.forEach((b) => seg.appendChild(b));
+  function show(k) {
+    btns.forEach((b, j) => b.setAttribute("aria-pressed", j === k ? "true" : "false"));
+    const node = courbe(views[k].props, fig);
+    holder.replaceChildren(node);
+    if (typeof node.onMount === "function") node.onMount();
+  }
+  const root = el("div", { class: "w-root" }, [seg, holder]);
+  root.onMount = () => show(0);
   return root;
 }
 
@@ -346,7 +397,7 @@ function pyramide(props, fig) {
   let timer = null;
   let tip;
 
-  function draw() {
+  let draw = function () {
     plot.replaceChildren();
     tip = tooltip(plot);
     const W = drawWidth(fig);
@@ -427,10 +478,19 @@ function pyramide(props, fig) {
       set(years[i + 1]);
     }, reducedMotion() ? 400 : 140);
   });
+  const proj = props.projection ? projectionPanel(props.projection, props.country, fig) : null;
+  if (proj) {
+    const base = draw;
+    draw = () => {
+      base();
+      proj.draw(year);
+    };
+  }
   const root = el("div", { class: "w-root" }, [
     ...header(props),
     el("div", { class: "w-controls" }, [play, slider, yl]),
     plot,
+    proj && proj.node,
     el("p", { class: "w-note" }, [
       `Barres : ${props.country} l'année choisie. Contour pointillé : ${ref}. Une tranche d'âge creuse ou pleine remonte la pyramide d'un cran tous les cinq ans : c'est la même génération qui vieillit.`,
     ]),
@@ -507,6 +567,10 @@ function recit(props, fig) {
 }
 
 export function owid(props, fig) {
+  if (props.type === "bulles") return bulles(props, fig);
+  if (props.type === "pente") return pente(props, fig);
+  if (props.type === "multiples") return multiples(props, fig);
+  if (props.alt) return withAlt(props, fig);
   if (props.type === "devine") return devine(props, fig);
   if (props.type === "pyramide") return pyramide(props, fig);
   if (props.type === "recit") return recit(props, fig);

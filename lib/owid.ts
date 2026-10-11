@@ -120,21 +120,26 @@ export function parseOwidCsv(text: string): OwidTable {
 
 const memo = new Map<string, Promise<{ table: OwidTable; meta: OwidMeta } | null>>();
 
+/** A chart "view": the query string some OWID charts need to pick one of
+ *  their variants (incomes-of-the-richest takes quantile=_10&welfare_type=…).
+ *  Only key=value pairs of [a-z0-9_] get through, so it is safe in a URL and
+ *  in a file name. */
+export function isOwidView(s: string): boolean {
+  return /^[a-z0-9_]+=[a-z0-9_]+(&[a-z0-9_]+=[a-z0-9_]+){0,5}$/.test(s);
+}
+
 /** The whole chart (all countries, all years) and its metadata, or null when
- *  it cannot be had (bad slug, offline with no cache). */
-export function loadOwid(slug: string): Promise<{ table: OwidTable; meta: OwidMeta } | null> {
-  if (!isOwidSlug(slug)) return Promise.resolve(null);
-  let p = memo.get(slug);
+ *  it cannot be had (bad slug, offline with no cache). `view` selects a
+ *  variant of charts that have several (see isOwidView). */
+export function loadOwid(slug: string, view = ""): Promise<{ table: OwidTable; meta: OwidMeta } | null> {
+  if (!isOwidSlug(slug) || (view && !isOwidView(view))) return Promise.resolve(null);
+  const key = view ? `${slug}--${view.replace(/[=&]/g, "-")}` : slug;
+  const q = `?v=1&csvType=full&useColumnShortNames=true${view ? `&${view}` : ""}`;
+  let p = memo.get(key);
   if (!p) {
     p = (async () => {
-      const csv = await cached(
-        path.join(CACHE_DIR, `${slug}.csv`),
-        `${BASE}${slug}.csv?v=1&csvType=full&useColumnShortNames=true`,
-      );
-      const metaRaw = await cached(
-        path.join(CACHE_DIR, `${slug}.metadata.json`),
-        `${BASE}${slug}.metadata.json?v=1&csvType=full&useColumnShortNames=true`,
-      );
+      const csv = await cached(path.join(CACHE_DIR, `${key}.csv`), `${BASE}${slug}.csv${q}`);
+      const metaRaw = await cached(path.join(CACHE_DIR, `${key}.metadata.json`), `${BASE}${slug}.metadata.json${q}`);
       if (!csv || !metaRaw) return null;
       const table = parseOwidCsv(csv);
       let m: {
@@ -164,7 +169,7 @@ export function loadOwid(slug: string): Promise<{ table: OwidTable; meta: OwidMe
         },
       };
     })();
-    memo.set(slug, p);
+    memo.set(key, p);
   }
   return p;
 }
@@ -215,4 +220,32 @@ export function pickSeries(
     else missing.push(raw);
   }
   return { series, missing };
+}
+
+const REGION_FR: Record<string, string> = {
+  Africa: "Afrique",
+  Asia: "Asie",
+  Europe: "Europe",
+  "North America": "Amérique du Nord",
+  "South America": "Amérique du Sud",
+  Oceania: "Océanie",
+};
+let regions: Promise<Map<string, string>> | null = null;
+
+/** ISO3 code → continent (in French), from OWID's own region list. Its value
+ *  column is text, so it skips parseOwidCsv. Empty map when offline with no
+ *  cache: the bubbles then share one colour. */
+export function loadOwidRegions(): Promise<Map<string, string>> {
+  const slug = "continents-according-to-our-world-in-data";
+  regions ??= cached(path.join(CACHE_DIR, `${slug}.csv`), `${BASE}${slug}.csv?v=1&csvType=full&useColumnShortNames=true`).then(
+    (csv) => {
+      const out = new Map<string, string>();
+      for (const line of (csv ?? "").split(/\r?\n/).slice(1)) {
+        const f = splitCsvLine(line);
+        if (f[1] && f[3]) out.set(f[1], REGION_FR[f[3]] ?? f[3]);
+      }
+      return out;
+    },
+  );
+  return regions;
 }

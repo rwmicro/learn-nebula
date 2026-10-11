@@ -10,7 +10,7 @@ const CONCEPTS = ["eau", "mère", "deux", "soleil", "manger", "merci", "main", "
 
 // The tree of Familles-Linguistiques.md (Ouïghour from its Turkic table,
 // Arabe littéraire next to the Lebanese).
-const FAMILIES = [
+export const FAMILIES = [
   { name: "Indo-européennes", branches: [["Germaniques", ["en", "de"]], ["Romanes", ["es", "ro"]], ["Indo-iraniennes", ["hi"]]] },
   { name: "Turciques", branches: [["Oghouz", ["tr", "az"]], ["Karlouk", ["ug"]]] },
   { name: "Sino-tibétaines", branches: [["Sinitiques", ["zh", "hak"]]] },
@@ -20,7 +20,7 @@ const FAMILIES = [
   { name: "Créoles à base anglaise", branches: [["", ["tpi"]]] },
 ];
 
-const LANG = {
+export const LANG = {
   en: "Anglais",
   de: "Allemand",
   es: "Espagnol",

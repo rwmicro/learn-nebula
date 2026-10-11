@@ -17,6 +17,8 @@ export const EXTRA_WIDGETS: Record<string, { pack: WidgetPack; fallback: string 
   interets: { pack: "data", fallback: "Intérêts composés face à l'inflation (nécessite JavaScript)." },
   ouverture: { pack: "data", fallback: "Statistiques de l'ouverture sur Lichess (nécessite JavaScript)." },
   "fiche-langue": { pack: "data", fallback: "Fiche de la langue d'après Wikidata (nécessite JavaScript)." },
+  partie: { pack: "data", fallback: "Partie d'échecs à rejouer coup par coup (nécessite JavaScript)." },
+  durees: { pack: "data", fallback: "Durées comparées sur une frise (nécessite JavaScript)." },
 
   // --- sciences
   supercompensation: { pack: "sci", fallback: "Charge d'entraînement et supercompensation (nécessite JavaScript)." },
@@ -39,6 +41,10 @@ export const EXTRA_WIDGETS: Record<string, { pack: WidgetPack; fallback: string 
   "cas-allemands": { pack: "lang", fallback: "Déclinaison de l'article allemand (nécessite JavaScript)." },
   "etymologie-tok-pisin": { pack: "lang", fallback: "Origine des mots du tok pisin (nécessite JavaScript)." },
   "couverture-mots": { pack: "lang", fallback: "Part d'un texte couverte par les mots les plus fréquents (nécessite JavaScript)." },
+  paires: { pack: "lang", fallback: "Paires minimales à écouter (nécessite JavaScript)." },
+  "arbre-langues": { pack: "lang", fallback: "Arbre des familles de langues du jardin (nécessite JavaScript)." },
+  conjugaison: { pack: "lang", fallback: "Conjugaison d'un verbe, terminaisons en couleur (nécessite JavaScript)." },
+  "faux-amis": { pack: "lang", fallback: "Quiz de faux amis (nécessite JavaScript)." },
 };
 
 /** Bundle file a pack ships in (scripts/bundle-js.mjs builds them). */
