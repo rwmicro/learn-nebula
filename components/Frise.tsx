@@ -1,4 +1,5 @@
 import { t, i18nAttrs } from "@/lib/i18n";
+import type { ReactNode } from "react";
 import type { TimelineEntry } from "@/lib/content";
 
 /**
@@ -20,7 +21,7 @@ const ERAS = [
 /** A span this long or more fills the bar. */
 const FULL_SPAN = 1000;
 
-export function Frise({ entries }: { entries: TimelineEntry[] }) {
+export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: ReactNode }) {
   const eras = ERAS.map((era, i) => ({
     ...era,
     entries: entries.filter(
@@ -38,6 +39,8 @@ export function Frise({ entries }: { entries: TimelineEntry[] }) {
       <p className="frise-intro" {...attrs(i18nAttrs("frise.intro"))}>
         {t("frise.intro")}
       </p>
+      {/* The population curve with the notes on it (FriseCourbe), when built. */}
+      {before}
 
       {entries.length === 0 ? (
         <p className="frise-empty" {...attrs(i18nAttrs("frise.empty"))}>

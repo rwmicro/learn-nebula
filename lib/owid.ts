@@ -157,7 +157,8 @@ export function loadOwid(slug: string): Promise<{ table: OwidTable; meta: OwidMe
         meta: {
           title: m.chart?.title ?? slug,
           citation: m.chart?.citation ?? "",
-          url: m.chart?.originalChartUrl ?? `${BASE}${slug}`,
+          // originalChartUrl carries the CSV query string; the chart page is what a reader wants.
+          url: (m.chart?.originalChartUrl ?? `${BASE}${slug}`).split("?")[0],
           unit,
           columnTitles,
         },

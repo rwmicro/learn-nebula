@@ -46,6 +46,7 @@ import {
   type NextUp,
 } from "@/lib/html";
 import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
+import { citeHtml } from "@/lib/cite";
 import { JsonLd } from "@/components/JsonLd";
 import { NoteFeatureScripts } from "@/components/NoteScripts";
 import { franc } from "franc-min";
@@ -242,6 +243,9 @@ export async function SinglePage({
     prereqs +
     `<div class="article-body">${html}</div>` +
     articleSource +
+    (note
+      ? citeHtml({ slug: doc.slug, title: fm.title, author: fm.author, date: fm.date, updated: fm.updated })
+      : "") +
     (note ? readStateHtml(doc.slug, readingMinutes) : "") +
     nextBlock +
     (note ? prerenderNextHtml(nextUp.next?.slug) : "") +

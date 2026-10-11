@@ -15,6 +15,7 @@ import "@/assets/css/path-step.css";
 import "@/assets/css/widgets-extra.css";
 import "@/assets/css/widgets-sci.css";
 import "@/assets/css/widgets-lang.css";
+import "@/assets/css/cite.css";
 
 type Params = { params: Promise<{ slug: string[] }> };
 

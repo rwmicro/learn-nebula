@@ -271,6 +271,68 @@
     "erasAria": "Aller à une époque",
     "span": "{n} ans"
   },
+  "carte": {
+    "title": "Le jardin sur la carte",
+    "intro": "{n} pays, {notes} notes : les pays dont parle le jardin, par son histoire et par ses langues.",
+    "mapAria": "Carte du monde : chaque pays est coloré selon le nombre de notes qui en parlent",
+    "legendUnit": "notes",
+    "notesWord": "notes",
+    "source": "Fond de carte : Natural Earth (domaine public), projection Equal Earth.",
+    "listTitle": "Pays par nombre de notes",
+    "kind_histoire": "histoire",
+    "kind_langue": "langue",
+    "kind_autre": "note",
+    "how": "Une note est placée sur un pays par son dossier (un pays de l'histoire, une langue) ou par la ligne « pays: » de son en-tête.",
+    "nav": "Carte du monde"
+  },
+  "citer": {
+    "title": "Citer cette note",
+    "text": "Texte",
+    "copy": "Copier",
+    "copied": "Copié",
+    "licence": "Texte sous licence CC BY-NC-SA 4.0 : réutilisation libre hors usage commercial, en citant la source."
+  },
+  "friseCourbe": {
+    "title": "Les notes du jardin sur la courbe de la population mondiale",
+    "sub": "Depuis 1500, en milliards d'habitants. Chaque point est une note datée ({n}).",
+    "source": "Population mondiale :",
+    "before": "{n} notes antérieures à {from} sont dans la liste ci-dessous."
+  },
+  "donnees": {
+    "title": "Données ouvertes",
+    "intro": "Tout ce que le site publie pour les machines, ce qu'il contient et sous quelle licence. Les notes et ces fichiers sont sous licence",
+    "filesTitle": "Fichiers du jardin",
+    "colFile": "Fichier",
+    "colContent": "Contenu",
+    "colFormat": "Format",
+    "file_notes": "Chaque note publiée : titre, adresse, dossier.",
+    "file_graph": "Le graphe : les notes et les liens entre elles.",
+    "file_carte": "Les pays dont parlent les notes, avec la liste des notes de chacun.",
+    "file_frise": "Les notes datées (année, fin, période), celles de la frise.",
+    "file_figures": "Chaque figure de données : la note, le type de figure, sa source.",
+    "file_ipc": "L'indice des prix Insee chaîné depuis 1949, celui des conversions franc-euro.",
+    "file_feed": "Les 30 dernières notes plantées ou retouchées.",
+    "file_llms": "Un sommaire du site pour les agents et moteurs de réponse.",
+    "sourcesTitle": "Sources des figures",
+    "sourcesIntro": "Les {n} figures de données des notes sont calculées à la construction du site à partir de ces sources ; chaque figure cite la sienne.",
+    "colSource": "Source",
+    "colUse": "Utilisée pour",
+    "colLicence": "Licence",
+    "use_owid": "Courbes, pyramides, fiches pays, vrai ou faux, classements.",
+    "use_insee": "Conversion des francs en euros d'aujourd'hui, intérêts et inflation.",
+    "use_wikidata": "Fiches de langue et dates de certaines notes de la frise.",
+    "use_lichess": "Statistiques des ouvertures d'échecs par niveau.",
+    "use_naturalearth": "Fond de la carte du monde.",
+    "reuseTitle": "Réutiliser",
+    "reuse": "Les fichiers sont régénérés à chaque construction du site. Citez la note ou le site, et la source d'origine pour les chiffres.",
+    "seeCarte": "Voir la carte du monde",
+    "seeFrise": "Voir la frise",
+    "nav": "Données ouvertes"
+  },
+  "graphiques": {
+    "title": "un graphique, trois paragraphes",
+    "rss": "Flux RSS de ces notes"
+  },
   "themes": {
     "title": "Thèmes",
     "intro": "Les notes du jardin par discipline et par thème.",

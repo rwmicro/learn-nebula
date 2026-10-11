@@ -33,6 +33,8 @@ const SCRIPTS = [
   "youtube",
   "popover",
   "copy-links",
+  // "Citer cette note" under the article: copy buttons, today's date.
+  "cite",
   "selection-menu",
   // After selection-menu: draws the highlights it creates ("Surligner").
   "highlights",

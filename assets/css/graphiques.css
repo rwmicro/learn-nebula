@@ -1,0 +1,46 @@
+/* Home "Un graphique, trois paragraphes" (components/Graphiques.tsx), laid
+   out like .recent-notes (global.css) just above it. */
+.graphiques {
+  max-width: 44rem;
+  margin: 2.4rem auto 0;
+  padding: 0 1rem;
+  text-align: start;
+}
+.graphiques-title {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: clamp(1.15rem, 1rem + 0.5vw, 1.35rem);
+  margin: 0 0 0.5rem;
+  color: var(--ink);
+}
+.graphiques .graphiques-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.graphiques .graphiques-list li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--rule-soft, var(--rule));
+}
+.graphiques-link {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+.graphiques .graphiques-lede {
+  margin: 0.15rem 0 0.2rem;
+  color: var(--ink-2);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.graphiques time {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.graphiques-rss {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
