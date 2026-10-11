@@ -65,6 +65,7 @@
   touch-action: pan-y;
 }
 .w-tip {
+  border-radius: var(--radius-md, 0);
   position: absolute;
   z-index: 5;
   pointer-events: none;
@@ -220,6 +221,7 @@ main .w-legend li {
   padding-block: 10vh 30vh;
 }
 .w-recit-step {
+  border-radius: var(--radius-md, 0);
   border: 1px solid var(--rule-strong);
   background: var(--paper);
   padding: 0.7rem 0.9rem;
@@ -293,6 +295,7 @@ main .w-legend li {
   gap: 0.3rem;
 }
 .w-rank li {
+  border-radius: var(--radius-sm, 0);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -321,6 +324,7 @@ main .w-legend li {
   font-variant-numeric: tabular-nums;
 }
 .w-rank button {
+  border-radius: var(--radius-sm, 0);
   font: inherit;
   border: 1px solid var(--rule-strong);
   background: var(--paper);
@@ -343,6 +347,7 @@ main .w-legend li {
   font-size: var(--text-meta);
 }
 .w-wdb {
+  border-radius: var(--radius-xs, 0);
   display: flex;
   height: 1.1rem;
   border: 1px solid var(--rule-strong);
@@ -387,6 +392,7 @@ button.prix[aria-expanded="true"] {
   background: var(--garden-wash);
 }
 .prix-pop {
+  border-radius: var(--radius-md, 0);
   position: absolute;
   z-index: 30;
   max-width: 17rem;

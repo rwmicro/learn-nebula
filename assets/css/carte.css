@@ -81,6 +81,7 @@
 .carte-c4 { fill: var(--carte-4); background: var(--carte-4); }
 
 .carte-tip {
+  border-radius: var(--radius-md, 0);
   position: absolute;
   pointer-events: none;
   z-index: 2;
