@@ -188,14 +188,14 @@
 .jardin-bar-track {
   height: 10px;
   background: var(--wash-2);
-  border-radius: 2px;
+  border-radius: var(--radius-xs, 2px);
   overflow: hidden;
 }
 .jardin-bar-fill {
   display: block;
   height: 100%;
   background: var(--garden);
-  border-radius: 2px;
+  border-radius: var(--radius-xs, 2px);
 }
 .jardin-bars li.is-rest .jardin-bar-fill {
   background: var(--faint);

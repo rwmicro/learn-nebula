@@ -1489,7 +1489,7 @@ body:has(.home-masthead) .site-bar {
   background: var(--paper-raised);
   color: var(--ink);
   border: 1px solid var(--rule-strong);
-  border-radius: 12px;
+  border-radius: var(--radius-lg, 12px);
   box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.35);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.95rem;
@@ -1561,7 +1561,7 @@ body:has(.home-masthead) .site-bar {
   gap: 0.4rem;
   border: 1px solid var(--rule-strong);
   border-bottom-width: 3px;
-  border-radius: 999px;
+  border-radius: var(--radius-sm, 4px);
   background: var(--paper);
   color: var(--ink);
   padding: 0.25rem 0.9rem;

@@ -31,7 +31,7 @@
 .fiche-print {
   border: 1px solid var(--rule-strong);
   border-bottom-width: 3px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm, 4px);
   background: var(--paper);
   color: var(--ink);
   padding: 0.3rem 0.9rem;
