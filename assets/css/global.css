@@ -16,6 +16,34 @@
   --text-wordmark: clamp(1.55rem, 8.6cqi, 6rem);
 }
 
+/* Corner radii — the ONE scale every surface draws from (CSS: var(--radius-md);
+   Tailwind: rounded-md, rounded-pill…). Tailwind's default steps are wiped so
+   an off-scale rounded-xl can't creep back in. Pick by what the element IS,
+   not by how big it looks:
+     xs    2px   inline accents inside text: <mark>, gloss/link hover, kbd keys,
+                 thin progress/timeline bars, swatches.
+     sm    4px   controls: buttons, inputs, selects, tooltips, choice tiles,
+                 images and figures, small tags that are not pills.
+     md    8px   blocks in the page flow and anchored popovers: cards, callouts,
+                 quizzes, code blocks, widgets, diagrams, menus, panels.
+     lg    12px  floating sheets on top of the page: dialogs, the palette, the
+                 assistant window, the parcours dock, end-of-lesson screens.
+     pill  999px chips, badges, segmented pills, rounded progress tracks.
+   Circles (dots, avatars, icon-only round buttons) use 50%; deliberate 0 is
+   kept only for things that are squares by nature (chessboard cells) or that
+   sit flush inside a rounded parent (menu rows, tab strips).
+   Nested surfaces step down one level (an sm button inside an md card), or use
+   calc(var(--radius-md) - 1px) when a child exactly fills its parent's border. */
+@theme static {
+  --radius-*: initial;
+  --radius: 4px;
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+}
+
 /* Colour tokens as Tailwind utilities (text-ink, border-rule, bg-paper,
    bg-garden…). `inline` so each utility emits var(--ink) itself and resolves
    per element — that is what lets a .keep-light island below re-theme its
@@ -319,7 +347,7 @@ body {
 .home-frame {
   display: block;
   border: clamp(10px, 2vw, 5px) solid #6e4a2a;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
 .home-frame picture {
@@ -414,7 +442,7 @@ body {
   flex-direction: column;
   background: var(--paper);
   border: 1px solid var(--ink);
-  border-radius: 6px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
   font-family: "Alegreya", "Alegreya Fallback", serif;
   font-size: 1.08rem;
@@ -432,7 +460,7 @@ body {
   touch-action: none;
   border-left: 2px solid var(--faint);
   border-top: 2px solid var(--faint);
-  border-top-left-radius: 6px;
+  border-top-left-radius: var(--radius-lg);
 }
 .gk-pinned-head {
   display: flex;
@@ -464,7 +492,7 @@ body {
   border: 1px solid var(--garden);
   background: var(--garden);
   color: var(--paper);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
   cursor: pointer;
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
@@ -561,7 +589,7 @@ body {
   padding: 0.35rem 0.6rem;
   background: var(--garden-wash);
   border-left: 2px solid var(--garden);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   font-size: 0.98rem;
   color: var(--ink-soft);
 }
@@ -585,7 +613,7 @@ body {
   border: 1px solid var(--garden);
   background: var(--garden);
   color: var(--paper);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
   cursor: pointer;
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
@@ -631,7 +659,7 @@ body {
 }
 .gk-pinned-answer code {
   background: var(--link-wash);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   padding: 0.05rem 0.3rem;
   font-size: 0.95em;
 }
@@ -693,7 +721,7 @@ body {
   flex: none;
   cursor: pointer;
   border: 0;
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: var(--garden);
   color: var(--paper);
   padding: 0.4rem 0.95rem;
@@ -798,7 +826,7 @@ footer {
      transparent diagram needs a light sheet under it to stay legible. */
   background: #fcfcfc;
   border: 1px solid rgba(252, 252, 252, 0.25);
-  border-radius: 2px; /* same value as .home-frame — the one other framed image */
+  border-radius: var(--radius-sm); /* same value as .home-frame — the one other framed image */
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
   cursor: zoom-in;
   touch-action: none;
@@ -1169,7 +1197,7 @@ body:has(.home-masthead) .site-bar {
   padding: 0.6rem 1.1rem;
   background: var(--paper-raised);
   border: 1px solid var(--rule-strong);
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
 }
 .site-bar-menu-panel li + li {
@@ -1240,7 +1268,7 @@ body:has(.home-masthead) .site-bar {
   display: inline-flex;
   align-items: center;
   padding: 0.22rem 0.75rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--garden);
   color: var(--paper);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
@@ -1259,7 +1287,7 @@ body:has(.home-masthead) .site-bar {
   gap: 0.35rem;
   padding: 0.12rem 0.55rem 0.12rem 0.12rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   color: var(--ink);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.85rem;
@@ -1289,7 +1317,7 @@ body:has(.home-masthead) .site-bar {
   align-items: center;
   gap: 0.35rem;
   padding: 0.18rem 0.6rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--garden-wash);
   color: var(--garden);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
@@ -1323,7 +1351,7 @@ body:has(.home-masthead) .site-bar {
   align-items: center;
   gap: 0.5rem;
   padding: 0.55rem 1rem 0.55rem 0.7rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--ink);
   color: var(--paper);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
