@@ -98,7 +98,7 @@ body:has(.flashcards-main) {
   max-width: 100%;
   padding: 0.35rem 2rem 0.35rem 0.6rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   color: var(--ink);
   font: inherit;
   background-color: var(--paper);
