@@ -104,11 +104,12 @@ body:has(.admin-panel) footer {
   overflow-wrap: anywhere;
 }
 
-/* "En retard": the one card state that asks for an action. Warn-coloured
-   rule, not a filled alarm box — it's a chore, not an outage. */
+/* "En retard": the one card state that asks for an action. Same treatment as
+   a dashboard tile with something to do — a soft warn tint, no frame — so
+   it reads as a chore, not an outage. */
 .admin-behind {
-  border-color: var(--warn);
-  background: var(--wash);
+  border-color: transparent;
+  background: color-mix(in srgb, var(--warn) var(--tint-soft, 9%), var(--paper));
 }
 
 /* Segmented control for the questions views. */
@@ -327,7 +328,6 @@ body:has(.admin-panel) footer {
   height: 100%;
   padding: 0.6rem 0.75rem 0.65rem;
   border: 1px solid var(--rule);
-  border-left-width: 3px;
   border-radius: var(--radius-md);
   color: var(--muted-warm);
   text-decoration: none;
@@ -351,17 +351,19 @@ body:has(.admin-panel) footer {
   color: var(--faint);
   font-weight: 600;
 }
+/* Something to do: no frame, a tinted fill (like the review questions) —
+   never a coloured bar on one side of a rounded box. */
 .admin-tile.is-hot {
-  border-color: color-mix(in srgb, var(--warn) 45%, var(--rule));
-  border-left-color: var(--warn);
-  background: color-mix(in srgb, var(--warn) 7%, var(--paper));
+  border-color: transparent;
+  background: color-mix(in srgb, var(--warn) var(--tint-soft, 9%), var(--paper));
   color: var(--ink-2);
 }
 .admin-tile.is-hot .admin-tile-value {
   color: var(--ink);
 }
 .admin-tile.is-hot:hover {
-  background: color-mix(in srgb, var(--warn) 12%, var(--paper));
+  border-color: transparent;
+  background: color-mix(in srgb, var(--warn) calc(var(--tint-soft, 9%) + 5%), var(--paper));
 }
 @media (max-width: 34rem) {
   .admin-dashboard ul {
@@ -492,8 +494,14 @@ body:has(.admin-panel) footer {
   border-color: var(--rule-strong);
 }
 .admin-queue-item.is-flagged {
-  border-color: color-mix(in srgb, var(--danger) 40%, var(--rule));
-  box-shadow: inset 3px 0 0 var(--danger);
+  border-color: transparent;
+  background: color-mix(in srgb, var(--danger) var(--tint-soft, 9%), var(--paper));
+}
+.admin-queue-item.is-flagged.is-selected {
+  border-color: var(--rule-strong);
+}
+.admin-queue-item.is-flagged:focus-visible {
+  border-color: var(--garden);
 }
 .admin-queue-item.is-busy {
   opacity: 0.55;

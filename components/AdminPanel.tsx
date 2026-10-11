@@ -11,13 +11,14 @@
 // components/admin/config.tsx; data is shared through components/admin/store.ts.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FOCUS_RING } from "./admin/shared";
+import { FOCUS_RING, UNDO_MS, type ToastAction } from "./admin/shared";
 import { URLS, clearResources, setResource } from "./admin/store";
 import { ADMIN_TABS, type TabId } from "./admin/config";
 import { Dashboard } from "./admin/Dashboard";
 import { AdminTabs } from "./admin/AdminTabs";
-import { AssistantCard } from "./admin/AssistantCard";
 
+// sessionStorage, not localStorage: the token survives a reload of this tab
+// but not closing it, so it doesn't sit on disk for any script to find later.
 const TOKEN_KEY = "gkAdminToken";
 const DEFAULT_TAB: TabId = ADMIN_TABS[0].id;
 
@@ -57,13 +58,13 @@ export function AdminPanel() {
   const [tab, setTab] = useState<TabId>(DEFAULT_TAB);
   // A target to reveal once the tab it lives in has rendered.
   const pendingReveal = useRef<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; action?: ToastAction } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showToast = useCallback((message: string) => {
+  const showToast = useCallback((message: string, action?: ToastAction) => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    setToast(message);
-    toastTimer.current = setTimeout(() => setToast(null), 2600);
+    setToast({ message, action });
+    toastTimer.current = setTimeout(() => setToast(null), action ? UNDO_MS : 2600);
   }, []);
   useEffect(
     () => () => {
@@ -133,7 +134,7 @@ export function AdminPanel() {
         setAuthError("Jeton invalide (ou modération non configurée côté serveur).");
         setConnected(false);
         try {
-          localStorage.removeItem(TOKEN_KEY);
+          sessionStorage.removeItem(TOKEN_KEY);
         } catch {
           /* ignore */
         }
@@ -145,7 +146,7 @@ export function AdminPanel() {
       setToken(tok);
       setConnected(true);
       try {
-        localStorage.setItem(TOKEN_KEY, tok);
+        sessionStorage.setItem(TOKEN_KEY, tok);
       } catch {
         /* ignore */
       }
@@ -156,21 +157,27 @@ export function AdminPanel() {
   }, []);
 
   useEffect(() => {
+    // Older builds kept it in localStorage: wipe that copy.
     try {
-      const saved = localStorage.getItem(TOKEN_KEY);
+      localStorage.removeItem(TOKEN_KEY);
+    } catch {
+      /* localStorage unavailable */
+    }
+    try {
+      const saved = sessionStorage.getItem(TOKEN_KEY);
       if (saved) {
         setTokenInput(saved);
         tryConnect(saved);
       }
     } catch {
-      /* localStorage unavailable */
+      /* sessionStorage unavailable */
     }
   }, [tryConnect]);
 
   /** Stable identity: cards list it as an effect dependency. */
   const disconnect = useCallback(() => {
     try {
-      localStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
     } catch {
       /* ignore */
     }
@@ -237,8 +244,6 @@ export function AdminPanel() {
 
       {!connected ? (
         <>
-          {/* Public: GET /healthz needs no token. */}
-          <AssistantCard />
           <section className="admin-card">
             <h2 className="admin-eyebrow m-0 mb-2 text-small font-semibold text-muted-warm">connexion</h2>
             <form
@@ -274,9 +279,21 @@ export function AdminPanel() {
       {toast && (
         <div
           role="status"
-          className="admin-toast fixed bottom-6 left-1/2 -translate-x-1/2 rounded bg-ink px-3 py-2 text-small text-paper shadow-lg"
+          className="admin-toast fixed bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded bg-ink px-3 py-2 text-small text-paper shadow-lg"
         >
-          {toast}
+          {toast.message}
+          {toast.action && (
+            <button
+              type="button"
+              onClick={() => {
+                toast.action?.run();
+                setToast(null);
+              }}
+              className={`admin-toast-action rounded font-semibold underline underline-offset-2 ${FOCUS_RING}`}
+            >
+              {toast.action.label}
+            </button>
+          )}
         </div>
       )}
     </div>

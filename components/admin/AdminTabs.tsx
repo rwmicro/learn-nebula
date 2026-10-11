@@ -9,6 +9,7 @@ import { useRef, type KeyboardEvent } from "react";
 import { ADMIN_TABS, type TabId } from "./config";
 import { useTabsNeedingAttention } from "./Dashboard";
 import type { AdminCardProps } from "./shared";
+import { CardBoundary } from "./CardBoundary";
 
 export function AdminTabs({ active, onSelect, card }: {
   active: TabId;
@@ -76,7 +77,9 @@ export function AdminTabs({ active, onSelect, card }: {
           className="admin-tabpanel"
         >
           {t.cards.map((Card, i) => (
-            <Card key={i} {...card} />
+            <CardBoundary key={i}>
+              <Card {...card} />
+            </CardBoundary>
           ))}
         </div>
       ))}

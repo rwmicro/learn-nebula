@@ -8,12 +8,22 @@ export const FOCUS_RING =
 export const INPUT_CLASS = `min-w-0 rounded border border-rule-strong bg-transparent px-2 py-1 text-small ${FOCUS_RING}`;
 export const BUTTON_CLASS = `shrink-0 rounded border border-rule-strong px-2 py-1 text-small hover:bg-wash-2 disabled:opacity-40 ${FOCUS_RING}`;
 
-/** What every card in the /admin tabs receives (components/admin/tabs.tsx). */
+/** How long an undoable action waits before it reaches the server — and how
+ *  long its toast (with the "Annuler" button) stays up. */
+export const UNDO_MS = 6000;
+
+/** A button shown in the toast (e.g. "Annuler"). */
+export interface ToastAction {
+  label: string;
+  run: () => void;
+}
+
+/** What every card in the /admin tabs receives (components/admin/AdminTabs.tsx). */
 export interface AdminCardProps {
   token: string;
   /** The token stopped working: hand the session back to the panel. */
   onUnauthorized: () => void;
-  onToast: (message: string) => void;
+  onToast: (message: string, action?: ToastAction) => void;
 }
 
 /** Thrown by adminFetch on a 401, so a card can hand the session back to the

@@ -1,16 +1,18 @@
 "use client";
 
-// État de l'assistant — GET /healthz (public, no token): whether generation is
-// configured and the RAG index's state. Shown before login too, so it takes
-// the token as optional.
+// État de l'assistant — GET /healthz with the admin token: whether generation
+// is configured and the RAG index's state. Without the token the server only
+// answers { ok: true }, so this card lives behind the login (Site tab) and
+// treats a reply without `rag` as "no detail" rather than crashing on it.
 
 import { CardHeader, Dot, Muted, RefreshButton } from "./shared";
 import { URLS, useAdminResource } from "./store";
 
 export interface Health {
   ok: boolean;
-  generate: boolean;
-  rag: { state: string; chunks: number; dim: number };
+  /** Both absent from the public (tokenless) reply. */
+  generate?: boolean;
+  rag?: { state: string; chunks: number; dim: number };
 }
 
 /** Colour encodes real state, at a glance — not decoration. */
@@ -23,10 +25,10 @@ const RAG_STATE: Record<string, { label: string; color: string }> = {
 
 const noop = () => {};
 
-export function AssistantCard({ token = "" }: { token?: string }) {
+export function AssistantCard({ token }: { token: string }) {
   const res = useAdminResource<Health>(URLS.health, token, noop);
-  const health = res.data;
-  const rag = health ? (RAG_STATE[health.rag.state] ?? { label: health.rag.state, color: "var(--faint)" }) : null;
+  const health = res.data?.rag ? res.data : null;
+  const rag = health?.rag ? (RAG_STATE[health.rag.state] ?? { label: health.rag.state, color: "var(--faint)" }) : null;
 
   return (
     <section id="admin-assistant" className="admin-card">
@@ -35,7 +37,8 @@ export function AssistantCard({ token = "" }: { token?: string }) {
       </CardHeader>
       {(res.failed || res.missing) && <Muted>Serveur non joignable — normal en aperçu statique.</Muted>}
       {!res.settled && !health && <Muted>Chargement…</Muted>}
-      {health && rag && (
+      {res.settled && res.data && !health && <Muted>Le serveur n&apos;a pas donné le détail (jeton refusé ?).</Muted>}
+      {health?.rag && rag && (
         <dl className="admin-dl m-0">
           <dt>Génération</dt>
           <dd className="flex items-center gap-2">

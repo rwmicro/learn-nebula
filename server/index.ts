@@ -58,7 +58,11 @@ app.use("*", async (c, next) => {
 // is returned only to an authenticated admin — /admin's AssistantCard already
 // sends the bearer token here.
 app.get("/healthz", (c) => {
-  if (isAdmin(c.req.header("authorization"), getIp(c))) {
+  // Only a request that actually presents a token is checked: isAdmin counts
+  // every miss toward the per-IP lockout, and container healthchecks or a
+  // visit to /admin/ before logging in must not feed it.
+  const auth = c.req.header("authorization");
+  if (auth && isAdmin(auth, getIp(c))) {
     c.header("cache-control", "no-store");
     return c.json({ ok: true, generate: canGenerate(), rag: ragState() });
   }

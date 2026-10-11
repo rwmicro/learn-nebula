@@ -5,8 +5,11 @@
 // several and act once, or drive the queue from the keyboard (a/d/j/k/x on a
 // focused comment). Comments containing a blocked word come back `flagged` by
 // the server and are marked here; the list itself is edited in BlockedWords.
+// Deleting ONE comment is undoable: it leaves the list at once but the PATCH
+// only goes out after UNDO_MS (or when the page is left), so a stray `d` next
+// to `a` costs nothing.
 
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import {
   BUTTON_CLASS,
   CardHeader,
@@ -16,6 +19,7 @@ import {
   Muted,
   NoteLink,
   RefreshButton,
+  UNDO_MS,
   Unauthorized,
   adminFetch,
   fmtDateTime,
@@ -50,12 +54,17 @@ type Action = "approve" | "delete";
 
 export function PendingComments({ token, onUnauthorized, onToast }: AdminCardProps) {
   const res = useAdminResource<PendingData>(URLS.pending, token, onUnauthorized, { pollMs: POLL_MS });
-  const pending = res.data?.comments ?? null;
+  const all = res.data?.comments ?? null;
   const [query, setQuery] = useState("");
   const [onlyFlagged, setOnlyFlagged] = useState(false);
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [busyIds, setBusyIds] = useState<Set<number>>(new Set());
   const [error, setError] = useState<string | null>(null);
+  // Deletions waiting out their undo delay: hidden here (a poll still returns
+  // them), sent when their timer fires.
+  const [deferred, setDeferred] = useState<Set<number>>(new Set());
+  const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
+  const pending = all && (deferred.size ? all.filter((c) => !deferred.has(c.id)) : all);
   const itemRefs = useRef(new Map<number, HTMLLIElement>());
   // Index to focus once the list re-renders after a keyboard action.
   const refocus = useRef<number | null>(null);
@@ -102,7 +111,7 @@ export function PendingComments({ token, onUnauthorized, onToast }: AdminCardPro
   }
 
   /** `focusIndex`: after a keyboard action, where focus goes once the row is gone. */
-  async function moderate(ids: number[], action: Action, focusIndex?: number) {
+  async function moderate(ids: number[], action: Action, focusIndex?: number, quiet = false) {
     if (!ids.length) return;
     markBusy(ids, true);
     try {
@@ -115,6 +124,7 @@ export function PendingComments({ token, onUnauthorized, onToast }: AdminCardPro
       drop(ids);
       if (action === "approve") bump(PUBLISHED_TICK);
       setError(null);
+      if (quiet) return;
       const n = ids.length;
       onToast(
         n === 1
@@ -135,6 +145,66 @@ export function PendingComments({ token, onUnauthorized, onToast }: AdminCardPro
       markBusy(ids, false);
     }
   }
+
+  const unhide = useCallback((id: number) => {
+    setDeferred((s) => {
+      const next = new Set(s);
+      next.delete(id);
+      return next;
+    });
+  }, []);
+
+  /** Delete one comment, undoably: see the header comment. */
+  function deleteLater(id: number, focusIndex?: number) {
+    if (timers.current.has(id)) return;
+    if (focusIndex !== undefined) refocus.current = focusIndex;
+    setDeferred((s) => new Set(s).add(id));
+    setSelected((s) => {
+      const next = new Set(s);
+      next.delete(id);
+      return next;
+    });
+    timers.current.set(
+      id,
+      setTimeout(() => {
+        timers.current.delete(id);
+        // Still hidden until the server answers; shown again if it fails.
+        moderate([id], "delete", undefined, true).finally(() => unhide(id));
+      }, UNDO_MS),
+    );
+    onToast("Commentaire supprimé.", {
+      label: "Annuler",
+      run: () => {
+        const t = timers.current.get(id);
+        if (!t) return;
+        clearTimeout(t);
+        timers.current.delete(id);
+        unhide(id);
+      },
+    });
+  }
+
+  // Leaving the page (or disconnecting) mid-delay still sends what is due.
+  useEffect(() => {
+    const pendingTimers = timers.current;
+    const flush = () => {
+      const ids = [...pendingTimers.keys()];
+      if (!ids.length) return;
+      for (const t of pendingTimers.values()) clearTimeout(t);
+      pendingTimers.clear();
+      fetch("/api/comments", {
+        method: "PATCH",
+        keepalive: true,
+        headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+        body: JSON.stringify(ids.length === 1 ? { id: ids[0], action: "delete" } : { ids, action: "delete" }),
+      }).catch(() => {});
+    };
+    window.addEventListener("pagehide", flush);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      flush();
+    };
+  }, [token]);
 
   function bulk(action: Action) {
     const n = selectedShown.length;
@@ -177,7 +247,8 @@ export function PendingComments({ token, onUnauthorized, onToast }: AdminCardPro
       case "d":
         e.preventDefault();
         if (busyIds.has(c.id)) return;
-        moderate([c.id], e.key.toLowerCase() === "a" ? "approve" : "delete", i);
+        if (e.key.toLowerCase() === "a") moderate([c.id], "approve", i);
+        else deleteLater(c.id, i);
         break;
       case "j":
       case "arrowdown":
@@ -327,7 +398,7 @@ export function PendingComments({ token, onUnauthorized, onToast }: AdminCardPro
                     <button
                       type="button"
                       disabled={busy}
-                      onClick={() => moderate([c.id], "delete")}
+                      onClick={() => deleteLater(c.id, i)}
                       className={BUTTON_CLASS}
                     >
                       Supprimer
