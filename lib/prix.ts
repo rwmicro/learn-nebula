@@ -40,7 +40,7 @@ const UNITS: [RegExp, Monnaie | "F"][] = [
  * wrote them at the time.
  */
 export function parsePrix(code: string): Prix | null {
-  const m = /^\s*prix\s*:\s*([\d\s  .,]+?)\s+(.+?)\s+(\d{4})\s*$/i.exec(code);
+  const m = /^\s*prix\s*:\s*(\d[\d\s  .,]*?)\s+([^\d\s].*?)\s+(\d{4})\s*$/i.exec(code);
   if (!m) return null;
   const amount = Number(m[1].replace(/[\s  ]/g, "").replace(/\.(?=\d{3}\b)/g, "").replace(",", "."));
   const year = Number(m[3]);

@@ -97,6 +97,8 @@ export interface LanguageFacts {
 }
 
 const L1 = "Q36870";
+/** Generic classes above every language family: language, natural language, modern language. */
+const GENERIC = new Set(["Q34770", "Q33742", "Q1288568", "Q20162172", "Q315"]);
 const L2 = "Q125421";
 
 export async function loadLanguage(qid: string): Promise<LanguageFacts | null> {
@@ -121,6 +123,9 @@ export async function loadLanguage(qid: string): Promise<LanguageFacts | null> {
   for (let i = 0; cur && i < 8; i++) {
     const parent = await entity(itemId(cur.mainsnak) ?? "");
     if (!parent) break;
+    // Past the family's root the chain turns generic ("langue humaine",
+    // "langue", "langue naturelle"): stop there.
+    if (GENERIC.has(parent.id ?? "") || /^langue( |$)/i.test(label(parent))) break;
     family.push(label(parent));
     cur = usable(parent.claims?.P279)[0];
   }

@@ -156,6 +156,12 @@
   font-size: var(--text-meta);
   color: var(--ink-soft);
 }
+.w-legend li,
+main .w-legend li {
+  margin: 0;
+  font-size: inherit;
+  line-height: 1.4;
+}
 .w-legend i {
   display: inline-block;
   width: 0.9rem;
@@ -428,4 +434,29 @@ button.prix[aria-expanded="true"] {
   font-weight: 400;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
+}
+
+/* Converter, interest, opening rows. */
+.w-conv-big {
+  font-size: 1.6rem;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.w-pyr-year {
+  font-variant-numeric: tabular-nums;
+  min-width: 3ch;
+}
+.w-ouv-rows {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.7rem;
+}
+.w-root .w-dim {
+  color: var(--muted);
+}
+@media (max-width: 480px) {
+  .w-bar-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.15rem;
+  }
 }

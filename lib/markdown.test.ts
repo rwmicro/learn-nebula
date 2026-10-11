@@ -427,3 +427,28 @@ describe("widgets", () => {
     expect(html).not.toContain("not a pair");
   });
 });
+
+describe("data widgets and prices", () => {
+  it("turns an inline `prix:` into a span carrying its euro value", async () => {
+    const { html } = await renderMarkdown("Un loyer de `prix: 1 380 000 francs 1954` par an.");
+    expect(html).toMatch(/<span class="prix" data-eur="33.713\s€" data-year="1954" data-unit="AF"/);
+    expect(html).toContain(">1 380 000 francs</span>");
+  });
+
+  it("leaves other inline code alone", async () => {
+    const { html } = await renderMarkdown("Tape `prix: beaucoup`.");
+    expect(html).toContain("<code>prix: beaucoup</code>");
+  });
+
+  it("renders a [!chiffres] callout", async () => {
+    const { html } = await renderMarkdown("> [!chiffres]\n> - **3 %** de croissance");
+    expect(html).toContain("callout-chiffres");
+    expect(html).toContain("En quelques chiffres");
+  });
+
+  it("prepares a data widget at build, with a table fallback", async () => {
+    const { html } = await renderMarkdown("```widget:convertisseur\nmontant: 300\nmonnaie: AF\nannee: 1950\n```");
+    expect(html).toContain('data-widget="convertisseur"');
+    expect(html).toContain("&#x22;ipc&#x22;");
+  });
+});

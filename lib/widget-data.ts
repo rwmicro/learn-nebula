@@ -27,6 +27,19 @@ const list = (s: string | undefined) =>
     .filter(Boolean);
 const num = (s: string | undefined) => (s == null || s === "" ? undefined : Number(s));
 
+/** OWID's units are English; the common ones, in French. Others are left
+ *  out: the block's `unite:` says it better than a guess. */
+const UNIT_FR: Record<string, string> = {
+  years: "ans",
+  "%": "%",
+  people: "habitants",
+  "deaths per 1,000 live births": "pour 1 000 naissances",
+  "°C": "°C",
+  tonnes: "tonnes",
+  "international-$ in 2011 prices": "$ de 2011",
+  "international-$ in 2021 prices": "$ de 2021",
+};
+
 function source(meta: { title: string; citation: string; url: string }) {
   return { title: meta.title, citation: meta.citation, url: meta.url, licence: "CC BY 4.0" };
 }
@@ -97,7 +110,7 @@ async function owidChart(p: Record<string, string>): Promise<Enriched> {
   });
   if (missing.length) console.warn(`owid ${slug}: pas de données pour ${missing.join(", ")}`);
   if (!series.length) return { props: {}, error: `Pas de données pour ${p.pays ?? "Monde"}.` };
-  const unit = p.unite ?? meta.unit;
+  const unit = p.unite ?? UNIT_FR[meta.unit] ?? "";
   const props: Record<string, unknown> = {
     type,
     title: p.titre ?? meta.title,
