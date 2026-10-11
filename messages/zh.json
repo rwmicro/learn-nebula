@@ -712,7 +712,11 @@
     "othersMany": "另有 {n} 条路径",
     "othersTitle": "这篇笔记也属于：",
     "dockNext": "下一步",
-    "dockAria": "路径下一步：{title}"
+    "dockAria": "路径下一步：{title}",
+    "here": "你在这里",
+    "read": "已读 {n} / {total}",
+    "seePath": "查看路径",
+    "close": "关闭"
   },
   "discipline": {
     "agriculture": "农业",

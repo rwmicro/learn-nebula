@@ -53,6 +53,35 @@ main .path-step-path {
   white-space: nowrap;
 }
 
+/* "Étape 4/20": a pill that opens the steps panel (.path-sheet below). */
+.path-step-open {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.05rem 0.55rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 999px;
+  background: var(--paper-raised);
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.35;
+  color: var(--ink-2);
+  cursor: pointer;
+  vertical-align: baseline;
+}
+.path-step-open:hover {
+  border-color: var(--garden);
+}
+.path-step-open:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.path-step-chev {
+  font-size: 0.75em;
+  color: var(--garden);
+}
+
 /* Previous / next: pushed to the end of the row. */
 .path-step-nav {
   display: inline-flex;
@@ -176,6 +205,243 @@ main .path-step a:focus-visible,
   .path-step-dir {
     font-size: 0.95rem;
     color: var(--ink-2);
+  }
+}
+
+/* The steps panel (lib/path-step.ts pathSheetHtml, public/js/path-sheet.js):
+   a card in the middle of the screen, a sheet from the bottom on phones. */
+.path-sheet {
+  margin: auto;
+  width: min(28rem, calc(100vw - 2rem));
+  max-height: min(80vh, 44rem);
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-lg, 16px);
+  background: var(--paper-raised);
+  color: var(--ink);
+  box-shadow: 0 18px 50px -12px rgb(0 0 0 / 0.4);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  overflow: hidden;
+}
+.path-sheet[open] {
+  display: flex;
+  flex-direction: column;
+}
+.path-sheet::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+html.path-sheet-open {
+  overflow: hidden;
+}
+.path-sheet-head {
+  position: relative;
+  padding: 0.9rem 1.1rem 0.8rem;
+  border-bottom: 1px solid var(--rule);
+}
+.path-sheet-grab {
+  display: none;
+}
+main .path-sheet-k {
+  margin: 0;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1.3;
+  color: var(--garden);
+}
+main .path-sheet-name {
+  margin: 0.1rem 2rem 0.6rem 0;
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.2rem;
+  line-height: 1.25;
+  color: var(--ink);
+}
+.path-sheet-close {
+  position: absolute;
+  top: 0.55rem;
+  inset-inline-end: 0.6rem;
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted-warm);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.path-sheet-close:hover {
+  background: var(--wash);
+  color: var(--ink);
+}
+.path-sheet-bar {
+  height: 6px;
+  border-radius: var(--radius-xs, 3px);
+  background: var(--rule);
+  overflow: hidden;
+}
+.path-sheet-bar i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--fam, var(--garden));
+}
+main .path-sheet-meta {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.35rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.3;
+  color: var(--muted-warm);
+}
+.path-sheet-list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0.3rem 0;
+  list-style: none;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+main .path-sheet-list li {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.3;
+}
+main .path-sheet-list a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1.1rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+main .path-sheet-list a:hover .path-sheet-t {
+  text-decoration: underline;
+}
+main .path-sheet-list a:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: -2px;
+}
+.path-sheet-n {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 50%;
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted-warm);
+}
+.path-sheet-t {
+  min-width: 0;
+}
+.is-read .path-sheet-n {
+  border-color: var(--garden);
+  background: var(--garden);
+  color: transparent;
+  position: relative;
+}
+.is-read .path-sheet-n::after {
+  content: "✓";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--paper);
+  font-size: 0.85rem;
+}
+main .is-read:not(.is-here) .path-sheet-t {
+  color: var(--muted-warm);
+}
+main .path-sheet-list .is-here a {
+  background: var(--wash);
+  box-shadow: inset 3px 0 0 var(--garden);
+}
+.is-here .path-sheet-n {
+  border-color: var(--garden);
+  color: var(--garden);
+  font-weight: 700;
+}
+.is-here .path-sheet-t {
+  font-weight: 700;
+}
+.path-sheet-tag {
+  flex: none;
+  margin-inline-start: auto;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--garden);
+  color: var(--paper);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+.path-sheet-tag--next {
+  border: 1px solid var(--garden);
+  background: none;
+  color: var(--garden);
+}
+.path-sheet-foot {
+  display: flex;
+  gap: 0.6rem;
+  padding: 0.75rem 1.1rem 0.9rem;
+  border-top: 1px solid var(--rule);
+}
+main .path-sheet-btn {
+  flex: 1;
+  padding: 0.6rem 0.5rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm, 10px);
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+main .path-sheet-btn--go {
+  border-color: var(--garden);
+  border-bottom: 3px solid color-mix(in srgb, var(--garden) 60%, #000);
+  background: var(--garden);
+  color: var(--paper);
+}
+main .path-sheet-btn:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+@media (max-width: 640px) {
+  .path-sheet {
+    width: 100vw;
+    max-width: none;
+    height: 78vh;
+    max-height: none;
+    margin: auto 0 0;
+    border: 0;
+    border-radius: var(--radius-lg, 18px) var(--radius-lg, 18px) 0 0;
+    animation: path-sheet-up 0.22s ease-out;
+  }
+  .path-sheet-grab {
+    display: block;
+    width: 40px;
+    height: 5px;
+    margin: -0.45rem auto 0.5rem;
+    border-radius: var(--radius-xs, 3px);
+    background: var(--rule-strong);
+  }
+  .path-sheet-foot {
+    padding-bottom: calc(0.9rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+@keyframes path-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .path-sheet {
+    animation: none;
   }
 }
 
