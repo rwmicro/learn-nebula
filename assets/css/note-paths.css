@@ -14,7 +14,7 @@
   padding: 0.55rem 0.85rem;
   border: 1px solid var(--rule);
   border-inline-start: 3px solid var(--garden);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: var(--wash);
 }
 main .prereq-title {
@@ -102,7 +102,7 @@ main .further li::before {
   align-self: center;
   padding: 0.05rem 0.5rem 0.1rem;
   border: 1px solid var(--garden);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   color: var(--garden);
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   text-transform: lowercase;
@@ -139,7 +139,7 @@ main .further li::before {
 .read-state-btn {
   appearance: none;
   border: 1px solid var(--rule-strong);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--ink-soft);
   padding: 0.2rem 0.7rem;
