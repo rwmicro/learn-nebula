@@ -11,6 +11,7 @@ import { getIp } from "../http.ts";
 import { Cooldown, InFlight, Quota } from "../ratelimit.ts";
 import { anthropicClient, chatConfig, openaiChatText } from "../llm.ts";
 import { cachedTranslation, storeTranslation } from "../db.ts";
+import { sameOrigin } from "../session.ts";
 import type Anthropic from "@anthropic-ai/sdk";
 
 const MAX_MD = 50_000;
@@ -54,6 +55,11 @@ const DAILY_KEY = "translate:all";
 const inflight = new InFlight();
 
 export const translateRoute = new Hono();
+
+// This route renders arbitrary Markdown as HTML and spends the LLM budget, so
+// reject cross-site POSTs the same way the account routes do (SameSite=Lax
+// already keeps the cookie off them; this refuses a forged Origin outright).
+translateRoute.use("*", sameOrigin);
 
 translateRoute.post("/", async (c) => {
   if (!canGenerate()) return c.json({ error: "Traduction non configurée." }, 503);
