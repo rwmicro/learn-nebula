@@ -5,6 +5,7 @@
 
 .chroma {
   tab-size: 4;
+  border-radius: var(--radius-md);
 }
 
 .chroma code {

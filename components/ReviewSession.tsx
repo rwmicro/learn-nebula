@@ -179,7 +179,7 @@ export function ReviewSession({
   if (!head)
     return (
       <>
-        <section className="flex min-h-[14rem] flex-col items-center justify-center gap-5 rounded-[4px] border border-rule bg-paper p-8 text-center">
+        <section className="flex min-h-[14rem] flex-col items-center justify-center gap-5 rounded-md border border-rule bg-paper p-8 text-center">
           <h2
             ref={doneRef}
             tabIndex={-1}
@@ -248,7 +248,7 @@ export function ReviewSession({
         <article
           ref={surfaceRef}
           tabIndex={-1}
-          className="note-review-card rounded-[4px] border border-rule bg-paper p-6 outline-none sm:p-8"
+          className="note-review-card rounded-md border border-rule bg-paper p-6 outline-none sm:p-8"
         >
           <p className="m-0 mb-3 text-micro font-semibold uppercase tracking-[0.08em] text-muted-warm">
             <a href={head.item.url} className="text-muted-warm hover:text-ink">
@@ -269,7 +269,7 @@ export function ReviewSession({
       ) : (
         <section ref={surfaceRef} tabIndex={-1} className="deck-review outline-none" aria-label={head.deckName}>
           <div
-            className="flex w-full cursor-pointer items-center justify-center rounded-[4px] border border-rule bg-paper p-6 text-center sm:p-8"
+            className="flex w-full cursor-pointer items-center justify-center rounded-md border border-rule bg-paper p-6 text-center sm:p-8"
             style={{ minHeight: `${(expected != null ? 16 : 22) * zoom}rem` }}
             onClick={(e) => {
               if ((e.target as HTMLElement).closest(".pron-btn, a")) return;
@@ -306,7 +306,7 @@ export function ReviewSession({
                     reveal();
                   }
                 }}
-                className="w-full rounded-[2px] border border-rule bg-paper px-3 py-2 text-ink disabled:opacity-80"
+                className="w-full rounded-sm border border-rule bg-paper px-3 py-2 text-ink disabled:opacity-80"
               />
               {revealed && (
                 <div className="typed-compare mt-3 text-small" aria-live="polite">

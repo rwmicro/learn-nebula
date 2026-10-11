@@ -58,7 +58,7 @@
   padding: 0.3rem 0.8rem;
   border: 1.5px solid var(--rule-strong);
   border-bottom-width: 3px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   color: var(--ink);
   text-decoration: none;
   font-size: 0.98rem;
@@ -139,7 +139,7 @@
   display: block;
   height: 4px;
   margin-top: 0.35rem;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: color-mix(in srgb, var(--garden) 45%, var(--rule));
 }
 
