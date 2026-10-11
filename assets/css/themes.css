@@ -140,7 +140,7 @@
 .themes-read-bar {
   flex: 1;
   height: 3px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--rule);
   overflow: hidden;
 }
