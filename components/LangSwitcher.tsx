@@ -137,7 +137,7 @@ export function LangSwitcher() {
         <ul
           id={menuId}
           hidden={!open}
-          className="absolute start-0 top-full z-40 mt-1.5 min-w-full list-none rounded-[4px] border border-rule-strong bg-paper p-1 shadow-lg"
+          className="absolute start-0 top-full z-40 mt-1.5 min-w-full list-none rounded-md border border-rule-strong bg-paper p-1 shadow-lg"
         >
           {OPTIONS.map((o) => (
             <li key={o.code} className="m-0 p-0">
