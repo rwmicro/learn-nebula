@@ -152,7 +152,9 @@ export function mount(builders) {
   for (const fig of document.querySelectorAll(".widget[data-widget]")) {
     const name = fig.getAttribute("data-widget");
     const build = builders[name];
-    if (!build || fig.classList.contains("is-live")) continue;
+    // A data widget whose numbers could not be had at build keeps the message
+    // rehypeWidgets put in its fallback (data-error).
+    if (!build || fig.classList.contains("is-live") || fig.hasAttribute("data-error")) continue;
     let props = {};
     try {
       props = JSON.parse(fig.getAttribute("data-props") || "{}");
@@ -160,12 +162,14 @@ export function mount(builders) {
       // Malformed props: the builder's defaults apply.
     }
     try {
-      // Built into the figure first (hidden) so builders can measure width.
-      const keep = [...fig.childNodes];
+      // The builder gets the figure to measure its width (drawWidth) before
+      // its node replaces the fallback; a node may carry an onMount() hook
+      // for work that needs to be in the page (observers, measuring text).
       const node = build(props, fig);
-      if (node) fig.replaceChildren(node);
-      else keep.forEach((n) => n.remove());
+      if (!node) continue;
+      fig.replaceChildren(node);
       fig.classList.add("is-live");
+      if (typeof node.onMount === "function") node.onMount();
     } catch (e) {
       console.warn("widget " + name + ":", e);
     }
