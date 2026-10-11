@@ -226,8 +226,9 @@ const REGION_FR: Record<string, string> = {
   Africa: "Afrique",
   Asia: "Asie",
   Europe: "Europe",
-  "North America": "Amérique du Nord",
-  "South America": "Amérique du Sud",
+  // One colour for both Americas: four regions read better than six.
+  "North America": "Amériques",
+  "South America": "Amériques",
   Oceania: "Océanie",
 };
 let regions: Promise<Map<string, string>> | null = null;

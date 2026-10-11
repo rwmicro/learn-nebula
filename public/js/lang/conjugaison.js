@@ -7,7 +7,7 @@
 //   langue: Allemand | Espagnol | Turc | Roumain | Indonésien
 //   verbe:  one of that language's verbs below (default: the first)
 import { el } from "../widget-kit.js";
-import { choice, fill } from "./common.js";
+import { fill } from "./common.js";
 
 const PRON = {
   Allemand: ["ich", "du", "er / sie / es", "wir", "ihr", "sie / Sie"],
@@ -67,13 +67,13 @@ export function conjugaison(props) {
     verb = verbSel.value;
     draw();
   });
-  const langs = choice(Object.keys(VERBS).map((l) => [l, l]), lang, (l) => {
-    lang = l;
-    verb = Object.keys(VERBS[l])[0];
-    langs.set(l);
+  const langSel = el("select", { class: "l-select", "aria-label": "Langue" }, Object.keys(VERBS).map((l) => el("option", { value: l, selected: l === lang }, [l])));
+  langSel.addEventListener("change", () => {
+    lang = langSel.value;
+    verb = Object.keys(VERBS[lang])[0];
     fillVerbs();
     draw();
-  }, "Langue");
+  });
   function fillVerbs() {
     fill(verbSel, ...Object.keys(VERBS[lang]).map((v) => el("option", { value: v, selected: v === verb }, [v])));
   }
@@ -94,5 +94,9 @@ export function conjugaison(props) {
   }
   fillVerbs();
   draw();
-  return el("div", { class: "w-root" }, [langs.node, el("div", { class: "w-controls" }, [el("label", {}, ["Verbe ", verbSel])]), table, note]);
+  return el("div", { class: "w-root l-conj-root" }, [
+    el("div", { class: "w-controls" }, [el("label", {}, ["Langue ", langSel]), el("label", {}, ["Verbe ", verbSel])]),
+    table,
+    note,
+  ]);
 }

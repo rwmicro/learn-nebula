@@ -61,7 +61,7 @@ function spread(items, gap) {
 
 // ------------------------------------------------------------- bulles
 
-const REGIONS = ["Europe", "Asie", "Afrique", "Amérique du Nord", "Amérique du Sud", "Océanie"];
+const REGIONS = ["Europe", "Asie", "Afrique", "Amériques", "Océanie"];
 
 export function bulles(props, fig) {
   const countries = props.countries || [];
@@ -77,7 +77,7 @@ export function bulles(props, fig) {
   const plot = el("div", { class: "w-plot-wrap" });
   const slider = el("input", { type: "range", class: "w-range", min: 0, max: years.length - 1, step: 1, value: i, "aria-label": "Année" });
   const yl = el("b", { class: "w-pyr-year" }, [String(years[i])]);
-  const play = el("button", { type: "button", class: "w-btn" }, ["Lecture"]);
+  const play = el("button", { type: "button", class: "w-btn is-active" }, ["Lecture"]);
   let timer = null;
 
   function draw() {
@@ -275,7 +275,10 @@ export function pente(props, fig) {
     // Highlighted countries get the first series colours; the rest stay grey
     // so the eye goes where the note's text points.
     let k = 0;
-    const items = rows.map((r) => ({ ...r, colour: hi.size ? (hi.has(r.name) ? seriesVar(k++) : "var(--w-ghost, var(--muted))") : seriesVar(Math.min(k++, 5)), strong: hi.has(r.name) }));
+    // A highlighted row takes its colour from its place in mettre-en-avant,
+    // so the note decides which country gets the first series colour.
+    const order = [...hi];
+    const items = rows.map((r) => ({ ...r, colour: hi.size ? (hi.has(r.name) ? seriesVar(order.indexOf(r.name)) : "var(--w-ghost, var(--muted))") : seriesVar(Math.min(k++, 5)), strong: hi.has(r.name) }));
     const la = items.map((r) => ({ r, y: y(r.a) + 4 }));
     const lb = items.map((r) => ({ r, y: y(r.b) + 4 }));
     spread(la, 14);

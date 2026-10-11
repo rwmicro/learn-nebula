@@ -741,3 +741,214 @@ button.prix[aria-expanded="true"] {
   padding: 0;
   background: none;
 }
+
+/* ------------------------------------------------ the mockups' look
+   Every widget (packs and widgets.js alike) takes the look of the
+   maquettes Martin chose: a figure between two hairlines instead of a box,
+   a serif title over sans-serif chart text, pill buttons in small caps with
+   the garden green as the active colour. Scoped to .widget.is-live so it
+   outranks main.css's base grammar without editing it. */
+.widget.is-live {
+  --w-sans: "Alegreya Sans", "Alegreya Sans Fallback", system-ui, sans-serif;
+  --w-on-accent: var(--paper);
+}
+.widget.is-live .w-root {
+  border: 0;
+  border-block: 1px solid var(--rule);
+  padding: 0.9rem 0 0.7rem;
+  background: none;
+}
+.widget.is-live .w-chart-title {
+  font-size: 1.15rem;
+  line-height: 1.25;
+  font-weight: 700;
+}
+.widget.is-live :is(.w-chart-sub, .w-hint, .w-legend, .w-source, .w-note, .w-tabs, .w-controls, .w-table, .w-tip, .w-multiple-t, .w-seg, .l-moves, .l-ff-lang) {
+  font-family: var(--w-sans);
+}
+.widget.is-live .w-chart-sub {
+  font-size: 0.9rem;
+}
+.widget.is-live .w-legend {
+  font-size: 0.85rem;
+}
+.widget.is-live .w-source {
+  font-size: 0.8rem;
+}
+.widget.is-live .w-note {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+.widget.is-live svg text {
+  font-family: var(--w-sans);
+}
+.widget.is-live .w-tabs {
+  font-size: 0.9rem;
+}
+.widget.is-live .w-tabs button[aria-selected="true"] {
+  border-bottom-color: var(--garden);
+}
+/* Buttons: small-caps pills; the active one filled with the garden green. */
+.widget.is-live .w-btn {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  border-radius: var(--radius-pill, 999px);
+  padding: 0.2rem 0.9rem;
+}
+.widget.is-live .w-btn:hover {
+  background: var(--garden-wash);
+  border-color: var(--garden);
+}
+.widget.is-live .w-btn.is-active {
+  background: var(--garden);
+  border-color: var(--garden);
+  color: var(--w-on-accent);
+}
+.widget.is-live .w-btn:disabled {
+  opacity: 0.45;
+}
+.widget.is-live .w-range,
+.widget.is-live input[type="range"] {
+  accent-color: var(--garden);
+}
+.widget.is-live .w-input,
+.widget.is-live select,
+.widget.is-live .l-select {
+  font-family: var(--w-sans);
+  border-radius: var(--radius-sm, 4px);
+}
+/* Segmented toggle: a pill, the pressed half filled. */
+.widget.is-live .w-seg {
+  border-radius: var(--radius-pill, 999px);
+  font-size: 0.85rem;
+}
+.widget.is-live .w-seg button {
+  background: none;
+  color: var(--muted);
+  padding: 0.2rem 0.75rem;
+  border: 0;
+}
+.widget.is-live .w-seg button[aria-pressed="true"] {
+  background: var(--garden);
+  color: var(--w-on-accent);
+  font-weight: 400;
+}
+/* Chess: wooden squares, the last move ringed in green. */
+.widget.is-live .w-sq {
+  background: #eee6d3;
+}
+.widget.is-live .w-sq.is-dark {
+  background: #b59a74;
+}
+.widget.is-live .w-sq.is-last {
+  box-shadow: inset 0 0 0 3px rgb(63 107 74 / 0.75);
+}
+.widget.is-live .l-board {
+  max-width: 22rem;
+}
+.widget.is-live .l-pc-w,
+.widget.is-live .l-pc-b {
+  font-size: clamp(1.2rem, 6vw, 1.9rem);
+}
+.widget.is-live .l-pc-w {
+  color: #fbf8f0;
+  -webkit-text-stroke: 1px #222;
+}
+.widget.is-live .l-pc-b {
+  color: #111;
+}
+.widget.is-live .l-moves {
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+.widget.is-live .l-moves button {
+  color: var(--ink-soft);
+  padding: 0 0.2rem;
+}
+.widget.is-live .l-moves button.is-current {
+  background: var(--garden);
+  color: var(--w-on-accent);
+  font-weight: 400;
+}
+.widget.is-live .l-move-note {
+  font-style: italic;
+  color: var(--ink-soft);
+}
+/* Minimal pairs: the word large, its reading and meaning small under it. */
+.widget.is-live .l-pair {
+  font-size: 1.1rem;
+  border-radius: var(--radius-sm, 6px);
+  background: var(--paper-raised);
+  padding: 0.4rem 0.9rem;
+  min-width: 7rem;
+  text-align: center;
+}
+.widget.is-live .l-pair small {
+  display: block;
+  font-family: var(--w-sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.widget.is-live .l-pair.is-wrong {
+  border-color: var(--danger);
+  background: var(--paper-raised);
+}
+.widget.is-live .l-ko {
+  color: var(--danger);
+}
+.widget.is-live :is(.l-paires, .l-faux-amis) .w-result {
+  font-family: var(--w-sans);
+  font-size: 0.95rem;
+}
+.widget.is-live .l-ff-lang {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: none;
+}
+.widget.is-live .l-ff-word {
+  font-size: 1.6rem;
+  font-style: normal;
+}
+/* Conjugator: endings green, the Turkish tense amber, a changed stem blue. */
+.widget.is-live .l-conj {
+  width: auto;
+  min-width: 16rem;
+}
+.widget.is-live .l-conj td {
+  font-family: inherit;
+  font-size: 1.05rem;
+}
+.widget.is-live .l-conj :is(.l-end, .l-mid, .l-chg) {
+  font-weight: 700;
+}
+.widget.is-live .l-conj .l-end {
+  color: var(--garden);
+}
+.widget.is-live .l-conj .l-mid {
+  color: var(--w-s2);
+}
+.widget.is-live .l-conj-root .w-controls label {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+}
+/* Language tree: sans labels, the garden's languages in green. */
+.widget.is-live .l-tree {
+  font-size: 12px;
+  font-weight: 400;
+  fill: var(--ink-soft);
+}
+.widget.is-live .l-tree.is-mine {
+  fill: var(--garden);
+  font-weight: 700;
+  text-decoration: none;
+}
+.widget.is-live .l-tree.is-mine:hover {
+  text-decoration: underline;
+}
