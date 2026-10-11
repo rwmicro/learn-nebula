@@ -432,3 +432,122 @@
   fill: var(--ink);
   font-weight: 700;
 }
+
+/* "Mes lectures": the reader's finished notes in full colour with a garden
+   ring, every other note faded (opacity on the circle, CircularGraph.tsx),
+   and a short list of where to go next under the toggle. */
+.cg-mine {
+  margin-bottom: 0.6rem;
+}
+.cg-mine-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  width: 100%;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-pill, 999px);
+  background: var(--paper);
+  padding: 0.2rem 0.7rem;
+  font: inherit;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+.cg-mine-toggle:hover {
+  border-color: var(--garden);
+  color: var(--garden);
+}
+.cg-mine-toggle[aria-pressed="true"] {
+  background: var(--garden-wash);
+  border-color: var(--garden);
+  color: var(--ink);
+}
+.cg-mine-toggle:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+}
+.cg-mine-dot {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+  border: 2px solid var(--garden);
+  flex: none;
+}
+.cg-mine-toggle[aria-pressed="true"] .cg-mine-dot {
+  background: var(--garden);
+}
+.cg-mine-count {
+  margin-left: auto;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  text-transform: none;
+  font-weight: 400;
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.cg-mine-next {
+  margin-top: 0.5rem;
+}
+.cg-mine-next-k {
+  margin: 0 0 0.25rem;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+}
+.cg-mine-next ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.1rem;
+}
+.cg-mine-next li {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+}
+.cg-mine-next button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0.1rem 0.25rem;
+  border-radius: var(--radius-sm, 4px);
+  font: inherit;
+  font-size: 0.85rem;
+  color: var(--ink);
+  text-align: start;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cg-mine-next button:hover {
+  background: var(--wash-2);
+}
+.cg-mine-next a {
+  color: var(--link);
+  text-decoration: none;
+  padding: 0 0.3rem;
+}
+.cg-nodes circle.cg-read-node {
+  stroke: var(--garden);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
+}
+.cg-svg[data-mine] .cg-links path {
+  opacity: 0.45;
+}
+.cg-svg[data-mine] .cg-flabel:not(.is-read) {
+  opacity: 0.3;
+}
+.cg-flabel.is-read {
+  fill: var(--ink);
+  font-weight: 700;
+}

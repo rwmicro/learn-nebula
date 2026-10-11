@@ -467,6 +467,9 @@ body:has(.parcours-page) footer {
   line-height: 1.3;
   cursor: pointer;
 }
+a.parcours-tool {
+  text-decoration: none;
+}
 .parcours-tool:hover:not(:disabled) {
   background: var(--ink);
   color: var(--paper);

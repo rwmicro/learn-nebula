@@ -123,6 +123,24 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   the `Languages - Dialects` sub-folders at build), so a question about one
   language stops retrieving chunks from the seventeen others. The slug charset
   is what makes it safe to echo the folder name into the system prompt.
+- **Share images**: `scripts/build-og-images.ts` (tsx, before `next build`)
+  draws a 1200×630 card per note into `public/og/` (git-ignored; fonts in
+  `assets/og/`). Files are named by a hash of what they show (`lib/og.ts`), so
+  rebuilds only draw new/renamed notes. Note pages use the card only when the
+  file exists and the note has no image of its own. Never fails the build.
+- **`/jardin/`** (vault in numbers, `lib/garden-stats.ts`, server-only SVG) and
+  **`/parcours/<slug>/fiche/`** (printable revision sheet: definitions,
+  `[!important]` key points via `lib/path-sheet.ts`, quiz questions, answers on
+  the last page) are pure build-time pages.
+- **Widget goals**: a widget block can carry `objectif`, `cible`, `indice`,
+  `bravo`, `erreur` lines (syntax in pensine's `sources/CLAUDE.md`); builders in
+  `public/js/widgets.js` publish their values through `ctx.report()` and
+  `withGoals()` checks them. A reached goal fires `gk:widget-goal`.
+- **Pronunciation practice** (`public/js/pronounce.js`): after a clip plays, a
+  mic button opens a coach that records the reader (MediaRecorder, max 6 s,
+  nothing leaves the browser) and draws both waveforms. Playback goes through
+  Web Audio, not a `blob:` URL, so no CSP `media-src` change is needed; the
+  server's `Permissions-Policy` allows `microphone=(self)`.
 
 ## Conventions that bite
 

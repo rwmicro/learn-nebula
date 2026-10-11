@@ -26,6 +26,10 @@ import {
   slugFromHref,
 } from "../../lib/reading-progress";
 
+// A goal reached on a widget (public/js/widgets.js, loaded on demand and
+// outside this bundle) counts as a review in the activity calendar.
+document.addEventListener("gk:widget-goal", () => recordActivity("c"));
+
 (function () {
   const body = document.querySelector(".article-body");
   const box = document.querySelector(".read-state[data-slug]");

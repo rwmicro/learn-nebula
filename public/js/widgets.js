@@ -128,7 +128,7 @@
     return width === 32 ? dv.getFloat32(0) : dv.getFloat64(0);
   }
 
-  function ieee754(props) {
+  function ieee754(props, ctx) {
     const width = props.bits === "64" ? 64 : 32;
     const expLen = width === 32 ? 8 : 11;
     const mantLen = width === 32 ? 23 : 52;
@@ -182,6 +182,16 @@
       ];
       if (special) rows.push(["Cas particulier", special]);
 
+      ctx.report({
+        value: v,
+        sign: bits[0],
+        exponent: expRaw === 0 ? 1 - bias : expRaw - bias,
+        bits: bits.join(""),
+        // Gap between what was typed and what is stored (NaN while the
+        // field doesn't hold a number).
+        ecart: Math.abs(v - Number(input.value)),
+      });
+
       const typed = Number(input.value);
       if (Number.isFinite(typed) && typed !== v) {
         const d = v - typed;
@@ -228,7 +238,7 @@
 
   // ------------------------------------------------- two's complement widget
 
-  function complement2(props) {
+  function complement2(props, ctx) {
     const width = Math.min(32, Math.max(4, Number(props.bits ?? 8)));
     let bits = new Array(width).fill(0);
 
@@ -263,6 +273,7 @@
           draw();
         }),
       );
+      ctx.report({ signed: signedOf(), unsigned: unsignedOf(), bits: bits.join("") });
       out.replaceChildren(
         el("table", { class: "w-table" }, [
           el("tr", {}, [
@@ -468,7 +479,7 @@
 
   // ------------------------------------------------------- subnetting widget
 
-  function subnet(props) {
+  function subnet(props, ctx) {
     let addr = String(props.value ?? "192.168.10.5");
     let prefix = Number(props.prefix ?? 24);
 
@@ -499,6 +510,7 @@
       if (!parsed) {
         out.replaceChildren(el("p", { class: "w-warn" }, ["Adresse invalide."]));
         host.replaceChildren();
+        ctx.report(null);
         return;
       }
       const ip = parsed.n;
@@ -517,6 +529,14 @@
         ].filter((g) => g.len > 0), () => {}),
       );
 
+      ctx.report({
+        value: dotted(ip),
+        prefix,
+        hosts,
+        mask: dotted(mask),
+        network: dotted(net),
+        broadcast: prefix >= 31 ? "" : dotted(bcast),
+      });
       out.replaceChildren(
         el("table", { class: "w-table" }, [
           ["Masque", dotted(mask) + "  (/" + prefix + ")"],
@@ -814,7 +834,7 @@
 
   // -------------------------------------------- decision threshold widget
 
-  function seuil(props) {
+  function seuil(props, ctx) {
     // A fixed, deterministic sample: the lesson is the trade-off, so the data
     // must not move between renders. Simple LCG rather than Math.random().
     const N = 200;
@@ -849,6 +869,7 @@
       const prec = tp + fp ? tp / (tp + fp) : 0;
       const rec = tp + fn ? tp / (tp + fn) : 0;
       const f1 = prec + rec ? (2 * prec * rec) / (prec + rec) : 0;
+      ctx.report({ seuil: th, precision: prec, rappel: rec, f1, vp: tp, fp, fn, vn: tn });
 
       // Two stacked histograms, negatives above the axis, positives below.
       const W = 420, H = 120, bins = 40;
@@ -1520,7 +1541,7 @@
 
   // -------------------------------------------------------- Punnett widget
 
-  function punnett(props) {
+  function punnett(props, ctx) {
     const p1 = el("input", { type: "text", class: "w-input", value: String(props.parent1 ?? "Aa") });
     const p2 = el("input", { type: "text", class: "w-input", value: String(props.parent2 ?? "Aa") });
     for (const n of [p1, p2]) n.style.width = "7ch";
@@ -1560,6 +1581,16 @@
         rows.push(el("tr", {}, cells));
       }
       const total = a.length * b.length;
+      const withDom = Object.entries(tally)
+        .filter(([g]) => g.includes(dom.value))
+        .reduce((acc, [, n]) => acc + n, 0);
+      ctx.report({
+        parent1: p1.value.trim(),
+        parent2: p2.value.trim(),
+        dominant: dom.value.trim(),
+        genotypes: Object.keys(tally).length,
+        dominants: withDom / total,
+      });
       out.replaceChildren(
         el("table", { class: "w-table w-truth" }, rows),
         el("table", { class: "w-table" }, Object.entries(tally)
@@ -1591,7 +1622,7 @@
    * determinant is the factor the unit square's area is multiplied by, and the
    * eigenvectors are the directions the transform leaves on their own line.
    */
-  function matrice2d(props) {
+  function matrice2d(props, ctx) {
     const v = (k, d) => Number(props[k] ?? d);
     let m = [v("a", 1), v("b", 1), v("c", 0), v("d", 2)]; // a b / c d
     const fields = ["a", "b", "c", "d"].map((k, i) => {
@@ -1610,6 +1641,7 @@
       const [a, b, c, d] = m;
       const det = a * d - b * c;
       const tr = a + c === 0 ? a + d : a + d;
+      ctx.report({ a, b, c, d, det, trace: a + d });
       const kids = [];
       // Original grid, faint.
       for (let i = -3; i <= 3; i++) {
@@ -1683,7 +1715,7 @@
 
   // -------------------------------------------------------- logistic map
 
-  function logistique(props) {
+  function logistique(props, ctx) {
     let r = Number(props.r ?? 3.2);
     const slider = el("input", { type: "range", min: "2.4", max: "4", step: "0.001",
       value: String(r), class: "w-range", "aria-label": "paramètre r" });
@@ -1747,6 +1779,7 @@
         for (let i = 0; i + p < tail.length; i++) if (Math.abs(tail[i] - tail[i + p]) > 1e-4) { ok = false; break; }
         if (ok) { period = p; break; }
       }
+      ctx.report({ r, periode: period });
       out.replaceChildren(
         el("table", { class: "w-table" }, [
           ["r", r.toFixed(3)],
@@ -2600,6 +2633,209 @@
     ]);
   }
 
+
+  // ------------------------------------------------------------------ goals
+  //
+  // A widget block may set goals to reach, Brilliant-style: a task, the state
+  // that solves it, an optional hint, and messages for the usual mistakes.
+  // Props are flat `key: value` lines (widgetProps in lib/markdown.ts), so
+  // the 2nd, 3rd… goal take a suffix:
+  //
+  //   objectif: Le service compta a 50 postes. Trouvez le préfixe le plus long.
+  //   cible: prefix=26
+  //   indice: 50 machines demandent au moins 6 bits d'hôte.
+  //   erreur: prefix=27 → /27 ne laisse que 30 adresses. ;; prefix<26 → Ça marche, mais on peut serrer.
+  //   bravo: /26 laisse 62 adresses.
+  //   objectif-2: …   cible-2: …
+  //
+  // A condition is `key op value` (=, !=, <, <=, >, >=), several joined by
+  // commas; the keys are what the widget reports (ctx.report). Nothing is
+  // locked: a goal can be skipped, and the widget stays free to play with.
+  // A goal reached counts as a review in the activity calendar (the note
+  // bundle listens for gk:widget-goal, public/js/reading-state.js), and the
+  // goals already reached on this page are remembered in this browser.
+
+  const GOALS_KEY = "gkWidgetGoals";
+  const OPS = /^\s*([A-Za-z_][\w.-]*)\s*(>=|<=|!=|=|>|<)\s*(.+?)\s*$/;
+
+  function parseConds(src) {
+    return String(src || "")
+      .split(",")
+      .map((c) => OPS.exec(c))
+      .filter(Boolean)
+      .map((m) => ({ key: m[1], op: m[2], val: m[3] }));
+  }
+
+  function parseGoals(props) {
+    const out = [];
+    for (let i = 1; i <= 12; i++) {
+      const sfx = i === 1 ? "" : "-" + i;
+      const text = props["objectif" + sfx];
+      const conds = parseConds(props["cible" + sfx]);
+      if (!text || !conds.length) continue;
+      const errors = String(props["erreur" + sfx] || "")
+        .split(";;")
+        .map((e) => e.split(/\s*(?:→|->)\s*/))
+        .filter((p) => p.length >= 2)
+        .map((p) => ({ conds: parseConds(p[0]), msg: p.slice(1).join(" → ").trim() }))
+        .filter((e) => e.conds.length && e.msg);
+      out.push({
+        text: text,
+        conds: conds,
+        hint: props["indice" + sfx] || "",
+        bravo: props["bravo" + sfx] || "",
+        errors: errors,
+      });
+    }
+    return out;
+  }
+
+  function holds(state, conds) {
+    if (!state) return false;
+    return conds.every((c) => {
+      if (!(c.key in state)) return false;
+      const sv = state[c.key];
+      const a = Number(sv);
+      const b = Number(c.val);
+      const numeric = typeof sv !== "string" || (sv.trim() !== "" && Number.isFinite(a));
+      if (numeric && Number.isFinite(a) && Number.isFinite(b)) {
+        const eq = Math.abs(a - b) <= 1e-12 * Math.max(1, Math.abs(b));
+        if (c.op === "=") return eq;
+        if (c.op === "!=") return !eq;
+        if (c.op === "<") return a < b;
+        if (c.op === "<=") return a <= b || eq;
+        if (c.op === ">") return a > b;
+        return a >= b || eq;
+      }
+      // Exact text: genotypes (Aa ≠ aa) are case-sensitive.
+      const x = String(sv).trim();
+      const y = String(c.val).trim();
+      if (c.op === "=") return x === y;
+      if (c.op === "!=") return x !== y;
+      return false;
+    });
+  }
+
+  function loadDone(key) {
+    try {
+      const all = JSON.parse(localStorage.getItem(GOALS_KEY) || "{}");
+      return Number(all[location.pathname + "#" + key]) || 0;
+    } catch {
+      return 0;
+    }
+  }
+  function saveDone(key, n) {
+    try {
+      const all = JSON.parse(localStorage.getItem(GOALS_KEY) || "{}");
+      all[location.pathname + "#" + key] = n;
+      localStorage.setItem(GOALS_KEY, JSON.stringify(all));
+    } catch {
+      /* storage blocked: progress just isn't remembered */
+    }
+  }
+
+  function withGoals(node, goals, ctx, key) {
+    let cur = Math.min(loadDone(key), goals.length);
+    let solved = false;
+    let tries = 0;
+
+    const kicker = el("span", { class: "w-goal-k" });
+    const steps = el("span", { class: "w-goal-steps", "aria-hidden": "true" });
+    const text = el("p", { class: "w-goal-text" });
+    const hint = el("p", { class: "w-goal-hint" });
+    const msg = el("p", { class: "w-goal-msg", role: "status" });
+    const hintBtn = el("button", { type: "button", class: "w-goal-link" }, ["Un indice"]);
+    const skipBtn = el("button", { type: "button", class: "w-goal-link" }, ["Passer"]);
+    const checkBtn = el("button", { type: "button", class: "w-goal-btn" }, ["Vérifier"]);
+    const head = el("div", { class: "w-goal" }, [
+      el("div", { class: "w-goal-top" }, [kicker, steps]),
+      text,
+      hint,
+    ]);
+    const foot = el("div", { class: "w-goal-foot" }, [msg, hintBtn, skipBtn, checkBtn]);
+
+    function feedback(kind, words) {
+      foot.dataset.state = kind;
+      msg.replaceChildren(...words);
+    }
+
+    function render() {
+      solved = false;
+      tries = 0;
+      hint.hidden = true;
+      steps.replaceChildren(
+        ...goals.map((_, i) =>
+          el("i", { class: i < cur ? "is-done" : i === cur ? "is-current" : "" }),
+        ),
+      );
+      if (cur >= goals.length) {
+        kicker.textContent = goals.length > 1 ? "Objectifs atteints" : "Objectif atteint";
+        text.textContent = "Le widget reste libre : continuez à le manipuler.";
+        hintBtn.hidden = true;
+        skipBtn.hidden = true;
+        checkBtn.textContent = "Recommencer";
+        feedback("done", []);
+        return;
+      }
+      const g = goals[cur];
+      kicker.textContent = goals.length > 1 ? "Objectif " + (cur + 1) + " sur " + goals.length : "Objectif";
+      text.textContent = g.text;
+      hint.textContent = g.hint ? "Indice : " + g.hint : "";
+      hintBtn.hidden = !g.hint;
+      skipBtn.hidden = false;
+      checkBtn.textContent = "Vérifier";
+      feedback("idle", ["Manipulez le widget, puis vérifiez."]);
+    }
+
+    function check() {
+      if (cur >= goals.length) {
+        cur = 0;
+        saveDone(key, 0);
+        render();
+        return;
+      }
+      if (solved) {
+        cur++;
+        saveDone(key, cur);
+        render();
+        return;
+      }
+      const g = goals[cur];
+      tries++;
+      if (holds(ctx.state, g.conds)) {
+        solved = true;
+        hintBtn.hidden = true;
+        skipBtn.hidden = true;
+        checkBtn.textContent = cur + 1 < goals.length ? "Objectif suivant" : "Terminer";
+        feedback("ok", [el("b", {}, ["Juste ! "]), g.bravo || ""]);
+        document.dispatchEvent(new CustomEvent("gk:widget-goal", { detail: { first: tries === 1 } }));
+        return;
+      }
+      const err = g.errors.find((e) => holds(ctx.state, e.conds));
+      if (err) feedback("ko", [el("b", {}, ["Pas tout à fait. "]), err.msg]);
+      else feedback("ko", [el("b", {}, ["Pas encore. "]), g.hint && hint.hidden && tries >= 2 ? "Un indice peut aider." : ""]);
+    }
+
+    // Moving the widget after an answer clears the verdict, not the goal.
+    ctx.onChange = () => {
+      if (!solved && cur < goals.length && foot.dataset.state === "ko") {
+        feedback("idle", ["Manipulez le widget, puis vérifiez."]);
+      }
+    };
+    hintBtn.addEventListener("click", () => {
+      hint.hidden = false;
+      hintBtn.hidden = true;
+    });
+    skipBtn.addEventListener("click", () => {
+      cur++;
+      saveDone(key, cur);
+      render();
+    });
+    checkBtn.addEventListener("click", check);
+    render();
+    return el("div", { class: "w-goals" }, [head, node, foot]);
+  }
+
   // --------------------------------------------------------------- mounting
 
   const BUILDERS = {
@@ -2634,9 +2870,11 @@
     tcl: tcl,
   };
 
+  let index = 0;
   for (const fig of figures) {
     const name = fig.getAttribute("data-widget");
     const build = BUILDERS[name];
+    index++;
     if (!build) continue;
     let props = {};
     try {
@@ -2645,8 +2883,18 @@
       // Malformed props shouldn't take the widget down; defaults are fine.
     }
     try {
-      const node = build(props);
-      fig.replaceChildren(node);
+      // Builders that can be checked against a goal report their state on
+      // every redraw (ctx.report); the others never call it.
+      const ctx = { state: undefined, onChange: null };
+      ctx.report = (st) => {
+        ctx.state = st;
+        if (ctx.onChange) ctx.onChange();
+      };
+      const node = build(props, ctx);
+      const goals = parseGoals(props);
+      fig.replaceChildren(
+        goals.length && ctx.state !== undefined ? withGoals(node, goals, ctx, name + ":" + index) : node,
+      );
       fig.classList.add("is-live");
     } catch (e) {
       // Leave the fallback paragraph in place rather than an empty figure.

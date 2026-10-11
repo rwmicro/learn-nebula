@@ -342,6 +342,17 @@ body {
 .recent-meta time {
   font-style: italic;
 }
+.recent-notes-more {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.95rem;
+  color: var(--link);
+  text-decoration: none;
+}
+.recent-notes-more:hover {
+  text-decoration: underline;
+}
 
 /* Home hero image (#10): a plain brown border (no wood effect). */
 .home-frame {
@@ -1466,5 +1477,176 @@ body:has(.home-masthead) .site-bar {
   .coin-toast {
     animation-name: none;
     transform: translateX(-50%);
+  }
+}
+
+/* Pronunciation practice (/js/pronounce.js): the microphone that appears
+   next to a clip once it has been heard, and the panel it opens at the
+   bottom of the screen — the clip's waveform over the reader's, one time
+   scale, replayed one after the other. */
+.pron-mic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  padding: 0;
+  border: 1px solid var(--garden);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--garden);
+  cursor: pointer;
+}
+.pron-mic:hover {
+  background: var(--garden-wash);
+}
+.pron-mic:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.pron-coach {
+  position: fixed;
+  z-index: 1500;
+  left: 50%;
+  bottom: calc(0.8rem + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  width: min(36rem, calc(100vw - 1.6rem));
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem 1rem 0.9rem;
+  background: var(--paper-raised);
+  color: var(--ink);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.35);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.95rem;
+}
+.pron-coach:focus {
+  outline: none;
+}
+.pron-coach-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.3rem 0.8rem;
+}
+.pron-coach-word {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+.pron-coach-note {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.pron-coach-close {
+  margin-inline-start: auto;
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+.pron-coach-track {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr) 3rem;
+  align-items: center;
+  gap: 0.6rem;
+}
+.pron-coach-lab {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+.pron-coach-track canvas {
+  display: block;
+  width: 100%;
+  height: 40px;
+}
+.pron-coach-dur {
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+.pron-coach-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.pron-coach-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1px solid var(--rule-strong);
+  border-bottom-width: 3px;
+  border-radius: var(--radius-sm, 4px);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.25rem 0.9rem;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.pron-coach-btn:hover:not(:disabled) {
+  border-color: var(--ink-2);
+}
+.pron-coach-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.pron-coach-btn:focus-visible,
+.pron-coach-close:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.pron-coach-rec {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.pron-coach-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.pron-coach.is-recording .pron-coach-dot {
+  animation: pron-pulse 1s ease-in-out infinite;
+}
+.pron-coach-main {
+  background: var(--garden);
+  border-color: var(--garden);
+  border-bottom-color: color-mix(in srgb, var(--garden) 60%, #000);
+  color: var(--paper);
+}
+.pron-coach-main:hover:not(:disabled) {
+  background: var(--garden-hover);
+  border-color: var(--garden-hover);
+}
+.pron-coach-msg {
+  margin: 0;
+  min-height: 1.2em;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+}
+@media (prefers-reduced-motion: reduce) {
+  .pron-coach.is-recording .pron-coach-dot {
+    animation: none;
+  }
+}
+@media print {
+  .pron-mic,
+  .pron-coach {
+    display: none;
   }
 }
