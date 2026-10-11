@@ -15,14 +15,18 @@
 // mermaid bundle this way: look for the mount points first, and only then go
 // and get the code. Same-origin scripts, so the `script-src 'self'` CSP in
 // lib/site.ts holds unchanged.
-import { EXTRA_WIDGETS, PACK_BUNDLE } from "../../lib/widgets-extra";
+//
+// Each mount point says which pack it needs (`data-pack`, written at build by
+// rehypeWidgets in lib/markdown.ts), so only PACK_BUNDLE is imported here, not
+// the EXTRA_WIDGETS registry and its fallback texts.
+import { PACK_BUNDLE } from "../../lib/widgets-extra";
 
 (function () {
   const want = new Set();
   let legacy = false;
   for (const fig of document.querySelectorAll(".widget[data-widget]")) {
-    const extra = EXTRA_WIDGETS[fig.getAttribute("data-widget")];
-    if (extra) want.add(PACK_BUNDLE[extra.pack]);
+    const pack = fig.getAttribute("data-pack");
+    if (pack && PACK_BUNDLE[pack]) want.add(PACK_BUNDLE[pack]);
     else legacy = true;
   }
   if (document.querySelector(".prix[data-eur]")) want.add(PACK_BUNDLE.data);

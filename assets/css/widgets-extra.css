@@ -129,6 +129,11 @@
   margin-bottom: 0.6rem;
   font-size: var(--text-small);
 }
+.w-tabs .w-tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+}
 .w-tabs button {
   font: inherit;
   background: none;
