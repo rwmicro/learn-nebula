@@ -18,7 +18,11 @@ function tabbed(props, drawChart, extraTools) {
     ["Tableau", tablePane],
     ["Sources", srcPane],
   ];
-  const bar = el("div", { class: "w-tabs", role: "tablist" });
+  // The tablist holds only the tabs: an extra tool button inside it breaks
+  // the ARIA role (axe: aria-required-children), so it sits beside it.
+  const bar = el("div", { class: "w-tabs" });
+  const list = el("div", { class: "w-tablist", role: "tablist" });
+  bar.appendChild(list);
   const buttons = tabs.map(([label, pane], i) =>
     el(
       "button",
@@ -35,7 +39,7 @@ function tabbed(props, drawChart, extraTools) {
       [label],
     ),
   );
-  buttons.forEach((b) => bar.appendChild(b));
+  buttons.forEach((b) => list.appendChild(b));
   if (extraTools) {
     bar.appendChild(el("span", { class: "w-tab-spacer" }));
     bar.appendChild(extraTools);

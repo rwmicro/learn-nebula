@@ -1411,6 +1411,10 @@ function rehypeWidgets(dir: string) {
         properties: {
           className: ["widget"],
           "data-widget": name,
+          // Which pack bundle the loader fetches; absent for the original
+          // library. Read by public/js/widgets-loader.js so that the note
+          // bundle every page downloads needn't carry the widget registry.
+          "data-pack": extra?.pack,
           "data-props": JSON.stringify(props),
           "data-pagefind-ignore": true,
         },
