@@ -216,7 +216,7 @@ main .path-step a:focus-visible,
   max-height: min(80vh, 44rem);
   padding: 0;
   border: 1px solid var(--rule-strong);
-  border-radius: 16px;
+  border-radius: var(--radius-lg, 16px);
   background: var(--paper-raised);
   color: var(--ink);
   box-shadow: 0 18px 50px -12px rgb(0 0 0 / 0.4);
@@ -277,7 +277,7 @@ main .path-sheet-name {
 }
 .path-sheet-bar {
   height: 6px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs, 3px);
   background: var(--rule);
   overflow: hidden;
 }
@@ -394,7 +394,7 @@ main .path-sheet-btn {
   flex: 1;
   padding: 0.6rem 0.5rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 10px;
+  border-radius: var(--radius-sm, 10px);
   background: var(--paper);
   color: var(--ink);
   font-weight: 700;
@@ -419,7 +419,7 @@ main .path-sheet-btn:focus-visible {
     max-height: none;
     margin: auto 0 0;
     border: 0;
-    border-radius: 18px 18px 0 0;
+    border-radius: var(--radius-lg, 18px) var(--radius-lg, 18px) 0 0;
     animation: path-sheet-up 0.22s ease-out;
   }
   .path-sheet-grab {
@@ -427,7 +427,7 @@ main .path-sheet-btn:focus-visible {
     width: 40px;
     height: 5px;
     margin: -0.45rem auto 0.5rem;
-    border-radius: 3px;
+    border-radius: var(--radius-xs, 3px);
     background: var(--rule-strong);
   }
   .path-sheet-foot {
