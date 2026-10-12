@@ -104,7 +104,6 @@ body:has(.parcours-page) footer {
   min-width: 0;
   padding: 0.75rem 0.9rem 0.8rem;
   border: 1px solid var(--rule);
-  border-top: 3px solid var(--fam, var(--rule));
   border-radius: var(--radius-md);
   background: var(--paper);
   color: inherit;
@@ -116,7 +115,6 @@ body:has(.parcours-page) footer {
 .themes-page a.parcours-tile-link:hover {
   text-decoration: none;
   border-color: var(--rule-strong);
-  border-top-color: var(--fam, var(--rule-strong));
   background: var(--fam-wash, var(--wash));
 }
 .parcours-card-link:hover .parcours-card-title,

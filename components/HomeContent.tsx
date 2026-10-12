@@ -586,7 +586,7 @@ export function HomeContent({
         <a
           href={`/posts/${resume.slug}/#reprendre`}
           data-pagefind-ignore
-          className="group mb-10 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md border border-rule border-l-[3px] border-l-garden px-5 py-3 text-ink no-underline hover:bg-wash"
+          className="group mb-10 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md bg-[var(--garden-wash)] px-5 py-3 text-ink no-underline"
         >
           <span className="text-micro font-semibold uppercase tracking-[0.1em] text-garden">
             {tr("reading.resumeTitle")}
@@ -653,7 +653,7 @@ export function HomeContent({
             </p>
           </section>
 
-          <section className="rounded-md border border-rule px-6 py-5">
+          <section className="rounded-md bg-wash px-6 py-5">
             <div className="mb-[0.6rem] flex items-center justify-between gap-2">
               <h2 className={labelCls}>{tr("home.askLabel")}</h2>
               {/* Pushpin: dock the assistant at the bottom-right and keep it there

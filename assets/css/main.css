@@ -647,7 +647,6 @@ h4:focus-within .anchor,
   overflow-x: auto;
   padding: 0.4rem 0.6rem;
   border: 1px solid var(--rule-strong);
-  border-left: 3px solid var(--rule-strong);
   background-color: inherit;
 }
 
@@ -2526,15 +2525,17 @@ a.theme-pill:focus-visible {
   }
 }
 
-/* Obsidian-style callouts (built by rehypeCallouts in lib/markdown.ts). */
+/* Obsidian-style callouts (built by rehypeCallouts in lib/markdown.ts).
+   Square, with the hue as a straight rule on the left and no frame: a rule
+   on a rounded box bends into a bracket. */
 .callout {
   --c: var(--callout-blue);
   margin: 1.4rem 0;
-  padding: 0.55rem 0.9rem;
-  border: 1px solid var(--rule);
-  border-left: 4px solid var(--c);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--c) 7%, var(--paper));
+  padding: 0.55rem 0.9rem 0.55rem 1rem;
+  border: 0;
+  border-left: 3px solid var(--c);
+  border-radius: 0;
+  background: color-mix(in srgb, var(--c) 6%, var(--paper));
 }
 .callout-title,
 .callout summary.callout-title {
@@ -2628,7 +2629,6 @@ a.theme-pill:focus-visible {
   width: 100%;
   font-size: 0.95rem;
   border: 1px solid var(--rule-strong);
-  border-left: 3px solid var(--rule-strong);
   background: inherit;
 }
 .manim-figure .manim-source > summary {
@@ -2681,13 +2681,13 @@ main video {
 .widget-fallback {
   margin: 0;
   padding: 0.7rem 0.9rem;
-  border: 1px solid var(--rule-strong);
+  border: 1px solid var(--rule);
   border-radius: var(--radius-md);
   color: var(--muted);
   font-size: var(--text-small);
 }
 .widget.is-live .w-root {
-  border: 1px solid var(--rule-strong);
+  border: 1px solid var(--rule);
   border-radius: var(--radius-md);
   padding: 0.9rem;
   background: var(--paper);
@@ -3293,6 +3293,14 @@ main video {
  * ------------------------------------------------------------------------- */
 .callout-quiz {
   --c: var(--garden);
+}
+/* Review questions stand apart from the square callouts: no rule, no frame,
+   a softer tint and the Doux corners. */
+.callout-quiz:not(.quiz--choice) {
+  border: 0;
+  border-radius: var(--radius-md);
+  padding-left: 0.9rem;
+  background: color-mix(in srgb, var(--c) var(--tint-soft), var(--paper));
 }
 .quiz-question {
   margin: 0.4rem 0 0;
@@ -4730,8 +4738,6 @@ mark.hl--new {
   font: inherit;
   font-weight: 700;
   border: 1px solid var(--garden);
-  border-bottom-width: 3px;
-  border-bottom-color: color-mix(in srgb, var(--garden) 60%, #000);
   border-radius: var(--radius-sm, 4px);
   background: var(--garden);
   color: var(--paper);
@@ -4742,7 +4748,7 @@ mark.hl--new {
   background: var(--garden-hover);
 }
 .w-goal-btn:active {
-  transform: translateY(2px);
+  transform: translateY(1px);
 }
 .w-goal-link:focus-visible,
 .w-goal-btn:focus-visible {
@@ -4753,4 +4759,34 @@ mark.hl--new {
   .w-goal-btn:active {
     transform: none;
   }
+}
+
+/* ```iso:<name>``` figures (lib/markdown.ts rehypeIsoFigures). The plate's own
+   look is the kit's /figures/iso.css; here it only takes the column's width
+   and a margin that matches the other figures. */
+.iso-mount {
+  margin: 2rem 0;
+  max-width: 100%;
+  font-family: inherit;
+}
+.iso-mount .iso-figure {
+  margin: 0;
+}
+/* The site's bare `figcaption` rules float captions into the margin (or box
+   them below ~1650px); the plate's legend sits under the plate instead. */
+.iso-mount figcaption.iso-legend {
+  float: none;
+  clear: none;
+  position: static;
+  width: auto;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  border: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.iso-mount .iso-stage:focus-visible {
+  outline: 2px solid var(--color-garden, currentColor);
+  outline-offset: 4px;
 }

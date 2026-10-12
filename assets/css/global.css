@@ -24,14 +24,18 @@
                  thin progress/timeline bars, swatches.
      sm    8px   controls: buttons, inputs, selects, tooltips, choice tiles,
                  images and figures, small tags that are not pills.
-     md    14px  blocks in the page flow and anchored popovers: cards, callouts,
-                 quizzes, code blocks, widgets, diagrams, menus, panels.
+     md    14px  blocks in the page flow and anchored popovers: cards, quizzes,
+                 widgets, diagrams, menus, panels.
      lg    20px  floating sheets on top of the page: dialogs, the palette, the
                  assistant window, the parcours dock, end-of-lesson screens.
      pill  999px chips, badges, segmented pills, rounded progress tracks.
    Circles (dots, avatars, icon-only round buttons) use 50%; deliberate 0 is
-   kept only for things that are squares by nature (chessboard cells) or that
-   sit flush inside a rounded parent (menu rows, tab strips).
+   kept only for things that are squares by nature (chessboard cells), that
+   sit flush inside a rounded parent (menu rows, tab strips), and for the two
+   printed-page blocks of a note: callouts (a straight hue rule on the left,
+   which a rounded corner would bend) and code blocks.
+   A coloured accent never sits as a bar on one side of a rounded box: tint
+   the fill or colour the title instead.
    Nested surfaces step down one level (an sm button inside an md card), or use
    calc(var(--radius-md) - 1px) when a child exactly fills its parent's border. */
 @theme static {
@@ -98,6 +102,9 @@
   --rule-soft: #eee;
   --rule: #e4e2dd;
   --rule-strong: #ccc;
+  /* How much of its hue a borderless tinted block mixes in (review questions):
+     dark paper needs more to read as a surface. */
+  --tint-soft: 9%;
   /* The link blue and its tints. */
   --link: #003366;
   --link-wash: #f0f7ff;
@@ -156,6 +163,7 @@
   --rule-soft: #2c2a27;
   --rule: #36342f;
   --rule-strong: #4a4741;
+  --tint-soft: 14%;
   --link: #9cc2ec; /* 9.3:1 */
   --link-wash: #1f2a37;
   --link-soft: #34506f;
@@ -200,6 +208,7 @@
     --rule-soft: #2c2a27;
     --rule: #36342f;
     --rule-strong: #4a4741;
+    --tint-soft: 14%;
     --link: #9cc2ec;
     --link-wash: #1f2a37;
     --link-soft: #34506f;
