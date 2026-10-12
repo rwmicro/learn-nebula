@@ -59,6 +59,12 @@ const daily = env.askDaily > 0 ? new Quota(env.askDaily, 86_400_000) : null;
 const DAILY_KEY = "ask:all";
 const inflight = new InFlight();
 
+/** Calls counted against the daily backstop over the last 24 h, for /admin
+ *  (null limit = no cap configured, so nothing is counted). */
+export function askUsage(): { used: number | null; limit: number | null } {
+  return daily ? { used: daily.count(DAILY_KEY), limit: env.askDaily } : { used: null, limit: null };
+}
+
 export const askRoute = new Hono();
 
 askRoute.post("/", async (c) => {

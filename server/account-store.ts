@@ -97,6 +97,13 @@ export const ACCOUNT_SCHEMA = `
   );
   CREATE INDEX IF NOT EXISTS idx_coin_events_kind_ref ON coin_events(user_id, kind, ref);
   CREATE INDEX IF NOT EXISTS idx_coin_events_day ON coin_events(user_id, day);
+  -- One row per account and day it was seen (Europe/Paris days): the
+  -- /admin "lecteurs actifs" chart. Written at most hourly, with last_seen.
+  CREATE TABLE IF NOT EXISTS daily_active (
+    day TEXT NOT NULL,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    PRIMARY KEY (day, user_id)
+  );
   CREATE TABLE IF NOT EXISTS streaks (
     user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
     current INTEGER NOT NULL DEFAULT 0,
@@ -154,7 +161,17 @@ export function createSession(db: DB, userId: number, now = Date.now()): string 
     now,
     now + SESSION_TTL_MS,
   );
+  // Logging in is activity: a reader who signs up and leaves within the hour
+  // (before sessionUser's hourly last_seen write) still counts for the day.
+  markActive(db, userId, now);
   return token;
+}
+
+function markActive(db: DB, userId: number, now: number) {
+  db.prepare("INSERT OR IGNORE INTO daily_active (day, user_id) VALUES (?, ?)").run(
+    dayIn(DEFAULT_TZ, new Date(now)),
+    userId,
+  );
 }
 
 /** The session's user, or null. `refreshed`: the expiry was just pushed back
@@ -181,11 +198,10 @@ export function sessionUser(
   }
   // last_seen feeds the admin's "active in the last 7 days"; an hour's
   // resolution is plenty and spares a write per request.
-  db.prepare("UPDATE users SET last_seen = ? WHERE id = ? AND (last_seen IS NULL OR last_seen < ?)").run(
-    now,
-    row.user_id,
-    now - 3_600_000,
-  );
+  const seen = db
+    .prepare("UPDATE users SET last_seen = ? WHERE id = ? AND (last_seen IS NULL OR last_seen < ?)")
+    .run(now, row.user_id, now - 3_600_000);
+  if (seen.changes) markActive(db, row.user_id, now);
   return { userId: row.user_id, refreshed };
 }
 
@@ -585,6 +601,50 @@ export function buy(db: DB, userId: number, id: string, now = Date.now()): BuyRe
 
 // --- admin ----------------------------------------------------------------------
 
+/** The account behind a session, for the admin check: its e-mail and when the
+ *  session was created (admin rights need a recent login). */
+export function sessionAccount(
+  db: DB,
+  token: string | undefined,
+): { email: string; createdAt: number } | null {
+  if (!token || token.length > 200) return null;
+  const row = db
+    .prepare(
+      "SELECT u.email AS email, s.created_at AS createdAt FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.hash = ? AND s.expires_at > ?",
+    )
+    .get(hashToken(token), Date.now()) as { email: string; createdAt: number } | undefined;
+  return row ?? null;
+}
+
+export interface AccountRow {
+  id: number;
+  email: string;
+  createdAt: number;
+  lastSeen: number | null;
+  coins: number;
+  /** Coins earned from activity (reads, reviews, active days) over the last
+   *  24 hours — the /admin "à vérifier" flag. Streak milestones and the
+   *  welcome gift are fixed one-offs, so they don't count. */
+  coins24h: number;
+  /** Progress keys synced (notes read, reviews, etc. — one row per key). */
+  progressKeys: number;
+}
+
+/** Every account, most recently active first, for the /admin list. */
+export function accountList(db: DB, limit = 500, now = Date.now()): AccountRow[] {
+  return db
+    .prepare(
+      `SELECT u.id AS id, u.email AS email, u.created_at AS createdAt, u.last_seen AS lastSeen,
+              COALESCE((SELECT SUM(amount) FROM coin_events WHERE user_id = u.id), 0) AS coins,
+              COALESCE((SELECT SUM(amount) FROM coin_events WHERE user_id = u.id AND amount > 0 AND kind NOT IN ('streak', 'welcome') AND created_at >= @since), 0) AS coins24h,
+              (SELECT count(*) FROM progress WHERE user_id = u.id) AS progressKeys
+         FROM users u
+        ORDER BY COALESCE(u.last_seen, u.created_at) DESC
+        LIMIT @limit`,
+    )
+    .all({ limit, since: now - 86_400_000 }) as AccountRow[];
+}
+
 /** Aggregates only — never an e-mail address. */
 export function accountStats(db: DB, now = Date.now()): { accounts: number; active7d: number; coinsInCirculation: number } {
   const one = (sql: string, ...args: unknown[]) => (db.prepare(sql).get(...args) as { n: number }).n;
@@ -593,4 +653,12 @@ export function accountStats(db: DB, now = Date.now()): { accounts: number; acti
     active7d: one("SELECT count(*) AS n FROM users WHERE last_seen >= ?", now - 7 * 86_400_000),
     coinsInCirculation: one("SELECT COALESCE(SUM(amount), 0) AS n FROM coin_events"),
   };
+}
+
+/** Distinct accounts seen per day (YYYY-MM-DD, Europe/Paris) from `sinceDay`. */
+export function activeByDay(db: DB, sinceDay: string): Record<string, number> {
+  const rows = db
+    .prepare("SELECT day, count(*) AS n FROM daily_active WHERE day >= ? GROUP BY day")
+    .all(sinceDay) as { day: string; n: number }[];
+  return Object.fromEntries(rows.map((r) => [r.day, r.n]));
 }

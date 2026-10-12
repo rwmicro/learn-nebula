@@ -1,25 +1,42 @@
 "use client";
 
-// Owner-only tool: a dashboard of what needs doing, then three tabs —
-// Lecteurs (comment moderation, published comments, questions asked),
-// Contenu (vault health, prerequisite suggestions) and Site (assistant,
-// version). Gated purely by the same COMMENTS_ADMIN_TOKEN the API already
-// checks — this page has no secrets of its own, it just calls the protected
-// endpoints with whatever token the owner pastes in.
+// Owner-only console: a sidebar of sections — Lecteurs (comment moderation,
+// questions, failed searches), Contenu (vault health, prerequisites, facts),
+// Comptes, Activité (30-day charts, LLM spend) and Site (assistant, version,
+// rebuild, notifications, journal) — with a dashboard of what needs doing above
+// them, and keyboard shortcuts for all of it ("?" lists them). This page has no secrets of its own: it calls the protected
+// endpoints either through the owner's reader session (an account listed in
+// ADMIN_EMAILS — an HttpOnly cookie, nothing kept in JS) or, failing that,
+// with the COMMENTS_ADMIN_TOKEN pasted in (server/auth.ts).
 //
 // The tabs, their cards and the dashboard tiles are declared in
 // components/admin/config.tsx; data is shared through components/admin/store.ts.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FOCUS_RING } from "./admin/shared";
-import { URLS, clearResources, setResource } from "./admin/store";
+import { BUTTON_CLASS, FOCUS_RING, UNDO_MS, type ToastAction } from "./admin/shared";
+import { URLS, bump, clearResources, forgetIgnored, reloadAll, setResource, syncIgnored } from "./admin/store";
 import { ADMIN_TABS, type TabId } from "./admin/config";
-import { Dashboard } from "./admin/Dashboard";
+import { Dashboard, resetTileCounts, useTileCounts } from "./admin/Dashboard";
 import { AdminTabs } from "./admin/AdminTabs";
-import { AssistantCard } from "./admin/AssistantCard";
+import { EVENTS_TICK } from "./admin/EventsCard";
+import { PUBLISHED_TICK } from "./admin/PublishedComments";
+import { ShortcutsHelp } from "./admin/ShortcutsHelp";
 
+// sessionStorage, not localStorage: the token survives a reload of this tab
+// but not closing it, so it doesn't sit on disk for any script to find later.
 const TOKEN_KEY = "gkAdminToken";
+const ME_URL = "/api/admin/me";
+// The account page logs the owner in and, from the e-mailed link, comes back.
+const ACCOUNT_LOGIN = "/compte/?next=%2Fadmin%2F";
 const DEFAULT_TAB: TabId = ADMIN_TABS[0].id;
+// "g" then a section key must follow within this delay.
+const CHORD_MS = 1500;
+
+/** Typing somewhere: single-key shortcuts must not fire. */
+function isTyping(t: EventTarget | null): boolean {
+  if (!(t instanceof HTMLElement)) return false;
+  return t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName);
+}
 
 function isTab(v: string): v is TabId {
   return ADMIN_TABS.some((t) => t.id === v);
@@ -52,18 +69,24 @@ export function AdminPanel() {
   // (the form stays up, with the error, until a request actually succeeds).
   const [token, setToken] = useState("");
   const [connected, setConnected] = useState(false);
+  // How we're in: the owner's account session (with its e-mail) or the token.
+  const [session, setSession] = useState<{ email: string } | null>(null);
   const [tokenInput, setTokenInput] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
   const [tab, setTab] = useState<TabId>(DEFAULT_TAB);
   // A target to reveal once the tab it lives in has rendered.
   const pendingReveal = useRef<string | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; action?: ToastAction } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showToast = useCallback((message: string) => {
+  const [help, setHelp] = useState(false);
+
+  const showToast = useCallback((message: string, action?: ToastAction) => {
+    // Every toast follows an action the journal may have recorded.
+    bump(EVENTS_TICK);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    setToast(message);
-    toastTimer.current = setTimeout(() => setToast(null), 2600);
+    setToast({ message, action });
+    toastTimer.current = setTimeout(() => setToast(null), action ? UNDO_MS : 2600);
   }, []);
   useEffect(
     () => () => {
@@ -133,7 +156,7 @@ export function AdminPanel() {
         setAuthError("Jeton invalide (ou modération non configurée côté serveur).");
         setConnected(false);
         try {
-          localStorage.removeItem(TOKEN_KEY);
+          sessionStorage.removeItem(TOKEN_KEY);
         } catch {
           /* ignore */
         }
@@ -145,7 +168,7 @@ export function AdminPanel() {
       setToken(tok);
       setConnected(true);
       try {
-        localStorage.setItem(TOKEN_KEY, tok);
+        sessionStorage.setItem(TOKEN_KEY, tok);
       } catch {
         /* ignore */
       }
@@ -156,25 +179,70 @@ export function AdminPanel() {
   }, []);
 
   useEffect(() => {
+    // Older builds kept it in localStorage: wipe that copy.
     try {
-      const saved = localStorage.getItem(TOKEN_KEY);
-      if (saved) {
-        setTokenInput(saved);
-        tryConnect(saved);
-      }
+      localStorage.removeItem(TOKEN_KEY);
     } catch {
       /* localStorage unavailable */
     }
+    let cancelled = false;
+    (async () => {
+      // The owner's account session first: no token at all.
+      try {
+        const r = await fetch(ME_URL, { cache: "no-store" });
+        if (r.ok) {
+          const me = (await r.json()) as { via?: string; email?: string };
+          if (!cancelled && me.via === "session") {
+            setSession({ email: me.email ?? "" });
+            setConnected(true);
+            return;
+          }
+        }
+      } catch {
+        /* server unreachable: the token form below reports it */
+      }
+      if (cancelled) return;
+      try {
+        const saved = sessionStorage.getItem(TOKEN_KEY);
+        if (saved) {
+          setTokenInput(saved);
+          tryConnect(saved);
+        }
+      } catch {
+        /* sessionStorage unavailable */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [tryConnect]);
+
+  /** Off to the account page for a fresh magic link (dropping a reader
+   *  session too old to carry admin rights, so the page offers the form). */
+  const loginWithAccount = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      /* the account page will show whatever state we're in */
+    }
+    window.location.assign(ACCOUNT_LOGIN);
+  }, []);
 
   /** Stable identity: cards list it as an effect dependency. */
   const disconnect = useCallback(() => {
     try {
-      localStorage.removeItem(TOKEN_KEY);
+      sessionStorage.removeItem(TOKEN_KEY);
     } catch {
       /* ignore */
     }
     clearResources();
+    resetTileCounts();
+    forgetIgnored();
+    setSession((s) => {
+      // Logged in by account: logging out of /admin/ ends that session.
+      if (s) fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+      return null;
+    });
     setToken("");
     setConnected(false);
     setAuthError(null);
@@ -183,9 +251,88 @@ export function AdminPanel() {
 
   /** A card saw a 401 mid-session. */
   const expired = useCallback(() => {
+    const bySession = session !== null;
     disconnect();
-    setAuthError("Le jeton n'est plus valide — reconnecte-toi.");
-  }, [disconnect]);
+    setAuthError(
+      bySession
+        ? "Ta session admin a expiré : redemande un lien de connexion."
+        : "Le jeton n'est plus valide — reconnecte-toi.",
+    );
+  }, [disconnect, session]);
+
+  // Ignored prerequisite suggestions live on the server: load them once in.
+  useEffect(() => {
+    if (connected) syncIgnored(token);
+  }, [connected, token]);
+
+  // "(3) Administration": the pending queue, visible from another tab.
+  const pendingCount = useTileCounts().pending ?? 0;
+  const baseTitle = useRef<string | null>(null);
+  useEffect(() => {
+    if (baseTitle.current === null) baseTitle.current = document.title.replace(/^\(\d+\) /, "");
+    document.title = connected && pendingCount > 0 ? `(${pendingCount}) ${baseTitle.current}` : baseTitle.current;
+  }, [connected, pendingCount]);
+  useEffect(
+    () => () => {
+      if (baseTitle.current !== null) document.title = baseTitle.current;
+    },
+    [],
+  );
+
+  // --- global shortcuts: g + section key (or 1–5), "/" to filter, "r" to
+  // refresh, "?" for the list. Per-card keys (a/d/j/k/x on a pending comment)
+  // handle their own event first and mark it.
+  const chord = useRef(0);
+  useEffect(() => {
+    if (!connected) return;
+    function onKey(e: globalThis.KeyboardEvent) {
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
+      const k = e.key;
+      if (Date.now() - chord.current < CHORD_MS) {
+        chord.current = 0;
+        const t = ADMIN_TABS.find((x) => x.key === k.toLowerCase());
+        if (t) {
+          e.preventDefault();
+          selectTab(t.id);
+          document.getElementById(`admin-tab-${t.id}`)?.focus();
+        }
+        return;
+      }
+      if (k === "g") {
+        chord.current = Date.now();
+        return;
+      }
+      if (/^[1-9]$/.test(k) && ADMIN_TABS[Number(k) - 1]) {
+        e.preventDefault();
+        selectTab(ADMIN_TABS[Number(k) - 1].id);
+        return;
+      }
+      if (k === "/") {
+        const field = document.querySelector<HTMLInputElement>(
+          `#admin-panel-${tab} input[type=search]`,
+        );
+        if (field) {
+          e.preventDefault();
+          field.focus();
+          field.select();
+        }
+        return;
+      }
+      if (k === "r") {
+        e.preventDefault();
+        reloadAll(token).catch(() => {});
+        bump(PUBLISHED_TICK);
+        showToast("Tout est relu.");
+        return;
+      }
+      if (k === "?") {
+        e.preventDefault();
+        setHelp(true);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [connected, tab, token, selectTab, showToast]);
 
   const cardProps = useMemo(
     () => ({ token, onUnauthorized: expired, onToast: showToast }),
@@ -194,7 +341,7 @@ export function AdminPanel() {
   const tileCtx = useMemo(() => ({ token, onUnauthorized: expired }), [token, expired]);
 
   return (
-    <div className="admin-panel mx-auto max-w-[42rem] px-6 py-10">
+    <div className={`admin-panel mx-auto px-4 py-8 sm:px-6 ${connected ? "is-console" : ""}`}>
       <header className="admin-head">
         <h1 className="admin-title m-0 flex items-center gap-2 text-2xl font-bold text-ink">
           <svg
@@ -223,7 +370,13 @@ export function AdminPanel() {
               className="inline-block h-2 w-2 rounded-full"
               style={{ background: "var(--garden)" }}
             />
-            connecté
+            {session ? (
+              <span>
+                connecté · <span className="admin-subject">{session.email}</span>
+              </span>
+            ) : (
+              "connecté (jeton)"
+            )}
             <button
               type="button"
               onClick={disconnect}
@@ -237,10 +390,16 @@ export function AdminPanel() {
 
       {!connected ? (
         <>
-          {/* Public: GET /healthz needs no token. */}
-          <AssistantCard />
           <section className="admin-card">
             <h2 className="admin-eyebrow m-0 mb-2 text-small font-semibold text-muted-warm">connexion</h2>
+            <p className="m-0 mb-3 text-small text-muted-warm">
+              Avec ton compte lecteur (adresse listée dans <code>ADMIN_EMAILS</code>) : un lien par e-mail, rien à
+              coller ni à garder dans le navigateur.
+            </p>
+            <button type="button" onClick={loginWithAccount} className={`admin-btn-primary ${FOCUS_RING}`}>
+              Recevoir un lien de connexion
+            </button>
+            <p className="m-0 mt-4 mb-2 text-small text-muted-warm">Ou avec le jeton admin :</p>
             <form
               className="flex gap-2"
               onSubmit={(e) => {
@@ -257,7 +416,7 @@ export function AdminPanel() {
                 autoComplete="off"
                 className={`min-w-0 flex-1 rounded border border-rule-strong bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
               />
-              <button type="submit" className={`admin-btn-primary ${FOCUS_RING}`}>
+              <button type="submit" className={BUTTON_CLASS}>
                 Se connecter
               </button>
             </form>
@@ -266,17 +425,39 @@ export function AdminPanel() {
         </>
       ) : (
         <>
-          <Dashboard ctx={tileCtx} onJump={jump} />
-          <AdminTabs active={tab} onSelect={selectTab} card={cardProps} />
+          <AdminTabs
+            active={tab}
+            onSelect={selectTab}
+            card={cardProps}
+            top={<Dashboard ctx={tileCtx} onJump={jump} />}
+            footer={
+              <button type="button" onClick={() => setHelp(true)} className={`admin-side-help ${FOCUS_RING}`}>
+                <kbd>?</kbd> raccourcis
+              </button>
+            }
+          />
+          <ShortcutsHelp open={help} onClose={() => setHelp(false)} />
         </>
       )}
 
       {toast && (
         <div
           role="status"
-          className="admin-toast fixed bottom-6 left-1/2 -translate-x-1/2 rounded bg-ink px-3 py-2 text-small text-paper shadow-lg"
+          className="admin-toast fixed bottom-6 left-1/2 flex -translate-x-1/2 items-center gap-3 rounded bg-ink px-3 py-2 text-small text-paper shadow-lg"
         >
-          {toast}
+          {toast.message}
+          {toast.action && (
+            <button
+              type="button"
+              onClick={() => {
+                toast.action?.run();
+                setToast(null);
+              }}
+              className={`admin-toast-action rounded font-semibold underline underline-offset-2 ${FOCUS_RING}`}
+            >
+              {toast.action.label}
+            </button>
+          )}
         </div>
       )}
     </div>

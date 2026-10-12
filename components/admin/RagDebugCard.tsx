@@ -107,7 +107,7 @@ export function RagDebugCard({ token, onUnauthorized }: AdminCardProps) {
   const ready = info?.enabled && info.state.state === "ready";
 
   return (
-    <section id="admin-rag-debug" className="admin-card">
+    <section id="admin-rag-debug" className="admin-card admin-card--wide">
       <CardHeader title="banc d'essai de l'assistant">
         <RefreshButton busy={res.busy} onClick={() => res.reload()} label="Revérifier l'état de l'index" />
       </CardHeader>

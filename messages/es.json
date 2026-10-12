@@ -110,7 +110,9 @@
     "sending": "Enviando…",
     "publishedOk": "Comentario publicado.",
     "publishedPending": "Comentario enviado; pendiente de moderación.",
-    "networkError": "Error de red; inténtalo de nuevo."
+    "networkError": "Error de red; inténtalo de nuevo.",
+    "authorBadge": "autor",
+    "replyTo": "en respuesta a {name}"
   },
   "siblings": {
     "moreIn": "Más en {folder}",

@@ -16,12 +16,13 @@ import {
   RefreshButton,
   Unauthorized,
   adminFetch,
-  fmtDate,
+  fmtShort,
   fmtDateTime,
   plural,
   type AdminCardProps,
 } from "./shared";
 import { URLS, setResource, useAdminResource } from "./store";
+import { SortTable, type Column } from "./SortTable";
 
 interface Miss {
   q: string;
@@ -36,18 +37,12 @@ export interface MissesData {
   total: number;
 }
 
-type View = "top" | "recent";
-const VIEWS: { id: View; label: string }[] = [
-  { id: "top", label: "fréquentes" },
-  { id: "recent", label: "récentes" },
-];
 const WHERE_LABEL: Record<string, string> = { home: "accueil", note: "page de note" };
 
 export function SearchMissesCard({ token, onUnauthorized, onToast }: AdminCardProps) {
   const res = useAdminResource<MissesData>(URLS.searchMisses, token, onUnauthorized);
   const data = res.data;
   const error = res.failed ? (res.error ?? "Impossible de charger les recherches sans résultat.") : null;
-  const [view, setView] = useState<View>("top");
   const [removing, setRemoving] = useState<string | null>(null);
 
   const dismiss = async (m: Miss) => {
@@ -73,7 +68,46 @@ export function SearchMissesCard({ token, onUnauthorized, onToast }: AdminCardPr
     }
   };
 
-  const rows = data ? (view === "top" ? data.top : data.recent) : [];
+  // The server sends the most frequent and the most recent; one sortable
+  // table holds both.
+  const rows = data
+    ? [...new Map([...data.top, ...data.recent].map((m) => [`${m.where}:${m.q}`, m])).values()]
+    : [];
+  const columns: Column<Miss>[] = [
+    {
+      id: "q",
+      label: "Recherche",
+      sortValue: (m) => m.q,
+      cell: (m) => (
+        <a
+          href={`/?q=${encodeURIComponent(m.q)}`}
+          className={`break-words rounded text-ink underline-offset-2 hover:underline ${FOCUS_RING}`}
+          title="Relancer la recherche sur l'accueil"
+        >
+          {m.q}
+        </a>
+      ),
+    },
+    { id: "where", label: "Où", sortValue: (m) => m.where, cell: (m) => WHERE_LABEL[m.where] ?? m.where },
+    { id: "count", label: "Fois", sortValue: (m) => m.count, numeric: true, cell: (m) => m.count },
+    { id: "last", label: "Dernière", sortValue: (m) => m.last_seen, numeric: true, cell: (m) => <span title={fmtDateTime(m.last_seen)}>{fmtShort(m.last_seen)}</span> },
+    { id: "first", label: "Première", sortValue: (m) => m.first_seen, numeric: true, wideOnly: true, cell: (m) => <span title={fmtDateTime(m.first_seen)}>{fmtShort(m.first_seen)}</span> },
+    {
+      id: "act",
+      label: "",
+      cell: (m) => (
+        <button
+          type="button"
+          className={`${BUTTON_CLASS} admin-btn-sm`}
+          disabled={removing === `${m.where}:${m.q}`}
+          onClick={() => dismiss(m)}
+          aria-label={`Ignorer la recherche « ${m.q} » (${WHERE_LABEL[m.where] ?? m.where})`}
+        >
+          Ignorer
+        </button>
+      ),
+    },
+  ];
 
   return (
     <section id="admin-search-misses" className="admin-card">
@@ -85,61 +119,17 @@ export function SearchMissesCard({ token, onUnauthorized, onToast }: AdminCardPr
         une graphie que l&apos;index ne rattrape pas.
       </p>
 
-      <div role="group" aria-label="Ordre des recherches" className="admin-tabs mb-3">
-        {VIEWS.map((v) => (
-          <button
-            key={v.id}
-            type="button"
-            aria-pressed={view === v.id}
-            onClick={() => setView(v.id)}
-            className={`admin-tab ${FOCUS_RING}`}
-          >
-            {v.label}
-          </button>
-        ))}
-      </div>
-
       {error && <ErrorLine>{error}</ErrorLine>}
       {!data && !error && <Muted>Chargement…</Muted>}
       {data && rows.length === 0 && <Muted>Aucune recherche sans résultat pour l&apos;instant.</Muted>}
       {rows.length > 0 && (
-        <ol className="admin-groups m-0 list-none p-0 text-small">
-          {rows.map((m) => {
-            const key = `${m.where}:${m.q}`;
-            return (
-              <li key={key}>
-                <span className="admin-group-count tabular-nums">{m.count}×</span>
-                <span className="flex min-w-0 items-start justify-between gap-3">
-                  <span className="min-w-0 flex-1">
-                    <a
-                      href={`/?q=${encodeURIComponent(m.q)}`}
-                      className={`block break-words rounded text-ink underline-offset-2 hover:underline ${FOCUS_RING}`}
-                      title="Relancer la recherche sur l'accueil"
-                    >
-                      {m.q}
-                    </a>
-                    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-micro text-muted-warm">
-                      <span className="rounded-full bg-wash-2 px-2 py-px text-ink-2">
-                        {WHERE_LABEL[m.where] ?? m.where}
-                      </span>
-                      <span>dernière : {fmtDateTime(m.last_seen)}</span>
-                      {m.count > 1 && <span>première : {fmtDate(m.first_seen)}</span>}
-                    </span>
-                  </span>
-                  <button
-                    type="button"
-                    className={BUTTON_CLASS}
-                    disabled={removing === key}
-                    onClick={() => dismiss(m)}
-                    aria-label={`Ignorer la recherche « ${m.q} » (${WHERE_LABEL[m.where] ?? m.where})`}
-                  >
-                    Ignorer
-                  </button>
-                </span>
-              </li>
-            );
-          })}
-        </ol>
+        <SortTable
+          caption="Recherches sans résultat"
+          rows={rows}
+          columns={columns}
+          rowKey={(m) => `${m.where}:${m.q}`}
+          initialSort={{ id: "count", dir: "desc" }}
+        />
       )}
       {data && data.total > rows.length && (
         <p className="m-0 mt-3 text-micro text-muted-warm">

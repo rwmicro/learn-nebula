@@ -14,6 +14,11 @@ export interface CommentRow {
   name: string | null;
   body: string;
   created_at: number;
+  /** 1 = written by the site's owner from /admin (shown with a badge). */
+  author?: number;
+  /** The comment this one answers, and its author's name (public list). */
+  reply_to?: number | null;
+  reply_to_name?: string | null;
 }
 
 let db: Database.Database | null = null;
@@ -71,11 +76,22 @@ export function initDb(): Database.Database {
       PRIMARY KEY (q, "where")
     );
     CREATE INDEX IF NOT EXISTS idx_search_misses_last ON search_misses(last_seen DESC);
+    -- What the owner did from /admin, newest last (server/auth.ts's adminVia
+    -- says how they were logged in). Self-trims to MAX_ADMIN_EVENTS.
+    CREATE TABLE IF NOT EXISTS admin_events (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      at INTEGER NOT NULL,
+      action TEXT NOT NULL,
+      detail TEXT NOT NULL DEFAULT '',
+      via TEXT NOT NULL DEFAULT ''
+    );
+    CREATE INDEX IF NOT EXISTS idx_admin_events_at ON admin_events(at DESC);
   `);
   // Reader accounts, progress sync, coins, streaks, avatar items
   // (server/account-store.ts).
   db.exec(ACCOUNT_SCHEMA);
   migrateQuestions(db);
+  migrateComments(db);
   return db;
 }
 
@@ -93,6 +109,13 @@ function migrateQuestions(d: Database.Database): void {
   if (!cols.has("hits")) d.exec("ALTER TABLE questions ADD COLUMN hits INTEGER");
 }
 
+/** Owner replies (schema/comments.sql predates them). */
+function migrateComments(d: Database.Database): void {
+  const cols = new Set((d.prepare("PRAGMA table_info(comments)").all() as { name: string }[]).map((c) => c.name));
+  if (!cols.has("author")) d.exec("ALTER TABLE comments ADD COLUMN author INTEGER NOT NULL DEFAULT 0");
+  if (!cols.has("reply_to")) d.exec("ALTER TABLE comments ADD COLUMN reply_to INTEGER");
+}
+
 function get(): Database.Database {
   return db ?? initDb();
 }
@@ -106,8 +129,9 @@ const PAGE_LIMIT = 100;
 export function approvedForSlug(slug: string): CommentRow[] {
   return get()
     .prepare(
-      "SELECT id, name, body, created_at FROM comments " +
-        "WHERE slug = ? AND status = 'approved' ORDER BY created_at ASC LIMIT ?",
+      "SELECT c.id, c.name, c.body, c.created_at, c.author, c.reply_to, p.name AS reply_to_name " +
+        "FROM comments c LEFT JOIN comments p ON p.id = c.reply_to " +
+        "WHERE c.slug = ? AND c.status = 'approved' ORDER BY c.created_at ASC LIMIT ?",
     )
     .all(slug, PAGE_LIMIT) as CommentRow[];
 }
@@ -143,7 +167,7 @@ export function approvedPage(opts: { q?: string; limit: number; offset: number }
   const total = (d.prepare(`SELECT count(*) AS n FROM comments ${where}`).get(params) as { n: number }).n;
   const comments = d
     .prepare(
-      `SELECT id, slug, name, body, created_at FROM comments ${where} ` +
+      `SELECT id, slug, name, body, created_at, author, reply_to FROM comments ${where} ` +
         "ORDER BY created_at DESC, id DESC LIMIT @limit OFFSET @offset",
     )
     .all({ ...params, limit: opts.limit, offset: opts.offset }) as CommentRow[];
@@ -161,6 +185,20 @@ export function insertComment(
       "INSERT INTO comments (slug, name, body, status, created_at) VALUES (?, ?, ?, ?, ?)",
     )
     .run(slug, name, body, status, Date.now());
+}
+
+/** The owner's answer to comment `parentId`, published at once on the same
+ *  note. Returns the new row's id, or null when the parent doesn't exist. */
+export function insertAuthorReply(parentId: number, name: string, body: string): number | null {
+  const d = get();
+  const parent = d.prepare("SELECT slug FROM comments WHERE id = ?").get(parentId) as { slug: string } | undefined;
+  if (!parent) return null;
+  const r = d
+    .prepare(
+      "INSERT INTO comments (slug, name, body, status, created_at, author, reply_to) VALUES (?, ?, ?, 'approved', ?, 1, ?)",
+    )
+    .run(parent.slug, name, body, Date.now(), parentId);
+  return Number(r.lastInsertRowid);
 }
 
 export function setStatus(id: number, status: "approved"): void {
@@ -367,3 +405,48 @@ CREATE TABLE IF NOT EXISTS comments (
 CREATE INDEX IF NOT EXISTS idx_comments_slug_status ON comments(slug, status);
 CREATE INDEX IF NOT EXISTS idx_comments_status_created ON comments(status, created_at DESC);
 `;
+
+// --- admin journal ------------------------------------------------------------
+
+const MAX_ADMIN_EVENTS = 2000;
+
+export interface AdminEvent {
+  id: number;
+  at: number;
+  action: string;
+  detail: string;
+  via: string;
+}
+
+/** Never throws: a journal hiccup must not fail the action it records. */
+export function logAdminEvent(action: string, detail = "", via = ""): void {
+  try {
+    const d = get();
+    d.prepare("INSERT INTO admin_events (at, action, detail, via) VALUES (?, ?, ?, ?)").run(
+      Date.now(),
+      action,
+      detail.slice(0, 500),
+      via,
+    );
+    d.prepare(
+      "DELETE FROM admin_events WHERE id NOT IN (SELECT id FROM admin_events ORDER BY id DESC LIMIT ?)",
+    ).run(MAX_ADMIN_EVENTS);
+  } catch (e) {
+    console.warn("admin: journal write failed", e instanceof Error ? e.message : e);
+  }
+}
+
+export function adminEvents(limit = 100): AdminEvent[] {
+  return get()
+    .prepare("SELECT id, at, action, detail, via FROM admin_events ORDER BY id DESC LIMIT ?")
+    .all(Math.min(Math.max(limit, 1), 500)) as AdminEvent[];
+}
+
+// --- activity (the /admin charts) -------------------------------------------------
+
+/** Timestamps (ms) of rows created since `since`, for bucketing by day. */
+export function createdSince(table: "questions" | "comments" | "users", since: number): number[] {
+  return (
+    get().prepare(`SELECT created_at AS t FROM ${table} WHERE created_at >= ?`).all(since) as { t: number }[]
+  ).map((r) => r.t);
+}

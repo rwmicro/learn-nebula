@@ -649,7 +649,10 @@ function Login({
     e.preventDefault();
     setState("busy");
     const token = window.turnstile && widget.current != null ? window.turnstile.getResponse(widget.current) ?? "" : "";
-    const r = await requestLink(email.trim(), token);
+    // /compte/?next=/admin/ (the admin page's "log in with your account"):
+    // the e-mailed link brings the reader back there.
+    const next = new URLSearchParams(location.search).get("next");
+    const r = await requestLink(email.trim(), token, next && /^\/(?!\/)/.test(next) ? next : undefined);
     setState(r);
     if (window.turnstile && widget.current != null) window.turnstile.reset(widget.current);
   }

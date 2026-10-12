@@ -52,6 +52,11 @@ export class Quota {
     this.hits.set(key, recent);
     return false;
   }
+  /** Hits recorded for `key` inside the window right now (read-only). */
+  count(key: string): number {
+    const now = Date.now();
+    return (this.hits.get(key) ?? []).filter((t) => now - t < this.windowMs).length;
+  }
   private sweep() {
     const now = Date.now();
     for (const [k, arr] of this.hits) {

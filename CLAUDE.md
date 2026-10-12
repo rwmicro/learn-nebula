@@ -112,10 +112,15 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   (`session.ts`). `server/tsconfig.json` includes the DOM lib because
   `progress-transfer.ts` carries browser glue.
 - **`/admin/`** (`components/AdminPanel.tsx`, `robots: {index:false}`): owner-only
-  comment moderation (approve/delete the pending queue) + RAG health from
-  `GET /healthz`, gated client-side by pasting `COMMENTS_ADMIN_TOKEN` — no
-  server-side session, it just calls the already-token-checked endpoints.
-  Not linked from the public nav.
+  console, not linked from the public nav. Sections, cards and dashboard tiles
+  are declared in `components/admin/config.tsx`; data is shared through
+  `components/admin/store.ts`. Signed in by the owner's reader session
+  (`ADMIN_EMAILS`) or the pasted `COMMENTS_ADMIN_TOKEN` (`server/auth.ts`).
+  Server side: `server/routes/admin.ts`, `admin-tools.ts`, `admin-console.ts`
+  (LLM usage, 30-day activity, the `admin_events` journal written by
+  `audit()`, owner replies with an author badge, ignored prerequisites,
+  webhook test). Its UI deliberately doesn't follow the site's typography
+  (compact sans, dense sortable tables); "?" lists the keyboard shortcuts.
 - **Retrieval scope**: `/api/ask` takes an optional `scope` — a slugified folder
   path validated by `scopePrefix()` (`server/rag.ts`), which filters the cosine
   search to chunks whose URL starts with `/posts/<scope>/`. It feeds the

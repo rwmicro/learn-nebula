@@ -54,6 +54,12 @@ const daily = env.translateDaily > 0 ? new Quota(env.translateDaily, 86_400_000)
 const DAILY_KEY = "translate:all";
 const inflight = new InFlight();
 
+/** Calls counted against the daily backstop over the last 24 h, for /admin
+ *  (null limit = no cap configured, so nothing is counted). */
+export function translateUsage(): { used: number | null; limit: number | null } {
+  return daily ? { used: daily.count(DAILY_KEY), limit: env.translateDaily } : { used: null, limit: null };
+}
+
 export const translateRoute = new Hono();
 
 // This route renders arbitrary Markdown as HTML and spends the LLM budget, so

@@ -8,8 +8,7 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { env, canGenerate } from "./env.ts";
-import { isAdmin } from "./auth.ts";
-import { getIp } from "./http.ts";
+import { adminVia } from "./auth.ts";
 import { initDb } from "./db.ts";
 import { initRag, ragState } from "./rag.ts";
 import { askRoute } from "./routes/ask.ts";
@@ -58,7 +57,9 @@ app.use("*", async (c, next) => {
 // is returned only to an authenticated admin — /admin's AssistantCard already
 // sends the bearer token here.
 app.get("/healthz", (c) => {
-  if (isAdmin(c.req.header("authorization"), getIp(c))) {
+  // adminVia only checks a token when one is sent (every miss counts toward
+  // the per-IP lockout, and container healthchecks must not feed it).
+  if (adminVia(c)) {
     c.header("cache-control", "no-store");
     return c.json({ ok: true, generate: canGenerate(), rag: ragState() });
   }

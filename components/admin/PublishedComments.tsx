@@ -3,7 +3,8 @@
 // Published comments — GET /api/comments?status=approved (paginated, newest
 // first, server-side search). With Turnstile configured every comment is
 // auto-approved and never enters the pending queue, so this is the only place
-// one can be found again and deleted (PATCH action "delete", as for pending).
+// one can be found again and deleted (PATCH action "delete", as for pending),
+// or answered as the site's author (POST /api/admin/comments/:id/reply).
 
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -31,6 +32,8 @@ interface Comment {
   name: string | null;
   body: string;
   created_at: number;
+  /** 1 for a reply posted from here as the site's author. */
+  author?: number;
 }
 
 const PAGE = 10;
@@ -46,6 +49,9 @@ export function PublishedComments({ token, onUnauthorized, onToast }: AdminCardP
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [busyIds, setBusyIds] = useState<Set<number>>(new Set());
+  const [replyTo, setReplyTo] = useState<number | null>(null);
+  const [draft, setDraft] = useState("");
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -108,6 +114,29 @@ export function PublishedComments({ token, onUnauthorized, onToast }: AdminCardP
     }
   }
 
+  async function sendReply(c: Comment) {
+    const body = draft.trim();
+    if (!body) return;
+    setSending(true);
+    try {
+      await adminFetch(`/api/admin/comments/${c.id}/reply`, token, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ body }),
+      });
+      setReplyTo(null);
+      setDraft("");
+      onToast("Réponse publiée.");
+      setOffset(0);
+      await load();
+    } catch (e) {
+      if (e instanceof Unauthorized) onUnauthorized();
+      else setError("La réponse n'a pas pu être publiée — réessaie.");
+    } finally {
+      setSending(false);
+    }
+  }
+
   const from = total ? offset + 1 : 0;
   const to = Math.min(offset + PAGE, total);
 
@@ -137,10 +166,24 @@ export function PublishedComments({ token, onUnauthorized, onToast }: AdminCardP
           <li key={c.id} className="admin-row py-2">
             <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-3 text-small text-muted-warm">
               <span className="min-w-0 break-words">
-                <strong className="text-ink">{c.name || "anonyme"}</strong> sur <NoteLink slug={c.slug} />
+                <strong className="text-ink">{c.name || "anonyme"}</strong>
+                {c.author ? <span className="admin-pill ml-1">auteur</span> : null} sur <NoteLink slug={c.slug} />
               </span>
               <span className="flex items-baseline gap-3">
                 <time className="tabular-nums">{fmtDateTime(c.created_at)}</time>
+                {!c.author && (
+                  <button
+                    type="button"
+                    aria-expanded={replyTo === c.id}
+                    onClick={() => {
+                      setReplyTo(replyTo === c.id ? null : c.id);
+                      setDraft("");
+                    }}
+                    className={`rounded text-small text-ink underline-offset-2 hover:underline ${FOCUS_RING}`}
+                  >
+                    répondre
+                  </button>
+                )}
                 <button
                   type="button"
                   disabled={busyIds.has(c.id)}
@@ -152,6 +195,38 @@ export function PublishedComments({ token, onUnauthorized, onToast }: AdminCardP
               </span>
             </div>
             <p className="m-0 line-clamp-4 whitespace-pre-wrap break-words text-small text-ink">{c.body}</p>
+            {replyTo === c.id && (
+              <form
+                className="mt-2 flex flex-col gap-2"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  sendReply(c);
+                }}
+              >
+                <textarea
+                  autoFocus
+                  value={draft}
+                  maxLength={4000}
+                  rows={3}
+                  onChange={(e) => setDraft(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") setReplyTo(null);
+                    if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) sendReply(c);
+                  }}
+                  aria-label={`Réponse à ${c.name || "anonyme"}`}
+                  placeholder="Ta réponse, publiée tout de suite avec le badge auteur…"
+                  className={`w-full ${INPUT_CLASS}`}
+                />
+                <div className="flex gap-2">
+                  <button type="submit" className={BUTTON_CLASS} disabled={sending || !draft.trim()}>
+                    {sending ? "Publication…" : "Publier la réponse"}
+                  </button>
+                  <button type="button" className={BUTTON_CLASS} onClick={() => setReplyTo(null)}>
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            )}
           </li>
         ))}
       </ul>

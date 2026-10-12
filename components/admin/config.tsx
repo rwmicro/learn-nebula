@@ -22,14 +22,22 @@ import { SearchMissesCard, type MissesData } from "./SearchMissesCard";
 import { FactsToCheckCard, type FactsReport } from "./FactsToCheckCard";
 import { RebuildCard } from "./RebuildCard";
 import { RagDebugCard } from "./RagDebugCard";
+import { AccountsCard, ACCOUNTS_FLAGGED_ID, flaggedAccounts, type AccountsData } from "./AccountsCard";
+import { UsageCard, nearCap, type UsageData } from "./UsageCard";
+import { ActivityCard } from "./ActivityCard";
+import { EventsCard } from "./EventsCard";
+import { NotificationsCard } from "./NotificationsCard";
 
-export type TabId = "lecteurs" | "contenu" | "site";
+export type TabId = "lecteurs" | "contenu" | "comptes" | "activite" | "site";
 
 export interface AdminTab {
   /** Also the URL hash (#lecteurs). */
   id: TabId;
   label: string;
-  /** Rendered top to bottom; every card gets AdminCardProps. */
+  /** Second key of the "g <key>" shortcut (AdminPanel). */
+  key: string;
+  /** Rendered in a two-column grid (admin-card--wide spans both); every
+   *  card gets AdminCardProps. */
   cards: ComponentType<AdminCardProps>[];
 }
 
@@ -37,17 +45,32 @@ export const ADMIN_TABS: AdminTab[] = [
   {
     id: "lecteurs",
     label: "Lecteurs",
-    cards: [PendingComments, PublishedComments, QuestionsCard, SearchMissesCard],
+    key: "l",
+    cards: [PendingComments, PublishedComments, SearchMissesCard, QuestionsCard],
   },
   {
     id: "contenu",
     label: "Contenu",
+    key: "c",
     cards: [VaultHealthCard, PrereqSuggestionsCard, FactsToCheckCard],
+  },
+  {
+    id: "comptes",
+    label: "Comptes",
+    key: "m",
+    cards: [AccountsCard],
+  },
+  {
+    id: "activite",
+    label: "Activité",
+    key: "a",
+    cards: [ActivityCard, UsageCard],
   },
   {
     id: "site",
     label: "Site",
-    cards: [AssistantCard, VersionCard, RebuildCard, RagDebugCard],
+    key: "s",
+    cards: [AssistantCard, VersionCard, RebuildCard, NotificationsCard, EventsCard, RagDebugCard],
   },
 ];
 
@@ -130,6 +153,26 @@ export const DASHBOARD_TILES: DashboardTile[] = [
     useCount: function useFactsCount({ token, onUnauthorized }) {
       const r = useAdminResource<FactsReport>(URLS.facts, token, onUnauthorized).data;
       return r?.source.found ? r.open : null;
+    },
+  },
+  {
+    id: "flagged-accounts",
+    label: "comptes à vérifier (pièces)",
+    tab: "comptes",
+    target: ACCOUNTS_FLAGGED_ID,
+    useCount: ({ token, onUnauthorized }) => {
+      const d = useAdminResource<AccountsData>(URLS.accounts, token, onUnauthorized).data;
+      return d ? flaggedAccounts(d).length : null;
+    },
+  },
+  {
+    id: "usage",
+    label: "plafonds de l'assistant bientôt atteints",
+    tab: "activite",
+    target: "admin-usage",
+    useCount: ({ token, onUnauthorized }) => {
+      const d = useAdminResource<UsageData>(URLS.usage, token, onUnauthorized).data;
+      return d ? [d.ask, d.translate].filter(nearCap).length : null;
     },
   },
   {

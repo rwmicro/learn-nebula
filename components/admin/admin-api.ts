@@ -4,7 +4,7 @@
 // those cards show it rather than a bare status code. 401 still throws
 // Unauthorized so the panel can disconnect.
 
-import { Unauthorized } from "./shared";
+import { Unauthorized, authHeader } from "./shared";
 
 export interface AdminAnswer<T> {
   ok: boolean;
@@ -18,7 +18,7 @@ export async function adminJson<T>(url: string, token: string, init: RequestInit
     headers: {
       ...(init.body ? { "content-type": "application/json" } : {}),
       ...(init.headers ?? {}),
-      authorization: `Bearer ${token}`,
+      ...authHeader(token),
     },
   });
   if (r.status === 401) throw new Unauthorized();
