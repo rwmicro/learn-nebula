@@ -4754,3 +4754,33 @@ mark.hl--new {
     transform: none;
   }
 }
+
+/* ```iso:<name>``` figures (lib/markdown.ts rehypeIsoFigures). The plate's own
+   look is the kit's /figures/iso.css; here it only takes the column's width
+   and a margin that matches the other figures. */
+.iso-mount {
+  margin: 2rem 0;
+  max-width: 100%;
+  font-family: inherit;
+}
+.iso-mount .iso-figure {
+  margin: 0;
+}
+/* The site's bare `figcaption` rules float captions into the margin (or box
+   them below ~1650px); the plate's legend sits under the plate instead. */
+.iso-mount figcaption.iso-legend {
+  float: none;
+  clear: none;
+  position: static;
+  width: auto;
+  margin: 0.75rem 0 0;
+  padding: 0;
+  border: 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.iso-mount .iso-stage:focus-visible {
+  outline: 2px solid var(--color-garden, currentColor);
+  outline-offset: 4px;
+}

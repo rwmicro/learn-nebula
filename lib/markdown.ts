@@ -13,6 +13,8 @@ import { toString as mdToString } from "mdast-util-to-string";
 import katex from "katex";
 import type { Root, Element, ElementContent, RootContent } from "hast";
 import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { rehypeShiki } from "./highlight";
 import { resolveRelativeNoteLink, resolveWikiLink } from "./content";
 import {
@@ -1465,6 +1467,82 @@ function rehypeWidgets(dir: string) {
   };
 }
 
+/**
+ * ```iso:<name>``` → an isometric figure (figures/<name>/, built into
+ * public/figures/ by scripts/build-figures.mjs before `next build`).
+ *
+ * The plate (card, SVG, legend, caption) is inlined here, so the drawing is in
+ * the page from the first paint and reads without JavaScript; the note bundle
+ * (public/js/iso-figures.js) then imports /figures/<name>.js to make it move.
+ * The kit's stylesheet is linked once, just before the first figure of the
+ * note. A name with no built plate keeps a one-line fallback, like a widget.
+ */
+const ISO_NAME = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const isoPlates = new Map<string, string | null>();
+function isoPlate(name: string): string | null {
+  if (!isoPlates.has(name)) {
+    let html: string | null = null;
+    try {
+      html = readFileSync(join(process.cwd(), "public", "figures", `${name}.html`), "utf8");
+    } catch {
+      html = null;
+    }
+    isoPlates.set(name, html);
+  }
+  return isoPlates.get(name) ?? null;
+}
+
+function rehypeIsoFigures() {
+  return (tree: Root) => {
+    let linked = false;
+    visit(tree, "element", (node: Element, index, parent) => {
+      if (node.tagName !== "pre" || !parent || index == null) return;
+      const code = node.children.find(
+        (c): c is Element => c.type === "element" && c.tagName === "code",
+      );
+      if (!code) return;
+      const classes = (code.properties?.className as string[] | undefined) ?? [];
+      const cls = classes.find((c) => typeof c === "string" && c.startsWith("language-iso:"));
+      if (!cls) return;
+      const name = cls.slice("language-iso:".length);
+      const plate = ISO_NAME.test(name) ? isoPlate(name) : null;
+      const children: ElementContent[] = [];
+      if (plate && !linked) {
+        children.push({
+          type: "element",
+          tagName: "link",
+          properties: { rel: ["stylesheet"], href: "/figures/iso.css" },
+          children: [],
+        });
+        linked = true;
+      }
+      if (plate) {
+        children.push(...(fromHtml(plate, { fragment: true }).children as ElementContent[]));
+      } else {
+        children.push({
+          type: "element",
+          tagName: "p",
+          properties: { className: ["widget-fallback"] },
+          children: [{ type: "text", value: "Figure interactive indisponible." }],
+        });
+      }
+      parent.children[index] = {
+        type: "element",
+        tagName: "div",
+        properties: {
+          className: ["iso", "iso-mount"],
+          "data-iso": plate ? name : undefined,
+          // The light plate ships; iso-figures.js follows the site's theme.
+          "data-theme": "light",
+          "data-pagefind-ignore": true,
+        },
+        children,
+      };
+      return SKIP;
+    });
+  };
+}
+
 /** A plain <table> of a data widget's numbers, for readers without JS. */
 function fallbackTable(rows: string[][]): Element {
   const cell = (tag: "th" | "td", v: string): Element => ({
@@ -1749,6 +1827,7 @@ export async function renderMarkdown(
     .use(rehypePredictVeil)
     .use(rehypeManim, dir)
     .use(rehypeWidgets, dir)
+    .use(rehypeIsoFigures)
     .use(rehypePrix)
     .use(rehypeShiki)
     .use(rehypePlaceholders, ph.map)

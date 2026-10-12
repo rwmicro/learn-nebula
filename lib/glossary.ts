@@ -292,7 +292,7 @@ const SKIP_TAGS = new Set([
   "script", "style", "svg", "math", "button", "summary", "figcaption",
   "audio", "video", "iframe", "textarea", "select", "label", "dfn",
 ]);
-const SKIP_CLASSES = ["katex", "katex-display", "callout-title", "callout-quiz", "gloss", "mermaid"];
+const SKIP_CLASSES = ["katex", "katex-display", "callout-title", "callout-quiz", "gloss", "mermaid", "iso-mount"];
 
 function skipped(el: Element): boolean {
   if (SKIP_TAGS.has(el.tagName)) return true;
