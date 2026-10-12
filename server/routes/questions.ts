@@ -8,15 +8,14 @@
 // capped log, not just the 100 rows returned in `questions`.
 
 import { Hono } from "hono";
-import { isAdmin } from "../auth.ts";
-import { getIp } from "../http.ts";
+import { isAdminRequest } from "../auth.ts";
 import { recentQuestions } from "../db.ts";
 import { frequentQuestions, weakQuestions, WEAK_SCORE } from "../questions-agg.ts";
 
 export const questionsRoute = new Hono();
 
 questionsRoute.get("/", (c) => {
-  if (!isAdmin(c.req.header("authorization"), getIp(c))) {
+  if (!isAdminRequest(c)) {
     return c.json({ error: "Non autorisé." }, 401);
   }
   try {

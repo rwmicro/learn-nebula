@@ -30,10 +30,17 @@ export interface AdminCardProps {
  *  panel (which disconnects) instead of showing a generic error. */
 export class Unauthorized extends Error {}
 
+/** The token's Authorization header — none when logged in by account (the
+ *  session cookie goes along by itself, and an empty "Bearer " would count
+ *  as a failed attempt server-side). */
+export function authHeader(token: string): Record<string, string> {
+  return token ? { authorization: `Bearer ${token}` } : {};
+}
+
 export async function adminFetch<T>(url: string, token: string, init: RequestInit = {}): Promise<T> {
   const r = await fetch(url, {
     ...init,
-    headers: { ...(init.headers ?? {}), authorization: `Bearer ${token}` },
+    headers: { ...(init.headers ?? {}), ...authHeader(token) },
   });
   if (r.status === 401) throw new Unauthorized();
   if (!r.ok) throw new Error(`HTTP ${r.status}`);

@@ -1,17 +1,18 @@
 "use client";
 
 // Owner-only tool: a dashboard of what needs doing, then three tabs —
-// Lecteurs (comment moderation, published comments, questions asked),
+// Lecteurs (comment moderation, published comments, questions asked, accounts),
 // Contenu (vault health, prerequisite suggestions) and Site (assistant,
-// version). Gated purely by the same COMMENTS_ADMIN_TOKEN the API already
-// checks — this page has no secrets of its own, it just calls the protected
-// endpoints with whatever token the owner pastes in.
+// version). This page has no secrets of its own: it calls the protected
+// endpoints either through the owner's reader session (an account listed in
+// ADMIN_EMAILS — an HttpOnly cookie, nothing kept in JS) or, failing that,
+// with the COMMENTS_ADMIN_TOKEN pasted in (server/auth.ts).
 //
 // The tabs, their cards and the dashboard tiles are declared in
 // components/admin/config.tsx; data is shared through components/admin/store.ts.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FOCUS_RING, UNDO_MS, type ToastAction } from "./admin/shared";
+import { BUTTON_CLASS, FOCUS_RING, UNDO_MS, type ToastAction } from "./admin/shared";
 import { URLS, clearResources, setResource } from "./admin/store";
 import { ADMIN_TABS, type TabId } from "./admin/config";
 import { Dashboard } from "./admin/Dashboard";
@@ -20,6 +21,9 @@ import { AdminTabs } from "./admin/AdminTabs";
 // sessionStorage, not localStorage: the token survives a reload of this tab
 // but not closing it, so it doesn't sit on disk for any script to find later.
 const TOKEN_KEY = "gkAdminToken";
+const ME_URL = "/api/admin/me";
+// The account page logs the owner in and, from the e-mailed link, comes back.
+const ACCOUNT_LOGIN = "/compte/?next=%2Fadmin%2F";
 const DEFAULT_TAB: TabId = ADMIN_TABS[0].id;
 
 function isTab(v: string): v is TabId {
@@ -53,6 +57,8 @@ export function AdminPanel() {
   // (the form stays up, with the error, until a request actually succeeds).
   const [token, setToken] = useState("");
   const [connected, setConnected] = useState(false);
+  // How we're in: the owner's account session (with its e-mail) or the token.
+  const [session, setSession] = useState<{ email: string } | null>(null);
   const [tokenInput, setTokenInput] = useState("");
   const [authError, setAuthError] = useState<string | null>(null);
   const [tab, setTab] = useState<TabId>(DEFAULT_TAB);
@@ -163,16 +169,48 @@ export function AdminPanel() {
     } catch {
       /* localStorage unavailable */
     }
-    try {
-      const saved = sessionStorage.getItem(TOKEN_KEY);
-      if (saved) {
-        setTokenInput(saved);
-        tryConnect(saved);
+    let cancelled = false;
+    (async () => {
+      // The owner's account session first: no token at all.
+      try {
+        const r = await fetch(ME_URL, { cache: "no-store" });
+        if (r.ok) {
+          const me = (await r.json()) as { via?: string; email?: string };
+          if (!cancelled && me.via === "session") {
+            setSession({ email: me.email ?? "" });
+            setConnected(true);
+            return;
+          }
+        }
+      } catch {
+        /* server unreachable: the token form below reports it */
       }
-    } catch {
-      /* sessionStorage unavailable */
-    }
+      if (cancelled) return;
+      try {
+        const saved = sessionStorage.getItem(TOKEN_KEY);
+        if (saved) {
+          setTokenInput(saved);
+          tryConnect(saved);
+        }
+      } catch {
+        /* sessionStorage unavailable */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [tryConnect]);
+
+  /** Off to the account page for a fresh magic link (dropping a reader
+   *  session too old to carry admin rights, so the page offers the form). */
+  const loginWithAccount = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } catch {
+      /* the account page will show whatever state we're in */
+    }
+    window.location.assign(ACCOUNT_LOGIN);
+  }, []);
 
   /** Stable identity: cards list it as an effect dependency. */
   const disconnect = useCallback(() => {
@@ -182,6 +220,11 @@ export function AdminPanel() {
       /* ignore */
     }
     clearResources();
+    setSession((s) => {
+      // Logged in by account: logging out of /admin/ ends that session.
+      if (s) fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
+      return null;
+    });
     setToken("");
     setConnected(false);
     setAuthError(null);
@@ -190,9 +233,14 @@ export function AdminPanel() {
 
   /** A card saw a 401 mid-session. */
   const expired = useCallback(() => {
+    const bySession = session !== null;
     disconnect();
-    setAuthError("Le jeton n'est plus valide — reconnecte-toi.");
-  }, [disconnect]);
+    setAuthError(
+      bySession
+        ? "Ta session admin a expiré : redemande un lien de connexion."
+        : "Le jeton n'est plus valide — reconnecte-toi.",
+    );
+  }, [disconnect, session]);
 
   const cardProps = useMemo(
     () => ({ token, onUnauthorized: expired, onToast: showToast }),
@@ -230,7 +278,13 @@ export function AdminPanel() {
               className="inline-block h-2 w-2 rounded-full"
               style={{ background: "var(--garden)" }}
             />
-            connecté
+            {session ? (
+              <span>
+                connecté · <span className="admin-subject">{session.email}</span>
+              </span>
+            ) : (
+              "connecté (jeton)"
+            )}
             <button
               type="button"
               onClick={disconnect}
@@ -246,6 +300,14 @@ export function AdminPanel() {
         <>
           <section className="admin-card">
             <h2 className="admin-eyebrow m-0 mb-2 text-small font-semibold text-muted-warm">connexion</h2>
+            <p className="m-0 mb-3 text-small text-muted-warm">
+              Avec ton compte lecteur (adresse listée dans <code>ADMIN_EMAILS</code>) : un lien par e-mail, rien à
+              coller ni à garder dans le navigateur.
+            </p>
+            <button type="button" onClick={loginWithAccount} className={`admin-btn-primary ${FOCUS_RING}`}>
+              Recevoir un lien de connexion
+            </button>
+            <p className="m-0 mt-4 mb-2 text-small text-muted-warm">Ou avec le jeton admin :</p>
             <form
               className="flex gap-2"
               onSubmit={(e) => {
@@ -262,7 +324,7 @@ export function AdminPanel() {
                 autoComplete="off"
                 className={`min-w-0 flex-1 rounded border border-rule-strong bg-transparent px-2 py-1 text-small ${FOCUS_RING}`}
               />
-              <button type="submit" className={`admin-btn-primary ${FOCUS_RING}`}>
+              <button type="submit" className={BUTTON_CLASS}>
                 Se connecter
               </button>
             </form>

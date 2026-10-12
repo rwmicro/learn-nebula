@@ -22,6 +22,7 @@ import { SearchMissesCard, type MissesData } from "./SearchMissesCard";
 import { FactsToCheckCard, type FactsReport } from "./FactsToCheckCard";
 import { RebuildCard } from "./RebuildCard";
 import { RagDebugCard } from "./RagDebugCard";
+import { AccountsCard } from "./AccountsCard";
 
 export type TabId = "lecteurs" | "contenu" | "site";
 
@@ -37,7 +38,7 @@ export const ADMIN_TABS: AdminTab[] = [
   {
     id: "lecteurs",
     label: "Lecteurs",
-    cards: [PendingComments, PublishedComments, QuestionsCard, SearchMissesCard],
+    cards: [PendingComments, PublishedComments, QuestionsCard, SearchMissesCard, AccountsCard],
   },
   {
     id: "contenu",

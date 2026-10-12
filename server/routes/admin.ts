@@ -1,36 +1,44 @@
-// Owner-only build reports for /admin. Same bearer-token gate as
-// /api/questions and the comment moderation endpoints.
+// Owner-only build reports for /admin. Same gate as /api/questions and the
+// comment moderation endpoints: the bearer token or an admin reader session
+// (server/auth.ts).
 //
+//   GET /api/admin/me           → { via: "token" | "session", email? } — who is in
+
 //   GET /api/admin/version      → served build vs. pensine's latest commit (server/version.ts)
 //   GET /api/admin/vault-health → the build-time vault report (scripts/vault-health.ts)
 //   GET /api/admin/prereq-suggestions → draft `prerequis` edges (scripts/prereq-suggestions.ts)
 //   GET /api/admin/blocked-words → { words, hold } — the comment word filter
 //   PUT /api/admin/blocked-words { words: string[], hold?: boolean } → same shape back
-//   GET /api/admin/accounts → { accounts, active7d, coinsInCirculation } — reader
-//                             accounts in aggregate, never an address
+//   GET /api/admin/accounts → { accounts, active7d, coinsInCirculation, list } —
+//                             the aggregates plus every account (e-mail, sign-up,
+//                             last seen, coins), most recently active first
 //   …plus the tools in admin-tools.ts (search misses, rebuild, prereq PR,
 //   retrieval bench, facts to check), mounted at the end of this file.
 
 import fs from "node:fs";
 import { Hono } from "hono";
-import { isAdmin } from "../auth.ts";
-import { getIp } from "../http.ts";
+import { adminSessionEmail, adminVia, isAdminRequest } from "../auth.ts";
 import { env } from "../env.ts";
 import { versionStatus } from "../version.ts";
 import { HOLD_BLOCKED_KEY, blockedWords, holdBlocked, setBlockedWords, setSetting } from "../db.ts";
 import { MAX_WORDS, sanitizeWords } from "../blocked-words.ts";
 import { adminToolsRoute } from "./admin-tools.ts";
 import { database } from "../db.ts";
-import { accountStats } from "../account-store.ts";
+import { accountList, accountStats } from "../account-store.ts";
 
 export const adminRoute = new Hono();
 
 adminRoute.use("*", async (c, next) => {
-  if (!isAdmin(c.req.header("authorization"), getIp(c))) {
+  if (!isAdminRequest(c)) {
     return c.json({ error: "Non autorisé." }, 401);
   }
   c.header("cache-control", "no-store");
   await next();
+});
+
+adminRoute.get("/me", (c) => {
+  const via = adminVia(c);
+  return c.json(via === "session" ? { via, email: adminSessionEmail(c) } : { via });
 });
 
 adminRoute.get("/version", async (c) => c.json(await versionStatus()));
@@ -61,7 +69,8 @@ adminRoute.get("/prereq-suggestions", (c) => {
 
 adminRoute.get("/accounts", (c) => {
   try {
-    return c.json(accountStats(database()));
+    const db = database();
+    return c.json({ ...accountStats(db), list: accountList(db) });
   } catch (e) {
     console.error("admin: account stats failed", e);
     return c.json({ error: "Base indisponible." }, 503);

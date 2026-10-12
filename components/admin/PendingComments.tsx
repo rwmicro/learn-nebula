@@ -22,6 +22,7 @@ import {
   UNDO_MS,
   Unauthorized,
   adminFetch,
+  authHeader,
   fmtDateTime,
   plural,
   type AdminCardProps,
@@ -195,7 +196,7 @@ export function PendingComments({ token, onUnauthorized, onToast }: AdminCardPro
       fetch("/api/comments", {
         method: "PATCH",
         keepalive: true,
-        headers: { "content-type": "application/json", authorization: `Bearer ${token}` },
+        headers: { "content-type": "application/json", ...authHeader(token) },
         body: JSON.stringify(ids.length === 1 ? { id: ids[0], action: "delete" } : { ids, action: "delete" }),
       }).catch(() => {});
     };

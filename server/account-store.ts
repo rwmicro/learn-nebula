@@ -585,6 +585,45 @@ export function buy(db: DB, userId: number, id: string, now = Date.now()): BuyRe
 
 // --- admin ----------------------------------------------------------------------
 
+/** The account behind a session, for the admin check: its e-mail and when the
+ *  session was created (admin rights need a recent login). */
+export function sessionAccount(
+  db: DB,
+  token: string | undefined,
+): { email: string; createdAt: number } | null {
+  if (!token || token.length > 200) return null;
+  const row = db
+    .prepare(
+      "SELECT u.email AS email, s.created_at AS createdAt FROM sessions s JOIN users u ON u.id = s.user_id WHERE s.hash = ? AND s.expires_at > ?",
+    )
+    .get(hashToken(token), Date.now()) as { email: string; createdAt: number } | undefined;
+  return row ?? null;
+}
+
+export interface AccountRow {
+  id: number;
+  email: string;
+  createdAt: number;
+  lastSeen: number | null;
+  coins: number;
+  /** Progress keys synced (notes read, reviews, etc. — one row per key). */
+  progressKeys: number;
+}
+
+/** Every account, most recently active first, for the /admin list. */
+export function accountList(db: DB, limit = 500): AccountRow[] {
+  return db
+    .prepare(
+      `SELECT u.id AS id, u.email AS email, u.created_at AS createdAt, u.last_seen AS lastSeen,
+              COALESCE((SELECT SUM(amount) FROM coin_events WHERE user_id = u.id), 0) AS coins,
+              (SELECT count(*) FROM progress WHERE user_id = u.id) AS progressKeys
+         FROM users u
+        ORDER BY COALESCE(u.last_seen, u.created_at) DESC
+        LIMIT ?`,
+    )
+    .all(limit) as AccountRow[];
+}
+
 /** Aggregates only — never an e-mail address. */
 export function accountStats(db: DB, now = Date.now()): { accounts: number; active7d: number; coinsInCirculation: number } {
   const one = (sql: string, ...args: unknown[]) => (db.prepare(sql).get(...args) as { n: number }).n;

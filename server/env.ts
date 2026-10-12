@@ -68,6 +68,15 @@ export const env = {
   // Comments moderation / anti-spam (optional).
   turnstileSecret: process.env.TURNSTILE_SECRET_KEY || "",
   adminToken: process.env.COMMENTS_ADMIN_TOKEN || "",
+  // Reader accounts (lower-cased e-mails, comma-separated) that /admin accepts
+  // through their normal login session instead of the pasted token.
+  adminEmails: (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean),
+  // How old a login session may be and still carry admin rights: past it, a
+  // fresh magic link is needed (the reader session itself keeps working).
+  adminSessionMaxAgeMs: Number(process.env.ADMIN_SESSION_HOURS ?? 12) * 3_600_000,
   // Fired (fire-and-forget) when a comment lands in the moderation queue, so
   // checking /admin doesn't have to be a polling habit. Any URL that accepts a
   // plain-text POST body works — e.g. an ntfy.sh topic.

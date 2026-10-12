@@ -16,7 +16,7 @@
 import { Hono } from "hono";
 import { env } from "../env.ts";
 import { getIp } from "../http.ts";
-import { isAdmin } from "../auth.ts";
+import { isAdminRequest } from "../auth.ts";
 import { Cooldown } from "../ratelimit.ts";
 import {
   approvedForSlug,
@@ -77,7 +77,7 @@ commentsRoute.get("/", (c) => {
   const status = c.req.query("status");
   try {
     if (status === "pending") {
-      if (!isAdmin(c.req.header("authorization"), getIp(c))) {
+      if (!isAdminRequest(c)) {
         return c.json({ error: "Non autorisé." }, 401);
       }
       const words = blockedWords();
@@ -88,7 +88,7 @@ commentsRoute.get("/", (c) => {
       return c.json({ comments });
     }
     if (status === "approved") {
-      if (!isAdmin(c.req.header("authorization"), getIp(c))) {
+      if (!isAdminRequest(c)) {
         return c.json({ error: "Non autorisé." }, 401);
       }
       const limit = Math.min(Math.max(Math.floor(Number(c.req.query("limit"))) || 20, 1), 100);
@@ -153,7 +153,7 @@ commentsRoute.post("/", async (c) => {
 });
 
 commentsRoute.patch("/", async (c) => {
-  if (!isAdmin(c.req.header("authorization"), getIp(c))) {
+  if (!isAdminRequest(c)) {
     return c.json({ error: "Non autorisé." }, 401);
   }
   let payload: { id?: number; ids?: unknown; action?: "approve" | "delete" };

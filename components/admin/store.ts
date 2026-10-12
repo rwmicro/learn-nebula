@@ -193,6 +193,7 @@ export const URLS = {
   facts: "/api/admin/facts",
   builds: "/api/admin/builds",
   ragDebug: "/api/admin/rag-debug",
+  accounts: "/api/admin/accounts",
 } as const;
 
 // --- Ignored prerequisite suggestions: per-browser (localStorage), shared
