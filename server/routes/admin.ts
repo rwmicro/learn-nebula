@@ -3,7 +3,6 @@
 // (server/auth.ts).
 //
 //   GET /api/admin/me           → { via: "token" | "session", email? } — who is in
-
 //   GET /api/admin/version      → served build vs. pensine's latest commit (server/version.ts)
 //   GET /api/admin/vault-health → the build-time vault report (scripts/vault-health.ts)
 //   GET /api/admin/prereq-suggestions → draft `prerequis` edges (scripts/prereq-suggestions.ts)
@@ -11,18 +10,22 @@
 //   PUT /api/admin/blocked-words { words: string[], hold?: boolean } → same shape back
 //   GET /api/admin/accounts → { accounts, active7d, coinsInCirculation, list } —
 //                             the aggregates plus every account (e-mail, sign-up,
-//                             last seen, coins), most recently active first
+//                             last seen, coins), most recently active first,
+//                             and coinAlert24h (the "à vérifier" threshold)
 //   …plus the tools in admin-tools.ts (search misses, rebuild, prereq PR,
-//   retrieval bench, facts to check), mounted at the end of this file.
+//   retrieval bench, facts to check) and admin-console.ts (LLM usage, activity
+//   charts, journal, owner replies, ignored prerequisites, webhook test),
+//   mounted at the end of this file.
 
 import fs from "node:fs";
 import { Hono } from "hono";
-import { adminSessionEmail, adminVia, isAdminRequest } from "../auth.ts";
+import { adminSessionEmail, adminVia, audit, isAdminRequest } from "../auth.ts";
 import { env } from "../env.ts";
 import { versionStatus } from "../version.ts";
 import { HOLD_BLOCKED_KEY, blockedWords, holdBlocked, setBlockedWords, setSetting } from "../db.ts";
 import { MAX_WORDS, sanitizeWords } from "../blocked-words.ts";
 import { adminToolsRoute } from "./admin-tools.ts";
+import { adminConsoleRoute } from "./admin-console.ts";
 import { database } from "../db.ts";
 import { accountList, accountStats } from "../account-store.ts";
 
@@ -70,7 +73,7 @@ adminRoute.get("/prereq-suggestions", (c) => {
 adminRoute.get("/accounts", (c) => {
   try {
     const db = database();
-    return c.json({ ...accountStats(db), list: accountList(db) });
+    return c.json({ ...accountStats(db), list: accountList(db), coinAlert24h: env.coinAlert24h });
   } catch (e) {
     console.error("admin: account stats failed", e);
     return c.json({ error: "Base indisponible." }, 503);
@@ -95,8 +98,10 @@ adminRoute.put("/blocked-words", async (c) => {
   }
   if (!Array.isArray(payload.words)) return c.json({ error: "words : liste attendue." }, 400);
   try {
-    setBlockedWords(sanitizeWords(payload.words));
+    const words = sanitizeWords(payload.words);
+    setBlockedWords(words);
     if (typeof payload.hold === "boolean") setSetting(HOLD_BLOCKED_KEY, payload.hold ? "1" : "0");
+    audit(c, "blocked-words.save", `${words.length} mot(s)`);
     return c.json({ words: blockedWords(), hold: holdBlocked(), max: MAX_WORDS });
   } catch (e) {
     console.error("admin: blocked words write failed", e);
@@ -106,3 +111,4 @@ adminRoute.put("/blocked-words", async (c) => {
 
 // Mounted after the gate above, so every tool route is token-checked too.
 adminRoute.route("/", adminToolsRoute);
+adminRoute.route("/", adminConsoleRoute);

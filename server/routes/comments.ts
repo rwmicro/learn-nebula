@@ -16,7 +16,7 @@
 import { Hono } from "hono";
 import { env } from "../env.ts";
 import { getIp } from "../http.ts";
-import { isAdminRequest } from "../auth.ts";
+import { audit, isAdminRequest } from "../auth.ts";
 import { Cooldown } from "../ratelimit.ts";
 import {
   approvedForSlug,
@@ -171,7 +171,9 @@ commentsRoute.patch("/", async (c) => {
       return c.json({ error: "Action inconnue." }, 400);
     }
     try {
-      return c.json({ ok: true, changed: moderateMany([...new Set(ids)], payload.action) });
+      const changed = moderateMany([...new Set(ids)], payload.action);
+      audit(c, `comment.${payload.action}`, `${changed} commentaire(s) : #${ids.slice(0, 20).join(", #")}`);
+      return c.json({ ok: true, changed });
     } catch (e) {
       console.error("comments: bulk write failed", e);
       return c.json({ error: "Base de commentaires indisponible." }, 503);
@@ -183,6 +185,7 @@ commentsRoute.patch("/", async (c) => {
     if (payload.action === "approve") setStatus(id, "approved");
     else if (payload.action === "delete") deleteComment(id);
     else return c.json({ error: "Action inconnue." }, 400);
+    audit(c, `comment.${payload.action}`, `#${id}`);
   } catch (e) {
     console.error("comments: write failed", e);
     return c.json({ error: "Base de commentaires indisponible." }, 503);

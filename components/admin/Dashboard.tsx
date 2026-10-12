@@ -1,8 +1,10 @@
 "use client";
 
-// Top-of-page dashboard: one tile per actionable count (DASHBOARD_TILES in
-// config.tsx). Each tile publishes its count to a tiny store so the tab bar
-// can light its attention dots without fetching anything itself.
+// Top-of-page dashboard, built from DASHBOARD_TILES (config.tsx). Every tile
+// reads its count through an invisible probe that publishes it to a tiny
+// store; only counts above zero get a big tile, the rest fold into one line
+// ("rien à faire : …", and what couldn't be read). The sidebar lights its
+// attention dots from the same store without fetching anything itself.
 
 import { useEffect, useSyncExternalStore, type MouseEvent } from "react";
 import { FOCUS_RING } from "./shared";
@@ -33,11 +35,21 @@ export function useTileCounts(): Record<string, number | null> {
   );
 }
 
-/** Tabs with at least one tile above zero. */
-export function useTabsNeedingAttention(): Set<TabId> {
+/** Forget every count (disconnect), so a new session doesn't flash old ones. */
+export function resetTileCounts() {
+  counts.clear();
+  snapshot = {};
+  listeners.forEach((l) => l());
+}
+
+/** Per tab, the sum of its tiles above zero (absent = nothing to do). */
+export function useTabAttention(): Map<TabId, number> {
   const c = useTileCounts();
-  const out = new Set<TabId>();
-  for (const t of DASHBOARD_TILES) if ((c[t.id] ?? 0) > 0) out.add(t.tab);
+  const out = new Map<TabId, number>();
+  for (const t of DASHBOARD_TILES) {
+    const n = c[t.id] ?? 0;
+    if (n > 0) out.set(t.tab, (out.get(t.tab) ?? 0) + n);
+  }
   return out;
 }
 
@@ -48,45 +60,79 @@ export function Dashboard({
   ctx: TileContext;
   onJump: (tab: TabId, target: string) => void;
 }) {
+  const c = useTileCounts();
+  const hot = DASHBOARD_TILES.filter((t) => (c[t.id] ?? 0) > 0);
+  const calm = DASHBOARD_TILES.filter((t) => c[t.id] === 0);
+  const unknown = DASHBOARD_TILES.filter((t) => c[t.id] === null || c[t.id] === undefined);
   return (
     <nav aria-label="À traiter" className="admin-dashboard">
-      <ul>
-        {DASHBOARD_TILES.map((t) => (
-          <Tile key={t.id} tile={t} ctx={ctx} onJump={onJump} />
-        ))}
-      </ul>
+      {DASHBOARD_TILES.map((t) => (
+        <TileProbe key={t.id} tile={t} ctx={ctx} />
+      ))}
+      {hot.length > 0 && (
+        <ul className="admin-tiles">
+          {hot.map((t) => (
+            <li key={t.id}>
+              <a
+                href={`#${t.tab}`}
+                onClick={(e: MouseEvent) => {
+                  e.preventDefault();
+                  onJump(t.tab, t.target);
+                }}
+                className={`admin-tile is-hot ${FOCUS_RING}`}
+              >
+                <span className="admin-tile-value tabular-nums">{(c[t.id] ?? 0).toLocaleString("fr-FR")}</span>
+                <span className="admin-tile-label">{t.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+      <TileLine label={hot.length ? "Rien à faire" : "Tout est à jour, rien à faire"} tiles={calm} onJump={onJump} />
+      <TileLine label="Pas encore lu" tiles={unknown} onJump={onJump} muted />
     </nav>
   );
 }
 
-function Tile({
-  tile,
-  ctx,
+function TileLine({
+  label,
+  tiles,
   onJump,
+  muted = false,
 }: {
-  tile: DashboardTile;
-  ctx: TileContext;
+  label: string;
+  tiles: DashboardTile[];
   onJump: (tab: TabId, target: string) => void;
+  muted?: boolean;
 }) {
+  if (!tiles.length) return null;
+  return (
+    <p className={`admin-tileline ${muted ? "is-muted" : ""}`}>
+      <span className="admin-tileline-label">{label} :</span>{" "}
+      {tiles.map((t, i) => (
+        <span key={t.id}>
+          {i > 0 && ", "}
+          <a
+            href={`#${t.tab}`}
+            onClick={(e: MouseEvent) => {
+              e.preventDefault();
+              onJump(t.tab, t.target);
+            }}
+            className={`rounded underline-offset-2 hover:underline ${FOCUS_RING}`}
+          >
+            {t.label}
+          </a>
+        </span>
+      ))}
+    </p>
+  );
+}
+
+/** Reads one tile's count (its hook) and publishes it; renders nothing. */
+function TileProbe({ tile, ctx }: { tile: DashboardTile; ctx: TileContext }) {
   const n = tile.useCount(ctx);
   useEffect(() => {
     report(tile.id, n);
   }, [tile.id, n]);
-
-  const state = n === null ? "is-unknown" : n > 0 ? "is-hot" : "is-calm";
-  return (
-    <li>
-      <a
-        href={`#${tile.tab}`}
-        onClick={(e: MouseEvent) => {
-          e.preventDefault();
-          onJump(tile.tab, tile.target);
-        }}
-        className={`admin-tile ${state} ${FOCUS_RING}`}
-      >
-        <span className="admin-tile-value tabular-nums">{n === null ? "—" : n.toLocaleString("fr-FR")}</span>
-        <span className="admin-tile-label">{tile.label}</span>
-      </a>
-    </li>
-  );
+  return null;
 }

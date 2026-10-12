@@ -1794,6 +1794,30 @@ a.theme-pill:focus-visible {
   color: var(--ink);
 }
 
+/* The site owner's replies (written from /admin): a small badge, an indent
+   and the name of the reader answered. */
+.comment-badge {
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.45rem;
+  border-radius: var(--radius-pill);
+  background: var(--garden-wash, var(--wash-2));
+  color: var(--garden);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  vertical-align: 0.1em;
+}
+.comment--author {
+  padding-left: 1rem;
+}
+.comment-replyto {
+  margin: 0 0 0.2rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
 .comment-date {
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.95rem;

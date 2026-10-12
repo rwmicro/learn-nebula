@@ -46,11 +46,6 @@ export interface PendingData {
 
 const POLL_MS = 30_000;
 
-/** The note's last two path segments — the full slug is in the tooltip. */
-function shortSlug(slug: string): string {
-  const parts = slug.split("/");
-  return parts.length > 2 ? `…/${parts.slice(-2).join("/")}` : slug;
-}
 type Action = "approve" | "delete";
 
 export function PendingComments({ token, onUnauthorized, onToast }: AdminCardProps) {
@@ -277,7 +272,7 @@ export function PendingComments({ token, onUnauthorized, onToast }: AdminCardPro
       : undefined;
 
   return (
-    <section id="admin-pending" className="admin-card">
+    <section id="admin-pending" className="admin-card admin-card--wide">
       <CardHeader title="commentaires en attente" count={countLabel}>
         <RefreshButton busy={res.busy} onClick={() => res.reload()} label="Actualiser les commentaires en attente" />
       </CardHeader>
@@ -374,9 +369,7 @@ export function PendingComments({ token, onUnauthorized, onToast }: AdminCardPro
                   <div className="mb-1 flex flex-wrap items-baseline justify-between gap-x-3 text-small text-muted-warm">
                     <span className="min-w-0 break-words">
                       <strong className="text-ink">{c.name || "anonyme"}</strong> sur{" "}
-                      <span title={c.slug}>
-                        <NoteLink slug={c.slug}>{shortSlug(c.slug)}</NoteLink>
-                      </span>
+                      <NoteLink slug={c.slug} />
                     </span>
                     <time className="tabular-nums">{fmtDateTime(c.created_at)}</time>
                   </div>

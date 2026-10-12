@@ -1,6 +1,6 @@
 // Small pieces shared by the /admin cards (AdminPanel and components/admin/*).
 
-import type { ReactNode } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 
 export const FOCUS_RING =
   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-garden focus-visible:outline-offset-2";
@@ -60,6 +60,18 @@ export function fmtDate(v: number | string | null | undefined): string {
   if (v === null || v === undefined || v === "") return "—";
   const d = new Date(v);
   return Number.isNaN(d.getTime()) ? "—" : DATE_ONLY.format(d);
+}
+
+const SHORT_DAY = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short" });
+const SHORT_YEAR = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "2-digit" });
+
+/** Compact date for table cells: "12 oct.", with the year only when it isn't
+ *  this one ("3 oct. 25"). The full date and time go in the cell's title. */
+export function fmtShort(v: number | string | null | undefined): string {
+  if (v === null || v === undefined || v === "") return "—";
+  const d = new Date(v);
+  if (Number.isNaN(d.getTime())) return "—";
+  return (d.getFullYear() === new Date().getFullYear() ? SHORT_DAY : SHORT_YEAR).format(d);
 }
 
 export function plural(n: number, one: string, many = `${one}s`): string {
@@ -137,13 +149,64 @@ export function Dot({ color }: { color: string }) {
   );
 }
 
+// --- Note titles: /notes-index.json (built with the site) maps every note's
+// URL to its title, so the admin can say "LFCS — Notes de préparation" rather
+// than ".../lfcs/notes". Loaded once, shared by every NoteLink.
+
+let titles: Map<string, string> | null = null;
+let titlesLoading = false;
+const titleListeners = new Set<() => void>();
+const NO_TITLES = new Map<string, string>();
+
+function loadTitles() {
+  if (titles || titlesLoading) return;
+  titlesLoading = true;
+  fetch("/notes-index.json")
+    .then((r) => (r.ok ? r.json() : []))
+    .then((list: { title?: string; href?: string }[]) => {
+      titles = new Map();
+      for (const n of Array.isArray(list) ? list : []) {
+        if (typeof n?.href !== "string" || typeof n.title !== "string") continue;
+        const slug = decodeURIComponent(n.href.replace(/^\/posts\//, "").replace(/\/$/, ""));
+        titles.set(slug, n.title);
+      }
+    })
+    .catch(() => {
+      titles = new Map();
+    })
+    .finally(() => titleListeners.forEach((l) => l()));
+}
+
+export function useNoteTitles(): Map<string, string> {
+  return useSyncExternalStore(
+    (l) => {
+      titleListeners.add(l);
+      loadTitles();
+      return () => {
+        titleListeners.delete(l);
+      };
+    },
+    () => titles ?? NO_TITLES,
+    () => NO_TITLES,
+  );
+}
+
+/** The note's last two path segments, while its title is unknown. */
+export function shortSlug(slug: string): string {
+  const parts = slug.split("/");
+  return parts.length > 2 ? `…/${parts.slice(-2).join("/")}` : slug;
+}
+
+/** A link to a note, labelled with its title (full path on hover). */
 export function NoteLink({ slug, children }: { slug: string; children?: ReactNode }) {
+  const known = useNoteTitles();
   return (
     <a
       href={`/posts/${slug}/`}
+      title={slug}
       className={`rounded text-garden underline-offset-2 hover:underline ${FOCUS_RING}`}
     >
-      {children ?? slug}
+      {children ?? known.get(slug) ?? shortSlug(slug)}
     </a>
   );
 }

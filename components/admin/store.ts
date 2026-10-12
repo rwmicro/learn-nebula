@@ -6,7 +6,7 @@
 // useSyncExternalStore; cleared on disconnect.
 
 import { useCallback, useEffect, useSyncExternalStore } from "react";
-import { Unauthorized } from "./shared";
+import { Unauthorized, authHeader } from "./shared";
 
 export interface Resource<T> {
   data: T | null;
@@ -58,7 +58,7 @@ export function loadResource(url: string, token: string, opts: { silent?: boolea
   if (!opts.silent) patch(url, { busy: true });
   e.inflight = (async () => {
     try {
-      const r = await fetch(url, token ? { headers: { authorization: `Bearer ${token}` } } : undefined);
+      const r = await fetch(url, { headers: authHeader(token) });
       if (r.status === 401) throw new Unauthorized();
       if (r.status === 404) {
         patch(url, { missing: true, failed: false, data: null, error: null });
@@ -92,6 +92,14 @@ export function setResource<T>(url: string, update: T | ((prev: T | null) => T))
   const prev = entry(url).snap.data as T | null;
   const data = typeof update === "function" ? (update as (p: T | null) => T)(prev) : update;
   patch(url, { data, failed: false, missing: false, settled: true, error: null });
+}
+
+/** Re-read every endpoint some card has loaded (the "r" shortcut). */
+export function reloadAll(token: string): Promise<void> {
+  const loads = [...entries.entries()]
+    .filter(([, e]) => e.snap.settled && e.listeners.size > 0)
+    .map(([url]) => loadResource(url, token));
+  return Promise.all(loads).then(() => undefined);
 }
 
 /** Forget everything (disconnect): the next token starts from scratch. */
@@ -194,25 +202,79 @@ export const URLS = {
   builds: "/api/admin/builds",
   ragDebug: "/api/admin/rag-debug",
   accounts: "/api/admin/accounts",
+  usage: "/api/admin/usage",
+  activity: "/api/admin/activity",
+  events: "/api/admin/events",
+  prereqIgnored: "/api/admin/prereq-ignored",
 } as const;
 
-// --- Ignored prerequisite suggestions: per-browser (localStorage), shared
-// between the card (which edits it) and the dashboard (which counts without).
+// --- Ignored prerequisite suggestions: kept on the server (GET/PUT
+// /api/admin/prereq-ignored) so they follow the owner from one device to the
+// next; shared between the card (which edits it) and the dashboard (which
+// counts without). Older builds kept them in this browser's localStorage:
+// that list is merged in once, then dropped.
 
-const IGNORED_KEY = "gkPrereqIgnored";
+const LEGACY_IGNORED_KEY = "gkPrereqIgnored";
 let ignored: Set<string> | null = null;
+let ignoredToken: string | null = null;
 const ignoredListeners = new Set<() => void>();
 const NO_IGNORED = new Set<string>();
 
 function readIgnored(): Set<string> {
-  if (ignored) return ignored;
+  return ignored ?? NO_IGNORED;
+}
+
+function setIgnored(next: Set<string>) {
+  ignored = next;
+  ignoredListeners.forEach((l) => l());
+}
+
+function saveIgnored(keys: Set<string>) {
+  if (ignoredToken === null) return;
+  fetch(URLS.prereqIgnored, {
+    method: "PUT",
+    headers: { "content-type": "application/json", ...authHeader(ignoredToken) },
+    body: JSON.stringify({ keys: [...keys] }),
+  }).catch(() => {
+    /* kept for this visit; the next toggle retries */
+  });
+}
+
+/** Load the server's list once logged in (`token` is "" for an account
+ *  session), merging and clearing the old per-browser one. */
+export async function syncIgnored(token: string): Promise<void> {
+  ignoredToken = token;
+  let legacy: string[] = [];
   try {
-    const v = JSON.parse(localStorage.getItem(IGNORED_KEY) ?? "[]");
-    ignored = new Set(Array.isArray(v) ? v.filter((x) => typeof x === "string") : []);
+    const v = JSON.parse(localStorage.getItem(LEGACY_IGNORED_KEY) ?? "[]");
+    legacy = Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
   } catch {
-    ignored = new Set();
+    /* storage blocked */
   }
-  return ignored;
+  try {
+    const r = await fetch(URLS.prereqIgnored, { headers: authHeader(token) });
+    if (!r.ok) throw new Error(String(r.status));
+    const { keys } = (await r.json()) as { keys?: string[] };
+    const merged = new Set([...(keys ?? []), ...legacy]);
+    setIgnored(merged);
+    if (legacy.length) {
+      saveIgnored(merged);
+      try {
+        localStorage.removeItem(LEGACY_IGNORED_KEY);
+      } catch {
+        /* ignore */
+      }
+    }
+  } catch {
+    // Older server without the route: fall back to what this browser had.
+    setIgnored(new Set(legacy));
+  }
+}
+
+export function forgetIgnored() {
+  ignoredToken = null;
+  setIgnored(new Set());
+  ignored = null;
 }
 
 export const ignoredKey = (note: string, prereq: string) => `${note}>${prereq}`;
@@ -221,14 +283,8 @@ export function toggleIgnored(k: string) {
   const next = new Set(readIgnored());
   if (next.has(k)) next.delete(k);
   else next.add(k);
-  ignored = next;
-  try {
-    if (next.size) localStorage.setItem(IGNORED_KEY, JSON.stringify([...next]));
-    else localStorage.removeItem(IGNORED_KEY);
-  } catch {
-    /* storage blocked: ignoring lasts for this visit */
-  }
-  ignoredListeners.forEach((l) => l());
+  setIgnored(next);
+  saveIgnored(next);
 }
 
 export function useIgnoredPrereqs(): Set<string> {

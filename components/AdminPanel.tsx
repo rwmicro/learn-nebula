@@ -1,9 +1,10 @@
 "use client";
 
-// Owner-only tool: a dashboard of what needs doing, then three tabs —
-// Lecteurs (comment moderation, published comments, questions asked, accounts),
-// Contenu (vault health, prerequisite suggestions) and Site (assistant,
-// version). This page has no secrets of its own: it calls the protected
+// Owner-only console: a sidebar of sections — Lecteurs (comment moderation,
+// questions, failed searches), Contenu (vault health, prerequisites, facts),
+// Comptes, Activité (30-day charts, LLM spend) and Site (assistant, version,
+// rebuild, notifications, journal) — with a dashboard of what needs doing above
+// them, and keyboard shortcuts for all of it ("?" lists them). This page has no secrets of its own: it calls the protected
 // endpoints either through the owner's reader session (an account listed in
 // ADMIN_EMAILS — an HttpOnly cookie, nothing kept in JS) or, failing that,
 // with the COMMENTS_ADMIN_TOKEN pasted in (server/auth.ts).
@@ -13,10 +14,13 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BUTTON_CLASS, FOCUS_RING, UNDO_MS, type ToastAction } from "./admin/shared";
-import { URLS, clearResources, setResource } from "./admin/store";
+import { URLS, bump, clearResources, forgetIgnored, reloadAll, setResource, syncIgnored } from "./admin/store";
 import { ADMIN_TABS, type TabId } from "./admin/config";
-import { Dashboard } from "./admin/Dashboard";
+import { Dashboard, resetTileCounts, useTileCounts } from "./admin/Dashboard";
 import { AdminTabs } from "./admin/AdminTabs";
+import { EVENTS_TICK } from "./admin/EventsCard";
+import { PUBLISHED_TICK } from "./admin/PublishedComments";
+import { ShortcutsHelp } from "./admin/ShortcutsHelp";
 
 // sessionStorage, not localStorage: the token survives a reload of this tab
 // but not closing it, so it doesn't sit on disk for any script to find later.
@@ -25,6 +29,14 @@ const ME_URL = "/api/admin/me";
 // The account page logs the owner in and, from the e-mailed link, comes back.
 const ACCOUNT_LOGIN = "/compte/?next=%2Fadmin%2F";
 const DEFAULT_TAB: TabId = ADMIN_TABS[0].id;
+// "g" then a section key must follow within this delay.
+const CHORD_MS = 1500;
+
+/** Typing somewhere: single-key shortcuts must not fire. */
+function isTyping(t: EventTarget | null): boolean {
+  if (!(t instanceof HTMLElement)) return false;
+  return t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName);
+}
 
 function isTab(v: string): v is TabId {
   return ADMIN_TABS.some((t) => t.id === v);
@@ -67,7 +79,11 @@ export function AdminPanel() {
   const [toast, setToast] = useState<{ message: string; action?: ToastAction } | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const [help, setHelp] = useState(false);
+
   const showToast = useCallback((message: string, action?: ToastAction) => {
+    // Every toast follows an action the journal may have recorded.
+    bump(EVENTS_TICK);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     setToast({ message, action });
     toastTimer.current = setTimeout(() => setToast(null), action ? UNDO_MS : 2600);
@@ -220,6 +236,8 @@ export function AdminPanel() {
       /* ignore */
     }
     clearResources();
+    resetTileCounts();
+    forgetIgnored();
     setSession((s) => {
       // Logged in by account: logging out of /admin/ ends that session.
       if (s) fetch("/api/auth/logout", { method: "POST" }).catch(() => {});
@@ -242,6 +260,80 @@ export function AdminPanel() {
     );
   }, [disconnect, session]);
 
+  // Ignored prerequisite suggestions live on the server: load them once in.
+  useEffect(() => {
+    if (connected) syncIgnored(token);
+  }, [connected, token]);
+
+  // "(3) Administration": the pending queue, visible from another tab.
+  const pendingCount = useTileCounts().pending ?? 0;
+  const baseTitle = useRef<string | null>(null);
+  useEffect(() => {
+    if (baseTitle.current === null) baseTitle.current = document.title.replace(/^\(\d+\) /, "");
+    document.title = connected && pendingCount > 0 ? `(${pendingCount}) ${baseTitle.current}` : baseTitle.current;
+  }, [connected, pendingCount]);
+  useEffect(
+    () => () => {
+      if (baseTitle.current !== null) document.title = baseTitle.current;
+    },
+    [],
+  );
+
+  // --- global shortcuts: g + section key (or 1–5), "/" to filter, "r" to
+  // refresh, "?" for the list. Per-card keys (a/d/j/k/x on a pending comment)
+  // handle their own event first and mark it.
+  const chord = useRef(0);
+  useEffect(() => {
+    if (!connected) return;
+    function onKey(e: globalThis.KeyboardEvent) {
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey || isTyping(e.target)) return;
+      const k = e.key;
+      if (Date.now() - chord.current < CHORD_MS) {
+        chord.current = 0;
+        const t = ADMIN_TABS.find((x) => x.key === k.toLowerCase());
+        if (t) {
+          e.preventDefault();
+          selectTab(t.id);
+          document.getElementById(`admin-tab-${t.id}`)?.focus();
+        }
+        return;
+      }
+      if (k === "g") {
+        chord.current = Date.now();
+        return;
+      }
+      if (/^[1-9]$/.test(k) && ADMIN_TABS[Number(k) - 1]) {
+        e.preventDefault();
+        selectTab(ADMIN_TABS[Number(k) - 1].id);
+        return;
+      }
+      if (k === "/") {
+        const field = document.querySelector<HTMLInputElement>(
+          `#admin-panel-${tab} input[type=search]`,
+        );
+        if (field) {
+          e.preventDefault();
+          field.focus();
+          field.select();
+        }
+        return;
+      }
+      if (k === "r") {
+        e.preventDefault();
+        reloadAll(token).catch(() => {});
+        bump(PUBLISHED_TICK);
+        showToast("Tout est relu.");
+        return;
+      }
+      if (k === "?") {
+        e.preventDefault();
+        setHelp(true);
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [connected, tab, token, selectTab, showToast]);
+
   const cardProps = useMemo(
     () => ({ token, onUnauthorized: expired, onToast: showToast }),
     [token, expired, showToast],
@@ -249,7 +341,7 @@ export function AdminPanel() {
   const tileCtx = useMemo(() => ({ token, onUnauthorized: expired }), [token, expired]);
 
   return (
-    <div className="admin-panel mx-auto max-w-[42rem] px-6 py-10">
+    <div className={`admin-panel mx-auto px-4 py-8 sm:px-6 ${connected ? "is-console" : ""}`}>
       <header className="admin-head">
         <h1 className="admin-title m-0 flex items-center gap-2 text-2xl font-bold text-ink">
           <svg
@@ -333,8 +425,18 @@ export function AdminPanel() {
         </>
       ) : (
         <>
-          <Dashboard ctx={tileCtx} onJump={jump} />
-          <AdminTabs active={tab} onSelect={selectTab} card={cardProps} />
+          <AdminTabs
+            active={tab}
+            onSelect={selectTab}
+            card={cardProps}
+            top={<Dashboard ctx={tileCtx} onJump={jump} />}
+            footer={
+              <button type="button" onClick={() => setHelp(true)} className={`admin-side-help ${FOCUS_RING}`}>
+                <kbd>?</kbd> raccourcis
+              </button>
+            }
+          />
+          <ShortcutsHelp open={help} onClose={() => setHelp(false)} />
         </>
       )}
 

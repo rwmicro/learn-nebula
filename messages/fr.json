@@ -110,7 +110,9 @@
     "sending": "Envoi…",
     "publishedOk": "Commentaire publié.",
     "publishedPending": "Commentaire soumis ; en attente de validation.",
-    "networkError": "Erreur réseau ; veuillez réessayer."
+    "networkError": "Erreur réseau ; veuillez réessayer.",
+    "authorBadge": "auteur",
+    "replyTo": "en réponse à {name}"
   },
   "siblings": {
     "moreIn": "Plus dans {folder}",

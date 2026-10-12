@@ -17,6 +17,7 @@
 import fs from "node:fs";
 import { Hono } from "hono";
 import { env } from "../env.ts";
+import { audit } from "../auth.ts";
 import { deleteSearchMiss, searchMisses } from "../db.ts";
 import { ASK_MIN_SCORE, ASK_TOP_K, ragState, retrieve, scopePrefix } from "../rag.ts";
 import {
@@ -57,6 +58,7 @@ adminToolsRoute.delete("/search-misses", (c) => {
     return c.json({ error: "Requête invalide." }, 400);
   }
   const removed = deleteSearchMiss(q, where || undefined);
+  if (removed) audit(c, "search-miss.dismiss", `« ${q} »${where ? ` (${where})` : ""}`);
   return c.json({ removed });
 });
 
@@ -86,6 +88,7 @@ adminToolsRoute.post("/rebuild", async (c) => {
   try {
     await dispatchRebuild();
     lastDispatch = now;
+    audit(c, "site.rebuild", REBUILD_WORKFLOW);
     return c.json({ ok: true }, 202);
   } catch (e) {
     return c.json({ error: ghError(e) }, 502);
@@ -111,7 +114,9 @@ adminToolsRoute.post("/prereq-accept", async (c) => {
   const items = validatePrereqItems(payload?.items);
   if (typeof items === "string") return c.json({ error: items }, 400);
   try {
-    return c.json(await openPrereqPr(items));
+    const pr = await openPrereqPr(items);
+    audit(c, "prereq.pr", `${items.length} prérequis`);
+    return c.json(pr);
   } catch (e) {
     console.warn("admin: prereq PR failed", e instanceof Error ? e.message : e);
     return c.json({ error: ghError(e) }, 502);

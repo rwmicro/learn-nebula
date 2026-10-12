@@ -15,10 +15,12 @@ import {
   Muted,
   RefreshButton,
   fmtDateTime,
+  fmtShort,
   plural,
   type AdminCardProps,
 } from "./shared";
 import { URLS, useAdminResource } from "./store";
+import { SortTable, type Column } from "./SortTable";
 
 interface LogEntry {
   id: number;
@@ -95,7 +97,7 @@ export function QuestionsCard({ token, onUnauthorized }: AdminCardProps) {
   };
 
   return (
-    <section id="admin-questions" className="admin-card">
+    <section id="admin-questions" className="admin-card admin-card--wide">
       <CardHeader title="questions posées">
         <RefreshButton busy={res.busy} onClick={() => res.reload()} label="Actualiser le journal des questions" />
       </CardHeader>
@@ -214,36 +216,54 @@ function GroupList({
   showScore?: boolean;
 }) {
   if (!groups.length) return <Muted>{empty}</Muted>;
-  return (
-    <ol className="admin-groups m-0 list-none p-0 text-small">
-      {groups.map((g) => (
-        <li key={g.key}>
-          <span className="admin-group-count tabular-nums">
-            {g.count}×
-          </span>
-          <span className="min-w-0">
-            <span className="block break-words text-ink">{g.question}</span>
-            <span className="flex flex-wrap items-center gap-x-2 gap-y-1 text-micro text-muted-warm">
-              <span>dernière : {fmtDateTime(g.last_at)}</span>
-              {g.scopes.map((s) => (
-                <span key={s} className="rounded-full bg-wash-2 px-2 py-px text-ink-2">
-                  {s}
-                </span>
-              ))}
-              {showScore && (
-                <span className="admin-weak">
-                  {g.top_score === null ? "aucun extrait" : `meilleur score ${fr2(g.top_score)}`}
-                </span>
-              )}
-              {!showScore && g.measured > 0 && g.weak * 2 >= g.measured && (
-                <span className="admin-weak" title={`seuil ${fr2(weakScore)}`}>
-                  mal couverte
-                </span>
-              )}
+  const columns: Column<Group>[] = [
+    {
+      id: "question",
+      label: "Question",
+      sortValue: (g) => g.question.toLowerCase(),
+      cell: (g) => (
+        <>
+          <span className="break-words text-ink">{g.question}</span>
+          {!showScore && g.measured > 0 && g.weak * 2 >= g.measured && (
+            <span className="admin-weak ml-2" title={`seuil ${fr2(weakScore)}`}>
+              mal couverte
             </span>
-          </span>
-        </li>
-      ))}
-    </ol>
+          )}
+        </>
+      ),
+    },
+    {
+      id: "scopes",
+      label: "Dossier",
+      wideOnly: true,
+      sortValue: (g) => g.scopes[0] ?? null,
+      cell: (g) => g.scopes.join(", "),
+    },
+    { id: "count", label: "Fois", numeric: true, sortValue: (g) => g.count, cell: (g) => g.count },
+    {
+      id: "last",
+      label: "Dernière",
+      numeric: true,
+      sortValue: (g) => g.last_at,
+      cell: (g) => <span title={fmtDateTime(g.last_at)}>{fmtShort(g.last_at)}</span>,
+    },
+  ];
+  if (showScore) {
+    columns.push({
+      id: "score",
+      label: "Score",
+      numeric: true,
+      sortValue: (g) => g.top_score ?? -1,
+      cell: (g) => (g.top_score === null ? "aucun extrait" : fr2(g.top_score)),
+    });
+  }
+  return (
+    <SortTable
+      rows={groups}
+      columns={columns}
+      rowKey={(g) => g.key}
+      initialSort={{ id: "count", dir: "desc" }}
+      caption={showScore ? "Questions mal couvertes" : "Questions fréquentes"}
+    />
   );
 }

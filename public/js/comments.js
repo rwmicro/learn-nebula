@@ -89,11 +89,25 @@
         const name = esc(c.name || tt("comments.anonymous"));
         const body = esc(c.body).replace(/\n/g, "<br>");
         const date = formatDate(c.created_at);
+        // The site owner's replies, written from /admin.
+        const isAuthor = !!c.author;
+        const badge = isAuthor
+          ? ' <span class="comment-badge">' + esc(tt("comments.authorBadge")) + "</span>"
+          : "";
+        const replyTo = c.reply_to
+          ? '<p class="comment-replyto">↳ ' +
+            esc(tt("comments.replyTo", { name: c.reply_to_name || tt("comments.anonymous") })) +
+            "</p>"
+          : "";
         return (
-          '<article class="comment">' +
+          '<article class="comment' +
+          (isAuthor ? " comment--author" : "") +
+          '">' +
+          replyTo +
           '<header class="comment-head">' +
           '<span class="comment-author">' +
           name +
+          badge +
           "</span>" +
           '<time class="comment-date">' +
           date +

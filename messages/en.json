@@ -110,7 +110,9 @@
     "sending": "Sending…",
     "publishedOk": "Comment published.",
     "publishedPending": "Comment submitted; awaiting moderation.",
-    "networkError": "Network error; please try again."
+    "networkError": "Network error; please try again.",
+    "authorBadge": "author",
+    "replyTo": "replying to {name}"
   },
   "siblings": {
     "moreIn": "More in {folder}",

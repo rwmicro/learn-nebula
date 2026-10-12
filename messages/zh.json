@@ -110,7 +110,9 @@
     "sending": "发送中…",
     "publishedOk": "评论已发布。",
     "publishedPending": "评论已提交，等待审核。",
-    "networkError": "网络错误，请重试。"
+    "networkError": "网络错误，请重试。",
+    "authorBadge": "作者",
+    "replyTo": "回复 {name}"
   },
   "siblings": {
     "moreIn": "{folder} 中的更多内容",

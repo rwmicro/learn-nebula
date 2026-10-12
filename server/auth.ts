@@ -11,7 +11,7 @@
 import type { Context } from "hono";
 import { env } from "./env.ts";
 import { getIp } from "./http.ts";
-import { database } from "./db.ts";
+import { database, logAdminEvent } from "./db.ts";
 import { sessionAccount } from "./account-store.ts";
 import { originAllowed, publicBase, sessionToken } from "./session.ts";
 
@@ -95,4 +95,10 @@ export function adminSessionEmail(c: Context, now = Date.now()): string | null {
     if (!originAllowed(c.req.header("origin"), host, publicBase())) return null;
   }
   return account.email;
+}
+
+/** Record an admin action in the journal (/admin "journal"), with how the
+ *  owner was logged in. */
+export function audit(c: Context, action: string, detail = ""): void {
+  logAdminEvent(action, detail, adminVia(c) ?? "");
 }

@@ -110,7 +110,9 @@
     "sending": "جارٍ الإرسال…",
     "publishedOk": "تم نشر التعليق.",
     "publishedPending": "تم إرسال التعليق؛ في انتظار المراجعة.",
-    "networkError": "خطأ في الشبكة؛ يرجى المحاولة مرة أخرى."
+    "networkError": "خطأ في الشبكة؛ يرجى المحاولة مرة أخرى.",
+    "authorBadge": "الكاتب",
+    "replyTo": "ردًّا على {name}"
   },
   "siblings": {
     "moreIn": "المزيد في {folder}",
