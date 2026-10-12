@@ -21,6 +21,12 @@
 # mermaid UMD bundle copied in by scripts/copy-mermaid.mjs (client-render fallback)
 /public/js/mermaid.min.js
 
+# isometric figures built from figures/ (scripts/build-figures.mjs), and
+# their local preview pages and screenshots
+/public/figures/
+/figures/*/preview*.html
+/figures/*/shots/
+
 # note share cards drawn at build time (scripts/build-og-images.ts)
 /public/og/
 

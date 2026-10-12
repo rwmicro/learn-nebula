@@ -27,6 +27,9 @@ const SCRIPTS = [
   // the 30 notes out of 721 that actually mount one. public/js/widgets.js is
   // served as its own file (like mermaid.min.js) and never enters this bundle.
   "widgets-loader",
+  // ```iso:<name>``` figures: syncs their theme, then imports
+  // /figures/<name>.js (scripts/build-figures.mjs) only on a page with one.
+  "iso-figures",
   "scroll-focus",
   "related",
   "comments",
