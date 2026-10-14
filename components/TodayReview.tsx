@@ -27,6 +27,7 @@ import {
 import type { AnkiDeck } from "@/lib/anki";
 import { ReviewSession } from "@/components/ReviewSession";
 import { familyOfFolder } from "@/lib/path-family";
+import { PRACTICE_SIZE, practicePick, shuffled, type PracticeMode } from "@/lib/practice";
 
 /**
  * /cartes/aujourdhui/ — "Tout réviser": one session over everything due
@@ -42,7 +43,7 @@ import { familyOfFolder } from "@/lib/path-family";
  * 429). Progress is the same as on each deck page and on /cartes/revision/,
  * so studying here or there is the same thing.
  */
-export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
+export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: PracticeMode }) {
   const locale = useLocale();
   const tr = (k: string, vars?: Record<string, string | number>) => t(k, vars, locale);
   // null: loading; false: no storage.
@@ -53,6 +54,8 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
   const [loading, setLoading] = useState<[number, number] | null>(null);
   const [started, setStarted] = useState(0);
   const [hasNotes, setHasNotes] = useState(false);
+  // A practice session that found nothing to practise.
+  const [emptyStart, setEmptyStart] = useState(false);
   const progress = useRef(new Map<string, Progress>());
   const notes = useRef<Record<string, NoteDeck>>({});
 
@@ -66,11 +69,25 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
     const all = loadAllNoteDecks(localStorage);
     notes.current = all;
     setHasNotes(Object.keys(all).length > 0);
-    const reviews: ReviewItem[] = dueQuestions(all, today).map((d) => ({ kind: "note", ...d }));
+    // S'entraîner (lib/practice.ts): studied cards only, nothing rescheduled.
+    const notePick = (st: Parameters<typeof practicePick>[1]) =>
+      mode === "eclair" ? true : mode && mode !== "ecoute" ? practicePick(mode, st, today) : false;
+    const reviews: ReviewItem[] = mode
+      ? shuffled(
+          Object.entries(all).flatMap(([slug, d]) =>
+            Object.entries(d.items)
+              .filter(([id]) => notePick(d.cards[id]))
+              .map(([id, item]) => ({ kind: "note" as const, slug, id, item, state: d.cards[id] })),
+          ),
+        )
+      : dueQuestions(all, today).map((d) => ({ kind: "note", ...d }));
     const begun = decks.filter((d) => isStarted(loadDeckProgress(d.slug)));
     setStarted(begun.length);
     const wanted = begun.filter((d) => {
       const cfg = deckSettings(settings, d.slug);
+      if (mode === "eclair") return false;
+      if (mode === "ecoute") return familyOfFolder(d.folder) === "langues";
+      if (mode) return Object.values(loadDeckProgress(d.slug).cards).some((c) => practicePick(mode, c, today));
       if (cfg.paused) return false;
       const c = quickCounts(loadDeckProgress(d.slug), d.count, cfg, today);
       return c.due + c.fresh > 0;
@@ -95,6 +112,16 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
         if (p !== stored) saveDeckProgress(d.slug, p);
         progress.current.set(d.slug, p);
         const sc = studyCards(data, cfg);
+        if (mode) {
+          for (const x of sc) {
+            const st = p.cards[x.key];
+            if (!practicePick(mode, st, today)) continue;
+            const item = deckReviewItem(d.slug, data, x, { ...cfg, autoplay: cfg.autoplay || mode === "ecoute" }, st);
+            if (mode === "ecoute" && !/pron-btn/.test(item.front + item.back)) continue;
+            reviews.push(item);
+          }
+          continue;
+        }
         const deckNew: ReviewItem[] = [];
         for (const i of buildQueue(
           sc.map((x) => x.key),
@@ -116,15 +143,19 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
         for (const f of fresh) if (i < f.length) interleaved.push(f[i]);
       setFailed(bad);
       setLoading(null);
-      setQueue([...reviews, ...interleaved]);
+      const q = mode ? shuffled(reviews).slice(0, PRACTICE_SIZE[mode]) : [...reviews, ...interleaved];
+      setEmptyStart(!!mode && q.length === 0);
+      setQueue(q);
     });
     return () => {
       cancel = true;
     };
-  }, [decks, today]);
+  }, [decks, today, mode]);
 
   const onGrade = useCallback(
     (head: ReviewItem, g: Grade): Graded | undefined => {
+      // Practice leaves every schedule as it was.
+      if (mode) return { state: head.state, undo: () => {} };
       if (head.kind === "note") {
         const before = notes.current[head.slug];
         if (!before) return undefined;
@@ -160,7 +191,7 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
         },
       };
     },
-    [today],
+    [today, mode],
   );
 
   // The "done" screen: what tomorrow already holds, from the same progress.
@@ -171,8 +202,9 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
       for (const c of Object.values(p.cards)) if (c.due <= tomorrow && !c.sus) n++;
     return n;
   };
-  const doneText =
-    queue && queue.length === 0 && started === 0 && !hasNotes
+  const doneText = mode
+    ? tr(emptyStart ? "practice.empty" : "practice.done")
+    : queue && queue.length === 0 && started === 0 && !hasNotes
       ? tr("todayReview.nothingStarted")
       : tr("todayReview.done");
 
@@ -188,7 +220,7 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
       </a>
       <header className="mb-3 mt-3 flex items-baseline justify-between gap-4 border-b border-ink pb-2">
         <h1 className="m-0 text-balance text-[clamp(1.25rem,1rem+1.8vw,2.2rem)] font-medium leading-tight">
-          {tr("todayReview.title")}
+          {tr(mode ? `practice.${mode}` : "todayReview.title")}
         </h1>
         {queue && queue.length > 0 && (
           <span className="shrink-0 text-meta tabular-nums text-muted-warm">
@@ -197,7 +229,7 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
         )}
       </header>
       <p className="mb-5 mt-0 text-small text-ink-2">
-        {tr("todayReview.intro")}
+        {tr(mode ? `practice.${mode}Intro` : "todayReview.intro")}
       </p>
       {failed.length > 0 && (
         <p className="mb-5 mt-0 text-small italic text-muted-warm">
@@ -220,7 +252,7 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
           showSource
           families={Object.fromEntries(decks.map((d) => [d.slug, familyOfFolder(d.folder)]))}
           done={doneText}
-          doneNote={() => (started > 0 ? tr("todayReview.tomorrow", { count: tomorrowLoad() }) : null)}
+          doneNote={() => (!mode && started > 0 ? tr("todayReview.tomorrow", { count: tomorrowLoad() }) : null)}
         />
       )}
     </main>

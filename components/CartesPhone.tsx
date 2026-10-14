@@ -143,6 +143,17 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
             {CHEV}
           </a>
         </li>
+        <li>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a href="/cartes/entrainer/">
+            <span className="rv-ico">{svg(<path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z" />)}</span>
+            <span className="rv-tx">
+              <b>{tr("rv.practice")}</b>
+              <small>{tr("rv.practiceText")}</small>
+            </span>
+            {CHEV}
+          </a>
+        </li>
       </ul>
 
       <h2 className="rv-h">{tr("rv.decks")}</h2>
