@@ -1811,7 +1811,7 @@
     flex-wrap: nowrap;
     gap: 0.5rem;
     margin: 0.75rem -1.25rem 0;
-    padding: 0 1.25rem 0.2rem;
+    padding: 0 1.25rem 6px;
     overflow-x: auto;
     scrollbar-width: none;
   }
@@ -1820,14 +1820,27 @@
   }
   main.parcours-page .parcours-chip {
     flex: none;
-    height: 2.25rem;
-    padding: 0 0.95rem;
+    gap: 7px;
+    height: 34px;
+    padding: 0 14px;
     border: 0;
     border-radius: 1.125rem;
     background: var(--wash-2);
     color: var(--ink);
     font: 500 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
     white-space: nowrap;
+  }
+  /* Spacing as in the mockup: the chips, then the first heading 18px below
+     (the filter's live status takes no room until it has something to say,
+     and the browse block adds none). */
+  main.parcours-page .parcours-browse {
+    margin-bottom: 0;
+  }
+  main.parcours-page .parcours-filter-status:empty {
+    margin: 0;
+    height: 0;
+    min-height: 0;
+    overflow: hidden;
   }
   main.parcours-page .parcours-chip[aria-pressed="true"] {
     background: var(--ink);
@@ -1843,7 +1856,7 @@
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    margin: 1.6rem 0.25rem 0.5rem;
+    margin: 18px 0.25rem 8px;
     padding: 0;
     border: 0;
     font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
