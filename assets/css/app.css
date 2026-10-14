@@ -906,6 +906,89 @@
   main .path-step {
     margin-top: 0.4rem;
   }
+  /* "À lire avant": a grouped list like the rest of the app, one row per
+     note with a chevron, the heading in the family colour above it. */
+  main .path-step--with-prereq {
+    margin: 0 0 1.4rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  main .prereq,
+  main .path-step .prereq {
+    display: block;
+    margin: 0.4rem 0 1.4rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  main .prereq-title {
+    margin: 0 0 0.45rem 0.2rem;
+    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fam, var(--garden));
+  }
+  main .prereq-list {
+    display: block;
+    border-radius: 1rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+    overflow: hidden;
+  }
+  main .prereq-list li {
+    position: relative;
+    margin: 0;
+    font-size: 1rem;
+  }
+  main .prereq-list li + li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3.35rem;
+    right: 0;
+    margin: 0;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  main .prereq-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.2rem;
+    padding: 0.5rem 0.9rem;
+    font: 500 1.03rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  main .prereq-list a::before {
+    content: "";
+    flex: none;
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 0.55rem;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='4' y='3' width='16' height='18' rx='2'/%3E%3Cpath d='M8 8h8M8 12h8M8 16h5'/%3E%3C/svg%3E")
+        center / 1.05rem no-repeat,
+      var(--fam-wash, var(--garden-wash));
+  }
+    main .prereq-list a::after {
+    content: "";
+    flex: none;
+    margin-left: auto;
+    width: 0.9rem;
+    height: 0.9rem;
+    background: var(--muted);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  main .prereq-path {
+    display: inline-block;
+    margin: 0.5rem 0 0 0.2rem;
+    font-size: 0.9rem;
+    color: var(--fam, var(--garden));
+  }
   main .path-step:not(.path-step--with-prereq) {
     margin: 0;
     padding: 0;
@@ -1678,5 +1761,281 @@
 @media print {
   .na-chrome {
     display: none !important;
+  }
+}
+
+/* --- Parcours (phone): large title, one row of chips, grouped lists -------- */
+.parcours-ic,
+.parcours-meta {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  main.themes-page > .themes-back {
+    display: none;
+  }
+  main.parcours-page {
+    padding: 1.1rem 1.25rem 2rem;
+  }
+  main.parcours-page .themes-title {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 2.125rem;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  main.parcours-page > .themes-intro {
+    margin: 0.3rem 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  main.parcours-page .parcours-filter-q {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    height: 2.5rem;
+    padding: 0 0.9rem 0 2.4rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: var(--wash-2)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E")
+      0.8rem 50% / 1.1rem no-repeat;
+    font: 400 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink);
+  }
+  main.parcours-page .parcours-chips {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    margin: 0.75rem -1.25rem 0;
+    padding: 0 1.25rem 0.2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  main.parcours-page .parcours-chips::-webkit-scrollbar {
+    display: none;
+  }
+  main.parcours-page .parcours-chip {
+    flex: none;
+    height: 2.25rem;
+    padding: 0 0.95rem;
+    border: 0;
+    border-radius: 1.125rem;
+    background: var(--wash-2);
+    color: var(--ink);
+    font: 500 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    white-space: nowrap;
+  }
+  main.parcours-page .parcours-chip[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  main.parcours-page .parcours-chip[aria-pressed="true"] > span {
+    color: inherit;
+    opacity: 0.7;
+  }
+
+  /* Section headings: small capitals, the count on the right. */
+  main.parcours-page .themes-h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 1.6rem 0.25rem 0.5rem;
+    padding: 0;
+    border: 0;
+    font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  main.parcours-page .themes-h2::before {
+    display: none;
+  }
+  main.parcours-page .parcours-family-count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--fam, var(--muted));
+  }
+  main.parcours-page .parcours-tiles-intro,
+  main.parcours-page .parcours-cards-label,
+  main.parcours-page .parcours-card-kicker,
+  main.parcours-page .parcours-card-sub,
+  main.parcours-page .parcours-card-desc,
+  main.parcours-page .parcours-card-chain,
+  main.parcours-page :is(.parcours-card, .parcours-tile) .parcours-progress {
+    display: none;
+  }
+  main.parcours-page .parcours-cards-block + .parcours-cards-block,
+  main.parcours-page .parcours-tiles-block + .parcours-cards-block {
+    margin-top: 0.75rem;
+  }
+
+  /* One card per family, a row per path. */
+  main.parcours-page :is(.parcours-cards, .parcours-tiles, .parcours-resume-list) {
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-radius: 1rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+    overflow: hidden;
+  }
+  main.parcours-page :is(.parcours-card, .parcours-tile) {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  main.parcours-page :is(.parcours-card, .parcours-tile) + :is(.parcours-card, .parcours-tile)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3.6rem;
+    right: 0;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  main.parcours-page :is(.parcours-card-link, .parcours-tile-link) {
+    display: grid;
+    grid-template-columns: 2.1rem 1fr 1rem;
+    grid-template-rows: auto auto;
+    column-gap: 0.75rem;
+    align-items: center;
+    min-height: 3.6rem;
+    padding: 0.6rem 0.9rem;
+    border: 0;
+    background: none;
+    text-decoration: none;
+  }
+  main.parcours-page :is(.parcours-card-link, .parcours-tile-link):hover {
+    text-decoration: none;
+  }
+  main.parcours-page :is(.parcours-card-link, .parcours-tile-link)::after {
+    content: "";
+    grid-column: 3;
+    grid-row: 1 / 3;
+    width: 0.9rem;
+    height: 0.9rem;
+    background: var(--muted);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  main.parcours-page .parcours-ic {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.6rem;
+    background: var(--fam-wash, var(--garden-wash));
+    color: var(--fam, var(--garden));
+  }
+  main.parcours-page .parcours-ic svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+  main.parcours-page :is(.parcours-card-title, .parcours-tile-name) {
+    grid-column: 2;
+    margin: 0;
+    font: 500 1.06rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink);
+  }
+  main.parcours-page .parcours-meta {
+    grid-column: 2;
+    display: block;
+    margin-top: 0.1rem;
+    font: 400 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+
+  /* "En cours" */
+  main.parcours-page .parcours-resume-list li {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0.8rem 0.95rem;
+    border: 0;
+  }
+  main.parcours-page .parcours-resume-list li + li {
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  main.parcours-page .parcours-resume-path {
+    font: 500 1.06rem "Alegreya", "Alegreya Fallback", serif;
+  }
+  main.parcours-page .parcours-resume-meta,
+  main.parcours-page .parcours-resume-next {
+    font: 400 0.82rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  main.parcours-page .parcours-resume-next {
+    color: var(--fam, var(--garden));
+  }
+  main.parcours-page .parcours-privacy {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+}
+
+/* --- Tables in notes (phone) -----------------------------------------------
+   A card that scrolls sideways at the table's own width: short cells stay on
+   one line, long ones wrap at a readable measure, the first column stays put
+   while the rest slides under it, and a shadow on the edge says there is more. */
+@media (max-width: 639.98px) {
+  body:has(.na-chrome) main .article-body table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    margin: 1.4rem 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    border: 0;
+    border-radius: 0.875rem;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    background:
+      linear-gradient(90deg, var(--dash-card) 30%, transparent) left / 2rem 100% no-repeat local,
+      linear-gradient(270deg, var(--dash-card) 30%, transparent) right / 2rem 100% no-repeat local,
+      radial-gradient(farthest-side at 100% 50%, rgb(0 0 0 / 0.14), transparent) right / 0.8rem 100% no-repeat scroll,
+      var(--dash-card);
+    box-shadow: var(--dash-shadow);
+  }
+  body:has(.na-chrome) main .article-body table :is(th, td) {
+    min-width: 4.5rem;
+    max-width: 14rem;
+    padding: 0.6rem 0.75rem;
+    border: 0;
+    border-top: 0.5px solid var(--dash-edge);
+    vertical-align: top;
+    text-align: start;
+    hyphens: manual;
+  }
+  body:has(.na-chrome) main .article-body table tbody tr:first-child td {
+    padding-top: 0.6rem;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  body:has(.na-chrome) main .article-body table thead th {
+    border-top: 0;
+    padding-block: 0.65rem 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--muted);
+  }
+  /* The row's label stays in view. */
+  body:has(.na-chrome) main .article-body table :is(th, td):first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--dash-card);
+    box-shadow: 0.5px 0 0 var(--dash-edge);
   }
 }
