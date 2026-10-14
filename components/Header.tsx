@@ -60,6 +60,13 @@ export default function Header({ doc }: { doc: Doc }) {
         />
         <ReviewPill />
         <AccountChip />
+        {/* Phones: "Moi", as in the site bar (components/SiteBar.tsx). */}
+        <a className="site-bar-me" href="/progression/" aria-label={t("siteBar.me")} data-i18n-aria-label="siteBar.me">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+          </svg>
+        </a>
         <label
           htmlFor="gk-menu"
           aria-label={t("nav.menu")}

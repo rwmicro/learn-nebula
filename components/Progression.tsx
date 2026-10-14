@@ -37,6 +37,7 @@ import {
 } from "@/lib/progress-transfer";
 import type { AnkiDeck } from "@/lib/anki";
 import { ReviewStats } from "@/components/ReviewStats";
+import { AppSettings } from "@/components/AppSettings";
 
 interface Pending {
   file: ProgressFile;
@@ -268,6 +269,7 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
       </a>
       <h1 className="progression-title">{tr("title")}</h1>
       <p className="progression-intro">{tr("intro")}</p>
+      <AppSettings />
 
       <section
         className="progression-summary"

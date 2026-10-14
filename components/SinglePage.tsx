@@ -37,6 +37,7 @@ import {
   readStateHtml,
   noteSectionMetaHtml,
   folderLabel,
+  folderI18n,
   bookmarkButtonHtml,
   focusButtonHtml,
   lessonButtonHtml,
@@ -50,6 +51,8 @@ import { citeHtml } from "@/lib/cite";
 import { JsonLd } from "@/components/JsonLd";
 import { NoteFeatureScripts } from "@/components/NoteScripts";
 import { franc } from "franc-min";
+import { familyOfPrefix } from "@/lib/path-family";
+import { coverImgHtml, leadCover, noteAppChromeHtml, noteCrumbsHtml, type NoteAppInput } from "@/lib/note-app";
 
 /**
  * Single-page layout (layouts/single.html): dropcap, subtitle, title, body and
@@ -71,10 +74,15 @@ export async function SinglePage({
     : "";
   // Glossary marks (lib/glossary.ts) only on notes: terms defined in another
   // note of the same discipline, first occurrence each.
-  const { html, plain, hasMath, hasQuiz, hasGlossary } = await renderMarkdown(doc.body, {
+  const rendered = await renderMarkdown(doc.body, {
     dir,
     glossary: note ? getGlossaryFor(doc) : undefined,
   });
+  const { plain, hasMath, hasQuiz, hasGlossary } = rendered;
+  // Phone layout (lib/note-app.ts): a note that opens on a picture gets it as
+  // a cover; that figure is then marked so it doesn't show twice.
+  const cover = note ? leadCover(rendered.html) : null;
+  const html = cover ? cover.html : rendered.html;
   const fm = doc.frontmatter;
   // Subtitle: manual override takes precedence (untranslated user text);
   // otherwise emit the article date inside a <time data-i18n-date> so the
@@ -195,6 +203,37 @@ export async function SinglePage({
 
   const lessonSteps = (html.match(/class="callout callout-(?:quiz|predict)\b/g) ?? []).length;
 
+  // The phone app chrome: crumbs, section pill, toolbar and display sheet.
+  const family = disc ? familyOfPrefix(disc.prefix) : null;
+  const folders = doc.rawPath.split("/").slice(0, -1);
+  const appCrumbs: NoteAppInput["crumbs"] = step
+    ? [
+        { label: step.path.name.split(/\s+[:—–-]\s+/)[0], href: `/parcours/${encodeURIComponent(step.path.slug)}/` },
+        {
+          label: t("noteApp.step", { n: step.index + 1 }),
+          attrs: i18nAttrs("noteApp.step", { n: step.index + 1 }),
+          step: true,
+        },
+      ]
+    : folders.slice(1, 3).map((name, i) => ({
+        label: folderLabel(name),
+        attrs: folderI18n(name),
+        href: i === 0 && disc ? `/disciplines/${disc.slug}/` : undefined,
+      }));
+  const appInput: NoteAppInput = {
+    title: fm.title,
+    family,
+    crumbs: appCrumbs,
+    up: step ? `/parcours/${encodeURIComponent(step.path.slug)}/` : disc ? `/disciplines/${disc.slug}/` : "/",
+    prev: step ? step.prev : (sibNav?.prev ?? null),
+    next: step ? step.next : (sibNav?.next ?? null),
+    lesson: lessonSteps >= 2,
+  };
+  const appCrumbsHtml = note ? noteCrumbsHtml(appInput) : "";
+  const appMinutes = note
+    ? `<span class="na-min"${i18nAttrs("noteActions.readingTimeFormat", { min: readingMinutes })}>${escapeHtml(t("noteActions.readingTimeFormat", { min: readingMinutes }))}</span>`
+    : "";
+
   const headerTitle = fm.title;
   const headerDate = fm.date
     ? { iso: fm.date.toISOString(), formatted: formatDateLong(fm.date) }
@@ -215,10 +254,13 @@ export async function SinglePage({
     // On notes, the date sits on a row with the TOC/sidebar toggle (mobile).
     // Out of the search index: every excerpt that starts at the top of a note
     // used to open on its date ("avril 2026. …").
+    (cover ? `<div class="na-cover">${coverImgHtml(cover.src)}` : "") +
+    appCrumbsHtml +
     (note
-      ? `<div class="subtitle-row" data-pagefind-ignore>${subtitle}${asideToggleHtml()}</div>`
+      ? `<div class="subtitle-row" data-pagefind-ignore>${subtitle}${appMinutes}${asideToggleHtml()}</div>`
       : subtitle) +
     `<h1 class='title-note'>${escapeHtml(fm.title)}</h1>` +
+    (cover ? `</div>` : "") +
     // Growth stage + "last tended", when the note declares them.
     (note ? growthHtml(fm.stage, fm.date, fm.updated) : "") +
     // Where the note lives, as Pagefind metadata for the search results.
@@ -265,9 +307,17 @@ export async function SinglePage({
       <main
         id="main"
         lang={lang}
+        data-family={family ?? undefined}
         {...(note ? { "data-pagefind-body": "" } : {})}
         dangerouslySetInnerHTML={{ __html: main }}
       />
+      {note && (
+        <div
+          className="na-root"
+          data-family={family ?? undefined}
+          dangerouslySetInnerHTML={{ __html: noteAppChromeHtml(appInput, cover != null) }}
+        />
+      )}
       {jsonLd && <JsonLd data={jsonLd} />}
       {note && <NoteFeatureScripts quiz={hasQuiz} glossary={hasGlossary} />}
     </>

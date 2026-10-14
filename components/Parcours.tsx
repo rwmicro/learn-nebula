@@ -16,6 +16,7 @@ import { fold } from "@/lib/palette-match";
 import { prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
 import { splitMinutes } from "@/lib/path-study";
 import { pathLevels } from "@/lib/path-levels";
+import { FamilyIcon } from "@/components/HomeDashboard";
 
 /**
  * /parcours/ (an index of reading paths, one card each) and /parcours/<slug>/
@@ -113,7 +114,11 @@ export function ParcoursIndex({
                         data-search={searchText(p)}
                       >
                         <a href={`/parcours/${p.slug}/`} className="parcours-tile-link" title={p.name}>
+                          <span className="parcours-ic" aria-hidden="true">
+                            <FamilyIcon family={family} />
+                          </span>
                           <span className="parcours-tile-name">{splitName(p.name)[0]}</span>
+                          <PathMeta path={p} extras={extras[p.slug]} />
                           <Progress
                             slugs={p.notes.map((n) => n.slug)}
                             total={p.notes.length}
@@ -149,7 +154,11 @@ export function ParcoursIndex({
                               <DisciplineName name={p.discipline} />
                             </span>
                           )}
+                          <span className="parcours-ic" aria-hidden="true">
+                            <FamilyIcon family={family} />
+                          </span>
                           <span className="parcours-card-title">{title}</span>
+                          <PathMeta path={p} extras={extras[p.slug]} />
                           {sub && <span className="parcours-card-sub">{sub}</span>}
                           {p.description && (
                             <span className="parcours-card-desc">{p.description}</span>
@@ -513,6 +522,20 @@ function OrderItem({
         </button>
       </span>
     </li>
+  );
+}
+
+/** "35 notes · 1 h 42": the phone list's second line (app.css shows it
+ *  under 640px, where the card's description is left out). */
+function PathMeta({ path, extras }: { path: ReadingPathView; extras?: PathExtras }) {
+  const minutes = path.notes.reduce((sum, n) => sum + (extras?.notes[n.slug]?.minutes ?? 1), 0);
+  const n = path.notes.length;
+  return (
+    <span className="parcours-meta">
+      <span {...attrs(i18nAttrs("dash.notes", { n }))}>{t("dash.notes", { n })}</span>
+      {" · "}
+      <Duration minutes={minutes} />
+    </span>
   );
 }
 

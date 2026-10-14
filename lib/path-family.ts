@@ -7,6 +7,8 @@
  * (`[data-family]` in assets/css/global.css), so they follow light/dark.
  */
 
+import { tagSlug } from "./slug";
+
 export const PATH_FAMILIES = [
   "sciences",
   "informatique",
@@ -55,4 +57,13 @@ const FAMILY_OF: Record<string, PathFamily> = {
 /** The colour family of a discipline folder name, or null for none. */
 export function pathFamily(discipline: string): PathFamily | null {
   return FAMILY_OF[discipline] ?? null;
+}
+
+/** The colour family of a discipline from its slug prefix
+ *  ("applied-sciences/computer-science/", `Discipline.prefix`), for the
+ *  places that only know the slugged folder. */
+export function familyOfPrefix(prefix: string): PathFamily | null {
+  const folder = prefix.split("/").filter(Boolean)[1] ?? "";
+  for (const [name, fam] of Object.entries(FAMILY_OF)) if (tagSlug(name) === folder) return fam;
+  return null;
 }

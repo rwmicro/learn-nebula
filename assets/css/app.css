@@ -1,0 +1,2282 @@
+/* ---------------------------------------------------------------------------
+   Phone "app" layer. Loaded site-wide (app/layout.tsx), but nearly everything
+   here lives under 640px (Tailwind's `sm`), so the desktop site is untouched:
+   - "liquid glass" surfaces (.glass)
+   - the floating tab bar (components/MobileTabBar.tsx)
+   - the sticky top bar (components/SiteBar.tsx)
+   - safe areas for the site installed on the home screen
+   - shared phone pieces: large page titles, the Explorer tiles.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* Height the tab bar takes at the bottom of a phone screen, safe area
+     included; the other floating buttons sit above it (see the end). */
+  --gk-tabbar-h: 0px;
+  --gk-safe-b: env(safe-area-inset-bottom, 0px);
+  --glass-bg: rgb(255 255 255 / 0.34);
+  --glass-edge: rgb(255 255 255 / 0.75);
+  --glass-shadow:
+    inset 0 1.5px 0 rgb(255 255 255 / 0.9), inset 0 -1px 1px rgb(255 255 255 / 0.35),
+    inset 0 0 12px rgb(255 255 255 / 0.25), 0 10px 30px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.08);
+  --glass-sheen: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.55),
+    transparent 38%,
+    transparent 62%,
+    rgb(255 255 255 / 0.22)
+  );
+  --glass-on: rgb(0 0 0 / 0.06);
+  --bar-bg: color-mix(in srgb, var(--paper) 80%, transparent);
+}
+:root[data-theme="dark"] {
+  --glass-bg: rgb(30 29 27 / 0.4);
+  --glass-edge: rgb(255 255 255 / 0.16);
+  --glass-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 1px rgb(255 255 255 / 0.06),
+    inset 0 0 14px rgb(255 255 255 / 0.05), 0 10px 30px rgb(0 0 0 / 0.45);
+  --glass-sheen: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.18),
+    transparent 40%,
+    transparent 65%,
+    rgb(255 255 255 / 0.08)
+  );
+  --glass-on: rgb(255 255 255 / 0.1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --glass-bg: rgb(30 29 27 / 0.4);
+    --glass-edge: rgb(255 255 255 / 0.16);
+    --glass-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 1px rgb(255 255 255 / 0.06),
+      inset 0 0 14px rgb(255 255 255 / 0.05), 0 10px 30px rgb(0 0 0 / 0.45);
+    --glass-sheen: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.18),
+      transparent 40%,
+      transparent 65%,
+      rgb(255 255 255 / 0.08)
+    );
+    --glass-on: rgb(255 255 255 / 0.1);
+  }
+}
+
+/* Liquid glass: what is behind shows through, blurred and saturated, with a
+   bright rim and a diagonal sheen. Safari (iOS) and Chrome both render it;
+   only the lens-like bending at the edges of iOS 26 is out of reach on the
+   web. Opaque when the reader asked for less transparency, or when the
+   browser can't blur. */
+.glass {
+  position: relative;
+  isolation: isolate;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+  backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+  border: 0.5px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--glass-sheen);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--paper-raised);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--paper-raised);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* --- Tab bar ------------------------------------------------------------- */
+.tabbar,
+.site-bar-me {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  :root {
+    --gk-tabbar-h: calc(4.9rem + var(--gk-safe-b));
+  }
+
+  .tabbar {
+    position: fixed;
+    left: max(0.85rem, env(safe-area-inset-left, 0px));
+    right: max(0.85rem, env(safe-area-inset-right, 0px));
+    bottom: calc(0.9rem + var(--gk-safe-b) * 0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    transition:
+      transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 0.25s;
+  }
+  .tabbar-bar {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: 3.85rem;
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+    border-radius: 2rem;
+  }
+  .tabbar-bar li {
+    margin: 0;
+    display: flex;
+  }
+  .tabbar-tab {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1rem;
+    border-radius: 1.7rem;
+    color: var(--ink);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    transition:
+      background-color 0.2s,
+      transform 0.15s;
+  }
+  .tabbar-tab:hover {
+    background: transparent;
+  }
+  .tabbar-tab:active {
+    transform: scale(0.92);
+  }
+  .tabbar-tab[aria-current="page"] {
+    color: var(--garden);
+    background: var(--glass-on);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
+  }
+  .tabbar-icon svg {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .tabbar-fill {
+    fill: none;
+  }
+  .tabbar-tab[aria-current="page"] .tabbar-fill {
+    fill: currentColor;
+    fill-opacity: 0.22;
+  }
+  .tabbar-badge {
+    position: absolute;
+    top: 0.2rem;
+    left: calc(50% + 0.35rem);
+    min-width: 1.15rem;
+    height: 1.15rem;
+    padding: 0 0.3rem;
+    border-radius: 0.6rem;
+    background: #c2410c;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.15rem;
+    text-align: center;
+  }
+  .tabbar-search {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.85rem;
+    height: 3.85rem;
+    padding: 0;
+    border-radius: 50%;
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .tabbar-search:active {
+    transform: scale(0.92);
+  }
+  .tabbar-search svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .tabbar-tab:focus-visible,
+  .tabbar-search:focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
+  }
+
+  /* The page scrolls under the bar, but its end stays reachable. */
+  body {
+    padding-bottom: calc(4.9rem + var(--gk-safe-b));
+  }
+
+  /* The menu, review reminder and search of the site bar live in the tab
+     bar now; the account (or "Moi") and the theme stay at the top. */
+  .site-bar .site-bar-menu,
+  .site-bar .review-pill,
+  .site-bar .palette-btn,
+  .home-masthead .gk-menu-btn,
+  .home-masthead .palette-btn {
+    display: none;
+  }
+  .site-bar-me {
+    display: inline-grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: var(--garden-wash);
+    color: var(--garden);
+  }
+  .site-bar-me svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+  .site-bar-me:hover {
+    background: var(--garden-wash);
+    color: var(--garden);
+  }
+  .site-bar-tools:has(.account-chip) .site-bar-me {
+    display: none;
+  }
+
+  /* No top bar: the "Moi" avatar as a round glass button at the top right
+     and, once the large title has scrolled away, a glass pill with the leaf
+     and the page's title at the top left (TopBarScroll.tsx), over a soft
+     fade of the paper. Notes have their own chrome, the home its masthead. */
+  body:not(:has(.na-chrome)):not(:has(.home-masthead)) {
+    padding-top: 3.9rem;
+  }
+  body:not(:has(.na-chrome)) .site-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    margin: 0;
+    padding: calc(0.5rem + env(safe-area-inset-top, 0px)) 0.875rem 0;
+    background: none;
+    border: 0;
+    pointer-events: none;
+  }
+  body:not(:has(.na-chrome)) .site-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 -1.2rem;
+    z-index: -1;
+    background: linear-gradient(var(--paper) 50%, transparent);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar::before {
+    opacity: 1;
+  }
+  body:not(:has(.na-chrome)) .site-bar-inner {
+    height: 2.875rem;
+    padding: 0;
+    border: 0;
+  }
+  body:not(:has(.na-chrome)) .site-bar :is(.site-bar-brand, .site-bar-me, .account-chip) {
+    pointer-events: auto;
+  }
+  body:not(:has(.na-chrome)) .site-bar .theme-toggle {
+    display: none;
+  }
+  /* The pill: leaf + page title, in glass, once scrolled. */
+  body:not(:has(.na-chrome)) .site-bar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 2.75rem;
+    max-width: calc(100vw - 6rem);
+    padding: 0 1.1rem 0 0.9rem;
+    border-radius: 1.375rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+    color: var(--ink);
+    opacity: 0;
+    transform: translateY(-0.4rem);
+    transition:
+      opacity 0.25s,
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+  }
+  :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar-brand {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  body:not(:has(.na-chrome)) .site-bar-brand svg {
+    flex: none;
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  /* Out of sight, but still the link's name for screen readers (the page
+     title beside it is aria-hidden). */
+  body:not(:has(.na-chrome)) .site-bar-brand > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .site-bar-page {
+    display: none;
+  }
+  body:not(:has(.na-chrome)) .site-bar-page {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: 600 1.06rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0;
+    font-variant: normal;
+    text-transform: none;
+  }
+  /* The avatar: a round glass button. */
+  body:not(:has(.na-chrome)) .site-bar .site-bar-me {
+    width: 2.75rem;
+    height: 2.75rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+    color: var(--ink);
+  }
+  body:not(:has(.na-chrome)) .site-bar .account-chip {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+  }
+
+  /* No grey flash on tap; buttons answer with a slight press instead. */
+  a,
+  button,
+  summary,
+  label {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Floating buttons and panels sit above the tab bar (or a note's
+     toolbar, at the same height). */
+  html .gk-pinned,
+  html .gk-pinned-trigger,
+  html .ask-bar,
+  html .ask-trigger,
+  html .to-top {
+    bottom: calc(1rem + var(--gk-tabbar-h));
+    transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  html .coin-toast {
+    bottom: calc(1.4rem + var(--gk-tabbar-h));
+  }
+  html .pron-coach {
+    bottom: calc(0.8rem + var(--gk-tabbar-h));
+  }
+  html .path-dock:not([hidden]) {
+    bottom: calc(0.75rem + var(--gk-tabbar-h));
+    transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  html .parcours-dock:not([hidden]) {
+    bottom: var(--gk-tabbar-h);
+    padding-bottom: 0.7rem;
+  }
+}
+@media (max-width: 639.98px) and (prefers-reduced-motion: reduce) {
+  .tabbar,
+  .tabbar-tab,
+  .tabbar-search {
+    transition: none;
+  }
+}
+@media print {
+  .tabbar {
+    display: none;
+  }
+}
+/* --- Large page titles (phone tab pages) ------------------------------- */
+.app-page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 2rem;
+  color: var(--ink);
+}
+.app-large-title {
+  padding: 1.5rem 0 1.2rem;
+}
+.app-large-title h1 {
+  margin: 0;
+  font-size: clamp(2.1rem, 1.6rem + 2.5vw, 3rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.app-large-title p {
+  margin: 0.35rem 0 0;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 1rem;
+  color: var(--muted);
+}
+@media (max-width: 639.98px) {
+  .app-page {
+    padding: 0 1rem 1.5rem;
+  }
+  .app-large-title {
+    padding: 0.6rem 0.25rem 1rem;
+  }
+}
+
+/* --- Explorer ------------------------------------------------------------- */
+.explorer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.explorer-grid li {
+  margin: 0;
+}
+.explorer-wide {
+  grid-column: 1 / -1;
+}
+.explorer-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 100%;
+  min-height: 8.4rem;
+  padding: 0.95rem;
+  overflow: hidden;
+  border-radius: 1.15rem;
+  background: var(--fam-wash);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+.explorer-tile:hover {
+  background: var(--fam-wash);
+  filter: brightness(0.98);
+}
+.explorer-tile:active {
+  transform: scale(0.97);
+}
+.explorer-wide .explorer-tile {
+  min-height: 9.5rem;
+  justify-content: flex-end;
+}
+.explorer-icon {
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 0.7rem;
+  background: var(--fam);
+  color: var(--paper);
+}
+.explorer-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.explorer-text b {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.explorer-text small {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.86rem;
+  line-height: 1.25;
+  color: var(--ink-2);
+}
+.explorer-art {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  width: 12rem;
+  height: 10rem;
+  fill: var(--fam);
+  stroke: var(--fam);
+  stroke-width: 1.4;
+  opacity: 0.75;
+}
+.explorer-art path {
+  fill: none;
+}
+
+/* --- Home dashboard (components/HomeDashboard.tsx), phones only ---------- */
+.dash,
+.dash-about {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  :root {
+    --dash-card: #fff;
+    --seg-on: #fff;
+    --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 14px rgb(0 0 0 / 0.06);
+    --dash-edge: var(--rule);
+  }
+  :root[data-theme="dark"] {
+    --dash-card: #262522;
+    --seg-on: #403d38;
+    --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
+    --dash-edge: #34322e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --dash-card: #262522;
+    --seg-on: #403d38;
+      --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
+      --dash-edge: #34322e;
+    }
+  }
+
+  /* The masthead becomes an app bar: the wordmark on the left, "Moi" on the
+     right. Its intro and painting, the "dernières pousses" and the charts
+     give way to the dashboard. */
+  .home-masthead {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    flex-direction: row;
+    align-items: center;
+    height: 3.25rem;
+    padding: 0 0.5rem 0 1rem;
+    background: var(--bar-bg);
+    -webkit-backdrop-filter: blur(18px) saturate(1.6);
+    backdrop-filter: blur(18px) saturate(1.6);
+  }
+  .home-masthead > div:has(> a > h1) {
+    flex: 1;
+    order: 0;
+    padding: 0;
+  }
+  .home-masthead > div:has(> a > h1) > a {
+    justify-self: start;
+  }
+  .home-masthead h1 {
+    font-size: 1.45rem;
+    line-height: 1;
+  }
+  .home-masthead > div:first-of-type {
+    order: 1;
+    flex-wrap: nowrap;
+    padding: 0;
+    gap: 0.35rem;
+  }
+  .home-masthead .lang-switcher,
+  .home-masthead > div:first-of-type > span.relative {
+    display: none;
+  }
+  .home-masthead nav {
+    display: none;
+  }
+  .home-masthead :has(.account-chip) ~ .site-bar-me,
+  .home-masthead .account-chip ~ .site-bar-me {
+    display: none;
+  }
+  .home-intro,
+  .home-main .recent-notes,
+  .home-main .graphiques {
+    display: none;
+  }
+  .home-main > section:has(#notes) {
+    margin-top: 1.6rem;
+  }
+
+  .dash {
+    display: block;
+    color: var(--ink);
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+  }
+  .dash a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .dash a:hover {
+    background-color: transparent;
+  }
+  .dash ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .dash li {
+    margin: 0;
+  }
+
+  .dash-hero {
+    position: relative;
+    display: block;
+    height: 9.4rem;
+    margin: 0.25rem 1rem 0;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    background: #5b4a32;
+  }
+  .dash-hero img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 60%;
+  }
+  .dash-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 35%, rgb(0 0 0 / 0.62));
+  }
+  .dash-hero-cap {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 0.75rem;
+    z-index: 1;
+    color: #fff;
+  }
+  .dash-hero-cap b {
+    display: block;
+    font-size: 1.125rem;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.2;
+    text-shadow: 0 1px 6px rgb(0 0 0 / 0.4);
+  }
+  .dash-hero-cap span {
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.75rem;
+    opacity: 0.85;
+  }
+
+  .dash-h {
+    margin: 0;
+    padding: 1.125rem 1.25rem 0.5rem;
+    border: 0;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .dash-row-h {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-right: 1.25rem;
+  }
+  .dash .dash-row-h > a {
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--garden);
+  }
+
+  .dash-card,
+  .dash-tile,
+  .dash-list {
+    background: var(--dash-card);
+    border: 0.5px solid var(--dash-edge);
+    box-shadow: var(--dash-shadow);
+  }
+  .dash-card {
+    margin: 0 1rem;
+    border-radius: 1.125rem;
+  }
+  .dash-resume {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 0.875rem 0.875rem 1rem;
+    transition: transform 0.15s;
+  }
+  .dash-resume:active,
+  .dash-tile:active,
+  .dash-disc a:active {
+    transform: scale(0.98);
+  }
+  .dash-ring {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.375rem;
+    height: 3.375rem;
+    border-radius: 50%;
+    background: conic-gradient(var(--fam, var(--garden)) calc(var(--p, 0) * 360deg), var(--wash-2) 0);
+  }
+  .dash-ring::before {
+    content: "";
+    grid-area: 1 / 1;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--dash-card);
+  }
+  .dash-ring > * {
+    grid-area: 1 / 1;
+    position: relative;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  .dash-ring-start {
+    background: var(--fam-wash);
+  }
+  .dash-ring-start::before {
+    display: none;
+  }
+  .dash-ring-start svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--fam);
+  }
+  .dash-resume-text {
+    min-width: 0;
+    flex: 1;
+  }
+  .dash-kicker {
+    display: block;
+    overflow: hidden;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--fam);
+  }
+  .dash-resume-text b {
+    display: block;
+    margin: 0.125rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.15;
+  }
+  .dash-resume-text small,
+  .dash-list-text small,
+  .dash-disc small {
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.84375rem;
+    color: var(--ink-2); /* --muted falls under 4.5:1 on the family washes */
+  }
+  .dash-play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-left: auto;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .dash-play svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .dash-tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+    margin: 0.625rem 1rem 0;
+  }
+  .dash-tile {
+    display: block;
+    padding: 0.75rem 0.875rem;
+    border-radius: 1rem;
+    transition: transform 0.15s;
+  }
+  .dash-tile b {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 1.625rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .dash-tile span {
+    display: block;
+    margin-top: 0.25rem;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.84375rem;
+    line-height: 1.25;
+    color: var(--muted);
+  }
+  .dash .dash-tile-cta {
+    background: var(--garden);
+    border-color: transparent;
+    color: var(--paper);
+  }
+  .dash-tile-cta span {
+    color: var(--paper);
+    opacity: 0.85;
+  }
+  .dash-flame {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: #e0782f;
+  }
+
+  .dash .dash-disc {
+    display: flex;
+    gap: 0.625rem;
+    padding: 0.125rem 1rem 0.25rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
+  }
+  .dash-disc::-webkit-scrollbar {
+    display: none;
+  }
+  .dash-disc li {
+    flex: none;
+    scroll-snap-align: start;
+  }
+  .dash-disc a {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 7.375rem;
+    height: 5.75rem;
+    padding: 0.75rem;
+    border-radius: 1rem;
+    background: var(--fam-wash, var(--wash-2));
+    transition: transform 0.15s;
+  }
+  .dash-disc b {
+    display: block;
+    overflow: hidden;
+    font-size: 0.96875rem;
+    font-weight: 600;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dash-disc small {
+    font-size: 0.75rem;
+  }
+  .dash-disc-icon {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.5625rem;
+    background: var(--fam, var(--garden));
+    color: #fff;
+  }
+  .dash-disc-icon svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .dash-list {
+    margin: 0 1rem !important;
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+  .dash-list a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.75rem 0.75rem 0.875rem;
+  }
+  .dash-list a:active {
+    background: var(--wash-2);
+  }
+  .dash-list li + li a::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3.625rem;
+    right: 0;
+    border-top: 0.5px solid var(--rule);
+  }
+  .dash-list-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 0.625rem;
+    background: var(--fam-wash, var(--wash-2));
+    color: var(--fam, var(--ink-2));
+  }
+  .dash-list-icon svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+  .dash-list-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .dash-list-text b {
+    display: block;
+    overflow: hidden;
+    font-size: 1.03125rem;
+    font-weight: 500;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dash-chev {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    color: var(--rule-strong);
+  }
+
+  .dash-about {
+    display: block;
+    margin-top: 2.5rem;
+    color: var(--ink-2);
+  }
+  .dash-about .dash-h {
+    padding-left: 0;
+  }
+  .dash-about p {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+}
+@media (max-width: 639.98px) {
+  /* The home's own search field: the tab bar's search button opens the
+     same palette. */
+  .home-main > section:has(#notes) > div:first-child:has(.palette-kbd) {
+    display: none;
+  }
+}
+
+/* --- Note page (phone): cover, section pill, toolbar, display sheet --------
+   Markup from lib/note-app.ts, behaviour in public/js/note-app.js. From 640px
+   up none of it shows and the note keeps its editorial layout. */
+.na-chrome,
+.na-crumbs,
+.na-cover-img,
+.na-min {
+  display: none;
+}
+.na-cover {
+  display: contents;
+}
+@media (max-width: 639.98px) {
+  /* The note's own chrome gives way to the app's. */
+  body:has(.na-chrome) .site-bar,
+  main .note-header,
+  main .note-header-condensed,
+  main .note-actions,
+  main .path-step-row,
+  main .subtitle-row .aside-toggle,
+  main .na-dup,
+  body:has(.na-chrome) .path-dock,
+  body:has(.na-chrome) .to-top,
+  body:has(.na-chrome) .gk-pinned-trigger,
+  body:has(.na-chrome) .reading-progress {
+    display: none !important;
+  }
+  /* The path step bar keeps only its prerequisites (and the list of steps,
+     opened from "étape 7" in the crumbs). */
+  main .path-step {
+    margin-top: 0.4rem;
+  }
+  /* "À lire avant": a grouped list like the rest of the app, one row per
+     note with a chevron, the heading in the family colour above it. */
+  main .path-step--with-prereq {
+    margin: 0 0 1.4rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  main .prereq,
+  main .path-step .prereq {
+    display: block;
+    margin: 0.4rem 0 1.4rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  main .prereq-title {
+    margin: 0 0 0.45rem 0.2rem;
+    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fam, var(--garden));
+  }
+  main .prereq-list {
+    display: block;
+    border-radius: 1rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+    overflow: hidden;
+  }
+  main .prereq-list li {
+    position: relative;
+    margin: 0;
+    font-size: 1rem;
+  }
+  main .prereq-list li + li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3.35rem;
+    right: 0;
+    margin: 0;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  main .prereq-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.2rem;
+    padding: 0.5rem 0.9rem;
+    font: 500 1.03rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  main .prereq-list a::before {
+    content: "";
+    flex: none;
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 0.55rem;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='4' y='3' width='16' height='18' rx='2'/%3E%3Cpath d='M8 8h8M8 12h8M8 16h5'/%3E%3C/svg%3E")
+        center / 1.05rem no-repeat,
+      var(--fam-wash, var(--garden-wash));
+  }
+    main .prereq-list a::after {
+    content: "";
+    flex: none;
+    margin-left: auto;
+    width: 0.9rem;
+    height: 0.9rem;
+    background: var(--muted);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  main .prereq-path {
+    display: inline-block;
+    margin: 0.5rem 0 0 0.2rem;
+    font-size: 0.9rem;
+    color: var(--fam, var(--garden));
+  }
+  main .path-step:not(.path-step--with-prereq) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    min-height: 0;
+  }
+  body:has(.na-chrome) {
+    margin-top: 0;
+  }
+
+  body:has(.na-chrome) main {
+    margin-inline: 1.375rem;
+    padding-top: 4.9rem;
+  }
+  body:has(.na-has-cover) main {
+    padding-top: 0;
+  }
+  /* "Texte élargi": the text runs closer to the edges. */
+  body[data-wide-text]:not([data-wide-text="normal"]):has(.na-chrome) main {
+    margin-inline: 0.75rem;
+  }
+  body[data-wide-text]:not([data-wide-text="normal"]):has(.na-chrome) main .na-cover {
+    margin-inline: -0.75rem;
+  }
+  body:has(.na-chrome) footer {
+    margin-inline: 1.375rem;
+  }
+
+  /* "Langues › Arabe libanais › étape 7" */
+  .na-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.4rem;
+    margin: 0.4rem 0 0;
+    font: 500 0.9rem/1.5 "Alegreya SC", "Alegreya SC Fallback", serif;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  main .na-crumbs a,
+  main .na-crumbs span {
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-decoration: none;
+  }
+  .na-crumbs .na-fam {
+    font-weight: 700;
+    color: var(--fam, var(--garden));
+  }
+  .na-crumbs .na-sep::before {
+    content: "›";
+    font-style: normal;
+  }
+  .na-crumbs .na-step {
+    cursor: pointer;
+  }
+  /* No date on a plain note: the crumbs, then the title. */
+  main > .subtitle-row {
+    display: none;
+  }
+  main > .title-note,
+  main .na-cover .title-note {
+    border-top: 0;
+    padding-top: 0;
+    margin: 0.5rem 0 0.9rem;
+    font-size: 1.875rem;
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  /* D: the lead picture as a cover, the title over its fade. */
+  main .na-cover {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: min(26.9rem, 58svh);
+    margin: 0 -1.375rem 0.6rem;
+    padding: 5rem 1.375rem 0.25rem;
+    isolation: isolate;
+  }
+  main .na-cover .na-cover-img {
+    display: block;
+    position: absolute;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  main .na-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      180deg,
+      rgb(0 0 0 / 0.25),
+      transparent 30%,
+      transparent 45%,
+      var(--paper) 97%
+    );
+  }
+  main .na-cover .na-crumbs {
+    order: 1;
+    align-self: flex-start;
+    gap: 0 0.35rem;
+    height: 1.75rem;
+    align-items: center;
+    padding: 0 0.75rem;
+    margin: 0;
+    border-radius: 0.875rem;
+    font: 600 0.78rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+  }
+  main .na-cover .na-crumbs .na-fam,
+  main .na-cover .na-crumbs .na-fam + .na-sep {
+    display: none;
+  }
+  main .na-cover .na-sep::before {
+    content: "·";
+  }
+  main .na-cover .title-note {
+    order: 2;
+    margin: 0.625rem 0 0.375rem;
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1.04;
+    color: var(--ink);
+  }
+  main .na-cover .subtitle-row {
+    order: 3;
+    display: block;
+    margin: 0;
+    font: italic 0.94rem "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink-2);
+  }
+  main .na-cover .subtitle-row .subtitle {
+    display: inline;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+  }
+  main .na-cover .na-min {
+    display: inline;
+  }
+  main .na-cover .subtitle:not(:empty) + .na-min::before {
+    content: " · ";
+  }
+
+  /* The floating chrome. */
+  .na-chrome {
+    display: block;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .na-chrome button {
+    font: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    cursor: pointer;
+  }
+  .na-chrome svg {
+    display: block;
+  }
+
+  /* Over the cover: round back button, Aa / bookmark / ⋯ pill. */
+  .na-top {
+    position: fixed;
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    left: 0.875rem;
+    right: 0.875rem;
+    z-index: 950;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    transition:
+      opacity 0.25s,
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .na-top > * {
+    pointer-events: auto;
+  }
+  .na-gbtn {
+    display: grid;
+    place-items: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    border-radius: 50%;
+    color: var(--ink);
+  }
+  .na-gbtn svg {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .na-gpill {
+    display: flex;
+    align-items: center;
+    height: 2.875rem;
+    padding: 0 0.375rem;
+    border-radius: 1.44rem;
+  }
+  .na-gpill button {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--ink);
+  }
+  .na-gpill svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .na-gpill [aria-pressed="true"] svg path {
+    fill: currentColor;
+  }
+  .na-has-cover.na-past-cover .na-top,
+  .na-has-cover:not(.na-past-cover) .na-secnav {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .na-has-cover .na-secnav,
+  .na-has-cover .na-top {
+    transition:
+      opacity 0.25s,
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      visibility 0.3s;
+  }
+
+  /* F: the section being read, its number, and one dot per section. */
+  .na-secnav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 950;
+    padding: calc(0.5rem + env(safe-area-inset-top, 0px)) 0.875rem 0.7rem;
+    background: linear-gradient(var(--paper) 55%, transparent);
+  }
+  .na-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.75rem;
+    padding: 0 0.25rem 0 0.4rem;
+    border-radius: 1.375rem;
+    color: var(--ink);
+    font-size: 0.94rem;
+  }
+  .na-back {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2.5rem;
+    color: var(--fam, var(--garden));
+  }
+  .na-back svg {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .na-sec {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    text-align: start;
+  }
+  .na-sec b {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .na-sec small {
+    flex: none;
+    font-size: 0.81rem;
+    color: var(--muted);
+  }
+  .na-toc {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .na-toc svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .na-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.3125rem;
+    margin: 0.5rem auto 0;
+    max-width: 80%;
+  }
+  .na-dots i {
+    flex: 0 1 1.375rem;
+    min-width: 0.4rem;
+    height: 0.25rem;
+    border-radius: 2px;
+    background: var(--rule-strong);
+    transition: background-color 0.25s;
+  }
+  .na-dots i.done {
+    background: var(--fam, var(--garden));
+  }
+  .na-dots i.on {
+    background: var(--garden);
+  }
+  /* Anchors land under the pill, not behind it. */
+  body:has(.na-chrome) main :is(h2, h3) {
+    scroll-margin-top: 5.5rem;
+  }
+
+  /* The bottom toolbar, where the tab bar sits elsewhere. */
+  .na-toolbar {
+    position: fixed;
+    left: max(0.85rem, env(safe-area-inset-left, 0px));
+    right: max(0.85rem, env(safe-area-inset-right, 0px));
+    bottom: calc(0.9rem + var(--gk-safe-b) * 0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .na-bar {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: 3.85rem;
+    padding: 0.25rem;
+    border-radius: 2rem;
+  }
+  .na-tool {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    min-width: 0;
+    border-radius: 1.7rem;
+    color: var(--ink);
+    font-size: 0.69rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform 0.15s;
+  }
+  .na-tool:hover {
+    background: transparent;
+    color: var(--ink);
+  }
+  .na-tool:active {
+    transform: scale(0.92);
+  }
+  .na-tool svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .na-chrome .na-tool span {
+    margin: 0;
+    font: 600 0.69rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: inherit;
+  }
+  .na-chrome .na-tool-pri,
+  .na-chrome .na-tool-pri:hover {
+    color: var(--garden);
+  }
+  .na-tool[aria-disabled="true"],
+  .na-tool:disabled {
+    opacity: 0.38;
+    cursor: default;
+  }
+  .na-chrome .na-ic-pause,
+  .na-chrome .na-tool .na-listen-on,
+  .na-chrome [data-state="playing"] .na-ic-play,
+  .na-chrome .na-tool[data-state="playing"] .na-listen-idle {
+    display: none;
+  }
+  .na-chrome [data-state="playing"] .na-ic-pause {
+    display: block;
+  }
+  .na-chrome .na-tool[data-state="playing"] .na-listen-on {
+    display: inline;
+  }
+  [data-na-listen][data-state="playing"] {
+    color: var(--garden);
+  }
+  .na-next {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.85rem;
+    height: 3.85rem;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+    transition: transform 0.15s;
+  }
+  .na-next:hover {
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .na-next:active {
+    transform: scale(0.92);
+  }
+  .na-next svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .na-chrome :is(a, button, input):focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
+  }
+
+  /* "Affichage": a sheet from the bottom. */
+  .na-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgb(0 0 0 / 0.32);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .na-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1101;
+    max-height: 88svh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.5rem 1.125rem calc(1.6rem + var(--gk-safe-b));
+    border-radius: 1.375rem 1.375rem 0 0;
+    background: var(--dash-card);
+    box-shadow: 0 -10px 40px rgb(0 0 0 / 0.2);
+    color: var(--ink);
+    transform: translateY(100%);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .na-chrome[data-sheet] .na-scrim {
+    opacity: 1;
+  }
+  .na-chrome[data-sheet] .na-sheet {
+    transform: none;
+  }
+  .na-grab {
+    width: 2.375rem;
+    height: 0.3125rem;
+    margin: 0 auto 0.75rem;
+    border-radius: 3px;
+    background: var(--rule-strong);
+  }
+  .na-sheet-h {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 0.875rem;
+    padding: 0;
+    border: 0;
+    font: 700 1.125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-variant: normal;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
+  }
+  .na-sheet-h button {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--garden);
+  }
+  .na-grp {
+    margin-bottom: 0.75rem;
+    border-radius: 0.875rem;
+    background: var(--wash-2);
+    overflow: hidden;
+  }
+  :root[data-theme="dark"] .na-grp {
+    background: var(--wash-2);
+  }
+  .na-size {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.75rem 0.875rem;
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-weight: 500;
+  }
+  .na-a-sm {
+    font-size: 0.94rem;
+  }
+  .na-a-lg {
+    font-size: 1.5rem;
+  }
+  .na-size input {
+    --v: 0.5;
+    flex: 1;
+    height: 1.75rem;
+    margin: 0;
+    background: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .na-size input::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--garden) calc(var(--v) * 100%), var(--rule-strong) 0);
+  }
+  .na-size input::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--garden) calc(var(--v) * 100%), var(--rule-strong) 0);
+  }
+  .na-size input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 1.625rem;
+    height: 1.625rem;
+    margin-top: calc(2px - 0.8125rem);
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.3);
+  }
+  .na-size input::-moz-range-thumb {
+    width: 1.625rem;
+    height: 1.625rem;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.3);
+  }
+  .na-seg {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 0.75rem;
+    padding: 3px;
+    border-radius: 0.6875rem;
+    background: var(--wash-2);
+  }
+  .na-chrome .na-seg button {
+    height: 2.125rem;
+    border-radius: 0.5625rem;
+    font-size: 0.94rem;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .na-chrome .na-seg [aria-checked="true"] {
+    background: var(--seg-on);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+  }
+  .na-chrome .na-opt {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 3.125rem;
+    padding: 0 0.875rem;
+    font-size: 1.03rem;
+    text-align: start;
+    color: var(--ink);
+  }
+  .na-opt[hidden] {
+    display: none !important;
+  }
+  .na-opt + .na-opt::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3rem;
+    right: 0;
+    border-top: 0.5px solid var(--rule-strong);
+  }
+  .na-opt > svg:first-child {
+    flex: none;
+    width: 1.375rem;
+    height: 1.375rem;
+    color: var(--ink-2);
+  }
+  .na-opt .na-chev {
+    margin-left: auto;
+    width: 1rem;
+    height: 1rem;
+    color: var(--muted);
+  }
+  .na-switch {
+    position: relative;
+    flex: none;
+    margin-left: auto;
+    width: 3.125rem;
+    height: 1.875rem;
+    border-radius: 0.9375rem;
+    background: var(--rule-strong);
+    transition: background-color 0.2s;
+  }
+  .na-switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 1.625rem;
+    height: 1.625rem;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+    transition: transform 0.2s;
+  }
+  [aria-checked="true"] > .na-switch {
+    background: var(--garden);
+  }
+  [aria-checked="true"] > .na-switch::after {
+    transform: translateX(1.25rem);
+  }
+  /* The note's own translate control, moved in here by note-app.js. */
+  .na-translate {
+    flex-wrap: wrap;
+  }
+  .na-translate-slot {
+    margin-left: auto;
+  }
+  .na-translate .translate-wrap {
+    position: static;
+  }
+  .na-translate .translate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0;
+    border: 0;
+    background: none;
+    font: 400 1.03rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--muted);
+  }
+  .na-translate .translate-btn .translate-icon,
+  .na-translate .translate-btn[data-state="idle"] > :not(.translate-icon) {
+    display: none;
+  }
+  .na-translate .translate-btn[data-state="idle"]::after {
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  /* The whole row opens the languages. */
+  .na-translate .translate-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .na-translate:has(.translate-menu:not([hidden])) .translate-btn::before {
+    display: none;
+  }
+  .na-translate .translate-menu {
+    position: static;
+    width: auto;
+    max-height: 16rem;
+    margin: 0 0 0.75rem;
+    box-shadow: none;
+  }
+  .na-translate:has(.translate-menu:not([hidden])) .na-translate-slot {
+    flex-basis: 100%;
+    margin: 0;
+  }
+  .na-translate:has(.translate-menu:not([hidden])) .translate-btn {
+    display: none;
+  }
+  .na-translate:has(.translate-menu:not([hidden])) .translate-wrap {
+    display: block;
+    width: 100%;
+    padding-bottom: 0.75rem;
+  }
+  .na-translate .translate-menu:not([hidden]) {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .na-translate .translate-menu input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 2.4rem;
+    margin: 0 0 0.4rem;
+    padding: 0 0.75rem;
+    border: 0.5px solid var(--rule-strong);
+    border-radius: 0.6rem;
+    background: var(--dash-card);
+    font: 400 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .na-translate .translate-menu-list {
+    max-height: 13rem;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .na-translate .translate-menu-item {
+    width: 100%;
+    min-height: 2.6rem;
+    padding: 0 0.25rem;
+    border: 0;
+    border-bottom: 0.5px solid var(--rule);
+    background: none;
+    text-align: start;
+    font: 400 1.03rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-transform: none;
+    color: var(--ink);
+  }
+
+  .na-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(5.6rem + var(--gk-safe-b));
+    z-index: 1200;
+    padding: 0.5rem 1rem;
+    border-radius: 1.25rem;
+    font-size: 0.94rem;
+    color: var(--ink);
+    opacity: 0;
+    transform: translate(-50%, 0.5rem);
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
+    pointer-events: none;
+  }
+  .na-toast[data-on] {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+@media (max-width: 639.98px) and (prefers-reduced-motion: reduce) {
+  .na-top,
+  .na-secnav,
+  .na-sheet,
+  .na-scrim {
+    transition: none !important;
+  }
+}
+@media print {
+  .na-chrome {
+    display: none !important;
+  }
+}
+
+/* --- Parcours (phone): large title, one row of chips, grouped lists -------- */
+.parcours-ic,
+.parcours-meta {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  main.themes-page > .themes-back {
+    display: none;
+  }
+  main.parcours-page {
+    padding: 1.1rem 1.25rem 2rem;
+  }
+  main.parcours-page .themes-title {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 2.125rem;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  main.parcours-page > .themes-intro {
+    margin: 0.3rem 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  main.parcours-page .parcours-filter-q {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    height: 2.5rem;
+    padding: 0 0.9rem 0 2.4rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: var(--wash-2)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E")
+      0.8rem 50% / 1.1rem no-repeat;
+    font: 400 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink);
+  }
+  main.parcours-page .parcours-chips {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    margin: 0.75rem -1.25rem 0;
+    padding: 0 1.25rem 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  main.parcours-page .parcours-chips::-webkit-scrollbar {
+    display: none;
+  }
+  main.parcours-page .parcours-chip {
+    flex: none;
+    gap: 7px;
+    height: 34px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 1.125rem;
+    background: var(--wash-2);
+    color: var(--ink);
+    font: 500 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    white-space: nowrap;
+  }
+  /* Spacing as in the mockup: the chips, then the first heading 18px below
+     (the filter's live status takes no room until it has something to say,
+     and the browse block adds none). */
+  main.parcours-page .parcours-browse {
+    margin-bottom: 0;
+  }
+  main.parcours-page .parcours-filter-status:empty {
+    margin: 0;
+    height: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  main.parcours-page .parcours-chip[aria-pressed="true"] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  main.parcours-page .parcours-chip[aria-pressed="true"] > span {
+    color: inherit;
+    opacity: 0.7;
+  }
+
+  /* Section headings: small capitals, the count on the right. */
+  main.parcours-page .themes-h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 18px 0.25rem 8px;
+    padding: 0;
+    border: 0;
+    font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  main.parcours-page .themes-h2::before {
+    display: none;
+  }
+  main.parcours-page .parcours-family-count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    /* The family colour, deepened towards the ink to reach 4.5:1. */
+    color: color-mix(in oklab, var(--fam, var(--muted)) 62%, var(--ink));
+  }
+  main.parcours-page .parcours-chip > span {
+    color: var(--ink-2);
+  }
+  main.parcours-page .parcours-tiles-intro,
+  main.parcours-page .parcours-cards-label,
+  main.parcours-page .parcours-card-kicker,
+  main.parcours-page .parcours-card-sub,
+  main.parcours-page .parcours-card-desc,
+  main.parcours-page .parcours-card-chain,
+  main.parcours-page :is(.parcours-card, .parcours-tile) .parcours-progress {
+    display: none;
+  }
+  main.parcours-page .parcours-cards-block + .parcours-cards-block,
+  main.parcours-page .parcours-tiles-block + .parcours-cards-block {
+    margin-top: 0.75rem;
+  }
+
+  /* One card per family, a row per path. */
+  main.parcours-page :is(.parcours-cards, .parcours-tiles, .parcours-resume-list) {
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-radius: 1rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+    overflow: hidden;
+  }
+  main.parcours-page :is(.parcours-card, .parcours-tile) {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  main.parcours-page :is(.parcours-card, .parcours-tile) + :is(.parcours-card, .parcours-tile)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3.6rem;
+    right: 0;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  main.parcours-page :is(.parcours-card-link, .parcours-tile-link) {
+    display: grid;
+    grid-template-columns: 2.1rem 1fr 1rem;
+    grid-template-rows: auto auto;
+    column-gap: 0.75rem;
+    align-items: center;
+    min-height: 3.6rem;
+    padding: 0.6rem 0.9rem;
+    border: 0;
+    background: none;
+    text-decoration: none;
+  }
+  main.parcours-page :is(.parcours-card-link, .parcours-tile-link):hover {
+    text-decoration: none;
+  }
+  main.parcours-page :is(.parcours-card-link, .parcours-tile-link)::after {
+    content: "";
+    grid-column: 3;
+    grid-row: 1 / 3;
+    width: 0.9rem;
+    height: 0.9rem;
+    background: var(--muted);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  main.parcours-page .parcours-ic {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    border-radius: 0.6rem;
+    background: var(--fam-wash, var(--garden-wash));
+    color: var(--fam, var(--garden));
+  }
+  main.parcours-page .parcours-ic svg {
+    width: 1.15rem;
+    height: 1.15rem;
+  }
+  main.parcours-page :is(.parcours-card-title, .parcours-tile-name) {
+    grid-column: 2;
+    margin: 0;
+    font: 500 1.06rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink);
+  }
+  main.parcours-page .parcours-meta {
+    grid-column: 2;
+    display: block;
+    margin-top: 0.1rem;
+    font: 400 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+
+  /* "En cours" */
+  main.parcours-page .parcours-resume-list li {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0.8rem 0.95rem;
+    border: 0;
+  }
+  main.parcours-page .parcours-resume-list li + li {
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  main.parcours-page .parcours-resume-path {
+    font: 500 1.06rem "Alegreya", "Alegreya Fallback", serif;
+  }
+  main.parcours-page .parcours-resume-meta,
+  main.parcours-page .parcours-resume-next {
+    font: 400 0.82rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  main.parcours-page .parcours-resume-next {
+    color: var(--fam, var(--garden));
+  }
+  main.parcours-page .parcours-privacy {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+}
+
+/* --- Tables in notes (phone) -----------------------------------------------
+   A card that scrolls sideways at the table's own width: short cells stay on
+   one line, long ones wrap at a readable measure, the first column stays put
+   while the rest slides under it, and a shadow on the edge says there is more. */
+@media (max-width: 639.98px) {
+  body:has(.na-chrome) main .article-body table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    margin: 1.4rem 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    border: 0;
+    border-radius: 0.875rem;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    background:
+      linear-gradient(90deg, var(--dash-card) 30%, transparent) left / 2rem 100% no-repeat local,
+      linear-gradient(270deg, var(--dash-card) 30%, transparent) right / 2rem 100% no-repeat local,
+      radial-gradient(farthest-side at 100% 50%, rgb(0 0 0 / 0.14), transparent) right / 0.8rem 100% no-repeat scroll,
+      var(--dash-card);
+    box-shadow: var(--dash-shadow);
+  }
+  body:has(.na-chrome) main .article-body table :is(th, td) {
+    min-width: 4.5rem;
+    max-width: 14rem;
+    padding: 0.6rem 0.75rem;
+    border: 0;
+    border-top: 0.5px solid var(--dash-edge);
+    vertical-align: top;
+    text-align: start;
+    hyphens: manual;
+  }
+  body:has(.na-chrome) main .article-body table tbody tr:first-child td {
+    padding-top: 0.6rem;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  body:has(.na-chrome) main .article-body table thead th {
+    border-top: 0;
+    padding-block: 0.65rem 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--muted);
+  }
+  /* The row's label stays in view. */
+  body:has(.na-chrome) main .article-body table :is(th, td):first-child {
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    background: var(--dash-card);
+    box-shadow: 0.5px 0 0 var(--dash-edge);
+  }
+}
+
+/* --- Moi (phone): theme and language, and the tab pages' titles ----------- */
+.app-settings {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  main.progression > .progression-back,
+  main.cartes-index > .cartes-index-back {
+    display: none;
+  }
+  main.progression,
+  main.cartes-index {
+    padding-top: 1.1rem;
+  }
+  main :is(.progression-title, .cartes-index-title) {
+    margin: 0.4rem 0 0;
+    padding: 0;
+    border: 0;
+    font-size: 2.125rem;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  main :is(.progression-intro, .cartes-index-intro) {
+    margin: 0.3rem 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  .app-settings {
+    display: block;
+    margin: 0.4rem 0 1.6rem;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  main .app-settings-h {
+    margin: 0 0.25rem 0.6rem;
+    padding: 0;
+    border: 0;
+    font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  main .app-settings-label {
+    margin: 0.9rem 0.25rem 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .app-seg {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 3px;
+    border-radius: 0.6875rem;
+    background: var(--wash-2);
+  }
+  .app-seg button {
+    height: 2.125rem;
+    border: 0;
+    border-radius: 0.5625rem;
+    background: none;
+    font: 500 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .app-seg [aria-checked="true"] {
+    background: var(--seg-on);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+  }
+  main .app-group {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-radius: 0.875rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+    overflow: hidden;
+  }
+  main .app-group li {
+    position: relative;
+    margin: 0;
+  }
+  main .app-group li + li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0.95rem;
+    right: 0;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  .app-group button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 2.9rem;
+    padding: 0 0.95rem;
+    border: 0;
+    background: none;
+    font: 400 1.03rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-align: start;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .app-group svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-inline-start: auto;
+    fill: none;
+    stroke: var(--garden);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    visibility: hidden;
+  }
+  .app-group [aria-checked="true"] svg {
+    visibility: visible;
+  }
+}

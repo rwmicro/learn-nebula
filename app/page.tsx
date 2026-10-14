@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import { getIndexDoc, getReadingPaths, getRecentNotes } from "@/lib/content";
+import { getDisciplines, getIndexDoc, getPost, getReadingPaths, getRecentNotes } from "@/lib/content";
 import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
 import { t } from "@/lib/i18n";
 import { buildMetadata } from "@/lib/seo";
@@ -11,6 +11,10 @@ import { HomeContent } from "@/components/HomeContent";
 import { RecentNotes } from "@/components/RecentNotes";
 import { Graphiques } from "@/components/Graphiques";
 import { getGraphiques } from "@/lib/graphiques";
+import { HomeDashboard, type DashDiscipline, type DashRecent } from "@/components/HomeDashboard";
+import { extractPlain } from "@/lib/markdown";
+import { readingMinutes } from "@/lib/path-extras";
+import { familyOfPrefix } from "@/lib/path-family";
 import "@/assets/css/graphiques.css";
 
 // Editorial serif for the content zone. next/font self-hosts the files at build
@@ -40,12 +44,37 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
+/** The phone dashboard's data (components/HomeDashboard.tsx): the
+ *  disciplines, largest first, and the latest notes with their discipline
+ *  and reading time. */
+function dashboardData(): { disciplines: DashDiscipline[]; recent: DashRecent[] } {
+  const disciplines = getDisciplines()
+    .map((d) => ({ slug: d.slug, name: d.name, count: d.count, family: familyOfPrefix(d.prefix), prefix: d.prefix }))
+    .sort((a, b) => b.count - a.count);
+  const recent = getRecentNotes().map((n) => {
+    const slug = n.href.replace(/^\/posts\//, "").replace(/\/$/, "");
+    const d = disciplines.find((x) => slug.startsWith(x.prefix));
+    return {
+      title: n.title,
+      href: n.href,
+      discipline: d?.name ?? "",
+      family: d?.family ?? null,
+      minutes: readingMinutes(extractPlain(getPost(slug).body)),
+    };
+  });
+  return { disciplines: disciplines.map(({ prefix: _p, ...d }) => d), recent };
+}
+
 export default async function HomePage() {
   const doc = getIndexDoc();
+  const dash = dashboardData();
   return (
     <>
       <Header doc={doc} />
-      <div className='w-11/12 mx-auto text-center text-lead text-muted mt-5 md:mt-10'>
+      <HomeDashboard dataVersion={homeDataVersion()} recent={dash.recent} disciplines={dash.disciplines} />
+      {/* Intro and painting: the phone dashboard shows the painting as its
+          banner and moves the intro to "À propos du jardin" (app.css). */}
+      <div className='home-intro w-11/12 mx-auto text-center text-lead text-muted mt-5 md:mt-10'>
       {/* The index note's text lives in messages/*.json (home.intro1-3), not in
           the vault note, so the language switcher swaps it like any UI string
           with no call to /api/translate. Edit it there in all five locales. */}
@@ -67,7 +96,7 @@ export default async function HomePage() {
             <span className="text-sm text-muted" data-i18n="home.imageCaption"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>
           </div>
       </div>
-      <main id="main" className={newsreader.variable}>
+      <main id="main" className={`home-main ${newsreader.variable}`}>
         <RecentNotes notes={getRecentNotes()} />
         <Graphiques items={getGraphiques(3)} />
         {/* The full tree and the folder-graph preview
@@ -78,6 +107,19 @@ export default async function HomePage() {
           dataVersion={homeDataVersion()}
           hasPaths={getReadingPaths().length > 0}
         />
+        <section className="dash-about" aria-labelledby="dash-about-h" data-pagefind-ignore>
+          <h2 id="dash-about-h" className="dash-h" data-i18n="dash.about">
+            {t("dash.about")}
+          </h2>
+          <p>
+            <span data-i18n="home.intro1">{t("home.intro1")}</span>{" "}
+            <span data-i18n="home.intro2">{t("home.intro2")}</span>{" "}
+            <span data-i18n="home.intro3">{t("home.intro3")}</span>
+          </p>
+          <p>
+            <em lang="en" dir="ltr">The Gardener.</em>
+          </p>
+        </section>
       </main>
       <JsonLd data={graph(personJsonLd(), websiteJsonLd())} />
     </>

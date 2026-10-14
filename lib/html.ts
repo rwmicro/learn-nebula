@@ -342,7 +342,7 @@ export function folderLabel(name: string): string {
   const key = folderKey(name);
   return key ? t(key) : name;
 }
-function folderI18n(name: string): string {
+export function folderI18n(name: string): string {
   const key = folderKey(name);
   return key ? i18nAttrs(key) : "";
 }
