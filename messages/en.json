@@ -1105,7 +1105,12 @@
     "ask": "Ask the garden",
     "step": "step {n}",
     "copied": "Link copied",
-    "intro": "Introduction"
+    "intro": "Introduction",
+    "inbound": "{n} notes lead here",
+    "inboundOne": "1 note leads here",
+    "neighbourhood": "Neighbourhood in the graph",
+    "tocMeta": "{n} of {total} · {m} min",
+    "tocMetaTotal": "{total} parts · {m} min"
   },
   "settings": {
     "title": "Settings",

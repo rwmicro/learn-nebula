@@ -1105,7 +1105,12 @@
     "ask": "اسأل الحديقة",
     "step": "الخطوة {n}",
     "copied": "تم نسخ الرابط",
-    "intro": "مقدمة"
+    "intro": "مقدمة",
+    "inbound": "{n} ملاحظات تقود إلى هنا",
+    "inboundOne": "ملاحظة واحدة تقود إلى هنا",
+    "neighbourhood": "الجوار في المخطط",
+    "tocMeta": "{n} من {total} · {m} د",
+    "tocMetaTotal": "{total} أقسام · {m} د"
   },
   "settings": {
     "title": "الإعدادات",

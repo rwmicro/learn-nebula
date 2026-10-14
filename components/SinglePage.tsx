@@ -228,6 +228,8 @@ export async function SinglePage({
     prev: step ? step.prev : (sibNav?.prev ?? null),
     next: step ? step.next : (sibNav?.next ?? null),
     lesson: lessonSteps >= 2,
+    inbound: note ? getBacklinks(doc.slug).length : 0,
+    minutes: readingMinutes,
   };
   const appCrumbsHtml = note ? noteCrumbsHtml(appInput) : "";
   const appMinutes = note

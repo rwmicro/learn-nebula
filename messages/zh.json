@@ -1105,7 +1105,12 @@
     "ask": "向花园提问",
     "step": "第 {n} 步",
     "copied": "链接已复制",
-    "intro": "引言"
+    "intro": "引言",
+    "inbound": "{n} 篇笔记链接到这里",
+    "inboundOne": "1 篇笔记链接到这里",
+    "neighbourhood": "在关系图中的邻近笔记",
+    "tocMeta": "第 {n}/{total} 节 · {m} 分钟",
+    "tocMetaTotal": "{total} 节 · {m} 分钟"
   },
   "settings": {
     "title": "设置",

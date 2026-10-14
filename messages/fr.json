@@ -1105,7 +1105,12 @@
     "ask": "Demander au jardin",
     "step": "étape {n}",
     "copied": "Lien copié",
-    "intro": "Introduction"
+    "intro": "Introduction",
+    "inbound": "{n} notes mènent ici",
+    "inboundOne": "1 note mène ici",
+    "neighbourhood": "Voisinage dans le graphe",
+    "tocMeta": "{n} sur {total} · {m} min",
+    "tocMetaTotal": "{total} parties · {m} min"
   },
   "settings": {
     "title": "Réglages",

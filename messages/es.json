@@ -1105,7 +1105,12 @@
     "ask": "Preguntar al jardín",
     "step": "paso {n}",
     "copied": "Enlace copiado",
-    "intro": "Introducción"
+    "intro": "Introducción",
+    "inbound": "{n} notas llevan aquí",
+    "inboundOne": "1 nota lleva aquí",
+    "neighbourhood": "Vecindario en el grafo",
+    "tocMeta": "{n} de {total} · {m} min",
+    "tocMetaTotal": "{total} partes · {m} min"
   },
   "settings": {
     "title": "Ajustes",

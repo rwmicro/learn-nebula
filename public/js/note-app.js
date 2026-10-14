@@ -104,9 +104,74 @@
   window.addEventListener("resize", update);
   update();
 
-  // --- contents (the note's drawer) ------------------------------------------
+  // --- contents: the "Sommaire" sheet ---------------------------------------
+  // The sections, read ones ticked and the current one lit with its
+  // sub-sections; "N notes mènent ici" opens the note's drawer (tags, local
+  // graph). Without the sheet (no headings), the drawer as before.
+  const tocSheet = $(".na-toc-sheet", root);
+  const tocList = $(".na-toc-list", root);
+  const tocMeta = $(".na-toc-meta", root);
+  const check = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>';
+  function subsOf(h) {
+    const out = [];
+    for (let el = h.nextElementSibling; el && el.tagName !== "H2"; el = el.nextElementSibling) {
+      if (el.tagName === "H3" && headText(el)) out.push(el);
+    }
+    return out;
+  }
+  function paintToc() {
+    if (!tocList) return;
+    tocList.textContent = "";
+    const go = (h) => (e) => {
+      e.preventDefault();
+      setSheet(false);
+      setTimeout(() => h.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+    };
+    heads.forEach((h, i) => {
+      const li = document.createElement("li");
+      const a = document.createElement("a");
+      a.href = h.id ? `#${h.id}` : "#";
+      a.className = i < current ? "done" : i === current ? "on" : "";
+      if (i === current) a.setAttribute("aria-current", "location");
+      const n = document.createElement("i");
+      if (i < current) n.innerHTML = check;
+      else n.textContent = String(i + 1);
+      a.append(n, document.createTextNode(headText(h)));
+      a.addEventListener("click", go(h));
+      li.appendChild(a);
+      if (i === current) {
+        for (const s of subsOf(h)) {
+          const sa = document.createElement("a");
+          sa.href = s.id ? `#${s.id}` : "#";
+          sa.className = "sub";
+          sa.textContent = headText(s);
+          sa.addEventListener("click", go(s));
+          li.appendChild(sa);
+        }
+      }
+      tocList.appendChild(li);
+    });
+    if (tocMeta) {
+      const m = tocSheet ? tocSheet.dataset.minutes : "";
+      tocMeta.textContent =
+        current >= 0
+          ? tt("noteApp.tocMeta", { n: current + 1, total: heads.length, m })
+          : tt("noteApp.tocMetaTotal", { total: heads.length, m });
+    }
+  }
   $$("[data-na-toc]", root).forEach((b) =>
-    b.addEventListener("click", (e) => proxy($(".aside-toggle"), e)),
+    b.addEventListener("click", (e) => {
+      if (tocSheet && heads.length) {
+        e.stopPropagation();
+        setSheet(true, tocSheet);
+      } else proxy($(".aside-toggle"), e);
+    }),
+  );
+  $$("[data-na-near]", root).forEach((b) =>
+    b.addEventListener("click", (e) => {
+      setSheet(false);
+      proxy($(".aside-toggle"), e);
+    }),
   );
   // "étape 7" in the crumbs opens the list of the path's steps.
   const step = $(".na-crumbs .na-step", main);
@@ -193,27 +258,35 @@
   );
 
   // --- the "Affichage" sheet -------------------------------------------------
-  const sheet = $(".na-sheet", root);
+  const sheet = $(".na-sheet:not(.na-toc-sheet)", root);
   const scrim = $(".na-scrim", root);
   let opener = null;
-  function setSheet(open) {
-    if (!sheet || !scrim) return;
+  let shown = null;
+  function setSheet(open, which) {
+    const el = which || sheet;
+    if (!el || !scrim) return;
     if (open) {
       opener = document.activeElement;
-      paintSheet();
-      sheet.hidden = false;
+      if (el === sheet) paintSheet();
+      else paintToc();
+      if (shown && shown !== el) shown.hidden = true;
+      shown = el;
+      el.hidden = false;
       scrim.hidden = false;
       requestAnimationFrame(() => {
         root.dataset.sheet = "open";
-        const first = $("[data-na-close]", sheet);
+        const first = $("[data-na-close], .on, a, button", el);
         if (first) first.focus({ preventScroll: true });
       });
     } else {
+      if (!shown) return;
+      const was = shown;
       delete root.dataset.sheet;
       const done = () => {
         if (root.dataset.sheet) return;
-        sheet.hidden = true;
+        was.hidden = true;
         scrim.hidden = true;
+        if (shown === was) shown = null;
       };
       setTimeout(done, 280);
       if (opener && opener.focus) opener.focus({ preventScroll: true });
@@ -230,7 +303,7 @@
     if (e.key === "Escape" && root.dataset.sheet) setSheet(false);
   });
   // Drag the grabber (or the header) down to dismiss.
-  if (sheet) {
+  for (const sheet of [$(".na-sheet:not(.na-toc-sheet)", root), tocSheet].filter(Boolean)) {
     let startY = null;
     sheet.addEventListener(
       "touchstart",

@@ -33,6 +33,11 @@ export interface NoteAppInput {
   prev: NoteAppLink | null;
   next: NoteAppLink | null;
   lesson: boolean;
+  /** How many notes link here: the "Sommaire" sheet's way to the drawer's
+   *  local graph. */
+  inbound: number;
+  /** Reading time, for the "Sommaire" sheet's header. */
+  minutes: number;
 }
 
 const s = `fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"`;
@@ -52,6 +57,8 @@ export const NOTE_APP_ICONS = {
   later: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>`,
   share: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>`,
   ask: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14C7 14 4.5 11 4.5 6.5 9 6.5 12 9 12 14Z"/><path d="M12 12c0-4.5 3-7.5 7.5-7.5 0 4.5-3 7.5-7.5 7.5Z"/></svg>`,
+  path: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h8.5a3.5 3.5 0 0 0 0-7h-9a3.5 3.5 0 0 1 0-7H16"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" ${s} stroke-width="2.4" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`,
   chev: `<svg class="na-chev" viewBox="0 0 24 24" ${s} stroke-width="2.4" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>`,
 };
 const I = NOTE_APP_ICONS;
@@ -173,5 +180,24 @@ export function noteAppChromeHtml(input: NoteAppInput, cover: boolean): string {
     `</div>` +
     `</div>`;
 
-  return `<div class="na-chrome${cover ? " na-has-cover" : ""}" data-pagefind-ignore>${top}${secnav}${toolbar}${sheet}</div>`;
+  // "Sommaire": the sections as a list (filled by note-app.js from the
+  // headings), read ones ticked, the current one lit; then the notes that
+  // lead here, which opens the drawer and its local graph.
+  const inKey = input.inbound === 1 ? "noteApp.inboundOne" : "noteApp.inbound";
+  const near =
+    input.inbound > 0
+      ? `<button type="button" class="na-near" data-na-near>` +
+        `<span class="na-near-ic">${I.path}</span>` +
+        `<span class="na-near-tx"><b${i18nAttrs(inKey, { n: input.inbound })}>${escapeHtml(t(inKey, { n: input.inbound }))}</b>` +
+        `<small${i18nAttrs("noteApp.neighbourhood")}>${escapeHtml(t("noteApp.neighbourhood"))}</small></span>${I.chev}</button>`
+      : "";
+  const tocSheet =
+    `<div class="na-sheet na-toc-sheet" id="na-toc-sheet" role="dialog" aria-modal="true" aria-labelledby="na-toc-h" data-minutes="${input.minutes}" hidden>` +
+    `<div class="na-grab" aria-hidden="true"></div>` +
+    `<h2 class="na-sheet-h"><span id="na-toc-h"${i18nAttrs("noteApp.contents")}>${escapeHtml(t("noteApp.contents"))}</span><small class="na-toc-meta"></small></h2>` +
+    `<ol class="na-toc-list"></ol>` +
+    near +
+    `</div>`;
+
+  return `<div class="na-chrome${cover ? " na-has-cover" : ""}" data-pagefind-ignore>${top}${secnav}${toolbar}${sheet}${tocSheet}</div>`;
 }
