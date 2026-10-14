@@ -13,13 +13,16 @@ export function TopBarScroll() {
     const title = () => document.querySelector<HTMLElement>("main h1");
     const fill = () => {
       const h = title();
-      if (pill) pill.textContent = h?.textContent?.trim() ?? "";
+      // No large title (the home): the current tab's name.
+      const tab = document.querySelector<HTMLElement>('.tabbar-tab[aria-current="page"] .tabbar-label');
+      if (pill) pill.textContent = (h?.textContent ?? tab?.textContent ?? "").trim();
     };
     let queued = false;
     const tick = () => {
       queued = false;
       const h = title();
       const past = h ? h.getBoundingClientRect().bottom < 56 : window.scrollY > 80;
+      if (past && pill && !pill.textContent) fill();
       document.documentElement.dataset.topbar = past ? "scrolled" : "top";
     };
     const onScroll = () => {

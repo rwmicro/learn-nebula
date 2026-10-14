@@ -108,7 +108,8 @@ const Chevron = () => (
 );
 
 /** The path to pick up: among those started and not finished, the one whose
- *  notes were last visited; its next step is its first unread note. */
+ *  notes were last visited; its next step is its first unread note, with how
+ *  far into it the reader got (the ring) and the minutes left. */
 function resumePath(data: HomeData | null, store: ReadingStore) {
   if (!data) return null;
   let best: { last: number; path: HomeData["paths"][number] } | null = null;
@@ -121,16 +122,20 @@ function resumePath(data: HomeData | null, store: ReadingStore) {
       if (e.r != null) read++;
       last = Math.max(last, e.t ?? 0, e.r ?? 0);
     }
-    if (read === 0 || read === p.notes.length) continue;
+    if (last === 0 || read === p.notes.length) continue;
     if (!best || last > best.last) best = { last, path: p };
   }
   if (!best) return null;
   const { path } = best;
   const i = path.notes.findIndex(([slug]) => store[slug]?.r == null);
   const [slug, title, minutes] = path.notes[i];
-  const read = path.notes.filter(([x]) => store[x]?.r != null).length;
-  return { path, slug, title, minutes, step: i + 1, read, total: path.notes.length };
+  const pct = Math.min(99, Math.round((store[slug]?.p ?? 0) / 10));
+  const left = Math.max(1, Math.round(minutes * (1 - pct / 100)));
+  return { path, slug, title, pct, left, step: i + 1, total: path.notes.length };
 }
+
+/** "Arabe libanais : des premiers mots à la culture" → "Arabe libanais". */
+const shortName = (name: string) => name.split(/\s+:\s+/)[0];
 
 export interface DashDiscipline {
   slug: string;
@@ -205,17 +210,17 @@ export function HomeDashboard({
         >
           <span
             className="dash-ring"
-            style={{ "--p": resume.read / resume.total } as React.CSSProperties}
+            style={{ "--p": resume.pct / 100 } as React.CSSProperties}
             aria-hidden="true"
           >
-            <span>
-              {resume.read}/{resume.total}
-            </span>
+            <span>{resume.pct} %</span>
           </span>
           <span className="dash-resume-text">
-            <span className="dash-kicker">{resume.path.name}</span>
+            <span className="dash-kicker">
+              {shortName(resume.path.name)} · {resume.step}/{resume.total}
+            </span>
             <b>{resume.title}</b>
-            <small>{tr("dash.step", { n: resume.step, m: resume.minutes })}</small>
+            <small>{tr("dash.left", { m: resume.left })}</small>
           </span>
           <span className="dash-play" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="currentColor">
@@ -244,21 +249,37 @@ export function HomeDashboard({
         </a>
       )}
 
-      <div className="dash-tiles">
-        <a className={`dash-tile${due ? " dash-tile-cta" : ""}`} href={due?.href ?? "/cartes/"}>
-          <b>{due?.n ?? 0}</b>
-          <span>{tr(due ? "dash.due" : "dash.dueNone")}</span>
-        </a>
-        <a className="dash-tile" href="/progression/">
-          <b>
-            <svg className="dash-flame" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.7 2-4.5 0 2 1 3 2 3 0-4 1-6.5 1-8.5z" />
+      {due || run > 0 ? (
+        <div className="dash-tiles">
+          <a className={`dash-tile${due ? " dash-tile-cta" : ""}`} href={due?.href ?? "/cartes/"}>
+            <b>{due?.n ?? 0}</b>
+            <span>{tr(due ? "dash.due" : "dash.dueNone")}</span>
+          </a>
+          <a className="dash-tile" href="/defis/">
+            <b>
+              <svg className="dash-flame" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.7 2-4.5 0 2 1 3 2 3 0-4 1-6.5 1-8.5z" />
+              </svg>
+              {run}
+            </b>
+            <span>{tr("dash.streak")}</span>
+          </a>
+        </div>
+      ) : (
+        /* Nothing due and no run yet: an invitation, not two zeros. */
+        <a className="dash-invite" href="/cartes/">
+          <span className="dash-invite-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" {...s} strokeWidth={1.8}>
+              <rect x="3" y="7" width="13" height="14" rx="2" />
+              <path d="M8 3h11a2 2 0 0 1 2 2v12" />
             </svg>
-            {run}
-          </b>
-          <span>{tr("dash.streak")}</span>
+          </span>
+          <span className="dash-invite-text">
+            <b>{tr("dash.inviteTitle")}</b>
+            <small>{tr("dash.inviteText")}</small>
+          </span>
         </a>
-      </div>
+      )}
 
       <div className="dash-row-h">
         <h2 className="dash-h">{tr("dash.disciplines")}</h2>
@@ -280,9 +301,12 @@ export function HomeDashboard({
         ))}
       </ul>
 
-      <h2 className="dash-h">{tr("dash.recent")}</h2>
+      <div className="dash-row-h">
+        <h2 className="dash-h">{tr("dash.recent")}</h2>
+        <a href="/jardin/">{tr("dash.seeAll")}</a>
+      </div>
       <ul className="dash-list">
-        {recent.map((n) => (
+        {recent.slice(0, 3).map((n) => (
           <li key={n.href} data-family={n.family ?? undefined}>
             <a href={n.href}>
               <span className="dash-list-icon" aria-hidden="true">

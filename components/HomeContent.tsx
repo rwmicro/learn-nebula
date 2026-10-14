@@ -234,11 +234,14 @@ export function HomeContent({
   shell,
   dataVersion,
   hasPaths = false,
+  noteCount = 0,
 }: {
   shell: HomeTreeNode[];
   dataVersion: string;
   /** Whether /parcours/ has reading paths to link to. */
   hasPaths?: boolean;
+  /** How many notes the assistant searches, for its phone intro. */
+  noteCount?: number;
 }) {
   const data = useHomeData(dataVersion);
   const tree = data?.tree ?? shell;
@@ -262,7 +265,7 @@ export function HomeContent({
   }, [readStore, noteTitles]);
   const graphData = data?.graph ?? null;
   const locale = useLocale();
-  const tr = (k: string) => t(k, undefined, locale);
+  const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
   // Heavy attachments link straight to the original file (zooming into a
   // 12022px timeline is the whole point of it), so the tree says what it costs
   // before the click rather than picking a smaller file on the reader's behalf.
@@ -493,6 +496,15 @@ export function HomeContent({
   const [busy, setBusy] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const answerRef = useRef<HTMLDivElement>(null);
+  // Phones get the mockup's shorter placeholder (app.css draws the card).
+  const [phone, setPhone] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639.98px)");
+    const on = () => setPhone(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
   // Follow the streamed answer: keep the scroll pinned to the bottom while it grows.
   useEffect(() => {
     if (busy && answerRef.current) {
@@ -555,7 +567,7 @@ export function HomeContent({
   // Full body width: <main> reserves a 26rem right gutter for note asides on
   // wide screens; reclaim it so this zone spans the whole body.
   return (
-    <section className="mt-12 text-ink [font-family:var(--gk-serif),Georgia,serif] [container-type:inline-size] min-[1081px]:-mr-96">
+    <section className="home-content mt-12 text-ink [font-family:var(--gk-serif),Georgia,serif] [container-type:inline-size] min-[1081px]:-mr-96">
       {/* 1. search: opens the command palette (public/js/palette.js), the
           site's one search. Typing a character on the field hands it over. */}
       <div className="relative z-30 mb-10">
@@ -586,7 +598,7 @@ export function HomeContent({
         <a
           href={`/posts/${resume.slug}/#reprendre`}
           data-pagefind-ignore
-          className="group mb-10 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md bg-[var(--garden-wash)] px-5 py-3 text-ink no-underline"
+          className="home-resume group mb-10 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-md bg-[var(--garden-wash)] px-5 py-3 text-ink no-underline"
         >
           <span className="text-micro font-semibold uppercase tracking-[0.1em] text-garden">
             {tr("reading.resumeTitle")}
@@ -607,7 +619,7 @@ export function HomeContent({
       <HomeBookmarks />
 
       {/* 2. two columns spread across the full body width */}
-      <div className="grid grid-cols-1 gap-10 min-[700px]:items-start min-[700px]:justify-between min-[700px]:gap-y-0 min-[700px]:[grid-template-columns:minmax(240px,360px)_minmax(340px,580px)]">
+      <div className="home-cols grid grid-cols-1 gap-10 min-[700px]:items-start min-[700px]:justify-between min-[700px]:gap-y-0 min-[700px]:[grid-template-columns:minmax(240px,360px)_minmax(340px,580px)]">
         {/* left — notes browse tree */}
         <div id="notes" className="scroll-mt-6">
           <div className="flex items-baseline justify-between gap-4">
@@ -626,7 +638,7 @@ export function HomeContent({
 
         {/* right — map + assistant (nudged in from the right edge on wide screens) */}
         <div className="flex flex-col gap-9 min-[1081px]:mr-12">
-          <section>
+          <section className="home-map">
             <h2 className={labelCls}>{tr("home.mapLabel")}</h2>
             <a
               href="/graph/"
@@ -653,14 +665,14 @@ export function HomeContent({
             </p>
           </section>
 
-          <section className="rounded-md bg-wash px-6 py-5">
-            <div className="mb-[0.6rem] flex items-center justify-between gap-2">
+          <section className="home-ask rounded-md bg-wash px-6 py-5">
+            <div className="home-ask-head mb-[0.6rem] flex items-center justify-between gap-2">
               <h2 className={labelCls}>{tr("home.askLabel")}</h2>
               {/* Pushpin: dock the assistant at the bottom-right and keep it there
                   across navigation (PinnedAssistant, mounted site-wide). */}
               <button
                 type="button"
-                className="shrink-0 cursor-pointer border-0 bg-transparent p-1 text-muted-warm hover:text-garden"
+                className="home-ask-pin shrink-0 cursor-pointer border-0 bg-transparent p-1 text-muted-warm hover:text-garden"
                 aria-label={tr("home.pinChat")}
                 title={tr("home.pinChat")}
                 onClick={() => {
@@ -678,17 +690,23 @@ export function HomeContent({
                 </svg>
               </button>
             </div>
-            <p className="m-0 mb-[1.1rem] text-pretty text-body text-ink">
+            <p className="home-ask-intro m-0 mb-[1.1rem] text-pretty text-body text-ink">
               {tr("home.askIntro")}
             </p>
+            {/* Phones: the same card as the mockup, the note count in the intro,
+                a rounded field and a few questions to start from. */}
+            <p className="home-ask-intro-m">
+              {tr("dash.askIntro", { n: new Intl.NumberFormat(locale).format(noteCount) })}
+            </p>
             <form
-              className="flex items-center gap-4 border-b border-ink pb-2"
+              className="home-ask-form flex items-center gap-4 border-b border-ink pb-2"
               onSubmit={(e) => {
                 e.preventDefault();
                 const text = question.trim();
                 if (text) ask(text);
               }}
             >
+              <div className="home-ask-field contents">
               <input
                 type="text"
                 value={question}
@@ -696,18 +714,41 @@ export function HomeContent({
                 maxLength={1000}
                 autoComplete="off"
                 disabled={busy}
-                placeholder={tr("home.askPlaceholder")}
+                placeholder={tr(phone ? "dash.askPlaceholder" : "home.askPlaceholder")}
                 aria-label={tr("home.askAria")}
                 className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-body text-ink outline-none placeholder:italic placeholder:text-muted-warm disabled:opacity-60"
               />
               <button
                 type="submit"
                 disabled={busy}
-                className="shrink-0 cursor-pointer rounded-sm border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-paper transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-rule-strong disabled:text-paper"
+                aria-label={tr("home.askSend")}
+                className="home-ask-send shrink-0 cursor-pointer rounded-sm border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-paper transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-rule-strong disabled:text-paper"
               >
-                {tr("home.askSend")}
+                <span className="home-ask-send-text">{tr("home.askSend")}</span>
+                <svg className="home-ask-send-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 19V5M6 11l6-6 6 6" />
+                </svg>
               </button>
+              </div>
             </form>
+            {!asked && (
+              <div className="home-ask-chips">
+                {tr("dash.askChips")
+                  .split("|")
+                  .map((q) => (
+                    <button
+                      key={q}
+                      type="button"
+                      onClick={() => {
+                        setQuestion(q);
+                        ask(q);
+                      }}
+                    >
+                      {q}
+                    </button>
+                  ))}
+              </div>
+            )}
 
             {asked && (
               <div
