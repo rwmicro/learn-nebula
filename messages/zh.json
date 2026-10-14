@@ -783,7 +783,8 @@
   },
   "siteBar": {
     "brand": "Garden of Knowledge",
-    "navAria": "网站菜单"
+    "navAria": "网站菜单",
+    "me": "我"
   },
   "account": {
     "title": "我的账户",
@@ -1012,5 +1013,50 @@
     "metaNoQuiz": "{notes} 篇笔记",
     "empty": "这条路线的笔记还没有定义、要点或问题。",
     "answers": "答案"
+  },
+  "tabbar": {
+    "aria": "主导航",
+    "home": "首页",
+    "parcours": "路径",
+    "explore": "探索",
+    "review": "复习",
+    "due": "今日待复习"
+  },
+  "explorer": {
+    "metaTitle": "探索",
+    "title": "探索",
+    "lede": "换个角度看花园。",
+    "graph": "图谱",
+    "graphDesc": "所有笔记及其链接",
+    "frise": "时间线",
+    "friseDesc": "从古代到今天",
+    "carte": "地图",
+    "carteDesc": "笔记在世界上的位置",
+    "themes": "主题",
+    "themesDesc": "所有学科",
+    "jardin": "花园数据",
+    "jardinDesc": "花园里有什么",
+    "donnees": "开放数据",
+    "donneesDesc": "笔记的数据集",
+    "random": "随机笔记",
+    "randomDesc": "让花园来选"
+  },
+  "dash": {
+    "resume": "继续",
+    "step": "第 {n} 步 · {m} 分钟",
+    "continueAria": "继续路径：{title}",
+    "startTitle": "开始一条路径",
+    "startText": "按顺序阅读的笔记",
+    "due": "张卡片今日待复习",
+    "dueNone": "今天没有要复习的",
+    "streak": "天连续",
+    "disciplines": "学科",
+    "seeAll": "全部",
+    "notes": "{n} 篇笔记",
+    "recent": "最新生长",
+    "about": "关于花园",
+    "quote": "知识如花园，需要耕耘与传承。",
+    "credit": "卡米耶·毕沙罗，《埃拉尼的菜园》，1897",
+    "min": "{m} 分钟"
   }
 }

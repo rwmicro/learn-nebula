@@ -783,7 +783,8 @@
   },
   "siteBar": {
     "brand": "Garden of Knowledge",
-    "navAria": "Site menu"
+    "navAria": "Site menu",
+    "me": "Me"
   },
   "account": {
     "title": "My account",
@@ -1012,5 +1013,50 @@
     "metaNoQuiz": "{notes} notes",
     "empty": "This path's notes have no definitions, key ideas or questions yet.",
     "answers": "Answers"
+  },
+  "tabbar": {
+    "aria": "Main navigation",
+    "home": "Home",
+    "parcours": "Paths",
+    "explore": "Explore",
+    "review": "Review",
+    "due": "due today"
+  },
+  "explorer": {
+    "metaTitle": "Explore",
+    "title": "Explore",
+    "lede": "The garden from other angles.",
+    "graph": "Graph",
+    "graphDesc": "Every note and its links",
+    "frise": "Timeline",
+    "friseDesc": "From Antiquity to today",
+    "carte": "Map",
+    "carteDesc": "Notes placed on the world",
+    "themes": "Themes",
+    "themesDesc": "Every discipline",
+    "jardin": "The garden in numbers",
+    "jardinDesc": "What the garden holds",
+    "donnees": "Open data",
+    "donneesDesc": "The notes’ datasets",
+    "random": "A random note",
+    "randomDesc": "Let the garden choose"
+  },
+  "dash": {
+    "resume": "Pick up",
+    "step": "Step {n} · {m} min",
+    "continueAria": "Continue the path: {title}",
+    "startTitle": "Start a path",
+    "startText": "Notes to read in order",
+    "due": "cards to review today",
+    "dueNone": "nothing to review today",
+    "streak": "days in a row",
+    "disciplines": "Disciplines",
+    "seeAll": "See all",
+    "notes": "{n} notes",
+    "recent": "Latest growth",
+    "about": "About the garden",
+    "quote": "Knowledge, like a garden, is cultivated and passed on.",
+    "credit": "Camille Pissarro, The Vegetable Garden at Éragny, 1897",
+    "min": "{m} min"
   }
 }

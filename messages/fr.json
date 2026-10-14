@@ -783,7 +783,8 @@
   },
   "siteBar": {
     "brand": "Garden of Knowledge",
-    "navAria": "Menu du site"
+    "navAria": "Menu du site",
+    "me": "Moi"
   },
   "account": {
     "title": "Mon compte",
@@ -1012,5 +1013,50 @@
     "metaNoQuiz": "{notes} notes",
     "empty": "Les notes de ce parcours n'ont encore ni définitions, ni idées clés, ni questions.",
     "answers": "Réponses"
+  },
+  "tabbar": {
+    "aria": "Navigation principale",
+    "home": "Accueil",
+    "parcours": "Parcours",
+    "explore": "Explorer",
+    "review": "Réviser",
+    "due": "à revoir aujourd’hui"
+  },
+  "explorer": {
+    "metaTitle": "Explorer",
+    "title": "Explorer",
+    "lede": "Le jardin sous d’autres angles.",
+    "graph": "Graphe",
+    "graphDesc": "Toutes les notes et leurs liens",
+    "frise": "Frise",
+    "friseDesc": "De l’Antiquité à aujourd’hui",
+    "carte": "Carte",
+    "carteDesc": "Les notes posées sur le monde",
+    "themes": "Thèmes",
+    "themesDesc": "Toutes les disciplines",
+    "jardin": "Le jardin en chiffres",
+    "jardinDesc": "Ce que contient le jardin",
+    "donnees": "Données ouvertes",
+    "donneesDesc": "Les jeux de données des notes",
+    "random": "Une note au hasard",
+    "randomDesc": "Laissez le jardin choisir"
+  },
+  "dash": {
+    "resume": "Reprendre",
+    "step": "Étape {n} · {m} min",
+    "continueAria": "Continuer le parcours : {title}",
+    "startTitle": "Commencer un parcours",
+    "startText": "Des suites de notes à lire dans l’ordre",
+    "due": "cartes à réviser aujourd’hui",
+    "dueNone": "rien à réviser aujourd’hui",
+    "streak": "jours d’affilée",
+    "disciplines": "Disciplines",
+    "seeAll": "Tout voir",
+    "notes": "{n} notes",
+    "recent": "Dernières pousses",
+    "about": "À propos du jardin",
+    "quote": "La connaissance, comme un jardin, se cultive et se transmet.",
+    "credit": "Camille Pissarro, Le Jardin potager à Éragny, 1897",
+    "min": "{m} min"
   }
 }

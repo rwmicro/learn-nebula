@@ -116,11 +116,11 @@ export function AccountChip() {
   );
 }
 
-/** "N à revoir": cards and saved questions due today, from this browser's
- *  review state (the same localStorage the flashcards use). Links to the
- *  question review when questions are due, else to the decks. */
-export function ReviewPill() {
-  const locale = useLocale();
+/** Cards and saved questions due today in this browser (the flashcards'
+ *  localStorage), with where to review them: the question review when
+ *  questions are due, else the decks. Null when nothing is due. Shared by
+ *  the review reminder and the phone tab bar's badge. */
+export function useReviewDue(): { n: number; href: string } | null {
   const [due, setDue] = useState<{ n: number; href: string } | null>(null);
   useEffect(() => {
     const count = () => {
@@ -149,6 +149,13 @@ export function ReviewPill() {
       window.removeEventListener("gk:progress-synced", count);
     };
   }, []);
+  return due;
+}
+
+/** "N à revoir": the review reminder in the site bar. */
+export function ReviewPill() {
+  const locale = useLocale();
+  const due = useReviewDue();
   if (!due) return null;
   return (
     <a className="review-pill" href={due.href} title={t("review.pillTitle", { n: due.n }, locale)}>

@@ -783,7 +783,8 @@
   },
   "siteBar": {
     "brand": "Garden of Knowledge",
-    "navAria": "Menú del sitio"
+    "navAria": "Menú del sitio",
+    "me": "Yo"
   },
   "account": {
     "title": "Mi cuenta",
@@ -1012,5 +1013,50 @@
     "metaNoQuiz": "{notes} notas",
     "empty": "Las notas de este recorrido aún no tienen definiciones, ideas clave ni preguntas.",
     "answers": "Respuestas"
+  },
+  "tabbar": {
+    "aria": "Navegación principal",
+    "home": "Inicio",
+    "parcours": "Itinerarios",
+    "explore": "Explorar",
+    "review": "Repasar",
+    "due": "para repasar hoy"
+  },
+  "explorer": {
+    "metaTitle": "Explorar",
+    "title": "Explorar",
+    "lede": "El jardín desde otros ángulos.",
+    "graph": "Grafo",
+    "graphDesc": "Todas las notas y sus enlaces",
+    "frise": "Cronología",
+    "friseDesc": "De la Antigüedad a hoy",
+    "carte": "Mapa",
+    "carteDesc": "Las notas sobre el mundo",
+    "themes": "Temas",
+    "themesDesc": "Todas las disciplinas",
+    "jardin": "El jardín en cifras",
+    "jardinDesc": "Lo que contiene el jardín",
+    "donnees": "Datos abiertos",
+    "donneesDesc": "Los conjuntos de datos de las notas",
+    "random": "Una nota al azar",
+    "randomDesc": "Deja que el jardín elija"
+  },
+  "dash": {
+    "resume": "Retomar",
+    "step": "Paso {n} · {m} min",
+    "continueAria": "Seguir el itinerario: {title}",
+    "startTitle": "Empezar un itinerario",
+    "startText": "Notas para leer en orden",
+    "due": "tarjetas para repasar hoy",
+    "dueNone": "nada que repasar hoy",
+    "streak": "días seguidos",
+    "disciplines": "Disciplinas",
+    "seeAll": "Ver todo",
+    "notes": "{n} notas",
+    "recent": "Últimos brotes",
+    "about": "Sobre el jardín",
+    "quote": "El conocimiento, como un jardín, se cultiva y se transmite.",
+    "credit": "Camille Pissarro, El huerto en Éragny, 1897",
+    "min": "{m} min"
   }
 }

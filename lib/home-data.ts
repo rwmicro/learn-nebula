@@ -3,6 +3,8 @@ import {
   getAllPosts,
   getDisciplines,
   getHomeTree,
+  getPost,
+  getReadingPaths,
   getPdfAssets,
   getTags,
   homeFolderLabel,
@@ -11,6 +13,9 @@ import {
 import { buildGraph, type GraphData } from "./graph-data";
 import type { NoteIndexEntry } from "./note-suggest";
 import { disciplineKey } from "./i18n";
+import { extractPlain } from "./markdown";
+import { readingMinutes } from "./path-extras";
+import { pathFamily, type PathFamily } from "./path-family";
 
 /**
  * What the home page needs beyond its first paint: the full browse tree (every
@@ -23,6 +28,9 @@ import { disciplineKey } from "./i18n";
 export interface HomeData {
   tree: HomeTreeNode[];
   graph: GraphData;
+  /** For the phone dashboard's "Reprendre" card: every reading path with its
+   *  notes in reading order as [slug, title, minutes]. */
+  paths: { slug: string; name: string; family: PathFamily | null; notes: [string, string, number][] }[];
 }
 
 let cache: { data: HomeData; json: string; version: string } | null = null;
@@ -31,6 +39,16 @@ function load() {
   const data: HomeData = {
     tree: getHomeTree(),
     graph: buildGraph({ foldersOnly: true }),
+    paths: getReadingPaths().map((p) => ({
+      slug: p.slug,
+      name: p.name,
+      family: pathFamily(p.discipline),
+      notes: p.notes.map((n): [string, string, number] => [
+        n.slug,
+        n.title,
+        readingMinutes(extractPlain(getPost(n.slug).body)),
+      ]),
+    })),
   };
   const json = JSON.stringify(data);
   const version = crypto

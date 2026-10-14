@@ -13,12 +13,16 @@ import { notesIndexVersion, paletteExtraVersion } from "@/lib/home-data";
 import { Footer } from "@/components/Footer";
 import { PinnedAssistant } from "@/components/PinnedAssistant";
 import { SiteBar } from "@/components/SiteBar";
+import { MobileTabBar } from "@/components/MobileTabBar";
 import "../assets/css/fonts.css";
 // Global frame only (Tailwind + @theme + html/body/main margins). Article
 // typography lives in main.css, loaded per-route on note pages / 404.
 import "../assets/css/global.css";
 // Command palette + its trigger buttons, and the view-transition rules.
 import "../assets/css/palette.css";
+// Phone "app" layer: the glass tab bar, the sticky top bar, safe areas and
+// the shared phone components (large titles, tiles).
+import "../assets/css/app.css";
 
 // Inline every message bundle so the runtime swap (/js/i18n.js) has them all
 // available without a second fetch — built from LOCALES so a new language is
@@ -92,11 +96,19 @@ export const metadata: Metadata = {
   // for app/feed.xml; lib/seo.ts repeats it for pages with a canonical URL.
   alternates: { types: FEED_ALTERNATES },
   // Favicon/apple-touch icons are auto-detected from app/icon.png & app/apple-icon.png.
+  // Added to the home screen, the site opens full screen like an app. The
+  // "default" status bar keeps its own strip, coloured by theme-color, so
+  // the page never slides under it ("black-translucent" would force white
+  // text, unreadable on the light theme).
+  appleWebApp: { capable: true, title: SITE_TITLE, statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // Lay the page under the notch and the home indicator; app.css keeps the
+  // content clear of them with env(safe-area-inset-*).
+  viewportFit: "cover",
   // Browser chrome follows the OS scheme (the explicit toggle can't reach it
   // without JS; the two values are global.css's --paper).
   themeColor: [
@@ -154,6 +166,7 @@ export default function RootLayout({
         <SiteBar />
         {children}
         <Footer />
+        <MobileTabBar />
         {/* Pinnable "Ask the garden" — hidden until pinned from the home chat,
             then docked bottom-right on every page (persists via localStorage).
             The language folders feed its retrieval-scope picker (read at build). */}

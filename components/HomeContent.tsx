@@ -191,7 +191,7 @@ function LazyGraph({ graphData }: { graphData: GraphData | null }) {
 // content hash, so the URL changes with each build and the service worker's
 // stale-while-revalidate can never serve last build's tree. Null until it
 // lands, or for good if it fails: the shell tree and Pagefind still work.
-function useHomeData(version: string): HomeData | null {
+export function useHomeData(version: string): HomeData | null {
   const [data, setData] = useState<HomeData | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -210,7 +210,7 @@ function useHomeData(version: string): HomeData | null {
 
 // The reader's reading progress (lib/reading-progress.ts, localStorage only),
 // kept in sync with other tabs and with a back/forward restore of this page.
-function useReadingStore(): ReadingStore {
+export function useReadingStore(): ReadingStore {
   const [store, setStore] = useState<ReadingStore>({});
   useEffect(() => {
     const load = () => setStore(loadStore());

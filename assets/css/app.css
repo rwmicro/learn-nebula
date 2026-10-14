@@ -1,0 +1,883 @@
+/* ---------------------------------------------------------------------------
+   Phone "app" layer. Loaded site-wide (app/layout.tsx), but nearly everything
+   here lives under 640px (Tailwind's `sm`), so the desktop site is untouched:
+   - "liquid glass" surfaces (.glass)
+   - the floating tab bar (components/MobileTabBar.tsx)
+   - the sticky top bar (components/SiteBar.tsx)
+   - safe areas for the site installed on the home screen
+   - shared phone pieces: large page titles, the Explorer tiles.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* Height the tab bar takes at the bottom of a phone screen, safe area
+     included; the other floating buttons sit above it (see the end). */
+  --gk-tabbar-h: 0px;
+  --gk-safe-b: env(safe-area-inset-bottom, 0px);
+  --glass-bg: rgb(255 255 255 / 0.34);
+  --glass-edge: rgb(255 255 255 / 0.75);
+  --glass-shadow:
+    inset 0 1.5px 0 rgb(255 255 255 / 0.9), inset 0 -1px 1px rgb(255 255 255 / 0.35),
+    inset 0 0 12px rgb(255 255 255 / 0.25), 0 10px 30px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.08);
+  --glass-sheen: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.55),
+    transparent 38%,
+    transparent 62%,
+    rgb(255 255 255 / 0.22)
+  );
+  --glass-on: rgb(0 0 0 / 0.06);
+  --bar-bg: color-mix(in srgb, var(--paper) 80%, transparent);
+}
+:root[data-theme="dark"] {
+  --glass-bg: rgb(30 29 27 / 0.4);
+  --glass-edge: rgb(255 255 255 / 0.16);
+  --glass-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 1px rgb(255 255 255 / 0.06),
+    inset 0 0 14px rgb(255 255 255 / 0.05), 0 10px 30px rgb(0 0 0 / 0.45);
+  --glass-sheen: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.18),
+    transparent 40%,
+    transparent 65%,
+    rgb(255 255 255 / 0.08)
+  );
+  --glass-on: rgb(255 255 255 / 0.1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --glass-bg: rgb(30 29 27 / 0.4);
+    --glass-edge: rgb(255 255 255 / 0.16);
+    --glass-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 1px rgb(255 255 255 / 0.06),
+      inset 0 0 14px rgb(255 255 255 / 0.05), 0 10px 30px rgb(0 0 0 / 0.45);
+    --glass-sheen: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.18),
+      transparent 40%,
+      transparent 65%,
+      rgb(255 255 255 / 0.08)
+    );
+    --glass-on: rgb(255 255 255 / 0.1);
+  }
+}
+
+/* Liquid glass: what is behind shows through, blurred and saturated, with a
+   bright rim and a diagonal sheen. Safari (iOS) and Chrome both render it;
+   only the lens-like bending at the edges of iOS 26 is out of reach on the
+   web. Opaque when the reader asked for less transparency, or when the
+   browser can't blur. */
+.glass {
+  position: relative;
+  isolation: isolate;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+  backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+  border: 0.5px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--glass-sheen);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--paper-raised);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--paper-raised);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* --- Tab bar ------------------------------------------------------------- */
+.tabbar,
+.site-bar-me {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  :root {
+    --gk-tabbar-h: calc(4.9rem + var(--gk-safe-b));
+  }
+  :root[data-tabbar="hidden"] {
+    --gk-tabbar-h: var(--gk-safe-b);
+  }
+
+  .tabbar {
+    position: fixed;
+    left: max(0.85rem, env(safe-area-inset-left, 0px));
+    right: max(0.85rem, env(safe-area-inset-right, 0px));
+    bottom: calc(0.9rem + var(--gk-safe-b) * 0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    transition:
+      transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 0.25s;
+  }
+  .tabbar[data-hidden] {
+    transform: translateY(calc(100% + 1.5rem + var(--gk-safe-b)));
+    opacity: 0;
+    pointer-events: none;
+  }
+  .tabbar-bar {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: 3.85rem;
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+    border-radius: 2rem;
+  }
+  .tabbar-bar li {
+    margin: 0;
+    display: flex;
+  }
+  .tabbar-tab {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1rem;
+    border-radius: 1.7rem;
+    color: var(--ink);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    transition:
+      background-color 0.2s,
+      transform 0.15s;
+  }
+  .tabbar-tab:hover {
+    background: transparent;
+  }
+  .tabbar-tab:active {
+    transform: scale(0.92);
+  }
+  .tabbar-tab[aria-current="page"] {
+    color: var(--garden);
+    background: var(--glass-on);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
+  }
+  .tabbar-icon svg {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .tabbar-fill {
+    fill: none;
+  }
+  .tabbar-tab[aria-current="page"] .tabbar-fill {
+    fill: currentColor;
+    fill-opacity: 0.22;
+  }
+  .tabbar-badge {
+    position: absolute;
+    top: 0.2rem;
+    left: calc(50% + 0.35rem);
+    min-width: 1.15rem;
+    height: 1.15rem;
+    padding: 0 0.3rem;
+    border-radius: 0.6rem;
+    background: #c2410c;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.15rem;
+    text-align: center;
+  }
+  .tabbar-search {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.85rem;
+    height: 3.85rem;
+    padding: 0;
+    border-radius: 50%;
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .tabbar-search:active {
+    transform: scale(0.92);
+  }
+  .tabbar-search svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .tabbar-tab:focus-visible,
+  .tabbar-search:focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
+  }
+
+  /* The page scrolls under the bar, but its end stays reachable. */
+  body {
+    padding-bottom: calc(4.9rem + var(--gk-safe-b));
+  }
+
+  /* The menu, review reminder and search of the site bar live in the tab
+     bar now; the account (or "Moi") and the theme stay at the top. */
+  .site-bar .site-bar-menu,
+  .site-bar .review-pill,
+  .site-bar .palette-btn,
+  .home-masthead .gk-menu-btn,
+  .home-masthead .palette-btn {
+    display: none;
+  }
+  .site-bar-me {
+    display: inline-grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: var(--garden-wash);
+    color: var(--garden);
+  }
+  .site-bar-me svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+  .site-bar-me:hover {
+    background: var(--garden-wash);
+    color: var(--garden);
+  }
+  .site-bar-tools:has(.account-chip) .site-bar-me {
+    display: none;
+  }
+
+  /* A top bar that stays put, frosted over the page, outside the notes (they
+     keep their own reading header). */
+  body:not(:has(.note-header-condensed)) .site-bar {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    margin: 0 0 0.6rem;
+    padding: 0 0.9rem;
+    background: var(--bar-bg);
+    -webkit-backdrop-filter: blur(18px) saturate(1.6);
+    backdrop-filter: blur(18px) saturate(1.6);
+    border-bottom: 0.5px solid var(--rule);
+  }
+
+  /* No grey flash on tap; buttons answer with a slight press instead. */
+  a,
+  button,
+  summary,
+  label {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Floating buttons and panels sit above the tab bar, and drop back down
+     when it slides away on a note. */
+  html .gk-pinned,
+  html .gk-pinned-trigger,
+  html .ask-bar,
+  html .ask-trigger,
+  html .to-top {
+    bottom: calc(1rem + var(--gk-tabbar-h));
+    transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  html .coin-toast {
+    bottom: calc(1.4rem + var(--gk-tabbar-h));
+  }
+  html .pron-coach {
+    bottom: calc(0.8rem + var(--gk-tabbar-h));
+  }
+  html .path-dock:not([hidden]) {
+    bottom: calc(0.75rem + var(--gk-tabbar-h));
+    transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  html .parcours-dock:not([hidden]) {
+    bottom: var(--gk-tabbar-h);
+    padding-bottom: 0.7rem;
+  }
+}
+@media (max-width: 639.98px) and (prefers-reduced-motion: reduce) {
+  .tabbar,
+  .tabbar-tab,
+  .tabbar-search {
+    transition: none;
+  }
+}
+@media print {
+  .tabbar {
+    display: none;
+  }
+}
+/* --- Large page titles (phone tab pages) ------------------------------- */
+.app-page {
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 2rem;
+  color: var(--ink);
+}
+.app-large-title {
+  padding: 1.5rem 0 1.2rem;
+}
+.app-large-title h1 {
+  margin: 0;
+  font-size: clamp(2.1rem, 1.6rem + 2.5vw, 3rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+.app-large-title p {
+  margin: 0.35rem 0 0;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 1rem;
+  color: var(--muted);
+}
+@media (max-width: 639.98px) {
+  .app-page {
+    padding: 0 1rem 1.5rem;
+  }
+  .app-large-title {
+    padding: 0.6rem 0.25rem 1rem;
+  }
+}
+
+/* --- Explorer ------------------------------------------------------------- */
+.explorer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+  gap: 0.8rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.explorer-grid li {
+  margin: 0;
+}
+.explorer-wide {
+  grid-column: 1 / -1;
+}
+.explorer-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 100%;
+  min-height: 8.4rem;
+  padding: 0.95rem;
+  overflow: hidden;
+  border-radius: 1.15rem;
+  background: var(--fam-wash);
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+.explorer-tile:hover {
+  background: var(--fam-wash);
+  filter: brightness(0.98);
+}
+.explorer-tile:active {
+  transform: scale(0.97);
+}
+.explorer-wide .explorer-tile {
+  min-height: 9.5rem;
+  justify-content: flex-end;
+}
+.explorer-icon {
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  border-radius: 0.7rem;
+  background: var(--fam);
+  color: var(--paper);
+}
+.explorer-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+.explorer-text b {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+.explorer-text small {
+  display: block;
+  margin-top: 0.2rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.86rem;
+  line-height: 1.25;
+  color: var(--ink-2);
+}
+.explorer-art {
+  position: absolute;
+  top: -0.4rem;
+  right: -0.4rem;
+  width: 12rem;
+  height: 10rem;
+  fill: var(--fam);
+  stroke: var(--fam);
+  stroke-width: 1.4;
+  opacity: 0.75;
+}
+.explorer-art path {
+  fill: none;
+}
+
+/* --- Home dashboard (components/HomeDashboard.tsx), phones only ---------- */
+.dash,
+.dash-about {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  :root {
+    --dash-card: #fff;
+    --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 14px rgb(0 0 0 / 0.06);
+    --dash-edge: var(--rule);
+  }
+  :root[data-theme="dark"] {
+    --dash-card: #262522;
+    --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
+    --dash-edge: #34322e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --dash-card: #262522;
+      --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
+      --dash-edge: #34322e;
+    }
+  }
+
+  /* The masthead becomes an app bar: the wordmark on the left, "Moi" on the
+     right. Its intro and painting, the "dernières pousses" and the charts
+     give way to the dashboard. */
+  .home-masthead {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    flex-direction: row;
+    align-items: center;
+    height: 3.25rem;
+    padding: 0 0.5rem 0 1rem;
+    background: var(--bar-bg);
+    -webkit-backdrop-filter: blur(18px) saturate(1.6);
+    backdrop-filter: blur(18px) saturate(1.6);
+  }
+  .home-masthead > div:has(> a > h1) {
+    flex: 1;
+    order: 0;
+    padding: 0;
+  }
+  .home-masthead > div:has(> a > h1) > a {
+    justify-self: start;
+  }
+  .home-masthead h1 {
+    font-size: 1.45rem;
+    line-height: 1;
+  }
+  .home-masthead > div:first-of-type {
+    order: 1;
+    flex-wrap: nowrap;
+    padding: 0;
+    gap: 0.35rem;
+  }
+  .home-masthead .lang-switcher,
+  .home-masthead > div:first-of-type > span.relative {
+    display: none;
+  }
+  .home-masthead nav {
+    display: none;
+  }
+  .home-masthead :has(.account-chip) ~ .site-bar-me,
+  .home-masthead .account-chip ~ .site-bar-me {
+    display: none;
+  }
+  .home-intro,
+  .home-main .recent-notes,
+  .home-main .graphiques {
+    display: none;
+  }
+  .home-main > section:has(#notes) {
+    margin-top: 1.6rem;
+  }
+
+  .dash {
+    display: block;
+    color: var(--ink);
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+  }
+  .dash a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .dash a:hover {
+    background-color: transparent;
+  }
+  .dash ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .dash li {
+    margin: 0;
+  }
+
+  .dash-hero {
+    position: relative;
+    display: block;
+    height: 9.4rem;
+    margin: 0.25rem 1rem 0;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    background: #5b4a32;
+  }
+  .dash-hero img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 60%;
+  }
+  .dash-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 35%, rgb(0 0 0 / 0.62));
+  }
+  .dash-hero-cap {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 0.75rem;
+    z-index: 1;
+    color: #fff;
+  }
+  .dash-hero-cap b {
+    display: block;
+    font-size: 1.125rem;
+    font-style: italic;
+    font-weight: 500;
+    line-height: 1.2;
+    text-shadow: 0 1px 6px rgb(0 0 0 / 0.4);
+  }
+  .dash-hero-cap span {
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.75rem;
+    opacity: 0.85;
+  }
+
+  .dash-h {
+    margin: 0;
+    padding: 1.125rem 1.25rem 0.5rem;
+    border: 0;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .dash-row-h {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-right: 1.25rem;
+  }
+  .dash .dash-row-h > a {
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--garden);
+  }
+
+  .dash-card,
+  .dash-tile,
+  .dash-list {
+    background: var(--dash-card);
+    border: 0.5px solid var(--dash-edge);
+    box-shadow: var(--dash-shadow);
+  }
+  .dash-card {
+    margin: 0 1rem;
+    border-radius: 1.125rem;
+  }
+  .dash-resume {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.875rem 0.875rem 0.875rem 1rem;
+    transition: transform 0.15s;
+  }
+  .dash-resume:active,
+  .dash-tile:active,
+  .dash-disc a:active {
+    transform: scale(0.98);
+  }
+  .dash-ring {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.375rem;
+    height: 3.375rem;
+    border-radius: 50%;
+    background: conic-gradient(var(--fam, var(--garden)) calc(var(--p, 0) * 360deg), var(--wash-2) 0);
+  }
+  .dash-ring::before {
+    content: "";
+    grid-area: 1 / 1;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--dash-card);
+  }
+  .dash-ring > * {
+    grid-area: 1 / 1;
+    position: relative;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  .dash-ring-start {
+    background: var(--fam-wash);
+  }
+  .dash-ring-start::before {
+    display: none;
+  }
+  .dash-ring-start svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--fam);
+  }
+  .dash-resume-text {
+    min-width: 0;
+    flex: 1;
+  }
+  .dash-kicker {
+    display: block;
+    overflow: hidden;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--fam);
+  }
+  .dash-resume-text b {
+    display: block;
+    margin: 0.125rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    line-height: 1.15;
+  }
+  .dash-resume-text small,
+  .dash-list-text small,
+  .dash-disc small {
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.84375rem;
+    color: var(--muted);
+  }
+  .dash-play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin-left: auto;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .dash-play svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .dash-tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+    margin: 0.625rem 1rem 0;
+  }
+  .dash-tile {
+    display: block;
+    padding: 0.75rem 0.875rem;
+    border-radius: 1rem;
+    transition: transform 0.15s;
+  }
+  .dash-tile b {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 1.625rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .dash-tile span {
+    display: block;
+    margin-top: 0.25rem;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.84375rem;
+    line-height: 1.25;
+    color: var(--muted);
+  }
+  .dash .dash-tile-cta {
+    background: var(--garden);
+    border-color: transparent;
+    color: var(--paper);
+  }
+  .dash-tile-cta span {
+    color: var(--paper);
+    opacity: 0.85;
+  }
+  .dash-flame {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: #e0782f;
+  }
+
+  .dash .dash-disc {
+    display: flex;
+    gap: 0.625rem;
+    padding: 0.125rem 1rem 0.25rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 1rem;
+    scrollbar-width: none;
+  }
+  .dash-disc::-webkit-scrollbar {
+    display: none;
+  }
+  .dash-disc li {
+    flex: none;
+    scroll-snap-align: start;
+  }
+  .dash-disc a {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-width: 7.375rem;
+    height: 5.75rem;
+    padding: 0.75rem;
+    border-radius: 1rem;
+    background: var(--fam-wash, var(--wash-2));
+    transition: transform 0.15s;
+  }
+  .dash-disc b {
+    display: block;
+    overflow: hidden;
+    font-size: 0.96875rem;
+    font-weight: 600;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dash-disc small {
+    font-size: 0.75rem;
+  }
+  .dash-disc-icon {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.5625rem;
+    background: var(--fam, var(--garden));
+    color: #fff;
+  }
+  .dash-disc-icon svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .dash-list {
+    margin: 0 1rem !important;
+    overflow: hidden;
+    border-radius: 1rem;
+  }
+  .dash-list a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.75rem 0.75rem 0.875rem;
+  }
+  .dash-list a:active {
+    background: var(--wash-2);
+  }
+  .dash-list li + li a::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3.625rem;
+    right: 0;
+    border-top: 0.5px solid var(--rule);
+  }
+  .dash-list-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 0.625rem;
+    background: var(--fam-wash, var(--wash-2));
+    color: var(--fam, var(--ink-2));
+  }
+  .dash-list-icon svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+  .dash-list-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .dash-list-text b {
+    display: block;
+    overflow: hidden;
+    font-size: 1.03125rem;
+    font-weight: 500;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .dash-chev {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    color: var(--rule-strong);
+  }
+
+  .dash-about {
+    display: block;
+    margin-top: 2.5rem;
+    color: var(--ink-2);
+  }
+  .dash-about .dash-h {
+    padding-left: 0;
+  }
+  .dash-about p {
+    margin: 0 0 0.5rem;
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+}
+@media (max-width: 639.98px) {
+  /* The home's own search field: the tab bar's search button opens the
+     same palette. */
+  .home-main > section:has(#notes) > div:first-child:has(.palette-kbd) {
+    display: none;
+  }
+}

@@ -33,6 +33,15 @@ export function SiteBar() {
           <span className="contents" dangerouslySetInnerHTML={{ __html: paletteButtonHtml(true) }} />
           <span className="contents" dangerouslySetInnerHTML={{ __html: themeToggleHtml() }} />
           <AccountChip />
+          {/* Phones: "Moi" (progress, account), the tab bar holding the rest
+              of the menu (components/MobileTabBar.tsx). Steps aside when the
+              account chip already shows the reader's avatar. */}
+          <a className="site-bar-me" href="/progression/" aria-label={t("siteBar.me")} data-i18n-aria-label="siteBar.me">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+            </svg>
+          </a>
           <details className="site-bar-menu">
             <summary aria-label={t("nav.menu")}>
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
