@@ -1162,5 +1162,18 @@
     "ofReview": "de révision",
     "daysRun": "jours d’affilée",
     "finish": "Terminer"
+  },
+  "rv": {
+    "today": "Aujourd’hui",
+    "cards": "cartes",
+    "about": "environ {n} min",
+    "due": "{n} à revoir",
+    "fresh": "{n} nouvelles",
+    "days": "{n} jours",
+    "myQuestions": "Mes questions",
+    "noteQuestions": "Questions de notes",
+    "noteQuestionsText": "Gardées pendant vos lectures",
+    "decks": "Paquets",
+    "dueAria": "{n} cartes pour aujourd’hui"
   }
 }

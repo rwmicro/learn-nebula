@@ -1162,5 +1162,18 @@
     "ofReview": "de repaso",
     "daysRun": "días seguidos",
     "finish": "Terminar"
+  },
+  "rv": {
+    "today": "Hoy",
+    "cards": "tarjetas",
+    "about": "unos {n} min",
+    "due": "{n} para repasar",
+    "fresh": "{n} nuevas",
+    "days": "{n} días",
+    "myQuestions": "Mis preguntas",
+    "noteQuestions": "Preguntas de notas",
+    "noteQuestionsText": "Guardadas mientras lees",
+    "decks": "Mazos",
+    "dueAria": "{n} tarjetas para hoy"
   }
 }

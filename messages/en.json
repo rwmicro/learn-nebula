@@ -1162,5 +1162,18 @@
     "ofReview": "of review",
     "daysRun": "days in a row",
     "finish": "Finish"
+  },
+  "rv": {
+    "today": "Today",
+    "cards": "cards",
+    "about": "about {n} min",
+    "due": "{n} to review",
+    "fresh": "{n} new",
+    "days": "{n} days",
+    "myQuestions": "My questions",
+    "noteQuestions": "Note questions",
+    "noteQuestionsText": "Kept while you read",
+    "decks": "Decks",
+    "dueAria": "{n} cards for today"
   }
 }

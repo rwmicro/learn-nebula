@@ -1162,5 +1162,18 @@
     "ofReview": "من المراجعة",
     "daysRun": "أيام متتالية",
     "finish": "إنهاء"
+  },
+  "rv": {
+    "today": "اليوم",
+    "cards": "بطاقات",
+    "about": "نحو {n} د",
+    "due": "{n} للمراجعة",
+    "fresh": "{n} جديدة",
+    "days": "{n} أيام",
+    "myQuestions": "أسئلتي",
+    "noteQuestions": "أسئلة الملاحظات",
+    "noteQuestionsText": "محفوظة أثناء قراءتك",
+    "decks": "الحزم",
+    "dueAria": "{n} بطاقات لليوم"
   }
 }

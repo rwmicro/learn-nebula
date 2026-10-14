@@ -1162,5 +1162,18 @@
     "ofReview": "复习时间",
     "daysRun": "连续天数",
     "finish": "完成"
+  },
+  "rv": {
+    "today": "今天",
+    "cards": "张卡片",
+    "about": "约 {n} 分钟",
+    "due": "{n} 张待复习",
+    "fresh": "{n} 张新卡",
+    "days": "{n} 天",
+    "myQuestions": "我的问题",
+    "noteQuestions": "笔记问题",
+    "noteQuestionsText": "阅读时保存的问题",
+    "decks": "卡组",
+    "dueAria": "今天 {n} 张卡片"
   }
 }
