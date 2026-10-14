@@ -213,7 +213,8 @@ export function PhoneSession({
                 {ICON.sound}
               </button>
             )}
-            <div className="rsm-face">
+            {/* Focusable: a long card scrolls inside it, and the keyboard must reach it. */}
+            <div className="rsm-face" tabIndex={0}>
               <DeckFace slug={head.slug} css={head.css} html={head.front} zoom={zoom} faceRef={faceRef} />
             </div>
           </div>
@@ -326,7 +327,8 @@ export function PhoneSession({
               {tr(`flashcards.${swipeGrade}`)} · {iv(swipeGrade)}
             </span>
           )}
-          <div className="rsm-face">
+          {/* Focusable: a long card scrolls inside it, and the keyboard must reach it. */}
+          <div className="rsm-face" tabIndex={0}>
             {head.kind === "deck" ? (
               <DeckFace slug={head.slug} css={head.css} html={html} zoom={zoom} faceRef={faceRef} />
             ) : (

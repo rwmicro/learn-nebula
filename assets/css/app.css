@@ -3274,6 +3274,11 @@
     font-size: 1.25rem;
     line-height: 1.35;
   }
+  .rsm-face:focus-visible {
+    outline: 2px solid var(--garden);
+    outline-offset: 4px;
+    border-radius: 0.5rem;
+  }
   .rsm-face .card {
     font: inherit;
     color: inherit;

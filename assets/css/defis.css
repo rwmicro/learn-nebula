@@ -294,8 +294,12 @@
 .entrainer-tiles a:active {
   transform: scale(0.98);
 }
+/* Nothing to practise: the icon fades, the text keeps its contrast. */
+.entrainer-tiles .is-empty .defi-ico {
+  opacity: 0.45;
+}
 .entrainer-tiles .is-empty a {
-  opacity: 0.55;
+  box-shadow: none;
 }
 .entrainer-tiles b {
   margin-top: auto;
