@@ -326,8 +326,15 @@
     width: 1.3rem;
     height: 1.3rem;
   }
+  /* Out of sight, but still the link's name for screen readers (the page
+     title beside it is aria-hidden). */
   body:not(:has(.na-chrome)) .site-bar-brand > span {
-    display: none;
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
   .site-bar-page {
     display: none;
@@ -780,7 +787,7 @@
   .dash-disc small {
     font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
     font-size: 0.84375rem;
-    color: var(--muted);
+    color: var(--ink-2); /* --muted falls under 4.5:1 on the family washes */
   }
   .dash-play {
     flex: none;
@@ -1968,7 +1975,11 @@
     font-weight: 600;
     letter-spacing: 0;
     text-transform: none;
-    color: var(--fam, var(--muted));
+    /* The family colour, deepened towards the ink to reach 4.5:1. */
+    color: color-mix(in oklab, var(--fam, var(--muted)) 62%, var(--ink));
+  }
+  main.parcours-page .parcours-chip > span {
+    color: var(--ink-2);
   }
   main.parcours-page .parcours-tiles-intro,
   main.parcours-page .parcours-cards-label,

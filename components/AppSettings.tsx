@@ -13,7 +13,10 @@ import { LANG_OPTIONS } from "@/components/LangSwitcher";
 
 declare global {
   interface Window {
-    __theme?: { set: (p: "auto" | "light" | "dark") => void; pref: () => "auto" | "light" | "dark" };
+    __theme?: {
+      set: (p: "auto" | "light" | "dark") => void;
+      pref: () => "auto" | "light" | "dark";
+    };
   }
 }
 
@@ -37,7 +40,11 @@ export function AppSettings() {
         {tr("settings.title")}
       </h2>
       <p className="app-settings-label">{tr("settings.theme")}</p>
-      <div className="app-seg" role="radiogroup" aria-label={tr("settings.theme")}>
+      <div
+        className="app-seg"
+        role="radiogroup"
+        aria-label={tr("settings.theme")}
+      >
         {THEMES.map((m) => (
           <button
             key={m}
@@ -54,24 +61,26 @@ export function AppSettings() {
         ))}
       </div>
       <p className="app-settings-label">{tr("settings.language")}</p>
-      <ul className="app-group" role="radiogroup" aria-label={tr("settings.language")}>
-        {LANG_OPTIONS.map((o) => (
-          <li key={o.code}>
-            <button
-              type="button"
-              role="radio"
-              aria-checked={locale === o.code}
-              lang={o.code}
-              onClick={() => window.__i18n?.setLocale?.(o.code)}
-            >
-              {o.label}
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="m5 12.5 4.5 4.5L19 7.5" />
-              </svg>
-            </button>
-          </li>
-        ))}
-      </ul>
+      <div role="radiogroup" aria-label={tr("settings.language")}>
+        <ul className="app-group">
+          {LANG_OPTIONS.map((o) => (
+            <li key={o.code}>
+              <button
+                type="button"
+                role="radio"
+                aria-checked={locale === o.code}
+                lang={o.code}
+                onClick={() => window.__i18n?.setLocale?.(o.code)}
+              >
+                {o.label}
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12.5 4.5 4.5L19 7.5" />
+                </svg>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
