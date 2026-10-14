@@ -435,17 +435,20 @@
 @media (max-width: 639.98px) {
   :root {
     --dash-card: #fff;
+    --seg-on: #fff;
     --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 14px rgb(0 0 0 / 0.06);
     --dash-edge: var(--rule);
   }
   :root[data-theme="dark"] {
     --dash-card: #262522;
+    --seg-on: #403d38;
     --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
     --dash-edge: #34322e;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme]) {
       --dash-card: #262522;
+    --seg-on: #403d38;
       --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
       --dash-edge: #34322e;
     }
@@ -1562,7 +1565,7 @@
     color: var(--ink-2);
   }
   .na-chrome .na-seg [aria-checked="true"] {
-    background: var(--dash-card);
+    background: var(--seg-on);
     color: var(--ink);
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
   }
@@ -2037,5 +2040,123 @@
     z-index: 1;
     background: var(--dash-card);
     box-shadow: 0.5px 0 0 var(--dash-edge);
+  }
+}
+
+/* --- Moi (phone): theme and language, and the tab pages' titles ----------- */
+.app-settings {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  main.progression > .progression-back,
+  main.cartes-index > .cartes-index-back {
+    display: none;
+  }
+  main.progression,
+  main.cartes-index {
+    padding-top: 1.1rem;
+  }
+  main :is(.progression-title, .cartes-index-title) {
+    margin: 0.4rem 0 0;
+    padding: 0;
+    border: 0;
+    font-size: 2.125rem;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  main :is(.progression-intro, .cartes-index-intro) {
+    margin: 0.3rem 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  .app-settings {
+    display: block;
+    margin: 0.4rem 0 1.6rem;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  main .app-settings-h {
+    margin: 0 0.25rem 0.6rem;
+    padding: 0;
+    border: 0;
+    font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  main .app-settings-label {
+    margin: 0.9rem 0.25rem 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-2);
+  }
+  .app-seg {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 3px;
+    border-radius: 0.6875rem;
+    background: var(--wash-2);
+  }
+  .app-seg button {
+    height: 2.125rem;
+    border: 0;
+    border-radius: 0.5625rem;
+    background: none;
+    font: 500 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .app-seg [aria-checked="true"] {
+    background: var(--seg-on);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+  }
+  main .app-group {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-radius: 0.875rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+    overflow: hidden;
+  }
+  main .app-group li {
+    position: relative;
+    margin: 0;
+  }
+  main .app-group li + li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0.95rem;
+    right: 0;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  .app-group button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 2.9rem;
+    padding: 0 0.95rem;
+    border: 0;
+    background: none;
+    font: 400 1.03rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-align: start;
+    color: var(--ink);
+    cursor: pointer;
+  }
+  .app-group svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-inline-start: auto;
+    fill: none;
+    stroke: var(--garden);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    visibility: hidden;
+  }
+  .app-group [aria-checked="true"] svg {
+    visibility: visible;
   }
 }

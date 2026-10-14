@@ -1085,5 +1085,10 @@
     "step": "第 {n} 步",
     "copied": "链接已复制",
     "intro": "引言"
+  },
+  "settings": {
+    "title": "设置",
+    "theme": "主题",
+    "language": "语言"
   }
 }

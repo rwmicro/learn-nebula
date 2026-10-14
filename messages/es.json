@@ -1085,5 +1085,10 @@
     "step": "paso {n}",
     "copied": "Enlace copiado",
     "intro": "Introducción"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "theme": "Tema",
+    "language": "Idioma"
   }
 }

@@ -16,7 +16,7 @@ declare global {
 }
 
 // Interface "editions". Codes for Latin scripts, native glyph for Chinese.
-const OPTIONS = [
+export const LANG_OPTIONS = [
   { code: "fr", label: "Français" },
   { code: "en", label: "English" },
   { code: "es", label: "Español" },
@@ -75,7 +75,7 @@ export function LangSwitcher() {
     window.__i18n?.setLocale?.(next);
   }
 
-  const current = OPTIONS.find((o) => o.code === locale) ?? OPTIONS[0];
+  const current = LANG_OPTIONS.find((o) => o.code === locale) ?? LANG_OPTIONS[0];
 
   // Black & white, to sit in the masthead dateline.
   const btn = (active: boolean) =>
@@ -139,7 +139,7 @@ export function LangSwitcher() {
           hidden={!open}
           className="absolute start-0 top-full z-40 mt-1.5 min-w-full list-none rounded-md border border-rule-strong bg-paper p-1 shadow-lg"
         >
-          {OPTIONS.map((o) => (
+          {LANG_OPTIONS.map((o) => (
             <li key={o.code} className="m-0 p-0">
               <button
                 type="button"
@@ -159,7 +159,7 @@ export function LangSwitcher() {
         role="group"
         aria-label="Langue / Language"
       >
-        {OPTIONS.map((o, i) => (
+        {LANG_OPTIONS.map((o, i) => (
           <Fragment key={o.code}>
             {i > 0 && (
               <span className="text-muted-warm" aria-hidden="true">
