@@ -1175,5 +1175,20 @@
     "noteQuestionsText": "Gardées pendant vos lectures",
     "decks": "Paquets",
     "dueAria": "{n} cartes pour aujourd’hui"
+  },
+  "road": {
+    "levelOf": "Niveau {n} sur {total}",
+    "min": "{n} min",
+    "levelSub": "{n} notes, {m} min",
+    "stars": "{n} étoiles sur 3",
+    "step": "Étape {n} sur {total}",
+    "now": "à lire maintenant",
+    "questions": "{n} questions",
+    "start": "Commencer",
+    "continue": "Continuer",
+    "levelDone": "Niveau {n} terminé",
+    "placement": "Placement",
+    "review": "Réviser",
+    "sheet": "Fiche"
   }
 }

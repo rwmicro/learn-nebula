@@ -1175,5 +1175,20 @@
     "noteQuestionsText": "阅读时保存的问题",
     "decks": "卡组",
     "dueAria": "今天 {n} 张卡片"
+  },
+  "road": {
+    "levelOf": "第 {n} 级，共 {total} 级",
+    "min": "{n} 分钟",
+    "levelSub": "{n} 篇笔记，{m} 分钟",
+    "stars": "3 颗星中的 {n} 颗",
+    "step": "第 {n} 步，共 {total} 步",
+    "now": "现在阅读",
+    "questions": "{n} 个问题",
+    "start": "开始",
+    "continue": "继续",
+    "levelDone": "第 {n} 级完成",
+    "placement": "定级",
+    "review": "复习",
+    "sheet": "讲义"
   }
 }

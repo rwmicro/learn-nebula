@@ -1175,5 +1175,20 @@
     "noteQuestionsText": "محفوظة أثناء قراءتك",
     "decks": "الحزم",
     "dueAria": "{n} بطاقات لليوم"
+  },
+  "road": {
+    "levelOf": "المستوى {n} من {total}",
+    "min": "{n} د",
+    "levelSub": "{n} ملاحظات، {m} د",
+    "stars": "{n} نجوم من 3",
+    "step": "الخطوة {n} من {total}",
+    "now": "اقرأها الآن",
+    "questions": "{n} أسئلة",
+    "start": "ابدأ",
+    "continue": "تابع",
+    "levelDone": "اكتمل المستوى {n}",
+    "placement": "تحديد المستوى",
+    "review": "مراجعة",
+    "sheet": "ملخص"
   }
 }

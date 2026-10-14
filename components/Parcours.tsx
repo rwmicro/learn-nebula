@@ -8,6 +8,7 @@ import {
 } from "@/lib/prereq-layout";
 import { ReadMarks } from "@/components/ReadMarks";
 import { PathZoom } from "@/components/PathZoom";
+import { PathRoad } from "@/components/PathRoad";
 import { ParcoursStudy, type StudyNoteView } from "@/components/ParcoursStudy";
 import type { PathExtras } from "@/lib/path-extras";
 import { PATH_FAMILIES, pathFamily, type PathFamily } from "@/lib/path-family";
@@ -350,6 +351,24 @@ export function ParcoursPage({
         nextPath={path.next ?? null}
       />
 
+      <PathRoad
+        pathSlug={path.slug}
+        levels={levels.map((lv) => {
+          const notes = path.notes.slice(lv.from, lv.to);
+          return {
+            n: lv.n,
+            name: levelName(notes, levels.map((l) => path.notes.slice(l.from, l.to))) ?? titleOf(notes[0].slug),
+            notes: notes.map((n) => ({
+              slug: n.slug,
+              title: titleOf(n.slug),
+              href: n.href,
+              minutes: minutesOf(n.slug),
+              quiz: extras.notes[n.slug]?.quiz ?? [],
+            })),
+          };
+        })}
+      />
+
       {/* Text alternative to the graph, and the reading order on its own:
           a path of discs, cut into levels on a long path (lib/path-levels.ts),
           each closing on a review of its questions. */}
@@ -468,6 +487,29 @@ export function ParcoursPage({
       <ReadMarks />
     </main>
   );
+}
+
+/** A level's name for the phone road: the folders its notes sit in
+ *  ("02-communication" → "Communication"), two at most; null when every
+ *  level would get the same name (a path from one folder). */
+function levelName(
+  notes: ReadingPathView["notes"],
+  all: ReadingPathView["notes"][],
+): string | null {
+  const folders = (ns: ReadingPathView["notes"]) => [
+    ...new Set(
+      ns.map((n) => {
+        const seg = n.href.split("/").filter(Boolean);
+        const f = (seg[seg.length - 2] ?? "").replace(/^\d+[-_ ]*/, "").replace(/-/g, " ");
+        return f.charAt(0).toUpperCase() + f.slice(1);
+      }),
+    ),
+  ];
+  const names = all.map((ns) => folders(ns).slice(0, 2).join(" et ").toLowerCase());
+  if (all.length > 1 && new Set(names).size === 1) return null;
+  const mine = folders(notes);
+  const name = mine.slice(0, 2).map((f, i) => (i ? f.toLowerCase() : f)).join(" et ");
+  return name || null;
 }
 
 /** One note of the "Dans l'ordre" list: its disc (number, or a check once

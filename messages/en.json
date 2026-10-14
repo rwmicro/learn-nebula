@@ -1175,5 +1175,20 @@
     "noteQuestionsText": "Kept while you read",
     "decks": "Decks",
     "dueAria": "{n} cards for today"
+  },
+  "road": {
+    "levelOf": "Level {n} of {total}",
+    "min": "{n} min",
+    "levelSub": "{n} notes, {m} min",
+    "stars": "{n} stars out of 3",
+    "step": "Step {n} of {total}",
+    "now": "read it now",
+    "questions": "{n} questions",
+    "start": "Start",
+    "continue": "Continue",
+    "levelDone": "Level {n} done",
+    "placement": "Placement",
+    "review": "Review",
+    "sheet": "Sheet"
   }
 }

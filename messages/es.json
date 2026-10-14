@@ -1175,5 +1175,20 @@
     "noteQuestionsText": "Guardadas mientras lees",
     "decks": "Mazos",
     "dueAria": "{n} tarjetas para hoy"
+  },
+  "road": {
+    "levelOf": "Nivel {n} de {total}",
+    "min": "{n} min",
+    "levelSub": "{n} notas, {m} min",
+    "stars": "{n} estrellas de 3",
+    "step": "Paso {n} de {total}",
+    "now": "para leer ahora",
+    "questions": "{n} preguntas",
+    "start": "Empezar",
+    "continue": "Continuar",
+    "levelDone": "Nivel {n} terminado",
+    "placement": "Nivelación",
+    "review": "Repasar",
+    "sheet": "Ficha"
   }
 }
