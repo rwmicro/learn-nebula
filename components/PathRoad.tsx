@@ -229,7 +229,7 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
                   <li key={n.slug} className={cls} style={{ left: `${(100 * at[0]) / W}%`, top: at[1] }}>
                     <a className="road-disk" href={n.href} aria-label={n.title}>
                       {cur && <i className="road-ring" aria-hidden="true" />}
-                      <span>{done ? ICON.check : n.quiz.length && !cur ? ICON.quiz : ICON.read}</span>
+                      <span>{done ? ICON.check : ICON.read}</span>
                     </a>
                     {!cur && (
                       <div className="road-lb">

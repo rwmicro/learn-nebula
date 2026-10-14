@@ -3967,6 +3967,10 @@
   main.parcours-page--path .pt-short {
     display: inline;
   }
+  /* The level bar names where one is: no title pill in the site bar. */
+  body:has(main.parcours-page--path) .site-bar-brand {
+    display: none;
+  }
 
   /* Back and "available offline" as glass buttons over the page. */
   main.parcours-page--path .themes-back,
