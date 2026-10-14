@@ -3,6 +3,7 @@ import { t, i18nAttrs } from "@/lib/i18n";
 import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
 import { SiteNavLinks } from "@/components/SiteNavLinks";
 import { AccountChip, ReviewPill } from "@/components/AccountChip";
+import { TopBarScroll } from "@/components/TopBarScroll";
 
 // The one site menu, the same on every page: the home's masthead lists the
 // same links (components/Header.tsx) and this slim bar is hidden there (CSS,
@@ -24,6 +25,8 @@ export function SiteBar() {
             <path d="M12 12c0-4.5 3-7.5 7.5-7.5 0 4.5-3 7.5-7.5 7.5Z" fill="var(--garden)" opacity=".7" />
           </svg>
           <span data-i18n="siteBar.brand">{t("siteBar.brand")}</span>
+          {/* Phones: the page's title, once scrolled past (TopBarScroll). */}
+          <b className="site-bar-page" aria-hidden="true" />
         </a>
         <nav className="site-bar-nav" aria-label={t("siteBar.navAria")}>
           <SiteNavLinks links={links} />
@@ -55,6 +58,7 @@ export function SiteBar() {
           </details>
         </div>
       </div>
+      <TopBarScroll />
     </header>
   );
 }

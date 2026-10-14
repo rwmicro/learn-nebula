@@ -252,18 +252,114 @@
     display: none;
   }
 
-  /* A top bar that stays put, frosted over the page, outside the notes (they
-     keep their own reading header). */
-  body:not(:has(.note-header-condensed)) .site-bar {
-    position: sticky;
+  /* No top bar: the "Moi" avatar as a round glass button at the top right
+     and, once the large title has scrolled away, a glass pill with the leaf
+     and the page's title at the top left (TopBarScroll.tsx), over a soft
+     fade of the paper. Notes have their own chrome, the home its masthead. */
+  body:not(:has(.na-chrome)):not(:has(.home-masthead)) {
+    padding-top: 3.9rem;
+  }
+  body:not(:has(.na-chrome)) .site-bar {
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 900;
-    margin: 0 0 0.6rem;
-    padding: 0 0.9rem;
-    background: var(--bar-bg);
-    -webkit-backdrop-filter: blur(18px) saturate(1.6);
-    backdrop-filter: blur(18px) saturate(1.6);
-    border-bottom: 0.5px solid var(--rule);
+    margin: 0;
+    padding: calc(0.5rem + env(safe-area-inset-top, 0px)) 0.875rem 0;
+    background: none;
+    border: 0;
+    pointer-events: none;
+  }
+  body:not(:has(.na-chrome)) .site-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 -1.2rem;
+    z-index: -1;
+    background: linear-gradient(var(--paper) 50%, transparent);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar::before {
+    opacity: 1;
+  }
+  body:not(:has(.na-chrome)) .site-bar-inner {
+    height: 2.875rem;
+    padding: 0;
+    border: 0;
+  }
+  body:not(:has(.na-chrome)) .site-bar :is(.site-bar-brand, .site-bar-me, .account-chip) {
+    pointer-events: auto;
+  }
+  body:not(:has(.na-chrome)) .site-bar .theme-toggle {
+    display: none;
+  }
+  /* The pill: leaf + page title, in glass, once scrolled. */
+  body:not(:has(.na-chrome)) .site-bar-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 2.75rem;
+    max-width: calc(100vw - 6rem);
+    padding: 0 1.1rem 0 0.9rem;
+    border-radius: 1.375rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+    color: var(--ink);
+    opacity: 0;
+    transform: translateY(-0.4rem);
+    transition:
+      opacity 0.25s,
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+  }
+  :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar-brand {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  body:not(:has(.na-chrome)) .site-bar-brand svg {
+    flex: none;
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  body:not(:has(.na-chrome)) .site-bar-brand > span {
+    display: none;
+  }
+  .site-bar-page {
+    display: none;
+  }
+  body:not(:has(.na-chrome)) .site-bar-page {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: 600 1.06rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0;
+    font-variant: normal;
+    text-transform: none;
+  }
+  /* The avatar: a round glass button. */
+  body:not(:has(.na-chrome)) .site-bar .site-bar-me {
+    width: 2.75rem;
+    height: 2.75rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+    color: var(--ink);
+  }
+  body:not(:has(.na-chrome)) .site-bar .account-chip {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
   }
 
   /* No grey flash on tap; buttons answer with a slight press instead. */
