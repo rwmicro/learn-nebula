@@ -1111,5 +1111,19 @@
     "title": "Settings",
     "theme": "Theme",
     "language": "Language"
+  },
+  "moi": {
+    "title": "Me",
+    "lede": "Reading, reviews and settings. Everything stays in this browser unless you sign in.",
+    "keepTitle": "Keep my progress",
+    "keepText": "Sign in by e-mail, on all your devices",
+    "signIn": "Sign in",
+    "accountTitle": "My account",
+    "accountText": "Progress synced across your devices",
+    "week": "This week",
+    "cards": "cards reviewed",
+    "activity": "Activity",
+    "weeks": "{n} weeks",
+    "activityAria": "{n} active days in the last twelve weeks"
   }
 }

@@ -1111,5 +1111,19 @@
     "title": "Ajustes",
     "theme": "Tema",
     "language": "Idioma"
+  },
+  "moi": {
+    "title": "Yo",
+    "lede": "Lectura, repasos y ajustes. Todo se queda en este navegador, salvo si inicias sesión.",
+    "keepTitle": "Guardar mi progreso",
+    "keepText": "Acceso por correo, en todos tus dispositivos",
+    "signIn": "Iniciar sesión",
+    "accountTitle": "Mi cuenta",
+    "accountText": "Progreso sincronizado en tus dispositivos",
+    "week": "Esta semana",
+    "cards": "tarjetas repasadas",
+    "activity": "Actividad",
+    "weeks": "{n} semanas",
+    "activityAria": "{n} días activos en las últimas doce semanas"
   }
 }

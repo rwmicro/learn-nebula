@@ -1111,5 +1111,19 @@
     "title": "Réglages",
     "theme": "Thème",
     "language": "Langue"
+  },
+  "moi": {
+    "title": "Moi",
+    "lede": "Lecture, révisions et réglages. Tout reste dans ce navigateur, sauf si vous vous connectez.",
+    "keepTitle": "Garder ma progression",
+    "keepText": "Connexion par e-mail, sur tous vos appareils",
+    "signIn": "Se connecter",
+    "accountTitle": "Mon compte",
+    "accountText": "Progression synchronisée sur vos appareils",
+    "week": "Cette semaine",
+    "cards": "cartes révisées",
+    "activity": "Activité",
+    "weeks": "{n} semaines",
+    "activityAria": "{n} jours actifs sur les douze dernières semaines"
   }
 }

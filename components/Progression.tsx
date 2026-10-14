@@ -38,6 +38,7 @@ import {
 import type { AnkiDeck } from "@/lib/anki";
 import { ReviewStats } from "@/components/ReviewStats";
 import { AppSettings } from "@/components/AppSettings";
+import { MoiPhone } from "@/components/MoiPhone";
 
 interface Pending {
   file: ProgressFile;
@@ -262,6 +263,7 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
 
   return (
     <main className="progression" data-pagefind-ignore>
+      <MoiPhone />
       {/* A plain link: next/link would make scripts/prune-rsc.mjs keep every RSC payload. */}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a href="/" className="progression-back">

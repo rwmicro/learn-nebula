@@ -1111,5 +1111,19 @@
     "title": "设置",
     "theme": "主题",
     "language": "语言"
+  },
+  "moi": {
+    "title": "我",
+    "lede": "阅读、复习和设置。除非登录，一切都只保存在此浏览器中。",
+    "keepTitle": "保存我的进度",
+    "keepText": "通过电子邮件登录，在所有设备上同步",
+    "signIn": "登录",
+    "accountTitle": "我的账户",
+    "accountText": "进度已在你的设备间同步",
+    "week": "本周",
+    "cards": "张卡片已复习",
+    "activity": "活动",
+    "weeks": "{n} 周",
+    "activityAria": "过去十二周中有 {n} 天活跃"
   }
 }
