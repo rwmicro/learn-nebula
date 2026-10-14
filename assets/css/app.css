@@ -416,8 +416,9 @@
   html .coin-toast {
     bottom: calc(1.4rem + var(--gk-tabbar-h));
   }
+  /* The pronunciation coach is a bottom sheet drawn over the tab bar. */
   html .pron-coach {
-    bottom: calc(0.8rem + var(--gk-tabbar-h));
+    bottom: 0;
   }
   html .path-dock:not([hidden]) {
     bottom: calc(0.75rem + var(--gk-tabbar-h));

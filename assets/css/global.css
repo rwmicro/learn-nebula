@@ -1489,22 +1489,59 @@ body:has(.home-masthead) .site-bar {
   }
 }
 
-/* Pronunciation practice (/js/pronounce.js): the microphone that appears
-   next to a clip once it has been heard, and the panel it opens at the
-   bottom of the screen — the clip's waveform over the reader's, one time
-   scale, replayed one after the other. */
+/* Pronunciation practice (/js/pronounce.js). Each clip's speaker shares a
+   pill with a microphone; the microphone opens a bottom sheet (the "coach"):
+   the clip's waveform over the reader's on one time scale, a big record
+   button, then a comparison. Sizes follow public/maquette-prononciation.html. */
+.pron-pill {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  margin-block: -0.3em;
+  border-radius: 999px;
+  background: var(--fam-wash, var(--wash-2));
+  transition: box-shadow 0.15s;
+}
+.pron-pill.is-live {
+  box-shadow: 0 0 0 2px var(--garden);
+}
+.pron-pill > .pron-btn,
 .pron-mic {
+  width: 1.85rem;
+  height: 1.85rem;
+}
+.pron-pill
+  > .pron-btn:not(
+    [data-state="playing"],
+    [data-state="error"],
+    [data-state="loading"]
+  ) {
+  color: var(--fam, var(--ink-2));
+}
+.pron-mic {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.6rem;
-  height: 1.6rem;
   padding: 0;
-  border: 1px solid var(--garden);
+  border: 0;
   border-radius: 50%;
   background: transparent;
   color: var(--garden);
   cursor: pointer;
+}
+.pron-mic::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: -0.5px;
+  top: 25%;
+  height: 50%;
+  border-inline-start: 1px solid
+    color-mix(in srgb, var(--fam, var(--ink-2)) 30%, transparent);
+}
+.pron-mic svg {
+  width: 15px;
+  height: 15px;
 }
 .pron-mic:hover {
   background: var(--garden-wash);
@@ -1513,149 +1550,643 @@ body:has(.home-masthead) .site-bar {
   outline: 2px solid var(--link);
   outline-offset: 2px;
 }
+.pron-tr {
+  font-style: italic;
+  color: var(--ink-2);
+}
+@media (max-width: 639.98px) {
+  .pron-pill > .pron-btn,
+  .pron-mic {
+    width: 44px;
+    height: 44px;
+  }
+  .pron-pill svg,
+  .pron-mic svg {
+    width: 20px;
+    height: 20px;
+  }
+  /* In a table cell: the word and its reading on one line, the pill under. */
+  td > .pron {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    column-gap: 0.45rem;
+  }
+  td > .pron::after {
+    content: "";
+    flex-basis: 100%;
+  }
+  td > .pron > .pron-pill {
+    order: 1;
+    margin: 0.35rem 0 0;
+  }
+  td > .pron > .pron-label.is-rtl {
+    font-style: normal;
+    font-size: 1.4em;
+    line-height: 1.25;
+  }
+  td > .pron > .pron-tr {
+    font-size: 0.9em;
+  }
+}
+
+.pron-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1499;
+  background: var(--pron-scrim);
+  touch-action: none;
+  animation: pron-fade 0.2s ease-out;
+}
+.pron-coach,
+.pron-scrim {
+  --pron-scrim: rgb(0 0 0 / 0.28);
+  --pron-trk: color-mix(in srgb, var(--wash-2) 65%, var(--paper-raised));
+}
+:root[data-theme="dark"] :is(.pron-coach, .pron-scrim) {
+  --pron-scrim: rgb(0 0 0 / 0.55);
+  --pron-trk: var(--wash);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) :is(.pron-coach, .pron-scrim) {
+    --pron-scrim: rgb(0 0 0 / 0.55);
+    --pron-trk: var(--wash);
+  }
+}
 .pron-coach {
+  --pron-model: var(--fam, var(--link));
+  --pron-grid: var(--rule-strong);
   position: fixed;
   z-index: 1500;
-  left: 50%;
-  bottom: calc(0.8rem + env(safe-area-inset-bottom, 0px));
-  transform: translateX(-50%);
-  width: min(36rem, calc(100vw - 1.6rem));
-  display: grid;
-  gap: 0.6rem;
-  padding: 0.8rem 1rem 0.9rem;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: min(100%, 26rem);
+  max-height: calc(100dvh - 1rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  margin-inline: auto;
+  padding: 8px 0 calc(1.4rem + env(safe-area-inset-bottom, 0px));
   background: var(--paper-raised);
   color: var(--ink);
-  border: 1px solid var(--rule-strong);
-  border-radius: var(--radius-lg, 12px);
-  box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.35);
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -10px 40px rgb(0 0 0 / 0.18);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-  font-size: 0.95rem;
+  font-size: 16px;
+  line-height: 1.3;
+  animation: pron-sheet 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transition: transform 0.22s ease-in;
+}
+.pron-coach.is-drag {
+  transition: none;
+}
+.pron-coach.is-out {
+  transform: translateY(100%) !important;
+}
+.pron-scrim.is-out {
+  opacity: 0;
+  transition: opacity 0.22s;
+}
+@keyframes pron-sheet {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes pron-fade {
+  from {
+    opacity: 0;
+  }
+}
+@media (min-width: 640px) {
+  .pron-coach {
+    bottom: 1.25rem;
+    border-radius: 28px;
+    padding-bottom: 1.4rem;
+    border: 1px solid var(--rule);
+  }
 }
 .pron-coach:focus {
   outline: none;
 }
-.pron-coach-head {
-  display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.3rem 0.8rem;
+:where(.pron-coach) p {
+  margin: 0;
 }
-.pron-coach-word {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
-  font-size: 1.5rem;
-  line-height: 1.2;
-}
-.pron-coach-note {
-  flex: 1 1 12rem;
-  min-width: 0;
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-.pron-coach-close {
-  margin-inline-start: auto;
-  border: 0;
-  background: none;
-  padding: 0;
+:where(.pron-coach) button {
   font: inherit;
-  font-size: 0.88rem;
-  color: var(--link);
-  text-decoration: underline;
-  text-underline-offset: 2px;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
-.pron-coach-track {
-  display: grid;
-  grid-template-columns: 4.6rem minmax(0, 1fr) 3rem;
-  align-items: center;
-  gap: 0.6rem;
-}
-.pron-coach-lab {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-  text-transform: lowercase;
-  font-weight: 700;
-  font-size: 0.85rem;
-  color: var(--ink-2);
-}
-.pron-coach-track canvas {
-  display: block;
-  width: 100%;
-  height: 40px;
-}
-.pron-coach-dur {
-  font-size: 0.8rem;
-  color: var(--muted);
-  text-align: end;
-  font-variant-numeric: tabular-nums;
-}
-.pron-coach-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-.pron-coach-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  border: 1px solid var(--rule-strong);
-  border-bottom-width: 3px;
-  border-radius: var(--radius-sm, 4px);
-  background: var(--paper);
-  color: var(--ink);
-  padding: 0.25rem 0.9rem;
-  font: inherit;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-.pron-coach-btn:hover:not(:disabled) {
-  border-color: var(--ink-2);
-}
-.pron-coach-btn:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-.pron-coach-btn:focus-visible,
-.pron-coach-close:focus-visible {
+.pron-coach button:focus-visible {
   outline: 2px solid var(--link);
   outline-offset: 2px;
 }
-.pron-coach-rec {
-  border-color: var(--danger);
+.pron-coach svg {
+  display: block;
+}
+.pron-coach-grab {
+  height: 15px;
+  touch-action: none;
+  cursor: grab;
+}
+.pron-coach-grab::before {
+  content: "";
+  display: block;
+  width: 38px;
+  height: 5px;
+  margin: 0 auto;
+  border-radius: 3px;
+  background: var(--rule-strong);
+}
+/* .pron-coach-x: also .glass (app.css), which sets position: relative. */
+.pron-coach .pron-coach-x {
+  position: absolute;
+  top: 20px;
+  inset-inline-end: 16px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  color: var(--ink);
+}
+.pron-coach-x svg {
+  width: 20px;
+  height: 20px;
+}
+.pron-coach-hd {
+  padding: 6px 0 0;
+  padding-inline: 22px 76px;
+  touch-action: none;
+}
+.pron-coach-kk {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pron-model);
+}
+[data-st="rec"] .pron-coach-kk {
   color: var(--danger);
 }
-.pron-coach-dot {
-  width: 0.55rem;
-  height: 0.55rem;
+[data-st="rec"] .pron-coach-kk::before {
+  content: "";
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: currentColor;
-}
-.pron-coach.is-recording .pron-coach-dot {
   animation: pron-pulse 1s ease-in-out infinite;
 }
-.pron-coach-main {
-  background: var(--garden);
-  border-color: var(--garden);
-  border-bottom-color: color-mix(in srgb, var(--garden) 60%, #000);
-  color: var(--paper);
+.pron-coach-big {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 12px;
+  margin-top: 2px;
 }
-.pron-coach-main:hover:not(:disabled) {
-  background: var(--garden-hover);
-  border-color: var(--garden-hover);
+.pron-coach-word {
+  font:
+    500 clamp(2.25rem, 12vw, 3.125rem) / 1.25 "Alegreya",
+    "Geeza Pro",
+    "Noto Naskh Arabic",
+    "Amiri",
+    serif;
+  overflow-wrap: anywhere;
 }
-.pron-coach-msg {
-  margin: 0;
-  min-height: 1.2em;
-  font-size: 0.88rem;
+.pron-coach-tr,
+.pron-coach-mean {
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+}
+.pron-coach-tr {
+  font-size: 21px;
   color: var(--ink-2);
 }
+.pron-coach-mean {
+  margin-top: -2px;
+  font-size: 16px;
+  color: var(--muted);
+}
+.pron-coach-mean:empty,
+.pron-coach-tr:empty {
+  display: none;
+}
+.pron-coach-trk {
+  margin: 14px 16px 0;
+  padding: 12px 14px 10px;
+  border-radius: 20px;
+  background: var(--pron-trk);
+}
+.pron-coach-lane + .pron-coach-lane {
+  margin-top: 8px;
+}
+.pron-coach-lh {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 18px;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.pron-coach-lh > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.pron-coach-lh i {
+  width: 9px;
+  height: 9px;
+  border-radius: 3px;
+  background: var(--pron-model);
+}
+[data-k="me"] .pron-coach-lh i {
+  background: var(--garden);
+}
+.pron-coach-lh em {
+  font-size: 13px;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+[data-st="rec"] [data-k="me"] em {
+  color: var(--danger);
+}
+/* Time runs left to right whatever the writing direction. */
+.pron-coach-wv,
+.pron-coach-axis {
+  direction: ltr;
+}
+.pron-coach-wv {
+  position: relative;
+  height: 50px;
+  margin-top: 3px;
+}
+.pron-coach-wv canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.pron-coach-ph {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 1px;
+  background: var(--ink);
+}
+.pron-coach-ph::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: inherit;
+  box-shadow: 0 0 0 2px var(--pron-trk);
+}
+[data-st="rec"] .pron-coach-ph {
+  background: var(--danger);
+}
+.pron-coach-empty {
+  position: absolute;
+  inset: 6px 0;
+  display: grid;
+  place-items: center;
+  border: 1.5px dashed var(--rule-strong);
+  border-radius: 12px;
+  font:
+    italic 400 14px "Alegreya",
+    "Alegreya Fallback",
+    serif;
+  color: var(--muted);
+}
+.has-me .pron-coach-empty {
+  display: none;
+}
+.pron-coach-axis {
+  position: relative;
+  height: 16px;
+  margin-top: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.pron-coach-axis span {
+  position: absolute;
+  top: 2px;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+.pron-coach-axis span:first-child {
+  transform: none;
+}
+.pron-coach-axis span:last-child {
+  transform: translateX(-100%);
+}
+.pron-coach-ctrl {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 26px;
+  margin-top: 18px;
+}
+.pron-coach-side,
+.pron-coach-cnt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  width: 60px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ink-2);
+  text-align: center;
+}
+.pron-coach-side .glass {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  color: var(--ink);
+}
+.pron-coach-side[data-a="model"] .glass {
+  color: var(--pron-model);
+}
+.pron-coach-side svg {
+  width: 22px;
+  height: 22px;
+}
+.pron-coach-side:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.pron-coach-cnt b {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--danger);
+  font-variant-numeric: tabular-nums;
+}
+.pron-coach-cnt,
+[data-st="rec"] .pron-coach-side[data-a="slow"] {
+  display: none;
+}
+[data-st="rec"] .pron-coach-cnt {
+  display: flex;
+}
+.pron-coach-mic {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 76px;
+  height: 76px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--garden);
+  color: var(--paper);
+  box-shadow:
+    0 0 0 8px var(--garden-wash),
+    0 10px 24px color-mix(in srgb, var(--garden) 40%, transparent);
+}
+.pron-coach-mic svg {
+  position: relative;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  grid-area: 1 / 1;
+}
+.pron-coach-mic svg + svg,
+[data-st="rec"] .pron-coach-mic svg:first-of-type {
+  display: none;
+}
+[data-st="rec"] .pron-coach-mic svg + svg {
+  display: block;
+}
+.pron-coach-mic i,
+.pron-coach-mic b {
+  position: absolute;
+  display: none;
+  border-radius: 50%;
+}
+[data-st="rec"] .pron-coach-mic {
+  background: var(--danger);
+  color: var(--paper-raised);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--danger) 40%, transparent);
+}
+[data-st="rec"] .pron-coach-mic :is(i, b) {
+  display: block;
+}
+/* Live input level: two halos that swell with the voice. */
+.pron-coach-mic i {
+  inset: -22px;
+  background: var(--danger);
+  opacity: 0.1;
+  transform: scale(calc(0.78 + var(--lv, 0) * 0.3));
+  transition: transform 0.08s linear;
+}
+.pron-coach-mic i + i {
+  inset: -15px;
+  opacity: 0.16;
+  transform: scale(calc(0.85 + var(--lv, 0) * 0.22));
+}
+/* Countdown ring around the button. */
+.pron-coach-mic b {
+  z-index: 1;
+  inset: -9px;
+  background: conic-gradient(
+    var(--danger) var(--p, 0%),
+    color-mix(in srgb, var(--danger) 18%, var(--paper-raised)) 0
+  );
+  -webkit-mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 4px),
+    #000 calc(100% - 3.5px)
+  );
+  mask: radial-gradient(
+    farthest-side,
+    transparent calc(100% - 4px),
+    #000 calc(100% - 3.5px)
+  );
+}
+.pron-coach-lab {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 600;
+}
+.pron-coach-lab small {
+  display: block;
+  margin-top: 2px;
+  font-size: 13.5px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.pron-coach-cmp,
+[data-st="cmp"] :is(.pron-coach-ctrl, .pron-coach-lab) {
+  display: none;
+}
+[data-st="cmp"] .pron-coach-cmp {
+  display: block;
+}
+.pron-coach-fb {
+  display: flex;
+  width: fit-content;
+  margin: 12px auto;
+  align-items: center;
+  gap: 7px;
+  height: 32px;
+  padding: 0;
+  padding-inline: 9px 13px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  background: color-mix(in srgb, var(--warn) 14%, var(--paper-raised));
+  color: var(--warn);
+}
+.pron-coach-fb i {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-style: normal;
+  line-height: 1;
+  background: var(--warn);
+  color: var(--paper-raised);
+}
+.pron-coach-fb i svg {
+  width: 13px;
+  height: 13px;
+}
+.pron-coach-fb.is-near {
+  background: var(--garden-wash);
+  color: var(--garden);
+}
+.pron-coach-fb.is-near i {
+  background: var(--garden);
+}
+.pron-coach-pl {
+  display: flex;
+  gap: 8px;
+  margin: 0 16px;
+}
+.pron-coach-pl button,
+.pron-coach-both,
+.pron-coach-again {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  font-weight: 600;
+}
+.pron-coach-pl button {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 10px;
+  border-radius: 22px;
+  font-size: 15px;
+  background: var(--fam-wash, var(--link-wash));
+  color: var(--pron-model);
+}
+.pron-coach-pl button + button {
+  background: var(--garden-wash);
+  color: var(--garden);
+}
+.pron-coach-pl svg {
+  width: 16px;
+  height: 16px;
+  flex: none;
+}
+.pron-coach-both {
+  width: calc(100% - 32px);
+  height: 52px;
+  margin: 10px 16px 0;
+  border-radius: 26px;
+  gap: 8px;
+  font-size: 17px;
+  background: var(--garden);
+  color: var(--paper);
+}
+.pron-coach-both:hover {
+  background: var(--garden-hover);
+}
+.pron-coach-both svg {
+  width: 20px;
+  height: 20px;
+}
+.pron-coach-again {
+  width: 100%;
+  height: 44px;
+  margin-top: 4px;
+  background: none;
+  font-size: 15.5px;
+  color: var(--ink-2);
+}
+.pron-coach-again svg {
+  width: 18px;
+  height: 18px;
+}
+.pron-coach-msg {
+  margin: 10px 20px 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--danger);
+}
+.pron-coach-msg:empty {
+  display: none;
+}
+.pron-coach-priv {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 14px;
+  padding: 0 20px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+[data-st="cmp"] .pron-coach-priv {
+  margin-top: 0;
+}
+.pron-coach-priv svg {
+  flex: none;
+  width: 12px;
+  height: 12px;
+}
 @media (prefers-reduced-motion: reduce) {
-  .pron-coach.is-recording .pron-coach-dot {
+  .pron-coach,
+  .pron-scrim,
+  [data-st="rec"] .pron-coach-kk::before {
     animation: none;
+  }
+  .pron-coach-mic i {
+    transition: none;
   }
 }
 @media print {
   .pron-mic,
-  .pron-coach {
+  .pron-coach,
+  .pron-scrim {
     display: none;
   }
 }
