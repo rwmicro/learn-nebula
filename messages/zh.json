@@ -1058,5 +1058,32 @@
     "quote": "知识如花园，需要耕耘与传承。",
     "credit": "卡米耶·毕沙罗，《埃拉尼的菜园》，1897",
     "min": "{m} 分钟"
+  },
+  "noteApp": {
+    "back": "返回",
+    "display": "显示",
+    "share": "分享",
+    "sectionsAria": "笔记章节",
+    "contents": "目录",
+    "prev": "上一篇",
+    "next": "下一篇",
+    "lesson": "课程",
+    "listen": "朗读",
+    "pause": "暂停",
+    "toolbarAria": "阅读工具",
+    "ok": "完成",
+    "textSize": "字号",
+    "theme": "主题",
+    "theme_auto": "自动",
+    "theme_light": "浅色",
+    "theme_dark": "深色",
+    "wide": "加宽文本",
+    "focus": "专注",
+    "translate": "翻译",
+    "later": "稍后阅读",
+    "ask": "向花园提问",
+    "step": "第 {n} 步",
+    "copied": "链接已复制",
+    "intro": "引言"
   }
 }

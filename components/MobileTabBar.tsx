@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -12,10 +11,9 @@ import { useReviewDue } from "@/components/AccountChip";
 // /js/palette.js through data-palette-open). Phones only (global.css
 // `.tabbar`, under 640px); the site bar keeps the menu on wider screens.
 //
-// On a note it slides away while the reader scrolls down and comes back on the
-// way up, so it never sits on the text. Its state is mirrored on <html
-// data-tabbar="shown|hidden"> so the other floating buttons (assistant,
-// "Remonter", "Étape suivante"…) can sit above it, and drop back when it goes.
+// A note has its own bottom toolbar instead (lib/note-app.ts), at the same
+// height, so the other floating buttons (assistant, "Remonter"…) keep their
+// place above it (app.css, --gk-tabbar-h).
 
 type Tab = { key: string; href: string; icon: React.ReactNode; match: (p: string) => boolean };
 
@@ -83,45 +81,13 @@ export function MobileTabBar() {
   const raw = usePathname() ?? "/";
   const path = raw.endsWith("/") ? raw : `${raw}/`;
   const due = useReviewDue();
-  const [scrolledAway, setScrolledAway] = useState(false);
-  const onNote = path.startsWith("/posts/");
-  const hidden = onNote && scrolledAway;
 
-  // Hide while scrolling down a note, show again on the way up (and near the
-  // top). A few pixels of slack so a trembling thumb doesn't flicker it.
-  useEffect(() => {
-    if (!onNote) return;
-    let last = window.scrollY;
-    let queued = false;
-    const tick = () => {
-      queued = false;
-      const y = window.scrollY;
-      const dy = y - last;
-      if (Math.abs(dy) < 6) return;
-      setScrolledAway(dy > 0 && y > 160);
-      last = y;
-    };
-    const onScroll = () => {
-      if (!queued) {
-        queued = true;
-        requestAnimationFrame(tick);
-      }
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, [onNote]);
-
-  useEffect(() => {
-    document.documentElement.dataset.tabbar = hidden ? "hidden" : "shown";
-  }, [hidden]);
-
-  if (path.startsWith("/admin/")) return null;
+  if (path.startsWith("/admin/") || path.startsWith("/posts/")) return null;
 
   return (
     <nav
       className="tabbar"
       aria-label={t("tabbar.aria", undefined, locale)}
-      data-hidden={hidden ? "" : undefined}
       data-pagefind-ignore
     >
       <ul className="tabbar-bar glass">

@@ -1058,5 +1058,32 @@
     "quote": "Knowledge, like a garden, is cultivated and passed on.",
     "credit": "Camille Pissarro, The Vegetable Garden at Éragny, 1897",
     "min": "{m} min"
+  },
+  "noteApp": {
+    "back": "Back",
+    "display": "Display",
+    "share": "Share",
+    "sectionsAria": "Note sections",
+    "contents": "Contents",
+    "prev": "Previous",
+    "next": "Next",
+    "lesson": "Lesson",
+    "listen": "Listen",
+    "pause": "Pause",
+    "toolbarAria": "Reading tools",
+    "ok": "Done",
+    "textSize": "Text size",
+    "theme": "Theme",
+    "theme_auto": "Auto",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "wide": "Wide text",
+    "focus": "Focus",
+    "translate": "Translate",
+    "later": "Read later",
+    "ask": "Ask the garden",
+    "step": "step {n}",
+    "copied": "Link copied",
+    "intro": "Introduction"
   }
 }

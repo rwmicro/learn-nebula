@@ -1058,5 +1058,32 @@
     "quote": "La connaissance, comme un jardin, se cultive et se transmet.",
     "credit": "Camille Pissarro, Le Jardin potager à Éragny, 1897",
     "min": "{m} min"
+  },
+  "noteApp": {
+    "back": "Retour",
+    "display": "Affichage",
+    "share": "Partager",
+    "sectionsAria": "Sections de la note",
+    "contents": "Sommaire",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "lesson": "Leçon",
+    "listen": "Écouter",
+    "pause": "Pause",
+    "toolbarAria": "Outils de lecture",
+    "ok": "OK",
+    "textSize": "Taille du texte",
+    "theme": "Thème",
+    "theme_auto": "Auto",
+    "theme_light": "Clair",
+    "theme_dark": "Sombre",
+    "wide": "Texte élargi",
+    "focus": "Concentration",
+    "translate": "Traduire",
+    "later": "À lire plus tard",
+    "ask": "Demander au jardin",
+    "step": "étape {n}",
+    "copied": "Lien copié",
+    "intro": "Introduction"
   }
 }

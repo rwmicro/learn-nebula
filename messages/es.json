@@ -1058,5 +1058,32 @@
     "quote": "El conocimiento, como un jardín, se cultiva y se transmite.",
     "credit": "Camille Pissarro, El huerto en Éragny, 1897",
     "min": "{m} min"
+  },
+  "noteApp": {
+    "back": "Volver",
+    "display": "Visualización",
+    "share": "Compartir",
+    "sectionsAria": "Secciones de la nota",
+    "contents": "Índice",
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "lesson": "Lección",
+    "listen": "Escuchar",
+    "pause": "Pausa",
+    "toolbarAria": "Herramientas de lectura",
+    "ok": "OK",
+    "textSize": "Tamaño del texto",
+    "theme": "Tema",
+    "theme_auto": "Auto",
+    "theme_light": "Claro",
+    "theme_dark": "Oscuro",
+    "wide": "Texto ancho",
+    "focus": "Concentración",
+    "translate": "Traducir",
+    "later": "Leer más tarde",
+    "ask": "Preguntar al jardín",
+    "step": "paso {n}",
+    "copied": "Enlace copiado",
+    "intro": "Introducción"
   }
 }
