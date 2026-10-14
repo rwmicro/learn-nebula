@@ -67,3 +67,10 @@ export function familyOfPrefix(prefix: string): PathFamily | null {
   for (const [name, fam] of Object.entries(FAMILY_OF)) if (tagSlug(name) === folder) return fam;
   return null;
 }
+
+/** The colour family of a vault folder as written on disk
+ *  ("Social Sciences/Languages - Dialects/Arabe/…", e.g. an Anki deck's
+ *  `folder`), or null for none. */
+export function familyOfFolder(folder: string): PathFamily | null {
+  return familyOfPrefix(folder.split("/").map(tagSlug).join("/"));
+}

@@ -26,6 +26,7 @@ import {
 } from "@/lib/review-item";
 import type { AnkiDeck } from "@/lib/anki";
 import { ReviewSession } from "@/components/ReviewSession";
+import { familyOfFolder } from "@/lib/path-family";
 
 /**
  * /cartes/aujourdhui/ — "Tout réviser": one session over everything due
@@ -217,6 +218,7 @@ export function TodayReview({ decks }: { decks: AnkiDeck[] }) {
           today={today}
           autoFocus
           showSource
+          families={Object.fromEntries(decks.map((d) => [d.slug, familyOfFolder(d.folder)]))}
           done={doneText}
           doneNote={() => (started > 0 ? tr("todayReview.tomorrow", { count: tomorrowLoad() }) : null)}
         />
