@@ -1190,5 +1190,25 @@
     "placement": "Placement",
     "review": "Review",
     "sheet": "Sheet"
+  },
+  "defis": {
+    "title": "Challenges",
+    "days": "days",
+    "keep": "Your streak. Come back tomorrow to keep it.",
+    "start": "Read a note or review a card to start your streak.",
+    "week": "This week",
+    "freezes": "{n} freeze day(s) in reserve: a missed day won’t break the streak.",
+    "noFreeze": "No freeze day in reserve: streak milestones earn some.",
+    "today": "Today’s challenges",
+    "hoursLeft": "{n} h left",
+    "lastHour": "last hour",
+    "cards": "Review {n} cards",
+    "read": "Read a note to the end",
+    "right": "Answer right {n} times",
+    "done": "Done",
+    "coins": "{n} coins",
+    "month": "{month} challenge",
+    "paths": "Finish {n} reading paths",
+    "note": "Counted in this browser, from your reading and reviews."
   }
 }

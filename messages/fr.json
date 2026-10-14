@@ -1190,5 +1190,25 @@
     "placement": "Placement",
     "review": "Réviser",
     "sheet": "Fiche"
+  },
+  "defis": {
+    "title": "Défis",
+    "days": "jours",
+    "keep": "Votre série. Revenez demain pour la garder.",
+    "start": "Lisez une note ou révisez une carte pour lancer votre série.",
+    "week": "Cette semaine",
+    "freezes": "{n} jour(s) de gel en réserve : un oubli ne casse pas la série.",
+    "noFreeze": "Pas de jour de gel en réserve : les paliers de série en rapportent.",
+    "today": "Défis du jour",
+    "hoursLeft": "encore {n} h",
+    "lastHour": "dernière heure",
+    "cards": "Réviser {n} cartes",
+    "read": "Lire une note jusqu’au bout",
+    "right": "Répondre juste {n} fois",
+    "done": "Fait",
+    "coins": "{n} pièces",
+    "month": "Défi de {month}",
+    "paths": "Terminer {n} parcours",
+    "note": "Compté dans ce navigateur, à partir de vos lectures et révisions."
   }
 }

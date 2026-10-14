@@ -1190,5 +1190,25 @@
     "placement": "Nivelación",
     "review": "Repasar",
     "sheet": "Ficha"
+  },
+  "defis": {
+    "title": "Retos",
+    "days": "días",
+    "keep": "Tu racha. Vuelve mañana para mantenerla.",
+    "start": "Lee una nota o repasa una tarjeta para empezar tu racha.",
+    "week": "Esta semana",
+    "freezes": "{n} día(s) de congelación en reserva: un olvido no rompe la racha.",
+    "noFreeze": "Sin días de congelación: los hitos de racha los otorgan.",
+    "today": "Retos del día",
+    "hoursLeft": "quedan {n} h",
+    "lastHour": "última hora",
+    "cards": "Repasar {n} tarjetas",
+    "read": "Leer una nota hasta el final",
+    "right": "Acertar {n} veces",
+    "done": "Hecho",
+    "coins": "{n} monedas",
+    "month": "Reto de {month}",
+    "paths": "Terminar {n} itinerarios",
+    "note": "Contado en este navegador, a partir de tus lecturas y repasos."
   }
 }
