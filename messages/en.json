@@ -1244,5 +1244,17 @@
     "eclairIntro": "A draw of your note questions. Their schedule stays as it is.",
     "done": "Practice done.",
     "empty": "Nothing to practise here yet."
+  },
+  "noteEnd": {
+    "step": "Step {n} of {total}",
+    "title": "{title}: read!",
+    "sub": "Your garden has one more sprout.",
+    "coins": "coins",
+    "questions": "questions",
+    "reading": "of reading",
+    "keep": "Keep its {n} questions",
+    "keepText": "They will come back in Review",
+    "next": "Next step",
+    "backToPath": "Last step · back to the path"
   }
 }

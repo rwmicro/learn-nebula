@@ -36,12 +36,16 @@ export function NoteScripts() {
 export function NoteFeatureScripts({
   quiz,
   glossary,
+  path = false,
 }: {
   quiz: boolean;
   glossary: boolean;
+  /** The note is a step of a reading path: note-end.js, the phone's "Lue !". */
+  path?: boolean;
 }) {
   return (
     <>
+      {path && <Script src="/js/note-end.bundle.js" strategy="afterInteractive" />}
       {quiz && <Script src="/js/quiz.bundle.js" strategy="afterInteractive" />}
       {glossary && (
         <Script src="/js/glossary.bundle.js" strategy="afterInteractive" />

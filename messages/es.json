@@ -1244,5 +1244,17 @@
     "eclairIntro": "Una selección de tus preguntas de notas. Su planificación no cambia.",
     "done": "Práctica terminada.",
     "empty": "Nada que practicar aquí por ahora."
+  },
+  "noteEnd": {
+    "step": "Paso {n} de {total}",
+    "title": "{title}: ¡leída!",
+    "sub": "Tu jardín tiene un brote más.",
+    "coins": "monedas",
+    "questions": "preguntas",
+    "reading": "de lectura",
+    "keep": "Guardar sus {n} preguntas",
+    "keepText": "Volverán en Repasar",
+    "next": "Paso siguiente",
+    "backToPath": "Último paso · volver al recorrido"
   }
 }

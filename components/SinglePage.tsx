@@ -321,7 +321,7 @@ export async function SinglePage({
         />
       )}
       {jsonLd && <JsonLd data={jsonLd} />}
-      {note && <NoteFeatureScripts quiz={hasQuiz} glossary={hasGlossary} />}
+      {note && <NoteFeatureScripts quiz={hasQuiz} glossary={hasGlossary} path={!!step} />}
     </>
   );
 }

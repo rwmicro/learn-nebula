@@ -1244,5 +1244,17 @@
     "eclairIntro": "Un tirage de vos questions de notes. Leur planning ne change pas.",
     "done": "Entraînement terminé.",
     "empty": "Rien à travailler ici pour l’instant."
+  },
+  "noteEnd": {
+    "step": "Étape {n} sur {total}",
+    "title": "{title} : lue !",
+    "sub": "Votre jardin compte une pousse de plus.",
+    "coins": "pièces",
+    "questions": "questions",
+    "reading": "de lecture",
+    "keep": "Garder ses {n} questions",
+    "keepText": "Elles reviendront dans Réviser",
+    "next": "Étape suivante",
+    "backToPath": "Dernière étape · retour au parcours"
   }
 }
