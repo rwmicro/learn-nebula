@@ -6,6 +6,7 @@
 //
 // Visual grammar is main.css's `.w-*` (hairlines, square corners, page
 // surfaces); a pack adds only what it needs in assets/css/widgets-extra.css.
+import { holds, parseGoals } from "../../lib/widget-goals.ts";
 
 /** Element builder: el("div", { class: "x", onclick: fn }, [child, "text"]). */
 export function el(tag, attrs, children) {
@@ -143,15 +144,141 @@ export function drawWidth(node, max = 640, min = 300) {
 
 export const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+// ------------------------------------------------------------------ goals
+//
+// Same goals as public/js/widgets.js (withGoals there; the parsing and the
+// checks are shared through lib/widget-goals.ts): a builder that can be
+// checked calls ctx.report(state) on every redraw, and a block with
+// `objectif` / `cible` lines gets the task above it and « Vérifier » below.
+// A goal reached fires gk:widget-goal (an activity in the reader's calendar)
+// and is remembered in this browser under the same key as the old library.
+
+const GOALS_KEY = "gkWidgetGoals";
+
+function loadDone(key) {
+  try {
+    const all = JSON.parse(localStorage.getItem(GOALS_KEY) || "{}");
+    return Number(all[location.pathname + "#" + key]) || 0;
+  } catch {
+    return 0;
+  }
+}
+function saveDone(key, n) {
+  try {
+    const all = JSON.parse(localStorage.getItem(GOALS_KEY) || "{}");
+    all[location.pathname + "#" + key] = n;
+    localStorage.setItem(GOALS_KEY, JSON.stringify(all));
+  } catch {
+    // Storage blocked: progress just isn't remembered.
+  }
+}
+
+function withGoals(node, goals, ctx, key) {
+  let cur = Math.min(loadDone(key), goals.length);
+  let solved = false;
+  let tries = 0;
+
+  const kicker = el("span", { class: "w-goal-k" });
+  const steps = el("span", { class: "w-goal-steps", "aria-hidden": "true" });
+  const text = el("p", { class: "w-goal-text" });
+  const hint = el("p", { class: "w-goal-hint" });
+  const msg = el("p", { class: "w-goal-msg", role: "status" });
+  const hintBtn = el("button", { type: "button", class: "w-goal-link" }, ["Un indice"]);
+  const skipBtn = el("button", { type: "button", class: "w-goal-link" }, ["Passer"]);
+  const checkBtn = el("button", { type: "button", class: "w-goal-btn" }, ["Vérifier"]);
+  const foot = el("div", { class: "w-goal-foot" }, [msg, hintBtn, skipBtn, checkBtn]);
+
+  function feedback(kind, words) {
+    foot.dataset.state = kind;
+    msg.replaceChildren(...words);
+  }
+
+  function render() {
+    solved = false;
+    tries = 0;
+    hint.hidden = true;
+    steps.replaceChildren(
+      ...goals.map((_, i) => el("i", { class: i < cur ? "is-done" : i === cur ? "is-current" : "" })),
+    );
+    if (cur >= goals.length) {
+      kicker.textContent = goals.length > 1 ? "Objectifs atteints" : "Objectif atteint";
+      text.textContent = "Le widget reste libre : continuez à le manipuler.";
+      hintBtn.hidden = true;
+      skipBtn.hidden = true;
+      checkBtn.textContent = "Recommencer";
+      feedback("done", []);
+      return;
+    }
+    const g = goals[cur];
+    kicker.textContent = goals.length > 1 ? "Objectif " + (cur + 1) + " sur " + goals.length : "Objectif";
+    text.textContent = g.text;
+    hint.textContent = g.hint ? "Indice : " + g.hint : "";
+    hintBtn.hidden = !g.hint;
+    skipBtn.hidden = false;
+    checkBtn.textContent = "Vérifier";
+    feedback("idle", ["Manipulez le widget, puis vérifiez."]);
+  }
+
+  function next() {
+    cur++;
+    saveDone(key, cur);
+    render();
+  }
+
+  checkBtn.addEventListener("click", () => {
+    if (cur >= goals.length) {
+      cur = 0;
+      saveDone(key, 0);
+      render();
+      return;
+    }
+    if (solved) return next();
+    const g = goals[cur];
+    tries++;
+    if (holds(ctx.state, g.conds)) {
+      solved = true;
+      hintBtn.hidden = true;
+      skipBtn.hidden = true;
+      checkBtn.textContent = cur + 1 < goals.length ? "Objectif suivant" : "Terminer";
+      feedback("ok", [el("b", {}, ["Juste ! "]), g.bravo]);
+      document.dispatchEvent(new CustomEvent("gk:widget-goal", { detail: { first: tries === 1 } }));
+      return;
+    }
+    const err = g.errors.find((e) => holds(ctx.state, e.conds));
+    if (err) feedback("ko", [el("b", {}, ["Pas tout à fait. "]), err.msg]);
+    else feedback("ko", [el("b", {}, ["Pas encore. "]), g.hint && hint.hidden && tries >= 2 ? "Un indice peut aider." : ""]);
+  });
+  // Moving the widget after an answer clears the verdict, not the goal.
+  ctx.onChange = () => {
+    if (!solved && cur < goals.length && foot.dataset.state === "ko") {
+      feedback("idle", ["Manipulez le widget, puis vérifiez."]);
+    }
+  };
+  hintBtn.addEventListener("click", () => {
+    hint.hidden = false;
+    hintBtn.hidden = true;
+  });
+  skipBtn.addEventListener("click", next);
+  render();
+  return el("div", { class: "w-goals" }, [
+    el("div", { class: "w-goal" }, [el("div", { class: "w-goal-top" }, [kicker, steps]), text, hint]),
+    node,
+    foot,
+  ]);
+}
+
 /**
  * Mounts every `.widget[data-widget]` whose name is in `builders`, the same
  * way widgets.js does: parse data-props, replace the fallback, mark live.
- * A widget that throws leaves its fallback line in place.
+ * A widget that throws leaves its fallback line in place. A builder that
+ * reports its state (third argument, ctx.report) can carry goals.
  */
 export function mount(builders) {
+  let index = 0;
   for (const fig of document.querySelectorAll(".widget[data-widget]")) {
     const name = fig.getAttribute("data-widget");
     const build = builders[name];
+    index++;
     // A data widget whose numbers could not be had at build keeps the message
     // rehypeWidgets put in its fallback (data-error).
     if (!build || fig.classList.contains("is-live") || fig.hasAttribute("data-error")) continue;
@@ -162,12 +289,20 @@ export function mount(builders) {
       // Malformed props: the builder's defaults apply.
     }
     try {
+      const ctx = { state: undefined, onChange: null };
+      ctx.report = (st) => {
+        ctx.state = st;
+        if (ctx.onChange) ctx.onChange();
+      };
       // The builder gets the figure to measure its width (drawWidth) before
       // its node replaces the fallback; a node may carry an onMount() hook
       // for work that needs to be in the page (observers, measuring text).
-      const node = build(props, fig);
+      const node = build(props, fig, ctx);
       if (!node) continue;
-      fig.replaceChildren(node);
+      const goals = parseGoals(props);
+      fig.replaceChildren(
+        goals.length && ctx.state !== undefined ? withGoals(node, goals, ctx, name + ":" + index) : node,
+      );
       fig.classList.add("is-live");
       if (typeof node.onMount === "function") node.onMount();
     } catch (e) {
