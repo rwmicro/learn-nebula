@@ -389,7 +389,6 @@
     position: absolute;
     top: 0;
     left: 50%;
-    translate: -50% 0;
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
@@ -404,7 +403,10 @@
     box-shadow: var(--glass-shadow);
     color: var(--ink);
     opacity: 0;
-    transform: translateY(-0.4rem);
+    /* Centred through transform, not the `translate` property: the CSS
+       build merged `translate` away next to `transform`, which left the
+       pill starting at mid-screen, under the avatar. */
+    transform: translate(-50%, -0.4rem);
     transition:
       opacity 0.25s,
       transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -412,7 +414,7 @@
   }
   :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar-brand {
     opacity: 1;
-    transform: none;
+    transform: translateX(-50%);
     pointer-events: auto;
   }
   body:not(:has(.na-chrome)) .site-bar-brand svg {
