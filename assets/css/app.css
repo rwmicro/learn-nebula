@@ -991,6 +991,31 @@
     display: block;
     font-size: 0.78125rem;
   }
+  /* Paths: a little wider, the name on two lines, a bar once started. */
+  .dash-paths a {
+    width: 9.25rem;
+    height: 7.25rem;
+  }
+  .dash-paths b {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    white-space: normal;
+  }
+  .dash-paths-bar {
+    display: block;
+    height: 0.25rem;
+    margin-top: 0.3rem;
+    border-radius: 0.125rem;
+    background: color-mix(in srgb, var(--fam, var(--garden)) 22%, transparent);
+    overflow: hidden;
+  }
+  .dash-paths-bar i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--fam, var(--garden));
+  }
   .dash-disc-icon {
     display: grid;
     place-items: center;

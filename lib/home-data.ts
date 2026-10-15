@@ -121,10 +121,15 @@ export const notesIndexVersion = () => loadNotesIndex().version;
  *
  * themes: [title, href, note count, discipline i18n key or ""]
  * docs:   [title, href, folder breadcrumb, "pdf" | "deck"]
+ * paths:  [name, slug (/parcours/<slug>/), colour family or "", its notes as
+ *          indexes into /notes-index.json, in reading order]
+ * nv:     the /notes-index.json version those indexes refer to
  */
 export interface PaletteExtra {
   themes: [string, string, number, string][];
   docs: [string, string, string, "pdf" | "deck"][];
+  paths: [string, string, string, number[]][];
+  nv: string;
 }
 
 let paletteExtra: { json: string; version: string } | null = null;
@@ -138,6 +143,8 @@ function loadPaletteExtra() {
     }
   };
   walk(getHomeTree(), []);
+  // Same order as /notes-index.json (loadNotesIndex), so an index is a note.
+  const at = new Map(getAllPosts().map((p, i) => [p.slug, i]));
   const data: PaletteExtra = {
     themes: [
       ...getDisciplines().map((d): PaletteExtra["themes"][number] => [
@@ -152,6 +159,13 @@ function loadPaletteExtra() {
       ...getPdfAssets().map((p): PaletteExtra["docs"][number] => [p.title, p.href, p.where.replace(/ · /g, " › "), "pdf"]),
       ...decks,
     ],
+    paths: getReadingPaths().map((p): PaletteExtra["paths"][number] => [
+      p.name,
+      p.slug,
+      pathFamily(p.discipline) ?? "",
+      p.notes.map((n) => at.get(n.slug)).filter((i): i is number => i !== undefined),
+    ]),
+    nv: notesIndexVersion(),
   };
   const json = JSON.stringify(data);
   paletteExtra = {

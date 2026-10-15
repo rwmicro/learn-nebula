@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { ActivityCalendar } from "@/components/ActivityCalendar";
 import { t } from "@/lib/i18n";
@@ -16,49 +16,22 @@ import {
   type AuthConfig,
   type Me,
 } from "@/lib/account-client";
+import { ITEMS, MAX_FREEZES, STREAK_FREEZE, sanitizeLook, type Look, type Slot } from "@/lib/avatar";
+import { usePhone } from "@/lib/use-phone";
 import {
-  ITEMS,
-  MAX_FREEZES,
-  STREAK_FREEZE,
-  STREAK_MILESTONES,
-  sanitizeLook,
-  type Look,
-  type Slot,
-} from "@/lib/avatar";
-
-interface Ledger {
-  day: string;
-  kind: string;
-  ref: string;
-  amount: number;
-}
-interface AccountData {
-  coins: number;
-  ledger: Ledger[];
-  owned: string[];
-  look: Look;
-  streak: Me["streak"];
-  stats?: { notesRead?: number; reviews?: number; activeDays?: number };
-}
-
-/** One row per day for the small, repeated earnings (a review is 1 coin, so a
- *  session would otherwise fill the list with "+1" rows). */
-function groupLedger(ledger: Ledger[]): (Ledger & { n: number })[] {
-  const out: (Ledger & { n: number })[] = [];
-  for (const e of ledger) {
-    const last = out[out.length - 1];
-    if (last && e.kind === "review" && last.kind === "review" && last.day === e.day) {
-      last.amount += e.amount;
-      last.n += 1;
-    } else out.push({ ...e, n: 1 });
-  }
-  return out;
-}
-
-function dayLabel(day: string, locale: string): string {
-  const d = new Date(`${day}T12:00:00`);
-  return Number.isNaN(d.getTime()) ? day : new Intl.DateTimeFormat(locale, { day: "numeric", month: "short" }).format(d);
-}
+  dayLabel,
+  groupLedger,
+  itemName,
+  ledgerDays,
+  nextMilestone,
+  plural,
+  prettyRef,
+  signed,
+  type AccountData,
+} from "@/components/account/shared";
+import { nextParam, useTurnstile } from "@/components/account/use-turnstile";
+import { AccountPhone } from "@/components/account/AccountPhone";
+import { LoginPhone } from "@/components/account/LoginPhone";
 
 const SLOTS: Slot[] = ["body", "hat", "accessory", "background"];
 
@@ -71,6 +44,7 @@ const SLOTS: Slot[] = ["body", "hat", "accessory", "background"];
  */
 export function Account() {
   const locale = useLocale();
+  const phone = usePhone();
   const tr = useCallback((k: string, v?: Record<string, string | number>) => t(k, v, locale), [locale]);
   const [cfg, setCfg] = useState<AuthConfig | null>(null);
   const [me, setMe] = useState<Me | null | undefined>(undefined);
@@ -170,7 +144,8 @@ export function Account() {
       </section>
     );
   }
-  if (!me) return <Login cfg={cfg} expired={expired} tr={tr} />;
+  if (!me) return phone ? <LoginPhone cfg={cfg} expired={expired} tr={tr} /> : <Login cfg={cfg} expired={expired} tr={tr} />;
+  if (phone) return <AccountPhone me={me} data={data} freeze={freeze} reload={load} tr={tr} locale={locale} />;
 
   const owned = new Set([...(data?.owned ?? []), ...ITEMS.filter((i) => i.price === 0).map((i) => i.id)]);
   const look = draft ?? me.look;
@@ -457,53 +432,6 @@ export function Account() {
  *  last 50 events). */
 const LEDGER_DAYS = 5;
 
-function signed(n: number): string {
-  return n > 0 ? `+${n}` : String(n);
-}
-
-/** `${key}One` when the locale says `n` is singular (fr: 0 and 1; en: 1),
- *  else `key`. Every locale file carries both, zh with the same text. */
-function plural(
-  tr: (k: string, v?: Record<string, string | number>) => string,
-  locale: string,
-  key: string,
-  n: number,
-  vars?: Record<string, string | number>,
-): string {
-  let one = false;
-  try {
-    one = new Intl.PluralRules(locale).select(n) === "one";
-  } catch {
-    one = n === 1;
-  }
-  return tr(one ? `${key}One` : key, { n, ...vars });
-}
-
-/** The next streak bonus still ahead of a run of `run` days, and where the
- *  bar starts (the previous milestone, or 0). Null past the last one. */
-function nextMilestone(run: number): { from: number; at: number; bonus: number } | null {
-  const steps = Object.keys(STREAK_MILESTONES)
-    .map(Number)
-    .sort((a, b) => a - b);
-  const at = steps.find((m) => m > run);
-  if (at === undefined) return null;
-  const from = steps.filter((m) => m <= run).pop() ?? 0;
-  return { from, at, bonus: STREAK_MILESTONES[at] };
-}
-
-/** The grouped history, one block per day with its net total. */
-function ledgerDays(rows: (Ledger & { n: number })[]): { day: string; total: number; rows: (Ledger & { n: number })[] }[] {
-  const out: { day: string; total: number; rows: (Ledger & { n: number })[] }[] = [];
-  for (const e of rows) {
-    const last = out[out.length - 1];
-    if (last && last.day === e.day) {
-      last.rows.push(e);
-      last.total += e.amount;
-    } else out.push({ day: e.day, total: e.amount, rows: [e] });
-  }
-  return out;
-}
-
 /** Deleting the account: set apart at the bottom of the settings, and armed
  *  only once the reader has typed the confirmation word (the e-mail shown on
  *  the page is masked, so it cannot be the thing to retype). */
@@ -561,25 +489,6 @@ function DangerZone({
   );
 }
 
-function itemName(ref: string, tr: (k: string) => string): string {
-  const id = ref.split("#")[0];
-  if (id === STREAK_FREEZE.id) return tr("shop.freezeName");
-  const item = ITEMS.find((i) => i.id === id);
-  return item ? tr(`avatar.items.${item.name}`) : id;
-}
-
-function prettyRef(ref: string): string {
-  const last = ref.split("/").pop() ?? ref;
-  return decodeURIComponentSafe(last).replace(/-/g, " ");
-}
-function decodeURIComponentSafe(s: string): string {
-  try {
-    return decodeURIComponent(s);
-  } catch {
-    return s;
-  }
-}
-
 function SyncButton({ tr, onDone }: { tr: (k: string) => string; onDone: () => Promise<unknown> }) {
   const [state, setState] = useState<"" | "busy" | "done">("");
   return (
@@ -600,16 +509,6 @@ function SyncButton({ tr, onDone }: { tr: (k: string) => string; onDone: () => P
   );
 }
 
-declare global {
-  interface Window {
-    turnstile?: {
-      render: (el: HTMLElement, opts: Record<string, unknown>) => string;
-      getResponse: (id?: string) => string | undefined;
-      reset: (id?: string) => void;
-    };
-  }
-}
-
 function Login({
   cfg,
   expired,
@@ -621,40 +520,16 @@ function Login({
 }) {
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"" | "busy" | "sent" | "invalid" | "limited" | "disabled" | "error">("");
-  const box = useRef<HTMLDivElement>(null);
-  const widget = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (!cfg.turnstileSiteKey) return;
-    const render = () => {
-      if (window.turnstile && box.current && widget.current == null) {
-        widget.current = window.turnstile.render(box.current, {
-          sitekey: cfg.turnstileSiteKey,
-          size: "flexible",
-          theme: "auto",
-        });
-      }
-    };
-    if (window.turnstile) render();
-    else {
-      const s = document.createElement("script");
-      s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js";
-      s.async = true;
-      s.onload = render;
-      document.head.appendChild(s);
-    }
-  }, [cfg.turnstileSiteKey]);
+  const { box: tsBox, token: tsToken, reset: tsReset } = useTurnstile(cfg.turnstileSiteKey);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     setState("busy");
-    const token = window.turnstile && widget.current != null ? window.turnstile.getResponse(widget.current) ?? "" : "";
     // /compte/?next=/admin/ (the admin page's "log in with your account"):
     // the e-mailed link brings the reader back there.
-    const next = new URLSearchParams(location.search).get("next");
-    const r = await requestLink(email.trim(), token, next && /^\/(?!\/)/.test(next) ? next : undefined);
+    const r = await requestLink(email.trim(), tsToken(), nextParam());
     setState(r);
-    if (window.turnstile && widget.current != null) window.turnstile.reset(widget.current);
+    tsReset();
   }
 
   return (
@@ -688,7 +563,7 @@ function Login({
                 placeholder={tr("account.emailPlaceholder")}
               />
             </label>
-            <div ref={box} className="acct-turnstile" />
+            <div ref={tsBox} className="acct-turnstile" />
             <button type="submit" className="acct-btn acct-btn--primary" disabled={state === "busy"}>
               {tr("account.sendLink")}
             </button>

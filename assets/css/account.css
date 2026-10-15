@@ -717,3 +717,1214 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   margin: 0.2rem 0 0 0.8rem;
   font-size: 0.85rem;
 }
+
+/* --- Phone screens (components/account/*, below 640px) --------------------
+   /compte/ as an app: the profile, and pushed screens with a glass top bar
+   (Mon jardinier, Historique, Compte, the login and "Lien envoyé"). Sizes are
+   the mockups' pixels (public/maquette-compte.html) on the phones' 16px rem.
+   The site bar, the footer and the page's own back link and title give way;
+   the tab bar stays on the profile only. */
+.ap {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  .ap {
+    --ap-gold: #f3c64a;
+    --ap-gold-sh: #d9a520;
+    --ap-gold-ink: #8a5a00;
+    --ap-gold-w: #fdf3d6;
+    --ap-ice: #4f8fc9;
+    --ap-ice-w: #e3eef8;
+    --ap-red: #b8432f;
+    --ap-red-w: #fbe9e5;
+    --ap-flame: #e0782f;
+    --ap-on-red: #fff;
+    display: block;
+    padding-bottom: 1.5rem;
+    color: var(--ink);
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  :root[data-theme="dark"] .ap {
+    --ap-gold-ink: #f3c64a;
+    --ap-gold-w: #3a311c;
+    --ap-ice: #8dbbe6;
+    --ap-ice-w: #1f2a36;
+    --ap-red: #e88a78;
+    --ap-red-w: #3a2622;
+    --ap-on-red: #1c1b19;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .ap {
+      --ap-gold-ink: #f3c64a;
+      --ap-gold-w: #3a311c;
+      --ap-ice: #8dbbe6;
+      --ap-ice-w: #1f2a36;
+      --ap-red: #e88a78;
+      --ap-red-w: #3a2622;
+      --ap-on-red: #1c1b19;
+    }
+  }
+
+  /* The page around the screens. */
+  main.acct-page:has(.ap) {
+    padding: 0 1rem;
+  }
+  main.acct-page:has(.ap) > :is(.acct-back, .acct-title),
+  body:has(.ap) .site-bar,
+  body:has(.ap) footer,
+  body:has(.ap--sub) .tabbar {
+    display: none;
+  }
+  body:has(.ap--sub) {
+    padding-bottom: 0;
+  }
+  html.ap-locked,
+  html.ap-locked body {
+    overflow: hidden;
+  }
+  .ap :is(h1, h2, h3, p, ol, ul) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .ap :is(ol, ul) {
+    list-style: none;
+  }
+  .ap a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .ap button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ap button:disabled {
+    cursor: default;
+  }
+  .ap .avatar {
+    border-radius: 50%;
+  }
+
+  /* Glass round buttons and the top bar of pushed screens. */
+  .ap-gbtn {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(14px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(14px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge) !important;
+    box-shadow: var(--glass-shadow);
+    color: var(--ink) !important;
+  }
+  .ap-gbtn svg {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .ap-gear {
+    position: fixed;
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    right: 0.875rem;
+    z-index: 901;
+  }
+  .ap-top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 901;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: calc(0.5rem + env(safe-area-inset-top, 0px)) 1rem 0.5rem;
+    background: linear-gradient(var(--paper) 55%, color-mix(in srgb, var(--paper) 0%, transparent));
+  }
+  .ap-top-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: center;
+    font: 700 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .ap-top-right {
+    display: flex;
+    justify-content: flex-end;
+    min-width: 2.75rem;
+  }
+  .ap-coinpill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    height: 2.75rem;
+    padding: 0 0.875rem;
+    border-radius: 1.375rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(14px) saturate(1.9);
+    backdrop-filter: blur(14px) saturate(1.9);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+    font: 700 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+
+  /* Type. */
+  .ap-h1 {
+    font: 600 1.875rem/1.1 "Alegreya", "Alegreya Fallback", serif !important;
+    letter-spacing: -0.0125rem;
+    text-align: center;
+  }
+  .ap-lede {
+    margin-top: 0.5rem !important;
+    padding: 0 0.875rem !important;
+    font: 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink-2);
+    text-align: center;
+  }
+  .ap-lede b {
+    color: var(--ink);
+    font-weight: 600;
+  }
+  .ap-sect {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding: 1.25rem 0.375rem 0.5rem !important;
+    font: 700 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ap-sect .is-pos {
+    color: var(--garden);
+  }
+  .ap-sect .is-neg {
+    color: var(--ap-red);
+  }
+  .ap-fine {
+    margin-top: 0.875rem !important;
+    padding: 0 0.875rem !important;
+    font: 400 0.8125rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+    text-align: center;
+  }
+  .ap-fine--left {
+    text-align: left;
+    padding: 0 0.375rem !important;
+  }
+  .ap-link {
+    color: var(--garden) !important;
+    font-weight: 700 !important;
+  }
+  .ap-alert {
+    margin-top: 0.625rem !important;
+    color: var(--ap-red);
+    font: 500 0.9375rem/1.35 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-align: center;
+  }
+  .ap-alert--box {
+    margin: 0.875rem 0.25rem 0 !important;
+    padding: 0.625rem 0.875rem !important;
+    border-radius: 0.875rem;
+    background: var(--ap-red-w);
+  }
+
+  /* Cards, lists and rows. */
+  .ap-card,
+  .ap-list {
+    background: var(--dash-card);
+    border: 0.5px solid var(--dash-edge);
+    box-shadow: var(--dash-shadow);
+    border-radius: 1.25rem;
+  }
+  .ap-list {
+    overflow: hidden;
+    border-radius: 1.125rem;
+  }
+  .ap-list--gap {
+    margin-top: 1rem;
+  }
+  .ap-list--gap2 {
+    margin-top: 0.75rem;
+  }
+  .ap-row {
+    position: relative;
+    display: flex !important;
+    align-items: center;
+    gap: 0.8125rem;
+    width: 100%;
+    min-height: 3.625rem;
+    padding: 0.6875rem 0.875rem !important;
+    text-align: start;
+  }
+  .ap-row + .ap-row::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3.9375rem;
+    right: 0;
+    border-top: 0.5px solid var(--rule);
+  }
+  .ap-list--flat .ap-row + .ap-row::before {
+    left: 0.875rem;
+  }
+  .ap-row--short {
+    min-height: 3.25rem;
+  }
+  .ap-row--tight {
+    min-height: 3rem;
+  }
+  .ap-row--danger .ap-tx b {
+    color: var(--ap-red);
+  }
+  .ap-ico {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.625rem;
+    background: var(--garden-wash);
+    color: var(--garden);
+    overflow: hidden;
+  }
+  .ap-ico svg {
+    width: 1.1875rem;
+    height: 1.1875rem;
+  }
+  .ap-ico--gold {
+    background: var(--ap-gold-w);
+    color: var(--ap-gold-ink);
+  }
+  .ap-ico--ice {
+    background: var(--ap-ice-w);
+    color: var(--ap-ice);
+  }
+  .ap-ico--red {
+    background: var(--ap-red-w);
+    color: var(--ap-red);
+  }
+  .ap-ico--grey {
+    background: var(--wash-2);
+    color: var(--ink-2);
+  }
+  .ap-ico--av svg {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0;
+  }
+  .ap-tx {
+    flex: 1;
+    min-width: 0;
+  }
+  .ap-tx b {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: 500 1.0625rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink);
+  }
+  .ap-tx small {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.84375rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .ap-chev {
+    flex: none;
+    width: 0.9375rem;
+    height: 0.9375rem;
+    color: var(--rule-strong);
+  }
+  .ap-chevwrap {
+    display: flex;
+    transition: transform 0.2s;
+  }
+  .ap-chevwrap.is-open {
+    transform: rotate(90deg);
+  }
+  .ap-amount {
+    flex: none;
+    font: 700 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--garden);
+  }
+  .ap-amount.is-neg {
+    color: var(--ap-red);
+  }
+
+  /* Buttons and pills. */
+  .ap-btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: 3.25rem;
+    border-radius: 1.625rem !important;
+    background: var(--garden) !important;
+    color: var(--paper) !important;
+    font: 700 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+    transition:
+      transform 0.12s,
+      opacity 0.2s;
+  }
+  .ap-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .ap-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .ap-btn:disabled {
+    opacity: 0.55;
+  }
+  .ap-btn--alt {
+    background: var(--wash-2) !important;
+    color: var(--ink) !important;
+  }
+  .ap-btn--alt:disabled {
+    opacity: 1;
+    color: var(--muted) !important;
+  }
+  .ap-btn--danger {
+    background: var(--ap-red) !important;
+    color: var(--ap-on-red) !important;
+  }
+  .ap-btn--danger:disabled {
+    opacity: 0.45;
+  }
+  .ap-btn--ghost {
+    height: 2.75rem;
+    background: none !important;
+    color: var(--ink) !important;
+  }
+  .ap-pill {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.375rem;
+    height: 1.875rem;
+    padding: 0 0.75rem !important;
+    border-radius: 0.9375rem;
+    background: var(--wash-2);
+    color: var(--ink-2);
+    font: 700 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+    white-space: nowrap;
+  }
+  .ap-pill svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+  .ap-pill--g {
+    background: var(--garden-wash) !important;
+    color: var(--garden) !important;
+  }
+  .ap-pill--red {
+    background: var(--ap-red-w);
+    color: var(--ap-red);
+  }
+  .ap-pill--btn {
+    flex: none;
+    height: 2.125rem;
+    border-radius: 1.0625rem !important;
+  }
+  .ap-pill-row {
+    margin-top: 0.75rem !important;
+    text-align: center;
+  }
+  .ap-coin {
+    position: relative;
+    display: inline-block;
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    background: var(--ap-gold);
+    box-shadow: inset 0 -2px 0 var(--ap-gold-sh);
+    vertical-align: -0.125rem;
+  }
+  .ap-coin::after {
+    content: "";
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    border: 1.5px solid rgb(138 90 0 / 0.35);
+  }
+  .ap-coin--big {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .ap-coin--big::after {
+    inset: 5px;
+  }
+  .ap-flame {
+    width: 1.375rem;
+    height: 1.375rem;
+    fill: var(--ap-flame);
+  }
+
+  /* Login and "Lien envoyé". */
+  .ap-center {
+    padding-top: 0.25rem;
+  }
+  .ap-halo {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 9.375rem;
+    height: 9.375rem;
+    margin: 0 auto 0.75rem;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--garden-wash) 0 62%, transparent 63%);
+  }
+  .ap-halo--mail {
+    width: 10rem;
+    height: 10rem;
+    margin-bottom: 0.625rem;
+  }
+  .ap-halo .avatar {
+    border-radius: 0;
+  }
+  .ap-env {
+    fill: var(--dash-card);
+    stroke: var(--garden);
+    stroke-width: 3;
+    stroke-linejoin: round;
+  }
+  .ap-env-line {
+    fill: none;
+    stroke: var(--garden);
+    stroke-width: 3;
+    stroke-linecap: round;
+  }
+  .ap-dot {
+    position: absolute;
+    border-radius: 50%;
+  }
+  .ap-dot--gold {
+    left: 0.625rem;
+    top: 1.875rem;
+    width: 0.5625rem;
+    height: 0.5625rem;
+    background: var(--ap-gold);
+  }
+  .ap-dot--coral {
+    right: 0.375rem;
+    top: 3.625rem;
+    width: 0.4375rem;
+    height: 0.4375rem;
+    background: #ef8e78;
+  }
+  .ap-dot--green {
+    left: 1.875rem;
+    bottom: 0.375rem;
+    width: 0.375rem;
+    height: 0.375rem;
+    background: var(--garden);
+  }
+  .ap-halo--mail .ap-dot--gold {
+    left: auto;
+    right: 0.875rem;
+    top: 1.375rem;
+    width: 0.625rem;
+    height: 0.625rem;
+  }
+  .ap-halo--mail .ap-dot--coral {
+    right: auto;
+    left: 0.875rem;
+    top: 3.125rem;
+  }
+  .ap-form {
+    margin: 1.375rem 0.25rem 0;
+  }
+  .ap-field {
+    display: block;
+    margin: 0;
+  }
+  .ap-field > span:first-child {
+    display: block;
+    margin: 0 0 0.5rem 0.25rem;
+    font: 700 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ap-input {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    height: 3.5rem;
+    padding: 0 0.875rem;
+    border: 2px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--dash-card);
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+  }
+  .ap-input:focus-within {
+    border-color: var(--garden);
+    box-shadow: 0 0 0 4px var(--garden-wash);
+  }
+  .ap-input > svg {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--muted);
+  }
+  .ap-input input {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--ink);
+    font: 500 1.125rem "Alegreya", "Alegreya Fallback", serif;
+  }
+  .ap-input input::placeholder {
+    color: var(--muted);
+    font-weight: 400;
+  }
+  .ap-form .ap-btn {
+    margin-top: 0.875rem;
+  }
+  .ap-turnstile:empty {
+    display: none;
+  }
+  .ap-turnstile {
+    margin: 0.75rem 0.25rem 0;
+  }
+  .ap-after {
+    margin-top: 0.25rem;
+  }
+  [data-screen="login"] .ap-after .ap-sect {
+    padding-top: 1.5rem !important;
+  }
+  [data-screen="sent"] .ap-after {
+    display: grid;
+    gap: 0.625rem;
+    margin: 1.125rem 0.25rem 0;
+  }
+  [data-screen="sent"] .ap-after .ap-fine {
+    margin-top: 0 !important;
+  }
+  .ap-steps {
+    margin-top: 1.125rem !important;
+    padding: 0.25rem 0 !important;
+  }
+  .ap-steps li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+  }
+  .ap-steps li + li::after {
+    content: "";
+    position: absolute;
+    left: 1.84375rem;
+    top: -0.625rem;
+    height: 1.25rem;
+    border-left: 2px solid var(--rule);
+  }
+  .ap-steps li > span {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--garden-wash);
+    color: var(--garden);
+    font: 700 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .ap-steps p {
+    font: 400 0.96875rem/1.3 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink-soft);
+  }
+  .ap-steps p b {
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  /* Profile. */
+  .ap-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: -2.625rem;
+  }
+  .ap-hero-av {
+    position: relative;
+    border-radius: 50%;
+  }
+  .ap-hero-av .avatar {
+    box-shadow:
+      0 0 0 5px var(--paper),
+      0 0 0 7px var(--garden-wash),
+      0 12px 30px rgb(0 0 0 / 0.12);
+  }
+  .ap-pencil {
+    position: absolute;
+    right: -0.125rem;
+    bottom: 0.25rem;
+    display: grid;
+    place-items: center;
+    width: 2.375rem;
+    height: 2.375rem;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+    border: 3px solid var(--paper);
+  }
+  .ap-pencil svg {
+    width: 1.0625rem;
+    height: 1.0625rem;
+  }
+  .ap-hero .ap-h1 {
+    margin-top: 0.875rem;
+  }
+  .ap-who {
+    margin-top: 0.25rem !important;
+    font: 400 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .ap-stat3 {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-top: 1.125rem;
+  }
+  .ap-st {
+    padding: 0.75rem 0.375rem 0.6875rem;
+    border-radius: 1.125rem;
+    background: var(--dash-card);
+    border: 0.5px solid var(--dash-edge);
+    box-shadow: var(--dash-shadow);
+    text-align: center;
+  }
+  .ap-st b {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    font: 600 1.5625rem/1 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .ap-st small {
+    display: block;
+    margin-top: 0.375rem;
+    font: 500 0.8125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .ap-st em {
+    display: block;
+    margin-top: 0.1875rem;
+    font: 700 0.71875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-style: normal;
+    color: var(--muted);
+  }
+  .ap-st--gold {
+    background: var(--ap-gold-w);
+    border-color: color-mix(in srgb, var(--ap-gold) 55%, transparent);
+  }
+  .ap-st--gold :is(small, em) {
+    color: var(--ap-gold-ink);
+  }
+  .ap-st--ice b {
+    color: var(--ap-ice);
+  }
+  .ap-st--ice b svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .ap-weekcard {
+    margin-top: 0.75rem;
+  }
+  .ap-week {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.875rem 1rem 0.75rem !important;
+  }
+  .ap-week li {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+    font: 700 0.71875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ap-week i {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--wash-2);
+    color: var(--paper);
+  }
+  .ap-week svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+  .ap-week .is-done i {
+    background: var(--garden);
+  }
+  .ap-week .is-today i {
+    background: var(--dash-card);
+    border: 2.5px solid var(--garden);
+  }
+  .ap-next {
+    padding: 0 1rem 0.875rem !important;
+    font: 500 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .ap-next p {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.4375rem !important;
+  }
+  .ap-next b {
+    color: var(--ink);
+  }
+  .ap-pbar {
+    height: 0.5rem;
+    border-radius: 0.25rem;
+    background: var(--wash-2);
+    overflow: hidden;
+  }
+  .ap-pbar i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--ap-flame), #f2a54a);
+  }
+
+  /* Mon jardinier. */
+  .ap--bar {
+    padding-bottom: 9.5rem;
+  }
+  .ap-preview {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    border-radius: 1.5rem;
+    background: var(--garden-wash);
+  }
+  .ap-preview .avatar {
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.12);
+  }
+  .ap-preview .ap-tx b {
+    margin-top: 0.125rem;
+    white-space: normal;
+    font-size: 1.1875rem;
+    font-weight: 600;
+  }
+  .ap-preview .ap-kicker {
+    margin: 0;
+    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--garden);
+  }
+  .ap-seg {
+    display: flex;
+    margin-top: 0.875rem;
+    padding: 3px;
+    border-radius: 0.75rem;
+    background: var(--wash-2);
+  }
+  .ap-seg button {
+    flex: 1;
+    height: 2.125rem;
+    border-radius: 0.5625rem;
+    font: 500 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .ap-seg [aria-selected="true"] {
+    background: var(--seg-on, var(--dash-card));
+    color: var(--ink);
+    font-weight: 700;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .ap-wgrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.625rem;
+    margin-top: 0.75rem;
+  }
+  .ap-wi {
+    position: relative;
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.625rem 0.375rem 0.5625rem !important;
+    border: 1.5px solid var(--rule) !important;
+    border-radius: 1.125rem !important;
+    background: var(--dash-card) !important;
+    text-align: center;
+  }
+  .ap-wi b {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    flex: 1;
+    max-width: 100%;
+    margin-top: 0.375rem;
+    overflow: hidden;
+    font: 500 0.9375rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .ap-wi small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    height: 1rem;
+    margin-top: 0.1875rem;
+    font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .ap-wi small .ap-coin {
+    width: 0.8125rem;
+    height: 0.8125rem;
+  }
+  .ap-wi small .ap-coin::after {
+    inset: 3px;
+    border-width: 1px;
+  }
+  .ap-wi.is-on {
+    border-color: var(--garden) !important;
+    box-shadow: 0 0 0 3px var(--garden-wash);
+  }
+  .ap-wi.is-on small {
+    color: var(--garden);
+  }
+  .ap-wi.is-buy small {
+    color: var(--ap-gold-ink);
+  }
+  .ap-wi.is-lock .avatar {
+    filter: grayscale(0.85);
+    opacity: 0.55;
+  }
+  .ap-wi.is-lock:disabled {
+    opacity: 1;
+  }
+  .ap-wi-tick {
+    position: absolute;
+    top: 0.4375rem;
+    right: 0.4375rem;
+    display: grid;
+    place-items: center;
+    width: 1.375rem;
+    height: 1.375rem;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .ap-wi-tick svg {
+    width: 0.8125rem;
+    height: 0.8125rem;
+  }
+  .ap-wi-lock {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    color: var(--muted);
+  }
+  .ap-wi-lock svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+  .ap-wi--soon {
+    display: grid !important;
+    place-items: center;
+    padding: 0.5rem 0.75rem !important;
+    border-style: dashed !important;
+    color: var(--muted);
+    font: 500 0.8125rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .ap-freeze {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.875rem;
+  }
+  .ap-freeze .ap-tx b {
+    white-space: normal;
+  }
+  .ap-mini {
+    display: inline-flex;
+    align-items: center;
+    height: 1.375rem;
+    margin-left: 0.25rem;
+    padding: 0 0.5rem;
+    border-radius: 0.6875rem;
+    background: var(--wash-2);
+    color: var(--ink-2);
+    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    vertical-align: 0.125rem;
+  }
+  .ap-price {
+    display: inline-flex !important;
+    align-items: center;
+    gap: 0.375rem;
+    flex: none;
+    height: 2.125rem;
+    padding: 0 0.75rem !important;
+    border-radius: 1.0625rem !important;
+    background: var(--ap-gold-w) !important;
+    color: var(--ap-gold-ink) !important;
+    font: 700 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+  }
+  .ap-price:disabled {
+    opacity: 0.5;
+  }
+  .ap-toast {
+    margin-top: 0.875rem !important;
+    color: var(--garden);
+    font: 600 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-align: center;
+  }
+  .ap-bottom {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1001;
+    padding: 0.75rem 1rem calc(1rem + var(--gk-safe-b, 0px));
+    background: var(--dash-card);
+    border-top: 0.5px solid var(--rule);
+    box-shadow: 0 -8px 24px rgb(0 0 0 / 0.06);
+  }
+  .ap-bottom p {
+    margin-bottom: 0.625rem !important;
+    font: 500 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+    text-align: center;
+  }
+  .ap-bottom > div {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 0.625rem;
+  }
+
+  /* Compte. */
+  .ap-sync {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem;
+  }
+  .ap-sync .ap-tx b {
+    font-weight: 600;
+  }
+  .ap-ring {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.625rem;
+    height: 2.625rem;
+    border-radius: 50%;
+    background: var(--garden-wash);
+    color: var(--garden);
+  }
+  .ap-ring svg {
+    width: 1.3125rem;
+    height: 1.3125rem;
+  }
+  .ap-ring.is-ok::after {
+    content: "";
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 0.875rem;
+    height: 0.875rem;
+    border-radius: 50%;
+    background: var(--garden);
+    border: 2.5px solid var(--dash-card);
+  }
+  .ap-ring.is-busy svg {
+    animation: ap-spin 1s linear infinite;
+  }
+  @keyframes ap-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+  [data-screen="compte"] .ap-list .ap-tx small {
+    white-space: normal;
+  }
+
+  /* Historique. */
+  .ap-how {
+    margin-top: 1.25rem;
+    padding: 0 0.375rem;
+    font: 400 0.9375rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .ap-how summary {
+    color: var(--garden);
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .ap-how ul {
+    margin-top: 0.5rem !important;
+    padding-left: 1.1rem !important;
+    list-style: disc;
+  }
+
+  /* Supprimer: the bottom sheet. */
+  .ap-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: rgb(0 0 0 / 0.28);
+    animation: ap-fade 0.2s ease-out;
+  }
+  :root[data-theme="dark"] .ap-scrim {
+    background: rgb(0 0 0 / 0.55);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .ap-scrim {
+      background: rgb(0 0 0 / 0.55);
+    }
+  }
+  .ap-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1101;
+    max-height: 92dvh;
+    overflow-y: auto;
+    padding: 0.5rem 1.25rem calc(1.25rem + var(--gk-safe-b, 0px));
+    border-radius: 1.625rem 1.625rem 0 0;
+    background: var(--dash-card);
+    box-shadow: 0 -10px 40px rgb(0 0 0 / 0.18);
+    text-align: center;
+    animation: ap-rise 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes ap-fade {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes ap-rise {
+    from {
+      transform: translateY(100%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ap-sheet,
+    .ap-scrim {
+      animation: none;
+    }
+  }
+  .ap-grab {
+    display: block;
+    width: 2.375rem;
+    height: 0.3125rem;
+    margin: 0 auto 1rem;
+    border-radius: 3px;
+    background: var(--rule-strong);
+  }
+  .ap-sheet-ico {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: var(--ap-red-w);
+    color: var(--ap-red);
+  }
+  .ap-sheet-ico svg {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+  .ap-sheet h3 {
+    margin-top: 0.75rem !important;
+    font: 600 1.5rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .ap-sheet-text {
+    margin-top: 0.5rem !important;
+    padding: 0 0.125rem !important;
+    font: 400 0.96875rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink-2);
+  }
+  .ap-sheet-text b {
+    color: var(--ink);
+    font-weight: 700;
+  }
+  .ap-keep {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-top: 0.875rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.875rem;
+    background: var(--wash);
+    text-align: start;
+    font: 400 0.84375rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  :root[data-theme="dark"] .ap-keep {
+    background: var(--wash-2);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .ap-keep {
+      background: var(--wash-2);
+    }
+  }
+  .ap-sheet .ap-field {
+    margin-top: 1rem;
+    text-align: start;
+  }
+  .ap-field--danger > span:first-child {
+    text-transform: none;
+    letter-spacing: 0;
+    font: 500 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .ap-field--danger .ap-input:focus-within,
+  .ap-field--danger .ap-input.is-ok {
+    border-color: var(--ap-red);
+    box-shadow: 0 0 0 4px var(--ap-red-w);
+  }
+  .ap-ok {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.375rem;
+    height: 1.375rem;
+    border-radius: 50%;
+    background: var(--ap-red);
+    color: var(--ap-on-red);
+  }
+  .ap-ok svg {
+    width: 0.8125rem;
+    height: 0.8125rem;
+  }
+  .ap-sheet-actions {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+}
