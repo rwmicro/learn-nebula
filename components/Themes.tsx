@@ -2,6 +2,7 @@ import { t, i18nAttrs, disciplineKey } from "@/lib/i18n";
 import type { Discipline, TagGroup, ThemeNote } from "@/lib/content";
 import { ReadMarks } from "@/components/ReadMarks";
 import { ThemesFilter } from "@/components/ThemesFilter";
+import { AppBack } from "@/components/AppBack";
 
 /**
  * The /themes/ pages: an index of disciplines and tags, one page per tag
@@ -57,7 +58,7 @@ export function ThemesIndex({
   const shownTags = groups.reduce((n, g) => n + g.list.length, 0);
   return (
     <main className="themes-page themes-page--index">
-      <Back href="/" labelKey="nav.home" />
+      <Back href="/" labelKey="nav.home" phone={["/notes/", "tabbar.notes"]} />
       <h1 className="themes-title" {...attrs(i18nAttrs("themes.title"))}>
         {t("themes.title")}
       </h1>
@@ -183,7 +184,7 @@ export function TagPage({ tag }: { tag: TagGroup }) {
   );
   return (
     <main className="themes-page">
-      <Back href="/themes/" labelKey="themes.all" />
+      <Back href="/themes/" labelKey="themes.all" phone={["/themes/", "themes.title"]} />
       <p className="themes-kicker" {...attrs(i18nAttrs("themes.tagKicker"))}>
         {t("themes.tagKicker")}
       </p>
@@ -205,7 +206,7 @@ export function TagPage({ tag }: { tag: TagGroup }) {
 export function DisciplinePage({ discipline }: { discipline: Discipline }) {
   return (
     <main className="themes-page">
-      <Back href="/themes/" labelKey="themes.all" />
+      <Back href="/themes/" labelKey="themes.all" phone={["/notes/", "tabbar.notes"]} />
       <p
         className="themes-kicker"
         {...attrs(i18nAttrs("themes.disciplineKicker"))}
@@ -274,11 +275,14 @@ function NoteSection({
   );
 }
 
-function Back({ href, labelKey }: { href: string; labelKey: string }) {
+function Back({ href, labelKey, phone }: { href: string; labelKey: string; phone: [string, string] }) {
   return (
-    <a href={href} className="themes-back">
-      ← <span {...attrs(i18nAttrs(labelKey))}>{t(labelKey)}</span>
-    </a>
+    <>
+      <AppBack href={phone[0]} labelKey={phone[1]} />
+      <a href={href} className="old-back themes-back">
+        ← <span {...attrs(i18nAttrs(labelKey))}>{t(labelKey)}</span>
+      </a>
+    </>
   );
 }
 

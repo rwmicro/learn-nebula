@@ -7,6 +7,7 @@ import { folderKey, t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT, loadStore, type ReadingStore } from "@/lib/reading-progress";
 import { readingView } from "@/lib/graph-reading";
+import { AppBack } from "@/components/AppBack";
 
 // --- discipline colours (same golden-angle palette as the old force graph) ---
 type Palette = Map<string, string>;
@@ -572,7 +573,8 @@ export function CircularGraph({
 
       {!preview && (
         <>
-          <a href="/" className="graph-back">
+          <AppBack href="/notes/" labelKey="tabbar.notes" />
+      <a href="/" className="old-back graph-back">
             ← {tr("nav.home")}
           </a>
 

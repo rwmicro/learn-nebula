@@ -1,6 +1,7 @@
 import { t, i18nAttrs } from "@/lib/i18n";
 import type { ReactNode } from "react";
 import type { TimelineEntry } from "@/lib/content";
+import { AppBack } from "@/components/AppBack";
 
 /**
  * Every note that declares a historical `year` in its frontmatter (see
@@ -30,7 +31,8 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
   })).filter((era) => era.entries.length > 0);
   return (
     <main className="frise-page">
-      <a href="/" className="frise-back">
+      <AppBack href="/notes/" labelKey="tabbar.notes" />
+      <a href="/" className="old-back frise-back">
         ← {t("nav.home")}
       </a>
       <h1 className="frise-title" {...attrs(i18nAttrs("frise.title"))}>

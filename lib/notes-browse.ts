@@ -6,7 +6,7 @@ import {
   type HomeTreeNode,
 } from "./content";
 import { shortTitle } from "./folder-label";
-import { folderKey } from "./i18n";
+import { folderKey, t } from "./i18n";
 import { extractPlain } from "./markdown";
 import { readingMinutes } from "./path-extras";
 import { pathFamily, type PathFamily } from "./path-family";
@@ -130,6 +130,10 @@ export function getFolderPages(): Map<string, FolderPage> {
         });
       }
     }
+    // Disciplines are English folders shown under French names (Law → Droit):
+    // order them by what the reader sees. numeric keeps "02-…" before "10-…".
+    const shown = (f: FolderRef) => (f.key ? t(f.key) : f.name);
+    page.folders.sort((a, b) => shown(a).localeCompare(shown(b), "fr", { numeric: true, sensitivity: "base" }));
     out.set(me.slug, page);
     for (const c of node.children) walk(c, [...crumbs, me], fam);
   };

@@ -1,6 +1,7 @@
 import { t, i18nAttrs, folderKey } from "@/lib/i18n";
 import { formatDateLong } from "@/lib/content";
 import type { GardenStats as Stats, MonthCount } from "@/lib/garden-stats";
+import { AppBack } from "@/components/AppBack";
 
 /**
  * /jardin/: the vault in numbers (lib/garden-stats.ts), rendered on the
@@ -15,7 +16,8 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
   const maxDisc = Math.max(1, ...stats.byDiscipline.map((d) => d.notes));
   return (
     <main className="jardin-page">
-      <a href="/" className="jardin-back">
+      <AppBack href="/notes/" labelKey="tabbar.notes" />
+      <a href="/" className="old-back jardin-back">
         ← <span {...attrs(i18nAttrs("nav.home"))}>{t("nav.home")}</span>
       </a>
       <p className="jardin-kicker">

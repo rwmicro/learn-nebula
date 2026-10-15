@@ -22,13 +22,22 @@ declare global {
 
 const THEMES = ["auto", "light", "dark"] as const;
 
+/** The reader's theme choice. Read from <html data-theme>, which the layout's
+ *  inline script sets before first paint: /js/theme.js (window.__theme) loads
+ *  after hydration, so asking it alone showed "Auto" for a stored choice. */
+export function themePref(): (typeof THEMES)[number] {
+  if (window.__theme) return window.__theme.pref();
+  const v = document.documentElement.getAttribute("data-theme");
+  return v === "light" || v === "dark" ? v : "auto";
+}
+
 export function AppSettings() {
   const locale = useLocale();
   const tr = (k: string) => t(k, undefined, locale);
   const [theme, setTheme] = useState<(typeof THEMES)[number]>("auto");
 
   useEffect(() => {
-    const sync = () => setTheme(window.__theme?.pref() ?? "auto");
+    const sync = () => setTheme(themePref());
     sync();
     document.addEventListener("theme:change", sync);
     return () => document.removeEventListener("theme:change", sync);

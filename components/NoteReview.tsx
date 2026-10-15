@@ -16,6 +16,7 @@ import {
 } from "@/lib/note-quiz";
 import { loadSettings } from "@/lib/srs-settings";
 import { ReviewSession, type Graded, type ReviewItem } from "@/components/ReviewSession";
+import { AppBack } from "@/components/AppBack";
 
 /**
  * /cartes/revision/ — review the note questions (`> [!quiz]` callouts) the
@@ -96,9 +97,10 @@ export function NoteReview() {
 
   return (
     <main id="main" className="flashcards-main note-review mx-auto max-w-[48rem] px-5 py-12 text-ink">
+      <AppBack href="/cartes/" labelKey="tabbar.review" />
       <a
         href="/cartes/"
-        className="text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
+        className="old-back text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
       >
         ← {tr("noteReview.back")}
       </a>

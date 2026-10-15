@@ -28,6 +28,7 @@ import type { AnkiDeck } from "@/lib/anki";
 import { ReviewSession } from "@/components/ReviewSession";
 import { familyOfFolder } from "@/lib/path-family";
 import { PRACTICE_SIZE, practicePick, shuffled, type PracticeMode } from "@/lib/practice";
+import { AppBack } from "@/components/AppBack";
 
 /**
  * /cartes/aujourdhui/ — "Tout réviser": one session over everything due
@@ -212,9 +213,10 @@ export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: Practic
     <main id="main" className="flashcards-main note-review mx-auto max-w-[60rem] px-5 py-12 text-ink">
       {/* A plain link, like the rest of /cartes/: next/link would make scripts/prune-rsc.mjs keep RSC payloads. */}
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+      <AppBack href="/cartes/" labelKey="tabbar.review" />
       <a
         href="/cartes/"
-        className="text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
+        className="old-back text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
       >
         ← {tr("cartesIndex.title")}
       </a>

@@ -1,6 +1,7 @@
 import { t, i18nAttrs } from "@/lib/i18n";
 import { CARTE_BINS, carteClass, WORLD, type CarteCountry } from "@/lib/carte";
 import { CarteHover } from "@/components/CarteHover";
+import { AppBack } from "@/components/AppBack";
 
 /**
  * /carte/: the world, each country shaded by how many notes of the garden
@@ -14,7 +15,8 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
   const total = new Set(countries.flatMap((c) => c.notes.map((n) => n.href))).size;
   return (
     <main className="carte-page">
-      <a href="/" className="carte-back">
+      <AppBack href="/notes/" labelKey="tabbar.notes" />
+      <a href="/" className="old-back carte-back">
         ← {t("nav.home")}
       </a>
       <h1 className="carte-title" {...attrs(i18nAttrs("carte.title"))}>

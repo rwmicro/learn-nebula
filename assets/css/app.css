@@ -2764,6 +2764,12 @@
   main.progression > :is(.progression-title, .progression-intro, .app-settings, .progression-summary, .progression-welcome) {
     display: none;
   }
+  /* Moi has its own twelve weeks of activity; the export, import and link
+     cards open from its "Exporter ou importer" row. */
+  main.progression .progression-marks--cal,
+  main.progression:not(.moi-transfer-open) > :is(.progression-actions, .progression-privacy) {
+    display: none;
+  }
   main.progression {
     padding-top: 0;
   }
@@ -4648,5 +4654,108 @@
   .road-go svg {
     width: 1.125rem;
     height: 1.125rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Pages one level under a tab (Frise, Carte, Thèmes, Le jardin en chiffres,
+   Données, the graph under Notes; the sessions under Réviser; Défis and the
+   account under Moi; a path's sheet under Parcours). On a phone they open
+   like a Notes folder: "‹ Notes" (components/AppBack.tsx) where the old
+   "← ACCUEIL" was, then a large title, then the page. Desktop unchanged.
+   --------------------------------------------------------------------------- */
+.app-back {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  .old-back {
+    display: none !important;
+  }
+  .app-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1rem;
+    min-height: 2.75rem;
+    margin: 0.4rem 0 -0.35rem -0.4rem;
+    padding-right: 0.5rem;
+    font: 500 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--garden);
+    text-decoration: none;
+  }
+  .app-back svg {
+    width: 1.5rem;
+    height: 1.5rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .app-back:hover {
+    background: none;
+    color: var(--garden);
+  }
+  /* The page starts right under the avatar row, as the tab pages do. */
+  main:is(.frise-page, .carte-page, .jardin-page, .donnees-page, .acct-page, .themes-page, .fiche-page, .defis, .flashcards-main) {
+    padding-top: 0 !important;
+    margin-top: 0 !important;
+  }
+  main:is(.frise-page, .carte-page, .jardin-page, .donnees-page, .acct-page, .themes-page, .fiche-page, .defis, .flashcards-main)
+    :is(.frise-title, .carte-title, .jardin-title, .donnees-title, .acct-title, .themes-title, .fiche-title, .defis-title, header > h1) {
+    margin-top: 0.5rem;
+    font-size: 2rem;
+    font-weight: 600;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+}
+
+/* The site footer: on a phone, the home's short one (components/Footer.tsx). */
+.site-foot-phone {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  footer.site-foot {
+    border-top: 0;
+    margin-top: 2rem;
+  }
+  footer.site-foot .site-foot-wide {
+    display: none;
+  }
+  footer.site-foot .site-foot-phone {
+    display: block;
+    padding: 0.5rem 1rem 0;
+    text-align: center;
+    font: 400 0.8125rem/1.6 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .site-foot-phone p {
+    margin: 0.5rem 0 0;
+  }
+  .site-foot-phone a {
+    color: inherit;
+  }
+  .site-foot-phone .site-foot-cc {
+    display: inline-flex;
+    align-items: center;
+    height: 1.5rem;
+    padding: 0 0.5625rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+}
+
+/* End of a note (phone): "Et ensuite ?" and the toolbar's arrow already lead
+   to the next note; the folder list's own ← / → pair would be a third. */
+@media (max-width: 639.98px) {
+  body:has(.na-chrome) .siblings .sib-arrows {
+    display: none;
   }
 }

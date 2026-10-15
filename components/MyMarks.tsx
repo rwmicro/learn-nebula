@@ -47,7 +47,7 @@ export function MyMarks() {
 
   return (
     <>
-      <section className="progression-marks" aria-labelledby="marks-cal">
+      <section className="progression-marks progression-marks--cal" aria-labelledby="marks-cal">
         <h2 id="marks-cal" className="progression-h2">
           {t("calendar.title", undefined, locale)}
         </h2>

@@ -1,6 +1,7 @@
 import { t, i18nAttrs } from "@/lib/i18n";
 import type { KeyPoint } from "@/lib/path-sheet";
 import { PrintButton } from "@/components/PrintButton";
+import { AppBack } from "@/components/AppBack";
 
 export interface SheetNote {
   slug: string;
@@ -39,7 +40,8 @@ export function PathSheet({
     <main className="fiche-page">
       {math && <link rel="stylesheet" href="/katex/katex.min.css" />}
       <div className="fiche-bar">
-        <a href={`/parcours/${slug}/`} className="fiche-back">
+        <AppBack href={`/parcours/${slug}/`} labelKey="tabbar.parcours" />
+        <a href={`/parcours/${slug}/`} className="old-back fiche-back">
           ← <span {...attrs(i18nAttrs("fiche.back"))}>{t("fiche.back")}</span>
         </a>
         <PrintButton />
