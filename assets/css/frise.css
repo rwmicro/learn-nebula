@@ -191,7 +191,7 @@
     flex: none;
     border: 0;
     padding: 0.45rem 0.95rem;
-    background: var(--tint-soft);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
     font-size: 0.95rem;
     white-space: nowrap;
   }
