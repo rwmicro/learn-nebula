@@ -388,7 +388,8 @@
     "more": "{n} more",
     "filterPlaceholder": "Filter themes…",
     "filterCount": "{n} themes",
-    "filterEmpty": "No theme matches."
+    "filterEmpty": "No theme matches.",
+    "indexBadge": "Overview"
   },
   "cartesIndex": {
     "title": "Flashcards",

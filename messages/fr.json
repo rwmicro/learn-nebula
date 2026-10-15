@@ -388,7 +388,8 @@
     "more": "{n} autres",
     "filterPlaceholder": "Filtrer les thèmes…",
     "filterCount": "{n} thèmes",
-    "filterEmpty": "Aucun thème ne correspond."
+    "filterEmpty": "Aucun thème ne correspond.",
+    "indexBadge": "Sommaire"
   },
   "cartesIndex": {
     "title": "Cartes de révision",

@@ -388,7 +388,8 @@
     "more": "另外 {n} 个",
     "filterPlaceholder": "筛选主题…",
     "filterCount": "{n} 个主题",
-    "filterEmpty": "没有匹配的主题。"
+    "filterEmpty": "没有匹配的主题。",
+    "indexBadge": "总览"
   },
   "cartesIndex": {
     "title": "复习卡片",

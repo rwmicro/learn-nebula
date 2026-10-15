@@ -388,7 +388,8 @@
     "more": "{n} أخرى",
     "filterPlaceholder": "تصفية المواضيع…",
     "filterCount": "{n} موضوعًا",
-    "filterEmpty": "لا يوجد موضوع مطابق."
+    "filterEmpty": "لا يوجد موضوع مطابق.",
+    "indexBadge": "فهرس"
   },
   "cartesIndex": {
     "title": "بطاقات المراجعة",

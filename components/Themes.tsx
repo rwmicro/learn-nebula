@@ -266,8 +266,13 @@ function NoteSection({
       </h2>
       <ul className="themes-notes" data-read-marks>
         {notes.map((n) => (
-          <li key={n.href}>
+          <li key={n.href} className={n.index ? "themes-note-index" : undefined}>
             <a href={n.href}>{n.title}</a>
+            {n.index && (
+              <span className="themes-index-badge" {...attrs(i18nAttrs("themes.indexBadge"))}>
+                {t("themes.indexBadge")}
+              </span>
+            )}
           </li>
         ))}
       </ul>

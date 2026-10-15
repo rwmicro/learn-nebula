@@ -388,7 +388,8 @@
     "more": "{n} más",
     "filterPlaceholder": "Filtrar temas…",
     "filterCount": "{n} temas",
-    "filterEmpty": "Ningún tema coincide."
+    "filterEmpty": "Ningún tema coincide.",
+    "indexBadge": "Índice"
   },
   "cartesIndex": {
     "title": "Tarjetas de repaso",

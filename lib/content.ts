@@ -7,6 +7,7 @@ import { resolveVaultAssetByName, listVaultAssets } from "./vault-assets";
 import { joinNotePath } from "./vault-health";
 import { getAnkiManifest } from "./anki";
 import { tagKey, tagSlug } from "./slug";
+import { tagLabel } from "./tag-label";
 import {
   definitionAnchor,
   glossaryDiscipline,
@@ -467,6 +468,9 @@ export interface ThemeNote {
   /** Discipline display name ("Biology", "Philosophy"), "" for a note that
    *  sits directly under a top folder. */
   discipline: string;
+  /** A folder's map ("Histoire - Index", "Index — Security"): listed first,
+   *  marked as such, rather than as one more note among the others. */
+  index?: boolean;
 }
 
 export interface TagGroup {
@@ -505,11 +509,18 @@ function themeNote(d: Doc): ThemeNote {
     title: d.frontmatter.title,
     href: `/posts/${d.slug}/`,
     discipline: disc ? homeDisplayName(disc.name) : "",
+    ...(isIndexNote(d) ? { index: true } : {}),
   };
 }
 
+/** Tagged `index`/`moc`, or titled "… Index …" (not "Indexation"). */
+function isIndexNote(d: Doc): boolean {
+  const tags = (d.frontmatter.tags ?? []).map((x) => String(x).toLowerCase());
+  return tags.includes("index") || tags.includes("moc") || /\bindex\b/i.test(d.frontmatter.title);
+}
+
 const byTitle = (a: ThemeNote, b: ThemeNote) =>
-  a.title.localeCompare(b.title, "fr", { numeric: true });
+  Number(!!b.index) - Number(!!a.index) || a.title.localeCompare(b.title, "fr", { numeric: true });
 
 let tagsCache: TagGroup[] | null = null;
 /** Every tag carried by at least MIN_TAG_NOTES notes, most used first. */
@@ -536,7 +547,7 @@ export function getTags(): TagGroup[] {
     .filter(([, e]) => e.notes.size >= MIN_TAG_NOTES)
     .map(([slug, e]) => ({
       slug,
-      name: [...e.spellings.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? slug,
+      name: tagLabel([...e.spellings.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? slug),
       notes: [...e.notes.values()].sort(byTitle),
     }))
     .sort(

@@ -259,3 +259,107 @@
     display: none;
   }
 }
+
+/* A folder's map note, listed first (lib/content.ts isIndexNote). */
+.themes-index-badge {
+  margin-left: 0.5rem;
+  padding: 0.05rem 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--garden-wash);
+  color: var(--garden);
+  font: 600 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  vertical-align: 0.15em;
+}
+
+/* Phone: a discipline's or a theme's notes as grouped lists, a circle on
+   the right of each that fills once the note is read (ReadMarks sets
+   .is-read); the frequent themes as one sideways row of chips. */
+@media (max-width: 639.98px) {
+  main.themes-page:not(.themes-page--index) .themes-kicker {
+    display: none;
+  }
+  main.themes-page:not(.themes-page--index) .themes-cloud--compact {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    gap: 0.5rem;
+    margin: 0 -1.2rem 0.5rem;
+    padding: 0.25rem 1.2rem;
+  }
+  main.themes-page:not(.themes-page--index) .themes-cloud--compact::-webkit-scrollbar {
+    display: none;
+  }
+  main.themes-page:not(.themes-page--index) .themes-cloud--compact li {
+    flex: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: var(--radius-pill);
+    background: var(--tint-soft);
+    white-space: nowrap;
+    font-size: 0.95rem;
+  }
+  main.themes-page .themes-h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin: 1.75rem 0 0.5rem 0.25rem;
+    padding: 0;
+    border: 0;
+    font-size: 0.95rem;
+    letter-spacing: 0.05em;
+    color: var(--ink-soft);
+  }
+  .themes-notes {
+    border: 0.5px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--paper-raised);
+    overflow: hidden;
+  }
+  .themes-notes li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    margin-left: 1rem;
+    padding: 0.75rem 3rem 0.75rem 0;
+    min-height: 3rem;
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .themes-notes li:last-child {
+    border-bottom: 0;
+  }
+  .themes-notes a {
+    font-size: 1.05rem;
+    line-height: 1.3;
+  }
+  /* The whole row is the link. */
+  .themes-notes a::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 0 -1rem;
+  }
+  .themes-notes .read-check {
+    display: none;
+  }
+  .themes-notes li::after {
+    content: "";
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin-top: -0.675rem;
+    border-radius: 50%;
+    border: 1.5px solid var(--rule-strong);
+    box-sizing: border-box;
+  }
+  .themes-notes li.is-read::after {
+    border-color: var(--garden);
+    background: var(--garden)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.5 4 4 8-9'/%3E%3C/svg%3E")
+      center / 0.8rem no-repeat;
+  }
+}
