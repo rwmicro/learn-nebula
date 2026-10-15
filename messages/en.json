@@ -1088,7 +1088,9 @@
     "aboutQuote": "Everything I have learned to master, shared so it is never forgotten.",
     "readMore": "Read more",
     "footerCode": "code under GNU GPL",
-    "footerOrigin": "Originally created by {author}"
+    "footerOrigin": "Originally created by {author}",
+    "paths": "Paths",
+    "pathRead": "{read}/{total} read"
   },
   "noteApp": {
     "back": "Back",

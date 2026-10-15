@@ -12,10 +12,10 @@ import { HomeContent } from "@/components/HomeContent";
 import { RecentNotes } from "@/components/RecentNotes";
 import { Graphiques } from "@/components/Graphiques";
 import { getGraphiques } from "@/lib/graphiques";
-import { HomeDashboard, type DashDiscipline, type DashRecent } from "@/components/HomeDashboard";
+import { HomeDashboard, type DashPath, type DashRecent } from "@/components/HomeDashboard";
 import { extractPlain } from "@/lib/markdown";
 import { readingMinutes } from "@/lib/path-extras";
-import { familyOfPrefix } from "@/lib/path-family";
+import { familyOfPrefix, pathFamily } from "@/lib/path-family";
 import "@/assets/css/graphiques.css";
 
 // Editorial serif for the content zone. next/font self-hosts the files at build
@@ -45,10 +45,9 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-/** The phone dashboard's data (components/HomeDashboard.tsx): the
- *  disciplines, largest first, and the latest notes with their discipline
- *  and reading time. */
-function dashboardData(): { disciplines: DashDiscipline[]; recent: DashRecent[] } {
+/** The phone dashboard's data (components/HomeDashboard.tsx): the reading
+ *  paths, and the latest notes with their discipline and reading time. */
+function dashboardData(): { paths: DashPath[]; recent: DashRecent[] } {
   const disciplines = getDisciplines()
     .map((d) => ({ slug: d.slug, name: d.name, count: d.count, family: familyOfPrefix(d.prefix), prefix: d.prefix }))
     .sort((a, b) => b.count - a.count);
@@ -63,7 +62,13 @@ function dashboardData(): { disciplines: DashDiscipline[]; recent: DashRecent[] 
       minutes: readingMinutes(extractPlain(getPost(slug).body)),
     };
   });
-  return { disciplines: disciplines.map(({ prefix: _p, ...d }) => d), recent };
+  const paths = getReadingPaths().map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    family: pathFamily(p.discipline),
+    slugs: p.notes.map((n) => n.slug),
+  }));
+  return { paths, recent };
 }
 
 export default async function HomePage() {
@@ -73,7 +78,7 @@ export default async function HomePage() {
   return (
     <>
       <Header doc={doc} />
-      <HomeDashboard dataVersion={homeDataVersion()} recent={dash.recent} disciplines={dash.disciplines} />
+      <HomeDashboard dataVersion={homeDataVersion()} recent={dash.recent} paths={dash.paths} />
       {/* Intro and painting: the phone dashboard shows the painting as its
           banner and moves the intro to "À propos du jardin" (app.css). */}
       <div className='home-intro w-11/12 mx-auto text-center text-lead text-muted mt-5 md:mt-10'>

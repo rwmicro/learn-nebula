@@ -1088,7 +1088,9 @@
     "aboutQuote": "我学会掌握的一切，分享出来，永不遗忘。",
     "readMore": "阅读更多",
     "footerCode": "代码采用 GNU GPL",
-    "footerOrigin": "最初由 {author} 创建"
+    "footerOrigin": "最初由 {author} 创建",
+    "paths": "学习路径",
+    "pathRead": "已读 {read}/{total}"
   },
   "noteApp": {
     "back": "返回",

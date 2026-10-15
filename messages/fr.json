@@ -1088,7 +1088,9 @@
     "aboutQuote": "Tout ce que j’ai appris à maîtriser, partagé pour ne jamais être oublié.",
     "readMore": "Lire la suite",
     "footerCode": "code sous GNU GPL",
-    "footerOrigin": "Créé à l’origine par {author}"
+    "footerOrigin": "Créé à l’origine par {author}",
+    "paths": "Parcours",
+    "pathRead": "{read}/{total} lues"
   },
   "noteApp": {
     "back": "Retour",

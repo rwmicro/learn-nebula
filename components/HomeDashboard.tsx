@@ -144,15 +144,23 @@ export interface DashDiscipline {
   family: PathFamily | null;
 }
 
+export interface DashPath {
+  slug: string;
+  name: string;
+  family: PathFamily | null;
+  /** Its notes' slugs, to count the ones read. */
+  slugs: string[];
+}
+
 export function HomeDashboard({
   dataVersion,
   recent,
-  disciplines,
+  paths,
 }: {
   dataVersion: string;
   recent: DashRecent[];
-  /** The largest first. */
-  disciplines: DashDiscipline[];
+  /** The reading paths, in the site's order. */
+  paths: DashPath[];
 }) {
   const locale = useLocale();
   const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
@@ -182,6 +190,17 @@ export function HomeDashboard({
   }, []);
 
   const resume = useMemo(() => resumePath(data, store), [data, store]);
+  // The paths row: the ones under way first (furthest along first), then
+  // the largest of the others; finished ones go last.
+  const pathRow = useMemo(() => {
+    const rows = paths.map((p, i) => {
+      const read = p.slugs.filter((slug) => store[slug]?.r != null).length;
+      const total = p.slugs.length;
+      const rank = read === 0 ? 1 : read === total ? 2 : 0;
+      return { ...p, read, total, rank, i };
+    });
+    return rows.sort((a, b) => a.rank - b.rank || (a.rank === 0 ? b.read / b.total - a.read / a.total : b.total - a.total) || a.i - b.i);
+  }, [paths, store]);
   const discName = (name: string) => {
     const k = disciplineKey(name);
     return k ? tr(k) : name;
@@ -282,19 +301,28 @@ export function HomeDashboard({
       )}
 
       <div className="dash-row-h">
-        <h2 className="dash-h">{tr("dash.disciplines")}</h2>
-        <a href="/themes/">{tr("dash.seeAll")}</a>
+        <h2 className="dash-h">{tr("dash.paths")}</h2>
+        <a href="/parcours/">{tr("dash.seeAll")}</a>
       </div>
-      <ul className="dash-disc">
-        {disciplines.map((d) => (
-          <li key={d.slug} data-family={d.family ?? undefined}>
-            <a href={`/disciplines/${d.slug}/`}>
+      <ul className="dash-disc dash-paths">
+        {pathRow.map((p) => (
+          <li key={p.slug} data-family={p.family ?? undefined}>
+            <a href={`/parcours/${encodeURIComponent(p.slug)}/`}>
               <span className="dash-disc-icon" aria-hidden="true">
-                <FamilyIcon family={d.family} />
+                <FamilyIcon family={p.family} />
               </span>
               <span>
-                <b>{discName(d.name)}</b>
-                <small>{tr("dash.notes", { n: d.count })}</small>
+                <b>{shortName(p.name)}</b>
+                <small>
+                  {p.read > 0
+                    ? tr("dash.pathRead", { read: p.read, total: p.total })
+                    : tr("dash.notes", { n: p.total })}
+                </small>
+                {p.read > 0 && (
+                  <i className="dash-paths-bar" aria-hidden="true">
+                    <i style={{ width: `${(100 * p.read) / p.total}%` }} />
+                  </i>
+                )}
               </span>
             </a>
           </li>

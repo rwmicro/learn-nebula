@@ -1088,7 +1088,9 @@
     "aboutQuote": "Todo lo que he aprendido a dominar, compartido para que nunca se olvide.",
     "readMore": "Leer más",
     "footerCode": "código bajo GNU GPL",
-    "footerOrigin": "Creado originalmente por {author}"
+    "footerOrigin": "Creado originalmente por {author}",
+    "paths": "Recorridos",
+    "pathRead": "{read}/{total} leídas"
   },
   "noteApp": {
     "back": "Volver",

@@ -1088,7 +1088,9 @@
     "aboutQuote": "كل ما تعلّمت إتقانه، مشاركًا كي لا يُنسى أبدًا.",
     "readMore": "اقرأ المزيد",
     "footerCode": "الشيفرة بترخيص GNU GPL",
-    "footerOrigin": "أنشأه في الأصل {author}"
+    "footerOrigin": "أنشأه في الأصل {author}",
+    "paths": "المسارات",
+    "pathRead": "{read}/{total} مقروءة"
   },
   "noteApp": {
     "back": "رجوع",
