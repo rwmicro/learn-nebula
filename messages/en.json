@@ -1068,7 +1068,8 @@
     "parcours": "Paths",
     "explore": "Explore",
     "review": "Review",
-    "due": "due today"
+    "due": "due today",
+    "notes": "Notes"
   },
   "explorer": {
     "metaTitle": "Explore",
@@ -1370,5 +1371,42 @@
     "deleteText": "The account, its {coins}, its gardener and its copy of your progress are erased for good.",
     "deleteCoins": "{n} coins",
     "deleteKeep": "The progress in this browser stays here."
+  },
+  "notesTab": {
+    "title": "Notes",
+    "metaDesc": "Every note in the garden, by discipline and folder.",
+    "lede": "{n} notes, arranged as in the garden.",
+    "search": "Search the notes",
+    "views": "Other views",
+    "view": {
+      "graph": "Graph",
+      "frise": "Timeline",
+      "carte": "Map",
+      "themes": "Topics",
+      "jardin": "In numbers",
+      "donnees": "Data",
+      "random": "Random"
+    },
+    "resume": "Pick up here",
+    "count": "{n} notes",
+    "countOne": "1 note",
+    "read": "{n} read",
+    "readOne": "1 read",
+    "folders": "{n} folders",
+    "subfolders": "Folders",
+    "here": "In this folder",
+    "path": "Path",
+    "deck": "cards",
+    "filterAria": "Filter the notes",
+    "filter": {
+      "all": "All",
+      "unread": "Unread",
+      "started": "Started",
+      "read": "Read"
+    },
+    "state": {
+      "started": "started",
+      "read": "read"
+    }
   }
 }

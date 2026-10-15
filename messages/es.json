@@ -1068,7 +1068,8 @@
     "parcours": "Itinerarios",
     "explore": "Explorar",
     "review": "Repasar",
-    "due": "para repasar hoy"
+    "due": "para repasar hoy",
+    "notes": "Notas"
   },
   "explorer": {
     "metaTitle": "Explorar",
@@ -1370,5 +1371,42 @@
     "deleteText": "La cuenta, sus {coins}, su jardinero y su copia del progreso se borran para siempre.",
     "deleteCoins": "{n} monedas",
     "deleteKeep": "El progreso de este navegador se queda aquí."
+  },
+  "notesTab": {
+    "title": "Notas",
+    "metaDesc": "Todas las notas del jardín, por disciplina y carpeta.",
+    "lede": "{n} notas, ordenadas como en el jardín.",
+    "search": "Buscar en las notas",
+    "views": "Otras vistas",
+    "view": {
+      "graph": "Grafo",
+      "frise": "Cronología",
+      "carte": "Mapa",
+      "themes": "Temas",
+      "jardin": "En cifras",
+      "donnees": "Datos",
+      "random": "Al azar"
+    },
+    "resume": "Seguir aquí",
+    "count": "{n} notas",
+    "countOne": "1 nota",
+    "read": "{n} leídas",
+    "readOne": "1 leída",
+    "folders": "{n} carpetas",
+    "subfolders": "Carpetas",
+    "here": "En esta carpeta",
+    "path": "Recorrido",
+    "deck": "tarjetas",
+    "filterAria": "Filtrar las notas",
+    "filter": {
+      "all": "Todas",
+      "unread": "Sin leer",
+      "started": "Empezadas",
+      "read": "Leídas"
+    },
+    "state": {
+      "started": "empezada",
+      "read": "leída"
+    }
   }
 }

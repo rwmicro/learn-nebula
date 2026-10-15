@@ -168,7 +168,7 @@ function slugifySegment(s: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function slugifyPath(rel: string): string {
+export function slugifyPath(rel: string): string {
   return rel.split("/").map(slugifySegment).filter(Boolean).join("/");
 }
 
