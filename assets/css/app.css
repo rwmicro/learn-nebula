@@ -312,6 +312,11 @@
   .home-masthead .palette-btn {
     display: none;
   }
+  /* "Se connecter" too: a visitor signs in from Moi (its "keep my
+     progress" card), so the corner keeps only the round "Moi" button. */
+  .account-login {
+    display: none;
+  }
   .site-bar-me {
     display: inline-grid;
     place-items: center;
