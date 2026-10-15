@@ -150,6 +150,9 @@
 
 .fiche-questions,
 .fiche-answers ol {
+  /* Explicit: .fiche-notes' list-style:none is inherited, which dropped the
+     question numbers the answers at the end refer to. */
+  list-style: decimal;
   margin: 0;
   padding-left: 1.8rem;
   display: grid;
@@ -208,5 +211,87 @@
   }
   .fiche-note-title a {
     color: #000;
+  }
+}
+
+/* Phone: "Imprimer" as a glass pill beside the back link, each note's key
+   points on a tinted card and its questions on a grouped card. */
+@media (max-width: 639.98px) {
+  .fiche-bar {
+    margin-bottom: 0.75rem;
+  }
+  .fiche-bar .app-back {
+    margin: 0;
+  }
+  .fiche-print {
+    border: 0.5px solid var(--glass-edge, var(--rule));
+    border-radius: var(--radius-pill);
+    background: var(--glass-bg, var(--paper-raised));
+    box-shadow: var(--glass-shadow, none);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9);
+    backdrop-filter: blur(10px) saturate(1.9);
+    padding: 0.55rem 1.1rem;
+    font-size: 0.95rem;
+  }
+  .fiche-print:active {
+    transform: scale(0.97);
+  }
+  .fiche-kicker {
+    font: 600 0.78rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .fiche-meta {
+    font-size: 0.95rem;
+  }
+  .fiche-notes {
+    gap: 1.5rem;
+  }
+  .fiche-note {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .fiche-note-title {
+    margin: 0 0 0.6rem 0.25rem;
+    font-size: 1.15rem;
+    font-weight: 600;
+  }
+  .fiche-note.is-empty .fiche-note-title {
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  .fiche-defs > div,
+  .fiche-keys {
+    border-radius: 0.9rem;
+    background: var(--garden-wash);
+  }
+  .fiche-defs > div {
+    border-left: 0;
+    padding: 0.65rem 0.9rem;
+  }
+  .fiche-keys {
+    list-style: none;
+    padding: 0.75rem 0.95rem;
+    line-height: 1.45;
+  }
+  .fiche-questions {
+    gap: 0;
+    padding: 0 0 0 2.6rem;
+    border: 0.5px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--paper-raised);
+    overflow: hidden;
+  }
+  .fiche-questions li {
+    padding: 0.7rem 0.95rem 0.7rem 0;
+    border-bottom: 0.5px solid var(--rule);
+    line-height: 1.4;
+  }
+  .fiche-questions li:last-child {
+    border-bottom: 0;
+  }
+  .fiche-questions li::marker {
+    font-size: 0.85rem;
+    color: var(--garden);
   }
 }
