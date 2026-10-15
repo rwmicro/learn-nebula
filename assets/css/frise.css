@@ -168,3 +168,60 @@
     max-width: 10rem;
   }
 }
+
+/* Phone: the periods as one row of chips that scrolls sideways (four
+   wrapped pills took a whole screen), each period title on a rule. */
+@media (max-width: 639.98px) {
+  .frise-intro {
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+  }
+  .frise-eras {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -1.2rem 1.25rem;
+    padding: 0.25rem 1.2rem;
+    scroll-padding-inline: 1.2rem;
+  }
+  .frise-eras::-webkit-scrollbar {
+    display: none;
+  }
+  .frise-era-chip {
+    flex: none;
+    border: 0;
+    padding: 0.45rem 0.95rem;
+    background: var(--tint-soft);
+    font-size: 0.95rem;
+    white-space: nowrap;
+  }
+  .frise-era-title {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    margin-top: 1.5rem;
+  }
+  .frise-era-title::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+  .frise-year {
+    font-size: 0.9rem;
+  }
+  .frise-content a {
+    font-size: 1.1rem;
+  }
+  /* The length bar under the title, not between the dates and it. */
+  .frise-entry:has(.frise-span) {
+    padding-bottom: 1.15rem;
+  }
+  .frise-span {
+    position: absolute;
+    left: 0;
+    bottom: 0.45rem;
+    margin: 0;
+  }
+}
