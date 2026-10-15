@@ -5121,3 +5121,114 @@ html.ne-open {
     animation: none;
   }
 }
+
+/* Phone: a table whose rows start with a pronounced word (the alphabets,
+   lib/markdown.ts's pron cells) reads as a list rather than a grid that
+   scrolls sideways: the word in a tinted square on the left, the listen
+   and practise buttons on the right, the other columns stacked between. */
+@media (max-width: 639.98px) {
+  main table:has(> tbody > tr > td:first-child > .pron) {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    max-width: none;
+    border: 0;
+    border-radius: 1rem;
+    background: var(--dash-card, var(--paper-raised));
+    box-shadow: var(--dash-shadow, none);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) thead {
+    display: none;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) tbody {
+    display: block;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) tr {
+    display: grid;
+    grid-template-columns: 3.25rem auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "l n t p"
+      "l h h p"
+      "x h h p";
+    column-gap: 0.6rem;
+    row-gap: 0.15rem;
+    align-items: start;
+    margin-left: 0.9rem;
+    padding: 0.75rem 0.9rem 0.75rem 0;
+    border-bottom: 0.5px solid var(--dash-edge, var(--rule));
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) tr:last-child {
+    border-bottom: 0;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td {
+    display: block;
+    padding: 0;
+    border: 0;
+    line-height: 1.35;
+    min-width: 0;
+    max-width: none;
+    position: static;
+    background: none;
+    box-shadow: none;
+    text-align: start;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) tbody tr:first-child td {
+    border-top: 0;
+    padding-top: 0;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child,
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron {
+    display: contents;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron::after {
+    content: none;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) .pron-label {
+    grid-area: l;
+    display: grid;
+    place-items: center;
+    min-height: 3.25rem;
+    padding: 0.2rem;
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+    font-size: 1.15rem;
+    line-height: 1.2;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) .pron-label.is-rtl {
+    font-size: 1.6rem;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) .pron-tr {
+    grid-area: x;
+    justify-self: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) .pron-pill {
+    grid-area: p;
+    align-self: center;
+    margin: 0;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:nth-child(2) {
+    grid-area: n;
+    align-self: baseline;
+    font-weight: 600;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:nth-child(3) {
+    grid-area: t;
+    align-self: baseline;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--link);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:nth-child(n + 4) {
+    grid-column: 2 / 4;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:nth-child(4) {
+    grid-area: h;
+  }
+}
