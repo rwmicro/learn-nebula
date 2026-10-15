@@ -8,6 +8,7 @@ import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT, loadStore, type ReadingStore } from "@/lib/reading-progress";
 import { readingView } from "@/lib/graph-reading";
 import { AppBack } from "@/components/AppBack";
+import { FAMILIES, buildClusters, type FamilyKey } from "@/lib/graph-families";
 
 // --- discipline colours (same golden-angle palette as the old force graph) ---
 type Palette = Map<string, string>;
@@ -157,6 +158,23 @@ export function CircularGraph({
   // "Mes lectures": read notes lit, the rest faded, and where to go next.
   const [mine, setMine] = useState(false);
   const [store, setStore] = useState<ReadingStore>({});
+  // Phones draw the seven families as labelled clusters (lib/graph-families.ts)
+  // instead of the ring, whose spoke labels can't be read at that width.
+  const [isPhone, setIsPhone] = useState(false);
+  const [famFilter, setFamFilter] = useState<FamilyKey | null>(null);
+  useEffect(() => {
+    if (preview) return;
+    const mq = window.matchMedia("(max-width: 639.98px)");
+    const sync = () => setIsPhone(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, [preview]);
+  const clusters = useMemo(() => (isPhone ? buildClusters(shown) : null), [isPhone, shown]);
+  const clusterXY = useMemo(
+    () => new Map((clusters?.notes ?? []).map((n) => [n.id, n] as const)),
+    [clusters],
+  );
   useEffect(() => {
     if (preview) return;
     const sync = () => setStore(loadStore());
@@ -183,17 +201,30 @@ export function CircularGraph({
     return () => ro.disconnect();
   }, []);
 
+  // Phones keep the floating search row (top) and the pills + tab bar
+  // (bottom) clear of the clusters; PHONE_BAND is the free band's offset.
+  const PHONE_TOP = 64;
+  const PHONE_BOTTOM = 150;
   const fitZoom = useMemo(
-    () => Math.min(size.w, size.h) / (2 * layout.radius * 1.18),
-    [size, layout.radius],
+    () =>
+      clusters
+        ? Math.min(
+            (size.w - 16) / (2 * clusters.w),
+            (size.h - PHONE_TOP - PHONE_BOTTOM) / (2 * clusters.h),
+          )
+        : Math.min(size.w, size.h) / (2 * layout.radius * 1.18),
+    [size, layout.radius, clusters],
   );
+  const PHONE_BAND = (PHONE_TOP - PHONE_BOTTOM) / 2;
   // Adopt the fit zoom on first measure / data change. The full graph opens a
   // little zoomed in on the centre (arriving from the home mini-map); the
   // preview fits the whole folder ring in its box.
   useEffect(() => {
-    setZoom(preview ? fitZoom : fitZoom * 2.8);
-    setPan({ x: 0, y: 0 });
-  }, [fitZoom, preview]);
+    setZoom(preview || clusters ? fitZoom : fitZoom * 2.8);
+    setPan({ x: 0, y: clusters ? PHONE_BAND : 0 });
+    // PHONE_BAND is a constant.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fitZoom, preview, clusters]);
 
   const byId = useMemo(() => new Map(layout.nodes.map((n) => [n.id, n])), [layout.nodes]);
   const pathView = useMemo(() => {
@@ -267,7 +298,25 @@ export function CircularGraph({
   );
   // The chosen path's prerequisite edges, bowed towards the centre so they
   // read apart from the folder spokes.
-  const pathEl = pathView && (
+  const pathEl = pathView && clusters ? (
+    <g className="cg-path-edges" fill="none">
+      {pathView.edges.map(([a, b]) => {
+        const p = clusterXY.get(a.id);
+        const q = clusterXY.get(b.id);
+        if (!p || !q) return null;
+        // A slight bow, so a back-and-forth pair reads as two arrows.
+        const mx = (p.x + q.x) / 2 - (q.y - p.y) * 0.15;
+        const my = (p.y + q.y) / 2 + (q.x - p.x) * 0.15;
+        return (
+          <path
+            key={`${a.id}>${b.id}`}
+            d={`M${p.x.toFixed(1)},${p.y.toFixed(1)}Q${mx.toFixed(1)},${my.toFixed(1)} ${q.x.toFixed(1)},${q.y.toFixed(1)}`}
+            markerEnd="url(#cg-path-arrow)"
+          />
+        );
+      })}
+    </g>
+  ) : pathView && (
     <g className="cg-path-edges" fill="none">
       {pathView.edges.map(([a, b]) => {
         const [x1, y1] = polar(a.angle, a.radius);
@@ -328,6 +377,73 @@ export function CircularGraph({
     ),
     [layout.nodes, rot, pathIds, readIds],
   );
+
+  // Phone clusters: spokes from each family's hub to its notes, the notes,
+  // then the hubs. Same dimming rules as the ring (family filter, path,
+  // "Mes lectures").
+  const clusterEl = useMemo(() => {
+    if (!clusters) return null;
+    const hubAt = new Map(clusters.hubs.map((h) => [h.family, h]));
+    return (
+      <>
+        <g className="cg-links cg-spokes" fill="none">
+          {clusters.notes.map((n) => {
+            const h = hubAt.get(n.family)!;
+            const dim = (famFilter !== null && n.family !== famFilter) || (pathIds !== null && !pathIds.has(n.id));
+            return (
+              <line
+                key={n.id}
+                x1={h.x.toFixed(1)}
+                y1={h.y.toFixed(1)}
+                x2={n.x.toFixed(1)}
+                y2={n.y.toFixed(1)}
+                opacity={dim ? 0.15 : undefined}
+              />
+            );
+          })}
+        </g>
+        <g className="cg-nodes">
+          {clusters.notes.map((n) => {
+            const onPath = !!pathIds?.has(n.id);
+            const isRead = !!readIds?.has(n.id);
+            const fog = readIds !== null && !isRead;
+            const dim = (famFilter !== null && n.family !== famFilter) || (pathIds !== null && !onPath);
+            return (
+              <circle
+                key={n.id}
+                data-node
+                data-kind="note"
+                data-href={n.node.href ?? ""}
+                data-label={n.node.label}
+                cx={n.x.toFixed(1)}
+                cy={n.y.toFixed(1)}
+                r={onPath || isRead ? 3.6 : 2.6}
+                data-family={n.family}
+                className={[onPath && "cg-path-node", isRead && "cg-read-node"].filter(Boolean).join(" ") || undefined}
+                opacity={dim ? 0.08 : fog ? 0.16 : undefined}
+              />
+            );
+          })}
+          {clusters.hubs.map((h) => (
+            <circle
+              key={h.family}
+              data-node
+              data-family={h.family}
+              data-hub={h.family}
+              data-label={tr(`parcours.family.${h.family}`)}
+              cx={h.x.toFixed(1)}
+              cy={h.y.toFixed(1)}
+              r={9}
+              opacity={famFilter !== null && h.family !== famFilter ? 0.2 : undefined}
+              style={{ cursor: "pointer" }}
+            />
+          ))}
+        </g>
+      </>
+    );
+    // tr only reads the locale.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clusters, famFilter, pathIds, readIds, locale]);
 
   // --- interaction ---------------------------------------------------------
   const drag = useRef<{ x: number; y: number; px: number; py: number } | null>(null);
@@ -406,7 +522,7 @@ export function CircularGraph({
       // Twist the two fingers around each other to rotate the ring — folder
       // clicks used to do this but now always navigate (see onClick), so this
       // is the only rotate affordance left on touch besides the locate field.
-      setRot((((p.rot + (angle - p.angle)) % TAU) + TAU) % TAU);
+      if (!clusters) setRot((((p.rot + (angle - p.angle)) % TAU) + TAU) % TAU);
       return;
     }
     if (drag.current) {
@@ -434,6 +550,12 @@ export function CircularGraph({
   const onClick = (e: ReactMouseEvent) => {
     const hit = (e.target as Element).closest("[data-node]");
     if (!hit) return;
+    const fam = hit.getAttribute("data-hub") as FamilyKey | null;
+    if (fam) {
+      setPathSel(null);
+      setFamFilter((f) => (f === fam ? null : fam));
+      return;
+    }
     const href = hit.getAttribute("data-href");
     if (href) {
       window.location.href = href;
@@ -454,7 +576,12 @@ export function CircularGraph({
     const q = normalize(query.trim());
     if (!q) return [];
     return layout.nodes
-      .filter((n) => n.node.kind !== "root" && normalize(n.node.label).includes(q))
+      .filter(
+        (n) =>
+          n.node.kind !== "root" &&
+          (!clusters || clusterXY.has(n.id)) &&
+          normalize(n.node.label).includes(q),
+      )
       .sort((a, b) => {
         const ad = a.node.kind === "dir" ? 0 : 1;
         const bd = b.node.kind === "dir" ? 0 : 1;
@@ -462,13 +589,21 @@ export function CircularGraph({
         return a.node.label.localeCompare(b.node.label, undefined, { numeric: true });
       })
       .slice(0, 8);
-  }, [layout.nodes, query]);
+  }, [layout.nodes, query, clusters, clusterXY]);
   function locate(n: Positioned) {
     // Rotating the match to angle 0 (12 o'clock) puts it at local (0, -radius)
     // — straight up from the origin, NOT at the origin. pan:{0,0} only
     // recentres the origin, so anything but a near-root node (most searches:
     // files sit at the rim) landed far off-screen. Pan by zoom*radius to bring
     // the MATCH itself to the viewport centre instead.
+    const c = clusterXY.get(n.id);
+    if (c) {
+      const z = fitZoom * 3;
+      setZoom(z);
+      setPan({ x: -z * c.x, y: PHONE_BAND - z * c.y });
+      setQuery("");
+      return;
+    }
     const z = fitZoom * 2.8;
     setRot(((-n.angle % TAU) + TAU) % TAU);
     setZoom(z);
@@ -486,6 +621,20 @@ export function CircularGraph({
       .map((s) => byId.get(`file:/posts/${s}/`))
       .filter((n): n is Positioned => !!n);
     if (!pos.length) return;
+    if (clusters) {
+      setFamFilter(null);
+      const xy = pos.map((n) => clusterXY.get(n.id)).filter((c) => !!c);
+      if (!xy.length) return;
+      const xs = xy.map((c) => c.x);
+      const ys = xy.map((c) => c.y);
+      const mx = (Math.min(...xs) + Math.max(...xs)) / 2;
+      const my = (Math.min(...ys) + Math.max(...ys)) / 2;
+      const span = Math.max(40, Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
+      const z = Math.min(fitZoom * 4, Math.max(fitZoom, (0.6 * size.w) / span));
+      setZoom(z);
+      setPan({ x: -z * mx, y: PHONE_BAND - z * my });
+      return;
+    }
     // Circular mean of the angles; mean radius.
     const sx = pos.reduce((a, n) => a + Math.sin(n.angle), 0);
     const cy0 = pos.reduce((a, n) => a + Math.cos(n.angle), 0);
@@ -525,6 +674,127 @@ export function CircularGraph({
         onClick,
       };
 
+  // "Mes lectures" on: where to go next, under the switch (ring and phone).
+  const mineNext = reading && (
+    <div className="cg-mine-next">
+      <p className="cg-mine-next-k">
+        {reading.fromReading
+          ? tr("graph.mineNext")
+          : reading.read.size
+            ? tr("graph.mineNoNeighbour")
+            : tr("graph.mineStart")}
+      </p>
+      <ul>
+        {reading.next.map((id) => {
+          const n = byId.get(id);
+          if (!n) return null;
+          return (
+            <li key={id}>
+              <button type="button" onClick={() => locate(n)} title={tr("graph.mineLocate")}>
+                <span
+                  className="cg-swatch"
+                  style={{ background: themeColor(n.node.theme, palette) }}
+                />
+                {n.node.label}
+              </button>
+              <a href={n.node.href} aria-label={tr("graph.mineOpen", { title: n.node.label })}>
+                →
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+
+  const pathName = pathSel ? data.paths?.find((p) => p.slug === pathSel)?.name : undefined;
+  const resetView = () => {
+    setRot(0);
+    setZoom(fitZoom);
+    setPan({ x: 0, y: clusters ? PHONE_BAND : 0 });
+    setFilter(null);
+    setFamFilter(null);
+    setPathSel(null);
+  };
+  // Phones: the sheet as a settings page — two rows (switch, chooser), the
+  // seven families as chips, one wide reset button.
+  const phoneSheet = (
+    <>
+      <div className="cg-rows">
+        {reading && (
+          <button type="button" className="cg-row" role="switch" aria-checked={mine} onClick={() => setMine((v) => !v)}>
+            <span className="cg-row-text">
+              <b>{tr("graph.mine")}</b>
+              <small>
+                {tr("graph.mineHint", {
+                  n: reading.read.size.toLocaleString(locale),
+                  total: reading.total.toLocaleString(locale),
+                })}
+              </small>
+            </span>
+            <span className="cg-switch" aria-hidden="true" />
+          </button>
+        )}
+        {!!data.paths?.length && (
+          <label className="cg-row">
+            <span className="cg-row-text">
+              <b>{tr("graph.path")}</b>
+              <small>{tr("graph.pathHint")}</small>
+            </span>
+            <span className="cg-row-value">{pathName ?? tr("graph.pathNoneShort")}</span>
+            <svg className="cg-row-chev" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 5 7 7-7 7" />
+            </svg>
+            <select
+              className="cg-row-select"
+              value={pathSel ?? ""}
+              aria-label={tr("graph.pathAria")}
+              onChange={(e) => selectPath(e.target.value || null)}
+            >
+              <option value="">{tr("graph.pathNone")}</option>
+              {data.paths.map((p) => (
+                <option key={p.slug} value={p.slug}>
+                  {p.name} ({p.notes.length})
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+      </div>
+      {mine && mineNext}
+      <p className="cg-sheet-k">{tr("graph.disciplines")}</p>
+      <ul className="cg-chips">
+        <li>
+          <button
+            type="button"
+            aria-pressed={famFilter === null}
+            onClick={() => setFamFilter(null)}
+          >
+            {tr("graph.allFamilies")}
+          </button>
+        </li>
+        {FAMILIES.filter((f) => clusters?.hubs.some((h) => h.family === f)).map((f) => (
+          <li key={f}>
+            <button
+              type="button"
+              aria-pressed={famFilter === f}
+              onClick={() => {
+                setPathSel(null);
+                setFamFilter((v) => (v === f ? null : f));
+              }}
+            >
+              <span className="cg-swatch" data-family={f} />
+              {tr(`parcours.family.${f}`)}
+            </button>
+          </li>
+        ))}
+      </ul>
+      <button type="button" className="cg-reset-wide" onClick={resetView}>
+        {tr("graph.resetView")}
+      </button>
+    </>
+  );
+
   return (
     <div ref={wrapRef} className={preview ? "cg-preview" : "graph-page cg-root"}>
       <svg
@@ -554,6 +824,31 @@ export function CircularGraph({
             </marker>
           </defs>
         )}
+        {clusters ? (
+          <>
+            <g transform={`translate(${cx + pan.x},${cy + pan.y}) scale(${zoom})`}>
+              {clusterEl}
+              {pathEl}
+            </g>
+            {/* Family names in screen units, so they stay 13px at any zoom. */}
+            <g className="cg-hub-labels">
+              {clusters.hubs.map((h) => (
+                <text
+                  key={h.family}
+                  data-node
+                  data-hub={h.family}
+                  data-label={tr(`parcours.family.${h.family}`)}
+                  x={(cx + pan.x + h.x * zoom).toFixed(1)}
+                  y={(cy + pan.y + h.y * zoom - 9 * zoom - 7).toFixed(1)}
+                  textAnchor="middle"
+                  opacity={famFilter !== null && h.family !== famFilter ? 0.35 : undefined}
+                >
+                  {tr(`parcours.family.${h.family}`)}
+                </text>
+              ))}
+            </g>
+          </>
+        ) : (
         <g transform={`translate(${cx + pan.x},${cy + pan.y}) scale(${zoom})`}>
           <g transform={`rotate(${(rot * 180) / Math.PI})`}>
             {linksEl}
@@ -569,6 +864,7 @@ export function CircularGraph({
             </text>
           )}
         </g>
+        )}
       </svg>
 
       {preview && <span className="sr-only">{rootLabel}</span>}
@@ -581,6 +877,10 @@ export function CircularGraph({
           </a>
 
           <div className="cg-locate">
+            <svg className="cg-locate-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5" />
+              <path d="m16 16 4.5 4.5" />
+            </svg>
             <input
               type="search"
               className="cg-locate-input"
@@ -633,7 +933,9 @@ export function CircularGraph({
             </button>
             {reading && (
               <button type="button" className="cg-pill" aria-pressed={mine} onClick={() => setMine((v) => !v)}>
-                <span className="cg-mine-dot" aria-hidden="true" />
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="m5 12.5 4.5 4.5L19 7.5" />
+                </svg>
                 {tr("graph.mine")} · {reading.read.size}
               </button>
             )}
@@ -649,6 +951,10 @@ export function CircularGraph({
                 {tr("graph.settingsDone")}
               </button>
             </div>
+        {clusters ? (
+          phoneSheet
+        ) : (
+        <>
         <div className="cg-roulette">
           <span className="cg-rot-label">{tr("graph.rotate")}</span>
           <button
@@ -699,37 +1005,7 @@ export function CircularGraph({
                 {tr("graph.mineCount", { n: reading.read.size, total: reading.total })}
               </span>
             </button>
-            {mine && (
-              <div className="cg-mine-next">
-                <p className="cg-mine-next-k">
-                  {reading.fromReading
-                    ? tr("graph.mineNext")
-                    : reading.read.size
-                      ? tr("graph.mineNoNeighbour")
-                      : tr("graph.mineStart")}
-                </p>
-                <ul>
-                  {reading.next.map((id) => {
-                    const n = byId.get(id);
-                    if (!n) return null;
-                    return (
-                      <li key={id}>
-                        <button type="button" onClick={() => locate(n)} title={tr("graph.mineLocate")}>
-                          <span
-                            className="cg-swatch"
-                            style={{ background: themeColor(n.node.theme, palette) }}
-                          />
-                          {n.node.label}
-                        </button>
-                        <a href={n.node.href} aria-label={tr("graph.mineOpen", { title: n.node.label })}>
-                          →
-                        </a>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            )}
+            {mine && mineNext}
           </div>
         )}
         {!!data.paths?.length && (
@@ -778,6 +1054,8 @@ export function CircularGraph({
             </li>
           ))}
             </ul>
+        </>
+        )}
           </div>
 
           {tip && (

@@ -225,7 +225,12 @@
     "mineOpen": "فتح {title}",
     "settings": "الإعدادات",
     "settingsTitle": "إعدادات المخطط",
-    "settingsDone": "تم"
+    "settingsDone": "تم",
+    "mineHint": "إضاءة الملاحظات المقروءة · {n} من {total}",
+    "pathHint": "إظهار طريق مسار",
+    "pathNoneShort": "لا شيء",
+    "allFamilies": "الكل",
+    "resetView": "إعادة ضبط العرض"
   },
   "lightbox": {
     "close": "إغلاق",

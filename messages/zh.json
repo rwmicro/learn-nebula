@@ -225,7 +225,12 @@
     "mineOpen": "打开 {title}",
     "settings": "设置",
     "settingsTitle": "图谱设置",
-    "settingsDone": "完成"
+    "settingsDone": "完成",
+    "mineHint": "点亮已读笔记 · {total} 篇中的 {n} 篇",
+    "pathHint": "显示一条学习路径",
+    "pathNoneShort": "无",
+    "allFamilies": "全部",
+    "resetView": "重置视图"
   },
   "lightbox": {
     "close": "关闭",

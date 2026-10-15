@@ -225,7 +225,12 @@
     "mineOpen": "Abrir {title}",
     "settings": "Ajustes",
     "settingsTitle": "Ajustes del grafo",
-    "settingsDone": "OK"
+    "settingsDone": "OK",
+    "mineHint": "Iluminar las notas ya leídas · {n} de {total}",
+    "pathHint": "Mostrar el camino de un recorrido",
+    "pathNoneShort": "Ninguno",
+    "allFamilies": "Todas",
+    "resetView": "Restablecer la vista"
   },
   "lightbox": {
     "close": "Cerrar",

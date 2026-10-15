@@ -225,7 +225,12 @@
     "mineOpen": "Open {title}",
     "settings": "Settings",
     "settingsTitle": "Graph settings",
-    "settingsDone": "Done"
+    "settingsDone": "Done",
+    "mineHint": "Light up the notes you've read · {n} of {total}",
+    "pathHint": "Show a path's route",
+    "pathNoneShort": "None",
+    "allFamilies": "All",
+    "resetView": "Reset the view"
   },
   "lightbox": {
     "close": "Close",
