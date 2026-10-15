@@ -1412,5 +1412,9 @@
       "started": "empezada",
       "read": "leída"
     }
+  },
+  "reviewEmpty": {
+    "decks": "Elegir un mazo",
+    "path": "Ir a un recorrido"
   }
 }

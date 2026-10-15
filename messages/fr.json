@@ -1412,5 +1412,9 @@
       "started": "en cours",
       "read": "lue"
     }
+  },
+  "reviewEmpty": {
+    "decks": "Choisir un paquet",
+    "path": "Aller à un parcours"
   }
 }

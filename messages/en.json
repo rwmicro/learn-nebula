@@ -1412,5 +1412,9 @@
       "started": "started",
       "read": "read"
     }
+  },
+  "reviewEmpty": {
+    "decks": "Pick a deck",
+    "path": "Go to a path"
   }
 }

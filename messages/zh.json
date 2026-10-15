@@ -1412,5 +1412,9 @@
       "started": "在读",
       "read": "已读"
     }
+  },
+  "reviewEmpty": {
+    "decks": "选择卡组",
+    "path": "前往学习路径"
   }
 }

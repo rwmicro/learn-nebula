@@ -29,6 +29,7 @@ import { ReviewSession } from "@/components/ReviewSession";
 import { familyOfFolder } from "@/lib/path-family";
 import { PRACTICE_SIZE, practicePick, shuffled, type PracticeMode } from "@/lib/practice";
 import { AppBack } from "@/components/AppBack";
+import { EmptyActions } from "@/components/EmptyActions";
 
 /**
  * /cartes/aujourdhui/ — "Tout réviser": one session over everything due
@@ -254,6 +255,9 @@ export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: Practic
           showSource
           families={Object.fromEntries(decks.map((d) => [d.slug, familyOfFolder(d.folder)]))}
           done={doneText}
+          doneActions={
+            (mode ? emptyStart : started === 0 && !hasNotes) ? <EmptyActions /> : undefined
+          }
           doneNote={() => (!mode && started > 0 ? tr("todayReview.tomorrow", { count: tomorrowLoad() }) : null)}
         />
       )}

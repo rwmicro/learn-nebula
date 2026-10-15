@@ -4761,3 +4761,48 @@
     display: none;
   }
 }
+
+/* Empty review screens (components/EmptyActions.tsx): two ways out. */
+.review-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+}
+.review-empty-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.5rem 1.3rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--rule-strong);
+  background: transparent;
+  color: var(--ink);
+  font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  text-decoration: none;
+}
+.review-empty-btn--primary {
+  border-color: var(--garden);
+  background: var(--garden);
+  color: var(--paper);
+}
+.review-empty-btn:hover {
+  filter: brightness(1.05);
+}
+.review-empty {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+@media (max-width: 639.98px) {
+  .review-empty-actions {
+    flex-direction: column;
+  }
+  .review-empty-btn {
+    width: 100%;
+  }
+}
