@@ -42,13 +42,13 @@ export function NotFoundSuggestions() {
   const q = words.join(" ");
   const link = "text-link underline underline-offset-2";
   return (
-    <section className="mt-8 text-body leading-relaxed">
+    <section className="nf-suggest mt-8 text-body leading-relaxed">
       {notes.length > 0 && (
         <>
           <h2 className="m-0 mb-2 text-[1.15em] font-medium">
             {t("notFound.suggestions", undefined, locale)}
           </h2>
-          <ul className="m-0 mb-5 list-disc ps-6">
+          <ul className="nf-list m-0 mb-5 list-disc ps-6">
             {notes.map((n) => (
               <li key={n.href} className="mb-1">
                 <a href={n.href} className={link}>
@@ -59,7 +59,7 @@ export function NotFoundSuggestions() {
           </ul>
         </>
       )}
-      <p className="m-0">
+      <p className="nf-search m-0">
         <a href={`/?q=${encodeURIComponent(q)}`} className={link}>
           {t("notFound.search", { q }, locale)}
         </a>
