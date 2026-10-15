@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import { getDisciplines, getIndexDoc, getPost, getReadingPaths, getRecentNotes } from "@/lib/content";
+import { getAllPosts, getDisciplines, getIndexDoc, getLanguageScopes, getPost, getReadingPaths, getRecentNotes, INDEX_NOTE } from "@/lib/content";
+import { HomeMore } from "@/components/HomeMore";
 import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
 import { t } from "@/lib/i18n";
 import { buildMetadata } from "@/lib/seo";
@@ -68,6 +69,7 @@ function dashboardData(): { disciplines: DashDiscipline[]; recent: DashRecent[] 
 export default async function HomePage() {
   const doc = getIndexDoc();
   const dash = dashboardData();
+  const noteCount = getAllPosts().filter((d) => d.rawPath !== INDEX_NOTE).length;
   return (
     <>
       <Header doc={doc} />
@@ -106,20 +108,9 @@ export default async function HomePage() {
           shell={homeTreeShell()}
           dataVersion={homeDataVersion()}
           hasPaths={getReadingPaths().length > 0}
+          noteCount={noteCount}
         />
-        <section className="dash-about" aria-labelledby="dash-about-h" data-pagefind-ignore>
-          <h2 id="dash-about-h" className="dash-h" data-i18n="dash.about">
-            {t("dash.about")}
-          </h2>
-          <p>
-            <span data-i18n="home.intro1">{t("home.intro1")}</span>{" "}
-            <span data-i18n="home.intro2">{t("home.intro2")}</span>{" "}
-            <span data-i18n="home.intro3">{t("home.intro3")}</span>
-          </p>
-          <p>
-            <em lang="en" dir="ltr">The Gardener.</em>
-          </p>
-        </section>
+        <HomeMore notes={noteCount} paths={getReadingPaths().length} languages={getLanguageScopes().length} />
       </main>
       <JsonLd data={graph(personJsonLd(), websiteJsonLd())} />
     </>

@@ -61,7 +61,7 @@ type Mode = "review" | "browse";
  * per deck in localStorage (`srs:<slug>`); without storage the page falls
  * back to the plain flip-through.
  */
-export function Flashcards({ slug, name }: { slug: string; name: string }) {
+export function Flashcards({ slug, name, family = null }: { slug: string; name: string; family?: string | null }) {
   const locale = useLocale();
   const tr = (k: string, vars?: Record<string, string | number>) =>
     t(`flashcards.${k}`, vars, locale);
@@ -382,6 +382,7 @@ export function Flashcards({ slug, name }: { slug: string; name: string }) {
           onGrade={onGrade}
           today={today}
           zoom={zoom}
+          families={{ [slug]: family }}
           done={nextDay ? tr("doneNext", { date: fmtDay(nextDay) }) : tr("done")}
         />
       ) : (

@@ -1,6 +1,6 @@
 "use client";
 
-import { recordActivity } from "@/lib/personal";
+import { calendarDays, currentRun, loadActivity, localDay, recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -10,6 +10,10 @@ import { diff, isMatch } from "@/lib/typed-answer";
 import type { Graded, ReviewItem } from "@/lib/review-item";
 import { GRADE_COLOR, btn, btnGrade, quiet } from "@/components/srs-ui";
 import { DeckFace } from "@/components/DeckFace";
+import { loadStore } from "@/lib/reading-progress";
+import { familyOfPrefix } from "@/lib/path-family";
+import { usePhone } from "@/lib/use-phone";
+import { PhoneEnd, PhoneSession, type SessionEnd } from "@/components/ReviewPhone";
 
 export type { Graded, ReviewItem } from "@/lib/review-item";
 
@@ -53,6 +57,7 @@ export function ReviewSession({
   zoom = 1,
   showSource = false,
   doneNote,
+  families,
 }: {
   queue: ReviewItem[];
   setQueue: (q: ReviewItem[]) => void;
@@ -67,6 +72,9 @@ export function ReviewSession({
   showSource?: boolean;
   /** Extra line on the end screen (e.g. tomorrow's load). */
   doneNote?: () => React.ReactNode;
+  /** Colour family (lib/path-family.ts) of each deck, by slug: tints the
+   *  phone session. Note questions take theirs from the note's folder. */
+  families?: Record<string, string | null>;
 }) {
   const locale = useLocale();
   const tr = (k: string, vars?: Record<string, string | number>) => t(k, vars, locale);
@@ -88,6 +96,15 @@ export function ReviewSession({
   const faceRef = useRef<HTMLDivElement>(null);
   const doneRef = useRef<HTMLHeadingElement>(null);
   const expected = head?.kind === "deck" ? head.expected : null;
+  // Phones get the full-screen session (components/ReviewPhone.tsx); its
+  // close button folds it away until "Reprendre".
+  const phone = usePhone();
+  const [folded, setFolded] = useState(false);
+  // Right answers in a row this session (shown over typed answers), and
+  // whether the last one broke a run.
+  const [run, setRun] = useState({ n: 0, lost: false });
+  const [started] = useState(() => Date.now());
+  const [end, setEnd] = useState<SessionEnd>({ ms: 0, run: 0, week: [] });
 
   const focusNext = useCallback((q: ReviewItem[]) => {
     requestAnimationFrame(() => {
@@ -127,12 +144,14 @@ export function ReviewSession({
       const q = g === "again" ? [...rest, { ...head, state: res?.state }] : rest;
       setHistory((h) => [...h.slice(-49), { queue, g, undo: res?.undo ?? (() => {}) }]);
       setTally((t) => ({ n: t.n + 1, again: t.again + (g === "again" ? 1 : 0) }));
+      setRun((r) => (g === "again" ? { n: 0, lost: r.n > 0 } : { n: r.n + 1, lost: false }));
+      setEnd(sessionEnd(started));
       setQueue(q);
       setRevealedFor(null);
       setTyped("");
       focusNext(q);
     },
-    [revealed, head, queue, onGrade, setQueue, today, focusNext],
+    [revealed, head, queue, onGrade, setQueue, today, focusNext, started],
   );
 
   const undo = useCallback(() => {
@@ -175,6 +194,43 @@ export function ReviewSession({
       </button>
     </p>
   );
+
+  const overlay = phone && !folded && (!!head || tally.n > 0);
+  useEffect(() => {
+    if (!overlay) return;
+    const root = document.documentElement;
+    root.classList.add("rsm-open");
+    return () => root.classList.remove("rsm-open");
+  }, [overlay]);
+
+  const familyOf = (x: ReviewItem): string | null =>
+    x.kind === "deck" ? (families?.[x.slug] ?? null) : familyOfPrefix(x.item.url.replace(/^\/posts\//, ""));
+
+  if (phone && folded && (head || tally.n > 0))
+    return (
+      <p className="rsm-resume-row">
+        <button type="button" className="rsm-resume" onClick={() => setFolded(false)}>
+          {tr("rs.resume")}
+          <span>
+            {tally.n} / {tally.n + queue.length}
+          </span>
+        </button>
+      </p>
+    );
+
+  if (!head && overlay)
+    return (
+      <PhoneEnd
+        tr={tr}
+        locale={locale}
+        n={tally.n}
+        again={tally.again}
+        end={end}
+        note={doneNote?.() || done}
+        doneRef={doneRef}
+        onClose={() => setFolded(true)}
+      />
+    );
 
   if (!head)
     return (
@@ -219,6 +275,35 @@ export function ReviewSession({
     if (Math.abs(dx) < 70 || Math.abs(dx) < 2 * Math.abs(dy)) return;
     grade(dx > 0 ? "good" : "again");
   };
+
+  if (overlay)
+    return (
+      <PhoneSession
+        tr={tr}
+        locale={locale}
+        head={head}
+        family={familyOf(head)}
+        queueLength={queue.length}
+        done={tally.n}
+        total={total}
+        revealed={revealed}
+        next={next}
+        typed={typed}
+        setTyped={setTyped}
+        match={match}
+        run={run}
+        canUndo={history.length > 0}
+        zoom={zoom}
+        onReveal={reveal}
+        onGrade={grade}
+        onUndo={undo}
+        onClose={() => setFolded(true)}
+        surfaceRef={surfaceRef}
+        faceRef={faceRef}
+        revealRef={revealRef}
+        inputRef={inputRef}
+      />
+    );
 
   return (
     <>
@@ -371,7 +456,31 @@ export function ReviewSession({
   );
 }
 
-function TypedDiff({
+/** What the end screen shows besides the tally: time spent, the day run,
+ *  and this week's active days (Monday first). Read after each grade. */
+function sessionEnd(started: number): SessionEnd {
+  try {
+    const reads = Object.values(loadStore())
+      .map((e) => e.r)
+      .filter((r): r is number => typeof r === "number");
+    const days = calendarDays(loadActivity(), reads);
+    const monday = new Date();
+    monday.setHours(12, 0, 0, 0);
+    monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7));
+    const today = localDay();
+    const week = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const k = localDay(d);
+      return k > today ? null : !!days[k] && (days[k].r > 0 || days[k].c > 0);
+    });
+    return { ms: Date.now() - started, run: currentRun(days), week };
+  } catch {
+    return { ms: Date.now() - started, run: 0, week: [] };
+  }
+}
+
+export function TypedDiff({
   typed,
   expected,
   tr,

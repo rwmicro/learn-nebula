@@ -228,6 +228,8 @@ export async function SinglePage({
     prev: step ? step.prev : (sibNav?.prev ?? null),
     next: step ? step.next : (sibNav?.next ?? null),
     lesson: lessonSteps >= 2,
+    inbound: note ? getBacklinks(doc.slug).length : 0,
+    minutes: readingMinutes,
   };
   const appCrumbsHtml = note ? noteCrumbsHtml(appInput) : "";
   const appMinutes = note
@@ -319,7 +321,7 @@ export async function SinglePage({
         />
       )}
       {jsonLd && <JsonLd data={jsonLd} />}
-      {note && <NoteFeatureScripts quiz={hasQuiz} glossary={hasGlossary} />}
+      {note && <NoteFeatureScripts quiz={hasQuiz} glossary={hasGlossary} path={!!step} />}
     </>
   );
 }

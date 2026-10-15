@@ -107,6 +107,12 @@
   :root {
     --gk-tabbar-h: calc(4.9rem + var(--gk-safe-b));
   }
+  /* Phones: a 16px rem (the desktop's 15px base reads small here), so the
+     app's sizes are the mockups' pixels. Still a %, so the reader's own
+     font-size setting keeps working. */
+  html {
+    font-size: 100%;
+  }
 
   .tabbar {
     position: fixed;
@@ -121,6 +127,18 @@
     transition:
       transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
       opacity 0.25s;
+  }
+  /* The page fades into the paper under the bar. */
+  .tabbar::before {
+    content: "";
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    height: calc(8.125rem + var(--gk-safe-b));
+    background: linear-gradient(transparent, var(--paper) 70%);
+    pointer-events: none;
   }
   .tabbar-bar {
     flex: 1;
@@ -160,10 +178,72 @@
   .tabbar-tab:active {
     transform: scale(0.92);
   }
-  .tabbar-tab[aria-current="page"] {
+  .tabbar-tab[aria-current="page"],
+  .tabbar-tab.is-lit {
     color: var(--garden);
+  }
+  /* The glass pill under the current tab (components/MobileTabBar.tsx). It
+     glides to a new tab, and while a finger slides along the bar it becomes
+     a larger, clearer lens that follows it, as on iOS 26. */
+  .tabbar-bar {
+    position: relative;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .tabbar-pill {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: 0;
+    z-index: 0;
+    border-radius: 1.7rem;
     background: var(--glass-on);
     box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
+    pointer-events: none;
+    transition:
+      transform 0.42s cubic-bezier(0.3, 1.35, 0.5, 1),
+      background-color 0.2s,
+      box-shadow 0.2s;
+  }
+  /* Sliding: the lens (scaled up from the tab bar's script) keeps up with
+     the finger. */
+  .tabbar-bar.is-sliding .tabbar-pill {
+    transition:
+      transform 0.1s ease-out,
+      background-color 0.2s,
+      box-shadow 0.2s;
+    background: rgb(255 255 255 / 0.16);
+    -webkit-backdrop-filter: blur(2px) saturate(1.6) brightness(1.08);
+    backdrop-filter: blur(2px) saturate(1.6) brightness(1.08);
+    box-shadow:
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.8),
+      inset 0 1.5px 1px rgb(255 255 255 / 0.7),
+      inset 0 -2px 6px rgb(255 255 255 / 0.25),
+      0 6px 18px rgb(0 0 0 / 0.14);
+  }
+  .tabbar-bar.is-sliding {
+    scale: 1.02;
+  }
+  .tabbar-bar {
+    transition: scale 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .tabbar-tab {
+    z-index: 1;
+  }
+  /* While sliding, only the tab under the lens is lit. */
+  .tabbar-bar.is-sliding .tabbar-tab:not(.is-lit) {
+    color: var(--ink);
+  }
+  .tabbar-bar.is-sliding .tabbar-tab:not(.is-lit) .tabbar-fill {
+    fill: none;
+  }
+  .tabbar-bar.is-sliding .tabbar-tab.is-lit .tabbar-icon {
+    transform: scale(1.12);
+  }
+  .tabbar-icon {
+    transition: transform 0.2s;
   }
   .tabbar-icon svg {
     display: block;
@@ -173,7 +253,8 @@
   .tabbar-fill {
     fill: none;
   }
-  .tabbar-tab[aria-current="page"] .tabbar-fill {
+  .tabbar-tab[aria-current="page"] .tabbar-fill,
+  .tabbar-tab.is-lit .tabbar-fill {
     fill: currentColor;
     fill-opacity: 0.22;
   }
@@ -294,14 +375,22 @@
   body:not(:has(.na-chrome)) .site-bar .theme-toggle {
     display: none;
   }
-  /* The pill: leaf + page title, in glass, once scrolled. */
+  /* The pill: leaf + page title, in glass, once scrolled, centred. */
+  body:not(:has(.na-chrome)) .site-bar-inner {
+    position: relative;
+    justify-content: flex-end;
+  }
   body:not(:has(.na-chrome)) .site-bar-brand {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    translate: -50% 0;
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
     height: 2.75rem;
-    max-width: calc(100vw - 6rem);
-    padding: 0 1.1rem 0 0.9rem;
+    max-width: calc(100vw - 8rem);
+    padding: 0 1rem 0 0.75rem;
     border-radius: 1.375rem;
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
@@ -390,8 +479,9 @@
   html .coin-toast {
     bottom: calc(1.4rem + var(--gk-tabbar-h));
   }
+  /* The pronunciation coach is a bottom sheet drawn over the tab bar. */
   html .pron-coach {
-    bottom: calc(0.8rem + var(--gk-tabbar-h));
+    bottom: 0;
   }
   html .path-dock:not([hidden]) {
     bottom: calc(0.75rem + var(--gk-tabbar-h));
@@ -404,6 +494,10 @@
 }
 @media (max-width: 639.98px) and (prefers-reduced-motion: reduce) {
   .tabbar,
+  .tabbar-bar,
+  .tabbar-pill,
+  .tabbar-bar.is-sliding .tabbar-pill,
+  .tabbar-icon,
   .tabbar-tab,
   .tabbar-search {
     transition: none;
@@ -532,7 +626,10 @@
 
 /* --- Home dashboard (components/HomeDashboard.tsx), phones only ---------- */
 .dash,
-.dash-about {
+.home-more,
+.home-ask-intro-m,
+.home-ask-chips,
+.home-ask-send-icon {
   display: none;
 }
 @media (max-width: 639.98px) {
@@ -560,17 +657,20 @@
   /* The masthead becomes an app bar: the wordmark on the left, "Moi" on the
      right. Its intro and painting, the "dernières pousses" and the charts
      give way to the dashboard. */
+  /* It scrolls away with the page: the site bar's glass avatar stays at the
+     top right, and its "Accueil" pill comes in once scrolled (as on the tab
+     pages). No theme or account button here: both live in "Moi". */
   .home-masthead {
-    position: sticky;
-    top: 0;
-    z-index: 900;
     flex-direction: row;
     align-items: center;
-    height: 3.25rem;
-    padding: 0 0.5rem 0 1rem;
-    background: var(--bar-bg);
-    -webkit-backdrop-filter: blur(18px) saturate(1.6);
-    backdrop-filter: blur(18px) saturate(1.6);
+    height: 3.625rem;
+    padding: 0.125rem 4.25rem 0 1rem;
+  }
+  html body:has(.home-masthead) .site-bar {
+    display: block;
+  }
+  .home-masthead > div:first-of-type > :not(.lang-switcher) {
+    display: none;
   }
   .home-masthead > div:has(> a > h1) {
     flex: 1;
@@ -581,8 +681,9 @@
     justify-self: start;
   }
   .home-masthead h1 {
-    font-size: 1.45rem;
+    font-size: 1.5625rem;
     line-height: 1;
+    letter-spacing: 0.0125rem;
   }
   .home-masthead > div:first-of-type {
     order: 1;
@@ -605,9 +706,6 @@
   .home-main .recent-notes,
   .home-main .graphiques {
     display: none;
-  }
-  .home-main > section:has(#notes) {
-    margin-top: 1.6rem;
   }
 
   .dash {
@@ -634,10 +732,10 @@
   .dash-hero {
     position: relative;
     display: block;
-    height: 9.4rem;
+    height: 9.375rem;
     margin: 0.25rem 1rem 0;
     overflow: hidden;
-    border-radius: 1.25rem;
+    border-radius: 1.375rem;
     background: #5b4a32;
   }
   .dash-hero img {
@@ -677,7 +775,7 @@
 
   .dash-h {
     margin: 0;
-    padding: 1.125rem 1.25rem 0.5rem;
+    padding: 1.25rem 1.375rem 0.5rem;
     border: 0;
     font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
     font-size: 0.8125rem;
@@ -691,7 +789,7 @@
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    padding-right: 1.25rem;
+    padding-right: 1.375rem;
   }
   .dash .dash-row-h > a {
     font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
@@ -709,13 +807,13 @@
   }
   .dash-card {
     margin: 0 1rem;
-    border-radius: 1.125rem;
+    border-radius: 1.25rem;
   }
   .dash-resume {
     display: flex;
     align-items: center;
     gap: 0.875rem;
-    padding: 0.875rem 0.875rem 0.875rem 1rem;
+    padding: 0.875rem;
     transition: transform 0.15s;
   }
   .dash-resume:active,
@@ -765,9 +863,10 @@
   }
   .dash-kicker {
     display: block;
+    margin-bottom: 0.125rem;
     overflow: hidden;
     font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.6875rem;
+    font-size: 0.84375rem;
     font-weight: 700;
     letter-spacing: 0.07em;
     text-transform: uppercase;
@@ -777,10 +876,14 @@
   }
   .dash-resume-text b {
     display: block;
-    margin: 0.125rem 0;
     font-size: 1.125rem;
     font-weight: 600;
-    line-height: 1.15;
+    line-height: 1.2;
+  }
+  .dash-resume-text small,
+  .dash-list-text small {
+    display: block;
+    margin-top: 0.125rem;
   }
   .dash-resume-text small,
   .dash-list-text small,
@@ -868,24 +971,25 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-width: 7.375rem;
-    height: 5.75rem;
+    width: 7.875rem;
+    height: 6rem;
     padding: 0.75rem;
-    border-radius: 1rem;
+    border-radius: 1.125rem;
     background: var(--fam-wash, var(--wash-2));
     transition: transform 0.15s;
   }
   .dash-disc b {
     display: block;
     overflow: hidden;
-    font-size: 0.96875rem;
+    font-size: 1rem;
     font-weight: 600;
     line-height: 1.1;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
   .dash-disc small {
-    font-size: 0.75rem;
+    display: block;
+    font-size: 0.78125rem;
   }
   .dash-disc-icon {
     display: grid;
@@ -904,14 +1008,15 @@
   .dash-list {
     margin: 0 1rem !important;
     overflow: hidden;
-    border-radius: 1rem;
+    border-radius: 1.125rem;
   }
   .dash-list a {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 0.75rem 0.75rem 0.875rem;
+    gap: 0.8125rem;
+    min-height: 3.75rem;
+    padding: 0.75rem 0.875rem;
   }
   .dash-list a:active {
     background: var(--wash-2);
@@ -920,7 +1025,7 @@
     content: "";
     position: absolute;
     top: 0;
-    left: 3.625rem;
+    left: 3.875rem;
     right: 0;
     border-top: 0.5px solid var(--rule);
   }
@@ -928,15 +1033,15 @@
     flex: none;
     display: grid;
     place-items: center;
-    width: 2.125rem;
-    height: 2.125rem;
+    width: 2.25rem;
+    height: 2.25rem;
     border-radius: 0.625rem;
     background: var(--fam-wash, var(--wash-2));
     color: var(--fam, var(--ink-2));
   }
   .dash-list-icon svg {
-    width: 1.125rem;
-    height: 1.125rem;
+    width: 1.1875rem;
+    height: 1.1875rem;
   }
   .dash-list-text {
     flex: 1;
@@ -945,7 +1050,7 @@
   .dash-list-text b {
     display: block;
     overflow: hidden;
-    font-size: 1.03125rem;
+    font-size: 1.0625rem;
     font-weight: 500;
     line-height: 1.2;
     text-overflow: ellipsis;
@@ -958,18 +1063,357 @@
     color: var(--rule-strong);
   }
 
-  .dash-about {
+  /* Nothing due and no run yet: one invitation instead of two zeros. */
+  .dash .dash-invite {
+    display: flex;
+    align-items: center;
+    gap: 0.8125rem;
+    margin: 0.625rem 1rem 0;
+    padding: 0.8125rem 0.875rem;
+    border-radius: 1.25rem;
+    background: var(--garden-wash);
+  }
+  .dash-invite-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.625rem;
+    background: var(--dash-card);
+    color: var(--garden);
+  }
+  .dash-invite-icon svg {
+    width: 1.1875rem;
+    height: 1.1875rem;
+  }
+  .dash-invite-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .dash-invite-text b {
     display: block;
-    margin-top: 2.5rem;
+    font-size: 1.03125rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .dash-invite-text small {
+    display: block;
+    margin-top: 0.125rem;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.84375rem;
+    line-height: 1.3;
     color: var(--ink-2);
   }
-  .dash-about .dash-h {
-    padding-left: 0;
+
+  /* --- The rest of the home: the assistant as a card, then home-more --- */
+  .home-main.home-main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0 0 1rem;
   }
-  .dash-about p {
-    margin: 0 0 0.5rem;
-    font-size: 1.05rem;
-    line-height: 1.5;
+  .home-content {
+    margin-top: 0;
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+  }
+  .home-content > .home-resume,
+  .home-content > .home-bookmarks,
+  .home-content #notes,
+  .home-content .home-map,
+  .home-ask-pin,
+  .home-ask-intro,
+  .home-ask-send-text {
+    display: none;
+  }
+  .home-content .home-cols {
+    display: block;
+  }
+  .home-content .home-cols > div {
+    margin: 0;
+  }
+  .home-content .home-ask {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+  }
+  .home-ask-head h2 {
+    margin: 0;
+    padding: 1.25rem 1.375rem 0.5rem;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+  .home-ask-head {
+    margin: 0;
+  }
+  /* The card: one panel drawn behind the intro, the field, the chips and,
+     once asked, the answer and its sources. */
+  .home-content .home-ask {
+    position: relative;
+    z-index: 0;
+    padding-bottom: 1rem;
+  }
+  .home-ask::before {
+    content: "";
+    position: absolute;
+    inset: 2.5625rem 1rem 0;
+    z-index: -1;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.25rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+  }
+  .home-ask > :not(.home-ask-head) {
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
+  .home-ask-intro-m {
+    display: block;
+    padding-top: 1rem;
+    font-size: 1rem;
+    line-height: 1.35;
+    color: var(--ink-2);
+  }
+  .home-ask .home-ask-form {
+    margin-top: 0.75rem;
+    padding: 0;
+    border: 0;
+  }
+  .home-ask .home-ask-field {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.5rem;
+    height: 3rem;
+    padding: 0 0.375rem 0 1rem;
+    border-radius: 1.5rem;
+    background: var(--wash-2);
+  }
+  .home-ask .home-ask-field input {
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-size: 1rem;
+  }
+  .home-ask .home-ask-field input::placeholder {
+    font-style: italic;
+    color: var(--muted);
+  }
+  .home-ask .home-ask-form {
+    display: flex;
+  }
+  .home-ask .home-ask-send {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .home-ask-send-icon {
+    display: block;
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+  .home-ask-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.625rem;
+  }
+  .home-ask-chips button {
+    height: 1.875rem;
+    padding: 0 0.75rem;
+    border: 0;
+    border-radius: 0.9375rem;
+    background: var(--garden-wash);
+    color: var(--garden);
+    font: 500 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    cursor: pointer;
+  }
+  .home-more {
+    display: block;
+    color: var(--ink);
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+  }
+  .home-more a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .home-more a:hover {
+    background: transparent;
+  }
+  .home-more .dash-row-h > a {
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--garden);
+  }
+  .home-more-tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+    margin: 0 1rem;
+  }
+  .home-more-tiles a,
+  .home-more-stats,
+  .home-more-about {
+    background: var(--dash-card);
+    border: 0.5px solid var(--dash-edge);
+    box-shadow: var(--dash-shadow);
+  }
+  .home-more-tiles a {
+    display: block;
+    overflow: hidden;
+    border-radius: 1.125rem;
+    transition: transform 0.15s;
+  }
+  .home-more-tiles a:active {
+    transform: scale(0.98);
+  }
+  .home-more-art {
+    display: grid;
+    place-items: center;
+    height: 5.375rem;
+    background: var(--fam-wash, var(--wash));
+    color: var(--fam, var(--ink));
+  }
+  .home-more-art > svg {
+    width: 2.125rem;
+    height: 2.125rem;
+  }
+  .home-more-art > svg.home-more-dots {
+    width: 6.25rem;
+    height: 5.375rem;
+  }
+  .home-more-tx {
+    display: block;
+    padding: 0.625rem 0.75rem;
+  }
+  .home-more-tx b {
+    display: block;
+    font-size: 1.0625rem;
+    font-weight: 600;
+    line-height: 1.1;
+  }
+  .home-more-tx small,
+  .home-more-stats small {
+    display: block;
+    margin-top: 0.3125rem;
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-size: 0.84375rem;
+    line-height: 1.25;
+    color: var(--ink-2);
+  }
+  .home-more-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0 1rem;
+    padding: 0.25rem 0;
+    border-radius: 1.25rem;
+  }
+  .home-more-stats > div {
+    padding: 0.75rem 0.25rem;
+    text-align: center;
+  }
+  .home-more-stats > div + div {
+    border-left: 0.5px solid var(--rule);
+  }
+  .home-more-stats b {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .home-more-stats small {
+    margin-top: 0.25rem;
+    font-size: 0.8125rem;
+  }
+  .home-more-about {
+    display: flex;
+    gap: 0.875rem;
+    margin: 0 1rem;
+    padding: 1rem 1rem 0.875rem;
+    border-radius: 1.25rem;
+  }
+  .home-more-about-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    border-radius: 50%;
+    background: var(--garden-wash);
+    color: var(--garden);
+  }
+  .home-more-about-icon svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .home-more-about details {
+    flex: 1;
+    min-width: 0;
+  }
+  .home-more-about summary {
+    display: block;
+    list-style: none;
+    cursor: pointer;
+  }
+  .home-more-about summary::-webkit-details-marker {
+    display: none;
+  }
+  .home-more-quote {
+    display: block;
+    font-size: 1rem;
+    line-height: 1.4;
+  }
+  .home-more-about em {
+    display: block;
+    margin-top: 0.375rem;
+    font-size: 0.9375rem;
+    color: var(--muted);
+  }
+  .home-more-more {
+    display: block;
+    margin-top: 0.5rem;
+    font: 500 0.90625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--garden);
+  }
+  .home-more-about details[open] .home-more-more {
+    display: none;
+  }
+  .home-more-about details p {
+    margin: 0.625rem 0 0;
+    font-size: 0.9375rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  .home-more-foot {
+    padding: 1.625rem 1.875rem 0;
+    text-align: center;
+    font: 400 0.8125rem/1.6 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .home-more-foot p {
+    margin: 0.5rem 0 0;
+  }
+  .home-more .home-more-cc {
+    display: inline-flex;
+    align-items: center;
+    height: 1.5rem;
+    padding: 0 0.5625rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  /* The home ends with its own short footer. */
+  body:has(.home-more) footer:not(.home-more-foot) {
+    display: none;
   }
 }
 @media (max-width: 639.98px) {
@@ -2278,5 +2722,1901 @@
   }
   .app-group [aria-checked="true"] svg {
     visibility: visible;
+  }
+}
+
+/* --- Moi (phone, components/MoiPhone.tsx) ---------------------------------
+   Stands in for the desktop page's title, summary and settings. */
+.moi {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  main.progression > :is(.progression-title, .progression-intro, .app-settings, .progression-summary, .progression-welcome) {
+    display: none;
+  }
+  main.progression {
+    padding-top: 0;
+  }
+  body:has(.moi) .site-bar .site-bar-me,
+  body:has(.moi) .site-bar .account-chip {
+    display: none;
+  }
+  .moi {
+    display: block;
+    margin-bottom: 2rem;
+    color: var(--ink);
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+  }
+  .moi a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .moi a:hover {
+    background: transparent;
+  }
+  .moi .moi-gear {
+    position: fixed;
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    right: 0.875rem;
+    z-index: 901;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+    color: var(--ink);
+  }
+  .moi-gear svg {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .moi-title {
+    padding: 0 0.25rem 0.5rem;
+  }
+  .moi-title h1 {
+    margin: 0.25rem 0 0;
+    padding: 0;
+    border: 0;
+    font: 600 2.125rem/1.06 "Alegreya", "Alegreya Fallback", serif;
+    letter-spacing: -0.0125rem;
+  }
+  .moi-title p {
+    margin: 0.375rem 0 0;
+    font: 400 0.96875rem/1.38 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--muted);
+  }
+  .moi-card,
+  .moi-tiles > * {
+    background: var(--dash-card);
+    border: 0.5px solid var(--dash-edge);
+    box-shadow: var(--dash-shadow);
+  }
+  .moi-card {
+    border-radius: 1.25rem;
+  }
+  .moi-account {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    padding: 0.875rem;
+  }
+  .moi-account-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: var(--garden-wash);
+    color: var(--garden);
+  }
+  .moi-account-icon svg {
+    width: 1.1875rem;
+    height: 1.1875rem;
+  }
+  .moi-account-tx {
+    flex: 1;
+    min-width: 0;
+  }
+  .moi-account-tx b {
+    display: block;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+  .moi-account-tx small,
+  .moi-tiles small {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.84375rem/1.25 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .moi-pill {
+    flex: none;
+    height: 2rem;
+    padding: 0 0.875rem;
+    border-radius: 1rem;
+    background: var(--garden);
+    color: var(--paper);
+    font: 700 0.875rem/2rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .moi-row-h {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-right: 0.375rem;
+  }
+  .moi-row-h span {
+    font: 600 0.8125rem "Alegreya", "Alegreya Fallback", serif;
+    color: var(--muted);
+  }
+  main .moi-h {
+    margin: 0;
+    padding: 1.25rem 0.375rem 0.5rem;
+    border: 0;
+    font: 700 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .moi-tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+  }
+  .moi-tiles > * {
+    display: block;
+    padding: 0.8125rem 0.875rem;
+    border-radius: 1.125rem;
+  }
+  .moi-tiles b {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 1.625rem;
+    font-weight: 600;
+    line-height: 1;
+  }
+  .moi-tiles small {
+    margin-top: 0.3125rem;
+  }
+  .moi-flame {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: #e0782f;
+  }
+  /* The 84 days in reading order, eighteen to a row. */
+  .moi-heat {
+    display: grid;
+    grid-template-columns: repeat(18, 1fr);
+    gap: 3px;
+    padding: 0.875rem;
+  }
+  .moi-heat i {
+    aspect-ratio: 1;
+    border-radius: 3px;
+    background: var(--wash-2);
+  }
+  .moi-heat i.l1 {
+    background: color-mix(in srgb, var(--garden) 30%, var(--wash-2));
+  }
+  .moi-heat i.l2 {
+    background: color-mix(in srgb, var(--garden) 60%, var(--wash-2));
+  }
+  .moi-heat i.l3 {
+    background: var(--garden);
+  }
+  .moi-heat i.f {
+    background: transparent;
+  }
+  .moi-list {
+    overflow: hidden;
+    border-radius: 1.125rem;
+  }
+  .moi-set {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 3.75rem;
+    margin: 0;
+    padding: 0.75rem 0.875rem;
+  }
+  .moi-set + .moi-set::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0.875rem;
+    right: 0;
+    border-top: 0.5px solid var(--rule);
+  }
+  .moi-set > span {
+    flex: 1;
+    font-size: 1.0625rem;
+    font-weight: 500;
+  }
+  .moi-set small {
+    font: 400 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .moi-chev {
+    flex: none;
+    width: 0.9375rem;
+    height: 0.9375rem;
+    color: var(--rule-strong);
+  }
+  /* The native picker opens over the whole row. */
+  .moi-set select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    opacity: 0;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  .moi-set:has(select:focus-visible) {
+    outline: 2px solid var(--link);
+    outline-offset: -2px;
+  }
+}
+@media (max-width: 639.98px) {
+  /* The rest of the page (marks, review charts, export and import) in the
+     same cards and headings as Moi. */
+  main.progression .progression-h2 {
+    font: 700 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  main.progression .progression-actions {
+    gap: 0.625rem;
+  }
+  main.progression .progression-action {
+    padding: 1rem;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.25rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+  }
+  main.progression .progression-action p {
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+  main.progression .progression-btn {
+    height: 3rem;
+    border-radius: 1.5rem;
+    font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+}
+
+/* --- Note "Sommaire" sheet (phone; lib/note-app.ts, note-app.js) ---------- */
+@media (max-width: 639.98px) {
+  .na-toc-sheet {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    padding-bottom: calc(1.875rem + var(--gk-safe-b));
+  }
+  .na-toc-sheet .na-sheet-h {
+    margin-bottom: 0.625rem;
+    padding: 0.25rem 0.625rem 0;
+    font-size: 1.1875rem;
+  }
+  .na-toc-meta {
+    font: 500 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .na-toc-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .na-toc-list li {
+    margin: 0;
+  }
+  .na-toc-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem;
+    border-radius: 0.75rem;
+    font: 400 1.03125rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .na-toc-list a:hover {
+    background: transparent;
+  }
+  .na-toc-list a i {
+    flex: none;
+    width: 1.375rem;
+    font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-style: normal;
+    text-align: right;
+    color: var(--muted);
+  }
+  .na-toc-list a i svg {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    vertical-align: -0.2rem;
+  }
+  .na-toc-list a.done {
+    color: var(--muted);
+  }
+  .na-toc-list a.done i,
+  .na-toc-list a.on i {
+    color: var(--fam, var(--garden));
+  }
+  .na-toc-list a.on {
+    background: var(--fam-wash, var(--garden-wash));
+    font-weight: 600;
+  }
+  .na-toc-list a.sub {
+    padding: 0.375rem 0.625rem 0.375rem 2.75rem;
+    font-size: 0.9375rem;
+    color: var(--ink-2);
+  }
+  .na-near {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: calc(100% - 0.5rem);
+    margin: 0.625rem 0.25rem 0;
+    padding: 0.75rem 0.875rem;
+    border: 0;
+    border-radius: 1rem;
+    background: var(--wash-2);
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+  }
+  .na-near-ic {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.625rem;
+    background: var(--fam-wash, var(--garden-wash));
+    color: var(--fam, var(--garden));
+  }
+  .na-near-ic svg {
+    width: 1.1875rem;
+    height: 1.1875rem;
+  }
+  .na-near-tx {
+    flex: 1;
+    min-width: 0;
+  }
+  .na-near-tx b {
+    display: block;
+    font: 500 0.96875rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .na-near-tx small {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .na-near .na-chev {
+    width: 0.9375rem;
+    height: 0.9375rem;
+    color: var(--rule-strong);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Review session on a phone (components/ReviewPhone.tsx): a full-screen
+   layer over the page and the tab bar.
+   --------------------------------------------------------------------------- */
+.rsm-resume-row {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  :root {
+    --rsm-red: #b8432f;
+    --rsm-amber: #a86a12;
+    --rsm-blue: #2f63a8;
+    --rsm-red-w: #fbe9e5;
+    --rsm-amber-w: #fbf0de;
+    --rsm-blue-w: #e5edf8;
+  }
+  :root[data-theme="dark"] {
+    --rsm-red: #e88a78;
+    --rsm-amber: #e2b25e;
+    --rsm-blue: #8db4ea;
+    --rsm-red-w: #3a2622;
+    --rsm-amber-w: #372d1d;
+    --rsm-blue-w: #1f2a3a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --rsm-red: #e88a78;
+      --rsm-amber: #e2b25e;
+      --rsm-blue: #8db4ea;
+      --rsm-red-w: #3a2622;
+      --rsm-amber-w: #372d1d;
+      --rsm-blue-w: #1f2a3a;
+    }
+  }
+  html.rsm-open,
+  html.rsm-open body {
+    overflow: hidden;
+  }
+  .rsm {
+    font-variant-numeric: lining-nums;
+    --fam: var(--garden);
+    --fam-wash: var(--garden-wash);
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+    overscroll-behavior: contain;
+  }
+  .rsm[data-family] {
+    --fam: hsl(var(--fam-h) var(--fam-s) var(--fam-l));
+    --fam-wash: hsl(var(--fam-h) var(--fam-s) var(--fam-l) / 0.14);
+  }
+  .rsm button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  /* Top: close, progress, undo. */
+  .rsm-top {
+    flex: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: calc(3.875rem + env(safe-area-inset-top, 0px));
+    padding: calc(0.375rem + env(safe-area-inset-top, 0px)) 1rem 0;
+  }
+  .rsm-gbtn {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .rsm-gbtn svg {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .rsm-gbtn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .rsm-prog {
+    position: absolute;
+    left: 4.5rem;
+    right: 4.5rem;
+    top: calc(0.75rem + env(safe-area-inset-top, 0px));
+    text-align: center;
+  }
+  .rsm-cnt {
+    display: block;
+    font: 600 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  .rsm-bar {
+    height: 0.3125rem;
+    margin-top: 0.5rem;
+    overflow: hidden;
+    border-radius: 0.1875rem;
+    background: var(--wash-2);
+  }
+  .rsm-bar i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--garden);
+    transition: width 0.3s;
+  }
+
+  .rsm-chip-row {
+    flex: none;
+    display: flex;
+    justify-content: center;
+    min-height: 1.875rem;
+    margin-top: 0.875rem;
+  }
+  .rsm-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4375rem;
+    max-width: calc(100% - 2.5rem);
+    height: 1.875rem;
+    padding: 0 0.75rem 0 0.5rem;
+    border-radius: 0.9375rem;
+    background: var(--fam-wash);
+    color: var(--fam);
+    font: 700 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .rsm-chip > span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .rsm-chip i {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 0.375rem;
+    background: var(--fam);
+    color: #fff;
+  }
+  .rsm-chip i svg {
+    width: 0.6875rem;
+    height: 0.6875rem;
+  }
+
+  /* The card on its stack. */
+  .rsm-stack {
+    flex: 0 1 27.5rem;
+    position: relative;
+    min-height: 12rem;
+    margin: 0.75rem 1.25rem 0;
+  }
+  .rsm-fc {
+    position: absolute;
+    inset: 0;
+    border: 0.5px solid var(--rule);
+    border-radius: 1.75rem;
+    background: var(--dash-card);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.04), 0 18px 40px rgb(0 0 0 / 0.09);
+  }
+  .rsm-fc.b1 {
+    transform: translateY(1.25rem) scale(0.93);
+    opacity: 0.8;
+    box-shadow: 0 6px 14px rgb(0 0 0 / 0.05);
+  }
+  .rsm-fc.b2 {
+    transform: translateY(2.375rem) scale(0.86);
+    opacity: 0.5;
+    box-shadow: none;
+  }
+  .rsm-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.75rem 1.75rem;
+    text-align: center;
+    outline: none;
+    cursor: pointer;
+    transition: transform 0.25s;
+    touch-action: pan-y;
+  }
+  .rsm-card.drag {
+    transition: none;
+  }
+  .rsm-tag {
+    position: absolute;
+    top: 1.125rem;
+    left: 1.25rem;
+    font: 700 0.71875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .rsm-snd {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--wash-2);
+  }
+  .rsm-snd svg,
+  .rsm-play svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .rsm-face {
+    width: 100%;
+    max-height: 100%;
+    overflow: auto;
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+  .rsm-face:focus-visible {
+    outline: 2px solid var(--garden);
+    outline-offset: 4px;
+    border-radius: 0.5rem;
+  }
+  .rsm-face .card {
+    font: inherit;
+    color: inherit;
+    background: none;
+  }
+  /* The card's own clip buttons are played from the round button. */
+  .rsm-face .pron-btn {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .rsm-face hr {
+    width: 3.5rem;
+    margin: 1.125rem auto 0.875rem;
+    border: 0;
+    border-top: 1.5px solid var(--rule);
+  }
+  .rsm-q {
+    font-size: 1.375rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .rsm-a {
+    font-size: 1.0625rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  .rsm-q > :first-child,
+  .rsm-a > :first-child {
+    margin-top: 0;
+  }
+  .rsm-q > :last-child,
+  .rsm-a > :last-child {
+    margin-bottom: 0;
+  }
+  .rsm-open {
+    display: inline-block;
+    margin-top: 0.875rem;
+    font: 500 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--garden);
+  }
+  .rsm-stamp {
+    position: absolute;
+    top: 2.5rem;
+    left: 1.625rem;
+    z-index: 2;
+    padding: 0.25rem 0.75rem;
+    border: 3px solid var(--garden);
+    border-radius: 0.625rem;
+    background: var(--dash-card);
+    color: var(--garden);
+    font: 800 1.5rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transform: rotate(-14deg);
+    pointer-events: none;
+  }
+  .rsm-stamp.again {
+    left: auto;
+    right: 1.625rem;
+    border-color: var(--rsm-red);
+    color: var(--rsm-red);
+    transform: rotate(14deg);
+  }
+  .rsm-edge {
+    position: absolute;
+    top: 3.875rem;
+    bottom: 0;
+    right: 0;
+    width: 8.75rem;
+    background: linear-gradient(270deg, color-mix(in srgb, var(--garden) 22%, transparent), transparent);
+    pointer-events: none;
+  }
+  .rsm-edge.again {
+    right: auto;
+    left: 0;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--rsm-red) 22%, transparent), transparent);
+  }
+
+  .rsm-hint {
+    flex: none;
+    margin: 1.625rem 1.25rem 0;
+    text-align: center;
+    font: 400 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .rsm-foot {
+    margin-top: auto;
+    padding: 1rem 1.25rem calc(2.5rem + var(--gk-safe-b));
+  }
+  .rsm-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: 3.25rem;
+    border: 0;
+    border-radius: 1.625rem;
+    background: var(--garden);
+    color: var(--paper) !important;
+    font: 600 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+    text-decoration: none;
+  }
+  .rsm-big {
+    height: 3.625rem;
+    border-radius: 1.8125rem;
+  }
+  .rsm-grades {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin: 0 -0.375rem -0.625rem;
+    padding: 0.5rem;
+    border-radius: 1.875rem;
+    transition: opacity 0.2s;
+  }
+  .rsm-grades.dim {
+    opacity: 0.5;
+  }
+  .rsm-g {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1875rem;
+    height: 4.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 1.375rem;
+    background: var(--gw);
+    color: var(--gc) !important;
+  }
+  .rsm-g b {
+    font: 700 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .rsm-g small {
+    font: 600 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    opacity: 0.85;
+  }
+  .rsm-g.again {
+    --gw: var(--rsm-red-w);
+    --gc: var(--rsm-red);
+  }
+  .rsm-g.hard {
+    --gw: var(--rsm-amber-w);
+    --gc: var(--rsm-amber);
+  }
+  .rsm-g.good {
+    --gw: var(--garden);
+    --gc: var(--paper);
+  }
+  .rsm-g.easy {
+    --gw: var(--rsm-blue-w);
+    --gc: var(--rsm-blue);
+  }
+
+  /* Typed answers. */
+  .rsm-run {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    height: 1.625rem;
+    padding: 0 0.625rem;
+    border-radius: 0.8125rem;
+    background: #fdecd9;
+    color: #c25a12;
+    font: 800 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .rsm-run svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  .rsm-run.lost {
+    background: var(--wash-2);
+    color: var(--muted);
+  }
+  .rsm-typed .rsm-chip-row {
+    margin-top: 0.25rem;
+  }
+  .rsm-ask {
+    flex: none;
+    margin: 0.75rem 1.25rem 0;
+    outline: none;
+  }
+  .rsm-kicker {
+    margin: 0;
+    font: 700 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--fam);
+  }
+  .rsm-prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    margin-top: 0.75rem;
+  }
+  .rsm-play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 1rem;
+    background: var(--fam);
+    color: #fff !important;
+  }
+  .rsm-prompt .rsm-face {
+    flex: 1;
+    min-width: 0;
+    text-align: start;
+  }
+  .rsm-inp {
+    flex: none;
+    width: calc(100% - 2.5rem);
+    min-height: 3.625rem;
+    margin: 1.75rem 1.25rem 0;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--dash-card);
+    color: var(--ink);
+    font: 500 1.25rem "Alegreya", "Alegreya Fallback", serif;
+    outline: none;
+  }
+  .rsm-inp:focus {
+    border-color: var(--fam);
+  }
+  .rsm-inp.ok {
+    border-color: var(--garden);
+  }
+  .rsm-inp.ko {
+    border-color: var(--rsm-red);
+  }
+  .rsm-fb {
+    margin-top: auto;
+    padding: 1.125rem 1.25rem calc(2.125rem + var(--gk-safe-b));
+    border-radius: 1.5rem 1.5rem 0 0;
+    background: var(--garden-wash);
+  }
+  .rsm-fb.ko {
+    background: var(--rsm-red-w);
+  }
+  .rsm-fb h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin: 0;
+    font: 700 1.3125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--garden);
+  }
+  .rsm-fb.ko h2 {
+    color: var(--rsm-red);
+  }
+  .rsm-fb h2 i {
+    display: grid;
+    place-items: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .rsm-fb.ko h2 i {
+    background: var(--rsm-red);
+  }
+  .rsm-fb h2 svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .rsm-fb p,
+  .rsm-fb-more {
+    margin: 0.5rem 0 0.875rem;
+    font: 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink-2);
+  }
+  .rsm-fb-more * {
+    font: inherit !important;
+    margin: 0 !important;
+    opacity: 1 !important;
+  }
+  .rsm-fb-more > :first-child {
+    color: var(--ink);
+    font-weight: 600 !important;
+  }
+  .rsm-fb p b {
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink);
+  }
+  .rsm-fb ins {
+    text-decoration: underline 2px var(--rsm-red);
+    text-underline-offset: 3px;
+  }
+  .rsm-fb p small {
+    display: block;
+    font-size: 0.90625rem;
+    color: var(--muted);
+  }
+  .rsm-fb .rsm-btn {
+    height: 3.375rem;
+  }
+  .rsm-fb.ko .rsm-btn {
+    background: var(--rsm-red);
+    color: var(--paper) !important;
+  }
+
+  /* End of the session. */
+  .rsm-end {
+    overflow-y: auto;
+    text-align: center;
+  }
+  .rsm-end .rsm-top {
+    justify-content: flex-start;
+  }
+  .rsm-ring {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 9.375rem;
+    height: 9.375rem;
+    margin: 1rem auto 0;
+    border-radius: 50%;
+    background: conic-gradient(var(--garden) calc(var(--p) * 1turn), var(--wash-2) 0);
+  }
+  .rsm-ring::before {
+    content: "";
+    grid-area: 1 / 1;
+    width: 7.875rem;
+    height: 7.875rem;
+    border-radius: 50%;
+    background: var(--paper);
+  }
+  .rsm-ring div {
+    grid-area: 1 / 1;
+  }
+  .rsm-ring b {
+    display: block;
+    font: 600 2.5rem/1 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .rsm-ring small {
+    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .rsm-end h2 {
+    margin: 1.375rem 1.25rem 0.375rem;
+    font: 600 1.875rem/1.1 "Alegreya", "Alegreya Fallback", serif;
+    outline: none;
+  }
+  .rsm-end-note {
+    margin: 0;
+    padding: 0 2.5rem;
+    font: 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--muted);
+  }
+  .rsm-stats,
+  .rsm-week {
+    flex: none;
+    margin: 0 1rem;
+    border: 0.5px solid var(--rule);
+    border-radius: 1.25rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+  }
+  .rsm-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 1.5rem;
+    padding: 0.25rem 0;
+  }
+  .rsm-stats div {
+    padding: 0.75rem 0.25rem;
+  }
+  .rsm-stats div + div {
+    border-left: 0.5px solid var(--rule);
+  }
+  .rsm-stats b {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    font: 600 1.5rem/1 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .rsm-stats b svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #e0672f;
+  }
+  .rsm-stats small {
+    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .rsm-week {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.625rem;
+    padding: 0.875rem 1rem;
+  }
+  .rsm-week span {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+    font: 600 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .rsm-week i {
+    display: grid;
+    place-items: center;
+    width: 1.875rem;
+    height: 1.875rem;
+    border-radius: 50%;
+    background: var(--wash-2);
+  }
+  .rsm-week .y i {
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .rsm-week svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  /* Folded away: one button brings it back. */
+  .rsm-resume-row {
+    display: block;
+    margin: 0 0 1rem;
+  }
+  .rsm-resume {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    height: 3.25rem;
+    border: 0;
+    border-radius: 1.625rem;
+    background: var(--garden);
+    color: var(--paper);
+    font: 600 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    cursor: pointer;
+  }
+  .rsm-resume span {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.8;
+  }
+}
+@media (max-width: 639.98px) {
+  .rsm-prompt .rsm-face .card,
+  .rsm-prompt .rsm-face .card * {
+    text-align: start;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   "Réviser" on a phone (components/CartesPhone.tsx), in place of the
+   /cartes/ index.
+   --------------------------------------------------------------------------- */
+.rv {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  main.cartes-index > :not(.rv) {
+    display: none;
+  }
+  main.cartes-index {
+    padding: 0 1rem 2rem;
+  }
+  .rv {
+    display: block;
+    color: var(--ink);
+    font-variant-numeric: lining-nums;
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+  }
+  .rv a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .rv a:hover {
+    background: transparent;
+  }
+  .rv .rv-title {
+    margin: 0.25rem 0.25rem 0.875rem;
+    padding: 0;
+    border: 0;
+    font: 600 2.125rem/1.06 "Alegreya", "Alegreya Fallback", serif;
+    letter-spacing: -0.0125rem;
+  }
+  .rv-today {
+    padding: 1.125rem;
+    border-radius: 1.25rem;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .rv-today p {
+    margin: 0;
+  }
+  .rv-kicker {
+    font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+  .rv-big {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-top: 0.375rem !important;
+  }
+  .rv-big b {
+    font: 600 2.75rem/1 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .rv-big span {
+    font: 500 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .rv-sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.875rem;
+    margin-top: 0.5rem !important;
+    font: 500 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    opacity: 0.9;
+  }
+  .rv-run {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.1875rem;
+  }
+  .rv-run svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+    color: #f5a35c;
+  }
+  .rv .rv-go {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 3.25rem;
+    margin-top: 0.875rem;
+    border-radius: 1.625rem;
+    background: var(--paper);
+    color: var(--garden);
+    font: 600 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .rv-go svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+  main .rv-h {
+    margin: 0;
+    padding: 1.25rem 0.375rem 0.5rem;
+    border: 0;
+    font: 700 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .rv-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    overflow: hidden;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.125rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+  }
+  .rv-list li {
+    position: relative;
+    margin: 0;
+    padding: 0;
+  }
+  .rv-list li + li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3.875rem;
+    right: 0;
+    border-top: 0.5px solid var(--rule);
+  }
+  .rv-list li::marker {
+    content: none;
+  }
+  .rv-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.8125rem;
+    min-height: 3.75rem;
+    padding: 0.75rem 0.875rem;
+  }
+  .rv-list a:active {
+    background: var(--wash-2);
+  }
+  .rv-ico {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.625rem;
+    background: var(--fam-wash, var(--garden-wash));
+    color: var(--fam, var(--garden));
+  }
+  .rv-ico svg {
+    width: 1.1875rem;
+    height: 1.1875rem;
+  }
+  .rv-tx {
+    flex: 1;
+    min-width: 0;
+  }
+  .rv-tx b {
+    display: block;
+    overflow: hidden;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .rv-tx small {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .rv-pill {
+    flex: none;
+    min-width: 1.625rem;
+    height: 1.5rem;
+    padding: 0 0.5rem;
+    border-radius: 0.75rem;
+    background: var(--garden);
+    color: var(--paper);
+    font: 700 0.8125rem/1.5rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-align: center;
+  }
+  .rv-pill.soft {
+    background: var(--wash-2);
+    color: var(--ink-2);
+  }
+  .rv-chev {
+    flex: none;
+    width: 0.875rem;
+    height: 0.875rem;
+    color: var(--muted);
+  }
+  .rv-empty {
+    margin: 0 0.375rem;
+    color: var(--muted);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   A reading path on a phone: the header as an app page, then the road
+   (components/PathRoad.tsx) in place of the levels list and the graph.
+   --------------------------------------------------------------------------- */
+.road,
+.pt-short {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  main.parcours-page--path {
+    --on-fam: #fff;
+    padding-top: 0;
+    padding-bottom: 1rem;
+  }
+  :root[data-theme="dark"] main.parcours-page--path {
+    --on-fam: var(--paper);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) main.parcours-page--path {
+      --on-fam: var(--paper);
+    }
+  }
+  main.parcours-page--path > :is(.parcours-levels, .parcours-graph-fold, h2.visually-hidden, h2.themes-h2),
+  main.parcours-page--path .parcours-desc,
+  main.parcours-page--path .parcours-dock,
+  main.parcours-page--path .parcours-bar,
+  main.parcours-page--path .pt-long {
+    display: none !important;
+  }
+  main.parcours-page--path .pt-short {
+    display: inline;
+  }
+  /* The level bar names where one is: no title pill in the site bar. */
+  body:has(main.parcours-page--path) .site-bar-brand {
+    display: none;
+  }
+
+  /* Back and "available offline" as glass buttons over the page. */
+  main.parcours-page--path .themes-back,
+  main.parcours-page--path .offline-path-btn {
+    position: fixed;
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    z-index: 901;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 0.5px solid var(--glass-edge);
+    border-radius: 50%;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    box-shadow: var(--glass-shadow);
+    color: transparent;
+    font-size: 0;
+    text-decoration: none;
+  }
+  main.parcours-page--path .themes-back {
+    left: 0.875rem;
+  }
+  main.parcours-page--path .offline-path-btn {
+    right: 4.125rem;
+  }
+  main.parcours-page--path :is(.themes-back, .offline-path-btn)::before {
+    content: "";
+    width: 1.375rem;
+    height: 1.375rem;
+    background: var(--fam, var(--ink));
+    -webkit-mask: var(--ico) center / contain no-repeat;
+    mask: var(--ico) center / contain no-repeat;
+  }
+  main.parcours-page--path .themes-back::before {
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 5-7 7 7 7'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path .offline-path-btn::before {
+    background: var(--ink);
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11m-5-5 5 5 5-5M5 20h14'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path .offline-path:has(.offline-path-ok) .offline-path-btn::before {
+    background: var(--garden);
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path .offline-path-ok {
+    display: none;
+  }
+  main.parcours-page--path .offline-path {
+    margin: 0;
+  }
+
+  /* Header. */
+  main.parcours-page--path .themes-kicker {
+    margin: 0.75rem 0 0;
+    font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fam, var(--garden));
+  }
+  main.parcours-page--path .themes-title {
+    margin: 0.25rem 0 0;
+    font: 600 2.125rem/1.08 "Alegreya", "Alegreya Fallback", serif;
+    letter-spacing: -0.0125rem;
+  }
+  main.parcours-page--path .parcours-status {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0.875rem 0 0;
+    font: 500 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-variant-numeric: lining-nums;
+    color: var(--ink-2);
+  }
+  main.parcours-page--path .parcours-progress {
+    margin: 0;
+  }
+  main.parcours-page--path .parcours-study {
+    margin-top: 1rem;
+  }
+  main.parcours-page--path .parcours-tools {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.625rem;
+  }
+  main.parcours-page--path .parcours-cta {
+    grid-column: 1 / -1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 4.25rem;
+    margin: 0;
+    padding: 0.625rem 4rem 0.625rem 1.375rem;
+    border: 0;
+    border-radius: 2.125rem;
+    background: var(--garden);
+    box-shadow: none;
+    color: var(--paper);
+    text-decoration: none;
+  }
+  main.parcours-page--path .parcours-cta-verb {
+    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    opacity: 0.85;
+  }
+  main.parcours-page--path .parcours-cta-title {
+    font: 600 1.0625rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  main.parcours-page--path .parcours-cta > [aria-hidden] {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--paper) 20%, transparent);
+    transform: translateY(-50%);
+    font: 600 1.25rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  main.parcours-page--path .parcours-tools > [data-tool] {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    height: 4.75rem;
+    margin: 0;
+    padding: 0.5rem 0.25rem 0.375rem;
+    border: 0;
+    border-radius: 1.125rem;
+    background: var(--wash-2);
+    box-shadow: none;
+    color: var(--ink);
+    font: 600 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-decoration: none;
+  }
+  main.parcours-page--path .parcours-tools > [data-tool]:disabled {
+    opacity: 0.55;
+  }
+  main.parcours-page--path .parcours-tools > [data-tool]::before {
+    content: "";
+    width: 1.375rem;
+    height: 1.375rem;
+    background: var(--fam, var(--garden));
+    -webkit-mask: var(--ico) center / contain no-repeat;
+    mask: var(--ico) center / contain no-repeat;
+  }
+  main.parcours-page--path [data-tool="placement"]::before {
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.9'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Ccircle cx='12' cy='12' r='1.5' fill='%23000'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path [data-tool="review"]::before {
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.4M12 17h.01'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path [data-tool="sheet"]::before {
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round'%3E%3Crect x='5' y='3' width='14' height='18' rx='2'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h4'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path .parcours-tool-count {
+    position: absolute;
+    top: 0.375rem;
+    right: 0.5rem;
+  }
+  main.parcours-page--path .parcours-tools > .parcours-tool--quiet {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  main.parcours-page--path .parcours-tools-note {
+    margin: 0.625rem 0.25rem 0;
+    font: 400 0.8125rem/1.35 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+
+  /* The road. */
+  .road {
+    display: block;
+    position: relative;
+    margin: 1.25rem -1rem 0;
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-variant-numeric: lining-nums;
+  }
+  .road a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .road a:hover {
+    background: transparent;
+  }
+  .road-bar {
+    position: sticky;
+    top: calc(3.75rem + env(safe-area-inset-top, 0px));
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0.75rem;
+    padding: 0.625rem 0.75rem 0.625rem 0.875rem;
+    border-radius: 1.25rem;
+    background: var(--fam, var(--garden));
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--fam, var(--garden)) 35%, transparent);
+    color: var(--on-fam);
+  }
+  .road-bar-tx {
+    flex: 1;
+    min-width: 0;
+  }
+  .road-bar-tx small {
+    display: block;
+    font: 700 0.71875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .road-bar-tx b {
+    display: block;
+    font: 600 1.09375rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .road-bar-p {
+    display: block;
+    height: 0.375rem;
+    margin-top: 0.4375rem;
+    overflow: hidden;
+    border-radius: 0.1875rem;
+    background: color-mix(in srgb, var(--on-fam) 28%, transparent);
+  }
+  .road-bar-p i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--on-fam);
+  }
+  .road .road-bar-sheet {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1.5px solid color-mix(in srgb, var(--on-fam) 35%, transparent);
+    border-radius: 0.875rem;
+    background: color-mix(in srgb, var(--on-fam) 18%, transparent);
+    color: var(--on-fam);
+  }
+  .road-bar-sheet svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .road-level {
+    position: relative;
+  }
+  .road-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .road-svg path {
+    fill: none;
+    stroke-linecap: round;
+  }
+  .road-way {
+    stroke: var(--wash-2);
+    stroke-width: 18;
+  }
+  .road-dots {
+    stroke: var(--rule-strong);
+    stroke-width: 2.5;
+    stroke-dasharray: 2 11;
+  }
+  .road-done {
+    stroke: var(--fam-wash, var(--garden-wash));
+    stroke-width: 18;
+  }
+  .road-done-line {
+    stroke: var(--fam, var(--garden));
+    stroke-width: 3;
+    opacity: 0.55;
+  }
+  .road-sprout {
+    position: absolute;
+    width: 2.125rem;
+    height: 2.125rem;
+    color: var(--fam, var(--garden));
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  .road-div {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    text-align: center;
+  }
+  .road-div-h {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .road-div-h::before,
+  .road-div-h::after {
+    content: "";
+    flex: 1;
+    border-top: 1.5px solid var(--rule);
+  }
+  .road-div-sub {
+    margin: 0.5rem 0 0;
+    font: 400 0.90625rem/1.35 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--muted);
+  }
+  .road-list {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .road-pn {
+    --d: 3.875rem;
+    position: absolute;
+    z-index: 3;
+    width: 0;
+    height: 0;
+    margin: 0;
+  }
+  .road-pn::marker {
+    content: none;
+  }
+  .road .road-disk {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    place-items: center;
+    width: var(--d);
+    height: var(--d);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    --bg: var(--fam, var(--garden));
+    --sh: color-mix(in srgb, var(--fam, var(--garden)) 65%, #000);
+    --fg: var(--on-fam);
+  }
+  .road-disk::before {
+    content: "";
+    position: absolute;
+    inset: 4px 0 -4px;
+    border-radius: inherit;
+    background: var(--sh);
+  }
+  .road-disk > span:not(.sr-only) {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border: 3px solid var(--rim, transparent);
+    border-radius: inherit;
+    background: var(--bg);
+    color: var(--fg);
+  }
+  .road-disk svg {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+  .road-pn.done .road-disk > span::after {
+    content: "";
+    position: absolute;
+    left: 0.75rem;
+    top: 0.5rem;
+    width: 1rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.28);
+    transform: rotate(-30deg);
+  }
+  .road-pn.lock .road-disk {
+    --bg: var(--dash-card);
+    --sh: var(--rule-strong);
+    --fg: var(--muted);
+    --rim: var(--rule);
+  }
+  .road-pn.cur {
+    --d: 4.75rem;
+  }
+  .road-pn.cur .road-disk svg {
+    width: 2rem;
+    height: 2rem;
+  }
+  .road-ring {
+    position: absolute;
+    inset: -11px -11px -7px;
+    border-radius: 50%;
+    background: conic-gradient(var(--fam, var(--garden)) 140deg, var(--fam-wash, var(--garden-wash)) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+  }
+  .road-chest {
+    --d: 4.75rem;
+  }
+  .road-chest .road-disk {
+    width: 5.25rem;
+    height: 4.625rem;
+    border-radius: 1.25rem;
+    --bg: #f3c64a;
+    --sh: #c99a1c;
+    --fg: #6b4800;
+  }
+  .road-chest.lock .road-disk {
+    --bg: var(--dash-card);
+    --sh: var(--rule-strong);
+    --fg: var(--muted);
+    --rim: var(--rule);
+  }
+  .road-chest .road-disk:disabled {
+    cursor: default;
+  }
+  .road-lb {
+    position: absolute;
+    top: 0;
+    left: calc(var(--d) / 2 + 0.75rem);
+    width: 9.5rem;
+    transform: translateY(-50%);
+  }
+  .road-pn.r .road-lb {
+    left: auto;
+    right: calc(var(--d) / 2 + 0.75rem);
+    text-align: right;
+  }
+  .road-lb > a,
+  .road-lb b {
+    display: block;
+    font: 600 0.96875rem/1.18 "Alegreya", "Alegreya Fallback", serif;
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .road-pn.lock .road-lb > a,
+  .road-pn.lock .road-lb b {
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .road-lb em {
+    display: block;
+    margin-bottom: 0.0625rem;
+    font: 700 0.6875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-style: normal;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #a87512;
+  }
+  .road-lb small {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.1875rem;
+    font: 500 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .road-pn.r .road-lb small {
+    justify-content: flex-end;
+  }
+  .road-stars {
+    display: inline-flex;
+    gap: 1px;
+    color: #e2a72e;
+  }
+  .road-stars i {
+    opacity: 0.25;
+  }
+  .road-stars i.on {
+    opacity: 1;
+  }
+  .road-stars svg,
+  .road-mi svg {
+    display: block;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  .road-mi {
+    display: inline-flex;
+  }
+  .road-card {
+    position: absolute;
+    top: calc(var(--d) / 2 + 1.25rem);
+    left: -5rem;
+    z-index: 4;
+    width: 16.75rem;
+    padding: 0.875rem;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.25rem;
+    background: var(--dash-card);
+    box-shadow: 0 12px 30px rgb(0 0 0 / 0.12);
+  }
+  .road-card.r {
+    left: auto;
+    right: -5rem;
+  }
+  .road-card::before {
+    content: "";
+    position: absolute;
+    top: -0.5rem;
+    left: 4.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-left: 0.5px solid var(--dash-edge);
+    border-top: 0.5px solid var(--dash-edge);
+    background: var(--dash-card);
+    transform: rotate(45deg);
+  }
+  .road-card.r::before {
+    left: auto;
+    right: 4.5rem;
+  }
+  .road-card p {
+    margin: 0;
+  }
+  .road-card-k {
+    font: 700 0.71875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--fam, var(--garden));
+  }
+  .road-card-t {
+    margin-top: 0.1875rem !important;
+    font: 600 1.1875rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .road-card-m {
+    display: flex;
+    gap: 0.875rem;
+    margin-top: 0.375rem !important;
+    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .road-card-m span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .road-card-m svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+  .road .road-go {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 2.875rem;
+    margin-top: 0.75rem;
+    border-radius: 1.4375rem;
+    background: var(--fam, var(--garden));
+    box-shadow: 0 4px 0 color-mix(in srgb, var(--fam, var(--garden)) 65%, #000);
+    color: var(--on-fam);
+    font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .road-go svg {
+    width: 1.125rem;
+    height: 1.125rem;
   }
 }

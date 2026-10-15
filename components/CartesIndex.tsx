@@ -3,6 +3,8 @@ import type { AnkiDeck } from "@/lib/anki";
 import { NoteQuestionsEntry } from "@/components/NoteQuestionsEntry";
 import { CartesToday, DeckDue, StartedDecks } from "@/components/CartesToday";
 import { homeFolderLabel } from "@/lib/content";
+import { CartesPhone } from "@/components/CartesPhone";
+import { familyOfFolder } from "@/lib/path-family";
 
 /**
  * /cartes/ — every Anki deck (lib/anki.ts's manifest), grouped under the vault
@@ -22,8 +24,18 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
   }
   const folders = [...groups.keys()].sort((a, b) => a.localeCompare(b));
 
+  const phoneDecks = decks.map((d) => {
+    // "Arabe › Libanais" reads "Arabe libanais"; elsewhere the discipline
+    // is implied by the colour and only the last folder is kept ("Réseau").
+    const family = familyOfFolder(d.folder);
+    const parts = folderLabel(d.folder).split(" › ");
+    const place = family === "langues" ? [parts[0], ...parts.slice(1).map((p) => p.toLowerCase())].join(" ") : parts[parts.length - 1];
+    return { slug: d.slug, label: place && place !== "—" ? `${place} · ${d.name}` : d.name, count: d.count, family };
+  });
+
   return (
     <main className="cartes-index">
+      <CartesPhone decks={phoneDecks} />
       <a href="/" className="cartes-index-back">
         ← {t("nav.home")}
       </a>

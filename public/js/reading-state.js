@@ -93,6 +93,7 @@ document.addEventListener("gk:widget-goal", () => recordActivity("c"));
       commit(markRead(loadStore(), slug));
       recordActivity("r");
       announce(tt("reading.read"));
+      window.dispatchEvent(new Event("gk:note-read"));
     }
   }
 
@@ -190,10 +191,13 @@ document.addEventListener("gk:widget-goal", () => recordActivity("c"));
     if (!btn) return;
     const act = btn.getAttribute("data-act");
     if (act === "read") {
-      if (!isRead(loadStore(), slug)) recordActivity("r");
+      const fresh = !isRead(loadStore(), slug);
+      if (fresh) recordActivity("r");
       commit(markRead(loadStore(), slug));
       announce(tt("reading.read"));
       box.querySelector("[data-act]")?.focus();
+      // A note of a reading path: the "Lue !" card (note-end.js) on a phone.
+      if (fresh) window.dispatchEvent(new Event("gk:note-read"));
     } else if (act === "unread") {
       commit(markUnread(loadStore(), slug));
       maxP = 0;

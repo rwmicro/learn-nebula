@@ -413,8 +413,15 @@ export function ParcoursStudy({
             <span aria-hidden="true">→</span>
           </a>
         )}
-        <button type="button" className="parcours-tool" onClick={() => setDialog("placement")} aria-haspopup="dialog">
-          {tr("parcours.placement")}
+        <button
+          type="button"
+          className="parcours-tool"
+          data-tool="placement"
+          onClick={() => setDialog("placement")}
+          aria-haspopup="dialog"
+        >
+          <span className="pt-long">{tr("parcours.placement")}</span>
+          <span className="pt-short" aria-hidden="true">{tr("road.placement")}</span>
         </button>
         {/* Nothing to review until a note is read or known: disabled, with
             one quiet line saying why, rather than a dialog that only says so. */}
@@ -422,6 +429,7 @@ export function ParcoursStudy({
           <button
             type="button"
             className="parcours-tool"
+            data-tool="review"
             onClick={() => {
               setReviewLevel(null);
               setDialog("review");
@@ -429,12 +437,14 @@ export function ParcoursStudy({
             aria-haspopup="dialog"
             disabled={!eligible.length}
           >
-            {tr("parcours.review")}
+            <span className="pt-long">{tr("parcours.review")}</span>
+            <span className="pt-short" aria-hidden="true">{tr("road.review")}</span>
             {eligible.length > 0 && <span className="parcours-tool-count">{eligible.length}</span>}
           </button>
         )}
-        <a className="parcours-tool" href={`/parcours/${pathSlug}/fiche/`}>
-          {tr("parcours.sheet")}
+        <a className="parcours-tool" data-tool="sheet" href={`/parcours/${pathSlug}/fiche/`}>
+          <span className="pt-long">{tr("parcours.sheet")}</span>
+          <span className="pt-short" aria-hidden="true">{tr("road.sheet")}</span>
         </a>
         {placed && (
           <button

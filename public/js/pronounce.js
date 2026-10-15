@@ -56,7 +56,6 @@
     });
     audio.addEventListener("playing", () => {
       if (current === btn) setState(btn, "playing");
-      offerPractice(btn);
     });
     audio.addEventListener("ended", () => {
       audio.currentTime = 0;
@@ -111,34 +110,83 @@
 
   // --- Practice: record yourself, compare with the clip ------------------
   //
-  // Once a clip has been heard, a microphone button appears next to it. It
-  // opens a panel at the bottom of the screen with the clip's waveform and
-  // the reader's, on one time scale, to replay one after the other.
-  // Everything stays in the browser: the recording is decoded with Web Audio
-  // and played from memory (no upload, no blob: URL, nothing stored), and is
-  // gone when the panel closes. No speech recognition on purpose: the
-  // browsers' engines send the audio to a server.
+  // Every clip gets a microphone next to its speaker, in one pill. It opens a
+  // bottom sheet with the clip's waveform over the reader's, on one time
+  // scale, to record, replay and compare. Everything stays in the browser:
+  // the recording is decoded with Web Audio and played from memory (no
+  // upload, no blob: URL, nothing stored), and is gone when the sheet closes.
+  // No speech recognition on purpose: the browsers' engines send the audio
+  // to a server.
 
   const canRecord =
     typeof window.MediaRecorder === "function" &&
     !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) &&
     !!(window.AudioContext || window.webkitAudioContext);
-  const MAX_REC_MS = 6000;
-  const MIC_SVG =
-    '<svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M12 15a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v7a3 3 0 0 0 3 3Zm6-3a6 6 0 0 1-12 0H4a8 8 0 0 0 7 7.9V22h2v-2.1A8 8 0 0 0 20 12Z"/></svg>';
+  const MAX_REC = 5; // seconds
+  const svg = (d, fill) =>
+    '<svg viewBox="0 0 24 24" aria-hidden="true" ' +
+    (fill
+      ? 'fill="currentColor">'
+      : 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">') +
+    d +
+    "</svg>";
+  const PLAY = svg('<path d="M8 5.5v13l10.5-6.5z"/>', 1);
+  const MIC = svg(
+    '<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>',
+  );
 
-  function offerPractice(btn) {
-    if (!canRecord) return;
-    const next = btn.nextElementSibling;
-    if (next && next.classList.contains("pron-mic")) return;
-    const mic = document.createElement("button");
-    mic.type = "button";
-    mic.className = "pron-mic";
-    mic.innerHTML = MIC_SVG;
-    mic.setAttribute("aria-label", tt("pronunciation.practiceAria"));
-    mic.title = tt("pronunciation.practice");
-    btn.after(mic);
+  // Wrap each speaker in a pill with its microphone. In a table cell, the
+  // "(translit)" written after the clip moves inside it, so a phone can set
+  // the word and its reading on one line and the pill under them.
+  function enhance() {
+    document.querySelectorAll(".pron > .pron-btn").forEach((btn) => {
+      const pron = btn.parentElement;
+      if (pron.closest(".rsm-face")) return;
+      const pill = document.createElement("span");
+      pill.className = "pron-pill";
+      btn.before(pill);
+      pill.append(btn);
+      if (canRecord) {
+        const mic = document.createElement("button");
+        mic.type = "button";
+        mic.className = "pron-mic";
+        mic.innerHTML = MIC;
+        mic.setAttribute("aria-label", tt("pronunciation.practiceAria"));
+        mic.title = tt("pronunciation.practice");
+        pill.append(mic);
+      }
+      const label = pron.querySelector(".pron-label");
+      if (label) {
+        label.dir = "auto";
+        if (/[\u0590-\u08ff\ufb1d-\ufefc]/.test(label.textContent))
+          label.classList.add("is-rtl");
+      }
+      const next = pron.nextSibling;
+      const m =
+        label &&
+        pron.parentElement.tagName === "TD" &&
+        next &&
+        next.nodeType === 3 &&
+        /^\s*\(([^()]+)\)/.exec(next.data);
+      if (m) {
+        const tr = document.createElement("i");
+        tr.className = "pron-tr";
+        tr.textContent = m[1];
+        pron.append(tr);
+        next.data = next.data.slice(m[0].length);
+      }
+    });
   }
+  let queued = 0;
+  new MutationObserver(() => {
+    queued =
+      queued ||
+      requestAnimationFrame(() => {
+        queued = 0;
+        enhance();
+      });
+  }).observe(document.documentElement, { childList: true, subtree: true });
+  enhance();
 
   let ac = null;
   const audioCtx = () => {
@@ -165,17 +213,21 @@
     const peaks = [];
     for (let i = 0; i < N; i++) {
       let m = 0;
-      for (let j = a + i * step; j < Math.min(b, a + (i + 1) * step); j++) m = Math.max(m, Math.abs(raw[j]));
+      for (let j = a + i * step; j < Math.min(b, a + (i + 1) * step); j++)
+        m = Math.max(m, Math.abs(raw[j]));
       peaks.push(top ? m / top : 0);
     }
-    return { buf, peaks, start: a / buf.sampleRate, dur: (b - a) / buf.sampleRate };
+    return {
+      buf,
+      peaks,
+      start: a / buf.sampleRate,
+      dur: (b - a) / buf.sampleRate,
+    };
   }
 
-  function cssVar(name) {
-    return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || "#888";
-  }
-
-  function draw(canvas, sh, span, colorVar, frac) {
+  /** Bars of `sh` on a lane `span` seconds wide, dashed every `tick` s;
+   * past `frac` (a playhead) the bars are dimmed. */
+  function draw(canvas, sh, span, tick, col, frac) {
     const dpr = window.devicePixelRatio || 1;
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
@@ -184,73 +236,196 @@
     canvas.height = Math.round(h * dpr);
     const g = canvas.getContext("2d");
     if (!g) return;
+    const css = getComputedStyle(canvas);
     g.scale(dpr, dpr);
-    g.clearRect(0, 0, w, h);
-    g.fillStyle = cssVar("--rule");
+    g.strokeStyle = css.getPropertyValue("--pron-grid").trim() || "#ccc";
+    g.globalAlpha = 0.8;
+    g.setLineDash([2, 3]);
+    g.beginPath();
+    for (let t = tick; t < span - 0.01; t += tick) {
+      const x = Math.round((t / span) * w) + 0.5;
+      g.moveTo(x, 0);
+      g.lineTo(x, h);
+    }
+    g.stroke();
+    g.setLineDash([]);
+    g.globalAlpha = 0.6;
+    g.fillStyle = g.strokeStyle;
     g.fillRect(0, h / 2 - 0.5, w, 1);
-    if (!sh) return;
-    const width = w * Math.min(1, sh.dur / span);
-    const bw = 3;
-    const gap = 2;
-    const n = Math.max(1, Math.floor(width / (bw + gap)));
-    const ink = cssVar("--ink");
-    const col = cssVar(colorVar);
+    if (!sh || !sh.peaks.length) return;
+    let top = 1;
+    if (sh.live) top = Math.max(0.08, ...sh.peaks);
+    g.fillStyle = css.getPropertyValue(col).trim() || "#888";
+    const n = Math.max(1, Math.round(((sh.dur / span) * w) / 4));
     for (let i = 0; i < n; i++) {
-      const v = sh.peaks[Math.floor((i / n) * sh.peaks.length)] || 0;
-      const bh = Math.max(2, v * (h - 6));
-      g.fillStyle = frac != null && i / n <= frac ? ink : col;
-      g.fillRect(i * (bw + gap), (h - bh) / 2, bw, bh);
+      const v = Math.min(
+        1,
+        (sh.peaks[Math.floor((i / n) * sh.peaks.length)] || 0) / top,
+      );
+      const bh = Math.max(2, (v * 0.96 + 0.04) * h * 0.92);
+      g.globalAlpha = frac != null && i / n > frac ? 0.38 : 1;
+      g.beginPath();
+      if (g.roundRect) g.roundRect(i * 4, (h - bh) / 2, 2.6, bh, 1.3);
+      else g.rect(i * 4, (h - bh) / 2, 2.6, bh);
+      g.fill();
     }
   }
 
-  const fmtSec = (s) => s.toFixed(1).replace(".", ",") + " s";
+  const num = (s, d) =>
+    new Intl.NumberFormat(document.documentElement.lang || "fr", {
+      minimumFractionDigits: d,
+      maximumFractionDigits: 1,
+    }).format(s);
+  const sec = (s) => tt("pronunciation.practiceSecs", { n: num(s, 1) });
+
+  const lane = (k, label) =>
+    '<div class="pron-coach-lane" data-k="' +
+    k +
+    '"><p class="pron-coach-lh"><span><i></i><span data-t="' +
+    label +
+    '"></span></span><em></em></p><div class="pron-coach-wv"><canvas></canvas><span class="pron-coach-ph"></span>' +
+    (k === "me"
+      ? '<span class="pron-coach-empty" data-t="practiceEmpty"></span>'
+      : "") +
+    "</div></div>";
+  const side = (a, icon, label) =>
+    '<button type="button" class="pron-coach-side" data-a="' +
+    a +
+    '"><span class="glass">' +
+    icon +
+    '</span><span data-t="' +
+    label +
+    '"></span></button>';
+  const pillBtn = (a, cls, icon, label) =>
+    '<button type="button" class="' +
+    cls +
+    '" data-a="' +
+    a +
+    '">' +
+    icon +
+    '<span data-t="' +
+    label +
+    '"></span></button>';
 
   let panel = null;
 
   function openCoach(mic) {
-    const btn = mic.previousElementSibling;
+    const pill = mic.parentElement;
+    const btn = pill.querySelector(".pron-btn");
     const src = btn && btn.dataset.pronSrc;
     if (!src) return;
-    if (panel) panel.close();
-    const label = mic.parentElement && mic.parentElement.querySelector(".pron-label");
-    const word = label ? label.textContent.trim() : "";
+    if (panel) panel.close(true);
+    const pron = pill.parentElement;
+    const label = pron.querySelector(".pron-label");
+    const trEl = pron.querySelector(".pron-tr");
+    const after = pron.nextSibling;
+    const trM =
+      !trEl &&
+      after &&
+      after.nodeType === 3 &&
+      /^\s*\(([^()]+)\)/.exec(after.data);
+    // Under the word: what its table row says about it (another cell, then
+    // the column's heading) — only what the note itself shows.
+    const mean = [];
+    const td = pron.closest("td");
+    if (td) {
+      const row = [...td.parentElement.children];
+      const other = row.find(
+        (c) => c !== td && !c.querySelector(".pron") && c.textContent.trim(),
+      );
+      if (other) mean.push(other.textContent.trim());
+      const head = td.closest("table").querySelector("thead tr");
+      const th = head && head.children[row.indexOf(td)];
+      if (th && th.textContent.trim()) mean.push(th.textContent.trim());
+    }
 
+    const scrim = document.createElement("div");
+    scrim.className = "pron-scrim";
     const root = document.createElement("section");
     root.className = "pron-coach";
+    const fam = pron.closest("[data-family]");
+    if (fam) root.dataset.family = fam.dataset.family;
     root.setAttribute("role", "dialog");
+    root.setAttribute("aria-modal", "true");
     root.setAttribute("aria-label", tt("pronunciation.practice"));
     root.tabIndex = -1;
     root.innerHTML =
-      '<div class="pron-coach-head">' +
-      '<span class="pron-coach-word"></span>' +
-      '<span class="pron-coach-note"></span>' +
-      '<button type="button" class="pron-coach-close"></button>' +
+      '<div class="pron-coach-grab"></div>' +
+      '<button type="button" class="pron-coach-x glass" data-a="x">' +
+      svg('<path d="M6 6l12 12M18 6 6 18"/>') +
+      "</button>" +
+      '<div class="pron-coach-hd"><p class="pron-coach-kk"></p>' +
+      '<p class="pron-coach-big"><span class="pron-coach-word" dir="auto"></span><i class="pron-coach-tr" dir="auto"></i></p>' +
+      '<p class="pron-coach-mean"></p></div>' +
+      '<div class="pron-coach-trk">' +
+      lane("model", "practiceModel") +
+      lane("me", "practiceMe") +
+      '<p class="pron-coach-axis"></p></div>' +
+      '<div class="pron-coach-ctrl">' +
+      side("model", PLAY, "practiceModel") +
+      '<button type="button" class="pron-coach-mic" data-a="rec"><i></i><i></i><b></b>' +
+      MIC +
+      svg('<rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/>', 1) +
+      "</button>" +
+      side(
+        "slow",
+        svg('<circle cx="12" cy="13" r="8"/><path d="M12 13V9M10 2h4"/>'),
+        "practiceSlow",
+      ) +
+      '<p class="pron-coach-cnt"><b></b><span data-t="practiceLeft"></span></p></div>' +
+      '<p class="pron-coach-lab"><span></span><small></small></p>' +
+      '<div class="pron-coach-cmp"><p class="pron-coach-fb"><i></i><span></span></p><div class="pron-coach-pl">' +
+      pillBtn("model", "", PLAY, "practiceListenModel") +
+      pillBtn("me", "", PLAY, "practiceListenMe") +
       "</div>" +
-      '<div class="pron-coach-track"><span class="pron-coach-lab" data-k="model"></span><canvas data-t="model"></canvas><span class="pron-coach-dur" data-d="model"></span></div>' +
-      '<div class="pron-coach-track"><span class="pron-coach-lab" data-k="me"></span><canvas data-t="me"></canvas><span class="pron-coach-dur" data-d="me"></span></div>' +
-      '<div class="pron-coach-actions">' +
-      '<button type="button" class="pron-coach-btn" data-a="model"></button>' +
-      '<button type="button" class="pron-coach-btn pron-coach-rec" data-a="rec"><span class="pron-coach-dot" aria-hidden="true"></span><span data-l></span></button>' +
-      '<button type="button" class="pron-coach-btn pron-coach-main" data-a="both"></button>' +
+      pillBtn(
+        "both",
+        "pron-coach-both",
+        svg('<path d="M5 6v12l7-6zM13 6v12l7-6z"/>', 1),
+        "practiceBoth",
+      ) +
+      pillBtn("rec", "pron-coach-again", MIC, "practiceAgain") +
       "</div>" +
-      '<p class="pron-coach-msg" role="status"></p>';
+      '<p class="pron-coach-msg" role="status"></p>' +
+      '<p class="pron-coach-priv">' +
+      svg(
+        '<rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+      ) +
+      '<span data-t="practiceLocal"></span></p>';
     const $ = (sel) => root.querySelector(sel);
-    $(".pron-coach-word").textContent = word;
-    $(".pron-coach-note").textContent = tt("pronunciation.practiceLocal");
-    $(".pron-coach-close").textContent = tt("pronunciation.practiceClose");
-    $('[data-k="model"]').textContent = tt("pronunciation.practiceModel");
-    $('[data-k="me"]').textContent = tt("pronunciation.practiceMe");
-    $('[data-a="model"]').textContent = "▶ " + tt("pronunciation.practiceModel");
-    $('[data-a="both"]').textContent = tt("pronunciation.practiceBoth");
-    const recLabel = $("[data-l]");
-    const recBtn = $('[data-a="rec"]');
-    const bothBtn = $('[data-a="both"]');
+    root
+      .querySelectorAll("[data-t]")
+      .forEach((el) => (el.textContent = tt("pronunciation." + el.dataset.t)));
+    $(".pron-coach-word").textContent = label ? label.textContent.trim() : "";
+    $(".pron-coach-tr").textContent = trEl
+      ? trEl.textContent
+      : trM
+        ? trM[1]
+        : "";
+    $(".pron-coach-mean").textContent = mean.join(" · ");
+    $(".pron-coach-x").setAttribute(
+      "aria-label",
+      tt("pronunciation.practiceClose"),
+    );
+    const kicker = $(".pron-coach-kk");
+    const lab = $(".pron-coach-lab span");
+    const labSmall = $(".pron-coach-lab small");
+    const micBtn = $(".pron-coach-mic");
+    const sideModel = $(".pron-coach-side");
+    const cnt = $(".pron-coach-cnt b");
     const msg = $(".pron-coach-msg");
-    const cvModel = $('canvas[data-t="model"]');
-    const cvMe = $('canvas[data-t="me"]');
-    recLabel.textContent = tt("pronunciation.practiceRecord");
-    bothBtn.disabled = true;
-    document.body.appendChild(root);
+    const fb = $(".pron-coach-fb");
+    const axisEl = $(".pron-coach-axis");
+    const lanes = {};
+    root.querySelectorAll(".pron-coach-lane").forEach((l) => {
+      lanes[l.dataset.k] = {
+        cv: l.querySelector("canvas"),
+        ph: l.querySelector(".pron-coach-ph"),
+        d: l.querySelector("em"),
+      };
+    });
+    document.body.append(scrim, root);
+    pill.classList.add("is-live");
 
     let model = null;
     let me = null;
@@ -258,57 +433,114 @@
     let stream = null;
     let playing = null;
     let raf = 0;
-    let stopTimer = 0;
+    let axSpan = 0;
 
-    function redraw(fm, fme) {
-      const span = Math.max(model ? model.dur : 0, me ? me.dur : 0, 0.3);
-      draw(cvModel, model, span, "--garden", fm);
-      draw(cvMe, me, span, "--link-mid", fme);
-      $('[data-d="model"]').textContent = model ? fmtSec(model.dur) : "";
-      $('[data-d="me"]').textContent = me ? fmtSec(me.dur) : "";
+    function setState(st) {
+      root.dataset.st = st;
+      const rec = st === "rec";
+      kicker.textContent = tt(
+        rec
+          ? "pronunciation.practiceRecording"
+          : "pronunciation.practiceKicker",
+      );
+      lab.textContent = tt(
+        rec ? "pronunciation.practiceStop" : "pronunciation.practiceRecord",
+      );
+      labSmall.textContent = tt(
+        rec ? "pronunciation.practiceAuto" : "pronunciation.practiceHint",
+      );
+      micBtn.setAttribute("aria-label", lab.textContent);
+      sideModel.disabled = rec;
     }
 
-    function play(sh, which) {
+    /** Redraw both lanes; `at` = {which, frac} puts a playhead on one. */
+    function redraw(at) {
+      const span = Math.max(
+        2,
+        Math.ceil(Math.max(model ? model.dur : 0, me ? me.dur : 0) - 0.05),
+      );
+      const tick = span > 2 ? 1 : 0.5;
+      if (span !== axSpan) {
+        axSpan = span;
+        axisEl.textContent = "";
+        for (let t = 0; t <= span + 1e-6; t += tick) {
+          const s = document.createElement("span");
+          s.textContent =
+            t >= span - 1e-6
+              ? tt("pronunciation.practiceSecs", { n: num(t, 0) })
+              : num(t, 0);
+          s.style.left = (t / span) * 100 + "%";
+          axisEl.append(s);
+        }
+      }
+      for (const k of ["model", "me"]) {
+        const sh = k === "model" ? model : me;
+        const L = lanes[k];
+        const frac = at && at.which === k ? at.frac : null;
+        draw(
+          L.cv,
+          sh,
+          span,
+          tick,
+          k === "model" ? "--pron-model" : "--garden",
+          frac,
+        );
+        L.ph.hidden = frac == null;
+        if (frac != null)
+          L.ph.style.left = ((frac * sh.dur) / span) * 100 + "%";
+        L.d.textContent = sh ? (sh.live ? "● " : "") + sec(sh.dur) : "";
+      }
+      root.classList.toggle("has-me", !!me);
+    }
+
+    function play(sh, which, rate) {
       return new Promise((resolve) => {
-        if (!sh) return resolve();
         stopPlaying();
+        if (!sh) return resolve();
         const ctx = audioCtx();
         const node = ctx.createBufferSource();
         node.buffer = sh.buf;
+        node.playbackRate.value = rate || 1;
         node.connect(ctx.destination);
         const t0 = ctx.currentTime;
         node.start(0, sh.start, sh.dur);
         playing = node;
         const tick = () => {
-          const f = (ctx.currentTime - t0) / sh.dur;
           if (playing !== node) return;
-          if (f >= 1) return;
-          redraw(which === "model" ? f : null, which === "me" ? f : null);
+          redraw({
+            which,
+            frac: Math.min(1, ((ctx.currentTime - t0) * (rate || 1)) / sh.dur),
+          });
           raf = requestAnimationFrame(tick);
         };
-        raf = requestAnimationFrame(tick);
+        tick();
         node.onended = () => {
-          if (playing === node) playing = null;
-          cancelAnimationFrame(raf);
-          redraw();
+          if (playing === node) {
+            playing = null;
+            cancelAnimationFrame(raf);
+            redraw();
+          }
           resolve();
         };
       });
     }
     function stopPlaying() {
       if (playing) {
+        const node = playing;
+        playing = null;
         try {
-          playing.stop();
+          node.stop();
         } catch {
           /* already stopped */
         }
-        playing = null;
       }
       cancelAnimationFrame(raf);
     }
 
     fetch(src)
-      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(String(r.status)))))
+      .then((r) =>
+        r.ok ? r.arrayBuffer() : Promise.reject(new Error(String(r.status))),
+      )
       .then((data) => audioCtx().decodeAudioData(data))
       .then((buf) => {
         model = shape(buf);
@@ -319,10 +551,12 @@
       });
 
     function stopRecording() {
-      clearTimeout(stopTimer);
       if (recorder && recorder.state !== "inactive") recorder.stop();
     }
 
+    // Records up to MAX_REC s; stops by itself after ~1 s of silence once
+    // the reader has started speaking. An analyser drives the level halo,
+    // the countdown and the live waveform.
     async function startRecording() {
       stopPlaying();
       msg.textContent = "";
@@ -330,81 +564,195 @@
         stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       } catch (e) {
         msg.textContent = tt(
-          e && e.name === "NotAllowedError" ? "pronunciation.practiceDenied" : "pronunciation.practiceNoMic",
+          e && e.name === "NotAllowedError"
+            ? "pronunciation.practiceDenied"
+            : "pronunciation.practiceNoMic",
         );
         return;
       }
+      if (!root.isConnected) return stream.getTracks().forEach((t) => t.stop());
+      const ctx = audioCtx();
+      const input = ctx.createMediaStreamSource(stream);
+      const an = ctx.createAnalyser();
+      an.fftSize = 1024;
+      input.connect(an);
+      const frame = new Float32Array(an.fftSize);
       const chunks = [];
-      recorder = new MediaRecorder(stream);
-      recorder.ondataavailable = (e) => {
+      const rec = new MediaRecorder(stream);
+      recorder = rec;
+      rec.ondataavailable = (e) => {
         if (e.data && e.data.size) chunks.push(e.data);
       };
-      recorder.onstop = () => {
-        if (stream) stream.getTracks().forEach((t) => t.stop());
+      rec.onstop = () => {
+        cancelAnimationFrame(raf);
+        input.disconnect();
+        stream.getTracks().forEach((t) => t.stop());
         stream = null;
-        root.classList.remove("is-recording");
-        recLabel.textContent = tt("pronunciation.practiceAgain");
-        const blob = new Blob(chunks, { type: recorder.mimeType || "audio/webm" });
-        blob
+        if (!root.isConnected) return;
+        new Blob(chunks, { type: rec.mimeType || "audio/webm" })
           .arrayBuffer()
           .then((data) => audioCtx().decodeAudioData(data))
           .then((buf) => {
             me = shape(buf);
-            bothBtn.disabled = false;
+            setState("cmp");
             redraw();
             const diff = model ? me.dur - model.dur : 0;
-            msg.textContent =
-              model && Math.abs(diff) > 0.25
-                ? tt(diff > 0 ? "pronunciation.practiceLonger" : "pronunciation.practiceShorter", {
-                    s: fmtSec(Math.abs(diff)),
-                  })
-                : tt("pronunciation.practiceDone");
+            const near = Math.abs(diff) <= 0.25;
+            fb.classList.toggle("is-near", near);
+            fb.firstChild.innerHTML = near
+              ? svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>')
+              : "~";
+            fb.lastChild.textContent = near
+              ? tt("pronunciation.practiceDone")
+              : tt(
+                  diff > 0
+                    ? "pronunciation.practiceLonger"
+                    : "pronunciation.practiceShorter",
+                  {
+                    s: (diff > 0 ? "+" : "−") + sec(Math.abs(diff)),
+                  },
+                );
+            $(".pron-coach-both").focus();
           })
           .catch(() => {
+            me = null;
+            setState("idle");
+            redraw();
             msg.textContent = tt("pronunciation.practiceNoMic");
           });
       };
-      recorder.start();
-      root.classList.add("is-recording");
-      recLabel.textContent = tt("pronunciation.practiceStop");
-      stopTimer = setTimeout(stopRecording, MAX_REC_MS);
+      me = { peaks: [], dur: 0, live: true };
+      setState("rec");
+      rec.start();
+      const t0 = performance.now();
+      let heard = false;
+      let loud = t0;
+      let level = 0;
+      let left = 0;
+      const tick = () => {
+        const now = performance.now();
+        const el = (now - t0) / 1000;
+        an.getFloatTimeDomainData(frame);
+        let pk = 0;
+        for (let i = 0; i < frame.length; i++)
+          pk = Math.max(pk, Math.abs(frame[i]));
+        me.peaks.push(pk);
+        me.dur = el;
+        if (pk > 0.06) {
+          heard = true;
+          loud = now;
+        }
+        level = Math.max(Math.min(1, pk * 2.5), level * 0.88);
+        micBtn.style.setProperty("--lv", level.toFixed(2));
+        micBtn.style.setProperty(
+          "--p",
+          Math.min(100, (el / MAX_REC) * 100).toFixed(1) + "%",
+        );
+        const l = Math.max(0, Math.ceil(MAX_REC - el));
+        if (l !== left)
+          cnt.textContent = tt("pronunciation.practiceSecs", {
+            n: num((left = l), 0),
+          });
+        redraw({ which: "me", frac: 1 });
+        if (el >= MAX_REC || (heard && now - loud > 1000)) stopRecording();
+        else raf = requestAnimationFrame(tick);
+      };
+      tick();
     }
 
-    function close() {
+    function close(now) {
       stopPlaying();
       stopRecording();
       if (stream) stream.getTracks().forEach((t) => t.stop());
-      root.remove();
       document.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", onResize);
+      pill.classList.remove("is-live");
       panel = null;
-      if (mic.isConnected) mic.focus();
+      root.classList.add("is-out");
+      scrim.classList.add("is-out");
+      const done = () => {
+        root.remove();
+        scrim.remove();
+      };
+      if (now || matchMedia("(prefers-reduced-motion: reduce)").matches) done();
+      else setTimeout(done, 220);
+      if (!now && mic.isConnected) mic.focus();
     }
     function onKey(e) {
       if (e.key === "Escape") close();
+      else if (e.key === "Tab") {
+        // Keep focus inside the sheet while it is open.
+        const f = [...root.querySelectorAll("button:not(:disabled)")].filter(
+          (b) => b.offsetParent,
+        );
+        const first = f[0];
+        const last = f[f.length - 1];
+        const at = document.activeElement;
+        if (e.shiftKey && (at === first || at === root)) {
+          last.focus();
+          e.preventDefault();
+        } else if (!e.shiftKey && (at === last || !root.contains(at))) {
+          first.focus();
+          e.preventDefault();
+        }
+      }
     }
     function onResize() {
-      redraw();
+      if (!recorder || recorder.state !== "recording") redraw();
     }
 
+    // Drag the handle (or the word) down to close.
+    let drag = null;
+    root.addEventListener("pointerdown", (e) => {
+      if (
+        e.target.closest("button") ||
+        !e.target.closest(".pron-coach-grab, .pron-coach-hd")
+      )
+        return;
+      drag = { y: e.clientY, t: e.timeStamp, dy: 0 };
+      root.setPointerCapture(e.pointerId);
+      root.classList.add("is-drag");
+    });
+    root.addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      drag.dy = Math.max(0, e.clientY - drag.y);
+      root.style.transform = "translateY(" + drag.dy + "px)";
+    });
+    const endDrag = (e) => {
+      if (!drag) return;
+      const d = drag;
+      drag = null;
+      root.classList.remove("is-drag");
+      root.style.transform = "";
+      if (d.dy > 90 || (d.dy > 24 && d.dy / (e.timeStamp - d.t) > 0.6)) {
+        close();
+      }
+    };
+    root.addEventListener("pointerup", endDrag);
+    root.addEventListener("pointercancel", endDrag);
+    scrim.addEventListener("click", () => close());
+
     root.addEventListener("click", (e) => {
-      const a = e.target.closest("[data-a], .pron-coach-close");
+      const a = e.target.closest("[data-a]");
       if (!a) return;
-      if (a.classList.contains("pron-coach-close")) return close();
       const act = a.dataset.a;
-      if (act === "model") play(model, "model");
+      if (act === "x") close();
+      else if (act === "model") play(model, "model");
+      else if (act === "slow") play(model, "model", 0.75);
+      else if (act === "me") play(me, "me");
       else if (act === "rec") {
         if (recorder && recorder.state === "recording") stopRecording();
         else startRecording();
       } else if (act === "both") {
         play(model, "model")
           .then(() => new Promise((r) => setTimeout(r, 300)))
-          .then(() => play(me, "me"));
+          .then(() => root.isConnected && play(me, "me"));
       }
     });
     document.addEventListener("keydown", onKey);
     window.addEventListener("resize", onResize);
     panel = { close };
+    setState("idle");
     redraw();
     root.focus();
   }

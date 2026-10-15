@@ -83,11 +83,12 @@ console.log(`bundle-js: bundled ${SCRIPTS.length} scripts → public/js/note.bun
 // Stand-alone bundles: the command palette (⌘K / Ctrl+K) runs on every page,
 // so it is loaded from app/layout.tsx rather than being part of the note
 // bundle — bundled (not served raw like theme.js) to share
-// lib/palette-match.ts. quiz and glossary are per-note opt-ins (see above).
+// lib/palette-match.ts. quiz and glossary are per-note opt-ins (see above),
+// note-end (the phone's "Lue !" card) too: only notes of a reading path.
 // The widget packs (lib/widgets-extra.ts): fetched by widgets-loader.js only
 // on a page that mounts one of their widgets. Bundled so they share
 // public/js/widget-kit.js and lib/ code with the build.
-for (const name of ["palette", "quiz", "glossary", "widgets-data", "widgets-sci", "widgets-lang"]) {
+for (const name of ["palette", "quiz", "glossary", "note-end", "widgets-data", "widgets-sci", "widgets-lang"]) {
   await build({
     entryPoints: [join(JS_DIR, `${name}.js`)],
     outfile: join(JS_DIR, `${name}.bundle.js`),

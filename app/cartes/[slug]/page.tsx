@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAnkiManifest, getAnkiDeck } from "@/lib/anki";
 import { Flashcards } from "@/components/Flashcards";
+import { familyOfFolder } from "@/lib/path-family";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/cartes.css";
 
@@ -28,5 +29,5 @@ export default async function DeckPage({ params }: Params) {
   const { slug } = await params;
   const deck = getAnkiDeck(slug);
   if (!deck) notFound();
-  return <Flashcards slug={deck.slug} name={deck.name} />;
+  return <Flashcards slug={deck.slug} name={deck.name} family={familyOfFolder(deck.folder)} />;
 }
