@@ -769,7 +769,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   main.acct-page:has(.ap) {
     padding: 0 1rem;
   }
-  main.acct-page:has(.ap) > :is(.acct-back, .acct-title),
+  main.acct-page:has(.ap) > :is(.acct-back, .acct-title, .app-back),
   body:has(.ap) .site-bar,
   body:has(.ap) footer,
   body:has(.ap--sub) .tabbar {
