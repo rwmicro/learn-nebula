@@ -358,7 +358,8 @@ export function noteSectionLabel(rawPath: string): string {
 
 /** Pagefind metadata for a note: `section` (see {@link noteSectionLabel}),
  * shown under each "Dans le texte" hit of the command palette
- * (public/js/palette.js), plus `dkey`, the discipline's i18n key. Hidden and out of the indexed
+ * (public/js/palette.js), plus `dkey`, the discipline's i18n key, also a
+ * `discipline` filter (counts and narrowing in the phone palette). Hidden and out of the indexed
  * text (`data-pagefind-ignore` still lets Pagefind read the metadata). */
 export function noteSectionMetaHtml(rawPath: string): string {
   const section = noteSectionLabel(rawPath);
@@ -368,7 +369,11 @@ export function noteSectionMetaHtml(rawPath: string): string {
   return (
     `<span hidden data-pagefind-ignore>` +
     `<span data-pagefind-meta="section">${escapeHtml(section)}</span>` +
-    (key ? `<span data-pagefind-meta="dkey">${escapeHtml(key)}</span>` : "") +
+    (key
+      ? `<span data-pagefind-meta="dkey">${escapeHtml(key)}</span>` +
+        // Same key as a filter: the phone palette's per-discipline counts.
+        `<span data-pagefind-filter="discipline">${escapeHtml(key)}</span>`
+      : "") +
     `</span>`
   );
 }
