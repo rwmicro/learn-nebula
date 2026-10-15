@@ -222,7 +222,10 @@
     "mineNoNeighbour": "进一步阅读，被引用最多的笔记：",
     "mineStart": "这里还没有读过的笔记。可以从被引用最多的开始：",
     "mineLocate": "在图中显示",
-    "mineOpen": "打开 {title}"
+    "mineOpen": "打开 {title}",
+    "settings": "设置",
+    "settingsTitle": "图谱设置",
+    "settingsDone": "完成"
   },
   "lightbox": {
     "close": "关闭",

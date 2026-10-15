@@ -222,7 +222,10 @@
     "mineNoNeighbour": "To go further, the most cited notes:",
     "mineStart": "No note read here yet. To start, the most cited:",
     "mineLocate": "Show in the graph",
-    "mineOpen": "Open {title}"
+    "mineOpen": "Open {title}",
+    "settings": "Settings",
+    "settingsTitle": "Graph settings",
+    "settingsDone": "Done"
   },
   "lightbox": {
     "close": "Close",

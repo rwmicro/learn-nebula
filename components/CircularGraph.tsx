@@ -152,6 +152,8 @@ export function CircularGraph({
   const [pathSel, setPathSel] = useState<string | null>(null);
   const [tip, setTip] = useState<{ x: number; y: number; label: string } | null>(null);
   const [legendOpen, setLegendOpen] = useState(false);
+  // Phones: the panel is a bottom sheet, opened by the "Réglages" pill.
+  const [sheet, setSheet] = useState(false);
   // "Mes lectures": read notes lit, the rest faded, and where to go next.
   const [mine, setMine] = useState(false);
   const [store, setStore] = useState<ReadingStore>({});
@@ -574,7 +576,7 @@ export function CircularGraph({
       {!preview && (
         <>
           <AppBack href="/notes/" labelKey="tabbar.notes" />
-      <a href="/" className="old-back graph-back">
+          <a href="/" className="old-back graph-back">
             ← {tr("nav.home")}
           </a>
 
@@ -618,8 +620,35 @@ export function CircularGraph({
             )}
           </div>
 
+          {/* Phones: the panel opens as a bottom sheet from these pills
+              (graph.css); from 640px up they stay hidden. */}
+          <div className="cg-pills">
+            <button type="button" className="cg-pill" aria-expanded={sheet} onClick={() => setSheet(true)}>
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 7h10M18 7h2M4 17h4M12 17h8" />
+                <circle cx="16" cy="7" r="2" />
+                <circle cx="10" cy="17" r="2" />
+              </svg>
+              {tr("graph.settings")}
+            </button>
+            {reading && (
+              <button type="button" className="cg-pill" aria-pressed={mine} onClick={() => setMine((v) => !v)}>
+                <span className="cg-mine-dot" aria-hidden="true" />
+                {tr("graph.mine")} · {reading.read.size}
+              </button>
+            )}
+          </div>
+          {sheet && <div className="cg-scrim" onClick={() => setSheet(false)} aria-hidden="true" />}
+
           {/* Discipline legend + roulette control */}
-          <div className="cg-panel">
+          <div className="cg-panel" data-sheet={sheet ? "open" : undefined}>
+            <div className="cg-sheet-head">
+              <span className="cg-sheet-grab" aria-hidden="true" />
+              <b>{tr("graph.settingsTitle")}</b>
+              <button type="button" onClick={() => setSheet(false)}>
+                {tr("graph.settingsDone")}
+              </button>
+            </div>
         <div className="cg-roulette">
           <span className="cg-rot-label">{tr("graph.rotate")}</span>
           <button

@@ -222,7 +222,10 @@
     "mineNoNeighbour": "Pour aller plus loin, les notes les plus citées :",
     "mineStart": "Aucune note lue ici pour l'instant. Pour commencer, les plus citées :",
     "mineLocate": "Montrer dans le graphe",
-    "mineOpen": "Ouvrir {title}"
+    "mineOpen": "Ouvrir {title}",
+    "settings": "Réglages",
+    "settingsTitle": "Réglages du graphe",
+    "settingsDone": "OK"
   },
   "lightbox": {
     "close": "Fermer",

@@ -551,3 +551,211 @@
   fill: var(--ink);
   font-weight: 700;
 }
+
+/* --- Phone: the graph full screen, its settings in a bottom sheet ---------
+   "‹" and the search share one row under the status bar, beside the avatar;
+   two pills above the tab bar open the settings (the panel, as a sheet) and
+   switch "Mes lectures". From 640px up nothing here applies. */
+.cg-pills,
+.cg-scrim,
+.cg-sheet-head {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  .graph-page .graph-hint {
+    display: none;
+  }
+  .graph-page .app-back {
+    position: absolute;
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    left: 0.875rem;
+    z-index: 3;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: 0;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+    color: var(--ink);
+  }
+  .graph-page .app-back span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .graph-page .cg-locate {
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    left: 4.1rem;
+    right: 4.1rem;
+    width: auto;
+  }
+  .graph-page .cg-locate-input {
+    height: 2.75rem;
+    padding: 0 1rem;
+    border: 0.5px solid var(--glass-edge);
+    border-radius: 1.375rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    box-shadow: var(--glass-shadow);
+    font-size: 1rem;
+  }
+
+  .cg-pills {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(5.4rem + var(--gk-safe-b) * 0.6);
+    z-index: 2;
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    pointer-events: none;
+  }
+  .cg-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.5rem;
+    padding: 0 1rem;
+    border: 0.5px solid var(--glass-edge);
+    border-radius: 1.25rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    box-shadow: var(--glass-shadow);
+    font: 600 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink);
+    pointer-events: auto;
+  }
+  .cg-pill svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+  .cg-pill[aria-pressed="true"] {
+    background: var(--garden-wash);
+    color: var(--garden);
+  }
+
+  /* The panel: hidden until the pill opens it as a sheet over the tab bar. */
+  .graph-page:has(.cg-panel[data-sheet]) {
+    z-index: 1100;
+  }
+  .graph-page .cg-panel:not([data-sheet]) {
+    display: none;
+  }
+  .graph-page .cg-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 4;
+    background: rgb(0 0 0 / 0.32);
+  }
+  .graph-page .cg-panel[data-sheet] {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 5;
+    max-width: none;
+    max-height: 80vh;
+    padding: 0.5rem 1.125rem calc(1.5rem + var(--gk-safe-b));
+    border: 0;
+    border-radius: 1.5rem 1.5rem 0 0;
+    background: var(--paper);
+    box-shadow: 0 -10px 40px rgb(0 0 0 / 0.2);
+    font-size: 1rem;
+  }
+  .cg-panel[data-sheet] .cg-sheet-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+  /* A row of its own above the title and OK. */
+  .cg-sheet-grab {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: 2.4rem;
+    height: 0.3rem;
+    margin-bottom: 0.75rem;
+    border-radius: 0.2rem;
+    background: var(--rule-strong);
+  }
+  .cg-sheet-head b {
+    text-align: left;
+    font: 700 1.125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .cg-sheet-head button {
+    border: 0;
+    background: none;
+    padding: 0.4rem 0;
+    font: 500 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--garden);
+    cursor: pointer;
+  }
+  /* In the sheet: plain sans labels, the disciplines as chips, always open. */
+  .cg-panel[data-sheet] :is(.cg-reset, .cg-mine-toggle, .cg-path-label, .cg-legend-toggle) {
+    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-transform: none;
+    font-size: 1rem;
+  }
+  .cg-panel[data-sheet] .cg-legend-toggle {
+    pointer-events: none;
+    margin-top: 0.5rem;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .cg-panel[data-sheet] .cg-legend-toggle span {
+    display: none;
+  }
+  .cg-panel[data-sheet] .cg-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    margin: 0.4rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cg-panel[data-sheet] .cg-legend button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    height: 2.125rem;
+    padding: 0 0.8rem;
+    border: 0;
+    border-radius: 1.0625rem;
+    background: var(--wash-2, var(--wash));
+    font-size: 0.9375rem;
+  }
+  .cg-panel[data-sheet] .cg-legend button.on {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .cg-panel[data-sheet] .cg-path select {
+    max-width: none;
+    height: 2.5rem;
+    border-radius: 0.75rem;
+  }
+  .cg-panel[data-sheet] .cg-reset {
+    width: 100%;
+    height: 2.75rem;
+    border-radius: 1.375rem;
+  }
+}
