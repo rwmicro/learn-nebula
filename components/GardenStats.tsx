@@ -46,6 +46,7 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
             {t("jardin.growthTitle")}
           </h2>
           <GrowthChart months={stats.months} />
+          <GrowthChart months={stats.months} narrow />
           {stats.peak && (
             <p
               className="jardin-note"
@@ -131,13 +132,16 @@ function Fig({ n, k }: { n: string; k: string }) {
   );
 }
 
-function GrowthChart({ months }: { months: MonthCount[] }) {
-  const W = 760;
-  const H = 250;
-  const L = 44;
-  const R = 52;
+/** Drawn twice: the wide one for desktop, a narrow one (phones, jardin.css)
+ *  whose viewBox is close to the screen's width, so its 11-unit labels stay
+ *  near 11px instead of shrinking to 5. */
+function GrowthChart({ months, narrow = false }: { months: MonthCount[]; narrow?: boolean }) {
+  const W = narrow ? 380 : 760;
+  const H = narrow ? 230 : 250;
+  const L = narrow ? 34 : 44;
+  const R = narrow ? 36 : 52;
   const T = 12;
-  const BH = 60;
+  const BH = narrow ? 50 : 60;
   const GAP = 16;
   const A = H - T - BH - GAP - 22;
   const n = months.length;
@@ -154,7 +158,7 @@ function GrowthChart({ months }: { months: MonthCount[] }) {
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => Math.round(maxTotal * f));
   const peakI = months.reduce((b, m, i) => (m.planted > months[b].planted ? i : b), 0);
   return (
-    <div className="jardin-chart">
+    <div className={narrow ? "jardin-chart jardin-chart--narrow" : "jardin-chart jardin-chart--wide"}>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         role="img"

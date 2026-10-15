@@ -234,3 +234,16 @@
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+
+/* The growth chart: the narrow drawing on phones (GardenStats.tsx). */
+.jardin-chart--narrow {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  .jardin-chart--wide {
+    display: none;
+  }
+  .jardin-chart--narrow {
+    display: block;
+  }
+}
