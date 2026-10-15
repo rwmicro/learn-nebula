@@ -4917,3 +4917,56 @@
     text-decoration: none;
   }
 }
+
+/* A path's page on phones, second pass (Martin's review, 15 Oct.):
+   - before the first note, the step card on the road already says
+     "Commencer": the big button repeated it (ParcoursStudy marks it
+     --start); once started it stays, as "Reprendre";
+   - "0/35 lues" sits at the end of its row (an empty .offline-path after it
+     made space-between centre it);
+   - the level bar's sheet icon repeated the Fiche tile;
+   - a locked Réviser tile carries its "0 / 186" itself, instead of a line
+     under the tiles;
+   - once scrolled, the floating buttons get a soft band behind them so the
+     title no longer runs under them. */
+@media (max-width: 639.98px) {
+  main.parcours-page--path .parcours-tools > .parcours-cta--start {
+    display: none;
+  }
+  main.parcours-page--path .parcours-status .parcours-progress {
+    margin-left: auto;
+  }
+  main.parcours-page--path .road .road-bar-sheet {
+    display: none;
+  }
+  main.parcours-page--path .parcours-tools-note {
+    display: none;
+  }
+  main.parcours-page--path .parcours-tool-locked {
+    position: absolute;
+    top: 0.375rem;
+    right: 0.5rem;
+    font: 600 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  body:has(main.parcours-page--path)::before {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 900;
+    height: calc(4rem + env(safe-area-inset-top, 0px));
+    background: linear-gradient(var(--paper) 55%, transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  :root[data-topbar="scrolled"] body:has(main.parcours-page--path)::before {
+    opacity: 1;
+  }
+}
+@media (min-width: 640px) {
+  .parcours-tool-locked {
+    display: none;
+  }
+}

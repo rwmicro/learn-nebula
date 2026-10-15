@@ -407,7 +407,7 @@ export function ParcoursStudy({
     <section className="parcours-study" aria-label={tr("parcours.studyAria")}>
       <div className="parcours-tools">
         {nextNote && (
-          <a className="parcours-cta" href={nextNote.href} ref={ctaRef}>
+          <a className={started ? "parcours-cta" : "parcours-cta parcours-cta--start"} href={nextNote.href} ref={ctaRef}>
             <span className="parcours-cta-verb">{tr(started ? "parcours.continue" : "parcours.start")}</span>
             <span className="parcours-cta-title">{nextNote.title}</span>
             <span aria-hidden="true">→</span>
@@ -439,7 +439,14 @@ export function ParcoursStudy({
           >
             <span className="pt-long">{tr("parcours.review")}</span>
             <span className="pt-short" aria-hidden="true">{tr("road.review")}</span>
-            {eligible.length > 0 && <span className="parcours-tool-count">{eligible.length}</span>}
+            {eligible.length > 0 ? (
+              <span className="parcours-tool-count">{eligible.length}</span>
+            ) : (
+              // Phones show this in place of the note below (app.css).
+              <span className="parcours-tool-locked" aria-hidden="true">
+                0 / {items.length}
+              </span>
+            )}
           </button>
         )}
         <a className="parcours-tool" data-tool="sheet" href={`/parcours/${pathSlug}/fiche/`}>
