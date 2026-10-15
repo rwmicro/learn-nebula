@@ -7,6 +7,11 @@ import { calendarDays, currentRun, loadActivity, localDay } from "@/lib/personal
 import { loadStore } from "@/lib/reading-progress";
 import { authConfig, readHint } from "@/lib/account-client";
 import { LANG_OPTIONS } from "@/components/LangSwitcher";
+import { Avatar } from "@/components/Avatar";
+import type { Look } from "@/lib/avatar";
+
+/** The reader closed the "Garder ma progression" card (this browser). */
+const KEEP_HIDDEN_KEY = "gkKeepHidden";
 
 // "Moi" on a phone (app.css shows it below 640px, and hides there the
 // desktop page's title, summary and settings it stands in for): keep one's
@@ -37,6 +42,8 @@ export function MoiPhone() {
   const [days, setDays] = useState<Days>({});
   const [week, setWeek] = useState({ read: 0, started: 0 });
   const [account, setAccount] = useState<"off" | "out" | "in">("off");
+  const [look, setLook] = useState<Look | undefined>(undefined);
+  const [keepHidden, setKeepHidden] = useState(true);
   const [theme, setTheme] = useState<Theme>("auto");
 
   useEffect(() => {
@@ -62,8 +69,22 @@ export function MoiPhone() {
     load();
     const syncTheme = () => setTheme(window.__theme?.pref() ?? "auto");
     syncTheme();
-    const fromHint = () => setAccount((a) => (a === "off" ? a : readHint().in ? "in" : "out"));
-    void authConfig().then((c) => c.enabled && setAccount(readHint().in ? "in" : "out"));
+    const fromHint = () => {
+      const h = readHint();
+      setLook(h.look);
+      setAccount((a) => (a === "off" ? a : h.in ? "in" : "out"));
+    };
+    try {
+      setKeepHidden(localStorage.getItem(KEEP_HIDDEN_KEY) === "1");
+    } catch {
+      setKeepHidden(false);
+    }
+    void authConfig().then((c) => {
+      if (!c.enabled) return;
+      const h = readHint();
+      setLook(h.look);
+      setAccount(h.in ? "in" : "out");
+    });
     window.addEventListener("gk:activity", load);
     window.addEventListener("gk:progress-synced", load);
     window.addEventListener("gk:account", fromHint);
@@ -113,30 +134,50 @@ export function MoiPhone() {
         <p>{tr("moi.lede")}</p>
       </header>
 
-      {account === "out" && (
-        <a className="moi-card moi-account" href="/compte/">
-          <span className="moi-account-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
-            </svg>
+      {account === "out" && !keepHidden && (
+        <div className="moi-card moi-keep">
+          <span className="moi-keep-av" aria-hidden="true">
+            <Avatar size={56} still />
+            <span className="moi-keep-lock">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="11" width="14" height="10" rx="2" />
+                <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+              </svg>
+            </span>
           </span>
-          <span className="moi-account-tx">
+          <span className="moi-keep-tx">
             <b>{tr("moi.keepTitle")}</b>
             <small>{tr("moi.keepText")}</small>
+            <a href="/compte/" className="moi-keep-go">
+              {tr("moi.signIn")}
+              <Chevron />
+            </a>
           </span>
-          <span className="moi-pill">{tr("moi.signIn")}</span>
-        </a>
+          <button
+            type="button"
+            className="moi-keep-x"
+            aria-label={tr("moi.keepHide")}
+            onClick={() => {
+              setKeepHidden(true);
+              try {
+                localStorage.setItem(KEEP_HIDDEN_KEY, "1");
+              } catch {
+                /* hidden for this visit only */
+              }
+            }}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true">
+              <path d="M6 6l12 12M18 6 6 18" />
+            </svg>
+          </button>
+        </div>
       )}
       {account === "in" && (
-        <a className="moi-card moi-account" href="/compte/">
-          <span className="moi-account-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
-            </svg>
+        <a className="moi-card moi-keep moi-keep--in" href="/compte/">
+          <span className="moi-keep-av" aria-hidden="true">
+            <Avatar look={look} size={56} still />
           </span>
-          <span className="moi-account-tx">
+          <span className="moi-keep-tx">
             <b>{tr("moi.accountTitle")}</b>
             <small>{tr("moi.accountText")}</small>
           </span>
@@ -150,10 +191,6 @@ export function MoiPhone() {
           <b>{week.read}</b>
           <small>{tr("progression.statRead")}</small>
         </div>
-        <div>
-          <b>{week.started}</b>
-          <small>{tr("progression.statStarted")}</small>
-        </div>
         <a href="/defis/">
           <b>
             <svg className="moi-flame" viewBox="0 0 24 24" aria-hidden="true">
@@ -163,6 +200,10 @@ export function MoiPhone() {
           </b>
           <small>{tr("dash.streak")}</small>
         </a>
+        <div>
+          <b>{week.started}</b>
+          <small>{tr("progression.statStarted")}</small>
+        </div>
         <a href="/cartes/">
           <b>{cards}</b>
           <small>{tr("moi.cards")}</small>
@@ -184,6 +225,12 @@ export function MoiPhone() {
       </h2>
       <div className="moi-card moi-list">
         <label className="moi-set">
+          <i className="moi-set-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" />
+            </svg>
+          </i>
           <span>{tr("settings.theme")}</span>
           <small>{tr(`noteApp.theme_${theme}`)}</small>
           <Chevron />
@@ -203,6 +250,11 @@ export function MoiPhone() {
           </select>
         </label>
         <label className="moi-set">
+          <i className="moi-set-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 5h8M8 3v2c0 4-2 7-4.5 8.5M6 9c1 2 3 3.5 5 4.5M13 21l4-9 4 9M14.5 18h5" />
+            </svg>
+          </i>
           <span>{tr("settings.language")}</span>
           <small>{langLabel}</small>
           <Chevron />
@@ -214,6 +266,22 @@ export function MoiPhone() {
             ))}
           </select>
         </label>
+        <button
+          type="button"
+          className="moi-set moi-set--btn"
+          onClick={() => document.querySelector(".progression-actions")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        >
+          <i className="moi-set-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
+            </svg>
+          </i>
+          <span>
+            {tr("moi.transfer")}
+            <small>{tr("moi.transferSub")}</small>
+          </span>
+          <Chevron />
+        </button>
       </div>
     </div>
   );

@@ -70,6 +70,8 @@ export function Avatar({
 }
 
 function Background({ id }: { id: string }) {
+  // "none": no backdrop, for a sprout drawn over a halo of the page's own.
+  if (id === "none") return null;
   if (id === "bg-garden")
     return (
       <>
