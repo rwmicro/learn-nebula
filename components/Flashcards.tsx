@@ -314,8 +314,8 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
       style={{ maxWidth: `${60 * zoom}rem` }}
     >
       {/* A plain link, like the rest of /cartes/: next/link would make scripts/prune-rsc.mjs keep RSC payloads. */}
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <AppBack href="/cartes/" labelKey="tabbar.review" />
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a
         href="/cartes/"
         className="old-back text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"

@@ -93,8 +93,8 @@ export function Entrainer({ decks }: { decks: { slug: string; langues: boolean }
 
   return (
     <main className="defis entrainer" data-pagefind-ignore>
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <AppBack href="/cartes/" labelKey="tabbar.review" />
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a className="old-back entrainer-back" href="/cartes/">
         ← {tr("tabbar.review")}
       </a>
