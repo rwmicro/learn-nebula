@@ -1068,7 +1068,8 @@
     "parcours": "路径",
     "explore": "探索",
     "review": "复习",
-    "due": "今日待复习"
+    "due": "今日待复习",
+    "notes": "笔记"
   },
   "explorer": {
     "metaTitle": "探索",
@@ -1370,5 +1371,42 @@
     "deleteText": "账户、它的 {coins}、园丁以及进度副本都将被永久删除。",
     "deleteCoins": "{n} 金币",
     "deleteKeep": "此浏览器中的进度会留在这里。"
+  },
+  "notesTab": {
+    "title": "笔记",
+    "metaDesc": "花园里的所有笔记，按学科和文件夹排列。",
+    "lede": "{n} 篇笔记，按花园的结构排列。",
+    "search": "搜索笔记",
+    "views": "其他视图",
+    "view": {
+      "graph": "图谱",
+      "frise": "时间轴",
+      "carte": "地图",
+      "themes": "主题",
+      "jardin": "数据概览",
+      "donnees": "数据",
+      "random": "随机"
+    },
+    "resume": "从这里继续",
+    "count": "{n} 篇笔记",
+    "countOne": "1 篇笔记",
+    "read": "已读 {n}",
+    "readOne": "已读 1",
+    "folders": "{n} 个文件夹",
+    "subfolders": "文件夹",
+    "here": "此文件夹中",
+    "path": "学习路径",
+    "deck": "卡片",
+    "filterAria": "筛选笔记",
+    "filter": {
+      "all": "全部",
+      "unread": "未读",
+      "started": "在读",
+      "read": "已读"
+    },
+    "state": {
+      "started": "在读",
+      "read": "已读"
+    }
   }
 }

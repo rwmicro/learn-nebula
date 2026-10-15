@@ -1068,7 +1068,8 @@
     "parcours": "Parcours",
     "explore": "Explorer",
     "review": "Réviser",
-    "due": "à revoir aujourd’hui"
+    "due": "à revoir aujourd’hui",
+    "notes": "Notes"
   },
   "explorer": {
     "metaTitle": "Explorer",
@@ -1370,5 +1371,42 @@
     "deleteText": "Le compte, ses {coins}, son jardinier et sa copie de la progression sont effacés pour de bon.",
     "deleteCoins": "{n} pièces",
     "deleteKeep": "La progression de ce navigateur, elle, reste ici."
+  },
+  "notesTab": {
+    "title": "Notes",
+    "metaDesc": "Toutes les notes du jardin, rangées par discipline et par dossier.",
+    "lede": "{n} notes, rangées comme dans le jardin.",
+    "search": "Chercher dans les notes",
+    "views": "Autres vues",
+    "view": {
+      "graph": "Graphe",
+      "frise": "Frise",
+      "carte": "Carte",
+      "themes": "Thèmes",
+      "jardin": "En chiffres",
+      "donnees": "Données",
+      "random": "Au hasard"
+    },
+    "resume": "Reprendre ici",
+    "count": "{n} notes",
+    "countOne": "1 note",
+    "read": "{n} lues",
+    "readOne": "1 lue",
+    "folders": "{n} dossiers",
+    "subfolders": "Dossiers",
+    "here": "Dans ce dossier",
+    "path": "Parcours",
+    "deck": "cartes",
+    "filterAria": "Filtrer les notes",
+    "filter": {
+      "all": "Toutes",
+      "unread": "Non lues",
+      "started": "En cours",
+      "read": "Lues"
+    },
+    "state": {
+      "started": "en cours",
+      "read": "lue"
+    }
   }
 }

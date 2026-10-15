@@ -1,0 +1,418 @@
+/* The "Notes" tab (app/notes/, components/NotesBrowse.tsx): grouped lists of
+   folders and notes, as in the Notes mockup (A). The cards use the phone
+   dashboard's tokens (app.css, --dash-*) and fall back to a bordered paper
+   card on wider screens, where those are not defined. */
+
+.nb {
+  --nb-card: var(--dash-card, var(--paper));
+  --nb-edge: var(--dash-edge, var(--rule));
+  --nb-shadow: var(--dash-shadow, none);
+  --nb-sans: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  max-width: 44rem;
+}
+
+.nb-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  min-height: 2.75rem;
+  margin: 0.4rem 0 -0.6rem -0.4rem;
+  padding-right: 0.5rem;
+  font-family: var(--nb-sans);
+  font-size: 1.0625rem;
+  font-weight: 500;
+  color: var(--garden);
+  text-decoration: none;
+}
+.nb-back svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nb .app-large-title h1 {
+  text-wrap: balance;
+}
+
+.nb-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 2.6rem;
+  margin: 0 0 0.25rem;
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: 0.75rem;
+  background: var(--wash-2);
+  color: var(--muted);
+  font-family: var(--nb-sans);
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+}
+.nb-search svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.nb-search:focus-visible,
+.nb-chip:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+}
+
+.nb-sec {
+  margin-top: 1.1rem;
+}
+.nb-h {
+  margin: 0;
+  padding: 0 0.25rem 0.5rem;
+  border: 0;
+  font-family: var(--nb-sans);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Other views: a row of small tiles that scrolls sideways. */
+.nb-views {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 -1rem;
+  padding: 0 1rem 0.25rem;
+  list-style: none;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 1rem;
+  scrollbar-width: none;
+}
+.nb-views::-webkit-scrollbar {
+  display: none;
+}
+.nb-views li {
+  flex: none;
+  margin: 0;
+  scroll-snap-align: start;
+}
+.nb-view {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 5.1rem;
+  height: 5rem;
+  padding: 0.6rem 0.65rem;
+  border-radius: 1rem;
+  background: var(--fam-wash);
+  color: var(--fam);
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+.nb-view b {
+  font-family: var(--nb-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.nb-view-ic svg {
+  width: 1.3rem;
+  height: 1.3rem;
+}
+
+/* Grouped list: one card, rows split by hairlines. */
+.nb-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow: hidden;
+  border: 0.5px solid var(--nb-edge);
+  border-radius: 1rem;
+  background: var(--nb-card);
+  box-shadow: var(--nb-shadow);
+}
+.nb-list li {
+  margin: 0;
+}
+.nb-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.4rem;
+  padding: 0.6rem 0.8rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nb-list li + li .nb-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 3.5rem;
+  right: 0;
+  border-top: 0.5px solid var(--rule);
+}
+.nb-list li + li .nb-note::before {
+  left: 2.75rem;
+}
+.nb-row:hover {
+  background: var(--wash);
+}
+.nb-row:active {
+  background: var(--wash-2);
+}
+.nb-row:active,
+.nb-view:active,
+.nb-path:active {
+  transform: scale(0.985);
+}
+.nb-ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.625rem;
+  background: var(--fam-wash, var(--garden-wash));
+  color: var(--fam, var(--garden));
+}
+.nb-ico svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.nb-ico-fam {
+  background: var(--fam, var(--garden));
+  color: #fff;
+}
+.nb-tx {
+  flex: 1;
+  min-width: 0;
+}
+.nb-tx b {
+  display: block;
+  overflow: hidden;
+  font-size: 1.03rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.nb-note .nb-tx b {
+  white-space: normal;
+}
+.nb-tx small {
+  display: block;
+  margin-top: 0.1rem;
+  font-family: var(--nb-sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.nb-rank {
+  font-family: var(--nb-sans);
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--fam, var(--muted));
+}
+.nb-bar {
+  display: block;
+  height: 0.2rem;
+  margin-top: 0.35rem;
+  border-radius: 0.1rem;
+  background: var(--wash-2);
+  overflow: hidden;
+}
+.nb-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--fam, var(--garden));
+}
+.nb-chev {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: var(--rule-strong);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nb-min {
+  flex: none;
+  font-family: var(--nb-sans);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+/* A note's state: read (filled check), started (part ring), not yet (ring). */
+.nb-st {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+}
+.nb-st svg {
+  width: 0.8rem;
+  height: 0.8rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.nb-st-unread {
+  border: 1.5px solid var(--rule-strong);
+}
+.nb-st-read {
+  background: var(--garden);
+  color: var(--paper);
+}
+.nb-st-started {
+  background: conic-gradient(var(--garden) 0 40%, var(--wash-2) 0);
+}
+.nb-st-started::after {
+  content: "";
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background: var(--nb-card);
+}
+.nb-st-deck,
+.nb-st-file {
+  color: var(--muted);
+}
+.nb-st-deck svg,
+.nb-st-file svg {
+  width: 1.05rem;
+  height: 1.05rem;
+  stroke-width: 1.8;
+}
+
+/* Filter chips over a folder's notes. */
+.nb-chips {
+  display: flex;
+  gap: 0.45rem;
+  margin: 0 -1rem 0.6rem;
+  padding: 0 1rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nb-chips::-webkit-scrollbar {
+  display: none;
+}
+.nb-chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.1rem;
+  padding: 0 0.8rem;
+  border: 0;
+  border-radius: 1.05rem;
+  background: var(--wash-2);
+  color: var(--ink);
+  font-family: var(--nb-sans);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.nb-chip small {
+  font-size: 0.8rem;
+  opacity: 0.65;
+}
+.nb-chip[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+/* Reading paths that live in the folder. */
+.nb-paths {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0 0 0.25rem;
+  padding: 0;
+  list-style: none;
+}
+.nb-paths li {
+  margin: 0;
+}
+.nb-path {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.75rem 0.7rem 0.9rem;
+  border-radius: 1rem;
+  background: var(--fam-wash, var(--garden-wash));
+  color: var(--ink);
+  text-decoration: none;
+  transition: transform 0.15s;
+}
+.nb-path-tx {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--nb-sans);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.nb-path-tx small {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fam, var(--garden));
+}
+.nb-path-tx b {
+  display: block;
+  margin: 0.1rem 0;
+  font-family: "Alegreya", serif;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.nb-play {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: var(--garden);
+  color: var(--paper);
+}
+.nb-play svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nb-view,
+  .nb-path {
+    transition: none;
+  }
+  .nb-row:active,
+  .nb-view:active,
+  .nb-path:active {
+    transform: none;
+  }
+}

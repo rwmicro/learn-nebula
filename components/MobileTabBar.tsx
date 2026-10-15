@@ -7,7 +7,7 @@ import { useLocale } from "@/lib/use-locale";
 import { useReviewDue } from "@/components/AccountChip";
 
 // The phone tab bar: a floating "liquid glass" capsule with the four places a
-// reader goes back to (Accueil, Parcours, Explorer, Réviser), and a round
+// reader goes back to (Accueil, Parcours, Notes, Réviser), and a round
 // glass button beside it that opens the command palette (wired by
 // /js/palette.js through data-palette-open). Phones only (global.css
 // `.tabbar`, under 640px); the site bar keeps the menu on wider screens.
@@ -31,7 +31,9 @@ const stroke = {
   strokeLinejoin: "round" as const,
 };
 
-const EXPLORE = ["/explorer/", "/graph/", "/frise/", "/carte/", "/themes/", "/jardin/", "/disciplines/", "/donnees/", "/hasard/"];
+// The Notes tab (app/notes/) also holds the views Explorer used to: graph,
+// timeline, map, themes…, so it stays lit on their pages.
+const NOTES = ["/notes/", "/explorer/", "/graph/", "/frise/", "/carte/", "/themes/", "/jardin/", "/disciplines/", "/donnees/", "/hasard/"];
 
 const TABS: Tab[] = [
   {
@@ -59,13 +61,15 @@ const TABS: Tab[] = [
     ),
   },
   {
-    key: "tabbar.explore",
-    href: "/explorer/",
-    match: (p) => EXPLORE.some((x) => p.startsWith(x)),
+    key: "tabbar.notes",
+    href: "/notes/",
+    match: (p) => NOTES.some((x) => p.startsWith(x)),
     icon: (
       <svg viewBox="0 0 24 24" {...stroke}>
-        <circle cx="12" cy="12" r="9" />
-        <path className="tabbar-fill" d="m15.5 8.5-2 5-5 2 2-5z" />
+        <path className="tabbar-fill" d="M4 19.5V5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v14.5" />
+        <path d="M9 19.5V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v12.5" />
+        <path d="m14.6 7.4 2.8-.8a1 1 0 0 1 1.2.7l3 11.3" />
+        <path d="M3 20h18" />
       </svg>
     ),
   },
