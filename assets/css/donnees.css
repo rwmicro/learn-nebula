@@ -72,3 +72,69 @@
   font-size: 0.85rem;
   white-space: nowrap;
 }
+
+/* Phone: each table row becomes a list row (name and format badge on top,
+   what it holds underneath), the rows grouped on one rounded card. */
+@media (max-width: 639.98px) {
+  .donnees-scroll {
+    overflow: visible;
+  }
+  .donnees-table,
+  .donnees-table tbody {
+    display: block;
+  }
+  .donnees-table {
+    border: 0.5px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--paper-raised);
+    overflow: hidden;
+  }
+  .donnees-table thead {
+    display: none;
+  }
+  .donnees-table tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.2rem 0.75rem;
+    margin-left: 1rem;
+    padding: 0.75rem 1rem 0.75rem 0;
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .donnees-table tr:last-child {
+    border-bottom: 0;
+  }
+  .donnees-table td {
+    padding: 0;
+    border: 0;
+  }
+  .donnees-table td:first-child {
+    font-size: 1rem;
+    overflow-wrap: anywhere;
+  }
+  .donnees-table td:first-child code {
+    white-space: normal;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .donnees-table td:nth-child(2) {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.35;
+  }
+  .donnees-table td:nth-child(3) {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    padding: 0.1rem 0.5rem;
+    border-radius: 0.4rem;
+    background: var(--garden-wash);
+    color: var(--garden);
+    font: 600 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+}
