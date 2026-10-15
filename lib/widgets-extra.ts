@@ -30,6 +30,8 @@ export const EXTRA_WIDGETS: Record<string, { pack: WidgetPack; fallback: string 
   "xss-dom": { pack: "sci", fallback: "innerHTML face à textContent, démonstration XSS sans risque (nécessite JavaScript)." },
   "rotation-cultures": { pack: "sci", fallback: "Rotation des cultures et azote du sol (nécessite JavaScript)." },
   "tableau-periodique": { pack: "sci", fallback: "Tableau périodique interactif (nécessite JavaScript)." },
+  "descente-gradient": { pack: "sci", fallback: "Descente de gradient sur une régression linéaire (nécessite JavaScript)." },
+  frontiere: { pack: "sci", fallback: "Frontière de décision d'un perceptron ou d'une régression logistique (nécessite JavaScript)." },
 
   // --- langues
   "affixes-indonesiens": { pack: "lang", fallback: "Affixes de l'indonésien et du malais (nécessite JavaScript)." },

@@ -12,6 +12,8 @@ import { syllogisme } from "./sci/syllogisme.js";
 import { xssDom } from "./sci/xss-dom.js";
 import { rotationCultures } from "./sci/rotation-cultures.js";
 import { tableauPeriodique } from "./sci/tableau-periodique.js";
+import { descenteGradient } from "./sci/descente-gradient.js";
+import { frontiere } from "./sci/frontiere.js";
 
 mount({
   supercompensation,
@@ -23,4 +25,6 @@ mount({
   "xss-dom": xssDom,
   "rotation-cultures": rotationCultures,
   "tableau-periodique": tableauPeriodique,
+  "descente-gradient": descenteGradient,
+  frontiere,
 });

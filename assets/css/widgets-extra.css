@@ -763,6 +763,11 @@ button.prix[aria-expanded="true"] {
   padding: 0.9rem 0 0.7rem;
   background: none;
 }
+/* Inside a goal frame (task above, « Vérifier » below), the figure keeps
+   the frame's side padding instead of touching its borders. */
+.widget.is-live .w-goals .w-root {
+  padding-inline: 0.9rem;
+}
 .widget.is-live .w-chart-title {
   font-size: 1.15rem;
   line-height: 1.25;

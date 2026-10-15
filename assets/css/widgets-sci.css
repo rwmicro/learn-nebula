@@ -925,3 +925,74 @@
   color: inherit;
   font-size: 0.75em;
 }
+
+/* ------------------------------------- descente-gradient, frontiere (ML) */
+.ml-dot {
+  fill: var(--ink);
+}
+.ml-resid {
+  stroke: var(--muted);
+  stroke-width: 1;
+  stroke-dasharray: 2 2;
+}
+.ml-level {
+  fill: none;
+  stroke: var(--w-s1);
+  stroke-width: 1.2;
+}
+.ml-min {
+  stroke: var(--ink);
+  stroke-width: 2;
+  fill: none;
+}
+.ml-path {
+  fill: none;
+  stroke: var(--w-s2);
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+}
+.ml-step {
+  fill: var(--w-s2);
+}
+.ml-cur {
+  fill: var(--paper);
+  stroke: var(--w-s2);
+  stroke-width: 2.5;
+}
+.ml-boundary {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.ml-pt {
+  stroke: var(--paper);
+  stroke-width: 1.2;
+}
+.ml-c0 {
+  fill: var(--w-s1);
+}
+.ml-c1 {
+  fill: var(--w-s2);
+}
+.ml-pt.is-wrong {
+  stroke: var(--ink);
+  stroke-width: 2;
+}
+.ml-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+.ml-plane {
+  margin-bottom: 0.6rem;
+}
+.ml-plane svg {
+  max-width: 27.5rem;
+  touch-action: manipulation;
+}
+.w-root .w-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
