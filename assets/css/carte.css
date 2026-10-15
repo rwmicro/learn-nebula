@@ -205,3 +205,60 @@
     grid-template-columns: minmax(0, 1fr) 4rem 2rem;
   }
 }
+
+/* Phone: the map on a rounded panel, the countries as one grouped list
+   (iOS-style card), each bar on a light track. */
+@media (max-width: 639.98px) {
+  .carte-intro {
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .carte-figure {
+    margin-bottom: 1.75rem;
+  }
+  .carte-map-wrap {
+    border: 0;
+    border-radius: 1rem;
+    padding: 0.75rem 0.5rem;
+    background: var(--tint-soft);
+  }
+  .carte-list-title {
+    margin: 0 0 0.5rem 0.25rem;
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+  }
+  .carte-list {
+    border: 0.5px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--paper-raised);
+    overflow: hidden;
+  }
+  .carte-list > li {
+    border-bottom: 0.5px solid var(--rule);
+    margin-left: 1rem;
+  }
+  .carte-list > li:last-child {
+    border-bottom: 0;
+  }
+  .carte-country summary {
+    grid-template-columns: minmax(0, 1fr) 5.5rem 2.25rem;
+    padding: 0.7rem 1rem 0.7rem 0;
+    min-height: 2.75rem;
+  }
+  .carte-bar {
+    height: 0.4rem;
+    border-radius: 0.2rem;
+    background: var(--rule-soft);
+    overflow: hidden;
+  }
+  .carte-bar i {
+    border-radius: 0.2rem;
+  }
+  .carte-country-n {
+    font-size: 0.9rem;
+  }
+  .carte-notes {
+    margin: 0 1rem 0.8rem 0;
+  }
+}
