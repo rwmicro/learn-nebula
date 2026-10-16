@@ -416,7 +416,13 @@
     "filterPlaceholder": "Filtrar temas…",
     "filterCount": "{n} temas",
     "filterEmpty": "Ningún tema coincide.",
-    "indexBadge": "Índice"
+    "indexBadge": "Índice",
+    "phoneIntro": "Los temas que atraviesan varias disciplinas.",
+    "sortAria": "Ordenar los temas",
+    "sortFreq": "Más frecuentes",
+    "sortAlpha": "De la A a la Z",
+    "nDisciplines": "{n} disciplinas",
+    "filterCountOne": "{n} tema"
   },
   "cartesIndex": {
     "title": "Tarjetas de repaso",

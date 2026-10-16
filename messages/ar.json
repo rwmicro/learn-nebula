@@ -416,7 +416,13 @@
     "filterPlaceholder": "تصفية المواضيع…",
     "filterCount": "{n} موضوعًا",
     "filterEmpty": "لا يوجد موضوع مطابق.",
-    "indexBadge": "فهرس"
+    "indexBadge": "فهرس",
+    "phoneIntro": "المواضيع التي تمتد عبر عدة تخصصات.",
+    "sortAria": "ترتيب المواضيع",
+    "sortFreq": "الأكثر تكرارًا",
+    "sortAlpha": "من أ إلى ي",
+    "nDisciplines": "{n} تخصصات",
+    "filterCountOne": "موضوع واحد"
   },
   "cartesIndex": {
     "title": "بطاقات المراجعة",

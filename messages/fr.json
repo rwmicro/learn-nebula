@@ -416,7 +416,13 @@
     "filterPlaceholder": "Filtrer les thèmes…",
     "filterCount": "{n} thèmes",
     "filterEmpty": "Aucun thème ne correspond.",
-    "indexBadge": "Sommaire"
+    "indexBadge": "Sommaire",
+    "phoneIntro": "Les sujets qui traversent plusieurs disciplines.",
+    "sortAria": "Trier les thèmes",
+    "sortFreq": "Les plus fréquents",
+    "sortAlpha": "De A à Z",
+    "nDisciplines": "{n} disciplines",
+    "filterCountOne": "{n} thème"
   },
   "cartesIndex": {
     "title": "Cartes de révision",

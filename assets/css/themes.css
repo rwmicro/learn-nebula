@@ -274,6 +274,13 @@
 /* Phone: a discipline's or a theme's notes as grouped lists, a circle on
    the right of each that fills once the note is read (ReadMarks sets
    .is-read); the frequent themes as one sideways row of chips. */
+/* Phone-only theme list (Themes.tsx ThemeRow) and its sort switch. */
+.themes-phone-intro,
+.themes-radio,
+.themes-sort,
+.themes-phone-list {
+  display: none !important;
+}
 @media (max-width: 639.98px) {
   main.themes-page:not(.themes-page--index) .themes-kicker {
     display: none;
@@ -361,5 +368,137 @@
     background: var(--garden)
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.5 4 4 8-9'/%3E%3C/svg%3E")
       center / 0.8rem no-repeat;
+  }
+
+  /* /themes/ on phones: only the themes (disciplines live in Notes), as a
+     grouped list, most used first or A→Z. */
+  .themes-page--index :is(.themes-intro, .themes-h2, .themes-top, .themes-group, .themes-group[hidden]) {
+    display: none !important;
+  }
+  .themes-page--index .themes-phone-intro {
+    display: block !important;
+    margin: 0 0 1rem;
+    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .themes-page--index .themes-sort {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+    margin: 0.75rem 0;
+    padding: 0.2rem;
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+  }
+  .themes-sort label {
+    padding: 0.45rem 0.25rem;
+    border-radius: 0.6rem;
+    text-align: center;
+    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .themes-page:has(#themes-s-freq:checked) label[for="themes-s-freq"],
+  .themes-page:has(#themes-s-alpha:checked) label[for="themes-s-alpha"] {
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .themes-page--index .themes-phone-list:not([hidden]) {
+    display: block !important;
+  }
+  .themes-phone-list ul {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border: 0.5px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--paper-raised);
+    overflow: hidden;
+  }
+  .themes-page:has(#themes-s-alpha:checked) .themes-phone-list li {
+    order: var(--o-alpha);
+  }
+  .themes-phone-list li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0.65rem 0.9rem;
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .themes-phone-list li[hidden] {
+    display: none;
+  }
+  .themes-row-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.6rem;
+    background: var(--fam-wash, color-mix(in srgb, var(--ink) 7%, transparent));
+    color: var(--fam, var(--muted));
+  }
+  .themes-row-icon svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .themes-row-text {
+    display: grid;
+    flex: 1;
+    min-width: 0;
+  }
+  .themes-row-text a {
+    font-size: 1.05rem;
+    line-height: 1.3;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .themes-row-text a::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .themes-row-text small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .themes-row-chev {
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: var(--faint);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .themes-page--index .themes-filter {
+    max-width: none;
+    margin: 0;
+    height: 2.75rem;
+    padding: 0 0.9rem;
+    border: 0;
+    border-radius: 0.875rem;
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+  }
+  .themes-page--index .themes-filter input {
+    font: 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .themes-page--index .themes-filter input::placeholder {
+    font-style: normal;
   }
 }

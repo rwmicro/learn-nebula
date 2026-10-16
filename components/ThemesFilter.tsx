@@ -40,7 +40,9 @@ export function ThemesFilter({ total }: { total: number }) {
         const rareHits = [...rare.querySelectorAll<HTMLElement>("li[data-name]")].some((li) => !li.hidden);
         rare.hidden = !!needle && !rareHits;
       }
-      count += inGroup;
+      // Phones and desktop each show one of the two views (themes.css):
+      // count only the one on screen.
+      if (getComputedStyle(group).display !== "none") count += inGroup;
     });
     const empty = document.querySelector<HTMLElement>("[data-themes-empty]");
     if (empty) empty.hidden = count > 0;
@@ -79,7 +81,7 @@ export function ThemesFilter({ total }: { total: number }) {
         {...attrs(i18nAttr("placeholder", "themes.filterPlaceholder") + i18nAttr("aria-label", "themes.filterPlaceholder"))}
       />
       <span className="themes-filter-count" aria-live="polite">
-        {q.trim() ? tr("themes.filterCount", { n: shown }) : ""}
+        {q.trim() ? tr(shown === 1 ? "themes.filterCountOne" : "themes.filterCount", { n: shown }) : ""}
       </span>
     </div>
   );

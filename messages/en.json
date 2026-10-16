@@ -416,7 +416,13 @@
     "filterPlaceholder": "Filter themes…",
     "filterCount": "{n} themes",
     "filterEmpty": "No theme matches.",
-    "indexBadge": "Overview"
+    "indexBadge": "Overview",
+    "phoneIntro": "The subjects that run across several disciplines.",
+    "sortAria": "Sort the themes",
+    "sortFreq": "Most frequent",
+    "sortAlpha": "A to Z",
+    "nDisciplines": "{n} disciplines",
+    "filterCountOne": "{n} theme"
   },
   "cartesIndex": {
     "title": "Flashcards",
