@@ -186,7 +186,12 @@ export function MoiPhone() {
         </a>
       )}
 
-      <h2 className="moi-h">{tr("moi.week")}</h2>
+      <div className="moi-row-h">
+        <h2 className="moi-h">{tr("moi.week")}</h2>
+        <a className="moi-row-link" href="/defis/">
+          {tr("defis.title")}
+        </a>
+      </div>
       <div className="moi-tiles">
         <div>
           <b>{week.read}</b>

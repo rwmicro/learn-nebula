@@ -2894,6 +2894,11 @@
     font: 600 0.8125rem "Alegreya", "Alegreya Fallback", serif;
     color: var(--muted);
   }
+  main .moi-row-link {
+    font: 600 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--garden);
+    text-decoration: none;
+  }
   main .moi-h {
     margin: 0;
     padding: 1.25rem 0.375rem 0.5rem;
@@ -4855,7 +4860,10 @@
 /* The 404 (app/not-found.tsx; it may not import route CSS, so its phone
    layer lives here): a centred sprout and title, the search as a field-like
    row, the closest notes on a grouped card, the other ways out as pills. */
-.nf-icon {
+.nf-icon,
+.nf-narrow,
+.nf-sub,
+.nf-pill-icon {
   display: none;
 }
 @media (max-width: 639.98px) {
@@ -4960,6 +4968,70 @@
   }
   .nf-links a:hover {
     text-decoration: none;
+  }
+  /* The garden's wording, an icon and a line under each suggestion, the
+     pills with their icons (the tab bar already leads home). */
+  main.nf-page .nf-wide,
+  .nf-links .nf-home {
+    display: none;
+  }
+  main.nf-page span.nf-narrow {
+    display: inline;
+  }
+  main.nf-page p.nf-narrow {
+    display: block;
+    margin: 0 0 0.5rem;
+  }
+  .nf-list li {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    column-gap: 0.75rem;
+    align-items: center;
+    padding: 0.6rem 1rem 0.6rem 0;
+  }
+  .nf-list li::before {
+    content: "";
+    grid-row: span 2;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.6rem;
+    background:
+      radial-gradient(circle, var(--fam, var(--muted)) 0 0.3rem, transparent 0.32rem),
+      var(--fam-wash, color-mix(in srgb, var(--ink) 7%, transparent));
+  }
+  .nf-list li a {
+    padding: 0;
+  }
+  .nf-list li a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .nf-list li {
+    position: relative;
+  }
+  .nf-sub {
+    display: block;
+    grid-column: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .nf-links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+  .nf-pill-icon {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
   }
 }
 

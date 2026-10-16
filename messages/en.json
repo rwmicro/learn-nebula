@@ -452,7 +452,9 @@
     "search": "Search the garden for “{q}”",
     "title": "Page not found",
     "body": "This page doesn’t exist (404 error).",
-    "home": "Back to the home page"
+    "home": "Back to the home page",
+    "titlePhone": "This page never grew",
+    "bodyPhone": "This address leads to no note. It may have been renamed."
   },
   "random": {
     "title": "A random note",

@@ -452,7 +452,9 @@
     "search": "Buscar «{q}» en el jardín",
     "title": "Página no encontrada",
     "body": "Esta página no existe (error 404).",
-    "home": "Volver al inicio"
+    "home": "Volver al inicio",
+    "titlePhone": "Esta página no ha brotado",
+    "bodyPhone": "Esta dirección no lleva a ninguna nota. Quizá cambió de nombre."
   },
   "random": {
     "title": "Una nota al azar",
