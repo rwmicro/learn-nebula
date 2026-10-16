@@ -339,7 +339,17 @@
     "kind_langue": "语言",
     "kind_autre": "笔记",
     "how": "笔记按其文件夹（历史中的国家、一种语言）或其页眉中的“pays:”一行归入某个国家。",
-    "nav": "世界地图"
+    "nav": "世界地图",
+    "sortAria": "排序国家",
+    "sort_notes": "按笔记数",
+    "sort_name": "按名称",
+    "sort_region": "按地区",
+    "region_africa": "非洲",
+    "region_americas": "美洲",
+    "region_asia": "亚洲",
+    "region_europe": "欧洲",
+    "region_oceania": "大洋洲",
+    "region_other": "其他"
   },
   "citer": {
     "title": "引用这篇笔记",

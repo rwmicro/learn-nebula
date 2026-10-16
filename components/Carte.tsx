@@ -2,6 +2,11 @@ import { t, i18nAttrs } from "@/lib/i18n";
 import { CARTE_BINS, carteClass, WORLD, type CarteCountry } from "@/lib/carte";
 import { CarteHover } from "@/components/CarteHover";
 import { AppBack } from "@/components/AppBack";
+import { COUNTRIES } from "@/lib/countries";
+import { REGION_ORDER, regionOf, type Region } from "@/lib/regions";
+import type { CSSProperties } from "react";
+
+const ISO2 = new Map(COUNTRIES.map(([iso3, iso2]) => [iso3, iso2]));
 
 /**
  * /carte/: the world, each country shaded by how many notes of the garden
@@ -13,6 +18,16 @@ import { AppBack } from "@/components/AppBack";
 export function Carte({ countries }: { countries: CarteCountry[] }) {
   const byId = new Map(countries.map((c) => [c.id, c]));
   const total = new Set(countries.flatMap((c) => c.notes.map((n) => n.href))).size;
+  // Phones sort the list three ways (carte.css, radios + CSS order): by notes
+  // (the DOM order), by name, by continent with a heading per continent.
+  const byName = new Map(
+    [...countries]
+      .sort((a, b) => a.name.localeCompare(b.name, "fr"))
+      .map((c, i) => [c.iso3, i] as const),
+  );
+  const regionRank = (r: Region | null) => (r ? REGION_ORDER.indexOf(r) : REGION_ORDER.length);
+  const regionOfC = (c: CarteCountry) => regionOf(ISO2.get(c.iso3) ?? "");
+  const regions = [...new Set(countries.map(regionOfC))].sort((a, b) => regionRank(a) - regionRank(b));
   return (
     <main className="carte-page">
       <AppBack href="/notes/" labelKey="tabbar.notes" />
@@ -72,9 +87,38 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
       <h2 className="carte-list-title" {...attrs(i18nAttrs("carte.listTitle"))}>
         {t("carte.listTitle")}
       </h2>
+      <input type="radio" name="carte-sort" id="carte-s-notes" className="carte-radio" defaultChecked />
+      <input type="radio" name="carte-sort" id="carte-s-name" className="carte-radio" />
+      <input type="radio" name="carte-sort" id="carte-s-region" className="carte-radio" />
+      <div className="carte-sort" role="group" aria-label={t("carte.sortAria")} data-i18n-aria-label="carte.sortAria">
+        {(["notes", "name", "region"] as const).map((k) => (
+          <label key={k} htmlFor={`carte-s-${k}`} {...attrs(i18nAttrs(`carte.sort_${k}`))}>
+            {t(`carte.sort_${k}`)}
+          </label>
+        ))}
+      </div>
       <ul className="carte-list">
-        {countries.map((c) => (
-          <li key={c.iso3}>
+        {regions.map((r) => (
+          <li
+            key={`region-${r ?? "none"}`}
+            className="carte-region"
+            aria-hidden="true"
+            style={{ "--o-region": regionRank(r) * 1000 } as CSSProperties}
+            {...attrs(i18nAttrs(`carte.region_${r ?? "other"}`))}
+          >
+            {t(`carte.region_${r ?? "other"}`)}
+          </li>
+        ))}
+        {countries.map((c, i) => (
+          <li
+            key={c.iso3}
+            style={
+              {
+                "--o-name": byName.get(c.iso3),
+                "--o-region": regionRank(regionOfC(c)) * 1000 + 1 + i,
+              } as CSSProperties
+            }
+          >
             <details id={`pays-${c.iso3}`} className="carte-country">
               <summary>
                 <span className="carte-country-name">{c.name}</span>

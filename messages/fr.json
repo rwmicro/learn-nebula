@@ -339,7 +339,17 @@
     "kind_langue": "langue",
     "kind_autre": "note",
     "how": "Une note est placée sur un pays par son dossier (un pays de l'histoire, une langue) ou par la ligne « pays: » de son en-tête.",
-    "nav": "Carte du monde"
+    "nav": "Carte du monde",
+    "sortAria": "Trier les pays",
+    "sort_notes": "Par notes",
+    "sort_name": "Par nom",
+    "sort_region": "Par région",
+    "region_africa": "Afrique",
+    "region_americas": "Amériques",
+    "region_asia": "Asie",
+    "region_europe": "Europe",
+    "region_oceania": "Océanie",
+    "region_other": "Ailleurs"
   },
   "citer": {
     "title": "Citer cette note",

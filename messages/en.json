@@ -339,7 +339,17 @@
     "kind_langue": "language",
     "kind_autre": "note",
     "how": "A note is placed on a country by its folder (a country in History, a language) or by the “pays:” line of its header.",
-    "nav": "World map"
+    "nav": "World map",
+    "sortAria": "Sort the countries",
+    "sort_notes": "By notes",
+    "sort_name": "By name",
+    "sort_region": "By region",
+    "region_africa": "Africa",
+    "region_americas": "Americas",
+    "region_asia": "Asia",
+    "region_europe": "Europe",
+    "region_oceania": "Oceania",
+    "region_other": "Elsewhere"
   },
   "citer": {
     "title": "Cite this note",

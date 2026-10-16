@@ -339,7 +339,17 @@
     "kind_langue": "لغة",
     "kind_autre": "ملاحظة",
     "how": "توضع الملاحظة على دولة بحسب مجلدها (دولة في التاريخ، أو لغة) أو بسطر «pays:» في رأسها.",
-    "nav": "خريطة العالم"
+    "nav": "خريطة العالم",
+    "sortAria": "ترتيب البلدان",
+    "sort_notes": "حسب الملاحظات",
+    "sort_name": "حسب الاسم",
+    "sort_region": "حسب المنطقة",
+    "region_africa": "أفريقيا",
+    "region_americas": "الأمريكتان",
+    "region_asia": "آسيا",
+    "region_europe": "أوروبا",
+    "region_oceania": "أوقيانوسيا",
+    "region_other": "أماكن أخرى"
   },
   "citer": {
     "title": "اقتباس هذه الملاحظة",

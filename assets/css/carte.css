@@ -208,6 +208,12 @@
 
 /* Phone: the map on a rounded panel, the countries as one grouped list
    (iOS-style card), each bar on a light track. */
+/* Phone-only sort switch (Carte.tsx) and continent headings. */
+.carte-radio,
+.carte-sort,
+.carte-region {
+  display: none;
+}
 @media (max-width: 639.98px) {
   .carte-intro {
     font-size: 1rem;
@@ -260,5 +266,55 @@
   }
   .carte-notes {
     margin: 0 1rem 0.8rem 0;
+  }
+
+  /* Par notes / Par nom / Par région: a segmented control over the list,
+     which CSS re-orders (each row carries its rank as --o-*). */
+  .carte-sort {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 0.25rem;
+    margin: 0 0 0.75rem;
+    padding: 0.2rem;
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+  }
+  .carte-sort label {
+    padding: 0.45rem 0.25rem;
+    border-radius: 0.6rem;
+    text-align: center;
+    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .carte-page:has(#carte-s-notes:checked) label[for="carte-s-notes"],
+  .carte-page:has(#carte-s-name:checked) label[for="carte-s-name"],
+  .carte-page:has(#carte-s-region:checked) label[for="carte-s-region"] {
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .carte-list {
+    display: flex;
+    flex-direction: column;
+  }
+  .carte-page:has(#carte-s-name:checked) .carte-list > li {
+    order: var(--o-name);
+  }
+  .carte-page:has(#carte-s-region:checked) .carte-list > li {
+    order: var(--o-region);
+  }
+  .carte-page:has(#carte-s-region:checked) .carte-region {
+    display: block;
+    margin-left: 0;
+    padding: 0.85rem 1rem 0.35rem;
+    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .carte-list-title {
+    display: none;
   }
 }
