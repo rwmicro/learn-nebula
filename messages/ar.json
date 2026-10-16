@@ -422,7 +422,10 @@
     "sortFreq": "الأكثر تكرارًا",
     "sortAlpha": "من أ إلى ي",
     "nDisciplines": "{n} تخصصات",
-    "filterCountOne": "موضوع واحد"
+    "filterCountOne": "موضوع واحد",
+    "minutes": "{n} د",
+    "read": "{n} مقروءة",
+    "readOne": "{n} مقروءة"
   },
   "cartesIndex": {
     "title": "بطاقات المراجعة",

@@ -6,6 +6,7 @@ import {
   CHANGE_EVENT,
   isRead,
   loadStore,
+  savedProgress,
   slugFromHref,
   type ReadingStore,
 } from "@/lib/reading-progress";
@@ -83,6 +84,10 @@ function decorate(store: ReadingStore) {
       const read = isRead(store, slugFromHref(a.getAttribute("href")));
       const li = a.closest("li");
       li?.classList.toggle("is-read", read);
+      // Started but unfinished: how far, for the phone lists' ring.
+      const p = read ? null : savedProgress(store, slugFromHref(a.getAttribute("href")) ?? "");
+      li?.classList.toggle("is-started", p != null);
+      if (p != null) li?.style.setProperty("--p", String(p));
       let mark = a.nextElementSibling;
       if (!mark || !mark.classList.contains("read-check")) mark = null;
       if (read && !mark) {
@@ -144,7 +149,10 @@ function decorate(store: ReadingStore) {
       el.classList.toggle("is-started", read > 0);
       el.classList.toggle("is-done", total > 0 && read === total);
       const text = el.querySelector("[data-read-count]");
-      if (text) text.textContent = tr("reading.count", { read, total });
+      if (text)
+        text.textContent = el.hasAttribute("data-read-short")
+          ? tr(read === 1 ? "themes.readOne" : "themes.read", { n: read })
+          : tr("reading.count", { read, total });
       el.setAttribute("aria-label", tr("reading.countAria", { read, total }));
     });
 }

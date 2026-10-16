@@ -481,6 +481,8 @@ export interface ThemeNote {
   /** A folder's map ("Histoire - Index", "Index — Security"): listed first,
    *  marked as such, rather than as one more note among the others. */
   index?: boolean;
+  /** Reading time, as on the note (about 220 words a minute, at least 1). */
+  minutes?: number;
 }
 
 export interface TagGroup {
@@ -520,6 +522,7 @@ function themeNote(d: Doc): ThemeNote {
     href: `/posts/${d.slug}/`,
     discipline: disc ? homeDisplayName(disc.name) : "",
     ...(isIndexNote(d) ? { index: true } : {}),
+    minutes: Math.max(1, Math.round((d.body.trim() ? d.body.trim().split(/\s+/).length : 0) / 220)),
   };
 }
 

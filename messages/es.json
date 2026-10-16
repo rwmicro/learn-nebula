@@ -422,7 +422,10 @@
     "sortFreq": "Más frecuentes",
     "sortAlpha": "De la A a la Z",
     "nDisciplines": "{n} disciplinas",
-    "filterCountOne": "{n} tema"
+    "filterCountOne": "{n} tema",
+    "minutes": "{n} min",
+    "read": "{n} leídas",
+    "readOne": "{n} leída"
   },
   "cartesIndex": {
     "title": "Tarjetas de repaso",

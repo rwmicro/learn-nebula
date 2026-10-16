@@ -422,7 +422,10 @@
     "sortFreq": "Les plus fréquents",
     "sortAlpha": "De A à Z",
     "nDisciplines": "{n} disciplines",
-    "filterCountOne": "{n} thème"
+    "filterCountOne": "{n} thème",
+    "minutes": "{n} min",
+    "read": "{n} lues",
+    "readOne": "{n} lue"
   },
   "cartesIndex": {
     "title": "Cartes de révision",

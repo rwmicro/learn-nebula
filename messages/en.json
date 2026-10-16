@@ -422,7 +422,10 @@
     "sortFreq": "Most frequent",
     "sortAlpha": "A to Z",
     "nDisciplines": "{n} disciplines",
-    "filterCountOne": "{n} theme"
+    "filterCountOne": "{n} theme",
+    "minutes": "{n} min",
+    "read": "{n} read",
+    "readOne": "{n} read"
   },
   "cartesIndex": {
     "title": "Flashcards",

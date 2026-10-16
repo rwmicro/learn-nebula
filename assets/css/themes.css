@@ -275,6 +275,9 @@
    the right of each that fills once the note is read (ReadMarks sets
    .is-read); the frequent themes as one sideways row of chips. */
 /* Phone-only theme list (Themes.tsx ThemeRow) and its sort switch. */
+.themes-read-count,
+.themes-chip-all,
+.themes-note-min,
 .themes-phone-intro,
 .themes-radio,
 .themes-sort,
@@ -500,5 +503,39 @@
   }
   .themes-page--index .themes-filter input::placeholder {
     font-style: normal;
+  }
+
+  /* A discipline: "47 notes · 3 lues", a "Tout" chip, each note's reading
+     time under its title and a ring filled as far as it was read. The
+     folder's index note stays on desktop only. */
+  .themes-read-count.is-started {
+    display: inline !important;
+  }
+  main.themes-page:not(.themes-page--index) .themes-cloud--compact li.themes-chip-all {
+    display: inline-flex !important;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .themes-note-min {
+    display: block !important;
+    flex-basis: 100%;
+    font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .themes-notes li.themes-note-index {
+    display: none;
+  }
+  .themes-notes li.is-started::after {
+    border: 0;
+    background:
+      radial-gradient(closest-side, var(--paper-raised) 72%, transparent 73%),
+      conic-gradient(var(--garden) calc(var(--p, 0) * 360deg), var(--rule-strong) 0);
+  }
+
+  main.themes-page:not(.themes-page--index) h2.themes-h3 {
+    display: none;
+  }
+  main.themes-page:not(.themes-page--index) .themes-intro {
+    margin-bottom: 0.9rem;
   }
 }

@@ -304,13 +304,30 @@ export function DisciplinePage({ discipline }: { discipline: Discipline }) {
       <h1 className="themes-title">
         <DisciplineName name={discipline.name} />
       </h1>
-      <Count n={discipline.count} />
+      <p className="themes-intro">
+        <NoteCount n={discipline.count} />
+        {/* Phones: "· 3 lues" (ReadMarks fills it in). */}
+        <span
+          className="themes-read-count"
+          data-read-progress
+          data-prefix={discipline.prefix}
+          data-total={discipline.count}
+          data-read-short
+        >
+          {" · "}
+          <span data-read-count />
+        </span>
+      </p>
       {discipline.tags.length > 0 && (
         <>
           <h2 className="themes-h3" {...attrs(i18nAttrs("themes.topTags"))}>
             {t("themes.topTags")}
           </h2>
           <ul className="themes-cloud themes-cloud--compact">
+            {/* Phones: the chip row starts with the page itself, selected. */}
+            <li className="themes-chip-all" aria-current="page">
+              <span {...attrs(i18nAttrs("frise.all"))}>{t("frise.all")}</span>
+            </li>
             {discipline.tags.map((g) => (
               <li key={g.slug}>
                 <a href={`/themes/${g.slug}/`}>{g.name}</a>
@@ -356,6 +373,11 @@ function NoteSection({
         {notes.map((n) => (
           <li key={n.href} className={n.index ? "themes-note-index" : undefined}>
             <a href={n.href}>{n.title}</a>
+            {n.minutes && (
+              <small className="themes-note-min" {...attrs(i18nAttrs("themes.minutes", { n: n.minutes }))}>
+                {t("themes.minutes", { n: n.minutes })}
+              </small>
+            )}
             {n.index && (
               <span className="themes-index-badge" {...attrs(i18nAttrs("themes.indexBadge"))}>
                 {t("themes.indexBadge")}

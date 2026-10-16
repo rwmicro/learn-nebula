@@ -422,7 +422,10 @@
     "sortFreq": "最常见",
     "sortAlpha": "A 到 Z",
     "nDisciplines": "{n} 个学科",
-    "filterCountOne": "{n} 个主题"
+    "filterCountOne": "{n} 个主题",
+    "minutes": "{n} 分钟",
+    "read": "已读 {n} 篇",
+    "readOne": "已读 {n} 篇"
   },
   "cartesIndex": {
     "title": "复习卡片",
