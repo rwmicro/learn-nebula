@@ -313,7 +313,19 @@
     "eraModern": "近代早期",
     "eraContemporary": "现当代",
     "erasAria": "跳转到某个时期",
-    "span": "{n} 年"
+    "span": "{n} 年",
+    "count": "{n} 篇有日期的笔记，从古代到今天。",
+    "all": "全部",
+    "eraAncientShort": "古代",
+    "eraMedievalShort": "中世纪",
+    "eraModernShort": "近代",
+    "eraContemporaryShort": "现代",
+    "century": "{n} 世纪",
+    "centuryOne": "1 世纪",
+    "centuryBce": "公元前 {n} 世纪",
+    "centuryOneBce": "公元前 1 世纪",
+    "millenniumBce": "公元前 {n} 千年",
+    "bceShort": "公元前"
   },
   "carte": {
     "title": "地图上的花园",

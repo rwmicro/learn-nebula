@@ -313,7 +313,19 @@
     "eraModern": "العصر الحديث المبكر",
     "eraContemporary": "العصر المعاصر",
     "erasAria": "الانتقال إلى حقبة",
-    "span": "{n} سنة"
+    "span": "{n} سنة",
+    "count": "{n} ملاحظة مؤرخة، من العصور القديمة إلى اليوم.",
+    "all": "الكل",
+    "eraAncientShort": "العصور القديمة",
+    "eraMedievalShort": "العصور الوسطى",
+    "eraModernShort": "الحديثة",
+    "eraContemporaryShort": "المعاصرة",
+    "century": "القرن {n}",
+    "centuryOne": "القرن 1",
+    "centuryBce": "القرن {n} ق.م.",
+    "centuryOneBce": "القرن 1 ق.م.",
+    "millenniumBce": "الألفية {n} ق.م.",
+    "bceShort": "ق.م."
   },
   "carte": {
     "title": "الحديقة على الخريطة",

@@ -313,7 +313,19 @@
     "eraModern": "Edad Moderna",
     "eraContemporary": "Edad Contemporánea",
     "erasAria": "Ir a una época",
-    "span": "{n} años"
+    "span": "{n} años",
+    "count": "{n} notas fechadas, de la Antigüedad a hoy.",
+    "all": "Todo",
+    "eraAncientShort": "Antigüedad",
+    "eraMedievalShort": "Edad Media",
+    "eraModernShort": "Moderna",
+    "eraContemporaryShort": "Contemporánea",
+    "century": "Siglo {r}",
+    "centuryOne": "Siglo I",
+    "centuryBce": "Siglo {r} a. C.",
+    "centuryOneBce": "Siglo I a. C.",
+    "millenniumBce": "Milenio {r} a. C.",
+    "bceShort": "a. C."
   },
   "carte": {
     "title": "El jardín en el mapa",

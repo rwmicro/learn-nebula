@@ -313,7 +313,19 @@
     "eraModern": "Époque moderne",
     "eraContemporary": "Époque contemporaine",
     "erasAria": "Aller à une époque",
-    "span": "{n} ans"
+    "span": "{n} ans",
+    "count": "{n} notes datées, de l'Antiquité à aujourd'hui.",
+    "all": "Tout",
+    "eraAncientShort": "Antiquité",
+    "eraMedievalShort": "Moyen Âge",
+    "eraModernShort": "Moderne",
+    "eraContemporaryShort": "Contemporain",
+    "century": "{r}e siècle",
+    "centuryOne": "Ier siècle",
+    "centuryBce": "{r}e siècle av. J.-C.",
+    "centuryOneBce": "Ier siècle av. J.-C.",
+    "millenniumBce": "{r}e millénaire av. J.-C.",
+    "bceShort": "av. J.-C."
   },
   "carte": {
     "title": "Le jardin sur la carte",

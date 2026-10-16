@@ -313,7 +313,19 @@
     "eraModern": "Early modern period",
     "eraContemporary": "Contemporary period",
     "erasAria": "Jump to a period",
-    "span": "{n} years"
+    "span": "{n} years",
+    "count": "{n} dated notes, from Antiquity to today.",
+    "all": "All",
+    "eraAncientShort": "Antiquity",
+    "eraMedievalShort": "Middle Ages",
+    "eraModernShort": "Early modern",
+    "eraContemporaryShort": "Contemporary",
+    "century": "Century {r}",
+    "centuryOne": "Century I",
+    "centuryBce": "Century {r} BC",
+    "centuryOneBce": "Century I BC",
+    "millenniumBce": "Millennium {r} BC",
+    "bceShort": "BC"
   },
   "carte": {
     "title": "The garden on the map",

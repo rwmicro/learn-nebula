@@ -411,6 +411,8 @@ export interface TimelineEntry {
   /** Display label; falls back to the bare year when absent. */
   period?: string;
   domain?: string;
+  /** The level-2 folder as on disk ("History"), for its name and colour. */
+  discipline?: string;
 }
 
 /** Every note that declares a historical `year`, oldest first. Powers
@@ -422,7 +424,15 @@ export function getTimeline(): TimelineEntry[] {
   for (const d of getAllPosts()) {
     const { year, yearEnd, period, title, domain } = d.frontmatter;
     if (year === undefined) continue;
-    out.push({ title, href: `/posts/${d.slug}/`, year, yearEnd, period, domain });
+    out.push({
+      title,
+      href: `/posts/${d.slug}/`,
+      year,
+      yearEnd,
+      period,
+      domain,
+      discipline: d.rawPath.split("/")[1],
+    });
   }
   return out.sort((a, b) => a.year - b.year);
 }
