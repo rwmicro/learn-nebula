@@ -3,6 +3,7 @@ import { t, i18nAttrs } from "@/lib/i18n";
 import { DATA_FILES, DATA_SOURCES, getFigures } from "@/lib/donnees";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/donnees.css";
+import { AppBack } from "@/components/AppBack";
 
 export const metadata: Metadata = {
   title: `Données ouvertes · ${SITE_TITLE}`,
@@ -19,7 +20,8 @@ export default function DonneesPage() {
   const figures = getFigures();
   return (
     <main className="donnees-page">
-      <a href="/" className="donnees-back">
+      <AppBack href="/notes/" labelKey="tabbar.notes" />
+      <a href="/" className="old-back donnees-back">
         ← {t("nav.home")}
       </a>
       <h1 className="donnees-title" {...attrs(i18nAttrs("donnees.title"))}>

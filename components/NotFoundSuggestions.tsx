@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { pathTerms, suggestNotes, type NoteIndexEntry } from "@/lib/note-suggest";
+import { disciplineKey, type Locale } from "@/lib/i18n";
+import { familyOfFolder } from "@/lib/path-family";
 
 /**
  * "Did you mean…" for the 404. The export is static, so the requested URL is
@@ -12,6 +14,21 @@ import { pathTerms, suggestNotes, type NoteIndexEntry } from "@/lib/note-suggest
  * home-page search for the words in the path. Renders nothing until then, and
  * nothing at all when the path holds no usable word.
  */
+/** The note's colour family, from its discipline (the folder's first part). */
+function family(n: NoteIndexEntry) {
+  const d = n.folder?.split(" › ")[0];
+  return d ? familyOfFolder(`x/${d}`) : null;
+}
+
+/** "Geography › Un graphique" → "Géographie · Un graphique": the discipline
+ *  and the note's own folder, skipping the ones between. */
+function folderLine(folder: string, locale: Locale): string {
+  const parts = folder.split(" › ");
+  const k = disciplineKey(parts[0]);
+  const d = k ? t(k, undefined, locale) : parts[0];
+  return parts.length > 1 ? `${d} · ${parts[parts.length - 1]}` : d;
+}
+
 export function NotFoundSuggestions() {
   const locale = useLocale();
   const [words, setWords] = useState<string[]>([]);
@@ -42,24 +59,26 @@ export function NotFoundSuggestions() {
   const q = words.join(" ");
   const link = "text-link underline underline-offset-2";
   return (
-    <section className="mt-8 text-body leading-relaxed">
+    <section className="nf-suggest mt-8 text-body leading-relaxed">
       {notes.length > 0 && (
         <>
           <h2 className="m-0 mb-2 text-[1.15em] font-medium">
             {t("notFound.suggestions", undefined, locale)}
           </h2>
-          <ul className="m-0 mb-5 list-disc ps-6">
+          <ul className="nf-list m-0 mb-5 list-disc ps-6">
             {notes.map((n) => (
-              <li key={n.href} className="mb-1">
+              <li key={n.href} className="mb-1" data-family={family(n) ?? undefined}>
                 <a href={n.href} className={link}>
                   {n.title}
                 </a>
+                {/* Phones: "Philosophie · Antiquité" under the title. */}
+                {n.folder && <small className="nf-sub">{folderLine(n.folder, locale)}</small>}
               </li>
             ))}
           </ul>
         </>
       )}
-      <p className="m-0">
+      <p className="nf-search m-0">
         <a href={`/?q=${encodeURIComponent(q)}`} className={link}>
           {t("notFound.search", { q }, locale)}
         </a>

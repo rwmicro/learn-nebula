@@ -28,6 +28,8 @@ import type { AnkiDeck } from "@/lib/anki";
 import { ReviewSession } from "@/components/ReviewSession";
 import { familyOfFolder } from "@/lib/path-family";
 import { PRACTICE_SIZE, practicePick, shuffled, type PracticeMode } from "@/lib/practice";
+import { AppBack } from "@/components/AppBack";
+import { EmptyActions } from "@/components/EmptyActions";
 
 /**
  * /cartes/aujourdhui/ — "Tout réviser": one session over everything due
@@ -205,16 +207,17 @@ export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: Practic
   const doneText = mode
     ? tr(emptyStart ? "practice.empty" : "practice.done")
     : queue && queue.length === 0 && started === 0 && !hasNotes
-      ? tr("todayReview.nothingStarted")
+      ? tr("todayReview.nothingTitle")
       : tr("todayReview.done");
 
   return (
     <main id="main" className="flashcards-main note-review mx-auto max-w-[60rem] px-5 py-12 text-ink">
       {/* A plain link, like the rest of /cartes/: next/link would make scripts/prune-rsc.mjs keep RSC payloads. */}
+      <AppBack href="/cartes/" labelKey="tabbar.review" />
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a
         href="/cartes/"
-        className="text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
+        className="old-back text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
       >
         ← {tr("cartesIndex.title")}
       </a>
@@ -252,6 +255,11 @@ export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: Practic
           showSource
           families={Object.fromEntries(decks.map((d) => [d.slug, familyOfFolder(d.folder)]))}
           done={doneText}
+          doneActions={
+            (mode ? emptyStart : started === 0 && !hasNotes) ? (
+              <EmptyActions text={mode ? undefined : tr("todayReview.nothingText")} />
+            ) : undefined
+          }
           doneNote={() => (!mode && started > 0 ? tr("todayReview.tomorrow", { count: tomorrowLoad() }) : null)}
         />
       )}

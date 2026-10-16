@@ -14,9 +14,28 @@ export function Footer() {
   return (
     <footer
       data-pagefind-ignore
-      className="mt-10 border-t border-rule-strong pt-4 pb-4 xl:pb-0 text-small leading-relaxed text-ink-2 [container-type:inline-size]"
+      className="site-foot mt-10 border-t border-rule-strong pt-4 pb-4 xl:pb-0 text-small leading-relaxed text-ink-2 [container-type:inline-size]"
     >
-      <div className="flex flex-col gap-3 min-[480px]:flex-row min-[480px]:items-start min-[480px]:gap-5">
+      {/* Phones: the home's short footer (app.css), the same on every page. */}
+      <div className="site-foot-phone">
+        <a className="site-foot-cc" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+          CC BY-NC-SA
+        </a>
+        <p>
+          © {year} {AUTHOR} ·{" "}
+          <a href="https://www.gnu.org/licenses/gpl-3.0.html" data-i18n="dash.footerCode">
+            {t("dash.footerCode")}
+          </a>
+          <br />
+          <span
+            data-i18n="dash.footerOrigin"
+            data-i18n-vars={JSON.stringify({ author: ORIGINAL_AUTHOR })}
+          >
+            {t("dash.footerOrigin", { author: ORIGINAL_AUTHOR })}
+          </span>
+        </p>
+      </div>
+      <div className="site-foot-wide flex flex-col gap-3 min-[480px]:flex-row min-[480px]:items-start min-[480px]:gap-5">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           className="h-auto w-[5.25rem] shrink-0"

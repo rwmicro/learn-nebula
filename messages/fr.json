@@ -122,7 +122,8 @@
     "publishedPending": "Commentaire soumis ; en attente de validation.",
     "networkError": "Erreur réseau ; veuillez réessayer.",
     "authorBadge": "auteur",
-    "replyTo": "en réponse à {name}"
+    "replyTo": "en réponse à {name}",
+    "rowSub": "Lire les messages ou en écrire un"
   },
   "siblings": {
     "moreIn": "Plus dans {folder}",
@@ -222,7 +223,15 @@
     "mineNoNeighbour": "Pour aller plus loin, les notes les plus citées :",
     "mineStart": "Aucune note lue ici pour l'instant. Pour commencer, les plus citées :",
     "mineLocate": "Montrer dans le graphe",
-    "mineOpen": "Ouvrir {title}"
+    "mineOpen": "Ouvrir {title}",
+    "settings": "Réglages",
+    "settingsTitle": "Réglages du graphe",
+    "settingsDone": "OK",
+    "mineHint": "Allumer les notes déjà lues · {n} sur {total}",
+    "pathHint": "Montrer le chemin d'un parcours",
+    "pathNoneShort": "Aucun",
+    "allFamilies": "Toutes",
+    "resetView": "Réinitialiser la vue"
   },
   "lightbox": {
     "close": "Fermer",
@@ -305,7 +314,19 @@
     "eraModern": "Époque moderne",
     "eraContemporary": "Époque contemporaine",
     "erasAria": "Aller à une époque",
-    "span": "{n} ans"
+    "span": "{n} ans",
+    "count": "{n} notes datées, de l'Antiquité à aujourd'hui.",
+    "all": "Tout",
+    "eraAncientShort": "Antiquité",
+    "eraMedievalShort": "Moyen Âge",
+    "eraModernShort": "Moderne",
+    "eraContemporaryShort": "Contemporain",
+    "century": "{r}e siècle",
+    "centuryOne": "Ier siècle",
+    "centuryBce": "{r}e siècle av. J.-C.",
+    "centuryOneBce": "Ier siècle av. J.-C.",
+    "millenniumBce": "{r}e millénaire av. J.-C.",
+    "bceShort": "av. J.-C."
   },
   "carte": {
     "title": "Le jardin sur la carte",
@@ -319,7 +340,17 @@
     "kind_langue": "langue",
     "kind_autre": "note",
     "how": "Une note est placée sur un pays par son dossier (un pays de l'histoire, une langue) ou par la ligne « pays: » de son en-tête.",
-    "nav": "Carte du monde"
+    "nav": "Carte du monde",
+    "sortAria": "Trier les pays",
+    "sort_notes": "Par notes",
+    "sort_name": "Par nom",
+    "sort_region": "Par région",
+    "region_africa": "Afrique",
+    "region_americas": "Amériques",
+    "region_asia": "Asie",
+    "region_europe": "Europe",
+    "region_oceania": "Océanie",
+    "region_other": "Ailleurs"
   },
   "citer": {
     "title": "Citer cette note",
@@ -385,7 +416,17 @@
     "more": "{n} autres",
     "filterPlaceholder": "Filtrer les thèmes…",
     "filterCount": "{n} thèmes",
-    "filterEmpty": "Aucun thème ne correspond."
+    "filterEmpty": "Aucun thème ne correspond.",
+    "indexBadge": "Sommaire",
+    "phoneIntro": "Les sujets qui traversent plusieurs disciplines.",
+    "sortAria": "Trier les thèmes",
+    "sortFreq": "Les plus fréquents",
+    "sortAlpha": "De A à Z",
+    "nDisciplines": "{n} disciplines",
+    "filterCountOne": "{n} thème",
+    "minutes": "{n} min",
+    "read": "{n} lues",
+    "readOne": "{n} lue"
   },
   "cartesIndex": {
     "title": "Cartes de révision",
@@ -412,7 +453,9 @@
     "search": "Rechercher « {q} » dans le jardin",
     "title": "Page introuvable",
     "body": "Cette page n’existe pas (erreur 404).",
-    "home": "Retour à l’accueil"
+    "home": "Retour à l’accueil",
+    "titlePhone": "Cette page n'a pas poussé",
+    "bodyPhone": "L'adresse ne mène à aucune note. Elle a peut-être changé de nom."
   },
   "random": {
     "title": "Une note au hasard",
@@ -600,7 +643,9 @@
     "progress": "{pct} % lu",
     "count": "{read}/{total} lues",
     "countAria": "{read} notes lues sur {total}",
-    "privacy": "Votre progression reste dans ce navigateur."
+    "privacy": "Votre progression reste dans ce navigateur.",
+    "readTitle": "Note lue",
+    "inFolder": "{n} sur {total} dans {folder}"
   },
   "palette": {
     "open": "Rechercher",
@@ -1006,8 +1051,9 @@
     "failed": "Paquets indisponibles : {decks}.",
     "done": "Tout est révisé pour aujourd’hui.",
     "loading": "Chargement des paquets : {n} / {total}…",
-    "nothingStarted": "Rien à réviser pour l’instant. Ouvrez un paquet depuis la liste des cartes : ses cartes viendront ici.",
-    "tomorrow": "À revoir demain : {count}"
+    "tomorrow": "À revoir demain : {count}",
+    "nothingTitle": "Rien à réviser aujourd'hui",
+    "nothingText": "Ouvrez un paquet, ou gardez une question à la fin d'une note : elle reviendra ici le bon jour."
   },
   "predict": {
     "label": "À ton avis ?",
@@ -1060,7 +1106,10 @@
     "meta": "{notes} notes · {questions} questions, réponses en fin de fiche",
     "metaNoQuiz": "{notes} notes",
     "empty": "Les notes de ce parcours n'ont encore ni définitions, ni idées clés, ni questions.",
-    "answers": "Réponses"
+    "answers": "Réponses",
+    "levelsAria": "Choisir un niveau",
+    "level": "Niveau {n}",
+    "keyIdea": "Idée clé"
   },
   "tabbar": {
     "aria": "Navigation principale",
@@ -1408,5 +1457,9 @@
       "started": "en cours",
       "read": "lue"
     }
+  },
+  "reviewEmpty": {
+    "decks": "Choisir un paquet",
+    "path": "Lire une note de parcours"
   }
 }

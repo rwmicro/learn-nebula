@@ -2,6 +2,9 @@ import { t, i18nAttrs, disciplineKey } from "@/lib/i18n";
 import type { Discipline, TagGroup, ThemeNote } from "@/lib/content";
 import { ReadMarks } from "@/components/ReadMarks";
 import { ThemesFilter } from "@/components/ThemesFilter";
+import { AppBack } from "@/components/AppBack";
+import { familyOfFolder, type PathFamily } from "@/lib/path-family";
+import type { CSSProperties } from "react";
 
 /**
  * The /themes/ pages: an index of disciplines and tags, one page per tag
@@ -55,14 +58,24 @@ export function ThemesIndex({
 }) {
   const groups = tagsByDiscipline(tags);
   const shownTags = groups.reduce((n, g) => n + g.list.length, 0);
+  // Phones: one list of every theme, most used first (or A→Z, by CSS order).
+  const flat = tags
+    .filter((g) => !CLOUD_HIDDEN.has(g.slug))
+    .sort((a, b) => b.notes.length - a.notes.length || a.name.localeCompare(b.name, "fr"));
+  const alpha = new Map(
+    [...flat].sort((a, b) => a.name.localeCompare(b.name, "fr")).map((g, i) => [g.slug, i] as const),
+  );
   return (
     <main className="themes-page themes-page--index">
-      <Back href="/" labelKey="nav.home" />
+      <Back href="/" labelKey="nav.home" phone={["/notes/", "tabbar.notes"]} />
       <h1 className="themes-title" {...attrs(i18nAttrs("themes.title"))}>
         {t("themes.title")}
       </h1>
       <p className="themes-intro" {...attrs(i18nAttrs("themes.intro"))}>
         {t("themes.intro")}
+      </p>
+      <p className="themes-phone-intro" {...attrs(i18nAttrs("themes.phoneIntro"))}>
+        {t("themes.phoneIntro")}
       </p>
 
       <h2 className="themes-h2" {...attrs(i18nAttrs("themes.disciplines"))}>
@@ -96,7 +109,24 @@ export function ThemesIndex({
         {t("themes.tagsIntro")}
       </p>
       <ThemesFilter total={shownTags} />
+      <input type="radio" name="themes-sort" id="themes-s-freq" className="themes-radio" defaultChecked />
+      <input type="radio" name="themes-sort" id="themes-s-alpha" className="themes-radio" />
+      <div className="themes-sort" role="group" aria-label={t("themes.sortAria")} data-i18n-aria-label="themes.sortAria">
+        <label htmlFor="themes-s-freq" {...attrs(i18nAttrs("themes.sortFreq"))}>
+          {t("themes.sortFreq")}
+        </label>
+        <label htmlFor="themes-s-alpha" {...attrs(i18nAttrs("themes.sortAlpha"))}>
+          {t("themes.sortAlpha")}
+        </label>
+      </div>
       <div className="themes-groups" data-themes-groups>
+        <section className="themes-phone-list" data-themes-group>
+          <ul>
+            {flat.map((g) => (
+              <ThemeRow key={g.slug} tag={g} order={alpha.get(g.slug) ?? 0} />
+            ))}
+          </ul>
+        </section>
         {groups.map(({ discipline, list }) => {
           const common = list.filter((g) => g.notes.length > MIN_COMMON);
           const rare = list.filter((g) => g.notes.length <= MIN_COMMON);
@@ -127,6 +157,65 @@ export function ThemesIndex({
       </p>
       <ReadMarks />
     </main>
+  );
+}
+
+/** A theme on phones: an icon in its main discipline's family colour, its
+ *  name, how many notes and which disciplines (up to three by name). */
+function ThemeRow({ tag, order }: { tag: TagGroup; order: number }) {
+  const votes = new Map<string, number>();
+  for (const n of tag.notes) if (n.discipline) votes.set(n.discipline, (votes.get(n.discipline) ?? 0) + 1);
+  const ranked = [...votes.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).map(([d]) => d);
+  const fam = ranked[0] ? familyOfFolder(`x/${ranked[0]}`) : null;
+  const countKey = tag.notes.length === 1 ? "themes.countOne" : "themes.count";
+  return (
+    <li data-name={tag.name} data-family={fam ?? undefined} style={{ "--o-alpha": order } as CSSProperties}>
+      <span className="themes-row-icon" aria-hidden="true">
+        <FamilyIcon family={fam} />
+      </span>
+      <span className="themes-row-text">
+        <a href={`/themes/${tag.slug}/`}>{tag.name}</a>
+        <small>
+          <span {...attrs(i18nAttrs(countKey, { n: tag.notes.length }))}>{t(countKey, { n: tag.notes.length })}</span>
+          {ranked.length > 0 && " · "}
+          {ranked.length > 3 ? (
+            <span {...attrs(i18nAttrs("themes.nDisciplines", { n: ranked.length }))}>
+              {t("themes.nDisciplines", { n: ranked.length })}
+            </span>
+          ) : (
+            ranked.map((d, i) => (
+              <span key={d}>
+                {i > 0 && ", "}
+                <DisciplineName name={d} />
+              </span>
+            ))
+          )}
+        </small>
+      </span>
+      <svg className="themes-row-chev" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m9 5 7 7-7 7" />
+      </svg>
+    </li>
+  );
+}
+
+/** One line icon per colour family (lib/path-family.ts). */
+function FamilyIcon({ family }: { family: PathFamily | null }) {
+  const d: Record<PathFamily | "none", string> = {
+    sciences: "M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3M8 3h8M7.5 14h9",
+    informatique: "m8 8-4 4 4 4M16 8l4 4-4 4M13.5 6l-3 12",
+    vivant: "M5 19c0-8 5-13 14-14-1 9-6 14-14 14Zm0 0 7-7",
+    pensee: "M4 20h16M5 9h14M12 4 4 9h16l-8-5M7 9v8M12 9v8M17 9v8M5 17h14",
+    societe: "M9 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-6 9c0-3 3-5 6-5s6 2 6 5M16 5a3 3 0 0 1 0 6M18 15c2 .6 3 2.4 3 5",
+    arts: "M12 3a9 9 0 1 0 0 18c1.5 0 2-1 2-2s-1-1.5-1-2.5 1-1.5 2-1.5h2a4 4 0 0 0 4-4c0-4.4-4-8-9-8ZM7.5 12h0M9 8h0M14 7.5h0",
+    langues: "M4 5h9M8.5 3v2M6 5c1 4 4 7 7 8M11 5c-1 4-4 7-7 8M13 20l4-9 4 9M14.5 17h5",
+    jeux: "M4 4h16v16H4zM12 4v16M4 12h16",
+    none: "M6 4h9l3 3v13H6zM9 10h6M9 14h6",
+  };
+  return (
+    <svg viewBox="0 0 24 24">
+      <path d={d[family ?? "none"]} />
+    </svg>
   );
 }
 
@@ -183,7 +272,7 @@ export function TagPage({ tag }: { tag: TagGroup }) {
   );
   return (
     <main className="themes-page">
-      <Back href="/themes/" labelKey="themes.all" />
+      <Back href="/themes/" labelKey="themes.all" phone={["/themes/", "themes.title"]} />
       <p className="themes-kicker" {...attrs(i18nAttrs("themes.tagKicker"))}>
         {t("themes.tagKicker")}
       </p>
@@ -205,7 +294,7 @@ export function TagPage({ tag }: { tag: TagGroup }) {
 export function DisciplinePage({ discipline }: { discipline: Discipline }) {
   return (
     <main className="themes-page">
-      <Back href="/themes/" labelKey="themes.all" />
+      <Back href="/themes/" labelKey="themes.all" phone={["/notes/", "tabbar.notes"]} />
       <p
         className="themes-kicker"
         {...attrs(i18nAttrs("themes.disciplineKicker"))}
@@ -215,13 +304,30 @@ export function DisciplinePage({ discipline }: { discipline: Discipline }) {
       <h1 className="themes-title">
         <DisciplineName name={discipline.name} />
       </h1>
-      <Count n={discipline.count} />
+      <p className="themes-intro">
+        <NoteCount n={discipline.count} />
+        {/* Phones: "· 3 lues" (ReadMarks fills it in). */}
+        <span
+          className="themes-read-count"
+          data-read-progress
+          data-prefix={discipline.prefix}
+          data-total={discipline.count}
+          data-read-short
+        >
+          {" · "}
+          <span data-read-count />
+        </span>
+      </p>
       {discipline.tags.length > 0 && (
         <>
           <h2 className="themes-h3" {...attrs(i18nAttrs("themes.topTags"))}>
             {t("themes.topTags")}
           </h2>
           <ul className="themes-cloud themes-cloud--compact">
+            {/* Phones: the chip row starts with the page itself, selected. */}
+            <li className="themes-chip-all" aria-current="page">
+              <span {...attrs(i18nAttrs("frise.all"))}>{t("frise.all")}</span>
+            </li>
             {discipline.tags.map((g) => (
               <li key={g.slug}>
                 <a href={`/themes/${g.slug}/`}>{g.name}</a>
@@ -265,8 +371,18 @@ function NoteSection({
       </h2>
       <ul className="themes-notes" data-read-marks>
         {notes.map((n) => (
-          <li key={n.href}>
+          <li key={n.href} className={n.index ? "themes-note-index" : undefined}>
             <a href={n.href}>{n.title}</a>
+            {n.minutes && (
+              <small className="themes-note-min" {...attrs(i18nAttrs("themes.minutes", { n: n.minutes }))}>
+                {t("themes.minutes", { n: n.minutes })}
+              </small>
+            )}
+            {n.index && (
+              <span className="themes-index-badge" {...attrs(i18nAttrs("themes.indexBadge"))}>
+                {t("themes.indexBadge")}
+              </span>
+            )}
           </li>
         ))}
       </ul>
@@ -274,11 +390,14 @@ function NoteSection({
   );
 }
 
-function Back({ href, labelKey }: { href: string; labelKey: string }) {
+function Back({ href, labelKey, phone }: { href: string; labelKey: string; phone: [string, string] }) {
   return (
-    <a href={href} className="themes-back">
-      ← <span {...attrs(i18nAttrs(labelKey))}>{t(labelKey)}</span>
-    </a>
+    <>
+      <AppBack href={phone[0]} labelKey={phone[1]} />
+      <a href={href} className="old-back themes-back">
+        ← <span {...attrs(i18nAttrs(labelKey))}>{t(labelKey)}</span>
+      </a>
+    </>
   );
 }
 

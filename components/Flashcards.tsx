@@ -47,6 +47,7 @@ import {
 import { ReviewSession } from "@/components/ReviewSession";
 import { btn, btnOn, quiet } from "@/components/srs-ui";
 import { DeckFace } from "@/components/DeckFace";
+import { AppBack } from "@/components/AppBack";
 
 // Card zoom levels (whole card content scales: text + images).
 const SIZES = [1, 1.3, 1.6, 2];
@@ -313,10 +314,11 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
       style={{ maxWidth: `${60 * zoom}rem` }}
     >
       {/* A plain link, like the rest of /cartes/: next/link would make scripts/prune-rsc.mjs keep RSC payloads. */}
+      <AppBack href="/cartes/" labelKey="tabbar.review" />
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a
         href="/cartes/"
-        className="text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
+        className="old-back text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
       >
         ← {t("cartesIndex.title", undefined, locale)}
       </a>

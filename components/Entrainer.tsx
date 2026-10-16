@@ -7,6 +7,7 @@ import { dayKey } from "@/lib/srs";
 import { isStarted, loadDeckProgress, storageOk } from "@/lib/review-item";
 import { countSaved, loadAllNoteDecks } from "@/lib/note-quiz";
 import { FRAGILE_LAPSES, practicePick, type PracticeMode } from "@/lib/practice";
+import { AppBack } from "@/components/AppBack";
 
 // /cartes/entrainer/ — "S'entraîner": four extra sessions over what the
 // reader has already studied (lib/practice.ts), each a tile with how much it
@@ -92,8 +93,9 @@ export function Entrainer({ decks }: { decks: { slug: string; langues: boolean }
 
   return (
     <main className="defis entrainer" data-pagefind-ignore>
+      <AppBack href="/cartes/" labelKey="tabbar.review" />
       {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
-      <a className="entrainer-back" href="/cartes/">
+      <a className="old-back entrainer-back" href="/cartes/">
         ← {tr("tabbar.review")}
       </a>
       <h1 className="defis-title">{tr("practice.title")}</h1>

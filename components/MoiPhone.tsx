@@ -7,6 +7,7 @@ import { calendarDays, currentRun, loadActivity, localDay } from "@/lib/personal
 import { loadStore } from "@/lib/reading-progress";
 import { authConfig, readHint } from "@/lib/account-client";
 import { LANG_OPTIONS } from "@/components/LangSwitcher";
+import { themePref } from "@/components/AppSettings";
 import { Avatar } from "@/components/Avatar";
 import type { Look } from "@/lib/avatar";
 
@@ -67,7 +68,7 @@ export function MoiPhone() {
       }
     };
     load();
-    const syncTheme = () => setTheme(window.__theme?.pref() ?? "auto");
+    const syncTheme = () => setTheme(themePref());
     syncTheme();
     const fromHint = () => {
       const h = readHint();
@@ -185,7 +186,12 @@ export function MoiPhone() {
         </a>
       )}
 
-      <h2 className="moi-h">{tr("moi.week")}</h2>
+      <div className="moi-row-h">
+        <h2 className="moi-h">{tr("moi.week")}</h2>
+        <a className="moi-row-link" href="/defis/">
+          {tr("defis.title")}
+        </a>
+      </div>
       <div className="moi-tiles">
         <div>
           <b>{week.read}</b>
@@ -269,7 +275,12 @@ export function MoiPhone() {
         <button
           type="button"
           className="moi-set moi-set--btn"
-          onClick={() => document.querySelector(".progression-actions")?.scrollIntoView({ behavior: "smooth", block: "start" })}
+          onClick={() => {
+            // The export / import / link cards stay folded under this row
+            // (app.css) until asked for.
+            document.querySelector("main.progression")?.classList.add("moi-transfer-open");
+            document.querySelector(".progression-actions")?.scrollIntoView({ behavior: "smooth", block: "start" });
+          }}
         >
           <i className="moi-set-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

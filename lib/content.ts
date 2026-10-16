@@ -7,6 +7,7 @@ import { resolveVaultAssetByName, listVaultAssets } from "./vault-assets";
 import { joinNotePath } from "./vault-health";
 import { getAnkiManifest } from "./anki";
 import { tagKey, tagSlug } from "./slug";
+import { tagLabel } from "./tag-label";
 import {
   definitionAnchor,
   glossaryDiscipline,
@@ -410,6 +411,8 @@ export interface TimelineEntry {
   /** Display label; falls back to the bare year when absent. */
   period?: string;
   domain?: string;
+  /** The level-2 folder as on disk ("History"), for its name and colour. */
+  discipline?: string;
 }
 
 /** Every note that declares a historical `year`, oldest first. Powers
@@ -421,7 +424,15 @@ export function getTimeline(): TimelineEntry[] {
   for (const d of getAllPosts()) {
     const { year, yearEnd, period, title, domain } = d.frontmatter;
     if (year === undefined) continue;
-    out.push({ title, href: `/posts/${d.slug}/`, year, yearEnd, period, domain });
+    out.push({
+      title,
+      href: `/posts/${d.slug}/`,
+      year,
+      yearEnd,
+      period,
+      domain,
+      discipline: d.rawPath.split("/")[1],
+    });
   }
   return out.sort((a, b) => a.year - b.year);
 }
@@ -467,6 +478,11 @@ export interface ThemeNote {
   /** Discipline display name ("Biology", "Philosophy"), "" for a note that
    *  sits directly under a top folder. */
   discipline: string;
+  /** A folder's map ("Histoire - Index", "Index — Security"): listed first,
+   *  marked as such, rather than as one more note among the others. */
+  index?: boolean;
+  /** Reading time, as on the note (about 220 words a minute, at least 1). */
+  minutes?: number;
 }
 
 export interface TagGroup {
@@ -505,11 +521,19 @@ function themeNote(d: Doc): ThemeNote {
     title: d.frontmatter.title,
     href: `/posts/${d.slug}/`,
     discipline: disc ? homeDisplayName(disc.name) : "",
+    ...(isIndexNote(d) ? { index: true } : {}),
+    minutes: Math.max(1, Math.round((d.body.trim() ? d.body.trim().split(/\s+/).length : 0) / 220)),
   };
 }
 
+/** Tagged `index`/`moc`, or titled "… Index …" (not "Indexation"). */
+function isIndexNote(d: Doc): boolean {
+  const tags = (d.frontmatter.tags ?? []).map((x) => String(x).toLowerCase());
+  return tags.includes("index") || tags.includes("moc") || /\bindex\b/i.test(d.frontmatter.title);
+}
+
 const byTitle = (a: ThemeNote, b: ThemeNote) =>
-  a.title.localeCompare(b.title, "fr", { numeric: true });
+  Number(!!b.index) - Number(!!a.index) || a.title.localeCompare(b.title, "fr", { numeric: true });
 
 let tagsCache: TagGroup[] | null = null;
 /** Every tag carried by at least MIN_TAG_NOTES notes, most used first. */
@@ -536,7 +560,7 @@ export function getTags(): TagGroup[] {
     .filter(([, e]) => e.notes.size >= MIN_TAG_NOTES)
     .map(([slug, e]) => ({
       slug,
-      name: [...e.spellings.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? slug,
+      name: tagLabel([...e.spellings.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? slug),
       notes: [...e.notes.values()].sort(byTitle),
     }))
     .sort(

@@ -122,7 +122,8 @@
     "publishedPending": "تم إرسال التعليق؛ في انتظار المراجعة.",
     "networkError": "خطأ في الشبكة؛ يرجى المحاولة مرة أخرى.",
     "authorBadge": "الكاتب",
-    "replyTo": "ردًّا على {name}"
+    "replyTo": "ردًّا على {name}",
+    "rowSub": "اقرأ الرسائل أو اكتب رسالة"
   },
   "siblings": {
     "moreIn": "المزيد في {folder}",
@@ -222,7 +223,15 @@
     "mineNoNeighbour": "للتعمق أكثر، الملاحظات الأكثر استشهادًا:",
     "mineStart": "لم تُقرأ أي ملاحظة هنا بعد. للبدء، الأكثر استشهادًا:",
     "mineLocate": "إظهار في المخطط",
-    "mineOpen": "فتح {title}"
+    "mineOpen": "فتح {title}",
+    "settings": "الإعدادات",
+    "settingsTitle": "إعدادات المخطط",
+    "settingsDone": "تم",
+    "mineHint": "إضاءة الملاحظات المقروءة · {n} من {total}",
+    "pathHint": "إظهار طريق مسار",
+    "pathNoneShort": "لا شيء",
+    "allFamilies": "الكل",
+    "resetView": "إعادة ضبط العرض"
   },
   "lightbox": {
     "close": "إغلاق",
@@ -305,7 +314,19 @@
     "eraModern": "العصر الحديث المبكر",
     "eraContemporary": "العصر المعاصر",
     "erasAria": "الانتقال إلى حقبة",
-    "span": "{n} سنة"
+    "span": "{n} سنة",
+    "count": "{n} ملاحظة مؤرخة، من العصور القديمة إلى اليوم.",
+    "all": "الكل",
+    "eraAncientShort": "العصور القديمة",
+    "eraMedievalShort": "العصور الوسطى",
+    "eraModernShort": "الحديثة",
+    "eraContemporaryShort": "المعاصرة",
+    "century": "القرن {n}",
+    "centuryOne": "القرن 1",
+    "centuryBce": "القرن {n} ق.م.",
+    "centuryOneBce": "القرن 1 ق.م.",
+    "millenniumBce": "الألفية {n} ق.م.",
+    "bceShort": "ق.م."
   },
   "carte": {
     "title": "الحديقة على الخريطة",
@@ -319,7 +340,17 @@
     "kind_langue": "لغة",
     "kind_autre": "ملاحظة",
     "how": "توضع الملاحظة على دولة بحسب مجلدها (دولة في التاريخ، أو لغة) أو بسطر «pays:» في رأسها.",
-    "nav": "خريطة العالم"
+    "nav": "خريطة العالم",
+    "sortAria": "ترتيب البلدان",
+    "sort_notes": "حسب الملاحظات",
+    "sort_name": "حسب الاسم",
+    "sort_region": "حسب المنطقة",
+    "region_africa": "أفريقيا",
+    "region_americas": "الأمريكتان",
+    "region_asia": "آسيا",
+    "region_europe": "أوروبا",
+    "region_oceania": "أوقيانوسيا",
+    "region_other": "أماكن أخرى"
   },
   "citer": {
     "title": "اقتباس هذه الملاحظة",
@@ -385,7 +416,17 @@
     "more": "{n} أخرى",
     "filterPlaceholder": "تصفية المواضيع…",
     "filterCount": "{n} موضوعًا",
-    "filterEmpty": "لا يوجد موضوع مطابق."
+    "filterEmpty": "لا يوجد موضوع مطابق.",
+    "indexBadge": "فهرس",
+    "phoneIntro": "المواضيع التي تمتد عبر عدة تخصصات.",
+    "sortAria": "ترتيب المواضيع",
+    "sortFreq": "الأكثر تكرارًا",
+    "sortAlpha": "من أ إلى ي",
+    "nDisciplines": "{n} تخصصات",
+    "filterCountOne": "موضوع واحد",
+    "minutes": "{n} د",
+    "read": "{n} مقروءة",
+    "readOne": "{n} مقروءة"
   },
   "cartesIndex": {
     "title": "بطاقات المراجعة",
@@ -412,7 +453,9 @@
     "search": "ابحث عن «{q}» في الحديقة",
     "title": "الصفحة غير موجودة",
     "body": "هذه الصفحة غير موجودة (خطأ 404).",
-    "home": "العودة إلى الصفحة الرئيسية"
+    "home": "العودة إلى الصفحة الرئيسية",
+    "titlePhone": "هذه الصفحة لم تنبت",
+    "bodyPhone": "هذا العنوان لا يقود إلى أي ملاحظة. ربما تغيّر اسمها."
   },
   "random": {
     "title": "ملاحظة عشوائية",
@@ -600,7 +643,9 @@
     "progress": "قُرئ {pct}٪",
     "count": "{read}/{total} مقروءة",
     "countAria": "قُرئت {read} من أصل {total} ملاحظات",
-    "privacy": "يبقى تقدمك في هذا المتصفح فقط."
+    "privacy": "يبقى تقدمك في هذا المتصفح فقط.",
+    "readTitle": "تمت القراءة",
+    "inFolder": "{n} من {total} في {folder}"
   },
   "palette": {
     "open": "بحث",
@@ -1006,8 +1051,9 @@
     "failed": "مجموعات غير متاحة: {decks}.",
     "done": "انتهت مراجعة اليوم.",
     "loading": "تحميل الرزم: {n} / {total}…",
-    "nothingStarted": "لا شيء للمراجعة حاليًا. افتح رزمة من قائمة البطاقات: ستظهر بطاقاتها هنا.",
-    "tomorrow": "للمراجعة غدًا: {count}"
+    "tomorrow": "للمراجعة غدًا: {count}",
+    "nothingTitle": "لا شيء للمراجعة اليوم",
+    "nothingText": "افتح مجموعة بطاقات، أو احفظ سؤالًا في نهاية ملاحظة: سيعود إلى هنا في اليوم المناسب."
   },
   "predict": {
     "label": "ما رأيك؟",
@@ -1060,7 +1106,10 @@
     "meta": "{notes} ملاحظة · {questions} سؤالًا، والإجابات في النهاية",
     "metaNoQuiz": "{notes} ملاحظة",
     "empty": "لا تحتوي ملاحظات هذا المسار بعد على تعريفات أو أفكار رئيسية أو أسئلة.",
-    "answers": "الإجابات"
+    "answers": "الإجابات",
+    "levelsAria": "اختر مستوى",
+    "level": "المستوى {n}",
+    "keyIdea": "فكرة أساسية"
   },
   "tabbar": {
     "aria": "التنقل الرئيسي",
@@ -1408,5 +1457,9 @@
       "started": "قيد القراءة",
       "read": "مقروءة"
     }
+  },
+  "reviewEmpty": {
+    "decks": "اختر رزمة",
+    "path": "اقرأ ملاحظة من مسار"
   }
 }

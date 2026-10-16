@@ -122,7 +122,8 @@
     "publishedPending": "评论已提交，等待审核。",
     "networkError": "网络错误，请重试。",
     "authorBadge": "作者",
-    "replyTo": "回复 {name}"
+    "replyTo": "回复 {name}",
+    "rowSub": "阅读留言或写一条"
   },
   "siblings": {
     "moreIn": "{folder} 中的更多内容",
@@ -222,7 +223,15 @@
     "mineNoNeighbour": "进一步阅读，被引用最多的笔记：",
     "mineStart": "这里还没有读过的笔记。可以从被引用最多的开始：",
     "mineLocate": "在图中显示",
-    "mineOpen": "打开 {title}"
+    "mineOpen": "打开 {title}",
+    "settings": "设置",
+    "settingsTitle": "图谱设置",
+    "settingsDone": "完成",
+    "mineHint": "点亮已读笔记 · {total} 篇中的 {n} 篇",
+    "pathHint": "显示一条学习路径",
+    "pathNoneShort": "无",
+    "allFamilies": "全部",
+    "resetView": "重置视图"
   },
   "lightbox": {
     "close": "关闭",
@@ -305,7 +314,19 @@
     "eraModern": "近代早期",
     "eraContemporary": "现当代",
     "erasAria": "跳转到某个时期",
-    "span": "{n} 年"
+    "span": "{n} 年",
+    "count": "{n} 篇有日期的笔记，从古代到今天。",
+    "all": "全部",
+    "eraAncientShort": "古代",
+    "eraMedievalShort": "中世纪",
+    "eraModernShort": "近代",
+    "eraContemporaryShort": "现代",
+    "century": "{n} 世纪",
+    "centuryOne": "1 世纪",
+    "centuryBce": "公元前 {n} 世纪",
+    "centuryOneBce": "公元前 1 世纪",
+    "millenniumBce": "公元前 {n} 千年",
+    "bceShort": "公元前"
   },
   "carte": {
     "title": "地图上的花园",
@@ -319,7 +340,17 @@
     "kind_langue": "语言",
     "kind_autre": "笔记",
     "how": "笔记按其文件夹（历史中的国家、一种语言）或其页眉中的“pays:”一行归入某个国家。",
-    "nav": "世界地图"
+    "nav": "世界地图",
+    "sortAria": "排序国家",
+    "sort_notes": "按笔记数",
+    "sort_name": "按名称",
+    "sort_region": "按地区",
+    "region_africa": "非洲",
+    "region_americas": "美洲",
+    "region_asia": "亚洲",
+    "region_europe": "欧洲",
+    "region_oceania": "大洋洲",
+    "region_other": "其他"
   },
   "citer": {
     "title": "引用这篇笔记",
@@ -385,7 +416,17 @@
     "more": "另外 {n} 个",
     "filterPlaceholder": "筛选主题…",
     "filterCount": "{n} 个主题",
-    "filterEmpty": "没有匹配的主题。"
+    "filterEmpty": "没有匹配的主题。",
+    "indexBadge": "总览",
+    "phoneIntro": "贯穿多个学科的主题。",
+    "sortAria": "排序主题",
+    "sortFreq": "最常见",
+    "sortAlpha": "A 到 Z",
+    "nDisciplines": "{n} 个学科",
+    "filterCountOne": "{n} 个主题",
+    "minutes": "{n} 分钟",
+    "read": "已读 {n} 篇",
+    "readOne": "已读 {n} 篇"
   },
   "cartesIndex": {
     "title": "复习卡片",
@@ -412,7 +453,9 @@
     "search": "在花园中搜索“{q}”",
     "title": "页面未找到",
     "body": "此页面不存在（404 错误）。",
-    "home": "返回首页"
+    "home": "返回首页",
+    "titlePhone": "这一页没有长出来",
+    "bodyPhone": "这个地址没有对应的笔记，可能已经改名。"
   },
   "random": {
     "title": "随机一篇笔记",
@@ -600,7 +643,9 @@
     "progress": "已读 {pct}%",
     "count": "已读 {read}/{total}",
     "countAria": "{total} 篇笔记中已读 {read} 篇",
-    "privacy": "阅读进度只保存在此浏览器中。"
+    "privacy": "阅读进度只保存在此浏览器中。",
+    "readTitle": "已读",
+    "inFolder": "{folder}：{total} 篇中已读 {n} 篇"
   },
   "palette": {
     "open": "搜索",
@@ -1006,8 +1051,9 @@
     "failed": "无法加载的卡组：{decks}。",
     "done": "今天的复习已全部完成。",
     "loading": "正在加载卡组：{n} / {total}…",
-    "nothingStarted": "暂时没有要复习的内容。从卡片列表打开一个卡组，它的卡片就会出现在这里。",
-    "tomorrow": "明天到期：{count}"
+    "tomorrow": "明天到期：{count}",
+    "nothingTitle": "今天没有要复习的内容",
+    "nothingText": "打开一个卡组，或在笔记末尾保存一个问题：它会在合适的日子回到这里。"
   },
   "predict": {
     "label": "你怎么看？",
@@ -1060,7 +1106,10 @@
     "meta": "{notes} 篇笔记 · {questions} 个问题，答案在末尾",
     "metaNoQuiz": "{notes} 篇笔记",
     "empty": "这条路线的笔记还没有定义、要点或问题。",
-    "answers": "答案"
+    "answers": "答案",
+    "levelsAria": "选择级别",
+    "level": "第 {n} 级",
+    "keyIdea": "要点"
   },
   "tabbar": {
     "aria": "主导航",
@@ -1408,5 +1457,9 @@
       "started": "在读",
       "read": "已读"
     }
+  },
+  "reviewEmpty": {
+    "decks": "选择卡组",
+    "path": "阅读一条学习路径中的笔记"
   }
 }

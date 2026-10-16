@@ -5,6 +5,7 @@ import { noteExtras } from "@/lib/path-extras";
 import { extractDefinitions, keyPoints } from "@/lib/path-sheet";
 import { PathSheet, type SheetNote } from "@/components/PathSheet";
 import { SITE_TITLE } from "@/lib/site";
+import { pathLevels } from "@/lib/path-levels";
 import "@/assets/css/fiche.css";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -42,5 +43,7 @@ export default async function Page({ params }: Params) {
     });
   }
   const math = notes.some((n) => n.questions.some((q) => /class="katex/.test(q.q + q.a)));
-  return <PathSheet name={path.name} slug={path.slug} notes={notes} math={math} />;
+  return (
+    <PathSheet name={path.name} slug={path.slug} notes={notes} math={math} levels={pathLevels(path.notes)} />
+  );
 }

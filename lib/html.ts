@@ -526,6 +526,10 @@ export function commentsHtml(slug: string): string {
     : "";
   return (
     `<section class="comments" data-pagefind-ignore data-slug="${escapeHtml(slug)}">` +
+    // Phones: folded behind one row until tapped (main.css, no script).
+    `<input type="checkbox" id="comments-open" class="fold-toggle">` +
+    `<label for="comments-open" class="fold-row"><b${i18nAttrs("comments.title")}>${escapeHtml(t("comments.title"))}</b>` +
+    `<small${i18nAttrs("comments.rowSub")}>${escapeHtml(t("comments.rowSub"))}</small></label>` +
     `<h2 class="comments-title"${i18nAttrs("comments.title")}>${escapeHtml(t("comments.title"))}</h2>` +
     `<div class="comments-list" aria-live="polite"></div>` +
     `<form class="comments-form" novalidate>` +
@@ -788,10 +792,19 @@ export function readBadgeHtml(): string {
 /** End-of-article reading state (read on…, mark read / unread, resume). An
  *  empty mount point: /js/reading-state.js fills and reveals it, so readers
  *  without JS (or storage) never see controls that can't work. */
-export function readStateHtml(slug: string, minutes: number): string {
+export function readStateHtml(
+  slug: string,
+  minutes: number,
+  folder?: { name: string; slugs: string[] },
+): string {
+  // The folder's notes, for the phone card's "1 sur 2 dans Un graphique".
+  const f =
+    folder && folder.slugs.length > 1
+      ? ` data-folder="${escapeHtml(prettyFolder(folder.name))}" data-folder-slugs="${escapeHtml(folder.slugs.join(" "))}"`
+      : "";
   return (
     `<div class="read-state" data-pagefind-ignore hidden` +
-    ` data-slug="${escapeHtml(slug)}" data-minutes="${minutes}"></div>`
+    ` data-slug="${escapeHtml(slug)}" data-minutes="${minutes}"${f}></div>`
   );
 }
 

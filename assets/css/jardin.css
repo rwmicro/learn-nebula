@@ -234,3 +234,120 @@
   color: var(--muted);
   font-variant-numeric: tabular-nums;
 }
+
+/* The growth chart: the narrow drawing on phones (GardenStats.tsx). */
+.jardin-chart--narrow {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  .jardin-chart--wide {
+    display: none;
+  }
+  .jardin-chart--narrow {
+    display: block;
+  }
+
+
+  /* The app look: title first then the date, tiles like Moi's (the first
+     one filled), each section on a card. */
+  .jardin-page {
+    display: flex;
+    flex-direction: column;
+  }
+  .jardin-page > .app-back {
+    order: -3;
+  }
+  .jardin-title {
+    order: -2;
+    margin-bottom: 0.2rem;
+  }
+  .jardin-kicker {
+    order: -1;
+    margin: 0 0 1.1rem;
+    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .jardin-intro {
+    display: none;
+  }
+  .jardin-figs {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+    margin-bottom: 1.75rem;
+    border: 0;
+  }
+  .jardin-figs > div,
+  .jardin-figs > div + div {
+    padding: 0.85rem 1rem;
+    border: 0.5px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--paper-raised);
+  }
+  .jardin-figs > div:first-child {
+    border-color: transparent;
+    background: var(--garden);
+  }
+  .jardin-figs > div:first-child :is(dd, dt) {
+    color: var(--paper);
+  }
+  .jardin-figs dd {
+    font-size: 1.6rem;
+  }
+  .jardin-h {
+    margin: 0 0 0.5rem 0.25rem;
+    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .jardin-chart--narrow,
+  .jardin-bars,
+  .jardin-cited {
+    border: 0.5px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--paper-raised);
+  }
+  .jardin-chart--narrow {
+    padding: 0.75rem 0.5rem 0.4rem;
+  }
+  .jardin-note {
+    margin: 0.5rem 0.25rem 0;
+  }
+  .jardin-cols {
+    gap: 1.75rem;
+    margin-top: 1.75rem;
+  }
+  .jardin-bars {
+    gap: 0;
+    padding: 0 1rem;
+  }
+  .jardin-bars li {
+    padding: 0.7rem 0;
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .jardin-bars li:last-child {
+    border-bottom: 0;
+  }
+  .jardin-bar-label {
+    font: 1.02rem "Alegreya", "Alegreya Fallback", serif;
+  }
+  .jardin-bar-track {
+    height: 6px;
+    border-radius: 3px;
+  }
+  .jardin-cited {
+    padding: 0 1rem;
+  }
+  .jardin-cited li {
+    padding: 0.7rem 0;
+    border-bottom: 0.5px solid var(--rule);
+  }
+  .jardin-cited li:last-child {
+    border-bottom: 0;
+  }
+
+  .jardin-cited a {
+    color: var(--ink);
+  }
+}

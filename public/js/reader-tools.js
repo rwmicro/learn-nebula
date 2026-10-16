@@ -149,7 +149,9 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
       done.hidden = true;
     } else {
       a.hidden = true;
-      done.hidden = list.length === 0;
+      // "Tout lu" only once every note of the discipline offered here, this
+      // one included, is read: not when the next one is merely skipped.
+      done.hidden = !(list.length > 0 && isRead(store, slug) && list.every(([s]) => isRead(store, s)));
     }
   }
   pickUnread();

@@ -168,3 +168,175 @@
     max-width: 10rem;
   }
 }
+
+/* Phone-only pieces (Frise.tsx): the count line, the period filter, the
+   century headings, the start-year column, the "discipline · dates" line and
+   the length bar. */
+.frise-count,
+.frise-radio,
+.frise-filter,
+.frise-century,
+.frise-start,
+.frise-meta,
+.frise-bar {
+  display: none;
+}
+
+/* Phone: periods filter the list (one scrolling row of chips), centuries
+   head it, each note has its start year on the left of the line and its
+   discipline, dates and length under its title. The population curve
+   moves below the list. */
+@media (max-width: 639.98px) {
+  .frise-page {
+    display: flex;
+    flex-direction: column;
+  }
+  .frise-curve-slot {
+    order: 1;
+    margin-top: 2.5rem;
+  }
+  .frise-intro,
+  .frise-eras,
+  .frise-era-title,
+  .frise-year,
+  .frise-period {
+    display: none;
+  }
+  .frise-count {
+    display: block;
+    margin: 0 0 1.1rem;
+    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .frise-filter {
+    display: flex;
+    gap: 0.45rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -1.2rem 0.5rem;
+    padding: 0.25rem 1.2rem;
+  }
+  .frise-filter::-webkit-scrollbar {
+    display: none;
+  }
+  .frise-filter label {
+    flex: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    padding: 0.45rem 0.95rem;
+    border-radius: var(--radius-pill);
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    font: 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .frise-page:has(#frise-f-all:checked) label[for="frise-f-all"],
+  .frise-page:has(#frise-f-antiquite:checked) label[for="frise-f-antiquite"],
+  .frise-page:has(#frise-f-moyen-age:checked) label[for="frise-f-moyen-age"],
+  .frise-page:has(#frise-f-moderne:checked) label[for="frise-f-moderne"],
+  .frise-page:has(#frise-f-contemporaine:checked) label[for="frise-f-contemporaine"] {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .frise-page:has(#frise-f-all:checked) label[for="frise-f-all"] .frise-era-n,
+  .frise-page:has(#frise-f-antiquite:checked) label[for="frise-f-antiquite"] .frise-era-n,
+  .frise-page:has(#frise-f-moyen-age:checked) label[for="frise-f-moyen-age"] .frise-era-n,
+  .frise-page:has(#frise-f-moderne:checked) label[for="frise-f-moderne"] .frise-era-n,
+  .frise-page:has(#frise-f-contemporaine:checked) label[for="frise-f-contemporaine"] .frise-era-n {
+    color: inherit;
+    opacity: 0.7;
+  }
+  .frise-page:has(#frise-f-antiquite:checked) .frise-era:not(#antiquite),
+  .frise-page:has(#frise-f-moyen-age:checked) .frise-era:not(#moyen-age),
+  .frise-page:has(#frise-f-moderne:checked) .frise-era:not(#moderne),
+  .frise-page:has(#frise-f-contemporaine:checked) .frise-era:not(#contemporaine) {
+    display: none;
+  }
+  .frise-radio:focus-visible + .frise-radio,
+  .frise-filter label:focus-within {
+    outline: 2px solid var(--link);
+  }
+
+  /* Start-year column, the line, then the text. */
+  .frise-list {
+    --rail: 3.6rem;
+    padding-left: 4.6rem;
+  }
+  .frise-entry {
+    display: block;
+    padding: 0.55rem 0 0.7rem;
+  }
+  .frise-entry::before {
+    left: calc(var(--rail) - 4.6rem - 0.3rem + 1px);
+    top: 0.95rem;
+    width: 0.55rem;
+    height: 0.55rem;
+    border: 0;
+    background: var(--fam, var(--garden));
+  }
+  .frise-start {
+    display: block;
+    position: absolute;
+    left: -4.6rem;
+    top: 0.68rem;
+    width: 3rem;
+    text-align: right;
+    font: 600 0.8125rem/1.15 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  .frise-start small {
+    display: block;
+    font-size: 0.6875rem;
+    font-weight: 500;
+  }
+  .frise-content a {
+    font-size: 1.1rem;
+  }
+  .frise-meta {
+    display: block;
+    margin-top: 0.1rem;
+    font: 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .frise-bar {
+    display: block;
+    height: 4px;
+    margin-top: 0.45rem;
+    border-radius: 2px;
+    background: color-mix(in srgb, var(--fam, var(--garden)) 16%, transparent);
+    overflow: hidden;
+  }
+  .frise-bar span {
+    display: block;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--fam, var(--garden));
+  }
+
+  /* A century heading across the line, which it interrupts. */
+  .frise-century {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+    z-index: 1;
+    margin: 0.9rem 0 0.25rem -4.6rem;
+    padding: 0.2rem 0;
+    background: var(--paper);
+    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .frise-century::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--rule);
+  }
+  .frise-era:first-of-type .frise-century:first-child {
+    margin-top: 0.5rem;
+  }
+}

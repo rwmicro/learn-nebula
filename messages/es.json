@@ -122,7 +122,8 @@
     "publishedPending": "Comentario enviado; pendiente de moderación.",
     "networkError": "Error de red; inténtalo de nuevo.",
     "authorBadge": "autor",
-    "replyTo": "en respuesta a {name}"
+    "replyTo": "en respuesta a {name}",
+    "rowSub": "Leer los mensajes o escribir uno"
   },
   "siblings": {
     "moreIn": "Más en {folder}",
@@ -222,7 +223,15 @@
     "mineNoNeighbour": "Para ir más lejos, las notas más citadas:",
     "mineStart": "Aún no has leído ninguna nota aquí. Para empezar, las más citadas:",
     "mineLocate": "Mostrar en el grafo",
-    "mineOpen": "Abrir {title}"
+    "mineOpen": "Abrir {title}",
+    "settings": "Ajustes",
+    "settingsTitle": "Ajustes del grafo",
+    "settingsDone": "OK",
+    "mineHint": "Iluminar las notas ya leídas · {n} de {total}",
+    "pathHint": "Mostrar el camino de un recorrido",
+    "pathNoneShort": "Ninguno",
+    "allFamilies": "Todas",
+    "resetView": "Restablecer la vista"
   },
   "lightbox": {
     "close": "Cerrar",
@@ -305,7 +314,19 @@
     "eraModern": "Edad Moderna",
     "eraContemporary": "Edad Contemporánea",
     "erasAria": "Ir a una época",
-    "span": "{n} años"
+    "span": "{n} años",
+    "count": "{n} notas fechadas, de la Antigüedad a hoy.",
+    "all": "Todo",
+    "eraAncientShort": "Antigüedad",
+    "eraMedievalShort": "Edad Media",
+    "eraModernShort": "Moderna",
+    "eraContemporaryShort": "Contemporánea",
+    "century": "Siglo {r}",
+    "centuryOne": "Siglo I",
+    "centuryBce": "Siglo {r} a. C.",
+    "centuryOneBce": "Siglo I a. C.",
+    "millenniumBce": "Milenio {r} a. C.",
+    "bceShort": "a. C."
   },
   "carte": {
     "title": "El jardín en el mapa",
@@ -319,7 +340,17 @@
     "kind_langue": "lengua",
     "kind_autre": "nota",
     "how": "Una nota se sitúa en un país por su carpeta (un país de Historia, una lengua) o por la línea «pays:» de su encabezado.",
-    "nav": "Mapa del mundo"
+    "nav": "Mapa del mundo",
+    "sortAria": "Ordenar los países",
+    "sort_notes": "Por notas",
+    "sort_name": "Por nombre",
+    "sort_region": "Por región",
+    "region_africa": "África",
+    "region_americas": "Américas",
+    "region_asia": "Asia",
+    "region_europe": "Europa",
+    "region_oceania": "Oceanía",
+    "region_other": "Otros lugares"
   },
   "citer": {
     "title": "Citar esta nota",
@@ -385,7 +416,17 @@
     "more": "{n} más",
     "filterPlaceholder": "Filtrar temas…",
     "filterCount": "{n} temas",
-    "filterEmpty": "Ningún tema coincide."
+    "filterEmpty": "Ningún tema coincide.",
+    "indexBadge": "Índice",
+    "phoneIntro": "Los temas que atraviesan varias disciplinas.",
+    "sortAria": "Ordenar los temas",
+    "sortFreq": "Más frecuentes",
+    "sortAlpha": "De la A a la Z",
+    "nDisciplines": "{n} disciplinas",
+    "filterCountOne": "{n} tema",
+    "minutes": "{n} min",
+    "read": "{n} leídas",
+    "readOne": "{n} leída"
   },
   "cartesIndex": {
     "title": "Tarjetas de repaso",
@@ -412,7 +453,9 @@
     "search": "Buscar «{q}» en el jardín",
     "title": "Página no encontrada",
     "body": "Esta página no existe (error 404).",
-    "home": "Volver al inicio"
+    "home": "Volver al inicio",
+    "titlePhone": "Esta página no ha brotado",
+    "bodyPhone": "Esta dirección no lleva a ninguna nota. Quizá cambió de nombre."
   },
   "random": {
     "title": "Una nota al azar",
@@ -600,7 +643,9 @@
     "progress": "{pct} % leído",
     "count": "{read}/{total} leídas",
     "countAria": "{read} de {total} notas leídas",
-    "privacy": "Tu progreso se queda en este navegador."
+    "privacy": "Tu progreso se queda en este navegador.",
+    "readTitle": "Nota leída",
+    "inFolder": "{n} de {total} en {folder}"
   },
   "palette": {
     "open": "Buscar",
@@ -1006,8 +1051,9 @@
     "failed": "Mazos no disponibles: {decks}.",
     "done": "Todo repasado por hoy.",
     "loading": "Cargando mazos: {n} / {total}…",
-    "nothingStarted": "Nada que repasar por ahora. Abre un mazo desde la lista de tarjetas: sus tarjetas aparecerán aquí.",
-    "tomorrow": "Para mañana: {count}"
+    "tomorrow": "Para mañana: {count}",
+    "nothingTitle": "Nada que repasar hoy",
+    "nothingText": "Abra un mazo, o guarde una pregunta al final de una nota: volverá aquí el día indicado."
   },
   "predict": {
     "label": "¿Tú qué crees?",
@@ -1060,7 +1106,10 @@
     "meta": "{notes} notas · {questions} preguntas, respuestas al final",
     "metaNoQuiz": "{notes} notas",
     "empty": "Las notas de este recorrido aún no tienen definiciones, ideas clave ni preguntas.",
-    "answers": "Respuestas"
+    "answers": "Respuestas",
+    "levelsAria": "Elegir un nivel",
+    "level": "Nivel {n}",
+    "keyIdea": "Idea clave"
   },
   "tabbar": {
     "aria": "Navegación principal",
@@ -1408,5 +1457,9 @@
       "started": "empezada",
       "read": "leída"
     }
+  },
+  "reviewEmpty": {
+    "decks": "Elegir un mazo",
+    "path": "Leer una nota de un recorrido"
   }
 }

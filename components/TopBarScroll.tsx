@@ -15,7 +15,8 @@ export function TopBarScroll() {
       const h = title();
       // No large title (the home): the current tab's name.
       const tab = document.querySelector<HTMLElement>('.tabbar-tab[aria-current="page"] .tabbar-label');
-      if (pill) pill.textContent = (h?.textContent ?? tab?.textContent ?? "").trim();
+      // innerText skips hidden spans (the 404 title has a wide and a phone wording).
+      if (pill) pill.textContent = (h?.innerText ?? tab?.textContent ?? "").trim();
     };
     let queued = false;
     const tick = () => {

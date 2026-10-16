@@ -27,6 +27,7 @@ export async function getTimelineWithWikidata(): Promise<TimelineEntry[]> {
       yearEnd: y.yearEnd !== undefined && y.yearEnd !== y.year ? y.yearEnd : undefined,
       period: d.frontmatter.period,
       domain: d.frontmatter.domain,
+      discipline: d.rawPath.split("/")[1],
     });
   }
   return out.sort((a, b) => a.year - b.year);

@@ -58,6 +58,7 @@ export function ReviewSession({
   showSource = false,
   doneNote,
   families,
+  doneActions,
 }: {
   queue: ReviewItem[];
   setQueue: (q: ReviewItem[]) => void;
@@ -75,6 +76,9 @@ export function ReviewSession({
   /** Colour family (lib/path-family.ts) of each deck, by slug: tints the
    *  phone session. Note questions take theirs from the note's folder. */
   families?: Record<string, string | null>;
+  /** Links under the "nothing left" heading when the session had nothing to
+   *  show at all (components/EmptyActions.tsx). */
+  doneActions?: React.ReactNode;
 }) {
   const locale = useLocale();
   const tr = (k: string, vars?: Record<string, string | number>) => t(k, vars, locale);
@@ -252,6 +256,7 @@ export function ReviewSession({
             </p>
           )}
           {doneNote && <p className="m-0 text-small text-muted-warm">{doneNote()}</p>}
+          {tally.n === 0 && doneActions}
         </section>
         {undoButton}
       </>

@@ -122,7 +122,8 @@
     "publishedPending": "Comment submitted; awaiting moderation.",
     "networkError": "Network error; please try again.",
     "authorBadge": "author",
-    "replyTo": "replying to {name}"
+    "replyTo": "replying to {name}",
+    "rowSub": "Read the messages or write one"
   },
   "siblings": {
     "moreIn": "More in {folder}",
@@ -222,7 +223,15 @@
     "mineNoNeighbour": "To go further, the most cited notes:",
     "mineStart": "No note read here yet. To start, the most cited:",
     "mineLocate": "Show in the graph",
-    "mineOpen": "Open {title}"
+    "mineOpen": "Open {title}",
+    "settings": "Settings",
+    "settingsTitle": "Graph settings",
+    "settingsDone": "Done",
+    "mineHint": "Light up the notes you've read · {n} of {total}",
+    "pathHint": "Show a path's route",
+    "pathNoneShort": "None",
+    "allFamilies": "All",
+    "resetView": "Reset the view"
   },
   "lightbox": {
     "close": "Close",
@@ -305,7 +314,19 @@
     "eraModern": "Early modern period",
     "eraContemporary": "Contemporary period",
     "erasAria": "Jump to a period",
-    "span": "{n} years"
+    "span": "{n} years",
+    "count": "{n} dated notes, from Antiquity to today.",
+    "all": "All",
+    "eraAncientShort": "Antiquity",
+    "eraMedievalShort": "Middle Ages",
+    "eraModernShort": "Early modern",
+    "eraContemporaryShort": "Contemporary",
+    "century": "Century {r}",
+    "centuryOne": "Century I",
+    "centuryBce": "Century {r} BC",
+    "centuryOneBce": "Century I BC",
+    "millenniumBce": "Millennium {r} BC",
+    "bceShort": "BC"
   },
   "carte": {
     "title": "The garden on the map",
@@ -319,7 +340,17 @@
     "kind_langue": "language",
     "kind_autre": "note",
     "how": "A note is placed on a country by its folder (a country in History, a language) or by the “pays:” line of its header.",
-    "nav": "World map"
+    "nav": "World map",
+    "sortAria": "Sort the countries",
+    "sort_notes": "By notes",
+    "sort_name": "By name",
+    "sort_region": "By region",
+    "region_africa": "Africa",
+    "region_americas": "Americas",
+    "region_asia": "Asia",
+    "region_europe": "Europe",
+    "region_oceania": "Oceania",
+    "region_other": "Elsewhere"
   },
   "citer": {
     "title": "Cite this note",
@@ -385,7 +416,17 @@
     "more": "{n} more",
     "filterPlaceholder": "Filter themes…",
     "filterCount": "{n} themes",
-    "filterEmpty": "No theme matches."
+    "filterEmpty": "No theme matches.",
+    "indexBadge": "Overview",
+    "phoneIntro": "The subjects that run across several disciplines.",
+    "sortAria": "Sort the themes",
+    "sortFreq": "Most frequent",
+    "sortAlpha": "A to Z",
+    "nDisciplines": "{n} disciplines",
+    "filterCountOne": "{n} theme",
+    "minutes": "{n} min",
+    "read": "{n} read",
+    "readOne": "{n} read"
   },
   "cartesIndex": {
     "title": "Flashcards",
@@ -412,7 +453,9 @@
     "search": "Search the garden for “{q}”",
     "title": "Page not found",
     "body": "This page doesn’t exist (404 error).",
-    "home": "Back to the home page"
+    "home": "Back to the home page",
+    "titlePhone": "This page never grew",
+    "bodyPhone": "This address leads to no note. It may have been renamed."
   },
   "random": {
     "title": "A random note",
@@ -600,7 +643,9 @@
     "progress": "{pct}% read",
     "count": "{read}/{total} read",
     "countAria": "{read} of {total} notes read",
-    "privacy": "Your progress stays in this browser."
+    "privacy": "Your progress stays in this browser.",
+    "readTitle": "Note read",
+    "inFolder": "{n} of {total} in {folder}"
   },
   "palette": {
     "open": "Search",
@@ -1006,8 +1051,9 @@
     "failed": "Decks unavailable: {decks}.",
     "done": "All done for today.",
     "loading": "Loading decks: {n} / {total}…",
-    "nothingStarted": "Nothing to review yet. Open a deck from the card list: its cards will show up here.",
-    "tomorrow": "Due tomorrow: {count}"
+    "tomorrow": "Due tomorrow: {count}",
+    "nothingTitle": "Nothing to review today",
+    "nothingText": "Open a deck, or keep a question at the end of a note: it will come back here on the right day."
   },
   "predict": {
     "label": "What do you think?",
@@ -1060,7 +1106,10 @@
     "meta": "{notes} notes · {questions} questions, answers at the end",
     "metaNoQuiz": "{notes} notes",
     "empty": "This path's notes have no definitions, key ideas or questions yet.",
-    "answers": "Answers"
+    "answers": "Answers",
+    "levelsAria": "Choose a level",
+    "level": "Level {n}",
+    "keyIdea": "Key idea"
   },
   "tabbar": {
     "aria": "Main navigation",
@@ -1408,5 +1457,9 @@
       "started": "started",
       "read": "read"
     }
+  },
+  "reviewEmpty": {
+    "decks": "Pick a deck",
+    "path": "Read a note from a path"
   }
 }
