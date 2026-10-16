@@ -1046,8 +1046,9 @@
     "failed": "Mazos no disponibles: {decks}.",
     "done": "Todo repasado por hoy.",
     "loading": "Cargando mazos: {n} / {total}…",
-    "nothingStarted": "Nada que repasar por ahora. Abre un mazo desde la lista de tarjetas: sus tarjetas aparecerán aquí.",
-    "tomorrow": "Para mañana: {count}"
+    "tomorrow": "Para mañana: {count}",
+    "nothingTitle": "Nada que repasar hoy",
+    "nothingText": "Abra un mazo, o guarde una pregunta al final de una nota: volverá aquí el día indicado."
   },
   "predict": {
     "label": "¿Tú qué crees?",
@@ -1454,6 +1455,6 @@
   },
   "reviewEmpty": {
     "decks": "Elegir un mazo",
-    "path": "Ir a un recorrido"
+    "path": "Leer una nota de un recorrido"
   }
 }

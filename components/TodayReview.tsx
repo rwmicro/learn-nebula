@@ -207,7 +207,7 @@ export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: Practic
   const doneText = mode
     ? tr(emptyStart ? "practice.empty" : "practice.done")
     : queue && queue.length === 0 && started === 0 && !hasNotes
-      ? tr("todayReview.nothingStarted")
+      ? tr("todayReview.nothingTitle")
       : tr("todayReview.done");
 
   return (
@@ -256,7 +256,9 @@ export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: Practic
           families={Object.fromEntries(decks.map((d) => [d.slug, familyOfFolder(d.folder)]))}
           done={doneText}
           doneActions={
-            (mode ? emptyStart : started === 0 && !hasNotes) ? <EmptyActions /> : undefined
+            (mode ? emptyStart : started === 0 && !hasNotes) ? (
+              <EmptyActions text={mode ? undefined : tr("todayReview.nothingText")} />
+            ) : undefined
           }
           doneNote={() => (!mode && started > 0 ? tr("todayReview.tomorrow", { count: tomorrowLoad() }) : null)}
         />

@@ -1046,8 +1046,9 @@
     "failed": "Decks unavailable: {decks}.",
     "done": "All done for today.",
     "loading": "Loading decks: {n} / {total}…",
-    "nothingStarted": "Nothing to review yet. Open a deck from the card list: its cards will show up here.",
-    "tomorrow": "Due tomorrow: {count}"
+    "tomorrow": "Due tomorrow: {count}",
+    "nothingTitle": "Nothing to review today",
+    "nothingText": "Open a deck, or keep a question at the end of a note: it will come back here on the right day."
   },
   "predict": {
     "label": "What do you think?",
@@ -1454,6 +1455,6 @@
   },
   "reviewEmpty": {
     "decks": "Pick a deck",
-    "path": "Go to a path"
+    "path": "Read a note from a path"
   }
 }

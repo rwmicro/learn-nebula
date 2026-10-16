@@ -1046,8 +1046,9 @@
     "failed": "无法加载的卡组：{decks}。",
     "done": "今天的复习已全部完成。",
     "loading": "正在加载卡组：{n} / {total}…",
-    "nothingStarted": "暂时没有要复习的内容。从卡片列表打开一个卡组，它的卡片就会出现在这里。",
-    "tomorrow": "明天到期：{count}"
+    "tomorrow": "明天到期：{count}",
+    "nothingTitle": "今天没有要复习的内容",
+    "nothingText": "打开一个卡组，或在笔记末尾保存一个问题：它会在合适的日子回到这里。"
   },
   "predict": {
     "label": "你怎么看？",
@@ -1454,6 +1455,6 @@
   },
   "reviewEmpty": {
     "decks": "选择卡组",
-    "path": "前往学习路径"
+    "path": "阅读一条学习路径中的笔记"
   }
 }
