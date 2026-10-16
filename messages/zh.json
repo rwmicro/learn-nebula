@@ -1100,7 +1100,10 @@
     "meta": "{notes} 篇笔记 · {questions} 个问题，答案在末尾",
     "metaNoQuiz": "{notes} 篇笔记",
     "empty": "这条路线的笔记还没有定义、要点或问题。",
-    "answers": "答案"
+    "answers": "答案",
+    "levelsAria": "选择级别",
+    "level": "第 {n} 级",
+    "keyIdea": "要点"
   },
   "tabbar": {
     "aria": "主导航",

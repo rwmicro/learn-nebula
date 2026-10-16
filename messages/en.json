@@ -1100,7 +1100,10 @@
     "meta": "{notes} notes · {questions} questions, answers at the end",
     "metaNoQuiz": "{notes} notes",
     "empty": "This path's notes have no definitions, key ideas or questions yet.",
-    "answers": "Answers"
+    "answers": "Answers",
+    "levelsAria": "Choose a level",
+    "level": "Level {n}",
+    "keyIdea": "Key idea"
   },
   "tabbar": {
     "aria": "Main navigation",

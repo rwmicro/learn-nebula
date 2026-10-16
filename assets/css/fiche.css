@@ -216,6 +216,12 @@
 
 /* Phone: "Imprimer" as a glass pill beside the back link, each note's key
    points on a tinted card and its questions on a grouped card. */
+/* Phone-only: the level switch and the key-idea label (PathSheet.tsx). */
+.fiche-radio,
+.fiche-levels,
+.fiche-keys-label {
+  display: none;
+}
 @media (max-width: 639.98px) {
   .fiche-bar {
     margin-bottom: 0.75rem;
@@ -293,5 +299,105 @@
   .fiche-questions li::marker {
     font-size: 0.85rem;
     color: var(--garden);
+  }
+
+  .fiche-questions {
+    padding-left: 2.9rem;
+  }
+  .fiche-questions li::marker {
+    content: "Q" counter(list-item) "  ";
+    font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .fiche-keys-label {
+    display: block;
+    margin-bottom: 0.2rem;
+    font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--garden);
+  }
+  .fiche-levels {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    gap: 0.25rem;
+    margin: 0 0 1.25rem;
+    padding: 0.2rem;
+    border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--ink) 7%, transparent);
+    overflow-x: auto;
+  }
+  .fiche-levels label {
+    padding: 0.45rem 0.6rem;
+    border-radius: 0.6rem;
+    text-align: center;
+    white-space: nowrap;
+    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+    cursor: pointer;
+  }
+  .fiche-page:has(#fiche-l-1:checked) label[for="fiche-l-1"] {
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .fiche-page:has(#fiche-l-1:checked) :is(.fiche-note, .fiche-answers li):not([data-level="1"]) {
+    display: none;
+  }
+  .fiche-page:has(#fiche-l-2:checked) label[for="fiche-l-2"] {
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .fiche-page:has(#fiche-l-2:checked) :is(.fiche-note, .fiche-answers li):not([data-level="2"]) {
+    display: none;
+  }
+  .fiche-page:has(#fiche-l-3:checked) label[for="fiche-l-3"] {
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .fiche-page:has(#fiche-l-3:checked) :is(.fiche-note, .fiche-answers li):not([data-level="3"]) {
+    display: none;
+  }
+  .fiche-page:has(#fiche-l-4:checked) label[for="fiche-l-4"] {
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .fiche-page:has(#fiche-l-4:checked) :is(.fiche-note, .fiche-answers li):not([data-level="4"]) {
+    display: none;
+  }
+  .fiche-page:has(#fiche-l-5:checked) label[for="fiche-l-5"] {
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .fiche-page:has(#fiche-l-5:checked) :is(.fiche-note, .fiche-answers li):not([data-level="5"]) {
+    display: none;
+  }
+  .fiche-page:has(#fiche-l-6:checked) label[for="fiche-l-6"] {
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .fiche-page:has(#fiche-l-6:checked) :is(.fiche-note, .fiche-answers li):not([data-level="6"]) {
+    display: none;
+  }
+  .fiche-page:has(#fiche-l-7:checked) label[for="fiche-l-7"] {
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .fiche-page:has(#fiche-l-7:checked) :is(.fiche-note, .fiche-answers li):not([data-level="7"]) {
+    display: none;
+  }
+  .fiche-page:has(#fiche-l-8:checked) label[for="fiche-l-8"] {
+    background: var(--paper-raised);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+  }
+  .fiche-page:has(#fiche-l-8:checked) :is(.fiche-note, .fiche-answers li):not([data-level="8"]) {
+    display: none;
   }
 }

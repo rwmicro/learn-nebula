@@ -1100,7 +1100,10 @@
     "meta": "{notes} notas · {questions} preguntas, respuestas al final",
     "metaNoQuiz": "{notes} notas",
     "empty": "Las notas de este recorrido aún no tienen definiciones, ideas clave ni preguntas.",
-    "answers": "Respuestas"
+    "answers": "Respuestas",
+    "levelsAria": "Elegir un nivel",
+    "level": "Nivel {n}",
+    "keyIdea": "Idea clave"
   },
   "tabbar": {
     "aria": "Navegación principal",
