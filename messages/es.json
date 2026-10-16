@@ -122,7 +122,8 @@
     "publishedPending": "Comentario enviado; pendiente de moderación.",
     "networkError": "Error de red; inténtalo de nuevo.",
     "authorBadge": "autor",
-    "replyTo": "en respuesta a {name}"
+    "replyTo": "en respuesta a {name}",
+    "rowSub": "Leer los mensajes o escribir uno"
   },
   "siblings": {
     "moreIn": "Más en {folder}",
@@ -642,7 +643,9 @@
     "progress": "{pct} % leído",
     "count": "{read}/{total} leídas",
     "countAria": "{read} de {total} notas leídas",
-    "privacy": "Tu progreso se queda en este navegador."
+    "privacy": "Tu progreso se queda en este navegador.",
+    "readTitle": "Nota leída",
+    "inFolder": "{n} de {total} en {folder}"
   },
   "palette": {
     "open": "Buscar",

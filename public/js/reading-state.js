@@ -147,7 +147,17 @@ document.addEventListener("gk:widget-goal", () => recordActivity("c"));
     const resume = savedProgress(store, slug);
     box.classList.toggle("is-read", read);
     if (read) {
+      // Phones: "Note lue · 1 sur 2 dans Un graphique" as one card.
+      const folderSlugs = (box.getAttribute("data-folder-slugs") || "").split(" ").filter(Boolean);
+      const inFolder = folderSlugs.length
+        ? tt("reading.inFolder", {
+            n: folderSlugs.filter((s) => isRead(store, s)).length,
+            total: folderSlugs.length,
+            folder: box.getAttribute("data-folder") || "",
+          })
+        : tt("reading.readOn", { date: fmtDate(store[slug].r) });
       box.innerHTML =
+        `<span class="read-state-done"><i>${CHECK}</i><span><b>${esc(tt("reading.readTitle"))}</b><small>${esc(inFolder)}</small></span></span>` +
         `<span class="read-state-label">${CHECK}${esc(tt("reading.readOn", { date: fmtDate(store[slug].r) }))}</span>` +
         `<button type="button" class="read-state-btn" data-act="unread">${esc(tt("reading.markUnread"))}</button>`;
     } else {

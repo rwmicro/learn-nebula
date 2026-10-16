@@ -125,7 +125,8 @@ export async function SinglePage({
   const noteLang = fm.lang?.trim().toLowerCase() || detectedLang;
   const lang = noteLang !== "fr" ? noteLang : undefined;
 
-  const siblings = note ? siblingNavHtml(getSiblings(doc.slug)) : "";
+  const sibNav = note ? getSiblings(doc.slug) : null;
+  const siblings = sibNav ? siblingNavHtml(sibNav) : "";
   // Prerequisites (frontmatter `prerequis`) up top, the notes that build on
   // this one ("pour aller plus loin") after the body. Those notes usually
   // [[link]] here too; the backlinks list leaves them out so none shows twice.
@@ -172,7 +173,6 @@ export async function SinglePage({
   // "Et ensuite ?": the next step of the reading path, else the next note of
   // the folder, plus a dozen notes of the discipline (in its page's order,
   // starting after this one) for the browser to pick an unread one from.
-  const sibNav = note ? getSiblings(doc.slug) : null;
   const disc = note
     ? getDisciplines().find((d) => doc.slug.startsWith(d.prefix)) ?? null
     : null;
@@ -290,7 +290,15 @@ export async function SinglePage({
     (note
       ? citeHtml({ slug: doc.slug, title: fm.title, author: fm.author, date: fm.date, updated: fm.updated })
       : "") +
-    (note ? readStateHtml(doc.slug, readingMinutes) : "") +
+    (note
+      ? readStateHtml(
+          doc.slug,
+          readingMinutes,
+          sibNav
+            ? { name: sibNav.folder.split("/").pop() ?? "", slugs: sibNav.siblings.map((x) => x.slug) }
+            : undefined,
+        )
+      : "") +
     nextBlock +
     (note ? prerenderNextHtml(nextUp.next?.slug) : "") +
     further +

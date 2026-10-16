@@ -122,7 +122,8 @@
     "publishedPending": "Comment submitted; awaiting moderation.",
     "networkError": "Network error; please try again.",
     "authorBadge": "author",
-    "replyTo": "replying to {name}"
+    "replyTo": "replying to {name}",
+    "rowSub": "Read the messages or write one"
   },
   "siblings": {
     "moreIn": "More in {folder}",
@@ -642,7 +643,9 @@
     "progress": "{pct}% read",
     "count": "{read}/{total} read",
     "countAria": "{read} of {total} notes read",
-    "privacy": "Your progress stays in this browser."
+    "privacy": "Your progress stays in this browser.",
+    "readTitle": "Note read",
+    "inFolder": "{n} of {total} in {folder}"
   },
   "palette": {
     "open": "Search",

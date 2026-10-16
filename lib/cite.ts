@@ -51,7 +51,8 @@ export function citeHtml(c: CiteInput, today = new Date()): string {
     `<button type="button" class="cite-copy" data-copy="${target}"${i18nAttrs("citer.copy")}>${escapeHtml(t("citer.copy"))}</button>`;
   return (
     `<details class="cite-note" data-pagefind-ignore data-today="${iso(today)}">` +
-    `<summary${i18nAttrs("citer.title")}>${escapeHtml(t("citer.title"))}</summary>` +
+    `<summary><span${i18nAttrs("citer.title")}>${escapeHtml(t("citer.title"))}</span>` +
+    `<small class="cite-sub">APA, MLA, BibTeX</small></summary>` +
     `<p class="cite-label"${i18nAttrs("citer.text")}>${escapeHtml(t("citer.text"))}</p>` +
     `<div class="cite-row"><p class="cite-text" id="cite-text">${escapeHtml(text)}</p>${copy("cite-text")}</div>` +
     `<p class="cite-label">BibTeX</p>` +

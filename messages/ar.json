@@ -122,7 +122,8 @@
     "publishedPending": "تم إرسال التعليق؛ في انتظار المراجعة.",
     "networkError": "خطأ في الشبكة؛ يرجى المحاولة مرة أخرى.",
     "authorBadge": "الكاتب",
-    "replyTo": "ردًّا على {name}"
+    "replyTo": "ردًّا على {name}",
+    "rowSub": "اقرأ الرسائل أو اكتب رسالة"
   },
   "siblings": {
     "moreIn": "المزيد في {folder}",
@@ -642,7 +643,9 @@
     "progress": "قُرئ {pct}٪",
     "count": "{read}/{total} مقروءة",
     "countAria": "قُرئت {read} من أصل {total} ملاحظات",
-    "privacy": "يبقى تقدمك في هذا المتصفح فقط."
+    "privacy": "يبقى تقدمك في هذا المتصفح فقط.",
+    "readTitle": "تمت القراءة",
+    "inFolder": "{n} من {total} في {folder}"
   },
   "palette": {
     "open": "بحث",

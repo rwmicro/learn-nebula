@@ -122,7 +122,8 @@
     "publishedPending": "Commentaire soumis ; en attente de validation.",
     "networkError": "Erreur réseau ; veuillez réessayer.",
     "authorBadge": "auteur",
-    "replyTo": "en réponse à {name}"
+    "replyTo": "en réponse à {name}",
+    "rowSub": "Lire les messages ou en écrire un"
   },
   "siblings": {
     "moreIn": "Plus dans {folder}",
@@ -642,7 +643,9 @@
     "progress": "{pct} % lu",
     "count": "{read}/{total} lues",
     "countAria": "{read} notes lues sur {total}",
-    "privacy": "Votre progression reste dans ce navigateur."
+    "privacy": "Votre progression reste dans ce navigateur.",
+    "readTitle": "Note lue",
+    "inFolder": "{n} sur {total} dans {folder}"
   },
   "palette": {
     "open": "Rechercher",

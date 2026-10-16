@@ -122,7 +122,8 @@
     "publishedPending": "评论已提交，等待审核。",
     "networkError": "网络错误，请重试。",
     "authorBadge": "作者",
-    "replyTo": "回复 {name}"
+    "replyTo": "回复 {name}",
+    "rowSub": "阅读留言或写一条"
   },
   "siblings": {
     "moreIn": "{folder} 中的更多内容",
@@ -642,7 +643,9 @@
     "progress": "已读 {pct}%",
     "count": "已读 {read}/{total}",
     "countAria": "{total} 篇笔记中已读 {read} 篇",
-    "privacy": "阅读进度只保存在此浏览器中。"
+    "privacy": "阅读进度只保存在此浏览器中。",
+    "readTitle": "已读",
+    "inFolder": "{folder}：{total} 篇中已读 {n} 篇"
   },
   "palette": {
     "open": "搜索",
