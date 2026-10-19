@@ -2,9 +2,14 @@
 // - "Expliquer" hands the passage to the site's assistant (<PinnedAssistant>,
 //   via a `gk:explain` event), which opens with the passage pinned as context
 //   and asks the server's default "explain this passage" question;
+// - "Avec mes mots" opens the same assistant in its "explique-le avec tes
+//   mots" mode (`gk:explain-own`): the reader writes their own explanation of
+//   the passage and gets feedback on it;
 // - "Surligner" keeps the passage highlighted (public/js/highlights.js);
 // - "Copier le lien" copies the page URL with a text fragment (#:~:text=…,
-//   lib/text-fragment.ts) that scrolls to and highlights the passage.
+//   lib/text-fragment.ts) that scrolls to and highlights the passage;
+// - "Signaler" opens a short form: the reader says what is wrong with the
+//   passage, sent to POST /api/report (lib/feedback.ts) for /admin.
 // Shown for 3+ words and at most 1000 characters, inside .article-body but not
 // in code, form fields or interactive chrome. Hidden on scroll, Escape, a
 // click elsewhere or a collapsed selection. On touch it sits BELOW the
@@ -13,6 +18,7 @@
 // Built at runtime and appended to <body>, so Pagefind never indexes it;
 // print hides it (main.css).
 import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fragment.ts";
+import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
 
 (function () {
   const article = document.querySelector(".article-body");
@@ -49,6 +55,13 @@ import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fr
   explain.className = "sel-menu-btn sel-menu-explain";
   label(explain, "selMenu.explain");
 
+  const ownBtn = document.createElement("button");
+  ownBtn.type = "button";
+  ownBtn.className = "sel-menu-btn sel-menu-own";
+  ownBtn.setAttribute("aria-label", tt("selMenu.explainOwnAria"));
+  ownBtn.setAttribute("data-i18n-aria-label", "selMenu.explainOwnAria");
+  label(ownBtn, "selMenu.explainOwn");
+
   const copyBtn = document.createElement("button");
   copyBtn.type = "button";
   copyBtn.className = "sel-menu-btn";
@@ -63,11 +76,19 @@ import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fr
   hlBtn.className = "sel-menu-btn sel-menu-hl";
   label(hlBtn, "selMenu.highlight");
 
+  // "Signaler": an error in the passage, for the owner (/admin → Contenu).
+  const reportBtn = document.createElement("button");
+  reportBtn.type = "button";
+  reportBtn.className = "sel-menu-btn sel-menu-report";
+  reportBtn.setAttribute("aria-label", tt("selMenu.reportAria"));
+  reportBtn.setAttribute("data-i18n-aria-label", "selMenu.reportAria");
+  label(reportBtn, "selMenu.report");
+
   const live = document.createElement("span");
   live.className = "sr-only";
   live.setAttribute("aria-live", "polite");
 
-  menu.append(explain, hlBtn, copyBtn, live);
+  menu.append(explain, ownBtn, hlBtn, copyBtn, reportBtn, live);
   document.body.appendChild(menu);
 
   // Keep the page selection alive while the toolbar is pressed.
@@ -172,10 +193,10 @@ import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fr
       explain.focus();
       return;
     }
-    // role="toolbar": arrow keys move between its two buttons.
+    // role="toolbar": arrow keys move between its buttons.
     if (menu.contains(e.target) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
       e.preventDefault();
-      const btns = [explain, hlBtn, copyBtn];
+      const btns = [explain, ownBtn, hlBtn, copyBtn, reportBtn];
       const i = btns.indexOf(e.target);
       const d = e.key === "ArrowRight" ? 1 : btns.length - 1;
       btns[(Math.max(0, i) + d) % btns.length].focus();
@@ -200,6 +221,13 @@ import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fr
     hide();
     window.getSelection()?.removeAllRanges();
     window.dispatchEvent(new CustomEvent("gk:explain", { detail: { text: passage } }));
+  });
+
+  ownBtn.addEventListener("click", () => {
+    const passage = text.replace(/\s+/g, " ").trim();
+    hide();
+    window.getSelection()?.removeAllRanges();
+    window.dispatchEvent(new CustomEvent("gk:explain-own", { detail: { text: passage } }));
   });
 
   function copy(s) {
@@ -241,5 +269,75 @@ import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fr
         () => done("selMenu.copyFailed"),
       )
       .finally(() => setTimeout(() => (copying = false), 50));
+  });
+
+  // --- Signaler ------------------------------------------------------------
+  const slug = location.pathname.replace(/^\/posts\//, "").replace(/\/+$/, "");
+
+  function openReport(passage) {
+    const dlg = document.createElement("dialog");
+    dlg.className = "report-dlg";
+    dlg.setAttribute("aria-labelledby", "report-dlg-title");
+    dlg.setAttribute("data-pagefind-ignore", "");
+    const esc = window.__i18n && window.__i18n.escapeHtml ? window.__i18n.escapeHtml : (s) => s;
+    dlg.innerHTML =
+      `<form method="dialog" class="report-form">` +
+      `<h2 id="report-dlg-title" class="report-title">${esc(tt("report.title"))}</h2>` +
+      `<blockquote class="report-passage">${esc(passage)}</blockquote>` +
+      `<label class="report-label" for="report-remark">${esc(tt("report.label"))}</label>` +
+      `<textarea id="report-remark" class="report-remark" rows="3" maxlength="${REPORT_MAX.remark}" required></textarea>` +
+      `<p class="report-hint">${esc(tt("report.hint"))}</p>` +
+      `<p class="report-status" role="status" aria-live="polite"></p>` +
+      `<div class="report-actions">` +
+      `<button type="button" class="report-cancel">${esc(tt("report.cancel"))}</button>` +
+      `<button type="submit" class="report-send">${esc(tt("report.send"))}</button>` +
+      `</div></form>`;
+    document.body.appendChild(dlg);
+    const form = dlg.querySelector("form");
+    const remark = dlg.querySelector(".report-remark");
+    const status = dlg.querySelector(".report-status");
+    const send = dlg.querySelector(".report-send");
+    dlg.querySelector(".report-cancel").addEventListener("click", () => dlg.close());
+    dlg.addEventListener("close", () => dlg.remove());
+    // A tap on the backdrop lands on the <dialog> itself, outside the form.
+    dlg.addEventListener("click", (e) => {
+      if (e.target === dlg) dlg.close();
+    });
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const text = remark.value.trim();
+      if ([...text].length < REPORT_MIN_REMARK) {
+        status.textContent = tt("report.tooShort");
+        remark.focus();
+        return;
+      }
+      send.disabled = true;
+      status.textContent = tt("report.sending");
+      fetch("/api/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ slug, passage: passage.slice(0, REPORT_MAX.passage), remark: text }),
+      })
+        .then((r) => {
+          if (!r.ok) throw new Error(String(r.status));
+          status.textContent = tt("report.thanks");
+          dlg.classList.add("is-sent");
+          setTimeout(() => dlg.close(), 1600);
+        })
+        .catch((err) => {
+          send.disabled = false;
+          status.textContent = tt(String(err.message) === "429" ? "report.tooMany" : "report.failed");
+        });
+    });
+    dlg.showModal();
+    remark.focus();
+  }
+
+  reportBtn.addEventListener("click", () => {
+    const passage = text.replace(/\s+/g, " ").trim();
+    hide();
+    window.getSelection()?.removeAllRanges();
+    if (passage) openReport(passage);
   });
 })();

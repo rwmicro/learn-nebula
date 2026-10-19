@@ -303,13 +303,14 @@ export function growthHtml(
   stage: NoteStage | undefined,
   planted: Date | undefined,
   tended: Date | undefined,
+  historyUrl?: string,
 ): string {
   const sameDay =
     planted &&
     tended &&
     planted.toISOString().slice(0, 10) === tended.toISOString().slice(0, 10);
   const showTended = tended && !sameDay;
-  if (!stage && !showTended) return "";
+  if (!stage && !showTended && !historyUrl) return "";
 
   const badge = stage
     ? `<span class="growth-stage growth-${stage}"` +
@@ -328,11 +329,16 @@ export function growthHtml(
       `</span>`
     : "";
 
-  const sep =
-    badge && tendedHtml
-      ? `<span class="growth-sep" aria-hidden="true">·</span>`
-      : "";
-  return `<div class="note-growth" data-pagefind-ignore>${badge}${sep}${tendedHtml}</div>`;
+  // Every past version of the note, on GitHub (the vault is public).
+  const historyHtml = historyUrl
+    ? `<a class="growth-history" href="${escapeHtml(historyUrl)}" rel="noopener" target="_blank"` +
+      ` title="${escapeHtml(t("growth.historyAria"))}"${i18nAttr("title", "growth.historyAria")}>` +
+      `<span${i18nAttrs("growth.history")}>${escapeHtml(t("growth.history"))}</span></a>`
+    : "";
+
+  const sep = `<span class="growth-sep" aria-hidden="true">·</span>`;
+  const parts = [badge, tendedHtml, historyHtml].filter(Boolean).join(sep);
+  return `<div class="note-growth" data-pagefind-ignore>${parts}</div>`;
 }
 
 /** A vault folder name as shown to readers: the top groups and disciplines
@@ -424,6 +430,10 @@ export function noteHeaderHtml(
     `<a href="/">${escapeHtml(INDEX_NOTE)}</a>${crumbs}` +
     `</div>` +
     `</header>` +
+    // Zero-height sticky wrapper: a `scroll-state(stuck)` container, so the
+    // CSS alone shows the bar once the header has gone (main.css); the
+    // IntersectionObserver in /js/sticky-header.js is the fallback.
+    `<div class="note-header-stuck">` +
     `<div class="note-header-condensed" data-pagefind-ignore>` +
     // Discipline › title, then the section being read and the time left
     // (filled by /js/reader-tools.js from the TOC scrollspy).
@@ -435,6 +445,7 @@ export function noteHeaderHtml(
     `<span class="note-header-now" hidden aria-hidden="true"><span class="note-header-section"></span><span class="note-header-left"></span></span>` +
     `</div>` +
     asideToggleHtml() +
+    `</div>` +
     `</div>`
   );
 }

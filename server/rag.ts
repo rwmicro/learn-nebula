@@ -451,3 +451,42 @@ export function relatedNotes(url: string, topK: number): RelatedHit[] {
   scored.sort((a, b) => b.score - a.score);
   return scored.slice(0, topK);
 }
+
+// --- /api/search ("Proches par le sens" in the ⌘K palette) -----------------
+
+export interface DenseHit {
+  title: string;
+  url: string;
+  text: string;
+  cosine: number;
+}
+
+/** Dense-only nearest chunks for `query` (no BM25, no reranker, no LLM): the
+ *  palette already has exact words through Pagefind; this adds what is close
+ *  in meaning. `null` when the index isn't ready or the vector doesn't fit. */
+export async function denseSearch(query: string, topK: number, minScore: number): Promise<DenseHit[] | null> {
+  if (state !== "ready" || !metas.length || !dim) return null;
+  const [qv] = await openaiEmbed(
+    env.embedBaseUrl,
+    env.embedModel,
+    [query.slice(0, 500)],
+    undefined,
+    QUERY_EMBED_TIMEOUT_MS,
+  );
+  const q = normalize(qv);
+  if (q.length !== dim) return null;
+  const scored: { i: number; s: number }[] = [];
+  for (let i = 0; i < metas.length; i++) {
+    let dot = 0;
+    const off = i * dim;
+    for (let d = 0; d < dim; d++) dot += matrix[off + d] * q[d];
+    if (dot >= minScore) scored.push({ i, s: dot });
+  }
+  scored.sort((a, b) => b.s - a.s);
+  return scored.slice(0, topK).map(({ i, s }) => ({
+    title: metas[i].title,
+    url: metas[i].url,
+    text: metas[i].text,
+    cosine: s,
+  }));
+}

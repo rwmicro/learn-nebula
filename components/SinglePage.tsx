@@ -12,6 +12,7 @@ import {
   getReadingPaths,
   getDisciplines,
 } from "@/lib/content";
+import { noteHistoryUrl } from "@/lib/site";
 import { pathStepHtml, pathStepOf } from "@/lib/path-step";
 import { extractPlain, renderMarkdown } from "@/lib/markdown";
 import { readingMinutes as minutesOfText } from "@/lib/path-extras";
@@ -264,7 +265,7 @@ export async function SinglePage({
     `<h1 class='title-note'>${escapeHtml(fm.title)}</h1>` +
     (cover ? `</div>` : "") +
     // Growth stage + "last tended", when the note declares them.
-    (note ? growthHtml(fm.stage, fm.date, fm.updated) : "") +
+    (note ? growthHtml(fm.stage, fm.date, fm.updated, noteHistoryUrl(doc.rawPath)) : "") +
     // Where the note lives, as Pagefind metadata for the search results.
     (note ? noteSectionMetaHtml(doc.rawPath) : "") +
     (note

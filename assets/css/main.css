@@ -659,17 +659,141 @@ h4:focus-within .anchor,
   overflow-y: hidden;
 }
 
-/* Build-time SVG diagram (scripts/render-mermaid.mjs). */
+/* Build-time SVG diagram (scripts/render-mermaid.mjs). Its colours come from
+   the shared stylesheet render-mermaid.mjs links, written in the site's tokens
+   (lib/mermaid-theme.js), so the diagram follows light/dark like the text.
+   The --mm-tint-* are the timeline/mindmap section fills, mixed from the
+   paper so they darken with it (in light they are MERMAID_CONFIG's cScale
+   values to the unit). */
 .mermaid-diagram {
   margin: 1.6rem auto;
   text-align: center;
   overflow-x: auto;
-  /* Rendered with a fixed light theme (MERMAID_CONFIG), so the figure is a
-     .keep-light island: in dark mode it becomes a light card (--island-pad is
-     0 in light, where the card is invisible anyway). */
   background: var(--paper);
-  padding: var(--island-pad);
   border-radius: var(--radius-md);
+  --mm-tint-1: color-mix(in srgb, var(--callout-blue) 10%, var(--paper));
+  --mm-tint-2: color-mix(in srgb, var(--garden) 8%, var(--paper));
+  --mm-tint-3: color-mix(in srgb, var(--warn) 10%, var(--paper));
+}
+/* A diagram the browser rendered (public/js/mermaid-render.js, the fallback
+   when the build had no Chromium) keeps mermaid's inline light theme, so it is
+   still a .keep-light island: a light card in dark mode. */
+.mermaid-diagram.keep-light {
+  padding: var(--island-pad);
+}
+
+/* "Agrandir" (public/js/diagram-zoom.js wraps each diagram in .diagram-frame).
+   Quiet until the diagram is hovered, like the code-copy button; always shown
+   on touch screens. The figure's margin collapses through the frame, so `top`
+   is measured from the diagram's own edge. */
+.diagram-frame {
+  position: relative;
+}
+.mermaid-diagram:not(.diagram-dlg-stage) {
+  cursor: zoom-in;
+}
+.diagram-expand {
+  position: absolute;
+  top: 0.4rem;
+  inset-inline-end: 0.4rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.35rem 0.6rem;
+  color: var(--muted);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+}
+.diagram-frame:hover .diagram-expand,
+.diagram-expand:focus-visible {
+  opacity: 1;
+}
+.diagram-expand:hover,
+.diagram-expand:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+@media (hover: none) {
+  .diagram-expand {
+    opacity: 1;
+  }
+}
+@media print {
+  .diagram-expand {
+    display: none !important;
+  }
+}
+
+/* The full-screen view. */
+.diagram-dlg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+.diagram-dlg::backdrop {
+  background: var(--paper);
+}
+/* Below the toolbar, so neither ever covers the other. */
+.diagram-dlg-stage.mermaid-diagram {
+  position: absolute;
+  inset: calc(max(0.75rem, env(safe-area-inset-top)) + 3.35rem) 0 0;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0;
+  background: var(--paper);
+  text-align: start;
+  touch-action: none;
+  cursor: grab;
+}
+.diagram-dlg-stage.mermaid-diagram:active {
+  cursor: grabbing;
+}
+.diagram-dlg-stage.mermaid-diagram svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  /* diagram-zoom.js sets the natural size inline; the in-page cap must not. */
+  max-width: none;
+}
+.diagram-dlg-bar {
+  position: absolute;
+  z-index: 1;
+  top: max(0.75rem, env(safe-area-inset-top));
+  inset-inline-end: max(0.75rem, env(safe-area-inset-right));
+  display: flex;
+  gap: 0.4rem;
+}
+.diagram-dlg-btn {
+  width: 2.6rem;
+  height: 2.6rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.diagram-dlg-btn:hover {
+  border-color: var(--ink);
+}
+.diagram-dlg-btn:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
 }
 
 /* A diagram wider than the column (a fifteen-event timeline is ~3300px) scrolls,
@@ -1137,6 +1261,14 @@ body[data-text-size="lg"] main ol li {
 }
 .growth-tended time {
   font-style: italic;
+}
+.growth-history {
+  color: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+}
+.growth-history:hover {
+  color: var(--fg, inherit);
 }
 
 .note-header {
@@ -3831,6 +3963,125 @@ main video {
 .sel-menu[data-copied="true"] .sel-menu-btn:not(.sel-menu-explain) {
   color: var(--garden);
 }
+.sel-menu-report {
+  color: var(--muted-warm);
+}
+
+/* "Signaler une erreur" form (selection-menu.js): a native modal dialog. */
+.report-dlg {
+  /* Tailwind's preflight zeroes dialog margins: centre it again. */
+  margin: auto;
+  width: min(32rem, calc(100vw - 2rem));
+  padding: 0;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  opacity: 1;
+  translate: 0 0;
+  transition:
+    opacity 0.18s ease-out,
+    translate 0.18s ease-out,
+    overlay 0.18s allow-discrete,
+    display 0.18s allow-discrete;
+}
+/* Entry animation without JS (@starting-style); closing just disappears. */
+@starting-style {
+  .report-dlg[open] {
+    opacity: 0;
+    translate: 0 8px;
+  }
+}
+.report-dlg::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+.report-form {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1.1rem 1.2rem 1rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.report-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+.report-passage {
+  margin: 0;
+  padding-inline-start: 0.7rem;
+  border-inline-start: 2px solid var(--garden);
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-style: italic;
+  max-height: 8rem;
+  overflow: auto;
+  text-wrap: pretty;
+}
+.report-label {
+  font-weight: 600;
+}
+.report-remark {
+  font: inherit;
+  /* Grows with what the reader types (field-sizing), between 3 and ~10 lines. */
+  field-sizing: content;
+  min-height: 4.5rem;
+  max-height: 14rem;
+  padding: 0.5rem 0.6rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  resize: vertical;
+}
+.report-remark:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 1px;
+}
+.report-hint,
+.report-status {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--muted-warm);
+}
+.report-status:empty {
+  display: none;
+}
+.report-dlg.is-sent .report-status {
+  color: var(--garden);
+  font-weight: 600;
+}
+.report-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+.report-actions button {
+  font: inherit;
+  min-height: 2.5rem;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.report-cancel {
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--rule-strong);
+}
+.report-send {
+  color: var(--paper);
+  background: var(--garden);
+  border: 1px solid var(--garden);
+  font-weight: 700;
+}
+.report-send:disabled {
+  opacity: 0.5;
+}
+@media (prefers-reduced-motion: reduce) {
+  .report-dlg {
+    transition: none;
+  }
+}
+
 @keyframes sel-menu-in {
   from {
     opacity: 0;
@@ -3859,6 +4110,7 @@ main video {
   .quiz-controls,
   .quiz-grade,
   .sel-menu,
+  .report-dlg,
   .gloss-popover {
     display: none !important;
   }
@@ -5376,3 +5628,285 @@ html.ne-open {
     margin-inline: 1rem;
   }
 }
+
+/* ===========================================================================
+   Native CSS in place of script (review "techniques récentes", §4). Each
+   part degrades to the older behaviour where the browser lacks it.
+   ======================================================================== */
+
+/* Line breaking: balanced headings, no lone word closing a paragraph (body
+   text already has `pretty`, see `main p` above). */
+h2,
+h3,
+h4,
+.note-popover-title {
+  text-wrap: balance;
+}
+.note-popover-excerpt,
+.article-body blockquote,
+.article-body figcaption,
+.article-body td {
+  text-wrap: pretty;
+}
+
+/* Link-preview and glossary cards as anchored popovers (lib/anchor-popover.ts):
+   below the link, running towards the line's end; flipped across or above
+   when that would leave the screen; centred on the screen as a last resort
+   on narrow ones. Hidden while the link itself is scrolled out of view. */
+@position-try --gk-pop-wide {
+  position-area: block-end span-all;
+  justify-self: center;
+  margin: 8px 1rem;
+}
+.note-popover[popover] {
+  position: fixed;
+  inset: auto;
+  margin: 8px 0;
+  height: auto;
+  overflow: visible;
+  color: var(--ink);
+  position-area: block-end span-inline-end;
+  position-try-fallbacks:
+    flip-inline,
+    --gk-pop-wide,
+    flip-block,
+    flip-block flip-inline,
+    --gk-pop-wide flip-block;
+  position-visibility: anchors-visible;
+}
+
+/* Condensed bar (mobile/tablet) without the observer: lib/html.ts wraps it in
+   a zero-height sticky element placed right after the in-flow header, which
+   gets stuck exactly when that header has scrolled away. */
+@supports (container-type: scroll-state) {
+  .note-header-stuck {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    height: 0;
+    container-type: scroll-state;
+  }
+  .note-header-stuck > .note-header-condensed {
+    visibility: hidden;
+  }
+  @container scroll-state(stuck: top) {
+    .note-header-stuck > .note-header-condensed {
+      visibility: visible;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .note-header-stuck > .note-header-condensed {
+      transition:
+        transform 0.18s ease-out,
+        visibility 0s linear 0.18s;
+    }
+    @container scroll-state(stuck: top) {
+      .note-header-stuck > .note-header-condensed {
+        transition:
+          transform 0.18s ease-out,
+          visibility 0s;
+      }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .note-header-stuck > .note-header-condensed {
+      transition: none;
+    }
+  }
+}
+
+/* Reading-progress hairline from a view timeline on the article body, set
+   by /js/sticky-header.js (data-timeline) when supported: no scroll listener. */
+@supports (animation-timeline: view()) and (timeline-scope: --a) {
+  body:has(.reading-progress[data-timeline]) {
+    timeline-scope: --gk-read;
+  }
+  body:has(.reading-progress[data-timeline]) .article-body {
+    view-timeline: --gk-read block;
+  }
+  .reading-progress[data-timeline] {
+    transition: opacity 0.2s;
+    animation: gk-read linear both;
+    animation-timeline: --gk-read;
+    animation-range: contain 0% contain 100%;
+  }
+}
+@keyframes gk-read {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* Entry animations in CSS alone (@starting-style). Exits fade too where
+   `display` can transition (transition-behavior: allow-discrete). */
+@media (prefers-reduced-motion: no-preference) {
+  .note-popover {
+    transition:
+      opacity 0.12s ease-out,
+      translate 0.12s ease-out;
+  }
+  /* Two rules: `:popover-open` would void a shared list where unknown. */
+  @starting-style {
+    .note-popover:popover-open {
+      opacity: 0;
+      translate: 0 4px;
+    }
+  }
+  @starting-style {
+    .note-popover:not([popover]):not([hidden]) {
+      opacity: 0;
+      translate: 0 4px;
+    }
+  }
+  .translate-menu,
+  .hl-card {
+    transition:
+      opacity 0.14s ease-out,
+      translate 0.14s ease-out,
+      display 0.14s allow-discrete;
+  }
+  .translate-menu[hidden],
+  .hl-card[hidden] {
+    opacity: 0;
+  }
+  @starting-style {
+    .translate-menu:not([hidden]),
+    .hl-card:not([hidden]) {
+      opacity: 0;
+      translate: 0 -4px;
+    }
+  }
+}
+
+/* Answer and comment fields grow with the text (field-sizing), between a
+   few lines and a cap past which they scroll. */
+.comments-body {
+  field-sizing: content;
+  min-height: 5rem;
+  max-height: 22rem;
+}
+.hl-card textarea {
+  field-sizing: content;
+  min-height: 4rem;
+  max-height: 12rem;
+}
+.w-area {
+  field-sizing: content;
+  min-height: 3.2rem;
+  max-height: 16rem;
+}
+/* ====================== end native CSS ================================== */
+
+/* --- On-device translation (public/js/translate.js) --- */
+/* The button stands out when the note reads as another language than the
+   reader's (LanguageDetector). */
+.translate-btn.is-suggested[data-state="idle"] {
+  color: var(--garden);
+  box-shadow: inset 0 -2px 0 var(--garden);
+}
+/* "Traduit sur ton appareil · Meilleure traduction", above the body. */
+.translate-via {
+  margin: 0 0 1rem;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: var(--muted-warm);
+}
+.translate-via-better {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  font-style: normal;
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.translate-via-better:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+@media print {
+  .translate-via {
+    display: none;
+  }
+}
+/* --- end on-device translation --- */
+
+/* --- "À deux" under the article (public/js/duo-invite.js → /duel/) --- */
+.duo-invite {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 2rem 0 1rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  background: var(--wash);
+}
+.duo-invite-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+.duo-invite-row > div {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+.duo-invite-row + .duo-invite-row {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--rule);
+}
+.duo-invite p {
+  margin: 0;
+}
+.duo-invite-title {
+  font-weight: 700;
+}
+.duo-invite-text {
+  color: var(--ink-2);
+  font-size: var(--text-small);
+}
+.duo-invite-btn {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  text-transform: lowercase;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  min-height: 2.5rem;
+  padding: 0.2rem 0.75rem;
+  color: var(--garden);
+  background: var(--garden-wash);
+  border: 1.5px solid var(--garden);
+  border-bottom-width: 3px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.duo-invite-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.duo-invite-btn:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+}
+.duo-invite-status {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: var(--text-meta);
+}
+.duo-invite-status:empty {
+  display: none;
+}
+@media print {
+  .duo-invite {
+    display: none;
+  }
+}
+/* --- end "À deux" --- */

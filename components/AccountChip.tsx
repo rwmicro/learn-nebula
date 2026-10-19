@@ -14,6 +14,7 @@ import {
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { dayKey, parseProgress } from "@/lib/srs";
+import { setDueBadge } from "@/lib/app-badge";
 import type { Look } from "@/lib/avatar";
 
 /**
@@ -137,6 +138,8 @@ export function useReviewDue(): { n: number; href: string } | null {
           else c += n;
         }
         setDue(q + c > 0 ? { n: q + c, href: q > 0 ? "/cartes/revision/" : "/cartes/" } : null);
+        // The installed app's icon carries the same count (lib/app-badge.ts).
+        setDueBadge(q + c);
       } catch {
         setDue(null);
       }

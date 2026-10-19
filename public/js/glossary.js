@@ -6,6 +6,11 @@
 // The mark itself links to the definition, so a click (or Enter) follows it;
 // on touch, the first tap shows the card and a second tap follows the link.
 // Everything is set with textContent; the definition is already plain text.
+// With CSS anchor positioning the card is a popover anchored to the term
+// (lib/anchor-popover.ts): "hint" on hover screens, "manual" on touch, where
+// the two-tap logic below does its own dismissing. Elsewhere place() runs.
+import { anchoredCard, anchoredPopoverMode } from "../../lib/anchor-popover";
+
 (function () {
   if (!document.querySelector(".article-body")) return;
   const canHover = !!(window.matchMedia && window.matchMedia("(hover: hover)").matches);
@@ -20,6 +25,9 @@
   let active = null;
   let openTimer = 0;
   let closeTimer = 0;
+  const mode = anchoredPopoverMode(canHover ? "hint" : "manual");
+  let host = null;
+  const isShown = () => !!card && (host ? host.isOpen() : !card.hidden);
 
   function ensureCard() {
     if (card) return card;
@@ -33,6 +41,12 @@
       '<p class="gloss-kicker"></p><p class="note-popover-title"></p>' +
       '<p class="note-popover-excerpt"></p><a class="gloss-source" tabindex="-1"></a>';
     document.body.appendChild(card);
+    if (mode)
+      host = anchoredCard(card, "--gk-gloss", mode, () => {
+        clearTimeout(openTimer);
+        if (active) active.removeAttribute("aria-describedby");
+        active = null;
+      });
     card.addEventListener("mouseenter", () => clearTimeout(closeTimer));
     card.addEventListener("mouseleave", scheduleClose);
     return card;
@@ -63,8 +77,9 @@
     const src = c.querySelector(".gloss-source");
     src.href = el.getAttribute("href") || "#";
     src.textContent = tt("glossary.definedIn", { note: el.dataset.glossNote || "" });
-    c.hidden = false;
     el.setAttribute("aria-describedby", "gloss-card");
+    if (host) return host.show(el);
+    c.hidden = false;
     place(el);
   }
 
@@ -72,7 +87,8 @@
     clearTimeout(openTimer);
     if (active) active.removeAttribute("aria-describedby");
     active = null;
-    if (card) card.hidden = true;
+    if (host) host.hide();
+    else if (card) card.hidden = true;
   }
 
   function scheduleClose() {
@@ -106,7 +122,7 @@
       "pointerdown",
       (e) => {
         const el = term(e);
-        openAtDown = !!el && active === el && !!card && !card.hidden;
+        openAtDown = !!el && active === el && isShown();
       },
       true,
     );
@@ -116,7 +132,7 @@
         if (openAtDown) return;
         e.preventDefault();
         open(el);
-      } else if (card && !card.hidden && !card.contains(e.target)) close();
+      } else if (isShown() && !card.contains(e.target)) close();
     });
   }
   document.addEventListener("focusin", (e) => {
@@ -127,14 +143,15 @@
     if (term(e)) scheduleClose();
   });
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && card && !card.hidden) close();
+    if (e.key === "Escape" && isShown()) close();
   });
   window.addEventListener(
     "scroll",
     () => {
-      if (card && !card.hidden && canHover) close();
+      // An anchored card follows its term instead.
+      if (!host && canHover && isShown()) close();
     },
     { passive: true },
   );
-  window.addEventListener("resize", close, { passive: true });
+  window.addEventListener("resize", () => !host && close(), { passive: true });
 })();

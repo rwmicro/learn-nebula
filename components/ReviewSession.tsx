@@ -2,6 +2,7 @@
 
 import { calendarDays, currentRun, loadActivity, localDay, recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { GRADES, preview, type Grade } from "@/lib/srs";
@@ -14,6 +15,8 @@ import { loadStore } from "@/lib/reading-progress";
 import { familyOfPrefix } from "@/lib/path-family";
 import { usePhone } from "@/lib/use-phone";
 import { PhoneEnd, PhoneSession, type SessionEnd } from "@/components/ReviewPhone";
+import { usePipWindow } from "@/components/ReviewPip";
+import { keepAwake } from "@/lib/wake-lock";
 
 export type { Graded, ReviewItem } from "@/lib/review-item";
 
@@ -46,6 +49,9 @@ export function formatInterval(days: number, locale: string, tr: (k: string, v?:
  * (→ good, ← again) once the answer shows.
  * Card HTML is this site's own build output (rendered notes, or decks
  * sanitized by scripts/build-anki.mjs) — the same trust as the page itself.
+ * The screen stays on while cards are left (lib/wake-lock.ts), and on a
+ * computer "Réviser en flottant" moves the card and its buttons into a
+ * Picture-in-Picture window (components/ReviewPip.tsx), same state.
  */
 export function ReviewSession({
   queue,
@@ -109,13 +115,22 @@ export function ReviewSession({
   const [run, setRun] = useState({ n: 0, lost: false });
   const [started] = useState(() => Date.now());
   const [end, setEnd] = useState<SessionEnd>({ ms: 0, run: 0, week: [] });
+  const pip = usePipWindow();
+  const closePip = pip.close;
+  // Frames from the window the card is in: a page hidden behind other
+  // windows gets none, and the floating card would never take the focus.
+  const pipRef = useRef<Window | null>(null);
+  useEffect(() => {
+    pipRef.current = pip.win;
+  }, [pip.win]);
+  const raf = useCallback((f: () => void) => (pipRef.current ?? window).requestAnimationFrame(f), []);
 
   const focusNext = useCallback((q: ReviewItem[]) => {
-    requestAnimationFrame(() => {
+    raf(() => {
       if (!q.length) return doneRef.current?.focus();
       (inputRef.current ?? revealRef.current)?.focus();
     });
-  }, []);
+  }, [raf]);
 
   useEffect(() => {
     if (autoFocus) (inputRef.current ?? revealRef.current)?.focus();
@@ -125,8 +140,8 @@ export function ReviewSession({
     if (!head) return;
     setRevealedFor(headKey);
     // Out of the answer box, so 1–4 grade right away.
-    requestAnimationFrame(() => surfaceRef.current?.focus());
-  }, [head, headKey]);
+    raf(() => surfaceRef.current?.focus());
+  }, [head, headKey, raf]);
 
   // Autoplay: the first clip of the face on screen, front then back.
   const autoplay = head?.kind === "deck" && head.autoplay;
@@ -153,9 +168,11 @@ export function ReviewSession({
       setQueue(q);
       setRevealedFor(null);
       setTyped("");
+      // The last card graded: the end screen is the page's.
+      if (!q.length) closePip();
       focusNext(q);
     },
-    [revealed, head, queue, onGrade, setQueue, today, focusNext, started],
+    [revealed, head, queue, onGrade, setQueue, today, focusNext, started, closePip],
   );
 
   const undo = useCallback(() => {
@@ -168,8 +185,8 @@ export function ReviewSession({
     setQueue(last.queue);
     // Back on the card, answer shown, ready for another grade.
     setRevealedFor(keyOf(last.queue[0]));
-    requestAnimationFrame(() => surfaceRef.current?.focus());
-  }, [history, setQueue, today]);
+    raf(() => surfaceRef.current?.focus());
+  }, [history, setQueue, today, raf]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -187,9 +204,14 @@ export function ReviewSession({
         undo();
       }
     };
+    const pw = pip.win;
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [grade, revealed, head, reveal, undo, history.length]);
+    pw?.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      pw?.removeEventListener("keydown", onKey);
+    };
+  }, [grade, revealed, head, reveal, undo, history.length, pip.win]);
 
   const undoButton = history.length > 0 && (
     <p className="mt-4 text-center">
@@ -206,6 +228,10 @@ export function ReviewSession({
     root.classList.add("rsm-open");
     return () => root.classList.remove("rsm-open");
   }, [overlay]);
+
+  // Screen on while cards are left, not while folded away or on the end screen.
+  const awake = !!head && !(phone && folded);
+  useEffect(() => (awake ? keepAwake() : undefined), [awake]);
 
   const familyOf = (x: ReviewItem): string | null =>
     x.kind === "deck" ? (families?.[x.slug] ?? null) : familyOfPrefix(x.item.url.replace(/^\/posts\//, ""));
@@ -310,7 +336,7 @@ export function ReviewSession({
       />
     );
 
-  return (
+  const desk = (
     <>
       <div
         className="review-progress mb-4 h-[2px] w-full overflow-hidden rounded-full bg-rule-soft"
@@ -457,6 +483,45 @@ export function ReviewSession({
       <p className="kbd-only mt-4 text-center text-micro italic text-muted-warm">{tr("noteReview.hintReview")}</p>
       <p className="touch-only mt-4 text-center text-micro italic text-muted-warm">{tr("noteReview.hintTouch")}</p>
       {undoButton}
+    </>
+  );
+
+  if (pip.win)
+    return (
+      <>
+        <section className="flex min-h-[10rem] flex-col items-center justify-center gap-4 rounded-md border border-rule bg-paper p-6 text-center">
+          <p className="m-0 text-ink-2">{tr("rs.pipActive")}</p>
+          <button type="button" className={btn} onClick={pip.close}>
+            {tr("rs.pipBack")}
+          </button>
+        </section>
+        {createPortal(
+          // A link would load in the small window and end it: open it here.
+          <div
+            onClickCapture={(e) => {
+              const a = (e.target as Element).closest("a[href]");
+              if (!a) return;
+              e.preventDefault();
+              window.open((a as HTMLAnchorElement).href, "_blank", "noopener");
+            }}
+          >
+            {desk}
+          </div>,
+          pip.win.document.body,
+        )}
+      </>
+    );
+
+  return (
+    <>
+      {desk}
+      {pip.supported && (
+        <p className="mt-2 text-center">
+          <button type="button" className={quiet} onClick={pip.open}>
+            {tr("rs.pip")}
+          </button>
+        </p>
+      )}
     </>
   );
 }

@@ -65,7 +65,13 @@
     "focusTitle": "Mode concentration : le texte seul (f)",
     "focusExit": "Quitter la concentration (Échap)",
     "more": "affichage",
-    "moreAria": "Affichage et traduction"
+    "moreAria": "Affichage et traduction",
+    "translateDownloading": "Téléchargement du modèle… {n} %",
+    "translateProgress": "Traduction… {n} %",
+    "translateViaDevice": "Traduit sur ton appareil",
+    "translateViaServer": "Traduit par le serveur",
+    "translateBetter": "Meilleure traduction",
+    "translateSuggest": "Cette note semble être en {lang} — la traduire ?"
   },
   "growth": {
     "tended": "retouché le",
@@ -73,7 +79,9 @@
     "seedling": "pousse",
     "budding": "en croissance",
     "evergreen": "établie",
-    "stageAria": "Stade de maturité de la note"
+    "stageAria": "Stade de maturité de la note",
+    "history": "historique",
+    "historyAria": "Toutes les versions de cette note, sur GitHub"
   },
   "pronunciation": {
     "playAria": "Écouter la prononciation",
@@ -105,7 +113,11 @@
     "practiceLeft": "restantes",
     "practiceEmpty": "Votre voix s’affichera ici",
     "practiceListenModel": "Écouter le modèle",
-    "practiceListenMe": "Me réécouter"
+    "practiceListenMe": "Me réécouter",
+    "listenOk": "Reconnu ✓ — « {w} »",
+    "listenNo": "Pas reconnu — entendu « {w} »",
+    "listenNothing": "Pas reconnu — rien d'assez clair",
+    "listenPreparing": "Reconnaissance vocale en préparation — réessaie dans un instant"
   },
   "comments": {
     "title": "Commentaires",
@@ -151,7 +163,15 @@
     "searching": "Recherche dans les notes…",
     "placeholderEmpty": "Posez une question sur les notes du jardin.",
     "scopeLabel": "Chercher dans :",
-    "scopeAll": "Toutes les notes"
+    "scopeAll": "Toutes les notes",
+    "ownIntro": "Explique ce passage avec tes mots : tu auras un retour sur ce qui tient et ce qui manque.",
+    "ownPlaceholder": "Avec mes mots, ce passage dit que…",
+    "ownAria": "Ton explication du passage",
+    "socratic": "Socratique",
+    "socraticHint": "L'assistant te pose des questions au lieu de répondre",
+    "socraticDefault": "Aide-moi à comprendre ce passage.",
+    "onDevice": "Réponse générée sur ton appareil — vérifie-la dans la note.",
+    "deviceDownloading": "Téléchargement du modèle sur ton appareil… {n} %"
   },
   "lang": {
     "switcherAria": "Changer la langue de l'interface",
@@ -237,6 +257,14 @@
     "close": "Fermer",
     "prev": "Précédent",
     "next": "Suivant"
+  },
+  "diagram": {
+    "expand": "Agrandir",
+    "dialog": "Schéma en plein écran",
+    "zoomIn": "Zoomer",
+    "zoomOut": "Dézoomer",
+    "fit": "Ajuster à l'écran",
+    "close": "Fermer"
   },
   "flashcards": {
     "home": "Garden of Knowledge",
@@ -502,7 +530,11 @@
     "copyLinkAria": "Copier un lien vers ce passage",
     "linkCopied": "Lien copié",
     "copyFailed": "Copie impossible",
-    "highlight": "Surligner"
+    "highlight": "Surligner",
+    "report": "Signaler",
+    "reportAria": "Signaler une erreur dans ce passage",
+    "explainOwn": "Avec mes mots",
+    "explainOwnAria": "Explique ce passage avec tes mots"
   },
   "glossary": {
     "kicker": "Glossaire",
@@ -714,7 +746,8 @@
     "askBody": "Il cherche dans ses {n} notes et cite ses sources.",
     "missNote": "Cette recherche est signalée au jardinier, pour savoir ce qui manque.",
     "near": "Approchant",
-    "passageOne": "1 passage"
+    "passageOne": "1 passage",
+    "bySense": "Proches par le sens"
   },
   "progression": {
     "title": "Ma progression",
@@ -1264,7 +1297,10 @@
     "minutes": "{n} min",
     "ofReview": "de révision",
     "daysRun": "jours d’affilée",
-    "finish": "Terminer"
+    "finish": "Terminer",
+    "pip": "Réviser en flottant",
+    "pipActive": "La révision continue dans la fenêtre flottante.",
+    "pipBack": "Revenir ici"
   },
   "rv": {
     "today": "Aujourd’hui",
@@ -1461,5 +1497,139 @@
   "reviewEmpty": {
     "decks": "Choisir un paquet",
     "path": "Lire une note de parcours"
+  },
+  "errorPage": {
+    "title": "Cette page n'a pas pu s'afficher",
+    "body": "Une erreur est survenue dans ton navigateur. Elle a été signalée ; réessayer suffit souvent.",
+    "retry": "Réessayer",
+    "home": "Retour à l'accueil"
+  },
+  "report": {
+    "title": "Signaler une erreur",
+    "label": "Qu'est-ce qui ne va pas ?",
+    "hint": "Une date, un nom, une explication fausse… Ton signalement est lu par l'auteur, il n'est pas publié.",
+    "cancel": "Annuler",
+    "send": "Envoyer",
+    "sending": "Envoi…",
+    "thanks": "Merci, c'est noté.",
+    "tooShort": "Dis en quelques mots ce qui ne va pas.",
+    "tooMany": "Beaucoup de signalements d'un coup : réessaie plus tard.",
+    "failed": "L'envoi a échoué."
+  },
+  "passkey": {
+    "title": "Passkeys",
+    "intro": "Connecte-toi d’un geste, sans attendre d’e-mail. Le lien par e-mail reste là en secours.",
+    "create": "Créer une passkey",
+    "created": "Passkey créée. La prochaine fois, choisis-la dans le champ e-mail.",
+    "failed": "Ça n’a pas marché. Réessaie, ou garde le lien par e-mail.",
+    "deleted": "Passkey supprimée.",
+    "delete": "Supprimer",
+    "confirmDelete": "Confirmer",
+    "usedOn": "utilisée le {date}",
+    "createdOn": "créée le {date}"
+  },
+  "push": {
+    "title": "Rappel de révision",
+    "intro": "Une notification par jour, à l’heure choisie, quand des cartes t’attendent.",
+    "toggle": "Me le rappeler chaque jour",
+    "hour": "Heure",
+    "saved": "C’est noté : rappel chaque jour à {time}.",
+    "denied": "Les notifications sont bloquées pour ce site dans ton navigateur.",
+    "error": "Impossible d’enregistrer le rappel pour l’instant.",
+    "iosInstall": "Sur iPhone et iPad, les rappels ne marchent que depuis le site ajouté à l’écran d’accueil.",
+    "notifTitle": "Garden of Knowledge",
+    "generic": "Ta révision du jour t’attend.",
+    "due": "{n} cartes à revoir aujourd’hui.",
+    "dueOne": "{n} carte à revoir aujourd’hui."
+  },
+  "duo": {
+    "title": "À deux",
+    "back": "Retour",
+    "landingLede": "Réviser ou pratiquer une langue avec quelqu'un que tu invites, en direct. Un duel se lance depuis une note qui a des questions à choix (« Défier quelqu'un », sous l'article) ; un tandem, depuis une note de langue ou ici.",
+    "startTandem": "Lancer un tandem",
+    "creating": "Création du salon…",
+    "joining": "Ouverture du salon…",
+    "unsupported": "Ton navigateur ne permet pas la connexion directe entre deux navigateurs (WebRTC).",
+    "share": "Envoie ce lien à la personne de ton choix. Il ne sert qu'une heure.",
+    "linkAria": "Lien d'invitation",
+    "copy": "Copier",
+    "copied": "Copié",
+    "qrAria": "QR code du lien d'invitation",
+    "waiting": "En attente de l'autre personne…",
+    "peerHere": "L'autre personne est là.",
+    "hostAway": "La personne qui t'a invité n'est pas encore là.",
+    "ipTitle": "Avant de te connecter",
+    "ipNotice": "En connexion directe, ton adresse IP est visible par l'autre personne : c'est le principe de WebRTC. Ne te connecte qu'avec quelqu'un que tu connais.",
+    "relay": "Passer par un relais (cache ton adresse IP)",
+    "relayHint": "Un peu plus lent ; l'autre ne voit que l'adresse du relais.",
+    "relayOff": "Aucun relais n'est disponible sur ce site : la connexion sera directe.",
+    "connect": "Se connecter",
+    "retry": "Réessayer",
+    "linking": "Connexion en cours…",
+    "failed": "La connexion directe a échoué : le réseau la bloque peut-être. Réessaie en passant par le relais.",
+    "failedNoRelay": "La connexion a échoué : le réseau de l'un de vous la bloque peut-être.",
+    "left": "L'autre personne est partie.",
+    "newRoom": "Nouveau salon",
+    "backNote": "Retour à la note",
+    "nothingStored": "Rien n'est enregistré : le serveur ne fait que vous mettre en contact, puis tout passe directement d'un navigateur à l'autre.",
+    "you": "Toi",
+    "them": "L'autre",
+    "err": {
+      "badlink": "Ce lien n'est pas valide.",
+      "gone": "Ce salon n'existe plus : il expire après 10 minutes sans activité, ou au bout d'une heure. Demande un nouveau lien.",
+      "expired": "Ce salon a expiré. Demande un nouveau lien.",
+      "full": "Ce salon est déjà complet : deux personnes à la fois, pas plus.",
+      "rate": "Trop de tentatives. Réessaie dans un moment.",
+      "network": "Le serveur de mise en relation ne répond pas.",
+      "offline": "La mise en relation n'est pas disponible sur cette version du site.",
+      "mic": "Le micro n'est pas accessible : autorise-le pour ce site, puis réessaie.",
+      "load": "Impossible de charger la note de ce salon.",
+      "mismatch": "Vos deux pages n'ont pas les mêmes questions (la note a peut-être changé). Rechargez-les toutes les deux.",
+      "create": "Impossible de créer le salon pour l'instant."
+    },
+    "invite": {
+      "aria": "À deux",
+      "duelTitle": "Réviser à deux",
+      "duelText": "Les questions de cette note, en même temps, avec quelqu'un à qui tu envoies un lien. Le plus rapide à répondre juste marque le point.",
+      "duel": "Défier quelqu'un",
+      "tandemTitle": "Tandem de langue",
+      "tandemText": "Un appel audio avec un ami, sur invitation, pour lire et faire répéter les phrases de cette note.",
+      "tandem": "Lancer un tandem"
+    }
+  },
+  "duel": {
+    "title": "Duel",
+    "lede": "{title} : les mêmes questions, en même temps. Le plus rapide à répondre juste marque le point.",
+    "noQuestions": "Cette note n'a pas de questions à choix.",
+    "ready": "Connectés ! La partie commence.",
+    "question": "Question {n} sur {total}",
+    "choicesAria": "Réponses",
+    "theyAnswered": "L'autre a répondu.",
+    "waitThem": "En attente de l'autre…",
+    "pointYou": "Point pour toi.",
+    "pointThem": "Point pour l'autre.",
+    "pointBoth": "Égalité parfaite : un point chacun.",
+    "pointNone": "Personne ne marque.",
+    "endTitle": "Fin du duel",
+    "won": "Tu gagnes !",
+    "lost": "L'autre gagne, cette fois.",
+    "draw": "Égalité.",
+    "again": "Revanche",
+    "waitAgain": "La personne qui t'a invité peut lancer une revanche.",
+    "noCoins": "Un duel ne rapporte pas de pièces, et rien n'en est enregistré."
+  },
+  "tandem": {
+    "title": "Tandem",
+    "lede": "Un appel audio à deux, sur invitation : lisez la même phrase, faites-vous répéter.",
+    "micNote": "Le navigateur te demandera le micro. Ta voix ne passe que par l'appel : rien n'est enregistré.",
+    "live": "En ligne",
+    "theyMuted": "L'autre a coupé son micro.",
+    "phrase": "Phrase du jour",
+    "listen": "Écouter",
+    "next": "Autre phrase",
+    "mute": "Couper le micro",
+    "unmute": "Rétablir le micro",
+    "hangup": "Raccrocher",
+    "ended": "Appel terminé."
   }
 }

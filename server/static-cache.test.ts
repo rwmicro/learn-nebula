@@ -96,6 +96,12 @@ describe("isFresh", () => {
 });
 
 describe("cacheControlFor", () => {
+  it("caches the hashed i18n bundles for a year", () => {
+    expect(cacheControlFor("/i18n/fr.0123456789.js")).toBe(
+      "public, max-age=31536000, immutable",
+    );
+  });
+
   it("caches content-hashed build output forever", () => {
     expect(cacheControlFor("/_next/static/chunks/x.js")).toBe(
       "public, max-age=31536000, immutable",

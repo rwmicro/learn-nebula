@@ -65,7 +65,13 @@
     "focusTitle": "Focus mode: the text alone (f)",
     "focusExit": "Leave focus mode (Esc)",
     "more": "display",
-    "moreAria": "Display and translation"
+    "moreAria": "Display and translation",
+    "translateDownloading": "Downloading the model… {n}%",
+    "translateProgress": "Translating… {n}%",
+    "translateViaDevice": "Translated on your device",
+    "translateViaServer": "Translated by the server",
+    "translateBetter": "Better translation",
+    "translateSuggest": "This note seems to be in {lang} — translate it?"
   },
   "growth": {
     "tended": "last tended",
@@ -73,7 +79,9 @@
     "seedling": "seedling",
     "budding": "budding",
     "evergreen": "evergreen",
-    "stageAria": "Note growth stage"
+    "stageAria": "Note growth stage",
+    "history": "history",
+    "historyAria": "Every version of this note, on GitHub"
   },
   "pronunciation": {
     "playAria": "Listen to the pronunciation",
@@ -105,7 +113,11 @@
     "practiceLeft": "left",
     "practiceEmpty": "Your voice will show here",
     "practiceListenModel": "Play the model",
-    "practiceListenMe": "Play me back"
+    "practiceListenMe": "Play me back",
+    "listenOk": "Recognised ✓ — “{w}”",
+    "listenNo": "Not recognised — heard “{w}”",
+    "listenNothing": "Not recognised — nothing clear enough",
+    "listenPreparing": "Speech recognition is getting ready — try again in a moment"
   },
   "comments": {
     "title": "Comments",
@@ -151,7 +163,15 @@
     "searching": "Searching the notes…",
     "placeholderEmpty": "Ask a question about the garden’s notes.",
     "scopeLabel": "Search in:",
-    "scopeAll": "All notes"
+    "scopeAll": "All notes",
+    "ownIntro": "Explain this passage in your own words: you'll get feedback on what holds and what's missing.",
+    "ownPlaceholder": "In my words, this passage says that…",
+    "ownAria": "Your explanation of the passage",
+    "socratic": "Socratic",
+    "socraticHint": "The assistant asks you questions instead of answering",
+    "socraticDefault": "Help me understand this passage.",
+    "onDevice": "Answer generated on your device — check it against the note.",
+    "deviceDownloading": "Downloading the model to your device… {n}%"
   },
   "lang": {
     "switcherAria": "Change interface language",
@@ -237,6 +257,14 @@
     "close": "Close",
     "prev": "Previous",
     "next": "Next"
+  },
+  "diagram": {
+    "expand": "Expand",
+    "dialog": "Diagram, full screen",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Fit to screen",
+    "close": "Close"
   },
   "flashcards": {
     "home": "Garden of Knowledge",
@@ -502,7 +530,11 @@
     "copyLinkAria": "Copy a link to this passage",
     "linkCopied": "Link copied",
     "copyFailed": "Copy failed",
-    "highlight": "Highlight"
+    "highlight": "Highlight",
+    "report": "Report",
+    "reportAria": "Report a mistake in this passage",
+    "explainOwn": "In my words",
+    "explainOwnAria": "Explain this passage in your own words"
   },
   "glossary": {
     "kicker": "Glossary",
@@ -714,7 +746,8 @@
     "askBody": "It searches its {n} notes and cites its sources.",
     "missNote": "This search is passed on to the gardener, to see what is missing.",
     "near": "Close matches",
-    "passageOne": "1 passage"
+    "passageOne": "1 passage",
+    "bySense": "Close in meaning"
   },
   "progression": {
     "title": "My progress",
@@ -1264,7 +1297,10 @@
     "minutes": "{n} min",
     "ofReview": "of review",
     "daysRun": "days in a row",
-    "finish": "Finish"
+    "finish": "Finish",
+    "pip": "Review in a floating window",
+    "pipActive": "The review goes on in the floating window.",
+    "pipBack": "Bring it back here"
   },
   "rv": {
     "today": "Today",
@@ -1461,5 +1497,139 @@
   "reviewEmpty": {
     "decks": "Pick a deck",
     "path": "Read a note from a path"
+  },
+  "errorPage": {
+    "title": "This page couldn't be shown",
+    "body": "Something went wrong in your browser. It has been reported; trying again often works.",
+    "retry": "Try again",
+    "home": "Back to the home page"
+  },
+  "report": {
+    "title": "Report a mistake",
+    "label": "What is wrong?",
+    "hint": "A date, a name, a wrong explanation… Your report goes to the author and is not published.",
+    "cancel": "Cancel",
+    "send": "Send",
+    "sending": "Sending…",
+    "thanks": "Thanks, noted.",
+    "tooShort": "Say in a few words what is wrong.",
+    "tooMany": "Many reports at once: try again later.",
+    "failed": "Sending failed."
+  },
+  "passkey": {
+    "title": "Passkeys",
+    "intro": "Sign in with a touch, no e-mail to wait for. The e-mailed link stays as a fallback.",
+    "create": "Create a passkey",
+    "created": "Passkey created. Next time, pick it in the e-mail field.",
+    "failed": "That didn’t work. Try again, or keep using the e-mailed link.",
+    "deleted": "Passkey deleted.",
+    "delete": "Delete",
+    "confirmDelete": "Confirm",
+    "usedOn": "used {date}",
+    "createdOn": "created {date}"
+  },
+  "push": {
+    "title": "Review reminder",
+    "intro": "One notification a day, at the hour you choose, when cards are waiting.",
+    "toggle": "Remind me every day",
+    "hour": "Time",
+    "saved": "Done: a reminder every day at {time}.",
+    "denied": "Notifications are blocked for this site in your browser.",
+    "error": "The reminder couldn’t be saved right now.",
+    "iosInstall": "On iPhone and iPad, reminders only work from the site added to the Home Screen.",
+    "notifTitle": "Garden of Knowledge",
+    "generic": "Your daily review is waiting.",
+    "due": "{n} cards to review today.",
+    "dueOne": "{n} card to review today."
+  },
+  "duo": {
+    "title": "Together",
+    "back": "Back",
+    "landingLede": "Revise or practise a language live with someone you invite. A duel starts from a note with multiple-choice questions (“Challenge someone”, below the article); a tandem, from a language note or here.",
+    "startTandem": "Start a tandem",
+    "creating": "Creating the room…",
+    "joining": "Opening the room…",
+    "unsupported": "Your browser doesn't support direct browser-to-browser connections (WebRTC).",
+    "share": "Send this link to the person of your choice. It only works for an hour.",
+    "linkAria": "Invitation link",
+    "copy": "Copy",
+    "copied": "Copied",
+    "qrAria": "QR code of the invitation link",
+    "waiting": "Waiting for the other person…",
+    "peerHere": "The other person is here.",
+    "hostAway": "The person who invited you isn't here yet.",
+    "ipTitle": "Before you connect",
+    "ipNotice": "With a direct connection, your IP address is visible to the other person: that's how WebRTC works. Only connect with someone you know.",
+    "relay": "Go through a relay (hides your IP address)",
+    "relayHint": "A little slower; the other person only sees the relay's address.",
+    "relayOff": "No relay is available on this site: the connection will be direct.",
+    "connect": "Connect",
+    "retry": "Try again",
+    "linking": "Connecting…",
+    "failed": "The direct connection failed: the network may be blocking it. Try again through the relay.",
+    "failedNoRelay": "The connection failed: one of your networks may be blocking it.",
+    "left": "The other person has left.",
+    "newRoom": "New room",
+    "backNote": "Back to the note",
+    "nothingStored": "Nothing is stored: the server only puts you in touch, then everything goes directly from one browser to the other.",
+    "you": "You",
+    "them": "Them",
+    "err": {
+      "badlink": "This link isn't valid.",
+      "gone": "This room no longer exists: it expires after 10 minutes without activity, or after an hour. Ask for a new link.",
+      "expired": "This room has expired. Ask for a new link.",
+      "full": "This room is already full: two people at a time, no more.",
+      "rate": "Too many attempts. Try again in a while.",
+      "network": "The connection server isn't responding.",
+      "offline": "Connecting two readers isn't available on this version of the site.",
+      "mic": "The microphone isn't available: allow it for this site, then try again.",
+      "load": "Couldn't load this room's note.",
+      "mismatch": "Your two pages don't have the same questions (the note may have changed). Reload both.",
+      "create": "Couldn't create the room right now."
+    },
+    "invite": {
+      "aria": "Together",
+      "duelTitle": "Revise with someone",
+      "duelText": "This note's questions, at the same time, with someone you send a link to. The fastest right answer scores the point.",
+      "duel": "Challenge someone",
+      "tandemTitle": "Language tandem",
+      "tandemText": "An audio call with a friend, by invitation only, to read and practise this note's phrases.",
+      "tandem": "Start a tandem"
+    }
+  },
+  "duel": {
+    "title": "Duel",
+    "lede": "{title}: the same questions, at the same time. The fastest right answer scores the point.",
+    "noQuestions": "This note has no multiple-choice questions.",
+    "ready": "Connected! The game is starting.",
+    "question": "Question {n} of {total}",
+    "choicesAria": "Answers",
+    "theyAnswered": "They've answered.",
+    "waitThem": "Waiting for them…",
+    "pointYou": "Your point.",
+    "pointThem": "Their point.",
+    "pointBoth": "A perfect tie: one point each.",
+    "pointNone": "Nobody scores.",
+    "endTitle": "End of the duel",
+    "won": "You win!",
+    "lost": "They win, this time.",
+    "draw": "A tie.",
+    "again": "Rematch",
+    "waitAgain": "The person who invited you can start a rematch.",
+    "noCoins": "A duel earns no coins, and nothing about it is stored."
+  },
+  "tandem": {
+    "title": "Tandem",
+    "lede": "An audio call for two, by invitation: read the same phrase, have each other repeat.",
+    "micNote": "The browser will ask for your microphone. Your voice only goes through the call: nothing is recorded.",
+    "live": "Live",
+    "theyMuted": "They've muted their microphone.",
+    "phrase": "Phrase of the day",
+    "listen": "Listen",
+    "next": "Another phrase",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "hangup": "Hang up",
+    "ended": "Call ended."
   }
 }

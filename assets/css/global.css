@@ -82,7 +82,7 @@
  * (components/ThemeToggle, public/js/theme.js), which sets data-theme on
  * <html> before first paint (layout.tsx). `.keep-light` pins a subtree to the
  * light palette in dark mode — for artwork drawn with a fixed light theme
- * (build-time mermaid SVG, Anki cards) that would be illegible re-inked.
+ * (a mermaid diagram the browser rendered, Anki cards) that would be illegible re-inked.
  * Dark: warm near-black paper, off-white ink, and every text token ≥ 4.5:1
  * on the paper (WCAG AA) — ratios noted against #1c1b19.
  * ======================================================================== */
@@ -2190,3 +2190,129 @@ body:has(.home-masthead) .site-bar {
     display: none;
   }
 }
+
+/* ===========================================================================
+   Native CSS additions (review "techniques récentes", §4–5).
+   ======================================================================== */
+
+/* Balanced headings and card titles site-wide; zero specificity, so a page's
+   own text-wrap still wins. Note pages add theirs in main.css. */
+:where(h1, h2, h3, h4, .recent-notes-title, .parcours-card-title, .parcours-tile-name, .app-large-title, .rv-title) {
+  text-wrap: balance;
+}
+
+/* Lightbox: fades in (@starting-style) and out (display allow-discrete). */
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox {
+    transition:
+      opacity 0.18s ease-out,
+      display 0.18s allow-discrete;
+  }
+  .lightbox[hidden] {
+    opacity: 0;
+  }
+  @starting-style {
+    .lightbox:not([hidden]) {
+      opacity: 0;
+    }
+  }
+}
+
+/* "Réviser en flottant" (components/ReviewPip.tsx): the body of the Document
+   Picture-in-Picture window, which receives copies of the page's sheets. */
+body.rs-pip {
+  margin: 0 !important;
+  max-width: none !important;
+  padding: 0.75rem;
+  background: var(--paper);
+  color: var(--ink);
+  overflow-y: auto;
+}
+/* ====================== end native CSS additions ======================== */
+
+/* --- Browser AI: assistant socratic toggle, "avec mes mots", on-device note
+   (components/PinnedAssistant.tsx), coach "reconnu" line (pronounce.js) --- */
+.gk-pinned-socratic {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--muted-warm);
+  cursor: pointer;
+  user-select: none;
+}
+.gk-pinned-socratic input {
+  accent-color: var(--garden);
+  margin: 0;
+}
+.gk-pinned-socratic:has(input:checked) {
+  color: var(--garden);
+}
+.gk-pinned-device {
+  margin: 0.4rem 0 0;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--muted-warm);
+}
+.gk-pinned-form--own {
+  align-items: flex-end;
+}
+.gk-pinned-form textarea {
+  flex: 1;
+  min-width: 0;
+  resize: vertical;
+  max-height: 40vh;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  padding: 0.35rem 0.5rem;
+  font: inherit;
+  font-size: 1.02rem;
+  line-height: 1.4;
+}
+.gk-pinned-form textarea:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 1px;
+}
+.gk-pinned-form textarea::placeholder {
+  font-style: italic;
+  color: var(--muted-warm);
+}
+.pron-coach-heard {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  margin: -4px auto 12px;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-warm);
+}
+.pron-coach-heard[hidden] {
+  display: none;
+}
+.pron-coach-heard i {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  font-style: normal;
+  line-height: 1;
+  background: var(--rule-strong);
+  color: var(--paper-raised);
+}
+.pron-coach-heard i svg {
+  width: 12px;
+  height: 12px;
+}
+.pron-coach-heard.is-ok {
+  color: var(--garden);
+}
+.pron-coach-heard.is-ok i {
+  background: var(--garden);
+}
+/* --- end Browser AI --- */

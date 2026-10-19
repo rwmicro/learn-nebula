@@ -1,8 +1,8 @@
 // Pronunciation clips render as `.pron-btn` inside a `.pron` span, produced by
 // two build-time sources: `![word](clip.mp3)` in a note (rehypeVaultAssets in
 // lib/markdown.ts) and `[sound:clip.mp3]` in an Anki field (rewriteMedia in
-// scripts/build-anki.mjs). Loaded site-wide (app/layout.tsx) rather than only
-// via <NoteScripts /> so it covers both /posts/* and /cartes/* decks.
+// scripts/build-anki.mjs). Loaded by /js/pronounce-loader.js (site-wide, from
+// app/layout.tsx) as soon as a clip is on the page, on /posts/* and /cartes/*.
 //
 // Same idle → playing → paused → playing cycle as the whole-article "listen"
 // button (/js/audio.js), so the interaction is consistent across the site.
@@ -12,6 +12,10 @@
 // Delegated on `document` (like lightbox.js) rather than bound per-button, so
 // clips still work after /js/translate.js swaps .article-body's innerHTML for
 // a translated render, or after Flashcards re-renders a card's front/back.
+//
+// Bundled (scripts/bundle-js.mjs → pronounce.bundle.js) for lib/speech-match.ts.
+import { matchSpoken, speechLangFor } from "../../lib/speech-match.ts";
+
 (function () {
   // No early "any .pron-btn on the page?" bail-out here: Flashcards fetches
   // and renders its deck client-side, after this script has already run, so
@@ -115,8 +119,10 @@
   // scale, to record, replay and compare. Everything stays in the browser:
   // the recording is decoded with Web Audio and played from memory (no
   // upload, no blob: URL, nothing stored), and is gone when the sheet closes.
-  // No speech recognition on purpose: the browsers' engines send the audio
-  // to a server.
+  // Speech recognition only where it runs on the device (Chrome 139+,
+  // `processLocally`, a language pack installed once): the attempt is then
+  // checked against the word — "reconnu / pas reconnu", not a grade. Browsers
+  // whose recogniser would send the audio to a server never get it.
 
   const canRecord =
     typeof window.MediaRecorder === "function" &&
@@ -307,6 +313,80 @@
     label +
     '"></span></button>';
 
+  // --- "Le navigateur t'a compris" (on-device recognition only) ---------
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  // `processLocally` must be a real property of the recogniser: on an older
+  // engine, setting it would do nothing and the audio would go to a server.
+  const canListen =
+    !!SR &&
+    typeof SR.available === "function" &&
+    !!SR.prototype &&
+    "processLocally" in SR.prototype;
+  const listenAvail = new Map(); // lang → Promise<availability>
+  function listenAvailability(lang) {
+    if (!canListen) return Promise.resolve("unavailable");
+    if (!listenAvail.has(lang))
+      listenAvail.set(
+        lang,
+        Promise.resolve()
+          .then(() => SR.available({ langs: [lang], processLocally: true }))
+          .catch(() => "unavailable"),
+      );
+    return listenAvail.get(lang);
+  }
+  // Called from the record click: install() wants a user activation.
+  async function ensureInstalled(lang) {
+    const a = await listenAvailability(lang);
+    if (a === "available") return true;
+    if ((a !== "downloadable" && a !== "downloading") || typeof SR.install !== "function")
+      return false;
+    try {
+      const ok = await SR.install({ langs: [lang], processLocally: true });
+      if (ok) listenAvail.set(lang, Promise.resolve("available"));
+      return !!ok;
+    } catch {
+      return false;
+    }
+  }
+  /** Recognise the attempt from the recording's own mic track; resolves with
+   *  the alternatives heard (possibly none) once the recogniser ends. */
+  function listen(lang, track) {
+    const r = new SR();
+    r.lang = lang;
+    r.processLocally = true;
+    r.interimResults = false;
+    r.continuous = false;
+    r.maxAlternatives = 5;
+    const alts = [];
+    const done = new Promise((resolve) => {
+      r.onresult = (e) => {
+        for (const res of e.results)
+          for (let k = 0; k < res.length; k++) alts.push(res[k].transcript);
+      };
+      r.onend = () => resolve(alts);
+      r.onerror = () => resolve(alts);
+    });
+    try {
+      r.start(track);
+    } catch {
+      try {
+        r.start();
+      } catch {
+        return { stop() {}, done: Promise.resolve([]) };
+      }
+    }
+    return {
+      stop() {
+        try {
+          r.stop();
+        } catch {
+          /* already ended */
+        }
+      },
+      done,
+    };
+  }
+
   let panel = null;
 
   function openCoach(mic) {
@@ -378,6 +458,7 @@
       pillBtn("model", "", PLAY, "practiceListenModel") +
       pillBtn("me", "", PLAY, "practiceListenMe") +
       "</div>" +
+      '<p class="pron-coach-heard" role="status" hidden><i></i><span></span></p>' +
       pillBtn(
         "both",
         "pron-coach-both",
@@ -426,6 +507,34 @@
     });
     document.body.append(scrim, root);
     pill.classList.add("is-live");
+
+    // The word the clip says, and the language to recognise it in: hidden
+    // altogether when there is no word, no known language, or no on-device
+    // pack for it.
+    const expected = label ? label.textContent.trim() : "";
+    const speechLang = expected ? speechLangFor(src, location.pathname) : null;
+    const heardEl = $(".pron-coach-heard");
+    let listenOn = false;
+    let listener = null;
+    if (speechLang && canListen)
+      listenAvailability(speechLang).then((a) => {
+        listenOn = a !== "unavailable" && root.isConnected;
+      });
+
+    function showHeard(alts, ready) {
+      const m = ready ? matchSpoken(alts, expected) : null;
+      heardEl.hidden = false;
+      heardEl.classList.toggle("is-ok", !!(m && m.ok));
+      heardEl.firstChild.innerHTML =
+        m && m.ok ? svg('<path d="m5 12.5 4.5 4.5L19 7.5"/>') : "·";
+      heardEl.lastChild.textContent = !ready
+        ? tt("pronunciation.listenPreparing")
+        : m.ok
+          ? tt("pronunciation.listenOk", { w: m.heard })
+          : m.heard
+            ? tt("pronunciation.listenNo", { w: m.heard })
+            : tt("pronunciation.listenNothing");
+    }
 
     let model = null;
     let me = null;
@@ -552,6 +661,7 @@
 
     function stopRecording() {
       if (recorder && recorder.state !== "inactive") recorder.stop();
+      if (listener) listener.stop();
     }
 
     // Records up to MAX_REC s; stops by itself after ~1 s of silence once
@@ -560,6 +670,10 @@
     async function startRecording() {
       stopPlaying();
       msg.textContent = "";
+      heardEl.hidden = true;
+      // Before any await: installing a language pack needs the click's
+      // user activation.
+      const listenReady = listenOn ? ensureInstalled(speechLang) : null;
       try {
         stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       } catch (e) {
@@ -583,12 +697,34 @@
       rec.ondataavailable = (e) => {
         if (e.data && e.data.size) chunks.push(e.data);
       };
+      let heard = null; // this attempt's listener, once its pack is ready
+      let listenSettled = false;
+      if (listenReady)
+        listenReady.then((ok) => {
+          listenSettled = true;
+          if (ok && recorder === rec && rec.state === "recording") {
+            heard = listener = listen(speechLang, stream && stream.getAudioTracks()[0]);
+          }
+        });
       rec.onstop = () => {
         cancelAnimationFrame(raf);
         input.disconnect();
+        if (heard) heard.stop();
+        if (listener === heard) listener = null;
         stream.getTracks().forEach((t) => t.stop());
         stream = null;
         if (!root.isConnected) return;
+        if (listenReady) {
+          // The recogniser finishes a moment after the recording; give up
+          // after 4 s rather than leave the line waiting.
+          const timeout = new Promise((r) => setTimeout(() => r(null), 4000));
+          if (heard)
+            Promise.race([heard.done, timeout]).then(
+              (alts) => root.isConnected && showHeard(alts || [], true),
+            );
+          else if (listenSettled) showHeard([], true);
+          else showHeard([], false);
+        }
         new Blob(chunks, { type: rec.mimeType || "audio/webm" })
           .arrayBuffer()
           .then((data) => audioCtx().decodeAudioData(data))
@@ -625,7 +761,7 @@
       setState("rec");
       rec.start();
       const t0 = performance.now();
-      let heard = false;
+      let voiced = false;
       let loud = t0;
       let level = 0;
       let left = 0;
@@ -639,7 +775,7 @@
         me.peaks.push(pk);
         me.dur = el;
         if (pk > 0.06) {
-          heard = true;
+          voiced = true;
           loud = now;
         }
         level = Math.max(Math.min(1, pk * 2.5), level * 0.88);
@@ -654,7 +790,7 @@
             n: num((left = l), 0),
           });
         redraw({ which: "me", frac: 1 });
-        if (el >= MAX_REC || (heard && now - loud > 1000)) stopRecording();
+        if (el >= MAX_REC || (voiced && now - loud > 1000)) stopRecording();
         else raf = requestAnimationFrame(tick);
       };
       tick();

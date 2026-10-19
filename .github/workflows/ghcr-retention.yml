@@ -1,0 +1,81 @@
+name: GHCR retention
+
+# Every image build pushes a multi-arch index plus its per-platform manifests
+# and attestations, so the package grows by a handful of versions per build
+# (≈150 builds so far) and nothing ever removes them. This keeps `latest` and
+# the KEEP most recent `sha-*` tags (the ones a rollback would use), with every
+# manifest those indexes reference, and deletes the rest.
+#
+# Child manifests are untagged, so "delete untagged" alone would break the
+# multi-arch images still in use: the kept set is computed from the indexes
+# themselves (`docker buildx imagetools inspect --raw`).
+#
+# Dry run unless repo variable GHCR_PRUNE = true (or the manual run asks for it).
+
+on:
+  schedule:
+    - cron: "41 4 * * 0"
+  workflow_dispatch:
+    inputs:
+      delete:
+        description: "Actually delete (otherwise only list)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: docker-image
+  cancel-in-progress: false
+
+jobs:
+  prune:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      OWNER: ${{ github.repository_owner }}
+      PACKAGE: ${{ github.event.repository.name }}
+      KEEP: "10"
+      DELETE: ${{ inputs.delete == true || vars.GHCR_PRUNE == 'true' }}
+    steps:
+      - name: Log in to GHCR
+        run: echo "$GH_TOKEN" | docker login ghcr.io -u "$OWNER" --password-stdin
+
+      - name: Prune old image versions
+        run: |
+          set -euo pipefail
+          api="/users/$OWNER/packages/container/$PACKAGE/versions"
+          gh api --paginate "$api?per_page=100" > versions.json
+          jq -s 'add' versions.json > all.json
+          echo "versions: $(jq length all.json)"
+
+          # Tags to keep: latest + the KEEP newest sha-* (API order = newest first).
+          jq -r '[.[] | .metadata.container.tags[]] | map(select(. == "latest"))[]' all.json > keep-tags.txt
+          jq -r --argjson n "$KEEP" '[.[] | .metadata.container.tags[] | select(startswith("sha-"))][:$n][]' all.json >> keep-tags.txt
+          sort -u keep-tags.txt -o keep-tags.txt
+          echo "keeping tags:"; cat keep-tags.txt
+
+          # Digests to keep: each kept tag's own digest + everything its index references.
+          : > keep-digests.txt
+          while read -r tag; do
+            jq -r --arg t "$tag" '.[] | select(.metadata.container.tags | index($t)) | .name' all.json >> keep-digests.txt
+            docker buildx imagetools inspect --raw "ghcr.io/$OWNER/$PACKAGE:$tag" \
+              | jq -r '.manifests[]?.digest' >> keep-digests.txt
+          done < keep-tags.txt
+          sort -u keep-digests.txt -o keep-digests.txt
+          echo "keeping $(wc -l < keep-digests.txt) digests"
+
+          jq -r --rawfile keep keep-digests.txt \
+            '($keep | split("\n")) as $k | .[] | select(.name as $d | $k | index($d) | not) | "\(.id) \(.name) \(.metadata.container.tags | join(","))"' \
+            all.json > delete.txt
+          echo "to delete: $(wc -l < delete.txt)"
+          if [ "$DELETE" != "true" ]; then
+            echo "dry run (set repo variable GHCR_PRUNE=true or run manually with delete)"; head -50 delete.txt
+            exit 0
+          fi
+          while read -r id digest tags; do
+            echo "deleting $id $digest $tags"
+            gh api -X DELETE "$api/$id" || echo "::warning::could not delete $id"
+          done < delete.txt

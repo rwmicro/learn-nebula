@@ -6,9 +6,11 @@
 // from localStorage and, if it differs from the default, walks the DOM and
 // swaps each marker's content/attribute against the alt-locale bundle.
 //
-// Both bundles are inlined into the page at build time by app/layout.tsx,
-// available as `window.__i18n.bundles.{fr,en}`. The default locale lives on
-// `window.__i18n.defaultLocale`.
+// Bundles are cached static files (/i18n/<locale>.<hash>.js). The bootstrap in
+// app/layout.tsx loads the default one and the stored one before any module
+// runs; switching to another locale loads its file on demand (setLocale).
+// They land on `window.__i18n.bundles`; the default locale lives on
+// `window.__i18n.defaultLocale`, the file of every locale on `.assets`.
 //
 // Vanilla JS modules (audio.js, comments.js, …) read their dynamic labels
 // through `window.__i18n.t(key, vars?)`, which always resolves against the
@@ -35,6 +37,7 @@
     try {
       const saved = localStorage.getItem("locale");
       if (saved && i18n.bundles[saved]) return saved;
+      // Stored but its file failed to load: stay on the default, keep the choice.
     } catch {
       /* localStorage unavailable */
     }
@@ -114,8 +117,25 @@
     document.documentElement.setAttribute("dir", RTL[locale] ? "rtl" : "ltr");
   }
 
+  // Loads a locale's bundle file once; resolves false if it can't.
+  function loadBundle(locale) {
+    if (i18n.bundles[locale]) return Promise.resolve(true);
+    const src = i18n.assets && i18n.assets[locale];
+    if (!src) return Promise.resolve(false);
+    return new Promise(function (resolve) {
+      const s = document.createElement("script");
+      s.src = src;
+      s.onload = function () { resolve(!!i18n.bundles[locale]); };
+      s.onerror = function () { resolve(false); };
+      document.head.appendChild(s);
+    });
+  }
+
   function setLocale(locale) {
-    if (!i18n.bundles[locale]) return;
+    if (!i18n.bundles[locale]) {
+      loadBundle(locale).then(function (ok) { if (ok) setLocale(locale); });
+      return;
+    }
     i18n.locale = locale;
     try {
       localStorage.setItem("locale", locale);
@@ -130,6 +150,7 @@
   i18n.t = t;
   i18n.applyAll = applyAll;
   i18n.setLocale = setLocale;
+  i18n.loadBundle = loadBundle;
   window.__i18n = i18n;
 
   if (i18n.locale !== i18n.defaultLocale) applyAll();

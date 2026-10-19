@@ -48,6 +48,17 @@ jobs:
       - name: Type-check (Node server)
         run: pnpm exec tsc -p server/tsconfig.json
 
+      # The image runs the server compiled (Dockerfile `server` stage): make
+      # sure it bundles and boots, so a bundling regression fails here, not
+      # after a pushed image's healthcheck.
+      - name: Compile + boot the Node server
+        run: |
+          pnpm build:server
+          mkdir -p /tmp/srv
+          PORT=8931 DB_PATH=/tmp/srv/c.db STATIC_DIR=/tmp/srv node build/server/index.mjs &
+          for i in $(seq 1 20); do curl -fsS localhost:8931/healthz && exit 0; sleep 1; done
+          exit 1
+
       # Fast Rust-based pre-check (milliseconds): catches common mistakes before
       # the slower type-aware ESLint pass. Warnings don't fail; real errors do.
       - name: Lint (oxlint, fast pre-check)

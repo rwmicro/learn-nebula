@@ -65,7 +65,13 @@
     "focusTitle": "专注模式：只显示正文（f）",
     "focusExit": "退出专注模式（Esc）",
     "more": "显示",
-    "moreAria": "显示与翻译"
+    "moreAria": "显示与翻译",
+    "translateDownloading": "正在下载模型…… {n}%",
+    "translateProgress": "翻译中…… {n}%",
+    "translateViaDevice": "已在你的设备上翻译",
+    "translateViaServer": "由服务器翻译",
+    "translateBetter": "更好的翻译",
+    "translateSuggest": "这篇笔记似乎是{lang}——要翻译吗？"
   },
   "growth": {
     "tended": "最近修订",
@@ -73,7 +79,9 @@
     "seedling": "幼苗",
     "budding": "成长中",
     "evergreen": "成熟",
-    "stageAria": "笔记成熟度"
+    "stageAria": "笔记成熟度",
+    "history": "修改历史",
+    "historyAria": "这篇笔记的所有版本（GitHub）"
   },
   "pronunciation": {
     "playAria": "收听发音",
@@ -105,7 +113,11 @@
     "practiceLeft": "剩余",
     "practiceEmpty": "你的声音会显示在这里",
     "practiceListenModel": "听示范",
-    "practiceListenMe": "回放我的录音"
+    "practiceListenMe": "回放我的录音",
+    "listenOk": "已识别 ✓ ——“{w}”",
+    "listenNo": "未识别——听到的是“{w}”",
+    "listenNothing": "未识别——没有听清",
+    "listenPreparing": "语音识别正在准备——请稍后再试"
   },
   "comments": {
     "title": "评论",
@@ -151,7 +163,15 @@
     "searching": "正在检索笔记…",
     "placeholderEmpty": "就花园的笔记提问。",
     "scopeLabel": "搜索范围：",
-    "scopeAll": "全部笔记"
+    "scopeAll": "全部笔记",
+    "ownIntro": "用你自己的话解释这段内容：你会得到反馈，指出哪些说对了、哪些还缺。",
+    "ownPlaceholder": "用我的话说，这段内容讲的是……",
+    "ownAria": "你对这段内容的解释",
+    "socratic": "苏格拉底式",
+    "socraticHint": "助手会向你提问，而不是直接回答",
+    "socraticDefault": "帮我理解这段内容。",
+    "onDevice": "回答在你的设备上生成——请对照笔记核实。",
+    "deviceDownloading": "正在把模型下载到你的设备…… {n}%"
   },
   "lang": {
     "switcherAria": "切换界面语言",
@@ -237,6 +257,14 @@
     "close": "关闭",
     "prev": "上一张",
     "next": "下一张"
+  },
+  "diagram": {
+    "expand": "放大",
+    "dialog": "全屏图表",
+    "zoomIn": "放大",
+    "zoomOut": "缩小",
+    "fit": "适应屏幕",
+    "close": "关闭"
   },
   "flashcards": {
     "home": "Garden of Knowledge",
@@ -502,7 +530,11 @@
     "copyLinkAria": "复制指向这段文字的链接",
     "linkCopied": "链接已复制",
     "copyFailed": "复制失败",
-    "highlight": "高亮"
+    "highlight": "高亮",
+    "report": "报告",
+    "reportAria": "报告此段中的错误",
+    "explainOwn": "用我的话说",
+    "explainOwnAria": "用你自己的话解释这段内容"
   },
   "glossary": {
     "kicker": "术语表",
@@ -714,7 +746,8 @@
     "askBody": "它会在 {n} 篇笔记中查找并注明出处。",
     "missNote": "这次搜索会告知园丁，以便了解缺少什么。",
     "near": "相近结果",
-    "passageOne": "1 处"
+    "passageOne": "1 处",
+    "bySense": "意思相近"
   },
   "progression": {
     "title": "我的进度",
@@ -1264,7 +1297,10 @@
     "minutes": "{n} 分钟",
     "ofReview": "复习时间",
     "daysRun": "连续天数",
-    "finish": "完成"
+    "finish": "完成",
+    "pip": "在浮动窗口中复习",
+    "pipActive": "复习正在浮动窗口中继续。",
+    "pipBack": "回到这里"
   },
   "rv": {
     "today": "今天",
@@ -1461,5 +1497,139 @@
   "reviewEmpty": {
     "decks": "选择卡组",
     "path": "阅读一条学习路径中的笔记"
+  },
+  "errorPage": {
+    "title": "此页面无法显示",
+    "body": "浏览器中出现了错误，已自动报告。重试通常即可解决。",
+    "retry": "重试",
+    "home": "返回首页"
+  },
+  "report": {
+    "title": "报告错误",
+    "label": "哪里有问题？",
+    "hint": "日期、名称或解释有误……你的报告只会发给作者，不会公开。",
+    "cancel": "取消",
+    "send": "发送",
+    "sending": "正在发送…",
+    "thanks": "谢谢，已记录。",
+    "tooShort": "请简单说明问题所在。",
+    "tooMany": "报告过多，请稍后再试。",
+    "failed": "发送失败。"
+  },
+  "passkey": {
+    "title": "通行密钥",
+    "intro": "轻触即可登录，无需等待邮件。邮件链接仍可作为备用方式。",
+    "create": "创建通行密钥",
+    "created": "通行密钥已创建。下次在邮箱栏中选择它即可。",
+    "failed": "没有成功。请重试，或继续使用邮件链接。",
+    "deleted": "通行密钥已删除。",
+    "delete": "删除",
+    "confirmDelete": "确认",
+    "usedOn": "{date} 使用过",
+    "createdOn": "{date} 创建"
+  },
+  "push": {
+    "title": "复习提醒",
+    "intro": "每天一条通知，在你选定的时间，有卡片待复习时提醒你。",
+    "toggle": "每天提醒我",
+    "hour": "时间",
+    "saved": "已设置：每天 {time} 提醒。",
+    "denied": "你的浏览器已阻止本站的通知。",
+    "error": "暂时无法保存提醒。",
+    "iosInstall": "在 iPhone 和 iPad 上，只有将本站添加到主屏幕后提醒才会生效。",
+    "notifTitle": "Garden of Knowledge",
+    "generic": "今天的复习在等你。",
+    "due": "今天有 {n} 张卡片待复习。",
+    "dueOne": "今天有 {n} 张卡片待复习。"
+  },
+  "duo": {
+    "title": "双人",
+    "back": "返回",
+    "landingLede": "与你邀请的人实时复习或练习语言。对战从含有选择题的笔记开始（文章下方的“发起挑战”）；语伴通话可从语言笔记或此处开始。",
+    "startTandem": "发起语伴通话",
+    "creating": "正在创建房间…",
+    "joining": "正在打开房间…",
+    "unsupported": "你的浏览器不支持浏览器之间的直接连接（WebRTC）。",
+    "share": "把这个链接发给你想邀请的人。链接只在一小时内有效。",
+    "linkAria": "邀请链接",
+    "copy": "复制",
+    "copied": "已复制",
+    "qrAria": "邀请链接的二维码",
+    "waiting": "正在等待对方…",
+    "peerHere": "对方已进入。",
+    "hostAway": "邀请你的人还没有到。",
+    "ipTitle": "连接之前",
+    "ipNotice": "直接连接时，对方可以看到你的 IP 地址：这是 WebRTC 的工作原理。只和你认识的人连接。",
+    "relay": "通过中继连接（隐藏你的 IP 地址）",
+    "relayHint": "稍慢一些；对方只能看到中继的地址。",
+    "relayOff": "本站没有可用的中继：连接将是直接的。",
+    "connect": "连接",
+    "retry": "重试",
+    "linking": "正在连接…",
+    "failed": "直接连接失败：网络可能阻止了它。请通过中继重试。",
+    "failedNoRelay": "连接失败：你们其中一方的网络可能阻止了它。",
+    "left": "对方已离开。",
+    "newRoom": "新房间",
+    "backNote": "返回笔记",
+    "nothingStored": "不会保存任何内容：服务器只负责让你们建立联系，之后所有数据都在两个浏览器之间直接传输。",
+    "you": "你",
+    "them": "对方",
+    "err": {
+      "badlink": "此链接无效。",
+      "gone": "这个房间已不存在：无活动 10 分钟或满一小时后会失效。请索取新链接。",
+      "expired": "这个房间已过期。请索取新链接。",
+      "full": "这个房间已满：一次只能两个人。",
+      "rate": "尝试次数过多。请稍后再试。",
+      "network": "连接服务器没有响应。",
+      "offline": "此版本的网站不支持双人连接。",
+      "mic": "无法使用麦克风：请为本站允许麦克风，然后重试。",
+      "load": "无法加载此房间的笔记。",
+      "mismatch": "你们两边页面的题目不一致（笔记可能已更新）。请双方都刷新页面。",
+      "create": "暂时无法创建房间。"
+    },
+    "invite": {
+      "aria": "双人",
+      "duelTitle": "双人复习",
+      "duelText": "和你发送链接的人同时作答这篇笔记的题目。答对最快的人得分。",
+      "duel": "发起挑战",
+      "tandemTitle": "语伴练习",
+      "tandemText": "仅限邀请的语音通话，和朋友一起朗读、练习这篇笔记中的句子。",
+      "tandem": "发起语伴通话"
+    }
+  },
+  "duel": {
+    "title": "对战",
+    "lede": "{title}：同样的题目，同时作答。答对最快的人得分。",
+    "noQuestions": "这篇笔记没有选择题。",
+    "ready": "已连接！对战开始。",
+    "question": "第 {n} 题，共 {total} 题",
+    "choicesAria": "选项",
+    "theyAnswered": "对方已作答。",
+    "waitThem": "等待对方…",
+    "pointYou": "你得一分。",
+    "pointThem": "对方得一分。",
+    "pointBoth": "完全同时：各得一分。",
+    "pointNone": "无人得分。",
+    "endTitle": "对战结束",
+    "won": "你赢了！",
+    "lost": "这次对方赢了。",
+    "draw": "平局。",
+    "again": "再来一局",
+    "waitAgain": "邀请你的人可以发起再来一局。",
+    "noCoins": "对战不会获得金币，也不会保存任何记录。"
+  },
+  "tandem": {
+    "title": "语伴",
+    "lede": "仅限邀请的双人语音通话：读同一个句子，互相跟读。",
+    "micNote": "浏览器会请求使用麦克风。你的声音只经过通话传输：不会录音。",
+    "live": "通话中",
+    "theyMuted": "对方已静音。",
+    "phrase": "每日一句",
+    "listen": "收听",
+    "next": "换一句",
+    "mute": "静音",
+    "unmute": "取消静音",
+    "hangup": "挂断",
+    "ended": "通话已结束。"
   }
 }

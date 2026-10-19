@@ -64,6 +64,13 @@ describe("growthHtml", () => {
       growthHtml(undefined, planted, new Date("2024-03-04T18:00:00Z")),
     ).toBe("");
   });
+
+  it("links the note's history, separated from the stage", () => {
+    const html = growthHtml("seedling", planted, undefined, "https://github.com/o/r/commits/main/A%20B.md");
+    expect(html).toContain('class="growth-history"');
+    expect(html).toContain("https://github.com/o/r/commits/main/A%20B.md");
+    expect(html).toContain("growth-sep");
+  });
 });
 
 describe("localGraphHtml", () => {

@@ -65,7 +65,13 @@
     "focusTitle": "Modo concentración: solo el texto (f)",
     "focusExit": "Salir del modo concentración (Esc)",
     "more": "visualización",
-    "moreAria": "Visualización y traducción"
+    "moreAria": "Visualización y traducción",
+    "translateDownloading": "Descargando el modelo… {n} %",
+    "translateProgress": "Traduciendo… {n} %",
+    "translateViaDevice": "Traducido en tu dispositivo",
+    "translateViaServer": "Traducido por el servidor",
+    "translateBetter": "Mejor traducción",
+    "translateSuggest": "Esta nota parece estar en {lang}: ¿traducirla?"
   },
   "growth": {
     "tended": "retocada el",
@@ -73,7 +79,9 @@
     "seedling": "brote",
     "budding": "en crecimiento",
     "evergreen": "madura",
-    "stageAria": "Estado de madurez de la nota"
+    "stageAria": "Estado de madurez de la nota",
+    "history": "historial",
+    "historyAria": "Todas las versiones de esta nota, en GitHub"
   },
   "pronunciation": {
     "playAria": "Escuchar la pronunciación",
@@ -105,7 +113,11 @@
     "practiceLeft": "restantes",
     "practiceEmpty": "Tu voz aparecerá aquí",
     "practiceListenModel": "Escuchar el modelo",
-    "practiceListenMe": "Volver a escucharme"
+    "practiceListenMe": "Volver a escucharme",
+    "listenOk": "Reconocido ✓ — «{w}»",
+    "listenNo": "No reconocido — se oyó «{w}»",
+    "listenNothing": "No reconocido — nada lo bastante claro",
+    "listenPreparing": "El reconocimiento de voz se está preparando: vuelve a intentarlo en un momento"
   },
   "comments": {
     "title": "Comentarios",
@@ -151,7 +163,15 @@
     "searching": "Buscando en las notas…",
     "placeholderEmpty": "Haz una pregunta sobre las notas del jardín.",
     "scopeLabel": "Buscar en:",
-    "scopeAll": "Todas las notas"
+    "scopeAll": "Todas las notas",
+    "ownIntro": "Explica este pasaje con tus palabras: recibirás un comentario sobre lo que se sostiene y lo que falta.",
+    "ownPlaceholder": "Con mis palabras, este pasaje dice que…",
+    "ownAria": "Tu explicación del pasaje",
+    "socratic": "Socrático",
+    "socraticHint": "El asistente te hace preguntas en lugar de responder",
+    "socraticDefault": "Ayúdame a entender este pasaje.",
+    "onDevice": "Respuesta generada en tu dispositivo: compruébala en la nota.",
+    "deviceDownloading": "Descargando el modelo en tu dispositivo… {n} %"
   },
   "lang": {
     "switcherAria": "Cambiar el idioma de la interfaz",
@@ -237,6 +257,14 @@
     "close": "Cerrar",
     "prev": "Anterior",
     "next": "Siguiente"
+  },
+  "diagram": {
+    "expand": "Ampliar",
+    "dialog": "Diagrama a pantalla completa",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "fit": "Ajustar a la pantalla",
+    "close": "Cerrar"
   },
   "flashcards": {
     "home": "Garden of Knowledge",
@@ -502,7 +530,11 @@
     "copyLinkAria": "Copiar un enlace a este pasaje",
     "linkCopied": "Enlace copiado",
     "copyFailed": "No se pudo copiar",
-    "highlight": "Subrayar"
+    "highlight": "Subrayar",
+    "report": "Informar",
+    "reportAria": "Informar de un error en este pasaje",
+    "explainOwn": "Con mis palabras",
+    "explainOwnAria": "Explica este pasaje con tus palabras"
   },
   "glossary": {
     "kicker": "Glosario",
@@ -714,7 +746,8 @@
     "askBody": "Busca en sus {n} notas y cita sus fuentes.",
     "missNote": "Esta búsqueda se comunica al jardinero, para saber qué falta.",
     "near": "Parecidos",
-    "passageOne": "1 pasaje"
+    "passageOne": "1 pasaje",
+    "bySense": "Cercanas por el sentido"
   },
   "progression": {
     "title": "Mi progreso",
@@ -1264,7 +1297,10 @@
     "minutes": "{n} min",
     "ofReview": "de repaso",
     "daysRun": "días seguidos",
-    "finish": "Terminar"
+    "finish": "Terminar",
+    "pip": "Repasar en ventana flotante",
+    "pipActive": "El repaso continúa en la ventana flotante.",
+    "pipBack": "Volver aquí"
   },
   "rv": {
     "today": "Hoy",
@@ -1461,5 +1497,139 @@
   "reviewEmpty": {
     "decks": "Elegir un mazo",
     "path": "Leer una nota de un recorrido"
+  },
+  "errorPage": {
+    "title": "Esta página no se pudo mostrar",
+    "body": "Algo falló en tu navegador. Se ha notificado; volver a intentarlo suele bastar.",
+    "retry": "Reintentar",
+    "home": "Volver al inicio"
+  },
+  "report": {
+    "title": "Informar de un error",
+    "label": "¿Qué está mal?",
+    "hint": "Una fecha, un nombre, una explicación errónea… Tu aviso lo lee el autor y no se publica.",
+    "cancel": "Cancelar",
+    "send": "Enviar",
+    "sending": "Enviando…",
+    "thanks": "Gracias, anotado.",
+    "tooShort": "Di en pocas palabras qué está mal.",
+    "tooMany": "Demasiados avisos seguidos: inténtalo más tarde.",
+    "failed": "No se pudo enviar."
+  },
+  "passkey": {
+    "title": "Llaves de acceso",
+    "intro": "Inicia sesión con un gesto, sin esperar ningún correo. El enlace por correo sigue como alternativa.",
+    "create": "Crear una llave de acceso",
+    "created": "Llave de acceso creada. La próxima vez, elígela en el campo de correo.",
+    "failed": "No ha funcionado. Vuelve a intentarlo o sigue con el enlace por correo.",
+    "deleted": "Llave de acceso eliminada.",
+    "delete": "Eliminar",
+    "confirmDelete": "Confirmar",
+    "usedOn": "usada el {date}",
+    "createdOn": "creada el {date}"
+  },
+  "push": {
+    "title": "Recordatorio de repaso",
+    "intro": "Una notificación al día, a la hora que elijas, cuando haya tarjetas esperándote.",
+    "toggle": "Recordármelo cada día",
+    "hour": "Hora",
+    "saved": "Hecho: recordatorio cada día a las {time}.",
+    "denied": "Las notificaciones están bloqueadas para este sitio en tu navegador.",
+    "error": "No se ha podido guardar el recordatorio por ahora.",
+    "iosInstall": "En iPhone y iPad, los recordatorios solo funcionan desde el sitio añadido a la pantalla de inicio.",
+    "notifTitle": "Garden of Knowledge",
+    "generic": "Tu repaso del día te espera.",
+    "due": "{n} tarjetas para repasar hoy.",
+    "dueOne": "{n} tarjeta para repasar hoy."
+  },
+  "duo": {
+    "title": "A dúo",
+    "back": "Volver",
+    "landingLede": "Repasa o practica un idioma en directo con alguien a quien invites. Un duelo se lanza desde una nota con preguntas de opción múltiple («Desafiar a alguien», bajo el artículo); un tándem, desde una nota de idioma o aquí.",
+    "startTandem": "Iniciar un tándem",
+    "creating": "Creando la sala…",
+    "joining": "Abriendo la sala…",
+    "unsupported": "Tu navegador no permite la conexión directa entre navegadores (WebRTC).",
+    "share": "Envía este enlace a la persona que elijas. Solo sirve durante una hora.",
+    "linkAria": "Enlace de invitación",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "qrAria": "Código QR del enlace de invitación",
+    "waiting": "Esperando a la otra persona…",
+    "peerHere": "La otra persona está aquí.",
+    "hostAway": "La persona que te invitó aún no está.",
+    "ipTitle": "Antes de conectarte",
+    "ipNotice": "En conexión directa, tu dirección IP es visible para la otra persona: así funciona WebRTC. Conéctate solo con alguien que conozcas.",
+    "relay": "Pasar por un relé (oculta tu dirección IP)",
+    "relayHint": "Algo más lento; la otra persona solo ve la dirección del relé.",
+    "relayOff": "No hay ningún relé disponible en este sitio: la conexión será directa.",
+    "connect": "Conectarse",
+    "retry": "Reintentar",
+    "linking": "Conectando…",
+    "failed": "La conexión directa ha fallado: puede que la red la bloquee. Reinténtalo pasando por el relé.",
+    "failedNoRelay": "La conexión ha fallado: puede que la red de uno de los dos la bloquee.",
+    "left": "La otra persona se ha ido.",
+    "newRoom": "Nueva sala",
+    "backNote": "Volver a la nota",
+    "nothingStored": "No se guarda nada: el servidor solo os pone en contacto y luego todo pasa directamente de un navegador a otro.",
+    "you": "Tú",
+    "them": "El otro",
+    "err": {
+      "badlink": "Este enlace no es válido.",
+      "gone": "Esta sala ya no existe: caduca tras 10 minutos sin actividad o al cabo de una hora. Pide un enlace nuevo.",
+      "expired": "Esta sala ha caducado. Pide un enlace nuevo.",
+      "full": "Esta sala ya está completa: dos personas a la vez, no más.",
+      "rate": "Demasiados intentos. Vuelve a intentarlo dentro de un rato.",
+      "network": "El servidor de conexión no responde.",
+      "offline": "La conexión entre lectores no está disponible en esta versión del sitio.",
+      "mic": "El micrófono no está accesible: permítelo para este sitio y vuelve a intentarlo.",
+      "load": "No se ha podido cargar la nota de esta sala.",
+      "mismatch": "Vuestras dos páginas no tienen las mismas preguntas (puede que la nota haya cambiado). Recargad las dos.",
+      "create": "No se ha podido crear la sala por ahora."
+    },
+    "invite": {
+      "aria": "A dúo",
+      "duelTitle": "Repasar a dúo",
+      "duelText": "Las preguntas de esta nota, a la vez, con alguien a quien envías un enlace. La respuesta correcta más rápida se lleva el punto.",
+      "duel": "Desafiar a alguien",
+      "tandemTitle": "Tándem de idiomas",
+      "tandemText": "Una llamada de audio con un amigo, solo por invitación, para leer y hacer repetir las frases de esta nota.",
+      "tandem": "Iniciar un tándem"
+    }
+  },
+  "duel": {
+    "title": "Duelo",
+    "lede": "{title}: las mismas preguntas, a la vez. La respuesta correcta más rápida se lleva el punto.",
+    "noQuestions": "Esta nota no tiene preguntas de opción múltiple.",
+    "ready": "¡Conectados! Empieza la partida.",
+    "question": "Pregunta {n} de {total}",
+    "choicesAria": "Respuestas",
+    "theyAnswered": "El otro ha respondido.",
+    "waitThem": "Esperando al otro…",
+    "pointYou": "Punto para ti.",
+    "pointThem": "Punto para el otro.",
+    "pointBoth": "Empate perfecto: un punto cada uno.",
+    "pointNone": "Nadie puntúa.",
+    "endTitle": "Fin del duelo",
+    "won": "¡Ganas tú!",
+    "lost": "Esta vez gana el otro.",
+    "draw": "Empate.",
+    "again": "Revancha",
+    "waitAgain": "La persona que te invitó puede lanzar una revancha.",
+    "noCoins": "Un duelo no da monedas y no se guarda nada de él."
+  },
+  "tandem": {
+    "title": "Tándem",
+    "lede": "Una llamada de audio para dos, por invitación: leed la misma frase y haceos repetir.",
+    "micNote": "El navegador te pedirá el micrófono. Tu voz solo pasa por la llamada: no se graba nada.",
+    "live": "En línea",
+    "theyMuted": "El otro ha silenciado su micrófono.",
+    "phrase": "Frase del día",
+    "listen": "Escuchar",
+    "next": "Otra frase",
+    "mute": "Silenciar",
+    "unmute": "Activar el micrófono",
+    "hangup": "Colgar",
+    "ended": "Llamada terminada."
   }
 }

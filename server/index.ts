@@ -17,9 +17,16 @@ import { translateRoute } from "./routes/translate.ts";
 import { relatedRoute } from "./routes/related.ts";
 import { questionsRoute } from "./routes/questions.ts";
 import { adminRoute } from "./routes/admin.ts";
+import { clientErrorRoute, reportRoute } from "./routes/feedback.ts";
 import { searchMissRoute } from "./routes/search-miss.ts";
+import { searchRoute } from "./routes/search.ts";
 import { authRoute } from "./routes/auth.ts";
 import { meRoute, progressRoute, accountRoute, shopRoute } from "./routes/account.ts";
+import { passkeyRoute } from "./routes/passkey.ts";
+import { pushRoute } from "./routes/push.ts";
+import { startPushSender } from "./push-sender.ts";
+import { createNodeWebSocket } from "@hono/node-ws";
+import { roomRoute } from "./routes/room.ts";
 import { buildCSP, SITE_URL } from "../lib/site.ts";
 import { staticEntry, isFresh, cacheControlFor } from "./static-cache.ts";
 
@@ -74,12 +81,23 @@ app.route("/api/related", relatedRoute);
 app.route("/api/questions", questionsRoute);
 app.route("/api/admin", adminRoute);
 app.route("/api/search-miss", searchMissRoute);
+// ⌘K "Proches par le sens": embeddings-only nearest notes (no LLM).
+app.route("/api/search", searchRoute);
+// Readers' browsers → /admin: uncaught errors, and "Signaler une erreur".
+app.route("/api/client-error", clientErrorRoute);
+app.route("/api/report", reportRoute);
 // Reader accounts: magic-link login, progress sync, coins, streaks, shop.
 app.route("/api/auth", authRoute);
 app.route("/api/me", meRoute);
 app.route("/api/progress", progressRoute);
 app.route("/api/account", accountRoute);
 app.route("/api/shop", shopRoute);
+// Passkeys beside the magic link; daily review reminders by Web Push.
+app.route("/api/auth/passkey", passkeyRoute);
+app.route("/api/push", pushRoute);
+// Two-player rooms (/duel/): WebRTC signalling over a WebSocket.
+const nodeWs = createNodeWebSocket({ app });
+app.route("/api/room", roomRoute(nodeWs));
 
 // serveStatic sends no Cache-Control at all, so every response — HTML pages
 // included — is subject to the browser's own heuristic caching (freshness ≈
@@ -146,6 +164,7 @@ app.notFound((c) => {
 // --- startup ---------------------------------------------------------------
 initDb();
 initRag(); // embeds in the background; retrieval turns on once ready
+startPushSender(); // no-op unless VAPID_* are set
 
 if (!canGenerate()) {
   console.warn(
@@ -153,6 +172,7 @@ if (!canGenerate()) {
   );
 }
 
-serve({ fetch: app.fetch, port: env.port }, (info) => {
+const server = serve({ fetch: app.fetch, port: env.port }, (info) => {
   console.log(`server: listening on http://0.0.0.0:${info.port} (static: ${env.staticDir})`);
 });
+nodeWs.injectWebSocket(server);

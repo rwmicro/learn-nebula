@@ -22,6 +22,21 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 # overrides recorded in pnpm-lock.yaml.
 RUN pnpm install --prod --frozen-lockfile
 
+########################  server  ########################
+# Compile the TypeScript server once, at image build: plain `node` at start-up
+# (no tsx transpiling into a cache dir), which is what lets the container run
+# with a read-only root filesystem. node_modules stay external (resolved from
+# /app/node_modules at runtime), so native better-sqlite3 and Shiki's WASM load
+# exactly as before; only server/, lib/ and messages/ get bundled.
+FROM node:22-bookworm-slim AS server
+WORKDIR /app
+COPY package.json tsconfig.json ./
+COPY server ./server
+COPY lib ./lib
+COPY messages ./messages
+RUN npx -y esbuild@0.28.1 server/index.ts --bundle --platform=node --format=esm \
+      --target=node22 --packages=external --outfile=build/server/index.mjs
+
 ########################  runtime  ########################
 FROM node:22-bookworm-slim AS runtime
 WORKDIR /app
@@ -39,10 +54,8 @@ RUN corepack enable && corepack prepare pnpm@10.28.0 --activate
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./
-COPY server ./server
-COPY lib ./lib
-# lib/markdown → lib/i18n loads these at import time (translate re-renders notes).
-COPY messages ./messages
+# The compiled server (stage above); messages/ are bundled into it.
+COPY --from=server /app/build/server ./build/server
 COPY schema ./schema
 COPY data/rag-chunks.json ./data/rag-chunks.json
 # Build-time reports read by the admin-only /api/admin/* endpoints
@@ -67,6 +80,5 @@ EXPOSE 8085
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8085)+'/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
-# tsx runs the TypeScript server directly — no compile step, and Shiki's WASM +
-# the native SQLite binding load cleanly under plain Node.
-CMD ["node_modules/.bin/tsx", "server/index.ts"]
+# Writes only to /data, so it runs with `read_only: true` (+ a tmpfs /tmp).
+CMD ["node", "build/server/index.mjs"]

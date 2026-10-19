@@ -38,6 +38,7 @@ import {
 } from "@/components/account/icons";
 import { Wardrobe } from "@/components/account/Wardrobe";
 import { DeleteSheet } from "@/components/account/DeleteSheet";
+import { Passkeys, Reminders } from "@/components/account/Security";
 
 export type Screen = "profil" | "jardinier" | "pieces" | "compte";
 const SCREENS: Screen[] = ["profil", "jardinier", "pieces", "compte"];
@@ -103,6 +104,7 @@ export function AccountPhone({
   reload,
   tr,
   locale,
+  passkey = false,
 }: {
   me: Me;
   data: AccountData | null;
@@ -110,6 +112,8 @@ export function AccountPhone({
   reload: () => Promise<unknown>;
   tr: Tr;
   locale: string;
+  /** Passkeys offered (AuthConfig.passkey). */
+  passkey?: boolean;
 }) {
   const [screen, go, back] = useScreen();
   const look = data?.look ?? me.look;
@@ -131,7 +135,7 @@ export function AccountPhone({
   if (screen === "compte")
     return (
       <div className="ap ap--sub" data-screen="compte">
-        <Settings me={me} coins={coins} look={look} reload={reload} tr={tr} locale={locale} onBack={back} />
+        <Settings me={me} coins={coins} look={look} reload={reload} tr={tr} locale={locale} onBack={back} passkey={passkey} />
       </div>
     );
   return (
@@ -350,6 +354,7 @@ function Settings({
   tr,
   locale,
   onBack,
+  passkey,
 }: {
   me: Me;
   coins: number;
@@ -358,6 +363,7 @@ function Settings({
   tr: Tr;
   locale: string;
   onBack: () => void;
+  passkey: boolean;
 }) {
   const [sync, setSync] = useState<"" | "busy" | "done">("");
   const [lastSync, setLastSync] = useState<number | undefined>(undefined);
@@ -446,6 +452,9 @@ function Settings({
           </span>
         </button>
       </div>
+
+      {passkey && <Passkeys tr={tr} locale={locale} phone />}
+      <Reminders tr={tr} locale={locale} phone />
 
       <div className="ap-list ap-list--gap">
         <button type="button" className="ap-row ap-row--short" onClick={() => void logout().then(() => (location.href = "/"))}>

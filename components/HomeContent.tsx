@@ -8,6 +8,7 @@ import type { GraphData } from "@/lib/graph-data";
 import { CircularGraph } from "@/components/CircularGraph";
 import { t, folderKey, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import { readAskStream } from "@/lib/ask-stream";
+import { detectLanguage } from "@/lib/browser-ai";
 import { folderAnchor } from "@/lib/slug";
 import {
   CHANGE_EVENT,
@@ -524,12 +525,17 @@ export function HomeContent({
     setSources([]);
     setBusy(true);
 
+    // The question's language, when Chrome's on-device detector is sure of it
+    // (lib/browser-ai.ts): /api/ask then answers in it explicitly.
+    const lang = await detectLanguage(text, { allowDownload: true });
+    if (ctrl.signal.aborted) return;
+
     let resp: Response;
     try {
       resp = await fetch("/api/ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question: text, locale }),
+        body: JSON.stringify({ question: text, locale, lang: lang ?? undefined }),
         signal: ctrl.signal,
       });
     } catch (e) {

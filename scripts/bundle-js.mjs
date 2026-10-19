@@ -22,7 +22,9 @@ const SCRIPTS = [
   // After sticky-header: marks the note read / remembers the position, with
   // the same progress measure (lib/reading-progress.ts).
   "reading-state",
-  "mermaid-render",
+  // Fetches diagram-zoom ("Agrandir", full-screen pan / zoom) and the
+  // mermaid-render fallback, each its own bundle, only on a note with a diagram.
+  "diagrams-loader",
   // Not "widgets": the library itself is fetched on demand by the loader, for
   // the 30 notes out of 721 that actually mount one. public/js/widgets.js is
   // served as its own file (like mermaid.min.js) and never enters this bundle.
@@ -48,6 +50,8 @@ const SCRIPTS = [
   "path-dock",
   // On a note of a reading path: "Étape 4/20" opens the list of its steps.
   "path-sheet",
+  // Under the article: "Défier quelqu'un" (duel) / "Lancer un tandem" → /duel/.
+  "duo-invite",
   // Last: the phone layout's section pill, toolbar and display sheet proxy
   // the controls the scripts above wire up.
   "note-app",
@@ -88,7 +92,11 @@ console.log(`bundle-js: bundled ${SCRIPTS.length} scripts → public/js/note.bun
 // The widget packs (lib/widgets-extra.ts): fetched by widgets-loader.js only
 // on a page that mounts one of their widgets. Bundled so they share
 // public/js/widget-kit.js and lib/ code with the build.
-for (const name of ["palette", "quiz", "glossary", "note-end", "widgets-data", "widgets-sci", "widgets-lang"]) {
+// pronounce: fetched by pronounce-loader.js on a page with a clip; bundled
+// for lib/speech-match.ts (the coach's on-device "reconnu / pas reconnu").
+// diagram-zoom / mermaid-render: fetched by diagrams-loader.js on a note with a
+// diagram; mermaid-render is bundled for lib/mermaid-source.js.
+for (const name of ["palette", "quiz", "glossary", "note-end", "widgets-data", "widgets-sci", "widgets-lang", "pronounce", "diagram-zoom", "mermaid-render"]) {
   await build({
     entryPoints: [join(JS_DIR, `${name}.js`)],
     outfile: join(JS_DIR, `${name}.bundle.js`),

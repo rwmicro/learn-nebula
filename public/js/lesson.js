@@ -16,6 +16,7 @@ import {
   markRead,
   saveStore,
 } from "../../lib/reading-progress";
+import { keepAwake } from "../../lib/wake-lock";
 
 (function () {
   const body = document.querySelector(".article-body");
@@ -72,6 +73,8 @@ import {
 
     const marks = [];
     const opener = document.activeElement;
+    // The screen stays on for the lesson's length (lib/wake-lock.ts).
+    const sleep = keepAwake();
     const root = document.createElement("div");
     root.className = "lesson";
     root.setAttribute("role", "dialog");
@@ -244,6 +247,7 @@ import {
     }
 
     function close() {
+      sleep();
       obs.disconnect();
       ro.disconnect();
       for (const m of marks) m.mark.replaceWith(m.node);
