@@ -66,7 +66,7 @@ jobs:
       - id: rev
         run: echo "sha=$(git ls-remote https://github.com/rwmicro/pensine.git refs/heads/main | cut -f1)" >> "$GITHUB_OUTPUT"
       - id: marker
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .pensine-built
           key: pensine-built-${{ steps.rev.outputs.sha }}
@@ -115,7 +115,7 @@ jobs:
       # every run + a prefix restore-key means each run both starts warm AND
       # saves its own state, so git-lfs only ever fetches new/changed clips.
       - name: Cache notes vault clone
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/pensine
           key: pensine-vault-${{ github.run_id }}
@@ -127,7 +127,7 @@ jobs:
       # images from scratch takes hours; restoring this makes it near-free,
       # and a changed image simply misses its own key.
       - name: Cache derived image variants
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/vault-images
           key: vault-images-${{ github.run_id }}
@@ -138,7 +138,7 @@ jobs:
       # content hash: an unchanged file is copied instead of recompressed,
       # which was most of the ~12 minutes this step spent compressing.
       - name: Cache precompressed variants
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/precompress
           key: precompress-${{ github.run_id }}
@@ -167,13 +167,13 @@ jobs:
 
       # Emulation so the amd64 runner can also build the arm64 image.
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -181,7 +181,7 @@ jobs:
 
       - name: Image metadata
         id: meta
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
@@ -189,7 +189,7 @@ jobs:
             type=sha,format=short
 
       - name: Build & push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           push: true
@@ -203,7 +203,7 @@ jobs:
         run: mkdir -p .pensine-built && echo "${{ needs.pensine.outputs.sha }}" > .pensine-built/sha
 
       - name: Save revision marker
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: .pensine-built
           key: pensine-built-${{ needs.pensine.outputs.sha }}
