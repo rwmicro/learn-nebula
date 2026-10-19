@@ -17,6 +17,7 @@ import { translateRoute } from "./routes/translate.ts";
 import { relatedRoute } from "./routes/related.ts";
 import { questionsRoute } from "./routes/questions.ts";
 import { adminRoute } from "./routes/admin.ts";
+import { clientErrorRoute, reportRoute } from "./routes/feedback.ts";
 import { searchMissRoute } from "./routes/search-miss.ts";
 import { authRoute } from "./routes/auth.ts";
 import { meRoute, progressRoute, accountRoute, shopRoute } from "./routes/account.ts";
@@ -74,6 +75,9 @@ app.route("/api/related", relatedRoute);
 app.route("/api/questions", questionsRoute);
 app.route("/api/admin", adminRoute);
 app.route("/api/search-miss", searchMissRoute);
+// Readers' browsers → /admin: uncaught errors, and "Signaler une erreur".
+app.route("/api/client-error", clientErrorRoute);
+app.route("/api/report", reportRoute);
 // Reader accounts: magic-link login, progress sync, coins, streaks, shop.
 app.route("/api/auth", authRoute);
 app.route("/api/me", meRoute);

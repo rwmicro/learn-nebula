@@ -10,6 +10,10 @@
 //   GET    /rag-debug               → { enabled, state, rerank, topK, minScore }
 //   POST   /rag-debug               → { q, scope? } → /api/ask's retrieval, scored, no generation
 //   GET    /facts                   → data/facts-to-check.json (scripts/facts-to-check.ts)
+//   GET    /client-errors           → readers' uncaught errors { errors, total }
+//   DELETE /client-errors?key=      → dismiss one (it comes back if it happens again)
+//   GET    /reports                 → "Signaler une erreur" { open, done }
+//   PATCH  /reports { id, done }    → mark handled / reopen
 //
 // Every feature reports itself disabled (rather than failing) when its env
 // var is unset; see .env.example.
@@ -18,7 +22,14 @@ import fs from "node:fs";
 import { Hono } from "hono";
 import { env } from "../env.ts";
 import { audit } from "../auth.ts";
-import { deleteSearchMiss, searchMisses } from "../db.ts";
+import {
+  clientErrors,
+  deleteClientError,
+  deleteSearchMiss,
+  errorReports,
+  searchMisses,
+  setErrorReportDone,
+} from "../db.ts";
 import { ASK_MIN_SCORE, ASK_TOP_K, ragState, retrieve, scopePrefix } from "../rag.ts";
 import {
   GitHubError,
@@ -60,6 +71,49 @@ adminToolsRoute.delete("/search-misses", (c) => {
   const removed = deleteSearchMiss(q, where || undefined);
   if (removed) audit(c, "search-miss.dismiss", `« ${q} »${where ? ` (${where})` : ""}`);
   return c.json({ removed });
+});
+
+// --- erreurs des lecteurs, signalements -------------------------------------------
+
+adminToolsRoute.get("/client-errors", (c) => {
+  try {
+    return c.json(clientErrors(Math.min(300, Math.max(1, Number(c.req.query("limit")) || 100))));
+  } catch (e) {
+    console.error("admin: client-errors read failed", e);
+    return c.json({ error: "Journal indisponible." }, 503);
+  }
+});
+
+adminToolsRoute.delete("/client-errors", (c) => {
+  const key = c.req.query("key") || "";
+  if (!key) return c.json({ error: "Requête invalide." }, 400);
+  const removed = deleteClientError(key);
+  if (removed) audit(c, "client-error.dismiss", key.split("\u0000")[0].slice(0, 120));
+  return c.json({ removed });
+});
+
+adminToolsRoute.get("/reports", (c) => {
+  try {
+    return c.json(errorReports());
+  } catch (e) {
+    console.error("admin: reports read failed", e);
+    return c.json({ error: "Journal indisponible." }, 503);
+  }
+});
+
+adminToolsRoute.patch("/reports", async (c) => {
+  let body: { id?: unknown; done?: unknown };
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json({ error: "Requête invalide." }, 400);
+  }
+  const id = Number(body?.id);
+  if (!Number.isInteger(id) || id <= 0) return c.json({ error: "Requête invalide." }, 400);
+  const done = body?.done !== false;
+  const changed = setErrorReportDone(id, done);
+  if (changed) audit(c, done ? "report.done" : "report.reopen", `#${id}`);
+  return c.json({ changed });
 });
 
 // --- reconstruire le site ---------------------------------------------------------

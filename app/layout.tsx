@@ -7,7 +7,8 @@ import {
   FEED_ALTERNATES,
   buildCSP,
 } from "@/lib/site";
-import { DEFAULT_LOCALE, LOCALES, getMessages, t } from "@/lib/i18n";
+import { DEFAULT_LOCALE, t } from "@/lib/i18n";
+import { i18nAssetUrls } from "@/lib/i18n-assets";
 import { getLanguageScopes } from "@/lib/content";
 import { notesIndexVersion, paletteExtraVersion } from "@/lib/home-data";
 import { Footer } from "@/components/Footer";
@@ -24,13 +25,16 @@ import "../assets/css/palette.css";
 // the shared phone components (large titles, tiles).
 import "../assets/css/app.css";
 
-// Inline every message bundle so the runtime swap (/js/i18n.js) has them all
-// available without a second fetch — built from LOCALES so a new language is
-// picked up automatically. `<` is escaped to avoid a `</script>` break-out.
-const I18N_BOOTSTRAP = `window.__i18n = {
-  defaultLocale: ${JSON.stringify(DEFAULT_LOCALE)},
-  bundles: ${JSON.stringify(Object.fromEntries(LOCALES.map((l) => [l, getMessages(l)]))).replace(/</g, "\\u003c")}
-};
+// Message bundles are static files (/i18n/<locale>.<hash>.js, lib/i18n-assets.ts)
+// cached for a year, not inlined: inlining all five cost ~220 KB per page, twice
+// (Next repeats inline scripts in the RSC payload). This small bootstrap writes
+// blocking <script> tags for the default bundle and, if the reader picked
+// another language, that one too — so every vanilla module (audio.js,
+// comments.js…) still finds window.__i18n.t's strings at load, in order. Same-
+// origin document.write during parsing is allowed and keeps them blocking.
+const I18N_BOOTSTRAP = `window.__i18n = window.__i18n || { bundles: {} };
+window.__i18n.defaultLocale = ${JSON.stringify(DEFAULT_LOCALE)};
+window.__i18n.assets = ${JSON.stringify(i18nAssetUrls())};
 /* Shared helpers, defined synchronously so every afterInteractive module
    (audio.js, comments.js, translate.js…) can use them without
    redefining their own copy or racing /js/i18n.js. */
@@ -44,7 +48,13 @@ window.__i18n.hash = function (s) {
 };
 window.__i18n.getActiveLocale = function () {
   return window.__i18n.locale || window.__i18n.defaultLocale;
-};`.replace(/<\/script/gi, "<\\/script");
+};
+(function () {
+  var i = window.__i18n, a = i.assets, l = null;
+  try { l = localStorage.getItem("locale"); } catch (e) {}
+  document.write('<script src="' + a[i.defaultLocale] + '"><\\/script>');
+  if (l && l !== i.defaultLocale && a[l]) document.write('<script src="' + a[l] + '"><\\/script>');
+})();`;
 
 // Applies the reader's stored theme (/js/theme.js) before first paint, so a
 // pinned dark theme never flashes light (or the reverse). No stored choice =
@@ -132,6 +142,10 @@ export default function RootLayout({
             paints. Covered by the CSP's script-src 'unsafe-inline'. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
         <script dangerouslySetInnerHTML={{ __html: VIEW_TRANSITIONS }} />
+        {/* Sync, in <head>: must run before any vanilla module (audio.js,
+            comments.js, …) so they can read window.__i18n.t at load. It only
+            writes the tags for the cached bundle files (see I18N_BOOTSTRAP). */}
+        <script dangerouslySetInnerHTML={{ __html: I18N_BOOTSTRAP }} />
         {/* Content hash of /notes-index.json for the command palette's lazy
             fetch (?v=), so a new build never reads a cached old list. */}
         <meta name="gk-notes-index" content={notesIndexVersion()} />
@@ -156,12 +170,8 @@ export default function RootLayout({
         >
           {t("layout.skipLink")}
         </a>
-        <script
-          // Sync inline: must run before any vanilla module (audio.js, comments.js,
-          // …) so they can read window.__i18n.t at load. Loader-blocking is fine
-          // — the bundle is small (< 6 KB).
-          dangerouslySetInnerHTML={{ __html: I18N_BOOTSTRAP }}
-        />
+        {/* First of the deferred scripts, so it catches the others' errors. */}
+        <Script src="/js/error-beacon.js" strategy="afterInteractive" />
         <Script src="/js/i18n.js" strategy="afterInteractive" />
         <SiteBar />
         {children}
@@ -182,9 +192,10 @@ export default function RootLayout({
             with lib/palette-match.ts by scripts/bundle-js.mjs. */}
         <Script src="/js/palette.bundle.js" strategy="afterInteractive" />
         {/* Pronunciation clips (.pron-btn): notes render them via Markdown
-            (![word](clip.mp3)) and /cartes decks via [sound:clip.mp3], so this
-            loads everywhere rather than only through <NoteScripts />. */}
-        <Script src="/js/pronounce.js" strategy="afterInteractive" />
+            (![word](clip.mp3)) and /cartes decks via [sound:clip.mp3]. The
+            loader is site-wide and tiny; it fetches /js/pronounce.js only
+            once a clip is on the page. */}
+        <Script src="/js/pronounce-loader.js" strategy="afterInteractive" />
         {/* Service worker: offline reading of visited notes + instant repeat
             loads. It never caches /api/*. */}
         <Script src="/js/sw-register.js" strategy="afterInteractive" />

@@ -97,7 +97,7 @@ jobs:
       # every run + a prefix restore-key means each run both starts warm AND
       # saves its own state, so git-lfs only ever fetches new/changed clips.
       - name: Cache notes vault clone
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/pensine
           key: pensine-vault-${{ github.run_id }}
@@ -109,7 +109,7 @@ jobs:
       # images from scratch takes hours; restoring this makes it near-free,
       # and a changed image simply misses its own key.
       - name: Cache derived image variants
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .cache/vault-images
           key: vault-images-${{ github.run_id }}
@@ -119,7 +119,7 @@ jobs:
       # Next's own build cache ("No build cache found" otherwise). Same
       # unique-key + prefix-restore pattern as the caches above.
       - name: Cache Next build
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .next/cache
           key: next-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.run_id }}
@@ -154,7 +154,7 @@ jobs:
 
       - name: Upload Playwright report on failure
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-report
           path: playwright-report/

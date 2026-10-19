@@ -7,6 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { env } from "./env.ts";
 import { ACCOUNT_SCHEMA } from "./account-store.ts";
+import { clientErrorKey, type ClientErrorInput, type ReportInput } from "../lib/feedback.ts";
 
 export interface CommentRow {
   id: number;
@@ -86,6 +87,31 @@ export function initDb(): Database.Database {
       via TEXT NOT NULL DEFAULT ''
     );
     CREATE INDEX IF NOT EXISTS idx_admin_events_at ON admin_events(at DESC);
+    -- Uncaught errors in readers' browsers (public/js/error-beacon.js), one row
+    -- per message + place, counted. No IP; self-trims to MAX_CLIENT_ERRORS.
+    CREATE TABLE IF NOT EXISTS client_errors (
+      key TEXT PRIMARY KEY,
+      message TEXT NOT NULL,
+      source TEXT NOT NULL DEFAULT '',
+      line INTEGER NOT NULL DEFAULT 0,
+      stack TEXT NOT NULL DEFAULT '',
+      path TEXT NOT NULL DEFAULT '',
+      count INTEGER NOT NULL DEFAULT 1,
+      first_seen INTEGER NOT NULL,
+      last_seen INTEGER NOT NULL
+    );
+    CREATE INDEX IF NOT EXISTS idx_client_errors_last ON client_errors(last_seen DESC);
+    -- "Signaler une erreur" on a note passage (POST /api/report), until the
+    -- owner marks it handled from /admin. No IP, no account link.
+    CREATE TABLE IF NOT EXISTS error_reports (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      slug TEXT NOT NULL,
+      passage TEXT NOT NULL,
+      remark TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      done_at INTEGER
+    );
+    CREATE INDEX IF NOT EXISTS idx_error_reports_open ON error_reports(done_at, created_at DESC);
   `);
   // Reader accounts, progress sync, coins, streaks, avatar items
   // (server/account-store.ts).
@@ -390,6 +416,93 @@ export function deleteSearchMiss(q: string, where?: string): number {
     ? d.prepare('DELETE FROM search_misses WHERE q = ? AND "where" = ?').run(q, where)
     : d.prepare("DELETE FROM search_misses WHERE q = ?").run(q);
   return r.changes;
+}
+
+// --- client errors and error reports (lib/feedback.ts) ---------------------------
+
+export interface ClientErrorRow {
+  key: string;
+  message: string;
+  source: string;
+  line: number;
+  stack: string;
+  path: string;
+  count: number;
+  first_seen: number;
+  last_seen: number;
+}
+
+const MAX_CLIENT_ERRORS = 300;
+
+/** Count one occurrence; the stack and page are the latest seen. */
+export function recordClientError(e: ClientErrorInput, now = Date.now()): void {
+  const d = get();
+  d.prepare(
+    "INSERT INTO client_errors (key, message, source, line, stack, path, count, first_seen, last_seen) " +
+      "VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?) ON CONFLICT (key) DO UPDATE SET count = count + 1, " +
+      "last_seen = excluded.last_seen, stack = excluded.stack, path = excluded.path",
+  ).run(clientErrorKey(e), e.message, e.source, e.line, e.stack, e.path, now, now);
+  d.prepare(
+    "DELETE FROM client_errors WHERE rowid NOT IN (SELECT rowid FROM client_errors ORDER BY last_seen DESC LIMIT ?)",
+  ).run(MAX_CLIENT_ERRORS);
+}
+
+export function clientErrors(limit = 100): { errors: ClientErrorRow[]; total: number } {
+  const d = get();
+  const errors = d
+    .prepare("SELECT * FROM client_errors ORDER BY last_seen DESC LIMIT ?")
+    .all(limit) as ClientErrorRow[];
+  const total = (d.prepare("SELECT count(*) AS n FROM client_errors").get() as { n: number }).n;
+  return { errors, total };
+}
+
+export function deleteClientError(key: string): number {
+  return get().prepare("DELETE FROM client_errors WHERE key = ?").run(key).changes;
+}
+
+export interface ErrorReportRow {
+  id: number;
+  slug: string;
+  passage: string;
+  remark: string;
+  created_at: number;
+  done_at: number | null;
+}
+
+const MAX_OPEN_REPORTS = 500;
+
+/** Queue one report; false once the open queue is full (spam guard). */
+export function recordErrorReport(r: ReportInput, now = Date.now()): boolean {
+  const d = get();
+  const open = (d.prepare("SELECT count(*) AS n FROM error_reports WHERE done_at IS NULL").get() as { n: number }).n;
+  if (open >= MAX_OPEN_REPORTS) return false;
+  d.prepare("INSERT INTO error_reports (slug, passage, remark, created_at) VALUES (?, ?, ?, ?)").run(
+    r.slug,
+    r.passage,
+    r.remark,
+    now,
+  );
+  // Handled reports are kept 90 days, for the record.
+  d.prepare("DELETE FROM error_reports WHERE done_at IS NOT NULL AND done_at < ?").run(now - 90 * 86_400_000);
+  return true;
+}
+
+export function errorReports(limit = 200): { open: ErrorReportRow[]; done: ErrorReportRow[] } {
+  const d = get();
+  const open = d
+    .prepare("SELECT * FROM error_reports WHERE done_at IS NULL ORDER BY created_at DESC LIMIT ?")
+    .all(limit) as ErrorReportRow[];
+  const done = d
+    .prepare("SELECT * FROM error_reports WHERE done_at IS NOT NULL ORDER BY done_at DESC LIMIT 20")
+    .all() as ErrorReportRow[];
+  return { open, done };
+}
+
+/** Mark handled (or reopen with done=false). */
+export function setErrorReportDone(id: number, done: boolean, now = Date.now()): number {
+  return get()
+    .prepare("UPDATE error_reports SET done_at = ? WHERE id = ?")
+    .run(done ? now : null, id).changes;
 }
 
 // Fallback if schema/comments.sql isn't shipped (kept in sync with that file).

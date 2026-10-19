@@ -27,6 +27,8 @@ import { UsageCard, nearCap, type UsageData } from "./UsageCard";
 import { ActivityCard } from "./ActivityCard";
 import { EventsCard } from "./EventsCard";
 import { NotificationsCard } from "./NotificationsCard";
+import { ReportsCard, REPORTS_ID, type ReportsData } from "./ReportsCard";
+import { ClientErrorsCard, CLIENT_ERRORS_ID, type ClientErrorsData } from "./ClientErrorsCard";
 
 export type TabId = "lecteurs" | "contenu" | "comptes" | "activite" | "site";
 
@@ -52,7 +54,7 @@ export const ADMIN_TABS: AdminTab[] = [
     id: "contenu",
     label: "Contenu",
     key: "c",
-    cards: [VaultHealthCard, PrereqSuggestionsCard, FactsToCheckCard],
+    cards: [ReportsCard, VaultHealthCard, PrereqSuggestionsCard, FactsToCheckCard],
   },
   {
     id: "comptes",
@@ -70,7 +72,7 @@ export const ADMIN_TABS: AdminTab[] = [
     id: "site",
     label: "Site",
     key: "s",
-    cards: [AssistantCard, VersionCard, RebuildCard, NotificationsCard, EventsCard, RagDebugCard],
+    cards: [AssistantCard, VersionCard, RebuildCard, ClientErrorsCard, NotificationsCard, EventsCard, RagDebugCard],
   },
 ];
 
@@ -117,6 +119,14 @@ export const DASHBOARD_TILES: DashboardTile[] = [
     target: "admin-search-misses",
     useCount: ({ token, onUnauthorized }) =>
       useAdminResource<MissesData>(URLS.searchMisses, token, onUnauthorized).data?.total ?? null,
+  },
+  {
+    id: "reports",
+    label: "passages signalés par des lecteurs",
+    tab: "contenu",
+    target: REPORTS_ID,
+    useCount: ({ token, onUnauthorized }) =>
+      useAdminResource<ReportsData>(URLS.reports, token, onUnauthorized).data?.open.length ?? null,
   },
   {
     id: "broken-links",
@@ -174,6 +184,14 @@ export const DASHBOARD_TILES: DashboardTile[] = [
       const d = useAdminResource<UsageData>(URLS.usage, token, onUnauthorized).data;
       return d ? [d.ask, d.translate].filter(nearCap).length : null;
     },
+  },
+  {
+    id: "client-errors",
+    label: "erreurs chez les lecteurs",
+    tab: "site",
+    target: CLIENT_ERRORS_ID,
+    useCount: ({ token, onUnauthorized }) =>
+      useAdminResource<ClientErrorsData>(URLS.clientErrors, token, onUnauthorized).data?.total ?? null,
   },
   {
     id: "behind",

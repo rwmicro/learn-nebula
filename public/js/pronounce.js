@@ -1,8 +1,8 @@
 // Pronunciation clips render as `.pron-btn` inside a `.pron` span, produced by
 // two build-time sources: `![word](clip.mp3)` in a note (rehypeVaultAssets in
 // lib/markdown.ts) and `[sound:clip.mp3]` in an Anki field (rewriteMedia in
-// scripts/build-anki.mjs). Loaded site-wide (app/layout.tsx) rather than only
-// via <NoteScripts /> so it covers both /posts/* and /cartes/* decks.
+// scripts/build-anki.mjs). Loaded by /js/pronounce-loader.js (site-wide, from
+// app/layout.tsx) as soon as a clip is on the page, on /posts/* and /cartes/*.
 //
 // Same idle → playing → paused → playing cycle as the whole-article "listen"
 // button (/js/audio.js), so the interaction is consistent across the site.

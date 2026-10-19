@@ -502,7 +502,9 @@
     "copyLinkAria": "Copiar un enlace a este pasaje",
     "linkCopied": "Enlace copiado",
     "copyFailed": "No se pudo copiar",
-    "highlight": "Subrayar"
+    "highlight": "Subrayar",
+    "report": "Informar",
+    "reportAria": "Informar de un error en este pasaje"
   },
   "glossary": {
     "kicker": "Glosario",
@@ -1461,5 +1463,23 @@
   "reviewEmpty": {
     "decks": "Elegir un mazo",
     "path": "Leer una nota de un recorrido"
+  },
+  "errorPage": {
+    "title": "Esta página no se pudo mostrar",
+    "body": "Algo falló en tu navegador. Se ha notificado; volver a intentarlo suele bastar.",
+    "retry": "Reintentar",
+    "home": "Volver al inicio"
+  },
+  "report": {
+    "title": "Informar de un error",
+    "label": "¿Qué está mal?",
+    "hint": "Una fecha, un nombre, una explicación errónea… Tu aviso lo lee el autor y no se publica.",
+    "cancel": "Cancelar",
+    "send": "Enviar",
+    "sending": "Enviando…",
+    "thanks": "Gracias, anotado.",
+    "tooShort": "Di en pocas palabras qué está mal.",
+    "tooMany": "Demasiados avisos seguidos: inténtalo más tarde.",
+    "failed": "No se pudo enviar."
   }
 }

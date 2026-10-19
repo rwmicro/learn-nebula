@@ -502,7 +502,9 @@
     "copyLinkAria": "Copier un lien vers ce passage",
     "linkCopied": "Lien copié",
     "copyFailed": "Copie impossible",
-    "highlight": "Surligner"
+    "highlight": "Surligner",
+    "report": "Signaler",
+    "reportAria": "Signaler une erreur dans ce passage"
   },
   "glossary": {
     "kicker": "Glossaire",
@@ -1461,5 +1463,23 @@
   "reviewEmpty": {
     "decks": "Choisir un paquet",
     "path": "Lire une note de parcours"
+  },
+  "errorPage": {
+    "title": "Cette page n'a pas pu s'afficher",
+    "body": "Une erreur est survenue dans ton navigateur. Elle a été signalée ; réessayer suffit souvent.",
+    "retry": "Réessayer",
+    "home": "Retour à l'accueil"
+  },
+  "report": {
+    "title": "Signaler une erreur",
+    "label": "Qu'est-ce qui ne va pas ?",
+    "hint": "Une date, un nom, une explication fausse… Ton signalement est lu par l'auteur, il n'est pas publié.",
+    "cancel": "Annuler",
+    "send": "Envoyer",
+    "sending": "Envoi…",
+    "thanks": "Merci, c'est noté.",
+    "tooShort": "Dis en quelques mots ce qui ne va pas.",
+    "tooMany": "Beaucoup de signalements d'un coup : réessaie plus tard.",
+    "failed": "L'envoi a échoué."
   }
 }

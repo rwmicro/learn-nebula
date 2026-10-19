@@ -4,12 +4,12 @@
   "type": "module",
   "packageManager": "pnpm@10.28.0",
   "scripts": {
-    "predev": "node scripts/bundle-js.mjs && node scripts/build-figures.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-image-variants.mjs && node scripts/build-anki.mjs",
+    "predev": "tsx scripts/build-i18n.ts && node scripts/bundle-js.mjs && node scripts/build-figures.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-image-variants.mjs && node scripts/build-anki.mjs",
     "dev": "next dev",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:fast": "oxlint",
-    "build": "node scripts/fetch-notes.mjs && node scripts/build-info.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-image-variants.mjs && node scripts/build-anki.mjs && node scripts/build-figures.mjs && tsx scripts/build-og-images.ts && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/build-rag-chunks.mjs && tsx scripts/build-content-manifest.ts && tsx scripts/vault-health.ts && tsx scripts/prereq-suggestions.ts && tsx scripts/facts-to-check.ts && node scripts/prune-rsc.mjs && node scripts/precompress.mjs",
+    "build": "node scripts/fetch-notes.mjs && node scripts/build-info.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-image-variants.mjs && node scripts/build-anki.mjs && node scripts/build-figures.mjs && tsx scripts/build-i18n.ts && tsx scripts/build-og-images.ts && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/build-rag-chunks.mjs && tsx scripts/build-content-manifest.ts && tsx scripts/vault-health.ts && tsx scripts/prereq-suggestions.ts && tsx scripts/facts-to-check.ts && node scripts/prune-rsc.mjs && node scripts/precompress.mjs",
     "start": "npx serve out",
     "format": "prettier --write .",
     "test:unit": "vitest run",
@@ -19,7 +19,7 @@
     "build:vault-health": "tsx scripts/vault-health.ts",
     "build:prereq-suggestions": "tsx scripts/prereq-suggestions.ts",
     "build:facts-to-check": "tsx scripts/facts-to-check.ts",
-    "build:docker": "node scripts/fetch-notes.mjs && node scripts/build-info.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-image-variants.mjs && node scripts/build-anki.mjs && node scripts/build-figures.mjs && tsx scripts/build-og-images.ts && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/build-rag-chunks.mjs && tsx scripts/build-content-manifest.ts && tsx scripts/vault-health.ts && tsx scripts/prereq-suggestions.ts && tsx scripts/facts-to-check.ts && node scripts/prune-rsc.mjs && node scripts/precompress.mjs",
+    "build:docker": "node scripts/fetch-notes.mjs && node scripts/build-info.mjs && node scripts/bundle-js.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-vault-images.mjs && node scripts/build-image-variants.mjs && node scripts/build-anki.mjs && node scripts/build-figures.mjs && tsx scripts/build-i18n.ts && tsx scripts/build-og-images.ts && next build && node scripts/render-mermaid.mjs && npx pagefind --site out && node scripts/build-rag-chunks.mjs && tsx scripts/build-content-manifest.ts && tsx scripts/vault-health.ts && tsx scripts/prereq-suggestions.ts && tsx scripts/facts-to-check.ts && node scripts/prune-rsc.mjs && node scripts/precompress.mjs",
     "dev:docker": "pnpm build:docker && docker compose -f docker-compose.test.yml up -d --build"
   },
   "dependencies": {

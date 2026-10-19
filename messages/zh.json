@@ -502,7 +502,9 @@
     "copyLinkAria": "复制指向这段文字的链接",
     "linkCopied": "链接已复制",
     "copyFailed": "复制失败",
-    "highlight": "高亮"
+    "highlight": "高亮",
+    "report": "报告",
+    "reportAria": "报告此段中的错误"
   },
   "glossary": {
     "kicker": "术语表",
@@ -1461,5 +1463,23 @@
   "reviewEmpty": {
     "decks": "选择卡组",
     "path": "阅读一条学习路径中的笔记"
+  },
+  "errorPage": {
+    "title": "此页面无法显示",
+    "body": "浏览器中出现了错误，已自动报告。重试通常即可解决。",
+    "retry": "重试",
+    "home": "返回首页"
+  },
+  "report": {
+    "title": "报告错误",
+    "label": "哪里有问题？",
+    "hint": "日期、名称或解释有误……你的报告只会发给作者，不会公开。",
+    "cancel": "取消",
+    "send": "发送",
+    "sending": "正在发送…",
+    "thanks": "谢谢，已记录。",
+    "tooShort": "请简单说明问题所在。",
+    "tooMany": "报告过多，请稍后再试。",
+    "failed": "发送失败。"
   }
 }

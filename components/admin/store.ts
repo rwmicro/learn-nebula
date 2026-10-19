@@ -198,6 +198,8 @@ export const URLS = {
   prereqs: "/api/admin/prereq-suggestions",
   blockedWords: "/api/admin/blocked-words",
   searchMisses: "/api/admin/search-misses",
+  clientErrors: "/api/admin/client-errors",
+  reports: "/api/admin/reports",
   facts: "/api/admin/facts",
   builds: "/api/admin/builds",
   ragDebug: "/api/admin/rag-debug",
