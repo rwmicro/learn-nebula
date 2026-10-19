@@ -2,7 +2,7 @@
 // a request for any well-formed address answers the same, and the account is
 // only created when the link is opened.
 //
-//   GET  /api/auth/config  → { enabled, turnstileSiteKey? }
+//   GET  /api/auth/config  → { enabled, passkey, turnstileSiteKey? }
 //   POST /api/auth/request { email, turnstileToken?, next? } → { ok: true }
 //   POST /api/auth/verify  { token } → { ok: true } (sets gk_session) | 400 { error: "expired" }
 //
@@ -12,6 +12,9 @@
 // reader does; they don't run the page's script. The token sits in the
 // fragment, which no server or log ever sees.
 //   POST /api/auth/logout  → { ok: true } (clears gk_session)
+//
+// Passkeys (server/routes/passkey.ts, /api/auth/passkey/*) sign in to the same
+// gk_session; this link stays the way in on a new device.
 
 import { Hono } from "hono";
 import { env } from "../env.ts";
@@ -20,6 +23,7 @@ import { Quota } from "../ratelimit.ts";
 import { database } from "../db.ts";
 import { verifyTurnstile } from "../turnstile.ts";
 import { mailConfigured, sendLoginMail } from "../mail.ts";
+import { passkeyRp } from "./passkey.ts";
 import { ACCOUNT_PATH, hashToken, normalizeEmail, safeNext } from "../accounts.ts";
 import {
   consumeLoginToken,
@@ -53,10 +57,12 @@ authRoute.use("*", sameOrigin, noStore);
 
 authRoute.get("/config", (c) => {
   const enabled = authEnabled();
+  // passkey: whether /api/auth/passkey/* works (server/routes/passkey.ts).
+  const passkey = enabled && passkeyRp() !== null;
   return c.json(
     enabled && env.turnstileSecret && env.turnstileSiteKey
-      ? { enabled, turnstileSiteKey: env.turnstileSiteKey }
-      : { enabled },
+      ? { enabled, passkey, turnstileSiteKey: env.turnstileSiteKey }
+      : { enabled, passkey },
   );
 });
 

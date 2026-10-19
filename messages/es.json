@@ -73,7 +73,9 @@
     "seedling": "brote",
     "budding": "en crecimiento",
     "evergreen": "madura",
-    "stageAria": "Estado de madurez de la nota"
+    "stageAria": "Estado de madurez de la nota",
+    "history": "historial",
+    "historyAria": "Todas las versiones de esta nota, en GitHub"
   },
   "pronunciation": {
     "playAria": "Escuchar la pronunciación",
@@ -1266,7 +1268,10 @@
     "minutes": "{n} min",
     "ofReview": "de repaso",
     "daysRun": "días seguidos",
-    "finish": "Terminar"
+    "finish": "Terminar",
+    "pip": "Repasar en ventana flotante",
+    "pipActive": "El repaso continúa en la ventana flotante.",
+    "pipBack": "Volver aquí"
   },
   "rv": {
     "today": "Hoy",
@@ -1481,5 +1486,31 @@
     "tooShort": "Di en pocas palabras qué está mal.",
     "tooMany": "Demasiados avisos seguidos: inténtalo más tarde.",
     "failed": "No se pudo enviar."
+  },
+  "passkey": {
+    "title": "Llaves de acceso",
+    "intro": "Inicia sesión con un gesto, sin esperar ningún correo. El enlace por correo sigue como alternativa.",
+    "create": "Crear una llave de acceso",
+    "created": "Llave de acceso creada. La próxima vez, elígela en el campo de correo.",
+    "failed": "No ha funcionado. Vuelve a intentarlo o sigue con el enlace por correo.",
+    "deleted": "Llave de acceso eliminada.",
+    "delete": "Eliminar",
+    "confirmDelete": "Confirmar",
+    "usedOn": "usada el {date}",
+    "createdOn": "creada el {date}"
+  },
+  "push": {
+    "title": "Recordatorio de repaso",
+    "intro": "Una notificación al día, a la hora que elijas, cuando haya tarjetas esperándote.",
+    "toggle": "Recordármelo cada día",
+    "hour": "Hora",
+    "saved": "Hecho: recordatorio cada día a las {time}.",
+    "denied": "Las notificaciones están bloqueadas para este sitio en tu navegador.",
+    "error": "No se ha podido guardar el recordatorio por ahora.",
+    "iosInstall": "En iPhone y iPad, los recordatorios solo funcionan desde el sitio añadido a la pantalla de inicio.",
+    "notifTitle": "Garden of Knowledge",
+    "generic": "Tu repaso del día te espera.",
+    "due": "{n} tarjetas para repasar hoy.",
+    "dueOne": "{n} tarjeta para repasar hoy."
   }
 }

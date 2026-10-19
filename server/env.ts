@@ -129,7 +129,29 @@ export const env = {
   // the endpoint, all IPs together. 0 disables. Per-instance, in-memory.
   askDaily: Number(process.env.ASK_DAILY_LIMIT ?? 1000),
   translateDaily: Number(process.env.TRANSLATE_DAILY_LIMIT ?? 400),
+
+  // --- review reminders (Web Push) ---
+  // VAPID key pair (`npx web-push generate-vapid-keys`) and a mailto: contact
+  // for the push services. Any of the three unset → reminders are off: no
+  // opt-in in /compte, no sender loop (server/push-sender.ts).
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY || "",
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY || "",
+  vapidSubject: process.env.VAPID_SUBJECT || "",
+  // --- end review reminders ---
+
+  // --- two-player rooms (/duel/: revision duel, language tandem) ---
+  // Optional TURN relay through Cloudflare Realtime TURN: GET /api/room/ice
+  // mints short-lived credentials with this key. Unset → STUN only (direct
+  // connections; the "passer par un relais" option is greyed out).
+  turnKeyId: process.env.TURN_KEY_ID || "",
+  turnKeyApiToken: process.env.TURN_KEY_API_TOKEN || "",
+  // --- end two-player rooms ---
 };
+
+/** Whether Web Push reminders can be sent (all three VAPID values set). */
+export function pushConfigured(): boolean {
+  return Boolean(env.vapidPublicKey && env.vapidPrivateKey && /^(mailto:|https:)/.test(env.vapidSubject));
+}
 
 /** Whether any generation backend is configured. */
 export function canGenerate(): boolean {

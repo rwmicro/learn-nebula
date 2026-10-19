@@ -10,6 +10,12 @@
 //
 // instantpage.js already prefetches these very URLs on hover, so by the time
 // this asks for one the browser usually answers from its cache.
+//
+// Where the browser has CSS anchor positioning, the card is a popover="hint"
+// anchored to the link (lib/anchor-popover.ts): it follows the link and turns
+// over near the edges by itself. Elsewhere place() below positions it.
+import { anchoredCard, anchoredPopoverMode } from "../../lib/anchor-popover";
+
 (function () {
   // Pointer-driven affordance: on touch a tap should just follow the link, and
   // a reader who asked for less motion gets the link's own title attribute.
@@ -25,6 +31,15 @@
   let openTimer = 0;
   let closeTimer = 0;
   let activeLink = null;
+  const mode = anchoredPopoverMode();
+  let host = null; // anchoredCard(), when the browser places the card
+
+  const isShown = () => !!card && (host ? host.isOpen() : !card.hidden);
+  function hideCard() {
+    if (!card) return;
+    if (host) host.hide();
+    else card.hidden = true;
+  }
 
   function ensureCard() {
     if (card) return card;
@@ -38,6 +53,11 @@
     p.className = "note-popover-excerpt";
     card.append(h, p);
     document.body.appendChild(card);
+    if (mode)
+      host = anchoredCard(card, "--gk-preview", mode, () => {
+        clearTimeout(openTimer);
+        activeLink = null;
+      });
     // Keep the card open while the pointer is inside it, so a reader can move
     // onto it (to select the text) without it vanishing mid-gesture.
     card.addEventListener("mouseenter", () => clearTimeout(closeTimer));
@@ -139,6 +159,7 @@
       el.querySelector(".note-popover-excerpt").textContent = data.excerpt;
       el.querySelector(".note-popover-title").hidden = !data.title;
       el.querySelector(".note-popover-excerpt").hidden = !data.excerpt;
+      if (host) return host.show(link);
       el.hidden = false;
       // Measure once visible, then position.
       place(link);
@@ -149,7 +170,7 @@
     clearTimeout(closeTimer);
     closeTimer = setTimeout(() => {
       activeLink = null;
-      if (card) card.hidden = true;
+      hideCard();
     }, CLOSE_DELAY);
   }
 
@@ -175,20 +196,21 @@
   document.addEventListener("focusin", onEnter);
   document.addEventListener("focusout", onLeave);
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && card && !card.hidden) {
+    if (e.key === "Escape" && isShown()) {
       clearTimeout(openTimer);
       activeLink = null;
-      card.hidden = true;
+      hideCard();
     }
   });
-  // A card pinned to a link that has scrolled away is just litter.
+  // A card pinned to a link that has scrolled away is just litter. An
+  // anchored card scrolls with its link instead (and hides with it).
   window.addEventListener(
     "scroll",
     () => {
-      if (card && !card.hidden) {
+      if (!host && isShown()) {
         clearTimeout(openTimer);
         activeLink = null;
-        card.hidden = true;
+        hideCard();
       }
     },
     { passive: true },

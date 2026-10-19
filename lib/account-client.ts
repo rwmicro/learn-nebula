@@ -81,6 +81,8 @@ export function writeHint(h: Hint): void {
 
 export interface AuthConfig {
   enabled: boolean;
+  /** Passkeys offered beside the magic link (server/routes/passkey.ts). */
+  passkey?: boolean;
   turnstileSiteKey?: string;
 }
 
@@ -92,7 +94,7 @@ export async function authConfig(): Promise<AuthConfig> {
     const r = await fetch("/api/auth/config", { cache: "no-store" });
     if (!r.ok) throw new Error(String(r.status));
     const c = (await r.json()) as AuthConfig;
-    const out = { enabled: !!c.enabled, turnstileSiteKey: c.turnstileSiteKey };
+    const out = { enabled: !!c.enabled, passkey: !!c.passkey, turnstileSiteKey: c.turnstileSiteKey };
     writeJson(ss(), CFG_KEY, { ...out, at: Date.now() });
     return out;
   } catch {

@@ -32,6 +32,9 @@ import {
 import { nextParam, useTurnstile } from "@/components/account/use-turnstile";
 import { AccountPhone } from "@/components/account/AccountPhone";
 import { LoginPhone } from "@/components/account/LoginPhone";
+import { Passkeys, Reminders } from "@/components/account/Security";
+import { usePasskeyAutofill } from "@/components/account/use-passkey-autofill";
+import { autoRegisterAfterLogin } from "@/lib/passkey-client";
 
 const SLOTS: Slot[] = ["body", "hat", "accessory", "background"];
 
@@ -122,6 +125,8 @@ export function Account() {
         if (c.enabled) {
           void load().then((u) => {
             if (u) void syncNow({ force: true }).then(() => load());
+            // Just in by the e-mailed link: offer a passkey for next time.
+            if (u && justIn && c.passkey) void autoRegisterAfterLogin();
           });
         } else setMe(null);
       });
@@ -145,7 +150,10 @@ export function Account() {
     );
   }
   if (!me) return phone ? <LoginPhone cfg={cfg} expired={expired} tr={tr} /> : <Login cfg={cfg} expired={expired} tr={tr} />;
-  if (phone) return <AccountPhone me={me} data={data} freeze={freeze} reload={load} tr={tr} locale={locale} />;
+  if (phone)
+    return (
+      <AccountPhone me={me} data={data} freeze={freeze} reload={load} tr={tr} locale={locale} passkey={cfg.passkey} />
+    );
 
   const owned = new Set([...(data?.owned ?? []), ...ITEMS.filter((i) => i.price === 0).map((i) => i.id)]);
   const look = draft ?? me.look;
@@ -422,6 +430,8 @@ export function Account() {
             {tr("account.logout")}
           </button>
         </div>
+        {cfg.passkey && <Passkeys tr={tr} locale={locale} />}
+        <Reminders tr={tr} locale={locale} />
         <DangerZone tr={tr} busy={busy} onDelete={remove} />
       </section>
     </div>
@@ -521,6 +531,7 @@ function Login({
   const [email, setEmail] = useState("");
   const [state, setState] = useState<"" | "busy" | "sent" | "invalid" | "limited" | "disabled" | "error">("");
   const { box: tsBox, token: tsToken, reset: tsReset } = useTurnstile(cfg.turnstileSiteKey);
+  usePasskeyAutofill(cfg.passkey);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -557,7 +568,7 @@ function Login({
               <input
                 type="email"
                 required
-                autoComplete="email"
+                autoComplete="username webauthn"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={tr("account.emailPlaceholder")}

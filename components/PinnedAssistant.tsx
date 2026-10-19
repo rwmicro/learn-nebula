@@ -10,6 +10,14 @@
 //   • Once open it docks — draggable by its header, resizable by its top-left
 //     corner — and persists across navigation (pinned flag, position and size in
 //     localStorage). There is only ever ONE assistant.
+//   • "Avec mes mots" in the selection toolbar (`gk:explain-own`) switches it
+//     to "explique-le avec tes mots": the reader explains the pinned passage
+//     and gets feedback (POST /api/ask/explain). The "Socratique" toggle makes
+//     the assistant answer with questions (`socratic: true`).
+//   • Chrome's on-device AI (lib/browser-ai.ts) first, where present: the
+//     question's language is detected and sent as `lang`, and the explain /
+//     socratic-on-a-passage answers run on the device's model when it covers
+//     the language — the server answers everything else.
 // Shares the NDJSON wire format with the home assistant via readAskStream.
 
 import {
@@ -22,6 +30,15 @@ import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { readAskStream, type AskSource } from "@/lib/ask-stream";
 import { markdownToHtml } from "@/lib/markdown-lite";
+import { detectLanguage, promptAvailable, promptOnDevice } from "@/lib/browser-ai";
+import {
+  ASK_LANG_NAMES,
+  MAX_EXPLAIN_TEXT,
+  SOCRATIC_RULES,
+  explainSystem,
+  explainUser,
+  replyLangHint,
+} from "@/lib/ask-prompts";
 // Type-only: erased at build, so lib/content.ts (node:fs) never reaches the bundle.
 import type { ScopeOption } from "@/lib/content";
 
@@ -29,6 +46,18 @@ const KEY = "gkChatPinned";
 const POS_KEY = "gkChatPos";
 const SIZE_KEY = "gkChatSize";
 const SCOPE_KEY = "gkChatScope";
+const SOCRATIC_KEY = "gkChatSocratic";
+
+/** System prompt for a socratic answer on the device, grounded on the pinned
+ *  passage alone (the device has no access to the notes index). */
+function socraticDeviceSystem(lang: string): string {
+  return [
+    "Tu es l'assistant de « Garden of Knowledge », un jardin de notes personnel.",
+    "- Appuie-toi uniquement sur le passage fourni par l'utilisateur.",
+    SOCRATIC_RULES,
+    lang ? `- Réponds en ${ASK_LANG_NAMES[lang]}.` : "- Réponds dans la langue de la question.",
+  ].join("\n");
+}
 
 const SPROUT = (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -58,6 +87,12 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
   // Retrieval scope: "" = the whole garden, else a language folder slug.
   const [scope, setScope] = useState("");
   const [candidate, setCandidate] = useState<{ text: string; x: number; y: number } | null>(null);
+  // "ask" = questions; "own" = the reader explains the pinned passage.
+  const [mode, setMode] = useState<"ask" | "own">("ask");
+  const [socratic, setSocratic] = useState(false);
+  // The last answer came from the device's model, not the server.
+  const [onDevice, setOnDevice] = useState(false);
+  const ownRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const panelRef = useRef<HTMLElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -105,14 +140,39 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
       if (!text) return;
       setSelection(text);
       setQuestion("");
+      setMode("ask");
       open();
       askRef.current("", text);
     };
+    // "Avec mes mots": pin the passage and wait for the reader's explanation.
+    const onExplainOwn = (e: Event) => {
+      const text = String((e as CustomEvent<{ text?: string }>).detail?.text ?? "")
+        .trim()
+        .slice(0, 4000);
+      if (!text) return;
+      abortRef.current?.abort();
+      setSelection(text);
+      setQuestion("");
+      setAnswer("");
+      setSources([]);
+      setAsked(false);
+      setBusy(false);
+      setMode("own");
+      open();
+      requestAnimationFrame(() => ownRef.current?.focus());
+    };
+    try {
+      setSocratic(localStorage.getItem(SOCRATIC_KEY) === "1");
+    } catch {
+      /* localStorage unavailable */
+    }
     window.addEventListener("gk:pin-chat", onPin);
     window.addEventListener("gk:explain", onExplain);
+    window.addEventListener("gk:explain-own", onExplainOwn);
     return () => {
       window.removeEventListener("gk:pin-chat", onPin);
       window.removeEventListener("gk:explain", onExplain);
+      window.removeEventListener("gk:explain-own", onExplainOwn);
     };
   }, []);
   useEffect(() => () => abortRef.current?.abort(), []);
@@ -130,6 +190,15 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
     const here = scopes.find((s) => location.pathname.startsWith(`/posts/${s.slug}/`));
     setScope(here ? here.slug : scopes.some((s) => s.slug === stored) ? stored : "");
   }, [scopes]);
+
+  function toggleSocratic(on: boolean) {
+    setSocratic(on);
+    try {
+      localStorage.setItem(SOCRATIC_KEY, on ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }
 
   function chooseScope(value: string) {
     setScope(value);
@@ -181,7 +250,7 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   // --- drag by the header --------------------------------------------------
   function onHeadDown(e: ReactPointerEvent) {
-    if ((e.target as Element).closest("button")) return;
+    if ((e.target as Element).closest("button, label, input")) return;
     const el = panelRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -261,6 +330,31 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
     return (navigator.language || "fr").slice(0, 2).toLowerCase();
   }
 
+  /** Run one prompt on the device's model when it covers `lang`; false when
+   *  it doesn't (or fails before answering), so the caller asks the server. */
+  async function tryDevice(ctrl: AbortController, lang: string, system: string, prompt: string) {
+    if (!(await promptAvailable(lang))) return false;
+    try {
+      const out = await promptOnDevice({
+        system,
+        prompt,
+        lang,
+        signal: ctrl.signal,
+        onText: (t2) => setAnswer(t2),
+        onDownload: (f) => setAnswer(t("askAi.deviceDownloading", { n: Math.round(f * 100) }, locale)),
+      });
+      if (!out) return false;
+      setAnswer(out);
+      setOnDevice(true);
+      setBusy(false);
+      if (abortRef.current === ctrl) abortRef.current = null;
+      return true;
+    } catch (e) {
+      if ((e as Error)?.name === "AbortError") return true; // superseded
+      return false;
+    }
+  }
+
   async function ask(text: string, sel: string = selection) {
     abortRef.current?.abort();
     const ctrl = new AbortController();
@@ -268,7 +362,19 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
     setAsked(true);
     setAnswer("");
     setSources([]);
+    setOnDevice(false);
     setBusy(true);
+
+    // The question's own language (on-device detector; null when absent or
+    // unsure, the server then follows the question).
+    const lang = replyLangHint((await detectLanguage(text, { allowDownload: true })) ?? "");
+    if (ctrl.signal.aborted) return;
+    // Socratic on a pinned passage: the passage is all the grounding needed,
+    // so the device's model can take it.
+    if (socratic && sel) {
+      const prompt = `Passage :\n« ${sel} »\n\nQuestion : ${text || tr("askAi.socraticDefault")}`;
+      if (await tryDevice(ctrl, lang || preferredReplyLocale(), socraticDeviceSystem(lang), prompt)) return;
+    }
 
     let resp: Response;
     try {
@@ -280,6 +386,8 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
           selection: sel || undefined,
           locale: preferredReplyLocale(),
           scope: scope || undefined,
+          lang: lang || undefined,
+          socratic: socratic || undefined,
         }),
         signal: ctrl.signal,
       });
@@ -289,6 +397,52 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
       setBusy(false);
       return;
     }
+    await readAnswer(resp, ctrl);
+  }
+
+  // "Explique-le avec tes mots": feedback on the reader's explanation of the
+  // pinned passage — on the device when it can, else POST /api/ask/explain.
+  async function explainOwn(text: string) {
+    abortRef.current?.abort();
+    const ctrl = new AbortController();
+    abortRef.current = ctrl;
+    setAsked(true);
+    setAnswer("");
+    setSources([]);
+    setOnDevice(false);
+    setBusy(true);
+    const passage = selection;
+    const title =
+      document.querySelector("main h1")?.textContent?.replace(/\s+/g, " ").trim().slice(0, 200) ?? "";
+    const lang = replyLangHint((await detectLanguage(text, { allowDownload: true })) ?? "");
+    if (ctrl.signal.aborted) return;
+    if (
+      await tryDevice(
+        ctrl,
+        lang || preferredReplyLocale(),
+        explainSystem(lang),
+        explainUser(passage, text, title),
+      )
+    )
+      return;
+    let resp: Response;
+    try {
+      resp = await fetch("/api/ask/explain", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ passage, explanation: text, title, lang: lang || undefined }),
+        signal: ctrl.signal,
+      });
+    } catch (e) {
+      if ((e as Error)?.name === "AbortError") return;
+      setAnswer(tr("askAi.errorReach"));
+      setBusy(false);
+      return;
+    }
+    await readAnswer(resp, ctrl);
+  }
+
+  async function readAnswer(resp: Response, ctrl: AbortController) {
     if (!resp.ok || !resp.body) {
       setAnswer(tr(resp.status === 429 ? "askAi.errorRate" : "askAi.errorUnavailable"));
       setBusy(false);
@@ -378,6 +532,16 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
         >
           <span className="gk-pinned-grip" aria-hidden="true">{SPROUT}</span>
           <span className="gk-pinned-title">{tr("home.askLabel")}</span>
+          {mode === "ask" && (
+            <label className="gk-pinned-socratic" title={tr("askAi.socraticHint")}>
+              <input
+                type="checkbox"
+                checked={socratic}
+                onChange={(e) => toggleSocratic(e.target.checked)}
+              />
+              <span>{tr("askAi.socratic")}</span>
+            </label>
+          )}
           <button
             type="button"
             className="gk-pinned-close"
@@ -397,7 +561,10 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
               <span>{selection.length > 90 ? selection.slice(0, 90) + "…" : selection}</span>
               <button
                 type="button"
-                onClick={() => setSelection("")}
+                onClick={() => {
+                  setSelection("");
+                  setMode("ask");
+                }}
                 aria-label={tr("askAi.removeChipAria")}
               >
                 ×
@@ -421,8 +588,13 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
                 dangerouslySetInnerHTML={{ __html: markdownToHtml(answer) }}
               />
             )
+          ) : mode === "own" ? (
+            <p className="gk-pinned-hint">{tr("askAi.ownIntro")}</p>
           ) : (
             !selection && <p className="gk-pinned-hint">{tr("home.askIntro")}</p>
+          )}
+          {asked && !busy && onDevice && (
+            <p className="gk-pinned-device">{tr("askAi.onDevice")}</p>
           )}
           {sources.length > 0 && (
             <ul className="gk-pinned-sources">
@@ -438,7 +610,7 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
         {/* Retrieval scope. Sits just above the input: it qualifies the question
             you're about to ask, and keeps a query about one language from
             retrieving chunks of the seventeen others. */}
-        {scopes.length > 0 && (
+        {mode === "ask" && scopes.length > 0 && (
           <div className="gk-pinned-scope">
             <label htmlFor="gk-chat-scope">{tr("askAi.scopeLabel")}</label>
             <select
@@ -457,13 +629,36 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
         )}
 
         <form
-          className="gk-pinned-form"
+          className={mode === "own" ? "gk-pinned-form gk-pinned-form--own" : "gk-pinned-form"}
           onSubmit={(e) => {
             e.preventDefault();
             const text = question.trim();
+            if (mode === "own") {
+              if (text && selection && !busy) explainOwn(text);
+              return;
+            }
             if ((text || selection) && !busy) ask(text);
           }}
         >
+          {mode === "own" ? (
+            <textarea
+              ref={ownRef}
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              onKeyDown={(e) => {
+                // Enter sends, Shift+Enter breaks the line (as in the input).
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  e.currentTarget.form?.requestSubmit();
+                }
+              }}
+              rows={3}
+              maxLength={MAX_EXPLAIN_TEXT}
+              disabled={busy}
+              placeholder={tr("askAi.ownPlaceholder")}
+              aria-label={tr("askAi.ownAria")}
+            />
+          ) : (
           <input
             ref={inputRef}
             type="text"
@@ -475,6 +670,7 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
             placeholder={selection ? tr("askAi.placeholderWithSelection") : tr("home.askPlaceholder")}
             aria-label={tr("home.askAria")}
           />
+          )}
           <button type="submit" disabled={busy}>
             {tr("home.askSend")}
           </button>

@@ -2190,3 +2190,42 @@ body:has(.home-masthead) .site-bar {
     display: none;
   }
 }
+
+/* ===========================================================================
+   Native CSS additions (review "techniques récentes", §4–5).
+   ======================================================================== */
+
+/* Balanced headings and card titles site-wide; zero specificity, so a page's
+   own text-wrap still wins. Note pages add theirs in main.css. */
+:where(h1, h2, h3, h4, .recent-notes-title, .parcours-card-title, .parcours-tile-name, .app-large-title, .rv-title) {
+  text-wrap: balance;
+}
+
+/* Lightbox: fades in (@starting-style) and out (display allow-discrete). */
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox {
+    transition:
+      opacity 0.18s ease-out,
+      display 0.18s allow-discrete;
+  }
+  .lightbox[hidden] {
+    opacity: 0;
+  }
+  @starting-style {
+    .lightbox:not([hidden]) {
+      opacity: 0;
+    }
+  }
+}
+
+/* "Réviser en flottant" (components/ReviewPip.tsx): the body of the Document
+   Picture-in-Picture window, which receives copies of the page's sheets. */
+body.rs-pip {
+  margin: 0 !important;
+  max-width: none !important;
+  padding: 0.75rem;
+  background: var(--paper);
+  color: var(--ink);
+  overflow-y: auto;
+}
+/* ====================== end native CSS additions ======================== */

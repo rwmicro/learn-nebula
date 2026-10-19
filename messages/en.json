@@ -73,7 +73,9 @@
     "seedling": "seedling",
     "budding": "budding",
     "evergreen": "evergreen",
-    "stageAria": "Note growth stage"
+    "stageAria": "Note growth stage",
+    "history": "history",
+    "historyAria": "Every version of this note, on GitHub"
   },
   "pronunciation": {
     "playAria": "Listen to the pronunciation",
@@ -1266,7 +1268,10 @@
     "minutes": "{n} min",
     "ofReview": "of review",
     "daysRun": "days in a row",
-    "finish": "Finish"
+    "finish": "Finish",
+    "pip": "Review in a floating window",
+    "pipActive": "The review goes on in the floating window.",
+    "pipBack": "Bring it back here"
   },
   "rv": {
     "today": "Today",
@@ -1481,5 +1486,31 @@
     "tooShort": "Say in a few words what is wrong.",
     "tooMany": "Many reports at once: try again later.",
     "failed": "Sending failed."
+  },
+  "passkey": {
+    "title": "Passkeys",
+    "intro": "Sign in with a touch, no e-mail to wait for. The e-mailed link stays as a fallback.",
+    "create": "Create a passkey",
+    "created": "Passkey created. Next time, pick it in the e-mail field.",
+    "failed": "That didn’t work. Try again, or keep using the e-mailed link.",
+    "deleted": "Passkey deleted.",
+    "delete": "Delete",
+    "confirmDelete": "Confirm",
+    "usedOn": "used {date}",
+    "createdOn": "created {date}"
+  },
+  "push": {
+    "title": "Review reminder",
+    "intro": "One notification a day, at the hour you choose, when cards are waiting.",
+    "toggle": "Remind me every day",
+    "hour": "Time",
+    "saved": "Done: a reminder every day at {time}.",
+    "denied": "Notifications are blocked for this site in your browser.",
+    "error": "The reminder couldn’t be saved right now.",
+    "iosInstall": "On iPhone and iPad, reminders only work from the site added to the Home Screen.",
+    "notifTitle": "Garden of Knowledge",
+    "generic": "Your daily review is waiting.",
+    "due": "{n} cards to review today.",
+    "dueOne": "{n} card to review today."
   }
 }

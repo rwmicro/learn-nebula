@@ -73,7 +73,9 @@
     "seedling": "pousse",
     "budding": "en croissance",
     "evergreen": "établie",
-    "stageAria": "Stade de maturité de la note"
+    "stageAria": "Stade de maturité de la note",
+    "history": "historique",
+    "historyAria": "Toutes les versions de cette note, sur GitHub"
   },
   "pronunciation": {
     "playAria": "Écouter la prononciation",
@@ -1266,7 +1268,10 @@
     "minutes": "{n} min",
     "ofReview": "de révision",
     "daysRun": "jours d’affilée",
-    "finish": "Terminer"
+    "finish": "Terminer",
+    "pip": "Réviser en flottant",
+    "pipActive": "La révision continue dans la fenêtre flottante.",
+    "pipBack": "Revenir ici"
   },
   "rv": {
     "today": "Aujourd’hui",
@@ -1481,5 +1486,31 @@
     "tooShort": "Dis en quelques mots ce qui ne va pas.",
     "tooMany": "Beaucoup de signalements d'un coup : réessaie plus tard.",
     "failed": "L'envoi a échoué."
+  },
+  "passkey": {
+    "title": "Passkeys",
+    "intro": "Connecte-toi d’un geste, sans attendre d’e-mail. Le lien par e-mail reste là en secours.",
+    "create": "Créer une passkey",
+    "created": "Passkey créée. La prochaine fois, choisis-la dans le champ e-mail.",
+    "failed": "Ça n’a pas marché. Réessaie, ou garde le lien par e-mail.",
+    "deleted": "Passkey supprimée.",
+    "delete": "Supprimer",
+    "confirmDelete": "Confirmer",
+    "usedOn": "utilisée le {date}",
+    "createdOn": "créée le {date}"
+  },
+  "push": {
+    "title": "Rappel de révision",
+    "intro": "Une notification par jour, à l’heure choisie, quand des cartes t’attendent.",
+    "toggle": "Me le rappeler chaque jour",
+    "hour": "Heure",
+    "saved": "C’est noté : rappel chaque jour à {time}.",
+    "denied": "Les notifications sont bloquées pour ce site dans ton navigateur.",
+    "error": "Impossible d’enregistrer le rappel pour l’instant.",
+    "iosInstall": "Sur iPhone et iPad, les rappels ne marchent que depuis le site ajouté à l’écran d’accueil.",
+    "notifTitle": "Garden of Knowledge",
+    "generic": "Ta révision du jour t’attend.",
+    "due": "{n} cartes à revoir aujourd’hui.",
+    "dueOne": "{n} carte à revoir aujourd’hui."
   }
 }

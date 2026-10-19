@@ -146,3 +146,62 @@ async function trim(cacheName, max) {
     await cache.delete(request);
   }
 }
+
+// --- review reminders (Web Push) --------------------------------------------
+// The server (server/push-sender.ts) sends the Declarative Web Push shape,
+// {web_push: 8030, notification: {title, body, navigate, …}, app_badge?}:
+// Safari 18.4+ shows it on its own; everywhere else this handler does. A
+// plain-text payload is shown as the body. Clicking opens the `navigate` URL
+// (same origin only), or /cartes/, focusing a tab already on it.
+
+const PUSH_FALLBACK_URL = "/cartes/";
+
+function sameOriginUrl(u) {
+  try {
+    const url = new URL(u || PUSH_FALLBACK_URL, self.location.origin);
+    return url.origin === self.location.origin ? url.href : new URL(PUSH_FALLBACK_URL, self.location.origin).href;
+  } catch {
+    return new URL(PUSH_FALLBACK_URL, self.location.origin).href;
+  }
+}
+
+self.addEventListener("push", (event) => {
+  let data = null;
+  try {
+    data = event.data ? event.data.json() : null;
+  } catch {
+    data = event.data ? { notification: { body: event.data.text() } } : null;
+  }
+  const n = (data && data.notification) || {};
+  const title = n.title || "Garden of Knowledge";
+  event.waitUntil(
+    (async () => {
+      if (typeof data?.app_badge === "number" && self.navigator.setAppBadge) {
+        await self.navigator.setAppBadge(data.app_badge).catch(() => {});
+      }
+      await self.registration.showNotification(title, {
+        body: n.body || "",
+        lang: n.lang,
+        tag: n.tag || "gk-review",
+        icon: "/icon-192.png",
+        badge: "/icon-192.png",
+        data: { url: sameOriginUrl(n.navigate) },
+      });
+    })(),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = sameOriginUrl(event.notification.data && event.notification.data.url);
+  event.waitUntil(
+    (async () => {
+      const wins = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const w of wins) {
+        if (w.url === url && "focus" in w) return w.focus();
+      }
+      return self.clients.openWindow(url);
+    })(),
+  );
+});
+// --- end review reminders ---------------------------------------------------

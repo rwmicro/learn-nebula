@@ -580,3 +580,35 @@ html.lesson-open .path-dock {
     display: none !important;
   }
 }
+
+/* Steps panel on a computer: fades in and out with its backdrop in CSS alone
+   (@starting-style; `overlay`/`display` stay rendered through the exit with
+   allow-discrete). Phones keep the slide-up above. */
+@media (prefers-reduced-motion: no-preference) and (min-width: 641px) {
+  .path-sheet,
+  .path-sheet::backdrop {
+    opacity: 0;
+    transition:
+      opacity 0.16s ease-out,
+      scale 0.16s ease-out,
+      overlay 0.16s allow-discrete,
+      display 0.16s allow-discrete;
+  }
+  .path-sheet {
+    scale: 0.98;
+  }
+  .path-sheet[open],
+  .path-sheet[open]::backdrop {
+    opacity: 1;
+    scale: 1;
+  }
+  @starting-style {
+    .path-sheet[open],
+    .path-sheet[open]::backdrop {
+      opacity: 0;
+    }
+    .path-sheet[open] {
+      scale: 0.98;
+    }
+  }
+}

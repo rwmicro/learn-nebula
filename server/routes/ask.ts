@@ -3,7 +3,7 @@
 // system prompt / thresholds; retrieval goes through the local index (rag.ts)
 // and generation through Anthropic or an OpenAI-compatible endpoint.
 
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { stream } from "hono/streaming";
 import { env, canGenerate } from "../env.ts";
 import { Cooldown, InFlight, Quota } from "../ratelimit.ts";
@@ -11,6 +11,16 @@ import { getIp, ndLine } from "../http.ts";
 import { search, scopePrefix, ragState, ASK_TOP_K, ASK_MIN_SCORE } from "../rag.ts";
 import { anthropicDeltas, chatConfig, openaiChatDeltas } from "../llm.ts";
 import { logQuestion, type RetrievalStats } from "../db.ts";
+import {
+  SOCRATIC_RULES,
+  MAX_EXPLAIN_PASSAGE,
+  MAX_EXPLAIN_TEXT,
+  MAX_EXPLAIN_TITLE,
+  explainSystem,
+  explainUser,
+  langReminder,
+  replyLangHint,
+} from "../../lib/ask-prompts.ts";
 
 const TOP_K = ASK_TOP_K;
 const MIN_SCORE = ASK_MIN_SCORE;
@@ -33,7 +43,7 @@ function scopeName(prefix: string): string {
   return seg.replace(/-/g, " ");
 }
 
-function buildSystem(scope: string): string {
+function buildSystem(scope: string, socratic = false): string {
   return [
     "Tu es l'assistant de « Garden of Knowledge », un jardin de notes personnel.",
     "Règles :",
@@ -49,6 +59,7 @@ function buildSystem(scope: string): string {
     "- Quand c'est utile, cite le titre des notes que tu utilises.",
     "- Le texte peut utiliser du Markdown léger (**gras**, *italique*, `code`, listes `- `).",
     "- Réponds TOUJOURS dans la même langue que la question de l'utilisateur (celle qui suit « Question : » ci-dessous), de façon concise et claire — quelle que soit la langue des notes.",
+    ...(socratic ? [SOCRATIC_RULES] : []),
   ].join("\n");
 }
 
@@ -67,12 +78,86 @@ export function askUsage(): { used: number | null; limit: number | null } {
 
 export const askRoute = new Hono();
 
+/** The cost guards every generating route here shares (cooldown, hourly and
+ *  daily caps, one request in flight per IP). Returns the IP, now marked in
+ *  flight, or the 429 to send. */
+function admit(c: Context): { ip: string } | { res: Response } {
+  const ip = getIp(c);
+  if (ip !== "anon" && cooldown.limited(`ask:${ip}`)) {
+    return { res: c.json({ error: "Trop de requêtes — réessaie dans un instant." }, 429) };
+  }
+  if (env.askHourly > 0 && ip !== "anon" && quota.exceeded(`ask:${ip}`)) {
+    return { res: c.json({ error: "Limite horaire atteinte — réessaie plus tard." }, 429) };
+  }
+  if (daily && daily.exceeded(DAILY_KEY)) {
+    return { res: c.json({ error: "Service momentanément indisponible — réessaie plus tard." }, 429) };
+  }
+  if (inflight.has(ip)) {
+    return { res: c.json({ error: "Une requête est déjà en cours." }, 429) };
+  }
+  inflight.add(ip);
+  return { ip };
+}
+
+/** Stream one generation as the assistant's NDJSON ({sources}, {chunk}…,
+ *  optional {error}), through Anthropic or the OpenAI-compatible backend. */
+function streamAnswer(
+  c: Context,
+  ip: string,
+  system: string,
+  userContent: string,
+  sources: { title: string; url: string }[],
+) {
+  const ac = new AbortController();
+  const llm = chatConfig(env.llmBaseUrl, env.llmModel);
+
+  async function* deltas(): AsyncGenerator<string> {
+    if (env.anthropicKey) {
+      yield* anthropicDeltas(env.anthropicKey, env.genModel, system, userContent, MAX_TOKENS, ac.signal);
+      return;
+    }
+    yield* openaiChatDeltas(
+      llm!,
+      [
+        { role: "system", content: system },
+        { role: "user", content: userContent },
+      ],
+      { maxTokens: MAX_TOKENS, signal: ac.signal },
+    );
+  }
+
+  c.header("content-type", "application/x-ndjson; charset=utf-8");
+  c.header("cache-control", "no-store");
+  return stream(c, async (s) => {
+    s.onAbort(() => {
+      ac.abort();
+      inflight.delete(ip);
+    });
+    await s.write(ndLine({ sources }));
+    try {
+      for await (const d of deltas()) await s.write(ndLine({ chunk: d }));
+    } catch (e) {
+      console.error("ask: stream failed", e);
+      await s.write(ndLine({ error: "stream_failed" }));
+    } finally {
+      inflight.delete(ip);
+    }
+  });
+}
+
 askRoute.post("/", async (c) => {
   if (!canGenerate()) {
     return c.json({ error: "Assistant non configuré (aucun backend LLM)." }, 503);
   }
 
-  let payload: { question?: string; selection?: string; locale?: string; scope?: string };
+  let payload: {
+    question?: string;
+    selection?: string;
+    locale?: string;
+    scope?: string;
+    lang?: string;
+    socratic?: boolean;
+  };
   try {
     payload = await c.req.json();
   } catch {
@@ -80,26 +165,19 @@ askRoute.post("/", async (c) => {
   }
 
   const replyLang = REPLY_LANGS.has(payload.locale ?? "") ? payload.locale! : "fr";
+  // The question's language as the browser detected it (LanguageDetector),
+  // checked against an allow-list; "" = let the model follow the question.
+  const lang = replyLangHint(payload.lang);
+  const socratic = payload.socratic === true;
   const selection = (payload.selection ?? "").trim().slice(0, MAX_SELECTION);
   const question = (
     (payload.question ?? "").trim() || (selection ? DEFAULT_Q[replyLang] : "")
   ).slice(0, MAX_QUESTION);
   if (!question) return c.json({ error: "Question manquante." }, 400);
 
-  const ip = getIp(c);
-  if (ip !== "anon" && cooldown.limited(`ask:${ip}`)) {
-    return c.json({ error: "Trop de requêtes — réessaie dans un instant." }, 429);
-  }
-  if (env.askHourly > 0 && ip !== "anon" && quota.exceeded(`ask:${ip}`)) {
-    return c.json({ error: "Limite horaire atteinte — réessaie plus tard." }, 429);
-  }
-  if (daily && daily.exceeded(DAILY_KEY)) {
-    return c.json({ error: "Service momentanément indisponible — réessaie plus tard." }, 429);
-  }
-  if (inflight.has(ip)) {
-    return c.json({ error: "Une requête est déjà en cours." }, 429);
-  }
-  inflight.add(ip);
+  const gate = admit(c);
+  if ("res" in gate) return gate.res;
+  const { ip } = gate;
 
   // Retrieval (skipped/empty when EMBED_BASE_URL is unset or not ready yet).
   // `scope` narrows it to one folder — the language picker in the assistant —
@@ -153,7 +231,7 @@ askRoute.post("/", async (c) => {
     .filter(Boolean)
     .join("\n\n");
 
-  const system = buildSystem(prefix);
+  const system = buildSystem(prefix, socratic);
   const noHits = prefix
     ? `(Aucune note pertinente dans « ${scopeName(prefix)} » pour cette question.)`
     : "(Aucune note pertinente n'a été trouvée pour cette question.)";
@@ -162,44 +240,41 @@ askRoute.post("/", async (c) => {
   // point of generation — cheaper/faster models like Haiku otherwise sometimes
   // drift toward French, the language every other rule here is written in and
   // that most of the vault's notes are in, despite an English question.
-  const langReminder = "\n\n(Réponds dans la même langue que la question ci-dessus.)";
+  const reminder = `\n\n${langReminder(lang)}`;
   const userContent = noteContext
-    ? `${noteContext}\n\n---\nQuestion : ${question}${langReminder}`
-    : `${noHits}\n\nQuestion : ${question}${langReminder}`;
+    ? `${noteContext}\n\n---\nQuestion : ${question}${reminder}`
+    : `${noHits}\n\nQuestion : ${question}${reminder}`;
 
-  const ac = new AbortController();
-  const llm = chatConfig(env.llmBaseUrl, env.llmModel);
+  return streamAnswer(c, ip, system, userContent, sources);
+});
 
-  async function* deltas(): AsyncGenerator<string> {
-    if (env.anthropicKey) {
-      yield* anthropicDeltas(env.anthropicKey, env.genModel, system, userContent, MAX_TOKENS, ac.signal);
-      return;
-    }
-    yield* openaiChatDeltas(
-      llm!,
-      [
-        { role: "system", content: system },
-        { role: "user", content: userContent },
-      ],
-      { maxTokens: MAX_TOKENS, signal: ac.signal },
-    );
+// "Explique-le avec tes mots": the reader's own explanation of a passage,
+// and feedback on it grounded on that passage alone (no retrieval: the
+// passage IS the reference). Same wire format, caps and backends as above;
+// the browser tries the on-device Prompt API first and only lands here when
+// it is missing.
+askRoute.post("/explain", async (c) => {
+  if (!canGenerate()) {
+    return c.json({ error: "Assistant non configuré (aucun backend LLM)." }, 503);
   }
+  let payload: { passage?: string; explanation?: string; title?: string; lang?: string };
+  try {
+    payload = await c.req.json();
+  } catch {
+    return c.json({ error: "Requête invalide." }, 400);
+  }
+  const passage = String(payload.passage ?? "").trim().slice(0, MAX_EXPLAIN_PASSAGE);
+  const explanation = String(payload.explanation ?? "").trim().slice(0, MAX_EXPLAIN_TEXT);
+  const title = String(payload.title ?? "").replace(/\s+/g, " ").trim().slice(0, MAX_EXPLAIN_TITLE);
+  if (!passage || !explanation) return c.json({ error: "Passage ou explication manquant." }, 400);
 
-  c.header("content-type", "application/x-ndjson; charset=utf-8");
-  c.header("cache-control", "no-store");
-  return stream(c, async (s) => {
-    s.onAbort(() => {
-      ac.abort();
-      inflight.delete(ip);
-    });
-    await s.write(ndLine({ sources }));
-    try {
-      for await (const d of deltas()) await s.write(ndLine({ chunk: d }));
-    } catch (e) {
-      console.error("ask: stream failed", e);
-      await s.write(ndLine({ error: "stream_failed" }));
-    } finally {
-      inflight.delete(ip);
-    }
-  });
+  const gate = admit(c);
+  if ("res" in gate) return gate.res;
+  return streamAnswer(
+    c,
+    gate.ip,
+    explainSystem(replyLangHint(payload.lang)),
+    explainUser(passage, explanation, title),
+    [],
+  );
 });

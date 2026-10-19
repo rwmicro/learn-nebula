@@ -2,6 +2,9 @@
 // - "Expliquer" hands the passage to the site's assistant (<PinnedAssistant>,
 //   via a `gk:explain` event), which opens with the passage pinned as context
 //   and asks the server's default "explain this passage" question;
+// - "Avec mes mots" opens the same assistant in its "explique-le avec tes
+//   mots" mode (`gk:explain-own`): the reader writes their own explanation of
+//   the passage and gets feedback on it;
 // - "Surligner" keeps the passage highlighted (public/js/highlights.js);
 // - "Copier le lien" copies the page URL with a text fragment (#:~:text=…,
 //   lib/text-fragment.ts) that scrolls to and highlights the passage;
@@ -52,6 +55,13 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
   explain.className = "sel-menu-btn sel-menu-explain";
   label(explain, "selMenu.explain");
 
+  const ownBtn = document.createElement("button");
+  ownBtn.type = "button";
+  ownBtn.className = "sel-menu-btn sel-menu-own";
+  ownBtn.setAttribute("aria-label", tt("selMenu.explainOwnAria"));
+  ownBtn.setAttribute("data-i18n-aria-label", "selMenu.explainOwnAria");
+  label(ownBtn, "selMenu.explainOwn");
+
   const copyBtn = document.createElement("button");
   copyBtn.type = "button";
   copyBtn.className = "sel-menu-btn";
@@ -78,7 +88,7 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
   live.className = "sr-only";
   live.setAttribute("aria-live", "polite");
 
-  menu.append(explain, hlBtn, copyBtn, reportBtn, live);
+  menu.append(explain, ownBtn, hlBtn, copyBtn, reportBtn, live);
   document.body.appendChild(menu);
 
   // Keep the page selection alive while the toolbar is pressed.
@@ -186,7 +196,7 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
     // role="toolbar": arrow keys move between its buttons.
     if (menu.contains(e.target) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
       e.preventDefault();
-      const btns = [explain, hlBtn, copyBtn, reportBtn];
+      const btns = [explain, ownBtn, hlBtn, copyBtn, reportBtn];
       const i = btns.indexOf(e.target);
       const d = e.key === "ArrowRight" ? 1 : btns.length - 1;
       btns[(Math.max(0, i) + d) % btns.length].focus();
@@ -211,6 +221,13 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
     hide();
     window.getSelection()?.removeAllRanges();
     window.dispatchEvent(new CustomEvent("gk:explain", { detail: { text: passage } }));
+  });
+
+  ownBtn.addEventListener("click", () => {
+    const passage = text.replace(/\s+/g, " ").trim();
+    hide();
+    window.getSelection()?.removeAllRanges();
+    window.dispatchEvent(new CustomEvent("gk:explain-own", { detail: { text: passage } }));
   });
 
   function copy(s) {

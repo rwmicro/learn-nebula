@@ -6,6 +6,7 @@ import { requestLink, type AuthConfig } from "@/lib/account-client";
 import { SITE_TITLE } from "@/lib/site";
 import { defaultLook } from "@/lib/avatar";
 import { nextParam, useTurnstile } from "@/components/account/use-turnstile";
+import { usePasskeyAutofill } from "@/components/account/use-passkey-autofill";
 import type { Tr } from "@/components/account/shared";
 import { Coin, IconArrow, IconMail, IconSync, IconTimer, TopBar } from "@/components/account/icons";
 
@@ -44,6 +45,7 @@ export function LoginPhone({ cfg, expired, tr }: { cfg: AuthConfig; expired: boo
   const [now, setNow] = useState(() => Date.now());
   const [resent, setResent] = useState(false);
   const { box: tsBox, token: tsToken, reset: tsReset } = useTurnstile(cfg.turnstileSiteKey);
+  usePasskeyAutofill(cfg.passkey);
 
   useEffect(() => {
     if (sentAt == null) return;
@@ -153,7 +155,7 @@ export function LoginPhone({ cfg, expired, tr }: { cfg: AuthConfig; expired: boo
               <input
                 type="email"
                 required
-                autoComplete="email"
+                autoComplete="username webauthn"
                 inputMode="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

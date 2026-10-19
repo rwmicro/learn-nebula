@@ -88,7 +88,9 @@ console.log(`bundle-js: bundled ${SCRIPTS.length} scripts → public/js/note.bun
 // The widget packs (lib/widgets-extra.ts): fetched by widgets-loader.js only
 // on a page that mounts one of their widgets. Bundled so they share
 // public/js/widget-kit.js and lib/ code with the build.
-for (const name of ["palette", "quiz", "glossary", "note-end", "widgets-data", "widgets-sci", "widgets-lang"]) {
+// pronounce: fetched by pronounce-loader.js on a page with a clip; bundled
+// for lib/speech-match.ts (the coach's on-device "reconnu / pas reconnu").
+for (const name of ["palette", "quiz", "glossary", "note-end", "widgets-data", "widgets-sci", "widgets-lang", "pronounce"]) {
   await build({
     entryPoints: [join(JS_DIR, `${name}.js`)],
     outfile: join(JS_DIR, `${name}.bundle.js`),

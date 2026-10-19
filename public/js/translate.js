@@ -3,6 +3,18 @@
 // Markdown, swaps .article-body's HTML with the rendered translation, and
 // caches the result in localStorage keyed by {pathname, targetLang, content
 // hash}. A second pick (or hit on the same target) is instant.
+//
+// On-device first: where Chrome's built-in Translator API covers the pair
+// (desktop Chrome 138+), the note is translated in the browser, text node by
+// text node in the already-rendered HTML — no server call, no LLM cost, and
+// code, formulas and pronunciation words are left alone. A note under the
+// button says so and offers the server's (better) translation. Anywhere else,
+// or on any failure, the server path below runs as before.
+// LanguageDetector (lib/browser-ai.ts) also checks, when its model is already
+// there, whether the note is in a language other than the reader's, and
+// highlights the button if so.
+import { detectLanguage } from "../../lib/browser-ai.ts";
+
 (function () {
   const wrap = document.querySelector(".translate-wrap");
   if (!wrap) return;
@@ -130,6 +142,126 @@
       .querySelectorAll("button.pron-btn[data-pron-src]")
       .forEach((el) => repoint(el, "data-pron-src"));
   }
+  // --- on-device translation (Translator API) ------------------------------
+  const hasTranslator = "Translator" in self;
+  // Text inside these stays as written: code, maths, figures, the word a
+  // pronunciation clip says, and anything the author marked translate="no".
+  const KEEP =
+    "pre, code, kbd, samp, script, style, svg, math, .katex, .katex-display, " +
+    ".pron-label, .pron-tr, [translate='no'], .notranslate, .mermaid";
+
+  async function deviceTranslator(targetLang, onDownload) {
+    if (!hasTranslator || !sourceLang) return null;
+    const pair = { sourceLanguage: sourceLang, targetLanguage: targetLang };
+    try {
+      const a = await self.Translator.availability(pair);
+      if (a === "unavailable") return null;
+      return await self.Translator.create({
+        ...pair,
+        monitor(m) {
+          m.addEventListener("downloadprogress", (e) => onDownload(e.loaded));
+        },
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  // Translate a copy of the original render, one text node at a time (the API
+  // takes plain text, so markup can't be handed to it), keeping each node's
+  // surrounding whitespace. Returns the HTML, or null on any failure.
+  async function translateOnDevice(targetLang) {
+    const translator = await deviceTranslator(targetLang, (f) => {
+      if (label) label.textContent = tt("noteActions.translateDownloading", { n: Math.round(f * 100) });
+    });
+    if (!translator) return null;
+    const box = document.createElement("div");
+    box.innerHTML = originalHtml;
+    const nodes = [];
+    const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
+    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+      if (!/\p{L}/u.test(n.data)) continue;
+      const parent = n.parentElement;
+      if (parent && parent.closest(KEEP)) continue;
+      nodes.push(n);
+    }
+    try {
+      for (let i = 0; i < nodes.length; i++) {
+        const n = nodes[i];
+        const m = /^(\s*)([\s\S]*?)(\s*)$/.exec(n.data);
+        const out = await translator.translate(m[2]);
+        n.data = m[1] + out + m[3];
+        if (label && i % 8 === 0)
+          label.textContent = tt("noteActions.translateProgress", {
+            n: Math.round((100 * (i + 1)) / nodes.length),
+          });
+      }
+      return box.innerHTML;
+    } catch {
+      return null;
+    } finally {
+      try {
+        if (translator.destroy) translator.destroy();
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+
+  // "Traduit sur ton appareil · Meilleure traduction" / "Traduit par le
+  // serveur", just above the body (a <div>: the dropcap rule targets the
+  // body's first <p>). Removed with the translation.
+  let viaNote = null;
+  function showVia(device, targetLang) {
+    if (viaNote) viaNote.remove();
+    viaNote = document.createElement("div");
+    viaNote.className = "translate-via";
+    viaNote.setAttribute("role", "note");
+    viaNote.setAttribute("data-pagefind-ignore", "");
+    const text = document.createElement("span");
+    const key = device ? "noteActions.translateViaDevice" : "noteActions.translateViaServer";
+    text.textContent = tt(key);
+    text.setAttribute("data-i18n", key);
+    viaNote.append(text);
+    if (device) {
+      const better = document.createElement("button");
+      better.type = "button";
+      better.className = "translate-via-better";
+      better.textContent = tt("noteActions.translateBetter");
+      better.setAttribute("data-i18n", "noteActions.translateBetter");
+      better.addEventListener("click", () => {
+        if (!pending) translateOnServer(targetLang);
+      });
+      viaNote.append(" · ", better);
+    }
+    articleBody.before(viaNote);
+  }
+  function hideVia() {
+    if (viaNote) viaNote.remove();
+    viaNote = null;
+  }
+
+  // Light hint: if the note reads as another language than the reader's
+  // (only when the detector's model is already on this device: no download
+  // on a page load), the button is marked so it stands out.
+  (async () => {
+    const ui = (window.__i18n && (window.__i18n.locale || window.__i18n.defaultLocale)) || "fr";
+    const lang = await detectLanguage((articleBody.textContent || "").slice(0, 2500), {
+      allowDownload: false,
+      minConfidence: 0.85,
+      minChars: 200,
+    });
+    if (!lang || lang === ui.slice(0, 2) || btn.dataset.state !== "idle") return;
+    btn.classList.add("is-suggested");
+    let name = lang;
+    try {
+      name = new Intl.DisplayNames([ui], { type: "language" }).of(lang) || lang;
+    } catch {
+      /* keep the code */
+    }
+    btn.title = tt("noteActions.translateSuggest", { lang: name });
+  })();
+
   const labels = {
     get idle() {
       return tt("noteActions.translate");
@@ -174,6 +306,7 @@
   }
 
   function restoreOriginal() {
+    hideVia();
     articleBody.innerHTML = originalHtml;
     const main = document.getElementById("main");
     if (main) {
@@ -302,12 +435,42 @@
       const cached = localStorage.getItem(cacheKeyFor(targetLang));
       if (cached) {
         applyTranslation(cached, targetLang);
+        if (hasTranslator) showVia(false, targetLang);
         return;
       }
     } catch {
       /* ignore */
     }
 
+    // On the device first; the server when the pair isn't covered or it fails.
+    if (hasTranslator && sourceLang && sourceLang !== targetLang) {
+      pending = true;
+      setState("loading");
+      const html = await translateOnDevice(targetLang);
+      pending = false;
+      if (html) {
+        applyTranslation(html, targetLang);
+        showVia(true, targetLang);
+        return;
+      }
+    }
+    translateOnServer(targetLang);
+  });
+
+  // A failed server call leaves a device translation on screen as it was
+  // (the "Meilleure traduction" retry), else goes back to the idle button.
+  function serverFailed(message) {
+    if (activeTarget && viaNote) {
+      setState("translated");
+      viaNote.firstChild.removeAttribute("data-i18n");
+      viaNote.firstChild.textContent = message;
+      return;
+    }
+    setState("idle");
+    if (label) label.textContent = message;
+  }
+
+  async function translateOnServer(targetLang) {
     pending = true;
     setState("loading");
     slowTimer = setTimeout(() => {
@@ -326,8 +489,7 @@
       });
       const data = await r.json().catch(() => ({}));
       if (!r.ok || !data.html) {
-        setState("idle");
-        if (label) label.textContent = data.error || tt("noteActions.translateError");
+        serverFailed(data.error || tt("noteActions.translateError"));
         return;
       }
       try {
@@ -336,9 +498,9 @@
         /* quota exceeded */
       }
       applyTranslation(data.html, targetLang);
+      if (hasTranslator) showVia(false, targetLang);
     } catch {
-      setState("idle");
-      if (label) label.textContent = tt("noteActions.translateNetworkError");
+      serverFailed(tt("noteActions.translateNetworkError"));
     } finally {
       pending = false;
       if (slowTimer) {
@@ -346,5 +508,5 @@
         slowTimer = null;
       }
     }
-  });
+  }
 })();

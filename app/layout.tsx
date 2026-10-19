@@ -193,7 +193,7 @@ export default function RootLayout({
         <Script src="/js/palette.bundle.js" strategy="afterInteractive" />
         {/* Pronunciation clips (.pron-btn): notes render them via Markdown
             (![word](clip.mp3)) and /cartes decks via [sound:clip.mp3]. The
-            loader is site-wide and tiny; it fetches /js/pronounce.js only
+            loader is site-wide and tiny; it fetches /js/pronounce.bundle.js only
             once a clip is on the page. */}
         <Script src="/js/pronounce-loader.js" strategy="afterInteractive" />
         {/* Service worker: offline reading of visited notes + instant repeat

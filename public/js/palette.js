@@ -347,6 +347,57 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
 
   const pathOf = (href) => href.replace(/#.*$/, "").replace(/\/?$/, "/");
 
+  // --- "Proches par le sens" (GET /api/search, server/routes/search.ts) ------
+  // Notes near the query in meaning, from the assistant's embeddings: what
+  // Pagefind's exact words miss ("pluie acide" → a note on SO₂). Debounced,
+  // from 3 characters, the previous request aborted on each keystroke; no
+  // backend (next dev, RAG off: 404/503) turns it off for the visit.
+  const SENSE_MIN = 3;
+  let senseQuery = "";
+  let senseHits = [];
+  let senseTimer = 0;
+  let senseCtrl = null;
+  let senseOff = false;
+  function toSenseHit(h) {
+    const n = notes && notes.find((x) => pathOf(x.href) === pathOf(h.url));
+    const sub = typeof h.section === "string" ? h.section : "";
+    return n ? { ...n, sub } : { kind: "note", title: String(h.title || h.url), hint: "", href: h.url, sub };
+  }
+  function searchSense(q) {
+    clearTimeout(senseTimer);
+    if (senseCtrl) senseCtrl.abort();
+    senseCtrl = null;
+    if (senseOff || [...q].length < SENSE_MIN) {
+      senseQuery = "";
+      senseHits = [];
+      return;
+    }
+    if (q === senseQuery) return;
+    senseTimer = setTimeout(async () => {
+      const ctrl = new AbortController();
+      senseCtrl = ctrl;
+      let results = null;
+      try {
+        const r = await fetch("/api/search?q=" + encodeURIComponent(q), { signal: ctrl.signal });
+        if (r.status === 404 || r.status === 503) senseOff = true;
+        const data = r.ok ? await r.json() : null;
+        results = data && Array.isArray(data.results) ? data.results : null;
+      } catch {
+        /* aborted by the next keystroke, or offline */
+      }
+      if (senseCtrl === ctrl) senseCtrl = null;
+      if (ctrl.signal.aborted || !results) return;
+      senseQuery = q;
+      senseHits = results
+        .filter((h) => h && typeof h.url === "string" && h.url.startsWith("/posts/"))
+        .map(toSenseHit);
+      if (isOpen() && input.value.trim() === q) render();
+    }, 350);
+  }
+  // Sense hits minus the notes another group already lists.
+  const senseFor = (q, seen) =>
+    q === senseQuery ? senseHits.filter((n) => !seen.has(pathOf(n.href))) : [];
+
   function sections() {
     const body = doc.querySelector(".article-body");
     if (!body) return [];
@@ -492,6 +543,8 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     if (dc.length) out.push({ label: tt("palette.docs"), items: dc });
     const t = text.filter((h) => !seen.has(pathOf(h.href))).slice(0, TEXT_MAX);
     if (t.length) out.push({ label: tt("palette.inText"), items: t });
+    const sn = senseFor(q, new Set([...seen, ...t.map((h) => pathOf(h.href))])).slice(0, 8);
+    if (sn.length) out.push({ label: tt("palette.bySense"), items: sn });
     const a = rankItems(q, actions(), 5);
     if (a.length) out.push({ label: tt("palette.actions"), items: a });
     const n = rankItems(q, navItems(), 6);
@@ -645,6 +698,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     shown = [];
     textDisc = "";
     searchText(input.value.trim());
+    searchSense(input.value.trim());
     render();
     list.scrollTop = 0;
     el.querySelector(".palette-clear").hidden = !input.value;
@@ -1031,6 +1085,8 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
           html +=
             sect(esc(tt(found.length ? "palette.elsewhere" : "palette.inText")), more("text", tt(textTotal === 1 ? "palette.passageOne" : "palette.passages", { n: textTotal }))) +
             listOf(tx.slice(0, found.length ? 2 : 6).map((h) => textRow(h, true)));
+        const sn = senseFor(q, new Set([...seen, ...tx.slice(0, found.length ? 2 : 6).map((h) => pathOf(h.href))]));
+        if (sn.length) html += sect(esc(tt("palette.bySense"))) + listOf(sn.slice(0, 4).map((n) => noteRow(n, q)));
         if (acts.length) html += sect(esc(tt("palette.actions"))) + listOf(acts.map((a) => plainRow(a, q)));
         if (navs.length) html += sect(esc(tt("palette.goTo"))) + listOf(navs.map((a) => plainRow(a, q)));
       } else if (filter === "notes") html = notesBlock(found, q, true);
@@ -1271,6 +1327,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     loadNotes();
     shown = [];
     searchText(input.value.trim());
+    searchSense(input.value.trim());
     render();
     input.focus();
     doc.querySelectorAll("[data-palette-open]").forEach((b) => b.setAttribute("aria-expanded", "true"));

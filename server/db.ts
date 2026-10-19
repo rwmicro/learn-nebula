@@ -7,6 +7,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { env } from "./env.ts";
 import { ACCOUNT_SCHEMA } from "./account-store.ts";
+import { PASSKEY_SCHEMA } from "./passkey-store.ts";
+import { PUSH_SCHEMA } from "./push-store.ts";
 import { clientErrorKey, type ClientErrorInput, type ReportInput } from "../lib/feedback.ts";
 
 export interface CommentRow {
@@ -116,6 +118,9 @@ export function initDb(): Database.Database {
   // Reader accounts, progress sync, coins, streaks, avatar items
   // (server/account-store.ts).
   db.exec(ACCOUNT_SCHEMA);
+  // Passkeys and Web Push reminders (server/passkey-store.ts, push-store.ts).
+  db.exec(PASSKEY_SCHEMA);
+  db.exec(PUSH_SCHEMA);
   migrateQuestions(db);
   migrateComments(db);
   return db;

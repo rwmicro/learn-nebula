@@ -1928,3 +1928,51 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     margin-top: 1rem;
   }
 }
+
+/* --- passkeys and review reminder (components/account/Security.tsx) --- */
+.acct-keys-list {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.acct-keys-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0;
+  border-top: 1px solid var(--rule);
+}
+.acct-keys-list li > span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.acct-switch,
+.acct-hour {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.acct-switch input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--garden);
+}
+.acct-hour select {
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.3rem 0.5rem;
+  font: inherit;
+}
+.acct-push--phone {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem;
+}
+/* --- end passkeys and review reminder --- */

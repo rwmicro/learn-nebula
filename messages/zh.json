@@ -73,7 +73,9 @@
     "seedling": "幼苗",
     "budding": "成长中",
     "evergreen": "成熟",
-    "stageAria": "笔记成熟度"
+    "stageAria": "笔记成熟度",
+    "history": "修改历史",
+    "historyAria": "这篇笔记的所有版本（GitHub）"
   },
   "pronunciation": {
     "playAria": "收听发音",
@@ -1266,7 +1268,10 @@
     "minutes": "{n} 分钟",
     "ofReview": "复习时间",
     "daysRun": "连续天数",
-    "finish": "完成"
+    "finish": "完成",
+    "pip": "在浮动窗口中复习",
+    "pipActive": "复习正在浮动窗口中继续。",
+    "pipBack": "回到这里"
   },
   "rv": {
     "today": "今天",
@@ -1481,5 +1486,31 @@
     "tooShort": "请简单说明问题所在。",
     "tooMany": "报告过多，请稍后再试。",
     "failed": "发送失败。"
+  },
+  "passkey": {
+    "title": "通行密钥",
+    "intro": "轻触即可登录，无需等待邮件。邮件链接仍可作为备用方式。",
+    "create": "创建通行密钥",
+    "created": "通行密钥已创建。下次在邮箱栏中选择它即可。",
+    "failed": "没有成功。请重试，或继续使用邮件链接。",
+    "deleted": "通行密钥已删除。",
+    "delete": "删除",
+    "confirmDelete": "确认",
+    "usedOn": "{date} 使用过",
+    "createdOn": "{date} 创建"
+  },
+  "push": {
+    "title": "复习提醒",
+    "intro": "每天一条通知，在你选定的时间，有卡片待复习时提醒你。",
+    "toggle": "每天提醒我",
+    "hour": "时间",
+    "saved": "已设置：每天 {time} 提醒。",
+    "denied": "你的浏览器已阻止本站的通知。",
+    "error": "暂时无法保存提醒。",
+    "iosInstall": "在 iPhone 和 iPad 上，只有将本站添加到主屏幕后提醒才会生效。",
+    "notifTitle": "Garden of Knowledge",
+    "generic": "今天的复习在等你。",
+    "due": "今天有 {n} 张卡片待复习。",
+    "dueOne": "今天有 {n} 张卡片待复习。"
   }
 }

@@ -4,12 +4,23 @@
 // body[data-condensed-header="true"] which the CSS uses to slide the
 // condensed bar down from the top. Cheaper than a scroll listener and
 // throttles naturally.
+// Where the browser has `scroll-state(stuck)` container queries, the CSS does
+// it alone (lib/html.ts wraps the bar in a sticky .note-header-stuck; the
+// bar is visibility:hidden until stuck, so no inert is needed) and this
+// observer is skipped.
 import { scrollProgress } from "../../lib/reading-progress";
 
 (function () {
   const header = document.querySelector(".note-header");
   const condensed = document.querySelector(".note-header-condensed");
   if (!header || !condensed) return;
+  if (
+    window.CSS &&
+    CSS.supports("container-type: scroll-state") &&
+    condensed.parentElement &&
+    condensed.parentElement.classList.contains("note-header-stuck")
+  )
+    return;
 
   document.body.dataset.condensedHeader = "false";
 
@@ -36,6 +47,10 @@ import { scrollProgress } from "../../lib/reading-progress";
 // filled in proportion to how much of the article body has been scrolled
 // past. Decorative — aria-hidden, no focus — and drawn with a transform so a
 // scroll costs one composited property, at most once per frame.
+// With scroll-driven animations the CSS draws it from a view timeline on the
+// article body (main.css, `.reading-progress[data-timeline]`; its `contain`
+// range is the same measure as scrollProgress()) and no listener is added.
+// Bodies shorter than the screen keep the script: the range differs there.
 (function () {
   const body = document.querySelector(".article-body");
   if (!body) return;
@@ -44,6 +59,17 @@ import { scrollProgress } from "../../lib/reading-progress";
   bar.setAttribute("aria-hidden", "true");
   bar.setAttribute("data-pagefind-ignore", "");
   document.body.appendChild(bar);
+
+  if (
+    window.CSS &&
+    CSS.supports("animation-timeline: view()") &&
+    CSS.supports("timeline-scope: --a") &&
+    body.getBoundingClientRect().height > window.innerHeight
+  ) {
+    bar.dataset.timeline = "view";
+    bar.dataset.empty = "false";
+    return;
+  }
 
   let queued = false;
   function update() {

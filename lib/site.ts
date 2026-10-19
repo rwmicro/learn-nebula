@@ -39,6 +39,19 @@ export const SAME_AS: string[] = [];
 // Drafts are published only when explicitly requested.
 export const INCLUDE_DRAFTS = process.env.INCLUDE_DRAFTS === "true";
 
+/** The note's edit history on GitHub ("Historique" under the title), built from
+ * the same NOTES_REPO_URL / NOTES_REPO_BRANCH / NOTES_SUBDIR that
+ * scripts/fetch-notes.mjs clones. Undefined for a vault not hosted on GitHub. */
+export function noteHistoryUrl(rawPath: string): string | undefined {
+  const repo = (process.env.NOTES_REPO_URL || "https://github.com/rwmicro/pensine.git")
+    .match(/^https:\/\/github\.com\/([\w.-]+\/[\w.-]+?)(?:\.git)?\/?$/)?.[1];
+  if (!repo) return undefined;
+  const branch = process.env.NOTES_REPO_BRANCH || "main";
+  const sub = (process.env.NOTES_SUBDIR || "").replace(/^\/+|\/+$/g, "");
+  const file = [sub, `${rawPath}.md`].filter(Boolean).join("/");
+  return `https://github.com/${repo}/commits/${encodeURIComponent(branch)}/${file.split("/").map(encodeURIComponent).join("/")}`;
+}
+
 export function absoluteURL(path: string): string {
   if (/^https?:\/\//.test(path)) return path;
   return `${SITE_URL}${path.startsWith("/") ? "" : "/"}${path}`;
@@ -73,7 +86,9 @@ export function buildCSP(): string {
     "style-src 'self' 'unsafe-inline'",
     // 'wasm-unsafe-eval' lets Pagefind's search run its WebAssembly.
     scriptSrc,
-    "connect-src 'self' https://cloudflareinsights.com",
+    // The site's own WebSocket (/api/room/, the /duel/ signalling) spelled out:
+    // CSP3 lets 'self' match ws(s): on the same host, older Safari didn't.
+    `connect-src 'self' ${SITE_URL.replace(/^http/, "ws")} https://cloudflareinsights.com`,
     // Turnstile's challenge iframe + the click-to-load YouTube facade (#16),
     // which swaps in a youtube-nocookie.com player only after a click.
     `frame-src ${turnstile} https://www.youtube-nocookie.com`,
