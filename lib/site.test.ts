@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { absoluteURL, buildCSP, SITE_URL } from "./site";
+import { absoluteURL, buildCSP, noteHistoryUrl, SITE_URL } from "./site";
 
 describe("absoluteURL", () => {
   it("prefixes a root-relative path with the site origin", () => {
@@ -34,6 +34,10 @@ describe("buildCSP", () => {
     expect(csp).toContain("https://cloudflareinsights.com");
   });
 
+  it("allows the site's own WebSocket origin", () => {
+    expect(buildCSP()).toContain(`connect-src 'self' ${SITE_URL.replace(/^http/, "ws")} `);
+  });
+
   it("drops 'unsafe-eval' and adds HTTPS upgrade in production", () => {
     vi.stubEnv("NODE_ENV", "production");
     const csp = buildCSP();
@@ -44,5 +48,13 @@ describe("buildCSP", () => {
   it("permits dev-only 'unsafe-eval' outside production", () => {
     vi.stubEnv("NODE_ENV", "development");
     expect(buildCSP()).toContain("'unsafe-eval'");
+  });
+});
+
+describe("noteHistoryUrl", () => {
+  it("points at the GitHub commits of the note's file, path-encoded", () => {
+    expect(noteHistoryUrl("Applied Sciences/Permaculture")).toBe(
+      "https://github.com/rwmicro/pensine/commits/main/Applied%20Sciences/Permaculture.md",
+    );
   });
 });

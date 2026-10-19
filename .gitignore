@@ -65,3 +65,6 @@ playwright-report/
 test-results/
 
 content/vault-images.json
+
+# compiled server (pnpm build:server / the Dockerfile `server` stage)
+/build/

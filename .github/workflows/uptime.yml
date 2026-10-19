@@ -1,0 +1,57 @@
+name: Uptime
+
+# External probe: Grafana on the server sees the containers, but not a dead
+# Cloudflare tunnel or a server that is off — nothing on the box can report
+# its own absence. Every 15 minutes this checks /healthz from outside; after
+# two failed attempts it opens an issue labelled `site-down` (GitHub notifies
+# the owner) and closes it once the site answers again.
+#
+# Optional: secret UPTIME_NTFY_URL (e.g. https://ntfy.sh/<private-topic>) gets
+# a push on the same transitions.
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+permissions:
+  issues: write
+
+concurrency:
+  group: uptime
+  cancel-in-progress: true
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      URL: ${{ vars.UPTIME_URL || 'https://4d52.net/healthz' }}
+      NTFY: ${{ secrets.UPTIME_NTFY_URL }}
+    steps:
+      - name: Probe
+        id: probe
+        run: |
+          ok=false
+          for i in 1 2; do
+            if out=$(curl -fsS -m 20 "$URL") && echo "$out" | grep -q '"ok":true'; then ok=true; break; fi
+            sleep 30
+          done
+          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+
+      - name: Open or close the incident
+        run: |
+          gh label create site-down --color B60205 --description "Opened by the uptime probe" 2>/dev/null || true
+          open=$(gh issue list --label site-down --state open --json number --jq '.[0].number // empty')
+          notify() { [ -n "$NTFY" ] && curl -fsS -m 10 -H "Title: 4d52.net" -d "$1" "$NTFY" >/dev/null || true; }
+          if [ "${{ steps.probe.outputs.ok }}" = "true" ]; then
+            if [ -n "$open" ]; then
+              gh issue close "$open" --comment "Back up at $(date -u +%FT%TZ)."
+              notify "site back up"
+            fi
+          elif [ -z "$open" ]; then
+            gh issue create --label site-down --title "Site down: $URL" \
+              --body "The uptime probe got no healthy answer from $URL at $(date -u +%FT%TZ) (two attempts, 30 s apart). Run: $GITHUB_SERVER_URL/$GH_REPO/actions/runs/$GITHUB_RUN_ID"
+            notify "site DOWN: $URL"
+          fi

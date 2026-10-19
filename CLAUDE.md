@@ -32,6 +32,7 @@ node scripts/bundle-js.mjs              # rebuild public/js/note.bundle.js after
 npx pnpm@10.28.0 dev                    # dev server (runs predev: bundle-js, copy-images, build-anki)
 npx pnpm@10.28.0 build                  # full static export → out/
 npx pnpm@10.28.0 run --stream server    # run the Node backend against a built out/ — see gotcha below
+npx pnpm@10.28.0 build:server           # esbuild bundle → build/server/index.mjs (what the image runs)
 ```
 
 Also: `pnpm format` (prettier), `pnpm test` (build + Playwright), `pnpm
@@ -54,6 +55,14 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   then `pnpm server` with the relevant env vars (see `.env.example`).
 - **Full-text search (Pagefind) only exists after `pnpm build`** (indexes `out/`).
   In dev the command palette's "Dans le texte" group simply never appears.
+- **UI messages ship as files, not inline**: `scripts/build-i18n.ts` writes
+  `public/i18n/<locale>.<hash>.js` (git-ignored, immutable cache); the
+  `<head>` bootstrap in `app/layout.tsx` loads `fr` + the stored locale, and
+  `public/js/i18n.js` fetches any other one on switch. Run predev/build (or
+  `tsx scripts/build-i18n.ts`) after editing `messages/*.json`.
+- **The image runs the compiled server** (`build/server/index.mjs`, Dockerfile
+  `server` stage, `node_modules` external) with a read-only root filesystem
+  in prod: write only under `/data` (or `/tmp`). CI bundles and boots it.
 - **`public/js/note.bundle.js` is generated** by `bundle-js.mjs` (git-ignored) —
   never edit it; edit the source `public/js/*.js` and re-run bundle-js.
 - Verify UI changes **visually** (Playwright screenshots, desktop+mobile) — much
@@ -182,7 +191,9 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   never baked into the image. Comments + the RAG vector cache live on a `/data`
   volume, so they survive rebuilds — don't drop that volume.
 - **Production deployment lives OUTSIDE this repo**, in a separate private
-  infra project (`soc-infrastructure`, Ansible + podman-compose) that pulls
+  infra project (`soc-infrastructure`, Ansible + podman-compose, **branch
+  `raspberry-pi`** — that repo's `main` is stale; its CI checks that every
+  var of this `.env.example` is passed in `compose.pensine.yml`) that pulls
   `ghcr.io/rwmicro/learn-nebula:latest` and renders its own `.env` from
   `.env.example`'s contract, plus its own TEI sidecar (with the same amd64 vs
   `cpu-arm64-*` split noted above, under its own var name). This repo's
@@ -192,11 +203,29 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
 - The tracked lockfile is **`pnpm-lock.yaml`** (what Docker/CI use). A stale,
   untracked npm `package-lock.json` may linger locally; it's unused — safe to delete.
 
+## Reader feedback
+- `public/js/error-beacon.js` (site-wide) posts uncaught errors to
+  `/api/client-error` (deduped by message+source, ≤5 per page, capped table
+  `client_errors`); "Signaler" in the selection menu posts a passage + remark
+  to `/api/report` (`error_reports`). Both show in /admin (Site / Contenu).
+  Normalisation is `lib/feedback.ts` (tested). `app/error.tsx` and
+  `app/admin/error.tsx` are the React error boundaries.
+- Under each note's title, "historique" links to the file's GitHub commits
+  (`noteHistoryUrl()` in `lib/site.ts`, from NOTES_REPO_URL/BRANCH/SUBDIR).
+
 ## CI
 
-`.github/workflows/ci.yml` (typecheck app **and** `server/`, oxlint + ESLint,
-unit tests, and a full static-export build on push/PR) and `docker.yml` (image
-build/push, above). The Cloudflare deploy workflow lives on `cloudflare-deploy`.
+`.github/workflows/ci.yml` (typecheck app **and** `server/`, compile + boot
+the server, oxlint + ESLint, unit tests, and a full static-export build on
+push/PR) and `docker.yml` (image build/push, above; its actions are pinned by
+SHA since it holds the GHCR write token). `uptime.yml` probes
+`https://4d52.net/healthz` every 15 min from outside and opens/closes a
+`site-down` issue (optional ntfy via secret `UPTIME_NTFY_URL`).
+`ghcr-retention.yml` (weekly) keeps `latest` + the 10 newest `sha-*` images
+and every manifest they reference; dry run unless repo var `GHCR_PRUNE=true`.
+pensine's own `check-notes.yml` runs `scripts/vault-health.ts` on each vault
+PR (base vs head) and fails only on what the PR adds — keep that script's
+JSON shape stable. The Cloudflare deploy workflow lives on `cloudflare-deploy`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
