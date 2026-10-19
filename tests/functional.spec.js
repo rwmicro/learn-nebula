@@ -280,8 +280,10 @@ test.describe("Widgets", () => {
     // the note enhancers themselves (selection toolbar, reading progress,
     // comments, step list… ≈ 56 KB in 10/2026, once quiz and glossary moved
     // to their own per-note bundles; ≈ 64 KB once the phone note layout,
-    // note-app.js, joined them).
-    expect(bundle.length).toBeLessThan(68_000);
+    // note-app.js, joined them; ≈ 70 KB once on-device translation and
+    // "Signaler" joined, with the diagram scripts moved out to their own
+    // bundles).
+    expect(bundle.length).toBeLessThan(72_000);
     // Those two load only where they are used (see below).
     expect(bundle).not.toContain("quiz-self-btn");
     expect(bundle).not.toContain("gloss-popover");

@@ -22,6 +22,8 @@
 /public/js/note-end.bundle.js
 /public/js/widgets-*.bundle.js
 /public/js/pronounce.bundle.js
+/public/js/diagram-zoom.bundle.js
+/public/js/mermaid-render.bundle.js
 
 # mermaid UMD bundle copied in by scripts/copy-mermaid.mjs (client-render fallback)
 /public/js/mermaid.min.js
