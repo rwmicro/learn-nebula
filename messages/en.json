@@ -65,7 +65,13 @@
     "focusTitle": "Focus mode: the text alone (f)",
     "focusExit": "Leave focus mode (Esc)",
     "more": "display",
-    "moreAria": "Display and translation"
+    "moreAria": "Display and translation",
+    "translateDownloading": "Downloading the model… {n}%",
+    "translateProgress": "Translating… {n}%",
+    "translateViaDevice": "Translated on your device",
+    "translateViaServer": "Translated by the server",
+    "translateBetter": "Better translation",
+    "translateSuggest": "This note seems to be in {lang} — translate it?"
   },
   "growth": {
     "tended": "last tended",
@@ -107,7 +113,11 @@
     "practiceLeft": "left",
     "practiceEmpty": "Your voice will show here",
     "practiceListenModel": "Play the model",
-    "practiceListenMe": "Play me back"
+    "practiceListenMe": "Play me back",
+    "listenOk": "Recognised ✓ — “{w}”",
+    "listenNo": "Not recognised — heard “{w}”",
+    "listenNothing": "Not recognised — nothing clear enough",
+    "listenPreparing": "Speech recognition is getting ready — try again in a moment"
   },
   "comments": {
     "title": "Comments",
@@ -153,7 +163,15 @@
     "searching": "Searching the notes…",
     "placeholderEmpty": "Ask a question about the garden’s notes.",
     "scopeLabel": "Search in:",
-    "scopeAll": "All notes"
+    "scopeAll": "All notes",
+    "ownIntro": "Explain this passage in your own words: you'll get feedback on what holds and what's missing.",
+    "ownPlaceholder": "In my words, this passage says that…",
+    "ownAria": "Your explanation of the passage",
+    "socratic": "Socratic",
+    "socraticHint": "The assistant asks you questions instead of answering",
+    "socraticDefault": "Help me understand this passage.",
+    "onDevice": "Answer generated on your device — check it against the note.",
+    "deviceDownloading": "Downloading the model to your device… {n}%"
   },
   "lang": {
     "switcherAria": "Change interface language",
@@ -506,7 +524,9 @@
     "copyFailed": "Copy failed",
     "highlight": "Highlight",
     "report": "Report",
-    "reportAria": "Report a mistake in this passage"
+    "reportAria": "Report a mistake in this passage",
+    "explainOwn": "In my words",
+    "explainOwnAria": "Explain this passage in your own words"
   },
   "glossary": {
     "kicker": "Glossary",
@@ -718,7 +738,8 @@
     "askBody": "It searches its {n} notes and cites its sources.",
     "missNote": "This search is passed on to the gardener, to see what is missing.",
     "near": "Close matches",
-    "passageOne": "1 passage"
+    "passageOne": "1 passage",
+    "bySense": "Close in meaning"
   },
   "progression": {
     "title": "My progress",

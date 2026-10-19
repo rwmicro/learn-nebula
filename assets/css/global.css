@@ -2229,3 +2229,90 @@ body.rs-pip {
   overflow-y: auto;
 }
 /* ====================== end native CSS additions ======================== */
+
+/* --- Browser AI: assistant socratic toggle, "avec mes mots", on-device note
+   (components/PinnedAssistant.tsx), coach "reconnu" line (pronounce.js) --- */
+.gk-pinned-socratic {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--muted-warm);
+  cursor: pointer;
+  user-select: none;
+}
+.gk-pinned-socratic input {
+  accent-color: var(--garden);
+  margin: 0;
+}
+.gk-pinned-socratic:has(input:checked) {
+  color: var(--garden);
+}
+.gk-pinned-device {
+  margin: 0.4rem 0 0;
+  font-size: 0.82rem;
+  font-style: italic;
+  color: var(--muted-warm);
+}
+.gk-pinned-form--own {
+  align-items: flex-end;
+}
+.gk-pinned-form textarea {
+  flex: 1;
+  min-width: 0;
+  resize: vertical;
+  max-height: 40vh;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  padding: 0.35rem 0.5rem;
+  font: inherit;
+  font-size: 1.02rem;
+  line-height: 1.4;
+}
+.gk-pinned-form textarea:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 1px;
+}
+.gk-pinned-form textarea::placeholder {
+  font-style: italic;
+  color: var(--muted-warm);
+}
+.pron-coach-heard {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  margin: -4px auto 12px;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-warm);
+}
+.pron-coach-heard[hidden] {
+  display: none;
+}
+.pron-coach-heard i {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  font-style: normal;
+  line-height: 1;
+  background: var(--rule-strong);
+  color: var(--paper-raised);
+}
+.pron-coach-heard i svg {
+  width: 12px;
+  height: 12px;
+}
+.pron-coach-heard.is-ok {
+  color: var(--garden);
+}
+.pron-coach-heard.is-ok i {
+  background: var(--garden);
+}
+/* --- end Browser AI --- */

@@ -1,0 +1,366 @@
+/* /duel/ (components/Duel.tsx): a revision duel or a language tandem, two
+   readers in direct contact. One narrow column, like /defis/. */
+
+.duo {
+  --duo-card: #fff;
+  --duo-ok: var(--garden);
+  --duo-bad: var(--danger);
+  max-width: 34rem;
+  margin: 0 auto;
+  padding: 2.5rem 1rem 3rem;
+  color: var(--ink);
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+:root[data-theme="dark"] .duo {
+  --duo-card: #262522;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .duo {
+    --duo-card: #262522;
+  }
+}
+@media (max-width: 639.98px) {
+  .duo {
+    padding-top: 0;
+  }
+}
+.duo p {
+  margin: 0;
+}
+.duo h2 {
+  margin: 0 0 0.5rem;
+  font: 600 1.25rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+}
+.duo-title {
+  margin: 0.25rem 0.25rem 0.875rem;
+  font: 600 2.125rem/1.06 "Alegreya", "Alegreya Fallback", serif;
+  letter-spacing: -0.0125rem;
+}
+.duo-lede {
+  margin: 0 0.25rem 1rem !important;
+  font: 400 1.0625rem/1.45 "Alegreya", "Alegreya Fallback", serif;
+  color: var(--ink-soft);
+}
+.duo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  background: var(--duo-card);
+  line-height: 1.45;
+}
+.duo-muted,
+.duo-note {
+  color: var(--muted);
+  font-size: 0.9375rem;
+}
+.duo-note {
+  margin: 0.5rem 0.25rem !important;
+  font-size: 0.875rem;
+}
+.duo-status {
+  min-height: 1.4em;
+  color: var(--ink-2);
+  font-size: 0.9375rem;
+}
+.duo-err {
+  color: var(--danger);
+}
+
+/* Buttons */
+.duo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2.75rem;
+  padding: 0.4rem 1rem;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink);
+  font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+.duo-btn:hover:not(:disabled) {
+  background: var(--wash-2);
+}
+.duo-btn:focus-visible,
+.duo-choice:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+}
+.duo-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.duo-pri {
+  align-self: flex-start;
+  border-color: var(--garden);
+  border-bottom-width: 3px;
+  background: var(--garden);
+  color: #fff;
+}
+.duo-pri:hover:not(:disabled) {
+  background: var(--garden-hover);
+}
+.duo-hang {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.duo-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Invitation: link + QR code */
+.duo-link {
+  display: flex;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.duo-link input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  background: var(--wash);
+  color: var(--ink);
+  font: 0.875rem ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.duo-qr {
+  align-self: center;
+  width: min(12rem, 60vw);
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+
+/* IP notice + relay option */
+.duo-check {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-start;
+  cursor: pointer;
+}
+.duo-check input {
+  width: 1.15rem;
+  height: 1.15rem;
+  margin: 0.15rem 0 0;
+  accent-color: var(--garden);
+}
+.duo-check span {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+.duo-check small {
+  font-weight: 400;
+  color: var(--muted);
+}
+.duo-check.is-off {
+  cursor: default;
+}
+.duo-check.is-off span {
+  color: var(--muted);
+}
+
+/* A duel round */
+.duo-round {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+.duo-score {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 0.9375rem;
+  color: var(--ink-2);
+}
+.duo-score b {
+  font: 700 1.5rem/1 "Alegreya", "Alegreya Fallback", serif;
+  color: var(--ink);
+}
+.duo-qn {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.duo-clock {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--garden);
+  transform-origin: left;
+  animation: duo-clock linear forwards;
+}
+@keyframes duo-clock {
+  to {
+    transform: scaleX(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .duo-clock {
+    animation: none;
+    opacity: 0.4;
+  }
+}
+.duo-q {
+  font: 500 1.25rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+  overflow-wrap: anywhere;
+}
+.duo-q p,
+.duo-choice p {
+  margin: 0;
+}
+.duo-q img,
+.duo-choice img {
+  max-width: 100%;
+  height: auto;
+}
+.duo-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.duo-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.55rem 0.75rem;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  background: var(--duo-card);
+  color: var(--ink);
+  font: 1.0625rem/1.35 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.duo-choice:hover:not(:disabled) {
+  background: var(--wash-2);
+}
+.duo-choice:disabled {
+  cursor: default;
+}
+.duo-key {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--wash-2);
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+.duo-choice.is-mine {
+  border-color: var(--link);
+  background: var(--link-wash);
+}
+.duo-choice.is-ok {
+  border-color: var(--duo-ok);
+  background: var(--garden-wash);
+}
+.duo-choice.is-wrong {
+  border-color: var(--duo-bad);
+}
+.duo-choice.is-ok .duo-key {
+  background: var(--duo-ok);
+  color: #fff;
+}
+.duo-choice.is-wrong .duo-key {
+  background: var(--duo-bad);
+  color: #fff;
+}
+.duo-tag {
+  margin-left: auto;
+  padding: 0.05rem 0.45rem;
+  border-radius: var(--radius-pill);
+  background: var(--wash-2);
+  color: var(--ink-2);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+/* End screen */
+.duo-end {
+  align-items: center;
+  text-align: center;
+}
+.duo-end .duo-row {
+  justify-content: center;
+}
+.duo-final {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  font: 700 2.75rem/1 "Alegreya", "Alegreya Fallback", serif;
+}
+.duo-final > span:not([aria-hidden]) {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+.duo-final small {
+  font: 500 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+}
+.duo-verdict {
+  font: 600 1.25rem "Alegreya", "Alegreya Fallback", serif;
+}
+
+/* Tandem call */
+.duo-call {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.duo-live {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--garden);
+}
+.duo-live i {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: currentColor;
+  animation: duo-pulse 1.6s ease-in-out infinite;
+}
+@keyframes duo-pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .duo-live i {
+    animation: none;
+  }
+}
+.duo-phrase-tx {
+  font: 500 1.5rem/1.35 "Alegreya", "Alegreya Fallback", serif;
+  overflow-wrap: anywhere;
+}
+.duo-controls {
+  justify-content: center;
+}
+.duo-controls .duo-btn[aria-pressed="true"] {
+  border-color: var(--warn);
+  color: var(--warn);
+}

@@ -65,7 +65,13 @@
     "focusTitle": "Mode concentration : le texte seul (f)",
     "focusExit": "Quitter la concentration (Échap)",
     "more": "affichage",
-    "moreAria": "Affichage et traduction"
+    "moreAria": "Affichage et traduction",
+    "translateDownloading": "Téléchargement du modèle… {n} %",
+    "translateProgress": "Traduction… {n} %",
+    "translateViaDevice": "Traduit sur ton appareil",
+    "translateViaServer": "Traduit par le serveur",
+    "translateBetter": "Meilleure traduction",
+    "translateSuggest": "Cette note semble être en {lang} — la traduire ?"
   },
   "growth": {
     "tended": "retouché le",
@@ -107,7 +113,11 @@
     "practiceLeft": "restantes",
     "practiceEmpty": "Votre voix s’affichera ici",
     "practiceListenModel": "Écouter le modèle",
-    "practiceListenMe": "Me réécouter"
+    "practiceListenMe": "Me réécouter",
+    "listenOk": "Reconnu ✓ — « {w} »",
+    "listenNo": "Pas reconnu — entendu « {w} »",
+    "listenNothing": "Pas reconnu — rien d'assez clair",
+    "listenPreparing": "Reconnaissance vocale en préparation — réessaie dans un instant"
   },
   "comments": {
     "title": "Commentaires",
@@ -153,7 +163,15 @@
     "searching": "Recherche dans les notes…",
     "placeholderEmpty": "Posez une question sur les notes du jardin.",
     "scopeLabel": "Chercher dans :",
-    "scopeAll": "Toutes les notes"
+    "scopeAll": "Toutes les notes",
+    "ownIntro": "Explique ce passage avec tes mots : tu auras un retour sur ce qui tient et ce qui manque.",
+    "ownPlaceholder": "Avec mes mots, ce passage dit que…",
+    "ownAria": "Ton explication du passage",
+    "socratic": "Socratique",
+    "socraticHint": "L'assistant te pose des questions au lieu de répondre",
+    "socraticDefault": "Aide-moi à comprendre ce passage.",
+    "onDevice": "Réponse générée sur ton appareil — vérifie-la dans la note.",
+    "deviceDownloading": "Téléchargement du modèle sur ton appareil… {n} %"
   },
   "lang": {
     "switcherAria": "Changer la langue de l'interface",
@@ -506,7 +524,9 @@
     "copyFailed": "Copie impossible",
     "highlight": "Surligner",
     "report": "Signaler",
-    "reportAria": "Signaler une erreur dans ce passage"
+    "reportAria": "Signaler une erreur dans ce passage",
+    "explainOwn": "Avec mes mots",
+    "explainOwnAria": "Explique ce passage avec tes mots"
   },
   "glossary": {
     "kicker": "Glossaire",
@@ -718,7 +738,8 @@
     "askBody": "Il cherche dans ses {n} notes et cite ses sources.",
     "missNote": "Cette recherche est signalée au jardinier, pour savoir ce qui manque.",
     "near": "Approchant",
-    "passageOne": "1 passage"
+    "passageOne": "1 passage",
+    "bySense": "Proches par le sens"
   },
   "progression": {
     "title": "Ma progression",

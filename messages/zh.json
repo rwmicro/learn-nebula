@@ -65,7 +65,13 @@
     "focusTitle": "专注模式：只显示正文（f）",
     "focusExit": "退出专注模式（Esc）",
     "more": "显示",
-    "moreAria": "显示与翻译"
+    "moreAria": "显示与翻译",
+    "translateDownloading": "正在下载模型…… {n}%",
+    "translateProgress": "翻译中…… {n}%",
+    "translateViaDevice": "已在你的设备上翻译",
+    "translateViaServer": "由服务器翻译",
+    "translateBetter": "更好的翻译",
+    "translateSuggest": "这篇笔记似乎是{lang}——要翻译吗？"
   },
   "growth": {
     "tended": "最近修订",
@@ -107,7 +113,11 @@
     "practiceLeft": "剩余",
     "practiceEmpty": "你的声音会显示在这里",
     "practiceListenModel": "听示范",
-    "practiceListenMe": "回放我的录音"
+    "practiceListenMe": "回放我的录音",
+    "listenOk": "已识别 ✓ ——“{w}”",
+    "listenNo": "未识别——听到的是“{w}”",
+    "listenNothing": "未识别——没有听清",
+    "listenPreparing": "语音识别正在准备——请稍后再试"
   },
   "comments": {
     "title": "评论",
@@ -153,7 +163,15 @@
     "searching": "正在检索笔记…",
     "placeholderEmpty": "就花园的笔记提问。",
     "scopeLabel": "搜索范围：",
-    "scopeAll": "全部笔记"
+    "scopeAll": "全部笔记",
+    "ownIntro": "用你自己的话解释这段内容：你会得到反馈，指出哪些说对了、哪些还缺。",
+    "ownPlaceholder": "用我的话说，这段内容讲的是……",
+    "ownAria": "你对这段内容的解释",
+    "socratic": "苏格拉底式",
+    "socraticHint": "助手会向你提问，而不是直接回答",
+    "socraticDefault": "帮我理解这段内容。",
+    "onDevice": "回答在你的设备上生成——请对照笔记核实。",
+    "deviceDownloading": "正在把模型下载到你的设备…… {n}%"
   },
   "lang": {
     "switcherAria": "切换界面语言",
@@ -506,7 +524,9 @@
     "copyFailed": "复制失败",
     "highlight": "高亮",
     "report": "报告",
-    "reportAria": "报告此段中的错误"
+    "reportAria": "报告此段中的错误",
+    "explainOwn": "用我的话说",
+    "explainOwnAria": "用你自己的话解释这段内容"
   },
   "glossary": {
     "kicker": "术语表",
@@ -718,7 +738,8 @@
     "askBody": "它会在 {n} 篇笔记中查找并注明出处。",
     "missNote": "这次搜索会告知园丁，以便了解缺少什么。",
     "near": "相近结果",
-    "passageOne": "1 处"
+    "passageOne": "1 处",
+    "bySense": "意思相近"
   },
   "progression": {
     "title": "我的进度",

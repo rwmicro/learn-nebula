@@ -65,7 +65,13 @@
     "focusTitle": "Modo concentración: solo el texto (f)",
     "focusExit": "Salir del modo concentración (Esc)",
     "more": "visualización",
-    "moreAria": "Visualización y traducción"
+    "moreAria": "Visualización y traducción",
+    "translateDownloading": "Descargando el modelo… {n} %",
+    "translateProgress": "Traduciendo… {n} %",
+    "translateViaDevice": "Traducido en tu dispositivo",
+    "translateViaServer": "Traducido por el servidor",
+    "translateBetter": "Mejor traducción",
+    "translateSuggest": "Esta nota parece estar en {lang}: ¿traducirla?"
   },
   "growth": {
     "tended": "retocada el",
@@ -107,7 +113,11 @@
     "practiceLeft": "restantes",
     "practiceEmpty": "Tu voz aparecerá aquí",
     "practiceListenModel": "Escuchar el modelo",
-    "practiceListenMe": "Volver a escucharme"
+    "practiceListenMe": "Volver a escucharme",
+    "listenOk": "Reconocido ✓ — «{w}»",
+    "listenNo": "No reconocido — se oyó «{w}»",
+    "listenNothing": "No reconocido — nada lo bastante claro",
+    "listenPreparing": "El reconocimiento de voz se está preparando: vuelve a intentarlo en un momento"
   },
   "comments": {
     "title": "Comentarios",
@@ -153,7 +163,15 @@
     "searching": "Buscando en las notas…",
     "placeholderEmpty": "Haz una pregunta sobre las notas del jardín.",
     "scopeLabel": "Buscar en:",
-    "scopeAll": "Todas las notas"
+    "scopeAll": "Todas las notas",
+    "ownIntro": "Explica este pasaje con tus palabras: recibirás un comentario sobre lo que se sostiene y lo que falta.",
+    "ownPlaceholder": "Con mis palabras, este pasaje dice que…",
+    "ownAria": "Tu explicación del pasaje",
+    "socratic": "Socrático",
+    "socraticHint": "El asistente te hace preguntas en lugar de responder",
+    "socraticDefault": "Ayúdame a entender este pasaje.",
+    "onDevice": "Respuesta generada en tu dispositivo: compruébala en la nota.",
+    "deviceDownloading": "Descargando el modelo en tu dispositivo… {n} %"
   },
   "lang": {
     "switcherAria": "Cambiar el idioma de la interfaz",
@@ -506,7 +524,9 @@
     "copyFailed": "No se pudo copiar",
     "highlight": "Subrayar",
     "report": "Informar",
-    "reportAria": "Informar de un error en este pasaje"
+    "reportAria": "Informar de un error en este pasaje",
+    "explainOwn": "Con mis palabras",
+    "explainOwnAria": "Explica este pasaje con tus palabras"
   },
   "glossary": {
     "kicker": "Glosario",
@@ -718,7 +738,8 @@
     "askBody": "Busca en sus {n} notas y cita sus fuentes.",
     "missNote": "Esta búsqueda se comunica al jardinero, para saber qué falta.",
     "near": "Parecidos",
-    "passageOne": "1 pasaje"
+    "passageOne": "1 pasaje",
+    "bySense": "Cercanas por el sentido"
   },
   "progression": {
     "title": "Mi progreso",

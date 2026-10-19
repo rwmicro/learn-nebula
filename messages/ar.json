@@ -65,7 +65,13 @@
     "focusTitle": "وضع التركيز: النص وحده (f)",
     "focusExit": "الخروج من وضع التركيز (Esc)",
     "more": "العرض",
-    "moreAria": "العرض والترجمة"
+    "moreAria": "العرض والترجمة",
+    "translateDownloading": "جارٍ تنزيل النموذج… {n}٪",
+    "translateProgress": "جارٍ الترجمة… {n}٪",
+    "translateViaDevice": "تُرجم على جهازك",
+    "translateViaServer": "ترجمه الخادم",
+    "translateBetter": "ترجمة أفضل",
+    "translateSuggest": "يبدو أن هذه الملاحظة مكتوبة بـ{lang} — هل تترجمها؟"
   },
   "growth": {
     "tended": "آخر تحديث",
@@ -107,7 +113,11 @@
     "practiceLeft": "متبقية",
     "practiceEmpty": "سيظهر صوتك هنا",
     "practiceListenModel": "استمع إلى النموذج",
-    "practiceListenMe": "أعد الاستماع إليّ"
+    "practiceListenMe": "أعد الاستماع إليّ",
+    "listenOk": "تم التعرّف ✓ — «{w}»",
+    "listenNo": "لم يُتعرَّف عليه — سُمع «{w}»",
+    "listenNothing": "لم يُتعرَّف عليه — لا شيء واضح بما يكفي",
+    "listenPreparing": "التعرّف على الكلام قيد التحضير — أعد المحاولة بعد قليل"
   },
   "comments": {
     "title": "التعليقات",
@@ -153,7 +163,15 @@
     "searching": "جارٍ البحث في الملاحظات…",
     "placeholderEmpty": "اطرح سؤالاً حول ملاحظات الحديقة.",
     "scopeLabel": "ابحث في:",
-    "scopeAll": "كل الملاحظات"
+    "scopeAll": "كل الملاحظات",
+    "ownIntro": "اشرح هذا المقطع بكلماتك: ستحصل على ملاحظات حول ما هو صحيح وما ينقص.",
+    "ownPlaceholder": "بكلماتي، يقول هذا المقطع إن…",
+    "ownAria": "شرحك للمقطع",
+    "socratic": "سقراطي",
+    "socraticHint": "يطرح عليك المساعد أسئلة بدل أن يجيب",
+    "socraticDefault": "ساعدني على فهم هذا المقطع.",
+    "onDevice": "إجابة مولّدة على جهازك — تحقّق منها في الملاحظة.",
+    "deviceDownloading": "جارٍ تنزيل النموذج على جهازك… {n}٪"
   },
   "lang": {
     "switcherAria": "تغيير لغة الواجهة",
@@ -506,7 +524,9 @@
     "copyFailed": "تعذر النسخ",
     "highlight": "ظلّل",
     "report": "إبلاغ",
-    "reportAria": "الإبلاغ عن خطأ في هذا المقطع"
+    "reportAria": "الإبلاغ عن خطأ في هذا المقطع",
+    "explainOwn": "بكلماتي",
+    "explainOwnAria": "اشرح هذا المقطع بكلماتك"
   },
   "glossary": {
     "kicker": "مسرد",
@@ -718,7 +738,8 @@
     "askBody": "يبحث في ملاحظاته الـ{n} ويذكر مصادره.",
     "missNote": "يُبلَّغ البستاني بهذا البحث ليعرف ما الذي ينقص.",
     "near": "نتائج قريبة",
-    "passageOne": "مقطع واحد"
+    "passageOne": "مقطع واحد",
+    "bySense": "قريبة في المعنى"
   },
   "progression": {
     "title": "تقدّمي",

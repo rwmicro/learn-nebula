@@ -48,6 +48,8 @@ const SCRIPTS = [
   "path-dock",
   // On a note of a reading path: "Étape 4/20" opens the list of its steps.
   "path-sheet",
+  // Under the article: "Défier quelqu'un" (duel) / "Lancer un tandem" → /duel/.
+  "duo-invite",
   // Last: the phone layout's section pill, toolbar and display sheet proxy
   // the controls the scripts above wire up.
   "note-app",
