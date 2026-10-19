@@ -82,7 +82,7 @@
  * (components/ThemeToggle, public/js/theme.js), which sets data-theme on
  * <html> before first paint (layout.tsx). `.keep-light` pins a subtree to the
  * light palette in dark mode — for artwork drawn with a fixed light theme
- * (build-time mermaid SVG, Anki cards) that would be illegible re-inked.
+ * (a mermaid diagram the browser rendered, Anki cards) that would be illegible re-inked.
  * Dark: warm near-black paper, off-white ink, and every text token ≥ 4.5:1
  * on the paper (WCAG AA) — ratios noted against #1c1b19.
  * ======================================================================== */

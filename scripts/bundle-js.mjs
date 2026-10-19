@@ -23,6 +23,8 @@ const SCRIPTS = [
   // the same progress measure (lib/reading-progress.ts).
   "reading-state",
   "mermaid-render",
+  // "Agrandir" on each build-time diagram: full-screen pan / zoom.
+  "diagram-zoom",
   // Not "widgets": the library itself is fetched on demand by the loader, for
   // the 30 notes out of 721 that actually mount one. public/js/widgets.js is
   // served as its own file (like mermaid.min.js) and never enters this bundle.

@@ -14,7 +14,7 @@ export function NoteScripts() {
   return (
     <>
       {/* Single bundle of the note enhancers (toc, audio, font-size, wide-text,
-          translate, aside-toggle, sticky-header, reading-state, mermaid-render, widgets-loader, scroll-focus, related,
+          translate, aside-toggle, sticky-header, reading-state, mermaid-render, diagram-zoom, widgets-loader, scroll-focus, related,
           comments, youtube, popover, copy-links, selection-menu), generated
           by scripts/bundle-js.mjs. quiz / glossary: <NoteFeatureScripts>. */}
       <Script src="/js/note.bundle.js" strategy="afterInteractive" />

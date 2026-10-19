@@ -258,6 +258,14 @@
     "prev": "Précédent",
     "next": "Suivant"
   },
+  "diagram": {
+    "expand": "Agrandir",
+    "dialog": "Schéma en plein écran",
+    "zoomIn": "Zoomer",
+    "zoomOut": "Dézoomer",
+    "fit": "Ajuster à l'écran",
+    "close": "Fermer"
+  },
   "flashcards": {
     "home": "Garden of Knowledge",
     "flip": "Retourner",

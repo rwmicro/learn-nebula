@@ -258,6 +258,14 @@
     "prev": "السابق",
     "next": "التالي"
   },
+  "diagram": {
+    "expand": "تكبير",
+    "dialog": "المخطط بملء الشاشة",
+    "zoomIn": "تكبير",
+    "zoomOut": "تصغير",
+    "fit": "ملاءمة الشاشة",
+    "close": "إغلاق"
+  },
   "flashcards": {
     "home": "Garden of Knowledge",
     "flip": "قلب البطاقة",

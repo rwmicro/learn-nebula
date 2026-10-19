@@ -155,6 +155,16 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   nothing leaves the browser) and draws both waveforms. Playback goes through
   Web Audio, not a `blob:` URL, so no CSP `media-src` change is needed; the
   server's `Permissions-Policy` allows `microphone=(self)`.
+- **Mermaid diagrams** are SVG rendered at build (`scripts/render-mermaid.mjs`,
+  Chromium). `lib/mermaid-theme.js` then moves the rules every diagram of a
+  type shares into one hashed `/_next/static/css/mermaid.<hash>.css`, with
+  the theme's hex swapped for the site's colour tokens: the diagrams follow
+  light/dark, and each SVG keeps only its author's `classDef`/`style` rules.
+  `pinLabelInk()` (`lib/mermaid-source.js`) gives a pale custom fill dark
+  text so it stays legible in dark mode. `public/js/diagram-zoom.js` adds
+  "Agrandir" (full-screen pan/zoom). The browser fallback
+  (`mermaid-render.js`) keeps mermaid's inline light theme in a `.keep-light`
+  card.
 
 ## Conventions that bite
 

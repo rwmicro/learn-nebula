@@ -659,17 +659,141 @@ h4:focus-within .anchor,
   overflow-y: hidden;
 }
 
-/* Build-time SVG diagram (scripts/render-mermaid.mjs). */
+/* Build-time SVG diagram (scripts/render-mermaid.mjs). Its colours come from
+   the shared stylesheet render-mermaid.mjs links, written in the site's tokens
+   (lib/mermaid-theme.js), so the diagram follows light/dark like the text.
+   The --mm-tint-* are the timeline/mindmap section fills, mixed from the
+   paper so they darken with it (in light they are MERMAID_CONFIG's cScale
+   values to the unit). */
 .mermaid-diagram {
   margin: 1.6rem auto;
   text-align: center;
   overflow-x: auto;
-  /* Rendered with a fixed light theme (MERMAID_CONFIG), so the figure is a
-     .keep-light island: in dark mode it becomes a light card (--island-pad is
-     0 in light, where the card is invisible anyway). */
   background: var(--paper);
-  padding: var(--island-pad);
   border-radius: var(--radius-md);
+  --mm-tint-1: color-mix(in srgb, var(--callout-blue) 10%, var(--paper));
+  --mm-tint-2: color-mix(in srgb, var(--garden) 8%, var(--paper));
+  --mm-tint-3: color-mix(in srgb, var(--warn) 10%, var(--paper));
+}
+/* A diagram the browser rendered (public/js/mermaid-render.js, the fallback
+   when the build had no Chromium) keeps mermaid's inline light theme, so it is
+   still a .keep-light island: a light card in dark mode. */
+.mermaid-diagram.keep-light {
+  padding: var(--island-pad);
+}
+
+/* "Agrandir" (public/js/diagram-zoom.js wraps each diagram in .diagram-frame).
+   Quiet until the diagram is hovered, like the code-copy button; always shown
+   on touch screens. The figure's margin collapses through the frame, so `top`
+   is measured from the diagram's own edge. */
+.diagram-frame {
+  position: relative;
+}
+.mermaid-diagram:not(.diagram-dlg-stage) {
+  cursor: zoom-in;
+}
+.diagram-expand {
+  position: absolute;
+  top: 0.4rem;
+  inset-inline-end: 0.4rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.85rem;
+  line-height: 1;
+  padding: 0.35rem 0.6rem;
+  color: var(--muted);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+}
+.diagram-frame:hover .diagram-expand,
+.diagram-expand:focus-visible {
+  opacity: 1;
+}
+.diagram-expand:hover,
+.diagram-expand:focus-visible {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+@media (hover: none) {
+  .diagram-expand {
+    opacity: 1;
+  }
+}
+@media print {
+  .diagram-expand {
+    display: none !important;
+  }
+}
+
+/* The full-screen view. */
+.diagram-dlg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+.diagram-dlg::backdrop {
+  background: var(--paper);
+}
+/* Below the toolbar, so neither ever covers the other. */
+.diagram-dlg-stage.mermaid-diagram {
+  position: absolute;
+  inset: calc(max(0.75rem, env(safe-area-inset-top)) + 3.35rem) 0 0;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 0;
+  background: var(--paper);
+  text-align: start;
+  touch-action: none;
+  cursor: grab;
+}
+.diagram-dlg-stage.mermaid-diagram:active {
+  cursor: grabbing;
+}
+.diagram-dlg-stage.mermaid-diagram svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  /* diagram-zoom.js sets the natural size inline; the in-page cap must not. */
+  max-width: none;
+}
+.diagram-dlg-bar {
+  position: absolute;
+  z-index: 1;
+  top: max(0.75rem, env(safe-area-inset-top));
+  inset-inline-end: max(0.75rem, env(safe-area-inset-right));
+  display: flex;
+  gap: 0.4rem;
+}
+.diagram-dlg-btn {
+  width: 2.6rem;
+  height: 2.6rem;
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--ink);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  cursor: pointer;
+}
+.diagram-dlg-btn:hover {
+  border-color: var(--ink);
+}
+.diagram-dlg-btn:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
 }
 
 /* A diagram wider than the column (a fifteen-event timeline is ~3300px) scrolls,

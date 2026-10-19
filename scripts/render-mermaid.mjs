@@ -19,6 +19,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { chromium } from "@playwright/test";
 import { normaliseMermaid, polishSvg, MERMAID_CONFIG } from "../lib/mermaid-source.js";
+import { hoistMermaidStyles } from "../lib/mermaid-theme.js";
 
 const OUT = path.join(process.cwd(), "out");
 const MERMAID = path.join(process.cwd(), "node_modules", "mermaid", "dist", "mermaid.min.js");
@@ -109,6 +110,17 @@ for (const [h, code] of sources) {
 }
 await browser.close();
 
+// One stylesheet for what every diagram of a type shares, in the site's colour
+// tokens so the diagrams follow light/dark (lib/mermaid-theme.js). Content-
+// hashed under /_next/static/, which the server already serves immutable.
+const hoisted = hoistMermaidStyles([...svgs.values()]);
+[...svgs.keys()].forEach((h, i) => svgs.set(h, hoisted.svgs[i]));
+const cssName = `mermaid.${hash(hoisted.css).slice(0, 12)}.css`;
+const cssDir = path.join(OUT, "_next", "static", "css");
+fs.mkdirSync(cssDir, { recursive: true });
+fs.writeFileSync(path.join(cssDir, cssName), hoisted.css);
+const cssLink = `<link rel="stylesheet" href="/_next/static/css/${cssName}"/>`;
+
 // Pass 2: inline the SVGs.
 let replaced = 0;
 const failedFiles = new Set();
@@ -124,14 +136,18 @@ for (const f of files) {
     // focusable can't be scrolled from the keyboard at all — axe flags it as
     // serious, WCAG 2.1 2.1.1. Focusable is all the rule needs; the diagram's
     // own <text> is what a screen reader then reads.
-    return `<figure class="mermaid-diagram keep-light" tabindex="0" data-pagefind-ignore>${svg}</figure>`;
+    return `<figure class="mermaid-diagram" tabindex="0" data-pagefind-ignore>${svg}</figure>`;
   });
-  if (out !== html) fs.writeFileSync(f, out);
+  if (out !== html) {
+    const linked = out.includes(cssLink) ? out : out.replace("</head>", `${cssLink}</head>`);
+    fs.writeFileSync(f, linked);
+  }
   if (out.includes('class="mermaid"')) failedFiles.add(path.relative(OUT, f));
 }
 
 console.log(
-  `Rendered ${svgs.size} diagram(s) to SVG, inlined ${replaced} block(s)${failed ? `, ${failed} failed` : ""}.`,
+  `Rendered ${svgs.size} diagram(s) to SVG, inlined ${replaced} block(s)${failed ? `, ${failed} failed` : ""}; ` +
+    `shared styles in ${cssName} (${(hoisted.css.length / 1024).toFixed(1)} KB).`,
 );
 if (failedFiles.size) {
   console.warn(
