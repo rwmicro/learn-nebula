@@ -78,7 +78,7 @@ function gfMul(x: number, y: number): number {
 }
 
 function rsDivisor(degree: number): number[] {
-  const r = new Array<number>(degree).fill(0);
+  const r = Array.from({ length: degree }, () => 0);
   r[degree - 1] = 1;
   let root = 1;
   for (let i = 0; i < degree; i++) {
@@ -94,7 +94,7 @@ function rsDivisor(degree: number): number[] {
 /** The `degree` EC codewords of `data`. */
 export function rsRemainder(data: number[], degree: number): number[] {
   const div = rsDivisor(degree);
-  const r = new Array<number>(degree).fill(0);
+  const r = Array.from({ length: degree }, () => 0);
   for (const b of data) {
     const f = b ^ (r.shift() as number);
     r.push(0);
@@ -177,8 +177,8 @@ class Matrix {
   readonly m: boolean[][];
   readonly fn: boolean[][];
   constructor(readonly size: number) {
-    this.m = Array.from({ length: size }, () => new Array<boolean>(size).fill(false));
-    this.fn = Array.from({ length: size }, () => new Array<boolean>(size).fill(false));
+    this.m = Array.from({ length: size }, () => Array.from({ length: size }, () => false));
+    this.fn = Array.from({ length: size }, () => Array.from({ length: size }, () => false));
   }
   set(x: number, y: number, dark: boolean) {
     this.m[y][x] = dark;

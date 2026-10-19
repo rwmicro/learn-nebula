@@ -5711,3 +5711,76 @@ h4,
   }
 }
 /* --- end on-device translation --- */
+
+/* --- "À deux" under the article (public/js/duo-invite.js → /duel/) --- */
+.duo-invite {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 2rem 0 1rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  background: var(--wash);
+}
+.duo-invite-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+}
+.duo-invite-row > div {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+.duo-invite-row + .duo-invite-row {
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--rule);
+}
+.duo-invite p {
+  margin: 0;
+}
+.duo-invite-title {
+  font-weight: 700;
+}
+.duo-invite-text {
+  color: var(--ink-2);
+  font-size: var(--text-small);
+}
+.duo-invite-btn {
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-weight: 700;
+  text-transform: lowercase;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  min-height: 2.5rem;
+  padding: 0.2rem 0.75rem;
+  color: var(--garden);
+  background: var(--garden-wash);
+  border: 1.5px solid var(--garden);
+  border-bottom-width: 3px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.duo-invite-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.duo-invite-btn:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: 2px;
+}
+.duo-invite-status {
+  flex-basis: 100%;
+  color: var(--muted);
+  font-size: var(--text-meta);
+}
+.duo-invite-status:empty {
+  display: none;
+}
+@media print {
+  .duo-invite {
+    display: none;
+  }
+}
+/* --- end "À deux" --- */

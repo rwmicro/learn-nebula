@@ -213,11 +213,6 @@ export function Duel() {
     }, REVEAL_MS);
   }, [showRound]);
 
-  const roundOk = (i: number): boolean[] => {
-    const qs = noteRef.current?.questions ?? [];
-    const q = qs[game.current.order[i]];
-    return q ? q.choices.map((c) => c.ok) : [];
-  };
 
   function answer(c: number) {
     const g = game.current;
@@ -309,6 +304,14 @@ export function Duel() {
   );
 
   // ---- connection ----------------------------------------------------------
+
+  // Another room's link opened in this tab (or a new room made here): a hash
+  // change alone doesn't reload the page, so start over for it.
+  useEffect(() => {
+    const other = () => location.reload();
+    window.addEventListener("hashchange", other);
+    return () => window.removeEventListener("hashchange", other);
+  }, []);
 
   useEffect(() => {
     if (!duoSupported()) {
@@ -431,8 +434,8 @@ export function Duel() {
       setErr("create");
       return;
     }
+    // A hash change: the hashchange listener above reloads into the room.
     location.href = url;
-    location.reload();
   }
 
   async function copy() {
