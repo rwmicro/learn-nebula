@@ -213,6 +213,29 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
 - Under each note's title, "historique" links to the file's GitHub commits
   (`noteHistoryUrl()` in `lib/site.ts`, from NOTES_REPO_URL/BRANCH/SUBDIR).
 
+## Newer browser features (all feature-detected, hidden when absent)
+- **Passkeys** (`server/routes/passkey.ts`, `@simplewebauthn`, RP from
+  PUBLIC_URL/SITE_URL) beside the magic link; **Web Push reminders**
+  (`server/push*.ts`, VAPID_*; Declarative Web Push payload, handled in
+  `public/sw.js`); app badge = cards due (`lib/app-badge.ts`).
+- **On-device AI** (`lib/browser-ai.ts`): Translator first in `translate.js`,
+  LanguageDetector `lang` hint to `/api/ask`, Prompt API for "Avec mes mots"
+  and the socratic mode with `/api/ask/explain` / `socratic: true` as server
+  fallback (prompts shared in `lib/ask-prompts.ts`). On-device speech check
+  in the pronunciation coach (`lib/speech-match.ts`, `processLocally` only).
+- **`/api/search`**: embedding-only nearest notes for the palette's "Proches
+  par le sens" group (`server/routes/search.ts`, needs RAG).
+- **Duel / tandem** (`/duel/`, `components/Duel.tsx`, `lib/duo-rtc.ts`):
+  WebSocket signaling at `/api/room/:code` (`server/rooms.ts`, @hono/node-ws,
+  two peers, nothing stored), RTCDataChannel / audio, optional Cloudflare
+  TURN via TURN_KEY_ID/TURN_KEY_API_TOKEN. The duel only appears on notes with
+  ≥ 2 `[!quiz]` cards that have a `- [x]` choice (`public/js/duo-invite.js`).
+- Native CSS: anchor-positioned popovers (`lib/anchor-popover.ts`) for the
+  link preview and glossary, `scroll-state` sticky bar and scroll-driven
+  progress (JS fallbacks kept), `@starting-style`, `field-sizing`; Wake Lock
+  (`lib/wake-lock.ts`) in review and lesson mode; Document PiP review
+  (`components/ReviewPip.tsx`).
+
 ## CI
 
 `.github/workflows/ci.yml` (typecheck app **and** `server/`, compile + boot

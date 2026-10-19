@@ -3845,6 +3845,8 @@ main video {
 
 /* "Signaler une erreur" form (selection-menu.js): a native modal dialog. */
 .report-dlg {
+  /* Tailwind's preflight zeroes dialog margins: centre it again. */
+  margin: auto;
   width: min(32rem, calc(100vw - 2rem));
   padding: 0;
   color: var(--ink);
