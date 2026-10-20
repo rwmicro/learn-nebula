@@ -1622,7 +1622,9 @@
   }
   .na-crumbs .na-fam {
     font-weight: 700;
-    color: var(--fam, var(--garden));
+    /* The family accent alone is too pale for text (informatique: 2.8:1);
+       mixed with the ink it stays its hue and clears AA in both themes. */
+    color: color-mix(in srgb, var(--fam, var(--garden)) 60%, var(--ink));
   }
   .na-crumbs .na-sep::before {
     content: "›";

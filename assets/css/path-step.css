@@ -104,7 +104,8 @@ main .path-step-link:hover .path-step-name {
   flex: none;
   font-size: 0.85rem;
   text-transform: lowercase;
-  color: var(--muted-warm);
+  /* --muted-warm is 4.47:1 on the bar's wash, just under AA. */
+  color: var(--ink-2);
 }
 .path-step-name {
   min-width: 0;
