@@ -40,6 +40,37 @@
   background: var(--link-wash);
 }
 
+/* Desktop: the site bar sits above the full-bleed canvas, which used to
+   cover it (search, theme and account went missing here), and the canvas
+   starts below it. Its "Accueil" makes the back link redundant. Phones keep
+   their floating chrome (app.css). */
+@media (min-width: 640px) {
+  body:has(.graph-page) .site-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    width: auto;
+    margin: 0;
+    transform: none;
+    padding: 0 2rem;
+    background: color-mix(in srgb, var(--paper) 90%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+  body:has(.graph-page) .site-bar-inner {
+    max-width: 75rem;
+    margin: 0 auto;
+  }
+  .graph-page {
+    top: 2.6rem;
+  }
+  .graph-back {
+    display: none;
+  }
+}
+
 /* Locate-a-note search, top-right (mirrors .graph-back top-left). */
 .cg-locate {
   position: absolute;

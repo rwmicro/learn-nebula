@@ -29,8 +29,10 @@ export const LANG_OPTIONS = [
  * via window.__i18n.setLocale, which fires the swap. Inline list
  * (FR · EN · ES · العربية · 中文) from `sm` up; on phones it folds into a small
  * dropdown showing the current language, so the masthead's utility bar fits
- * on one line next to the theme toggle and the search. */
-export function LangSwitcher() {
+ * on one line next to the theme toggle and the search. `compact` keeps the
+ * dropdown at every width (the site bar has no room for the inline list),
+ * opening towards the start of the line since it sits at the bar's end. */
+export function LangSwitcher({ compact = false }: { compact?: boolean } = {}) {
   const [locale, setLocale] = useState<string>("fr");
   const [open, setOpen] = useState(false);
   const menuId = useId();
@@ -106,7 +108,10 @@ export function LangSwitcher() {
     <>
       {/* Phones: current language + chevron, the others in a dropdown. Logical
         `start-0` anchors it under the toggle in RTL (Arabic) too. */}
-      <span ref={rootRef} className="relative sm:hidden">
+      <span
+        ref={rootRef}
+        className={compact ? "relative" : "relative sm:hidden"}
+      >
         <button
           ref={toggleRef}
           type="button"
@@ -137,7 +142,7 @@ export function LangSwitcher() {
         <ul
           id={menuId}
           hidden={!open}
-          className="absolute start-0 top-full z-40 mt-1.5 min-w-full list-none rounded-md border border-rule-strong bg-paper p-1 shadow-lg"
+          className={`absolute ${compact ? "end-0" : "start-0"} top-full z-40 mt-1.5 min-w-full list-none rounded-md border border-rule-strong bg-paper p-1 shadow-lg`}
         >
           {LANG_OPTIONS.map((o) => (
             <li key={o.code} className="m-0 p-0">
@@ -154,29 +159,31 @@ export function LangSwitcher() {
           ))}
         </ul>
       </span>
-      <span
-        className="hidden sm:inline-flex items-baseline gap-1.5"
-        role="group"
-        aria-label="Langue / Language"
-      >
-        {LANG_OPTIONS.map((o, i) => (
-          <Fragment key={o.code}>
-            {i > 0 && (
-              <span className="text-muted-warm" aria-hidden="true">
-                ·
-              </span>
-            )}
-            <button
-              type="button"
-              className={btn(locale === o.code)}
-              aria-pressed={locale === o.code}
-              onClick={() => pick(o.code)}
-            >
-              {o.label}
-            </button>
-          </Fragment>
-        ))}
-      </span>
+      {!compact && (
+        <span
+          className="hidden sm:inline-flex items-baseline gap-1.5"
+          role="group"
+          aria-label="Langue / Language"
+        >
+          {LANG_OPTIONS.map((o, i) => (
+            <Fragment key={o.code}>
+              {i > 0 && (
+                <span className="text-muted-warm" aria-hidden="true">
+                  ·
+                </span>
+              )}
+              <button
+                type="button"
+                className={btn(locale === o.code)}
+                aria-pressed={locale === o.code}
+                onClick={() => pick(o.code)}
+              >
+                {o.label}
+              </button>
+            </Fragment>
+          ))}
+        </span>
+      )}
     </>
   );
 }

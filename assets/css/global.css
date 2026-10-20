@@ -1228,6 +1228,35 @@ body:has(.home-masthead) .site-bar {
     margin: 0 1.2rem 1.2rem;
   }
 }
+/* The page's title beside the name is the phone's scrolled pill (app.css,
+   TopBarScroll.tsx). On wider screens it glued onto "Garden of Knowledge"
+   and read as one long title, pushing the links to mid-screen. */
+.site-bar-page {
+  display: none;
+}
+@media (min-width: 640px) {
+  /* One width and one place on every page but the notes (whose bar spans
+     the text column, main.css): the bar used to follow each page's own
+     container, full width on Parcours, 1040px centred on Cartes, so the
+     whole menu jumped sideways from one page to the next. */
+  body:not(:has(.na-chrome)) .site-bar {
+    position: relative;
+    left: 50%;
+    width: min(75rem, calc(100vw - 4rem));
+    margin-inline: 0;
+    transform: translateX(-50%);
+  }
+  /* The bar already holds "Accueil": the pages' own "← Accueil" above the
+     title said it twice. Back links to anywhere else stay. */
+  body:not(:has(.na-chrome)) main :is(.old-back, [class$="-back"])[href="/"] {
+    display: none;
+  }
+}
+@media (min-width: 640px) and (max-width: 1080px) {
+  body:not(:has(.na-chrome)) .site-bar {
+    width: calc(100vw - 2.4rem);
+  }
+}
 /* "Garden of Knowledge" on one line plus search, theme, account and menu
    don't fit a phone's width: stack the name on two smaller lines ("Garden of"
    / "Knowledge") so every page still says whose site it is. Only on the
