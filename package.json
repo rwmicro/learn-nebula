@@ -32,7 +32,7 @@
     "better-sqlite3": "^13.0.3",
     "gray-matter": "^4.0.3",
     "hast-util-from-html": "^2.0.3",
-    "hono": "^4.13.7",
+    "hono": "^4.13.11",
     "katex": "^0.18.2",
     "mdast-util-to-string": "^4.0.0",
     "nodemailer": "^10.0.16",
