@@ -303,11 +303,12 @@
     padding-bottom: calc(4.9rem + var(--gk-safe-b));
   }
 
-  /* The menu, review reminder and search of the site bar live in the tab
-     bar now; the account (or "Moi") and the theme stay at the top. */
+  /* The menu, review reminder, language and search of the site bar live in
+     the tab bar (or Moi) now; the account and the theme stay at the top. */
   .site-bar .site-bar-menu,
   .site-bar .review-pill,
   .site-bar .palette-btn,
+  .site-bar .site-bar-lang,
   .home-masthead .gk-menu-btn,
   .home-masthead .palette-btn {
     display: none;
@@ -1621,7 +1622,9 @@
   }
   .na-crumbs .na-fam {
     font-weight: 700;
-    color: var(--fam, var(--garden));
+    /* The family accent alone is too pale for text (informatique: 2.8:1);
+       mixed with the ink it stays its hue and clears AA in both themes. */
+    color: color-mix(in srgb, var(--fam, var(--garden)) 60%, var(--ink));
   }
   .na-crumbs .na-sep::before {
     content: "›";

@@ -4,6 +4,7 @@ import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
 import { SiteNavLinks } from "@/components/SiteNavLinks";
 import { AccountChip, ReviewPill } from "@/components/AccountChip";
 import { TopBarScroll } from "@/components/TopBarScroll";
+import { LangSwitcher } from "@/components/LangSwitcher";
 
 // The one site menu, the same on every page: the home's masthead lists the
 // same links (components/Header.tsx) and this slim bar is hidden there (CSS,
@@ -11,10 +12,16 @@ import { TopBarScroll } from "@/components/TopBarScroll";
 // menu had no Parcours / Frise / Cartes, and a note page had its menu only at
 // the very bottom, after the comments.
 //
-// Desktop: links inline. Phone: a <details> "Menu" (no JS needed). On the
-// right: the review reminder, search, light/dark, and the account button.
+// Desktop: links inline, with Progression as on the home's masthead. Phone: a
+// <details> "Menu" (no JS needed). On the right: the review reminder, the
+// language (the home's inline list folded into a dropdown), search,
+// light/dark, and the account button.
 export function SiteBar() {
-  const links = NAV.map((n) => ({ href: n.href, key: n.name, label: t(n.name) }));
+  const links = [...NAV, { name: "nav.progression", href: "/progression/" }].map((n) => ({
+    href: n.href,
+    key: n.name,
+    label: t(n.name),
+  }));
   return (
     <header className="site-bar" data-pagefind-ignore>
       <div className="site-bar-inner">
@@ -33,6 +40,9 @@ export function SiteBar() {
         </nav>
         <div className="site-bar-tools">
           <ReviewPill />
+          <span className="site-bar-lang">
+            <LangSwitcher compact />
+          </span>
           <span className="contents" dangerouslySetInnerHTML={{ __html: paletteButtonHtml(true) }} />
           <span className="contents" dangerouslySetInnerHTML={{ __html: themeToggleHtml() }} />
           <AccountChip />
@@ -53,7 +63,7 @@ export function SiteBar() {
               <span className="sr-only" dangerouslySetInnerHTML={{ __html: `<span${i18nAttrs("nav.menu")}>${t("nav.menu")}</span>` }} />
             </summary>
             <div className="site-bar-menu-panel">
-              <SiteNavLinks links={[...links, { href: "/progression/", key: "nav.progression", label: t("nav.progression") }]} />
+              <SiteNavLinks links={links} />
             </div>
           </details>
         </div>
