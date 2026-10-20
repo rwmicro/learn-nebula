@@ -32,6 +32,12 @@ export const EXTRA_WIDGETS: Record<string, { pack: WidgetPack; fallback: string 
   "tableau-periodique": { pack: "sci", fallback: "Tableau périodique interactif (nécessite JavaScript)." },
   "descente-gradient": { pack: "sci", fallback: "Descente de gradient sur une régression linéaire (nécessite JavaScript)." },
   frontiere: { pack: "sci", fallback: "Frontière de décision d'un perceptron ou d'une régression logistique (nécessite JavaScript)." },
+  tri: { pack: "sci", fallback: "Algorithme de tri pas à pas (nécessite JavaScript)." },
+  "graphe-parcours": { pack: "sci", fallback: "Parcours en largeur, en profondeur et Dijkstra sur un graphe (nécessite JavaScript)." },
+  "jointures-sql": { pack: "sci", fallback: "Jointures SQL sur deux petites tables (nécessite JavaScript)." },
+  "cercle-trigo": { pack: "sci", fallback: "Cercle trigonométrique interactif (nécessite JavaScript)." },
+  ordonner: { pack: "sci", fallback: "Exercice : remettre une liste dans l'ordre (nécessite JavaScript)." },
+  associer: { pack: "sci", fallback: "Exercice : associer deux colonnes (nécessite JavaScript)." },
 
   // --- langues
   "affixes-indonesiens": { pack: "lang", fallback: "Affixes de l'indonésien et du malais (nécessite JavaScript)." },

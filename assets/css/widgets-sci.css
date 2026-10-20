@@ -996,3 +996,331 @@
   opacity: 0.45;
   cursor: default;
 }
+
+/* --------------------------------------------------------------- tri */
+.algo-bar {
+  fill: var(--link-mid);
+}
+.algo-bar.is-cmp {
+  fill: var(--warn);
+}
+.algo-bar.is-write {
+  fill: var(--link);
+}
+.algo-bar.is-done {
+  fill: var(--garden);
+}
+.algo-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  margin-bottom: 0.4rem;
+  font-size: var(--text-meta);
+  color: var(--muted);
+}
+.algo-key::before {
+  content: "";
+  display: inline-block;
+  width: 0.75em;
+  height: 0.75em;
+  margin-right: 0.35em;
+  border-radius: 2px;
+  vertical-align: -0.05em;
+}
+.algo-key.is-cmp::before {
+  background: var(--warn);
+}
+.algo-key.is-write::before {
+  background: var(--link);
+}
+.algo-key.is-done::before {
+  background: var(--garden);
+}
+
+/* --------------------------------------------------- graphe-parcours */
+.algo-edge {
+  stroke: var(--rule-strong);
+  stroke-width: 2;
+}
+.algo-edge.is-tree {
+  stroke: var(--link-mid);
+  stroke-width: 3;
+}
+.algo-edge.is-cur {
+  stroke: var(--warn);
+  stroke-width: 3.5;
+}
+.algo-edge.is-route {
+  stroke: var(--garden);
+  stroke-width: 4;
+}
+.algo-wbox {
+  fill: var(--paper);
+  stroke: var(--rule);
+}
+.algo-node {
+  cursor: pointer;
+}
+.algo-node circle {
+  fill: var(--paper);
+  stroke: var(--rule-strong);
+  stroke-width: 2;
+}
+.algo-node.is-front circle {
+  stroke: var(--warn);
+  stroke-dasharray: 4 3;
+}
+.algo-node.is-done circle {
+  fill: var(--link-wash);
+  stroke: var(--link);
+}
+.algo-node.is-cur circle {
+  fill: var(--link);
+  stroke: var(--link);
+}
+.algo-node-l {
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--ink);
+  pointer-events: none;
+}
+.algo-node.is-cur .algo-node-l {
+  fill: var(--paper);
+}
+.algo-node:focus-visible {
+  outline: none;
+}
+.algo-node:focus-visible circle {
+  stroke-width: 4;
+}
+.algo-front {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0.4rem 0 0.8rem;
+  font-size: var(--text-small);
+}
+.algo-front-l {
+  color: var(--muted);
+}
+.algo-chip {
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--warn);
+  border-radius: var(--radius-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ------------------------------------------------------ jointures-sql */
+.sql-code,
+.sql-code code {
+  font-size: var(--text-meta);
+}
+.sql-code {
+  margin: 0 0 0.8rem;
+  padding: 0.5rem 0.7rem;
+  background: var(--wash-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-meta);
+  white-space: pre;
+  overflow-x: auto;
+}
+.sql-t th {
+  width: auto;
+}
+.sql-t tr.is-in td {
+  background: var(--link-wash);
+}
+.sql-t tr.is-out td {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--rule-strong);
+}
+.sql-scroll {
+  overflow-x: auto;
+}
+.sql-null {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ------------------------------------------------------- cercle-trigo */
+.trig-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.8rem;
+}
+.trig-btns .w-btn {
+  min-width: 3.2em;
+}
+.trig-drag {
+  cursor: grab;
+  touch-action: none;
+}
+.trig-axis {
+  stroke: var(--rule-strong);
+}
+.trig-circle {
+  fill: none;
+  stroke: var(--ink-2);
+  stroke-width: 1.5;
+}
+.trig-tanline {
+  stroke: var(--rule);
+  stroke-dasharray: 3 3;
+}
+.trig-ext {
+  stroke: var(--rule-strong);
+  stroke-dasharray: 3 3;
+}
+.trig-tan {
+  stroke: var(--warn);
+  stroke-width: 3;
+}
+.trig-arc {
+  fill: none;
+  stroke: var(--ink-2);
+}
+.trig-radius {
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+.trig-cos,
+.trig-cos-c {
+  stroke: var(--link);
+  stroke-width: 3;
+  fill: none;
+}
+.trig-sin,
+.trig-sin-c {
+  stroke: var(--danger);
+  stroke-width: 3;
+  fill: none;
+}
+.trig-cos-c,
+.trig-sin-c {
+  stroke-width: 2;
+}
+.trig-pt {
+  fill: var(--ink);
+}
+.trig-mark {
+  stroke: var(--rule-strong);
+  stroke-dasharray: 3 3;
+}
+.trig-sin-dot {
+  fill: var(--danger);
+}
+.trig-cos-dot {
+  fill: var(--link);
+}
+.trig-k-sin {
+  color: var(--danger);
+  font-weight: 600;
+}
+.trig-k-cos {
+  color: var(--link);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------- ordonner, associer */
+.ord-consigne {
+  margin: 0 0 0.6rem;
+  font-weight: 500;
+}
+.ord-end {
+  margin: 0.2rem 0;
+  font-size: var(--text-meta);
+  color: var(--muted);
+}
+.w-root .ord-list {
+  list-style: none;
+  margin: 0 0 0.8rem;
+  padding: 0;
+  display: grid;
+  gap: 0.35rem;
+  counter-reset: ord;
+}
+.w-root .ord-item {
+  margin: 0;
+  font-size: var(--text-small);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.5rem 0.4rem 0.6rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  counter-increment: ord;
+}
+.ord-item::before {
+  content: counter(ord);
+  min-width: 1.4em;
+  color: var(--muted);
+  font-size: var(--text-meta);
+  font-variant-numeric: tabular-nums;
+}
+.ord-text {
+  flex: 1;
+  min-width: 0;
+}
+.ord-detail {
+  color: var(--muted);
+}
+.ord-btns {
+  display: flex;
+  gap: 0.25rem;
+}
+.ord-mv {
+  min-width: 2.2rem;
+  min-height: 2.2rem;
+  padding: 0;
+}
+.ord-mv[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+.ord-item.is-ok,
+.ass-row.is-ok {
+  border-color: var(--garden);
+  background: var(--garden-wash);
+}
+.ord-item.is-bad,
+.ass-row.is-bad {
+  border-color: var(--danger);
+}
+.ord-verdict {
+  margin: 0.3rem 0 0;
+  font-size: var(--text-small);
+  min-height: 1.4em;
+}
+.ord-verdict.is-ok {
+  color: var(--garden);
+  font-weight: 600;
+}
+.ord-verdict.is-bad {
+  color: var(--danger);
+}
+.ass-rows {
+  display: grid;
+  gap: 0.35rem;
+  margin-bottom: 0.8rem;
+}
+.ass-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1.2fr);
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-sm);
+}
+.ass-arrow {
+  color: var(--muted);
+}
+.w-root select.w-input.ass-sel {
+  width: 100%;
+  min-width: 0;
+  min-height: 2.2rem;
+}
