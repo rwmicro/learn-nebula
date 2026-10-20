@@ -55,6 +55,8 @@ jobs:
         run: |
           pnpm build:server
           mkdir -p /tmp/srv
+          # /healthz is 503 until the static export is readable.
+          echo '<!doctype html>' > /tmp/srv/index.html
           PORT=8931 DB_PATH=/tmp/srv/c.db STATIC_DIR=/tmp/srv node build/server/index.mjs &
           for i in $(seq 1 20); do curl -fsS localhost:8931/healthz && exit 0; sleep 1; done
           exit 1

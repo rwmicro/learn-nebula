@@ -11,6 +11,7 @@ import { env, canGenerate } from "./env.ts";
 import { adminVia } from "./auth.ts";
 import { initDb } from "./db.ts";
 import { initRag, ragState } from "./rag.ts";
+import { staticReadable } from "./static-health.ts";
 import { askRoute } from "./routes/ask.ts";
 import { commentsRoute } from "./routes/comments.ts";
 import { translateRoute } from "./routes/translate.ts";
@@ -59,18 +60,21 @@ app.use("*", async (c, next) => {
   }
 });
 
-// Public liveness: just {ok:true}. The generation/RAG detail is operational
-// information (it tells a stranger whether the paid assistant is live), so it
-// is returned only to an authenticated admin — /admin's AssistantCard already
-// sends the bearer token here.
+// Public liveness: {ok:true} while the pages can be served, 503 {ok:false}
+// once the static export can't be read (server/static-health.ts). The
+// generation/RAG detail is operational information (it tells a stranger
+// whether the paid assistant is live), so it is returned only to an
+// authenticated admin — /admin's AssistantCard already sends the bearer token
+// here.
 app.get("/healthz", (c) => {
+  const ok = staticReadable(env.staticDir);
   // adminVia only checks a token when one is sent (every miss counts toward
   // the per-IP lockout, and container healthchecks must not feed it).
   if (adminVia(c)) {
     c.header("cache-control", "no-store");
-    return c.json({ ok: true, generate: canGenerate(), rag: ragState() });
+    return c.json({ ok, generate: canGenerate(), rag: ragState() }, ok ? 200 : 503);
   }
-  return c.json({ ok: true });
+  return c.json({ ok }, ok ? 200 : 503);
 });
 
 // Dynamic API (must be matched before the static catch-all).

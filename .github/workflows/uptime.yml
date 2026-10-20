@@ -2,7 +2,8 @@ name: Uptime
 
 # External probe: Grafana on the server sees the containers, but not a dead
 # Cloudflare tunnel or a server that is off — nothing on the box can report
-# its own absence. Every 15 minutes this checks /healthz from outside; after
+# its own absence. Every 15 minutes this checks /healthz (503 once the pages
+# can't be read) and the home page itself from outside; after
 # two failed attempts it opens an issue labelled `site-down` (GitHub notifies
 # the owner) and closes it once the site answers again.
 #
@@ -35,7 +36,10 @@ jobs:
         run: |
           ok=false
           for i in 1 2; do
-            if out=$(curl -fsS -m 20 "$URL") && echo "$out" | grep -q '"ok":true'; then ok=true; break; fi
+            # The home page too: on 20/10/2026 every page was a 404 for hours
+            # while the API alone kept /healthz green.
+            if out=$(curl -fsS -m 20 "$URL") && echo "$out" | grep -q '"ok":true' \
+              && curl -fsS -m 20 -o /dev/null "${URL%/healthz}/"; then ok=true; break; fi
             sleep 30
           done
           echo "ok=$ok" >> "$GITHUB_OUTPUT"

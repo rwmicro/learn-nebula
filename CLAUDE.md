@@ -252,7 +252,9 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
 the server, oxlint + ESLint, unit tests, and a full static-export build on
 push/PR) and `docker.yml` (image build/push, above; its actions are pinned by
 SHA since it holds the GHCR write token). `uptime.yml` probes
-`https://4d52.net/healthz` every 15 min from outside and opens/closes a
+`https://4d52.net/healthz` (503 when `out/index.html` can't be read,
+`server/static-health.ts`, so the image healthcheck and the Pi's rollback
+catch a container that serves only 404s) and `/` every 15 min from outside and opens/closes a
 `site-down` issue (optional ntfy via secret `UPTIME_NTFY_URL`).
 `ghcr-retention.yml` (weekly) keeps `latest` + the 10 newest `sha-*` images
 and every manifest they reference; dry run unless repo var `GHCR_PRUNE=true`.
