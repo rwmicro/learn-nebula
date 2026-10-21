@@ -196,6 +196,7 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   site + RAG chunks and pushes a multi-arch image to
   `ghcr.io/rwmicro/learn-nebula:latest`. A "Free disk space" step is required or
   the multi-arch buildx runs the runner out of disk.
+- The pushed digest is **cosign-signed** (key-based, secrets `COSIGN_PRIVATE_KEY` + `COSIGN_PASSWORD`; skipped when unset) for the server's podman signature policy; `ghcr-retention.yml` keeps the `sha256-*.sig` tags of the images it keeps.
 - Runtime secrets are passed at `docker run` / compose (`.env.example` is the
   canonical list — every var, what it enables, what it degrades to when unset),
   never baked into the image. Comments + the RAG vector cache live on a `/data`
