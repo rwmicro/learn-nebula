@@ -64,6 +64,13 @@ jobs:
             docker buildx imagetools inspect --raw "ghcr.io/$OWNER/$PACKAGE:$tag" \
               | jq -r '.manifests[]?.digest' >> keep-digests.txt
           done < keep-tags.txt
+          # cosign signatures (docker.yml) are tagged sha256-<signed digest>.sig:
+          # keep those of every kept manifest, or the server's signature policy
+          # would reject the very images kept for a rollback.
+          jq -r --rawfile keep keep-digests.txt \
+            '($keep | split("\n") | map(select(startswith("sha256:")) | "sha256-" + ltrimstr("sha256:") + ".sig")) as $sigs
+             | .[] | select(any(.metadata.container.tags[]; . as $t | $sigs | index($t))) | .name' \
+            all.json >> keep-digests.txt
           sort -u keep-digests.txt -o keep-digests.txt
           echo "keeping $(wc -l < keep-digests.txt) digests"
 

@@ -189,6 +189,7 @@ jobs:
             type=sha,format=short
 
       - name: Build & push
+        id: build
         uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
         with:
           context: .
@@ -198,6 +199,34 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Key-based cosign signature of what was just pushed, verified by the
+      # server's podman policy.json before it pulls an update (soc-infrastructure:
+      # podman_image_signature_policy_enabled). Skipped until the
+      # COSIGN_PRIVATE_KEY secret exists. The key only reaches the signing
+      # step, never the build's scripts. --recursive signs the index and each
+      # platform manifest. cosign 2.x on purpose: it stores signatures as the
+      # `sha256-<digest>.sig` tag podman reads (3.x defaults to the new bundle
+      # format, published as an OCI referrer podman doesn't look at).
+      - name: Check for a signing key
+        id: cosign
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        run: echo "enabled=$([ -n "$COSIGN_PRIVATE_KEY" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Install cosign
+        if: steps.cosign.outputs.enabled == 'true'
+        uses: sigstore/cosign-installer@7e8b541eb2e61bf99390e1afd4be13a184e9ebc5 # v3.10.1
+        with:
+          cosign-release: v2.6.1
+
+      - name: Sign the pushed image
+        if: steps.cosign.outputs.enabled == 'true'
+        env:
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          IMAGE: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+        run: cosign sign --yes --recursive --key env://COSIGN_PRIVATE_KEY "$IMAGE"
 
       - name: Record the pensine revision this image holds
         run: mkdir -p .pensine-built && echo "${{ needs.pensine.outputs.sha }}" > .pensine-built/sha
