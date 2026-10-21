@@ -14,6 +14,12 @@ import { rotationCultures } from "./sci/rotation-cultures.js";
 import { tableauPeriodique } from "./sci/tableau-periodique.js";
 import { descenteGradient } from "./sci/descente-gradient.js";
 import { frontiere } from "./sci/frontiere.js";
+import { tri } from "./sci/tri.js";
+import { grapheParcours } from "./sci/graphe-parcours.js";
+import { jointuresSql } from "./sci/jointures-sql.js";
+import { cercleTrigo } from "./sci/cercle-trigo.js";
+import { ordonner } from "./sci/ordonner.js";
+import { associer } from "./sci/associer.js";
 
 mount({
   supercompensation,
@@ -27,4 +33,10 @@ mount({
   "tableau-periodique": tableauPeriodique,
   "descente-gradient": descenteGradient,
   frontiere,
+  tri,
+  "graphe-parcours": grapheParcours,
+  "jointures-sql": jointuresSql,
+  "cercle-trigo": cercleTrigo,
+  ordonner,
+  associer,
 });
