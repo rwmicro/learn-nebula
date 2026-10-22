@@ -1631,5 +1631,17 @@
     "unmute": "Unmute",
     "hangup": "Hang up",
     "ended": "Call ended."
+  },
+  "mail": {
+    "login": {
+      "subject": "Your sign-in link for {site}",
+      "preheader": "One click and your progress and coins are back.",
+      "title": "One click and you’re in the garden",
+      "intro": "This button signs you in on this device and syncs your progress and coins.",
+      "button": "Sign me in",
+      "validity": "Valid for 15 minutes · works once",
+      "fallback": "Or copy this link into your browser:",
+      "ignore": "Didn’t ask for this? Just ignore this message: no account is created without this click."
+    }
   }
 }

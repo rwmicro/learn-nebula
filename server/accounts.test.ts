@@ -40,6 +40,14 @@ describe("login mail", () => {
     expect(m.text).toContain("https://4d52.net/compte/#login=abc&next=%2F");
     expect(m.html).toContain("login=abc&#38;next=%2F");
     expect(m.subject).toMatch(/connexion/);
+    expect(m.html).toContain('lang="fr"');
+  });
+  it("goes out in the reader's language, right to left in Arabic", () => {
+    const en = loginMail("https://4d52.net/compte/#login=abc", "en");
+    expect(en.subject).toBe("Your sign-in link for Garden of Knowledge");
+    expect(en.text).toContain("Valid for 15 minutes");
+    const ar = loginMail("https://4d52.net/compte/#login=abc", "ar");
+    expect(ar.html).toContain('dir="rtl"');
   });
 });
 
