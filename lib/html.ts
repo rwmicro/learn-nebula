@@ -807,15 +807,20 @@ export function readStateHtml(
   slug: string,
   minutes: number,
   folder?: { name: string; slugs: string[] },
+  now?: { title: string; family?: string | null },
 ): string {
   // The folder's notes, for the phone card's "1 sur 2 dans Un graphique".
   const f =
     folder && folder.slugs.length > 1
       ? ` data-folder="${escapeHtml(prettyFolder(folder.name))}" data-folder-slugs="${escapeHtml(folder.slugs.join(" "))}"`
       : "";
+  // Title and colour family, for the tab bar's mini player (gkNow).
+  const n = now
+    ? ` data-title="${escapeHtml(now.title)}"${now.family ? ` data-family-name="${escapeHtml(now.family)}"` : ""}`
+    : "";
   return (
     `<div class="read-state" data-pagefind-ignore hidden` +
-    ` data-slug="${escapeHtml(slug)}" data-minutes="${minutes}"${f}></div>`
+    ` data-slug="${escapeHtml(slug)}" data-minutes="${minutes}"${f}${n}></div>`
   );
 }
 

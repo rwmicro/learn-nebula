@@ -5,6 +5,10 @@ import { usePathname } from "next/navigation";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { useReviewDue } from "@/components/AccountChip";
+import { FamilyIcon } from "@/components/FamilyIcon";
+import { attachLens } from "@/lib/liquid-glass";
+import { CHANGE_EVENT, NOW_KEY, STORAGE_KEY, loadNow, loadStore, nowPlaying } from "@/lib/reading-progress";
+import type { PathFamily } from "@/lib/path-family";
 
 // The phone tab bar: a floating "liquid glass" capsule with the four places a
 // reader goes back to (Accueil, Parcours, Notes, Réviser), and a round
@@ -20,6 +24,16 @@ import { useReviewDue } from "@/components/AccountChip";
 // slide along the bar: the pill turns into a larger clear lens that follows
 // it, the tab under it lights up, and letting go opens that tab. A plain tap
 // still just follows the link.
+//
+// Scrolling down, the bar shrinks to the current tab and a mini player takes
+// the middle, as in Apple Music on iOS 26: the note being read (gkNow,
+// written by public/js/reading-state.js), its progress ring and a play
+// button that resumes it. Scrolling back up (or a tap on the shrunk tab)
+// brings the whole bar back.
+//
+// The glass is app.css `.glass`; on Chromium its rim also bends what passes
+// under it (lib/liquid-glass.ts), which is why the drop shadows live on
+// their own elements here (.tabbar-shadow).
 
 type Tab = { key: string; href: string; icon: React.ReactNode; match: (p: string) => boolean };
 
@@ -88,6 +102,57 @@ const TABS: Tab[] = [
 
 /** Pixels a finger moves before a press becomes a slide. */
 const SLOP = 8;
+/** Scrolled past this, scrolling down shrinks the bar; above it, it is whole. */
+const COMPACT_FROM = 160;
+
+type Playing = ReturnType<typeof nowPlaying>;
+
+/** The note being read, kept in step with this tab and the others. */
+function useNowPlaying(): Playing {
+  const [playing, setPlaying] = useState<Playing>(null);
+  useEffect(() => {
+    const load = () => setPlaying(nowPlaying(loadNow(), loadStore()));
+    load();
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === NOW_KEY || e.key === STORAGE_KEY || e.key === null) load();
+    };
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("pageshow", load);
+    window.addEventListener(CHANGE_EVENT, load);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("pageshow", load);
+      window.removeEventListener(CHANGE_EVENT, load);
+    };
+  }, []);
+  return playing;
+}
+
+/** Shrinks on the way down, comes back on the way up or near the top. */
+function useCompact(path: string): [boolean, (v: boolean) => void] {
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    setCompact(false);
+    let last = window.scrollY;
+    let queued = false;
+    const onScroll = () => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        const y = window.scrollY;
+        const dy = y - last;
+        if (y < COMPACT_FROM) setCompact(false);
+        else if (dy > 6) setCompact(true);
+        else if (dy < -10) setCompact(false);
+        if (Math.abs(dy) > 6 || y < COMPACT_FROM) last = y;
+      });
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [path]);
+  return [compact, setCompact];
+}
 
 export function MobileTabBar() {
   const locale = useLocale();
@@ -108,6 +173,26 @@ export function MobileTabBar() {
   // the pill follows the real current tab again.
   const [picked, setPicked] = useState<{ i: number; from: string } | null>(null);
   const [width, setWidth] = useState(0);
+  const [scrolledDown, setCompact] = useCompact(path);
+  // Only a page under one of the tabs shrinks the bar to it.
+  const compact = scrolledDown && current >= 0;
+  const playing = useNowPlaying();
+  const searchRef = useRef<HTMLButtonElement>(null);
+  const miniRef = useRef<HTMLAnchorElement>(null);
+
+  // The refracting rim (Chromium; elsewhere the CSS glass alone).
+  useEffect(() => {
+    const off = [
+      barRef.current && attachLens(barRef.current, { depth: 26, chroma: 0.12 }),
+      searchRef.current && attachLens(searchRef.current, { depth: 22, chroma: 0.12 }),
+    ];
+    return () => off.forEach((f) => f?.());
+  }, []);
+  const hasMini = !!playing;
+  useEffect(() => {
+    if (!hasMini || !miniRef.current) return;
+    return attachLens(miniRef.current, { depth: 24, chroma: 0.12 });
+  }, [hasMini]);
 
   useEffect(() => {
     const bar = barRef.current;
@@ -131,6 +216,7 @@ export function MobileTabBar() {
   const pillX = drag != null ? Math.max(PAD, Math.min(width - PAD - cell, drag - cell / 2)) : PAD + shown * cell;
 
   const onDown = (e: React.PointerEvent<HTMLUListElement>) => {
+    if (compact) return;
     if (e.pointerType === "mouse" && e.button !== 0) return;
     press.current = { id: e.pointerId, x0: localX(e), moved: false };
   };
@@ -166,10 +252,13 @@ export function MobileTabBar() {
 
   return (
     <nav
-      className="tabbar"
+      className={`tabbar${compact ? " is-compact" : ""}${playing ? " has-mini" : ""}`}
       aria-label={t("tabbar.aria", undefined, locale)}
       data-pagefind-ignore
     >
+      <span className="tabbar-shadow tabbar-shadow-bar" aria-hidden="true" />
+      <span className="tabbar-shadow tabbar-shadow-search" aria-hidden="true" />
+      {playing && <span className="tabbar-shadow tabbar-shadow-mini" aria-hidden="true" />}
       <ul
         ref={barRef}
         className={`tabbar-bar glass${drag != null ? " is-sliding" : ""}`}
@@ -181,6 +270,11 @@ export function MobileTabBar() {
           // The click that ends a slide is not a tap on the tab it started
           // on (the tab's link is followed in onUp instead).
           if (e.isTrusted && e.timeStamp - slidEnd.current < 500) e.preventDefault();
+          // Shrunk: a tap on the one tab left brings the whole bar back.
+          if (compact) {
+            e.preventDefault();
+            setCompact(false);
+          }
         }}
       >
         {width > 0 && shown >= 0 && (
@@ -188,7 +282,20 @@ export function MobileTabBar() {
             className="tabbar-pill"
             aria-hidden="true"
             style={{ width: cell, transform: `translateX(${pillX}px)${drag != null ? " scale(1.18, 1.28)" : ""}` }}
-          />
+          >
+            {/* The lens magnifies the tabs under it: a copy of the row, lined
+                up with the real one, scaled with the pill (every browser). */}
+            {drag != null && (
+              <span className="tabbar-lens" style={{ width: width - 2 * PAD, transform: `translateX(${PAD - pillX}px)` }}>
+                {TABS.map((tab, i) => (
+                  <span key={tab.key} className={`tabbar-tab${i === shown ? " is-lit" : ""}`}>
+                    <span className="tabbar-icon">{tab.icon}</span>
+                    <span className="tabbar-label">{t(tab.key, undefined, locale)}</span>
+                  </span>
+                ))}
+              </span>
+            )}
+          </li>
         )}
         {TABS.map((tab, i) => {
           const on = tab.match(path);
@@ -197,7 +304,7 @@ export function MobileTabBar() {
             <li key={tab.key}>
               <a
                 href={tab.key === "tabbar.review" && due ? due.href : tab.href}
-                className={`tabbar-tab${i === shown ? " is-lit" : ""}`}
+                className={`tabbar-tab${i === shown ? " is-lit" : ""}${i === current ? " is-current" : ""}`}
                 draggable={false}
                 aria-current={on ? "page" : undefined}
               >
@@ -216,7 +323,36 @@ export function MobileTabBar() {
           );
         })}
       </ul>
+      {playing && (
+        <a
+          ref={miniRef}
+          className="tabbar-mini glass"
+          href={`/posts/${playing.note.s}/#reprendre`}
+          data-family={playing.note.f}
+          aria-label={t("tabbar.resumeAria", { title: playing.note.title }, locale)}
+          tabIndex={compact ? 0 : -1}
+          aria-hidden={compact ? undefined : true}
+        >
+          <span
+            className="tabbar-mini-ring"
+            style={{ "--p": playing.progress } as React.CSSProperties}
+            aria-hidden="true"
+          >
+            <FamilyIcon family={(playing.note.f as PathFamily | undefined) ?? null} />
+          </span>
+          <span className="tabbar-mini-text">
+            <b>{playing.note.title}</b>
+            <small>{t("tabbar.left", { m: playing.left }, locale)}</small>
+          </span>
+          <span className="tabbar-mini-play" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5.5v13l10.5-6.5z" />
+            </svg>
+          </span>
+        </a>
+      )}
       <button
+        ref={searchRef}
         type="button"
         className="tabbar-search glass"
         data-palette-open

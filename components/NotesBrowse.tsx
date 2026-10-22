@@ -11,7 +11,7 @@ import {
 } from "@/lib/reading-progress";
 import type { FolderRow, NoteRow } from "@/lib/notes-browse";
 import { splitRank } from "@/lib/folder-label";
-import { FamilyIcon } from "@/components/HomeDashboard";
+import { FamilyIcon } from "@/components/FamilyIcon";
 
 // The read state of the "Notes" tab (app/notes/): how many notes of each
 // folder this reader has read, the state of each note (read, started, not

@@ -11,7 +11,7 @@ import { AccountChip, ReviewPill } from "@/components/AccountChip";
 // Blackletter wordmark, à la New York Times. next/font self-hosts the file at
 // build time (served from our origin), so `font-src 'self'` keeps holding and
 // the rest of the page stays on Newsreader. Reserved for the masthead title.
-const blackletter = UnifrakturMaguntia({
+export const blackletter = UnifrakturMaguntia({
   subsets: ["latin"],
   weight: "400",
   display: "swap",

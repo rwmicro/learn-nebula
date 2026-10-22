@@ -15,9 +15,26 @@
   --gk-safe-b: env(safe-area-inset-bottom, 0px);
   --glass-bg: rgb(255 255 255 / 0.34);
   --glass-edge: rgb(255 255 255 / 0.75);
-  --glass-shadow:
+  /* The glass's own light (inside the edge) and its drop shadow, apart: a
+     refracting glass (lib/liquid-glass.ts) keeps its drop shadow on another
+     element. */
+  --glass-inset:
     inset 0 1.5px 0 rgb(255 255 255 / 0.9), inset 0 -1px 1px rgb(255 255 255 / 0.35),
-    inset 0 0 12px rgb(255 255 255 / 0.25), 0 10px 30px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.08);
+    inset 0 0 12px rgb(255 255 255 / 0.25);
+  --glass-drop: 0 10px 30px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.08);
+  --glass-shadow: var(--glass-inset), var(--glass-drop);
+  /* Specular light along the rim: brightest at the top left, again at the
+     bottom right, as on a lit drop of glass. */
+  --glass-rim: conic-gradient(
+    from 225deg,
+    rgb(255 255 255 / 0.95),
+    rgb(255 255 255 / 0.15) 22%,
+    rgb(255 255 255 / 0.08) 40%,
+    rgb(255 255 255 / 0.6) 52%,
+    rgb(255 255 255 / 0.1) 68%,
+    rgb(255 255 255 / 0.95)
+  );
+  --glass-rim-o: 0.9;
   --glass-sheen: linear-gradient(
     135deg,
     rgb(255 255 255 / 0.55),
@@ -31,9 +48,12 @@
 :root[data-theme="dark"] {
   --glass-bg: rgb(30 29 27 / 0.4);
   --glass-edge: rgb(255 255 255 / 0.16);
-  --glass-shadow:
+  --glass-inset:
     inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 1px rgb(255 255 255 / 0.06),
-    inset 0 0 14px rgb(255 255 255 / 0.05), 0 10px 30px rgb(0 0 0 / 0.45);
+    inset 0 0 14px rgb(255 255 255 / 0.05);
+  --glass-drop: 0 10px 30px rgb(0 0 0 / 0.45);
+  --glass-shadow: var(--glass-inset), var(--glass-drop);
+  --glass-rim-o: 0.4;
   --glass-sheen: linear-gradient(
     135deg,
     rgb(255 255 255 / 0.18),
@@ -47,9 +67,12 @@
   :root:not([data-theme]) {
     --glass-bg: rgb(30 29 27 / 0.4);
     --glass-edge: rgb(255 255 255 / 0.16);
-    --glass-shadow:
+    --glass-inset:
       inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 1px rgb(255 255 255 / 0.06),
-      inset 0 0 14px rgb(255 255 255 / 0.05), 0 10px 30px rgb(0 0 0 / 0.45);
+      inset 0 0 14px rgb(255 255 255 / 0.05);
+    --glass-drop: 0 10px 30px rgb(0 0 0 / 0.45);
+    --glass-shadow: var(--glass-inset), var(--glass-drop);
+    --glass-rim-o: 0.4;
     --glass-sheen: linear-gradient(
       135deg,
       rgb(255 255 255 / 0.18),
@@ -83,6 +106,23 @@
   border-radius: inherit;
   background: var(--glass-sheen);
   mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--glass-rim);
+  opacity: var(--glass-rim-o);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
   pointer-events: none;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
@@ -128,7 +168,8 @@
       transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
       opacity 0.25s;
   }
-  /* The page fades into the paper under the bar. */
+  /* A light veil of paper under the bar: the page still shows through the
+     glass, but the labels never sit on busy text. */
   .tabbar::before {
     content: "";
     position: fixed;
@@ -136,12 +177,12 @@
     right: 0;
     bottom: 0;
     z-index: -1;
-    height: calc(8.125rem + var(--gk-safe-b));
-    background: linear-gradient(transparent, var(--paper) 70%);
+    height: calc(6.5rem + var(--gk-safe-b));
+    background: linear-gradient(transparent, color-mix(in srgb, var(--paper) 45%, transparent) 70%);
     pointer-events: none;
   }
   .tabbar-bar {
-    flex: 1;
+    flex: 1 1 0%;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     height: 3.85rem;
@@ -296,6 +337,199 @@
   .tabbar-search:focus-visible {
     outline: 2px solid var(--link);
     outline-offset: 2px;
+  }
+
+  /* Drop shadows on their own elements (see lib/liquid-glass.ts), under the
+     glass they follow; the glass keeps only its inner light. */
+  .tabbar .glass {
+    box-shadow: var(--glass-inset);
+  }
+  .tabbar-shadow {
+    position: absolute;
+    top: 0;
+    height: 3.85rem;
+    border-radius: 2rem;
+    box-shadow: var(--glass-drop);
+    pointer-events: none;
+  }
+  .tabbar-shadow-bar {
+    left: 0;
+    width: calc(100% - 4.45rem);
+  }
+  .tabbar-shadow-search {
+    right: 0;
+    width: 3.85rem;
+  }
+  /* While a finger slides, the pill grows past the bar: Chromium would shift
+     the bending by that much, so the bar is plain glass for the moment. */
+  .tabbar-bar.has-lens.is-sliding {
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04) !important;
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04) !important;
+  }
+  /* The sliding lens magnifies the tabs under it: a copy of the row, held
+     in place under the moving pill and scaled with it. */
+  .tabbar-bar.is-sliding .tabbar-pill {
+    z-index: 2;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--paper) 55%, transparent);
+    -webkit-backdrop-filter: blur(8px) saturate(1.6) brightness(1.06);
+    backdrop-filter: blur(8px) saturate(1.6) brightness(1.06);
+    box-shadow:
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.8),
+      inset 0 1.5px 1px rgb(255 255 255 / 0.7),
+      inset 0 -2px 6px rgb(255 255 255 / 0.25);
+  }
+  .tabbar-lens {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .tabbar-lens .tabbar-tab {
+    z-index: auto;
+  }
+  .tabbar-lens .tabbar-tab:not(.is-lit) {
+    color: var(--ink);
+  }
+
+  /* Shrunk while scrolling down: the current tab alone, the search on the
+     right, and the mini player between them. */
+  .tabbar-bar,
+  .tabbar-shadow-bar {
+    transition:
+      flex 0.42s cubic-bezier(0.3, 1.2, 0.5, 1),
+      width 0.42s cubic-bezier(0.3, 1.2, 0.5, 1),
+      scale 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .tabbar.is-compact .tabbar-bar {
+    flex: 0 0 3.85rem;
+    grid-template-columns: 1fr;
+  }
+  .tabbar.is-compact .tabbar-shadow-bar {
+    width: 3.85rem;
+  }
+  .tabbar.is-compact .tabbar-bar li:not(:has(> .is-current)) {
+    display: none;
+  }
+  .tabbar.is-compact .tabbar-tab {
+    border-radius: 50%;
+    background: var(--glass-on);
+    animation: tabbar-pop 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .tabbar.is-compact .tabbar-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .tabbar.is-compact .tabbar-badge {
+    top: 0.1rem;
+    left: calc(50% + 0.25rem);
+  }
+  @keyframes tabbar-pop {
+    from {
+      scale: 0.7;
+      opacity: 0.4;
+    }
+  }
+  .tabbar-search {
+    margin-left: auto;
+  }
+  .tabbar-mini,
+  .tabbar-shadow-mini {
+    position: absolute;
+    top: 0;
+    left: 4.45rem;
+    right: 4.45rem;
+    height: 3.85rem;
+    border-radius: 2rem;
+    opacity: 0;
+    scale: 0.6 0.9;
+    pointer-events: none;
+    transition:
+      opacity 0.22s,
+      scale 0.42s cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+  .tabbar.is-compact .tabbar-mini,
+  .tabbar.is-compact .tabbar-shadow-mini {
+    opacity: 1;
+    scale: 1;
+    pointer-events: auto;
+    transition-delay: 0.08s;
+  }
+  .tabbar-shadow-mini {
+    box-shadow: var(--glass-drop);
+  }
+  .tabbar-mini {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0 0.4rem 0 0.5rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .tabbar-mini:hover {
+    background: var(--glass-bg);
+  }
+  .tabbar-mini:active {
+    scale: 0.97;
+  }
+  .tabbar-mini-ring {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.375rem;
+    height: 2.375rem;
+    border-radius: 50%;
+    position: relative;
+    background: conic-gradient(var(--fam, var(--garden)) calc(var(--p, 0) * 360deg), var(--glass-on) 0);
+    color: var(--fam, var(--garden));
+  }
+  .tabbar-mini-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0.19rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+  }
+  .tabbar-mini-ring svg {
+    position: relative;
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+  .tabbar-mini-text {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.15;
+  }
+  .tabbar-mini-text b {
+    display: block;
+    overflow: hidden;
+    font: 500 0.95rem "Alegreya", "Alegreya Fallback", serif;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tabbar-mini-text small {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .tabbar-mini-play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.375rem;
+    height: 2.375rem;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .tabbar-mini-play svg {
+    width: 1rem;
+    height: 1rem;
   }
 
   /* The page scrolls under the bar, but its end stays reachable. */
@@ -502,6 +736,9 @@
 }
 @media (max-width: 639.98px) and (prefers-reduced-motion: reduce) {
   .tabbar,
+  .tabbar-shadow,
+  .tabbar-mini,
+  .tabbar.is-compact .tabbar-tab,
   .tabbar-bar,
   .tabbar-pill,
   .tabbar-bar.is-sliding .tabbar-pill,
@@ -509,6 +746,9 @@
   .tabbar-tab,
   .tabbar-search {
     transition: none;
+  }
+  .tabbar.is-compact .tabbar-tab {
+    animation: none;
   }
 }
 @media print {
@@ -737,67 +977,376 @@
     margin: 0;
   }
 
-  .dash-hero {
+  /* The masthead gives way to the dashboard's own top: date and greeting,
+     with the site bar's round "Moi" button at the top right. */
+  .home-masthead.home-masthead {
+    display: none;
+  }
+  .dash-top {
+    padding: calc(0.95rem + env(safe-area-inset-top, 0px)) 1.25rem 0;
+  }
+  .dash-date {
+    margin: 0;
+    padding-right: 3.5rem;
+    min-height: 1.1rem;
+    font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+  }
+  .dash .dash-hello {
+    margin: 0.15rem 0 0;
+    padding: 0;
+    border: 0;
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-size: 1.875rem;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+  }
+  .dash-hello em {
+    color: var(--garden);
+  }
+  /* The greeting depends on the hour and on this browser's history: it
+     waits for them rather than changing under the reader's eyes. */
+  .dash-hello:not([data-ready]) {
+    visibility: hidden;
+  }
+
+  /* "Aujourd'hui": the painting over the next step, its progress, the
+     button, and today's cards and notes. */
+  .dash-today {
+    margin: 1.125rem 1rem 0;
+    overflow: hidden;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.625rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+  }
+  .dash .dash-art {
     position: relative;
     display: block;
-    height: 9.375rem;
-    margin: 0.25rem 1rem 0;
-    overflow: hidden;
-    border-radius: 1.375rem;
+    height: 10.75rem;
     background: #5b4a32;
+    color: #fff;
   }
-  .dash-hero img {
+  .dash-art img {
     display: block;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: 50% 60%;
+    object-position: 50% 58%;
   }
-  .dash-hero::after {
+  .dash-art::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, transparent 35%, rgb(0 0 0 / 0.62));
+    background: linear-gradient(180deg, rgb(0 0 0 / 0.05) 20%, rgb(0 0 0 / 0.72));
   }
-  .dash-hero-cap {
+  .dash-chip {
     position: absolute;
-    left: 1rem;
-    right: 1rem;
-    bottom: 0.75rem;
+    top: 0.875rem;
+    left: 0.875rem;
     z-index: 1;
-    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    max-width: calc(100% - 1.75rem);
+    padding: 0.3rem 0.65rem 0.3rem 0.4rem;
+    overflow: hidden;
+    border-radius: 99px;
+    background: rgb(20 18 14 / 0.45);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    font: 500 0.8125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
-  .dash-hero-cap b {
+  .dash-chip-dot {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 50%;
+    background: hsl(var(--fam-h, 135) var(--fam-s, 42%) 72%);
+    color: #1c1b19;
+  }
+  .dash-chip-dot svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  .dash-cap {
+    position: absolute;
+    left: 1.125rem;
+    right: 1.125rem;
+    bottom: 0.875rem;
+    z-index: 1;
+  }
+  .dash-cap small {
     display: block;
-    font-size: 1.125rem;
-    font-style: italic;
-    font-weight: 500;
-    line-height: 1.2;
-    text-shadow: 0 1px 6px rgb(0 0 0 / 0.4);
+    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    opacity: 0.88;
   }
-  .dash-hero-cap span {
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.75rem;
+  .dash-cap b {
+    display: -webkit-box;
+    margin-top: 0.125rem;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 1.5625rem;
+    font-weight: 500;
+    line-height: 1.1;
+    text-shadow: 0 1px 8px rgb(0 0 0 / 0.35);
+  }
+  .dash-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem 0.25rem;
+    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .dash-dashes {
+    flex: 1;
+    display: flex;
+    gap: 3px;
+  }
+  .dash-dashes i {
+    flex: 1;
+    height: 5px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--garden) calc(var(--f) * 100%), var(--wash-2) 0);
+  }
+  .dash .dash-go {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: 3.125rem;
+    margin: 0.625rem 1rem 0;
+    border-radius: 1rem;
+    background: var(--garden);
+    color: var(--paper);
+    font: 700 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    transition: transform 0.15s;
+  }
+  .dash-go:active,
+  .dash-session a:active,
+  .dash-mine a:active,
+  .dash-disc a:active,
+  .dash-day a:active,
+  .dash-ways a:active {
+    transform: scale(0.98);
+  }
+  .dash-go svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+  .dash-session {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 0.875rem;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  .dash-session a {
+    display: grid;
+    justify-items: center;
+    gap: 0.125rem;
+    padding: 0.75rem 0.375rem 0.8rem;
+  }
+  .dash-session a + a {
+    border-left: 0.5px solid var(--dash-edge);
+  }
+  .dash-session b {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font: 700 1.3125rem/1.1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-variant-numeric: lining-nums tabular-nums;
+  }
+  .dash-session b svg {
+    width: 1.0625rem;
+    height: 1.0625rem;
+  }
+  .dash-session small {
+    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .dash-session .is-due b {
+    color: #c2410c;
+  }
+  :root[data-theme="dark"] .dash-session .is-due b {
+    color: #f0a46a;
+  }
+  .dash-session .is-done b {
+    color: var(--garden);
+  }
+
+  /* Nothing under way: the quote on the painting, and three ways in. */
+  .dash-welcome .dash-art {
+    height: 12.5rem;
+  }
+  .dash-welcome .dash-cap b {
+    font-size: 1.5rem;
+    font-style: italic;
+    -webkit-line-clamp: 3;
+  }
+  .dash-welcome .dash-cap small {
+    margin-top: 0.375rem;
+  }
+  .dash-welcome-text {
+    margin: 0;
+    padding: 1rem 1rem 0.875rem;
+    font-size: 1rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  .dash .dash-ways {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0 1rem 1rem;
+  }
+  .dash-ways a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 0.75rem;
+    border-radius: 1rem;
+    background: var(--wash);
+    transition: transform 0.15s;
+  }
+  .dash-ways a > span:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+  }
+  .dash-ways b {
+    display: block;
+    font: 700 0.9375rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .dash-ways small {
+    display: block;
+    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .dash-way-icon {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 0.75rem;
+    background: var(--dash-card);
+    color: var(--garden);
+  }
+  .dash-way-icon svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .dash .dash-ways .is-main {
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .dash-ways .is-main .dash-way-icon {
+    border: 0;
+    background: rgb(255 255 255 / 0.16);
+    color: inherit;
+  }
+  .dash-ways .is-main small,
+  .dash-ways .is-main .dash-chev {
+    color: inherit;
     opacity: 0.85;
   }
 
-  .dash-h {
-    margin: 0;
-    padding: 1.25rem 1.375rem 0.5rem;
-    border: 0;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  /* The week: one dot a day, Monday first, and the run of days. */
+  .dash .dash-week {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    margin: 0.875rem 1rem 0;
+    padding: 0.875rem 1rem;
+    border-radius: 1.25rem;
+    background: var(--wash);
+  }
+  .dash-week-days {
+    flex: none;
+    display: flex;
+    gap: 3px;
+  }
+  .dash-week-days > span {
+    display: grid;
+    justify-items: center;
+    gap: 0.25rem;
+    width: 1.5625rem;
+    font: 500 0.6875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
     color: var(--muted);
+  }
+  .dash-week-days i {
+    display: grid;
+    place-items: center;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 1.5px dashed var(--faint);
+    border-radius: 50%;
+  }
+  .dash-week-days i.is-on {
+    border: 0;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .dash-week-days i.is-now {
+    border: 2px solid var(--garden);
+  }
+  .dash-week-days svg {
+    width: 0.8rem;
+    height: 0.8rem;
+  }
+  .dash-week-text {
+    flex: 1;
+    min-width: 0;
+  }
+  .dash-week-text b {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font: 700 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  }
+  .dash-week-text small {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.8125rem/1.25 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .dash-flame {
+    width: 0.95rem;
+    height: 0.95rem;
+    fill: #e0782f;
+  }
+
+  /* Section headings: a serif title, "Tout voir" on the right. */
+  .dash-h,
+  .home-ask-head h2 {
+    margin: 0;
+    padding: 1.75rem 1.25rem 0.625rem;
+    border: 0;
+    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-size: 1.3125rem;
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
   }
   .dash-row-h {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    padding-right: 1.375rem;
+    padding-right: 1.25rem;
   }
   .dash .dash-row-h > a {
     font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
@@ -806,159 +1355,79 @@
     color: var(--garden);
   }
 
-  .dash-card,
-  .dash-tile,
-  .dash-list {
-    background: var(--dash-card);
-    border: 0.5px solid var(--dash-edge);
-    box-shadow: var(--dash-shadow);
-  }
-  .dash-card {
+  /* My paths: one wide row each, with the next note and the share read. */
+  .dash .dash-mine {
+    display: grid;
+    gap: 0.625rem;
     margin: 0 1rem;
-    border-radius: 1.25rem;
   }
-  .dash-resume {
+  .dash-mine a {
     display: flex;
     align-items: center;
-    gap: 0.875rem;
-    padding: 0.875rem;
+    gap: 0.75rem;
+    padding: 0.75rem 0.875rem;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.125rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
     transition: transform 0.15s;
   }
-  .dash-resume:active,
-  .dash-tile:active,
-  .dash-disc a:active {
-    transform: scale(0.98);
-  }
-  .dash-ring {
+  .dash-mine-icon {
     flex: none;
     display: grid;
     place-items: center;
-    width: 3.375rem;
-    height: 3.375rem;
-    border-radius: 50%;
-    background: conic-gradient(var(--fam, var(--garden)) calc(var(--p, 0) * 360deg), var(--wash-2) 0);
-  }
-  .dash-ring::before {
-    content: "";
-    grid-area: 1 / 1;
     width: 2.75rem;
     height: 2.75rem;
-    border-radius: 50%;
-    background: var(--dash-card);
+    border-radius: 0.8rem;
+    background: var(--fam-wash, var(--wash-2));
+    color: var(--fam, var(--garden));
   }
-  .dash-ring > * {
-    grid-area: 1 / 1;
-    position: relative;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--ink-2);
+  .dash-mine-icon svg {
+    width: 1.375rem;
+    height: 1.375rem;
   }
-  .dash-ring-start {
-    background: var(--fam-wash);
-  }
-  .dash-ring-start::before {
-    display: none;
-  }
-  .dash-ring-start svg {
-    width: 1.5rem;
-    height: 1.5rem;
-    color: var(--fam);
-  }
-  .dash-resume-text {
-    min-width: 0;
+  .dash-mine-text {
     flex: 1;
+    min-width: 0;
   }
-  .dash-kicker {
+  .dash-mine-text b {
     display: block;
-    margin-bottom: 0.125rem;
-    overflow: hidden;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.84375rem;
-    font-weight: 700;
-    letter-spacing: 0.07em;
-    text-transform: uppercase;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    color: var(--fam);
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.15;
   }
-  .dash-resume-text b {
-    display: block;
-    font-size: 1.125rem;
-    font-weight: 600;
-    line-height: 1.2;
-  }
-  .dash-resume-text small,
-  .dash-list-text small {
+  .dash-mine-text small {
     display: block;
     margin-top: 0.125rem;
+    overflow: hidden;
+    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .dash-resume-text small,
-  .dash-list-text small,
-  .dash-disc small {
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.84375rem;
-    color: var(--ink-2); /* --muted falls under 4.5:1 on the family washes */
+  .dash-bar {
+    display: block;
+    height: 0.25rem;
+    margin-top: 0.45rem;
+    overflow: hidden;
+    border-radius: 0.125rem;
+    background: var(--wash-2);
   }
-  .dash-play {
+  .dash-bar i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--fam, var(--garden));
+  }
+  .dash-mine-pct {
     flex: none;
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    margin-left: auto;
-    border-radius: 50%;
-    background: var(--garden);
-    color: var(--paper);
-  }
-  .dash-play svg {
-    width: 1.25rem;
-    height: 1.25rem;
+    font: 700 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-variant-numeric: lining-nums;
+    color: var(--fam, var(--garden));
   }
 
-  .dash-tiles {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.625rem;
-    margin: 0.625rem 1rem 0;
-  }
-  .dash-tile {
-    display: block;
-    padding: 0.75rem 0.875rem;
-    border-radius: 1rem;
-    transition: transform 0.15s;
-  }
-  .dash-tile b {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font-size: 1.625rem;
-    font-weight: 600;
-    line-height: 1;
-  }
-  .dash-tile span {
-    display: block;
-    margin-top: 0.25rem;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.84375rem;
-    line-height: 1.25;
-    color: var(--muted);
-  }
-  .dash .dash-tile-cta {
-    background: var(--garden);
-    border-color: transparent;
-    color: var(--paper);
-  }
-  .dash-tile-cta span {
-    color: var(--paper);
-    opacity: 0.85;
-  }
-  .dash-flame {
-    width: 1.25rem;
-    height: 1.25rem;
-    fill: #e0782f;
-  }
-
+  /* Paths to discover: a row that scrolls sideways, one family after
+     another. */
   .dash .dash-disc {
     display: flex;
     gap: 0.625rem;
@@ -979,77 +1448,114 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 7.875rem;
-    height: 6rem;
-    padding: 0.75rem;
-    border-radius: 1.125rem;
+    width: 8.875rem;
+    height: 7.5rem;
+    padding: 0.875rem;
+    border-radius: 1.25rem;
     background: var(--fam-wash, var(--wash-2));
     transition: transform 0.15s;
   }
   .dash-disc b {
-    display: block;
+    display: -webkit-box;
     overflow: hidden;
-    font-size: 1rem;
-    font-weight: 600;
-    line-height: 1.1;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 1.0625rem;
+    font-weight: 500;
+    line-height: 1.12;
   }
   .dash-disc small {
     display: block;
-    font-size: 0.78125rem;
-  }
-  /* Paths: a little wider, the name on two lines, a bar once started. */
-  .dash-paths a {
-    width: 9.25rem;
-    height: 7.25rem;
-  }
-  .dash-paths b {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    white-space: normal;
-  }
-  .dash-paths-bar {
-    display: block;
-    height: 0.25rem;
-    margin-top: 0.3rem;
-    border-radius: 0.125rem;
-    background: color-mix(in srgb, var(--fam, var(--garden)) 22%, transparent);
-    overflow: hidden;
-  }
-  .dash-paths-bar i {
-    display: block;
-    height: 100%;
-    border-radius: inherit;
-    background: var(--fam, var(--garden));
+    margin-top: 0.125rem;
+    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2); /* --muted falls under 4.5:1 on the family washes */
   }
   .dash-disc-icon {
     display: grid;
     place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 0.5625rem;
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 0.625rem;
     background: var(--fam, var(--garden));
-    color: #fff;
+    color: var(--paper);
   }
   .dash-disc-icon svg {
-    width: 1rem;
-    height: 1rem;
+    width: 1.1875rem;
+    height: 1.1875rem;
   }
 
-  .dash-list {
-    margin: 0 1rem !important;
+  /* The note of the day: an editorial card, its initial in the family's
+     colour. */
+  .dash-day a {
+    display: block;
+    margin: 0 1rem;
+    padding: 1.125rem 1.125rem 1rem;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.375rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+    transition: transform 0.15s;
+  }
+  .dash-day-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--fam, var(--garden));
+  }
+  .dash-day-kicker svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+  .dash-day b {
+    display: block;
+    margin: 0.375rem 0 0.5rem;
+    font-size: 1.375rem;
+    font-weight: 500;
+    line-height: 1.15;
+  }
+  .dash-day p {
+    display: -webkit-box;
+    margin: 0;
     overflow: hidden;
-    border-radius: 1.125rem;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 5;
+    font-size: 1rem;
+    line-height: 1.45;
+    color: var(--ink-soft);
+  }
+  .dash-day p::first-letter {
+    float: left;
+    padding: 0.25rem 0.375rem 0 0;
+    font-size: 2.875rem;
+    font-weight: 500;
+    line-height: 0.86;
+    color: var(--fam, var(--garden));
+  }
+  .dash-day-read {
+    display: block;
+    margin-top: 0.75rem;
+    text-align: end;
+    font: 700 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--garden);
+  }
+
+  /* The latest notes, as a grouped list. */
+  .dash .dash-list {
+    margin: 0 1rem;
+    overflow: hidden;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.25rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
   }
   .dash-list a {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 0.8125rem;
+    gap: 0.75rem;
     min-height: 3.75rem;
-    padding: 0.75rem 0.875rem;
+    padding: 0.6875rem 0.875rem;
   }
   .dash-list a:active {
     background: var(--wash-2);
@@ -1073,8 +1579,8 @@
     color: var(--fam, var(--ink-2));
   }
   .dash-list-icon svg {
-    width: 1.1875rem;
-    height: 1.1875rem;
+    width: 1.125rem;
+    height: 1.125rem;
   }
   .dash-list-text {
     flex: 1;
@@ -1083,11 +1589,25 @@
   .dash-list-text b {
     display: block;
     overflow: hidden;
-    font-size: 1.0625rem;
+    font-size: 1rem;
     font-weight: 500;
     line-height: 1.2;
     text-overflow: ellipsis;
     white-space: nowrap;
+  }
+  .dash-list-text small {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .dash-new {
+    margin-inline-start: 0.375rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--garden);
   }
   .dash-chev {
     flex: none;
@@ -1095,48 +1615,8 @@
     height: 1rem;
     color: var(--rule-strong);
   }
-
-  /* Nothing due and no run yet: one invitation instead of two zeros. */
-  .dash .dash-invite {
-    display: flex;
-    align-items: center;
-    gap: 0.8125rem;
-    margin: 0.625rem 1rem 0;
-    padding: 0.8125rem 0.875rem;
-    border-radius: 1.25rem;
-    background: var(--garden-wash);
-  }
-  .dash-invite-icon {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 0.625rem;
-    background: var(--dash-card);
-    color: var(--garden);
-  }
-  .dash-invite-icon svg {
-    width: 1.1875rem;
-    height: 1.1875rem;
-  }
-  .dash-invite-text {
-    flex: 1;
-    min-width: 0;
-  }
-  .dash-invite-text b {
-    display: block;
-    font-size: 1.03125rem;
-    font-weight: 500;
-    line-height: 1.2;
-  }
-  .dash-invite-text small {
-    display: block;
-    margin-top: 0.125rem;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.84375rem;
-    line-height: 1.3;
-    color: var(--ink-2);
+  [dir="rtl"] .dash-chev {
+    transform: scaleX(-1);
   }
 
   /* --- The rest of the home: the assistant as a card, then home-more --- */
@@ -1171,16 +1651,6 @@
     border-radius: 0;
     background: none;
   }
-  .home-ask-head h2 {
-    margin: 0;
-    padding: 1.25rem 1.375rem 0.5rem;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.8125rem;
-    font-weight: 700;
-    line-height: 1;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-  }
   .home-ask-head {
     margin: 0;
   }
@@ -1194,12 +1664,10 @@
   .home-ask::before {
     content: "";
     position: absolute;
-    inset: 2.5625rem 1rem 0;
+    inset: 3.6875rem 1rem 0;
     z-index: -1;
-    border: 0.5px solid var(--dash-edge);
-    border-radius: 1.25rem;
-    background: var(--dash-card);
-    box-shadow: var(--dash-shadow);
+    border-radius: 1.375rem;
+    background: var(--garden-wash);
   }
   .home-ask > :not(.home-ask-head) {
     margin-left: 2rem;
@@ -1224,8 +1692,9 @@
     gap: 0.5rem;
     height: 3rem;
     padding: 0 0.375rem 0 1rem;
+    border: 0.5px solid var(--dash-edge);
     border-radius: 1.5rem;
-    background: var(--wash-2);
+    background: var(--dash-card);
   }
   .home-ask .home-ask-field input {
     font-family: "Alegreya", "Alegreya Fallback", serif;
@@ -1260,10 +1729,10 @@
   .home-ask-chips button {
     height: 1.875rem;
     padding: 0 0.75rem;
-    border: 0;
+    border: 0.5px solid var(--dash-edge);
     border-radius: 0.9375rem;
-    background: var(--garden-wash);
-    color: var(--garden);
+    background: var(--dash-card);
+    color: var(--ink-2);
     font: 500 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
     cursor: pointer;
   }
@@ -1279,116 +1748,70 @@
   .home-more a:hover {
     background: transparent;
   }
-  .home-more .dash-row-h > a {
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--garden);
-  }
   .home-more-tiles {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 0.625rem;
     margin: 0 1rem;
   }
-  .home-more-tiles a,
-  .home-more-stats,
-  .home-more-about {
-    background: var(--dash-card);
-    border: 0.5px solid var(--dash-edge);
-    box-shadow: var(--dash-shadow);
-  }
   .home-more-tiles a {
-    display: block;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 0.875rem;
     border-radius: 1.125rem;
+    background: var(--fam-wash, var(--wash));
     transition: transform 0.15s;
   }
   .home-more-tiles a:active {
     transform: scale(0.98);
   }
   .home-more-art {
-    display: grid;
-    place-items: center;
-    height: 5.375rem;
-    background: var(--fam-wash, var(--wash));
-    color: var(--fam, var(--ink));
+    display: block;
+    height: 1.75rem;
+    color: var(--fam, var(--ink-2));
   }
   .home-more-art > svg {
-    width: 2.125rem;
-    height: 2.125rem;
-  }
-  .home-more-art > svg.home-more-dots {
-    width: 6.25rem;
-    height: 5.375rem;
-  }
-  .home-more-tx {
-    display: block;
-    padding: 0.625rem 0.75rem;
-  }
-  .home-more-tx b {
-    display: block;
-    font-size: 1.0625rem;
-    font-weight: 600;
-    line-height: 1.1;
-  }
-  .home-more-tx small,
-  .home-more-stats small {
-    display: block;
-    margin-top: 0.3125rem;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.84375rem;
-    line-height: 1.25;
-    color: var(--ink-2);
-  }
-  .home-more-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    margin: 0 1rem;
-    padding: 0.25rem 0;
-    border-radius: 1.25rem;
-  }
-  .home-more-stats > div {
-    padding: 0.75rem 0.25rem;
-    text-align: center;
-  }
-  .home-more-stats > div + div {
-    border-left: 0.5px solid var(--rule);
-  }
-  .home-more-stats b {
-    display: block;
-    font-size: 1.5rem;
-    font-weight: 600;
-    line-height: 1;
-  }
-  .home-more-stats small {
-    margin-top: 0.25rem;
-    font-size: 0.8125rem;
-  }
-  .home-more-about {
-    display: flex;
-    gap: 0.875rem;
-    margin: 0 1rem;
-    padding: 1rem 1rem 0.875rem;
-    border-radius: 1.25rem;
-  }
-  .home-more-about-icon {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 2.875rem;
-    height: 2.875rem;
-    border-radius: 50%;
-    background: var(--garden-wash);
-    color: var(--garden);
-  }
-  .home-more-about-icon svg {
     width: 1.5rem;
     height: 1.5rem;
   }
-  .home-more-about details {
-    flex: 1;
-    min-width: 0;
+  .home-more-art > svg.home-more-dots {
+    width: 2.25rem;
+    height: 1.9rem;
+    margin: -0.15rem 0 0 -0.2rem;
+  }
+  .home-more-tx b {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.15;
+  }
+  .home-more-tx small {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.8125rem/1.25 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+
+  /* The footer: the wordmark, "À propos", the garden in numbers, the
+     licence. */
+  .home-more-foot {
+    padding: 2.25rem 1.5rem 0;
+    text-align: center;
+    font: 400 0.75rem/1.6 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .home-more-foot p {
+    margin: 0.875rem 0 0;
+  }
+  .home-more-foot .home-more-mark {
+    margin: 0;
+    font-size: 1.625rem;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .home-more-about {
+    margin-top: 0.375rem;
   }
   .home-more-about summary {
     display: block;
@@ -1400,47 +1823,50 @@
   }
   .home-more-quote {
     display: block;
-    font-size: 1rem;
-    line-height: 1.4;
-  }
-  .home-more-about em {
-    display: block;
-    margin-top: 0.375rem;
-    font-size: 0.9375rem;
-    color: var(--muted);
-  }
-  .home-more-more {
-    display: block;
-    margin-top: 0.5rem;
-    font: 500 0.90625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--garden);
-  }
-  .home-more-about details[open] .home-more-more {
-    display: none;
-  }
-  .home-more-about details p {
-    margin: 0.625rem 0 0;
-    font-size: 0.9375rem;
-    line-height: 1.45;
+    font: italic 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
     color: var(--ink-2);
   }
-  .home-more-foot {
-    padding: 1.625rem 1.875rem 0;
-    text-align: center;
-    font: 400 0.8125rem/1.6 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--muted);
+  .home-more-more {
+    display: inline-block;
+    margin-top: 0.25rem;
+    font: 500 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--garden);
   }
-  .home-more-foot p {
-    margin: 0.5rem 0 0;
+  .home-more-about[open] .home-more-more {
+    display: none;
+  }
+  .home-more-about p {
+    font: 400 0.9375rem/1.45 "Alegreya", "Alegreya Fallback", serif;
+    text-align: start;
+    color: var(--ink-2);
+  }
+  .home-more .home-more-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+  .home-more-stats span {
+    display: block;
+  }
+  .home-more-stats b {
+    display: block;
+    font: 700 1.125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-variant-numeric: lining-nums;
+    color: var(--ink);
+  }
+  .home-more-stats small {
+    font-size: 0.8125rem;
   }
   .home-more .home-more-cc {
     display: inline-flex;
     align-items: center;
-    height: 1.5rem;
-    padding: 0 0.5625rem;
+    height: 1.25rem;
+    margin-inline-end: 0.25rem;
+    padding: 0 0.5rem;
     border: 1px solid var(--rule-strong);
-    border-radius: 0.75rem;
-    font-size: 0.6875rem;
+    border-radius: 0.625rem;
+    font-size: 0.625rem;
     font-weight: 700;
     color: var(--ink-2);
   }

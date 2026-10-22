@@ -227,6 +227,55 @@ export function nextToRead(
   return null;
 }
 
+/** The note being read, for the tab bar's mini player (components/
+ *  MobileTabBar.tsx): written by public/js/reading-state.js with the note's
+ *  position, dropped once the note is read. Its title rides along so pages
+ *  without the home's data can still show it. Not synced with the account:
+ *  gkReading already carries the progress, this is only its label. */
+export const NOW_KEY = "gkNow";
+
+export interface NowReading {
+  /** Note slug. */
+  s: string;
+  title: string;
+  /** Colour family (lib/path-family.ts), when the note has one. */
+  f?: string;
+  /** Reading time of the whole note, minutes. */
+  m: number;
+}
+
+export function parseNow(raw: string | null | undefined): NowReading | null {
+  if (!raw) return null;
+  try {
+    const v = JSON.parse(raw) as Record<string, unknown>;
+    if (!v || typeof v.s !== "string" || !v.s || typeof v.title !== "string" || !v.title) return null;
+    const m = Number(v.m);
+    return {
+      s: v.s,
+      title: v.title.slice(0, 200),
+      ...(typeof v.f === "string" && /^[a-z]{1,20}$/.test(v.f) ? { f: v.f } : {}),
+      m: Number.isFinite(m) && m > 0 ? Math.round(m) : 1,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** What the mini player shows: the remembered note while it is unfinished
+ *  and was opened in the last 30 days, with its position (0–1) and the
+ *  minutes left; null otherwise. */
+export function nowPlaying(
+  now: NowReading | null,
+  store: ReadingStore,
+  at = Date.now(),
+): { note: NowReading; progress: number; left: number } | null {
+  if (!now) return null;
+  const e = store[now.s];
+  if (!e || e.r != null || at / 1000 - e.t > 30 * 86400) return null;
+  const progress = clamp(e.p / 1000, 0, 1);
+  return { note: now, progress, left: Math.max(1, Math.round(now.m * (1 - progress))) };
+}
+
 // --- browser glue (tolerates blocked storage: private mode, disabled cookies)
 
 export function loadStore(storage: Pick<Storage, "getItem"> | null = safeStorage()): ReadingStore {
@@ -261,3 +310,24 @@ function safeStorage(): Storage | null {
 /** Fired on window after this tab changes the store (the `storage` event only
  *  reaches *other* tabs). */
 export const CHANGE_EVENT = "gk:reading-change";
+
+export function loadNow(storage: Pick<Storage, "getItem"> | null = safeStorage()): NowReading | null {
+  try {
+    return parseNow(storage?.getItem(NOW_KEY));
+  } catch {
+    return null;
+  }
+}
+
+export function saveNow(
+  now: NowReading | null,
+  storage: Pick<Storage, "setItem" | "removeItem"> | null = safeStorage(),
+): void {
+  try {
+    if (!storage) return;
+    if (now) storage.setItem(NOW_KEY, JSON.stringify(now));
+    else storage.removeItem(NOW_KEY);
+  } catch {
+    /* storage blocked */
+  }
+}

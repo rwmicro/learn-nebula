@@ -17,7 +17,7 @@ import { fold } from "@/lib/palette-match";
 import { prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
 import { splitMinutes } from "@/lib/path-study";
 import { pathLevels } from "@/lib/path-levels";
-import { FamilyIcon } from "@/components/HomeDashboard";
+import { FamilyIcon } from "@/components/FamilyIcon";
 
 /**
  * /parcours/ (an index of reading paths, one card each) and /parcours/<slug>/
