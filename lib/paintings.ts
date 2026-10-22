@@ -21,7 +21,7 @@ export const ERAGNY: Painting = {
 
 const BY_FAMILY: Record<PathFamily, string> = {
   sciences: "Vincent van Gogh, La Nuit étoilée, 1889",
-  informatique: "Claude Monet, La Gare Saint-Lazare, 1877",
+  informatique: "Piet Mondrian, Broadway Boogie Woogie, 1943",
   vivant: "Claude Monet, Nymphéas, 1906",
   pensee: "Caspar David Friedrich, Le Voyageur contemplant une mer de nuages, 1818",
   societe: "Auguste Renoir, Bal du moulin de la Galette, 1876",
