@@ -1631,5 +1631,17 @@
     "unmute": "Rétablir le micro",
     "hangup": "Raccrocher",
     "ended": "Appel terminé."
+  },
+  "mail": {
+    "login": {
+      "subject": "Votre lien de connexion au {site}",
+      "preheader": "Un clic et vous retrouvez votre progression et vos pièces.",
+      "title": "Un clic et vous êtes dans le jardin",
+      "intro": "Ce bouton vous connecte sur cet appareil et synchronise votre progression et vos pièces.",
+      "button": "Me connecter",
+      "validity": "Valable 15 minutes · une seule fois",
+      "fallback": "Ou copiez ce lien dans votre navigateur :",
+      "ignore": "Vous n’avez rien demandé ? Ignorez ce message : aucun compte n’est créé sans ce clic."
+    }
   }
 }

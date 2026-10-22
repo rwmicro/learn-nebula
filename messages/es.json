@@ -1631,5 +1631,17 @@
     "unmute": "Activar el micrófono",
     "hangup": "Colgar",
     "ended": "Llamada terminada."
+  },
+  "mail": {
+    "login": {
+      "subject": "Tu enlace para entrar en {site}",
+      "preheader": "Un clic y recuperas tu progreso y tus monedas.",
+      "title": "Un clic y estás en el jardín",
+      "intro": "Este botón te conecta en este dispositivo y sincroniza tu progreso y tus monedas.",
+      "button": "Entrar",
+      "validity": "Válido 15 minutos · una sola vez",
+      "fallback": "O copia este enlace en tu navegador:",
+      "ignore": "¿No lo has pedido tú? Ignora este mensaje: no se crea ninguna cuenta sin este clic."
+    }
   }
 }
