@@ -10,10 +10,11 @@ import { calendarDays, currentRun, loadActivity, localDay } from "@/lib/personal
 import { loadStore, type ReadingStore } from "@/lib/reading-progress";
 import type { HomeData } from "@/lib/home-data";
 import type { PathFamily } from "@/lib/path-family";
+import { ERAGNY, paintingFor } from "@/lib/paintings";
 
 // The home as an app dashboard, on phones only (app.css hides it from 640px,
 // and hides there the masthead it replaces). From the top: the date and a
-// greeting; "Aujourd'hui", the painting over the next step of the reading
+// greeting; "Aujourd'hui", the discipline's painting (lib/paintings.ts) over the next step of the reading
 // path in progress with today's cards and notes (or, with nothing under
 // way, three ways in); the week's reading days; the paths under way; paths
 // to discover, mixing the disciplines; the note of the day; the latest
@@ -236,6 +237,7 @@ export function HomeDashboard({
   const today = me ? localDay(me.now) : "";
   const activeToday = !!me?.days[today] && (me.days[today].r > 0 || me.days[today].c > 0);
   const weekLetters = tr("dash.weekLetters").split("|");
+  const art = paintingFor(resume?.path.family);
 
   return (
     <section className="dash" data-pagefind-ignore>
@@ -249,9 +251,9 @@ export function HomeDashboard({
       {resume ? (
         <section className="dash-today" data-family={resume.path.family ?? undefined} aria-label={tr("dash.today")}>
           <a className="dash-art" href={`/posts/${resume.slug}/#reprendre`} tabIndex={-1} aria-hidden="true">
-            <picture>
-              <source type="image/avif" srcSet="/images/eragny.avif" />
-              <img src="/images/eragny.webp" alt="" width="1200" height="950" decoding="async" />
+            <picture className={art === ERAGNY ? undefined : "is-family"}>
+              <source type="image/avif" srcSet={`${art.src}.avif`} />
+              <img src={`${art.src}.webp`} alt="" title={art.credit} decoding="async" />
             </picture>
             <span className="dash-chip">
               <span className="dash-chip-dot">

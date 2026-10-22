@@ -569,8 +569,18 @@
     background: var(--garden-wash);
     color: var(--garden);
   }
-  .site-bar-tools:has(.account-chip) .site-bar-me {
+  /* Signed in, "Moi" carries the reader's avatar (MeButton.tsx), so the
+     account chip and its coins stay on wider screens. */
+  .site-bar .account-chip,
+  .home-masthead .account-chip {
     display: none;
+  }
+  .site-bar-me.has-avatar {
+    padding: 0.1875rem;
+  }
+  .site-bar-me.has-avatar .avatar {
+    width: 100%;
+    height: 100%;
   }
 
   /* No top bar: the "Moi" avatar as a round glass button at the top right
@@ -609,7 +619,7 @@
     padding: 0;
     border: 0;
   }
-  body:not(:has(.na-chrome)) .site-bar :is(.site-bar-brand, .site-bar-me, .account-chip) {
+  body:not(:has(.na-chrome)) .site-bar :is(.site-bar-brand, .site-bar-me) {
     pointer-events: auto;
   }
   body:not(:has(.na-chrome)) .site-bar .theme-toggle {
@@ -691,13 +701,6 @@
     border: 0.5px solid var(--glass-edge);
     box-shadow: var(--glass-shadow);
     color: var(--ink);
-  }
-  body:not(:has(.na-chrome)) .site-bar .account-chip {
-    background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
-    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
-    border: 0.5px solid var(--glass-edge);
-    box-shadow: var(--glass-shadow);
   }
 
   /* No grey flash on tap; buttons answer with a slight press instead. */
@@ -946,10 +949,6 @@
   .home-masthead nav {
     display: none;
   }
-  .home-masthead :has(.account-chip) ~ .site-bar-me,
-  .home-masthead .account-chip ~ .site-bar-me {
-    display: none;
-  }
   .home-intro,
   .home-main .recent-notes,
   .home-main .graphiques {
@@ -1039,6 +1038,10 @@
     height: 100%;
     object-fit: cover;
     object-position: 50% 58%;
+  }
+  /* The disciplines' paintings are already cropped to the band. */
+  .dash-art .is-family img {
+    object-position: 50% 50%;
   }
   .dash-art::after {
     content: "";
@@ -1358,6 +1361,8 @@
   /* My paths: one wide row each, with the next note and the share read. */
   .dash .dash-mine {
     display: grid;
+    /* minmax: a long "ensuite : …" ellipsizes instead of widening the page. */
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.625rem;
     margin: 0 1rem;
   }
