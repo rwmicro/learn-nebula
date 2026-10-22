@@ -237,7 +237,7 @@ export function HomeDashboard({
   const today = me ? localDay(me.now) : "";
   const activeToday = !!me?.days[today] && (me.days[today].r > 0 || me.days[today].c > 0);
   const weekLetters = tr("dash.weekLetters").split("|");
-  const art = paintingFor(resume?.path.family);
+  const art = paintingFor(resume?.path.family, resume?.slug);
 
   return (
     <section className="dash" data-pagefind-ignore>
