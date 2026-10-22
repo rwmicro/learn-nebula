@@ -17,7 +17,9 @@ import {
   loadStore,
   markRead,
   markUnread,
+  loadNow,
   recordProgress,
+  saveNow,
   saveStore,
   savedProgress,
   scrollProgress,
@@ -83,6 +85,12 @@ document.addEventListener("gk:widget-goal", () => recordActivity("c"));
     // A glance (or a prerendered visit) is not worth a "Reprendre" card.
     if (dwell < 4000 || maxP < 0.02) return;
     saveStore(recordProgress(store, slug, progress()));
+    // The tab bar's mini player (components/MobileTabBar.tsx) shows it.
+    const title = box.getAttribute("data-title");
+    if (title) {
+      const f = box.getAttribute("data-family-name");
+      saveNow({ s: slug, title, m: minutes, ...(f ? { f } : {}) });
+    }
   }
   function check() {
     const p = progress();
@@ -91,6 +99,7 @@ document.addEventListener("gk:widget-goal", () => recordActivity("c"));
     if (!active()) return;
     if (shouldMarkRead(p, dwell, minutes) && !isRead(loadStore(), slug)) {
       commit(markRead(loadStore(), slug));
+      if (loadNow()?.s === slug) saveNow(null);
       recordActivity("r");
       announce(tt("reading.read"));
       window.dispatchEvent(new Event("gk:note-read"));

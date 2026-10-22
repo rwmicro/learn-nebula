@@ -298,6 +298,7 @@ export async function SinglePage({
           sibNav
             ? { name: sibNav.folder.split("/").pop() ?? "", slugs: sibNav.siblings.map((x) => x.slug) }
             : undefined,
+          { title: fm.title, family },
         )
       : "") +
     nextBlock +
