@@ -79,7 +79,9 @@ authRoute.post("/request", async (c) => {
 
   const ip = getIp(c);
   if (ipQuota.exceeded(`ip:${ip}`)) return c.json({ error: "rate-limited" }, 429);
-  if (env.turnstileSecret) {
+  // Only when /api/auth/config hands out a site key: without one the form has
+  // no widget, every token would be empty and nobody could sign in.
+  if (env.turnstileSecret && env.turnstileSiteKey) {
     const token = typeof payload.turnstileToken === "string" ? payload.turnstileToken : "";
     if (!(await verifyTurnstile(token, ip))) return c.json({ error: "turnstile" }, 403);
   }
