@@ -55,6 +55,9 @@ const SCRIPTS = [
   // Last: the phone layout's section pill, toolbar and display sheet proxy
   // the controls the scripts above wire up.
   "note-app",
+  // From 640px up: the floating reading bar (liquid glass) that shrinks while
+  // scrolling down.
+  "note-dock",
 ];
 // Not "quiz" nor "glossary": each is its own small bundle (quiz.bundle.js,
 // glossary.bundle.js, built below) that components/NoteScripts.tsx adds only

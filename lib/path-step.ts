@@ -119,6 +119,19 @@ export function pathSheetHtml(step: PathStep): string {
   );
 }
 
+/** Where the step stands, at a glance: one dash per step (the ones before
+ *  it filled, this one ringed), or a plain bar for a long path. */
+export function dashesHtml(index: number, total: number): string {
+  if (total < 2) return "";
+  if (total > 24) {
+    const pct = Math.round(((index + 1) / total) * 100);
+    return `<span class="path-step-dashes is-bar" aria-hidden="true"><i style="width:${pct}%"></i></span>`;
+  }
+  let out = "";
+  for (let i = 0; i < total; i++) out += i < index ? `<i class="d"></i>` : i === index ? `<i class="c"></i>` : "<i></i>";
+  return `<span class="path-step-dashes" aria-hidden="true">${out}</span>`;
+}
+
 /** The bar; `inner` (the "À lire avant" block, already rendered) goes under
  *  its first row so both read as one block. */
 export function pathStepHtml(step: PathStep, inner = ""): string {
@@ -152,6 +165,7 @@ export function pathStepHtml(step: PathStep, inner = ""): string {
     `<span class="path-step-chev" aria-hidden="true">▾</span></button>` +
     `</p>` +
     othersHtml +
+    dashesHtml(index, path.notes.length) +
     (prev || next
       ? `<span class="path-step-nav">${prev ? stepLink(prev, "prev") : ""}${next ? stepLink(next, "next") : ""}</span>`
       : "") +

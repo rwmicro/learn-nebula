@@ -36,6 +36,7 @@ import {
   furtherHtml,
   readBadgeHtml,
   readStateHtml,
+  noteDockHtml,
   noteSectionMetaHtml,
   folderLabel,
   folderI18n,
@@ -144,7 +145,9 @@ export async function SinglePage({
       : found;
   const prereqBlock = note
     ? prereqHtml(
-        getPrerequisites(doc.slug),
+        // The previous step is already one tap away in the path bar: listed
+        // again under "À lire avant", it read as a second, different note.
+        getPrerequisites(doc.slug).filter((p) => p.slug !== step?.prev?.slug),
         readingPath && !step ? `/parcours/${readingPath.slug}/` : undefined,
       )
     : "";
@@ -249,11 +252,12 @@ export async function SinglePage({
           headerTitle,
           headerDate,
           disc ? { href: `/disciplines/${disc.slug}/`, depth: 1 } : null,
+          family,
         )
       : "") +
     (note ? buildToc(html, fm.tags, localGraph) : "") +
     katex +
-    dropcapHtml(plain, fm.dropcap) +
+    dropcapHtml(html, fm.dropcap) +
     // On notes, the date sits on a row with the TOC/sidebar toggle (mobile).
     // Out of the search index: every excerpt that starts at the top of a note
     // used to open on its date ("avril 2026. …").
@@ -264,26 +268,30 @@ export async function SinglePage({
       : subtitle) +
     `<h1 class='title-note'>${escapeHtml(fm.title)}</h1>` +
     (cover ? `</div>` : "") +
-    // Growth stage + "last tended", when the note declares them.
-    (note ? growthHtml(fm.stage, fm.date, fm.updated, noteHistoryUrl(doc.rawPath)) : "") +
+    // One line under the title (from 640px; lib/note-app.ts has the phone's
+    // own): the date, the reading time, the growth stage, "last tended", the
+    // history, and "Lue" once the reader has finished it (/js/reading-state.js).
+    (note
+      ? `<div class="note-meta" data-pagefind-ignore>${subtitle}${readingTime}` +
+        growthHtml(fm.stage, fm.date, fm.updated, noteHistoryUrl(doc.rawPath)) +
+        readBadgeHtml() +
+        `</div>`
+      : "") +
     // Where the note lives, as Pagefind metadata for the search results.
     (note ? noteSectionMetaHtml(doc.rawPath) : "") +
     (note
-      ? `<div class="note-actions" data-pagefind-ignore>` +
-        // One row: the ways to read it first. "Lire en leçon": the note one
-        // section at a time, its questions in between (public/js/lesson.js),
-        // when it has two questions or more.
-        (lessonSteps >= 2 ? lessonButtonHtml() : "") +
-        audioButtonHtml() +
-        bookmarkButtonHtml() +
-        // Then the display settings (set once, rarely touched) and the
-        // translation, folded under "Affichage ▾".
-        noteMoreHtml(fontSizeButtonHtml() + wideTextButtonHtml() + focusButtonHtml() + translateButtonHtml(detectedLang)) +
-        // Reading time pushed to the right edge as passive metadata
-        readingTime +
-        // "Lue" once the reader has finished it (/js/reading-state.js).
-        readBadgeHtml() +
-        `</div>`
+      ? noteDockHtml(
+          // The ways to read it first. "Lire en leçon": the note one section
+          // at a time, its questions in between (public/js/lesson.js), when
+          // it has two questions or more.
+          (lessonSteps >= 2 ? lessonButtonHtml() : "") +
+            audioButtonHtml() +
+            bookmarkButtonHtml() +
+            // Then the display settings (set once, rarely touched) and the
+            // translation, folded under "Affichage ▾".
+            noteMoreHtml(fontSizeButtonHtml() + wideTextButtonHtml() + focusButtonHtml() + translateButtonHtml(detectedLang)),
+          step?.next ?? sibNav?.next ?? null,
+        )
       : "") +
     prereqs +
     `<div class="article-body">${html}</div>` +

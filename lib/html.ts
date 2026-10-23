@@ -11,6 +11,7 @@ import {
 import { folderAnchor } from "./slug";
 import { escapeHtml } from "./escape";
 import { t, i18nAttrs, i18nAttr, folderKey } from "./i18n";
+import type { PathFamily } from "./path-family";
 
 // Re-exported for the many modules (SinglePage, tests) that import it from here.
 export { escapeHtml };
@@ -59,20 +60,28 @@ export function themeToggleHtml(): string {
 }
 
 /**
- * Dropcap setup for single pages (layouts/single.html): the ::first-letter rule
- * plus, when enabled and the first letter is A–Z, the matching Goudy font.
+ * Dropcap setup for note pages: the ::first-letter rule plus, when enabled and
+ * the first letter is A–Z, the matching Goudy font. The letter goes to the
+ * paragraph lib/markdown.ts (rehypeOutline) marked `.dropcap` — the one the
+ * note opens on — and to nothing when the note opens on a list or a lead-in.
+ * `html` is the rendered body, read for that paragraph's first letter.
  */
 export function dropcapHtml(
-  plain: string,
+  html: string,
   dropcap: boolean | undefined,
 ): string {
+  const lead = /<p class="dropcap">([\s\S]*?)<\/p>/.exec(html);
+  if (!lead) return "";
   // Dropcap is fluid too: 60px @ 320px viewport → 99px @ ≥1080. The
   // tight line-height and small padding stay constant; only the cap scales.
   // `float`/`padding` are logical, not physical: /js/i18n.js sets <html dir="rtl">
   // for Arabic, and a `float: left` cap would sit at the end of the first line
   // instead of where reading starts, detached from its own paragraph.
-  const base = `<style>.article-body > p:first-of-type::first-letter, main > p:first-of-type::first-letter { font-family: "GoudyInitialen", "Alegreya", "Alegreya Fallback", serif; float: inline-start; font-size: clamp(3.8rem, 2.2rem + 5vw, 6.6rem); line-height: 0.8; padding-block: 0.4rem 0.08rem; padding-inline: 0 0.5rem; }</style>`;
-  const first = plain
+  // The lesson stage (public/js/lesson.js) takes the paragraph out of the
+  // body while it shows the opening step.
+  const base = `<style>.article-body > p.dropcap::first-letter, .lesson-stage > p.dropcap::first-letter { font-family: "GoudyInitialen", "Alegreya", "Alegreya Fallback", serif; float: inline-start; font-size: clamp(3.8rem, 2.2rem + 5vw, 6.6rem); line-height: 0.8; padding-block: 0.4rem 0.08rem; padding-inline: 0 0.5rem; color: var(--fam-ink, currentColor); }</style>`;
+  const first = lead[1]
+    .replace(/<[^>]+>/g, "")
     .replace(/^[^A-Za-z]*/, "")
     .charAt(0)
     .toUpperCase();
@@ -389,6 +398,7 @@ export function noteHeaderHtml(
   title?: string,
   date?: { iso: string; formatted: string },
   discipline?: { href: string; depth: number } | null,
+  family?: PathFamily | null,
 ): string {
   // Each folder segment links to the home browse tree opened at that folder
   // (/#<folderAnchor>), so the breadcrumb doubles as navigation back up the
@@ -427,7 +437,12 @@ export function noteHeaderHtml(
   return (
     `<header class="note-header" data-pagefind-ignore>` +
     `<div class="note-header-crumb">` +
-    `<a href="/">${escapeHtml(INDEX_NOTE)}</a>${crumbs}` +
+    // The family ("◆ Arts") in its colour where the note has one: the site's
+    // name, which the bar just above already shows, used to lead the line.
+    (family
+      ? `<span class="note-fam"><i aria-hidden="true"></i><span${i18nAttrs(`parcours.family.${family}`)}>${escapeHtml(t(`parcours.family.${family}`))}</span></span>`
+      : `<a href="/">${escapeHtml(INDEX_NOTE)}</a>`) +
+    crumbs +
     `</div>` +
     `</header>` +
     // Zero-height sticky wrapper: a `scroll-state(stuck)` container, so the
@@ -885,6 +900,45 @@ export function lessonButtonHtml(): string {
     `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="14" rx="2"/><path d="M8 9h8M8 13h5"/><path d="M14 16.5l2 1.5 3-4"/></svg>` +
     `<span${i18nAttrs("lesson.start")}>${escapeHtml(t("lesson.start"))}</span>` +
     `</button>`
+  );
+}
+
+/** The note's reading tools from 640px up: a liquid-glass bar floating at
+ *  the bottom (main.css `.note-dock`, public/js/note-dock.js). Sommaire (the
+ *  drawer, until the aside has its own column), the reading actions passed
+ *  in `tools`, then the assistant (proxying the floating "Demander à l'IA"
+ *  button, which the bar replaces). Scrolling down, it shrinks to the
+ *  progress ring, the section being read, the next note and the assistant;
+ *  scrolling back up brings it back whole. Phones keep lib/note-app.ts's. */
+export function noteDockHtml(
+  tools: string,
+  next: { slug: string; title: string } | null,
+): string {
+  const ic = (d: string) =>
+    `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const label = (key: string) => `<span class="dock-label"${i18nAttrs(key)}>${escapeHtml(t(key))}</span>`;
+  const aria = (key: string) => ` aria-label="${escapeHtml(t(key))}"${i18nAttr("aria-label", key)}`;
+  return (
+    `<div class="note-dock" data-pagefind-ignore>` +
+    `<div class="note-dock-bar glass" role="toolbar"${aria("noteApp.toolbarAria")}>` +
+    // An .aside-toggle: public/js/aside-toggle.js reveals and wires it.
+    `<button type="button" class="aside-toggle dock-toc" hidden${aria("noteApp.contents")}>` +
+    ic(`<path d="M4 6h16M4 12h11M4 18h14"/>`) +
+    label("noteApp.contents") +
+    `</button>` +
+    `<span class="dock-now" aria-hidden="true">` +
+    `<svg class="dock-ring" viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8"/><circle class="dock-ring-fill" cx="10" cy="10" r="8" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" transform="rotate(-90 10 10)"/></svg>` +
+    `<span class="dock-sec"></span></span>` +
+    `<span class="dock-tools">${tools}</span>` +
+    (next
+      ? `<a class="dock-next" href="/posts/${encodeSlug(next.slug)}/" rel="next" title="${escapeHtml(next.title)}"${aria("noteApp.next")}>${ic(`<path d="M5 12h14M13 6l6 6-6 6"/>`)}</a>`
+      : "") +
+    `<button type="button" class="dock-ask" hidden>` +
+    ic(`<path d="M12 21v-7"/><path d="M12 14C7 14 4.5 11 4.5 6.5 9 6.5 12 9 12 14Z"/><path d="M12 12c0-4.5 3-7.5 7.5-7.5 0 4.5-3 7.5-7.5 7.5Z"/>`) +
+    label("noteApp.ask") +
+    `</button>` +
+    `</div>` +
+    `</div>`
   );
 }
 
