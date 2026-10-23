@@ -282,8 +282,9 @@ test.describe("Widgets", () => {
     // to their own per-note bundles; ≈ 64 KB once the phone note layout,
     // note-app.js, joined them; ≈ 70 KB once on-device translation and
     // "Signaler" joined, with the diagram scripts moved out to their own
-    // bundles).
-    expect(bundle.length).toBeLessThan(72_000);
+    // bundles); ≈ 76 KB once the reading bar, note-dock.js and its liquid
+    // glass lens, joined them).
+    expect(bundle.length).toBeLessThan(80_000);
     // Those two load only where they are used (see below).
     expect(bundle).not.toContain("quiz-self-btn");
     expect(bundle).not.toContain("gloss-popover");

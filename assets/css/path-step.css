@@ -644,7 +644,7 @@ html.lesson-open .path-dock {
     column-gap: 0.4rem;
     flex: 1;
     font-size: 0.92rem;
-    color: var(--muted-warm);
+    color: var(--muted);
   }
   main .path-step-path {
     grid-column: 1 / -1;
@@ -677,10 +677,13 @@ html.lesson-open .path-dock {
     border: 0;
     background: none;
     font-size: 0.9rem;
-    color: var(--muted-warm);
+    color: var(--muted);
   }
   .path-step-open:hover {
     color: var(--ink);
+  }
+  .path-step-count {
+    color: inherit;
   }
   .path-step-chev {
     color: var(--fam-ink, var(--garden));
@@ -830,7 +833,7 @@ html.lesson-open .path-dock {
     clip-path: none;
     grid-column: 1;
     font-size: 0.8rem;
-    color: var(--muted-warm);
+    color: var(--muted);
   }
   body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-link .path-step-name {
     position: static;

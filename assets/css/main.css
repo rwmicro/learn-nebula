@@ -5988,6 +5988,10 @@ main[data-family] {
   background: color-mix(in srgb, var(--c) 9%, var(--paper));
 }
 .callout:not(.callout-quiz):not(.callout-predict) > .callout-title {
+  /* At this size the label is normal text for contrast (4.5:1), which the
+     pure hue doesn't reach on its own tint: darkened (lightened in dark
+     mode) towards the ink. */
+  color: color-mix(in srgb, var(--c) 62%, var(--ink));
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.86rem;
   font-weight: 700;
