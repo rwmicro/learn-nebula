@@ -617,9 +617,8 @@ html.lesson-open .path-dock {
 /* --- From 640px: one compact strip (revues/page-note-redesign-2026-10-23) --
    The path's name over "Parcours · Étape 2/10", the steps as dashes, then
    ← and "suivante →" (titles in the links' title and to screen readers).
-   Between 1280 and 1500px, where the right margin is empty (the aside is a
-   drawer there, the sommaire on the left rail), the strip becomes a card
-   pinned in that margin. */
+   From 1100px, it is a card at the top of the right-hand column
+   (main.css `.note-side`). */
 .path-step-dashes {
   display: none;
 }
@@ -767,15 +766,8 @@ html.lesson-open .path-dock {
   }
 }
 
-@media screen and (min-width: 1280px) and (max-width: 1500px) {
+@media screen and (min-width: 1100px) {
   body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) main .path-step {
-    position: fixed;
-    z-index: 10;
-    top: 5.5rem;
-    left: calc(50% + 340px + 2.5rem);
-    width: min(16rem, calc(50% - 340px - 4rem));
-    max-height: calc(100vh - 12rem);
-    overflow-y: auto;
     margin: 0;
     padding: 0.95rem 1rem 1rem;
   }

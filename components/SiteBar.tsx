@@ -44,7 +44,7 @@ export function SiteBar() {
           <span className="site-bar-lang">
             <LangSwitcher compact />
           </span>
-          <span className="contents" dangerouslySetInnerHTML={{ __html: paletteButtonHtml(true) }} />
+          <span className="contents" dangerouslySetInnerHTML={{ __html: paletteButtonHtml() }} />
           <span className="contents" dangerouslySetInnerHTML={{ __html: themeToggleHtml() }} />
           <AccountChip />
           {/* Phones: "Moi" (progress, account), the tab bar holding the rest

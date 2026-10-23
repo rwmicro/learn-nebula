@@ -20,7 +20,8 @@
     "themesAriaLabel": "المواضيع",
     "toggleOpen": "المحتويات",
     "toggleOpenAria": "فتح جدول المحتويات والبحث",
-    "toggleCloseAria": "إغلاق جدول المحتويات"
+    "toggleCloseAria": "إغلاق جدول المحتويات",
+    "onPage": "في هذه الصفحة"
   },
   "noteActions": {
     "audioListen": "استماع",
@@ -1064,7 +1065,9 @@
     "folderNext": "الملاحظة التالية في المجلد",
     "unread": "لم تُقرأ بعد، في {discipline}",
     "allRead": "قرأت كل شيء في {discipline}!",
-    "seeAll": "التخصص كاملًا: {discipline}"
+    "seeAll": "التخصص كاملًا: {discipline}",
+    "prev": "السابقة",
+    "step": "الخطوة {n} من {total}"
   },
   "condensed": {
     "left": "متبقٍ {min} د"
@@ -1673,5 +1676,13 @@
       "fallback": "أو انسخ هذا الرابط في متصفحك:",
       "ignore": "لم تطلب ذلك؟ تجاهل هذه الرسالة: لا يُنشأ أي حساب دون هذه النقرة."
     }
+  },
+  "noteSide": {
+    "cited": "مذكور في هذه الملاحظة",
+    "inbound": "تشير إلى هنا · {n}",
+    "questions": "{n} أسئلة في هذه الملاحظة",
+    "questionsOne": "سؤال واحد في هذه الملاحظة",
+    "questionsGo": "أجب عنها",
+    "aria": "حول هذه الملاحظة"
   }
 }

@@ -1,4 +1,4 @@
-import type { Doc } from "@/lib/content";
+import type { Doc, SiblingRef } from "@/lib/content";
 import {
   formatDateLong,
   getSiblings,
@@ -45,6 +45,7 @@ import {
   lessonButtonHtml,
   noteMoreHtml,
   nextUpHtml,
+  noteSideHtml,
   prerenderNextHtml,
   type NextUp,
 } from "@/lib/html";
@@ -151,9 +152,40 @@ export async function SinglePage({
         readingPath && !step ? `/parcours/${readingPath.slug}/` : undefined,
       )
     : "";
-  const prereqs = step
+  const pathCard = step
     ? pathStepHtml(step, prereqBlock.replace(/^<nav /, "<div ").replace(/<\/nav>$/, "</div>"))
-    : prereqBlock;
+    : "";
+  // The right-hand column from 1100px: the path card, the notes this one
+  // links to, the ones linking here, and its questions.
+  const cited: SiblingRef[] = [];
+  if (note) {
+    const seen = new Set([doc.slug]);
+    for (const m of html.matchAll(/<a\b[^>]*\bhref="\/posts\/([^"#?]+?)\/?(?:[#?][^"]*)?"/g)) {
+      let slug: string;
+      try {
+        slug = decodeURIComponent(m[1]);
+      } catch {
+        continue;
+      }
+      if (seen.has(slug)) continue;
+      seen.add(slug);
+      try {
+        cited.push({ slug, title: getPost(slug).frontmatter.title });
+      } catch {
+        /* not a note */
+      }
+    }
+  }
+  const quizIds = [...html.matchAll(/data-quiz-id="[^"]*" id="([^"]+)"/g)].map((m) => m[1]);
+  const side = note
+    ? noteSideHtml({
+        path: pathCard,
+        cited,
+        inbound: getBacklinks(doc.slug),
+        questions: quizIds.length ? { n: quizIds.length, href: `#${quizIds[0]}` } : null,
+      })
+    : "";
+  const prereqs = side + (step ? "" : prereqBlock);
   const further = note ? furtherHtml(dependents) : "";
   const dependentSlugs = new Set(dependents.map((d) => d.slug));
   const backlinks = note
@@ -195,6 +227,8 @@ export async function SinglePage({
       : sibNav?.next
         ? { slug: sibNav.next.slug, title: sibNav.next.title }
         : null,
+    prev: step ? step.prev : (sibNav?.prev ?? null),
+    step: step?.next ? { n: step.index + 2, total: step.path.notes.length } : null,
     discipline: disc
       ? {
           name: folderLabel(doc.rawPath.split("/")[1] ?? ""),

@@ -465,8 +465,16 @@ describe("outline (rehypeOutline)", () => {
   });
   it("marks a bold-only paragraph before a list as a lead-in, never the dropcap", async () => {
     const { html } = await renderMarkdown("### Tragédie\n\n**Définition**\n- un\n- deux\n\nPlus loin un paragraphe.");
-    expect(html).toContain('<p class="lead-in"><strong>Définition</strong></p>');
+    expect(html).toContain('<p class="lead-in" id="s-definition"><strong>Définition</strong></p>');
     expect(html).not.toContain("dropcap");
+  });
+  it("anchors lead-ins under a section only, each id once", async () => {
+    const { html } = await renderMarkdown(
+      "**Avant**\n- a\n\n## Un\n\n**Rôle**\n- b\n\n## Deux\n\n**Rôle**\n- c",
+    );
+    expect(html).toContain('<p class="lead-in"><strong>Avant</strong></p>');
+    expect(html).toContain('id="s-role"');
+    expect(html).toContain('id="s-role-2"');
   });
   it("gives the dropcap to the paragraph the note opens on, past its heading", async () => {
     const { html } = await renderMarkdown("## Intro\n\nLe début.\n\nLa suite.");

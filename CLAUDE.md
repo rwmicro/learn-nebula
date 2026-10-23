@@ -87,7 +87,11 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   plugin lifts `###`-only notes to `##` and numbers sections (`.sec-n`). From
   640px the reading tools are a liquid-glass bar at the bottom
   (`noteDockHtml`, `public/js/note-dock.js`) that shrinks while scrolling down;
-  phones keep `lib/note-app.ts`'s own toolbar.
+  phones keep `lib/note-app.ts`'s own toolbar. The text is one centred column
+  at every width (the aside is a drawer, sidenotes inline); from 1100px it has
+  the contents on its left (`toc.js` rail: sections, the current one's
+  lead-ins, progress) and `noteSideHtml` on its right (path card, cited
+  notes, backlinks, questions), unless "élargir" or focus is on.
 - **Content/build libs**: `lib/content.ts` (loading, tree, slugs, wikilinks,
   backlinks, `getPdfAssets`, `getHomeTree`, `IGNORE_DIRS`), `lib/markdown.ts`
   (unified pipeline: callouts, manim, YouTube facade, vault assets, sidenotes),
