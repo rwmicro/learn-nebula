@@ -6444,6 +6444,12 @@ body[data-focus="true"] .note-meta {
     left: calc(50% + var(--col) / 2 + 1.75rem);
     padding-bottom: 1rem;
   }
+  /* Taller than the screen: it scrolls with the page (note-dock.js). */
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .note-side.is-tall {
+    position: absolute;
+    max-height: none;
+    overflow: visible;
+  }
   body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .note-side-extra {
     display: flex;
     flex-direction: column;
