@@ -613,3 +613,243 @@ html.lesson-open .path-dock {
     }
   }
 }
+
+/* --- From 640px: one compact strip (revues/page-note-redesign-2026-10-23) --
+   The path's name over "Parcours · Étape 2/10", the steps as dashes, then
+   ← and "suivante →" (titles in the links' title and to screen readers).
+   Between 1280 and 1500px, where the right margin is empty (the aside is a
+   drawer there, the sommaire on the left rail), the strip becomes a card
+   pinned in that margin. */
+.path-step-dashes {
+  display: none;
+}
+@media (min-width: 640px) {
+  .path-step {
+    margin: 0 0 1.8rem;
+    padding: 0.7rem 0.85rem 0.7rem 1rem;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: var(--wash);
+    box-shadow: inset 0 0 0 1px var(--rule);
+  }
+  .path-step-row {
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 1rem;
+  }
+  main .path-step-where {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: baseline;
+    column-gap: 0.4rem;
+    flex: 1;
+    font-size: 0.92rem;
+    color: var(--muted);
+  }
+  main .path-step-path {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 1.02rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  main .path-step-path:hover {
+    text-decoration: underline;
+  }
+  .path-step-label {
+    grid-row: 2;
+    font: 700 0.75rem/1.6 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fam-ink, var(--garden));
+  }
+  .path-step-colon,
+  .path-step-sep {
+    display: none;
+  }
+  .path-step-open {
+    grid-row: 2;
+    justify-self: start;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: 0.9rem;
+    color: var(--muted);
+  }
+  .path-step-open:hover {
+    color: var(--ink);
+  }
+  .path-step-count {
+    color: inherit;
+  }
+  .path-step-chev {
+    color: var(--fam-ink, var(--garden));
+  }
+  .path-step-dashes {
+    display: flex;
+    flex: 0 1 9rem;
+    gap: 3px;
+    min-width: 4rem;
+  }
+  .path-step-dashes i {
+    flex: 1;
+    height: 5px;
+    border-radius: 3px;
+    background: var(--rule-strong);
+  }
+  .path-step-dashes i.d {
+    background: var(--fam, var(--garden));
+  }
+  .path-step-dashes i.c {
+    background: color-mix(in srgb, var(--fam, var(--garden)) 45%, transparent);
+    outline: 1.5px solid var(--fam, var(--garden));
+    outline-offset: 1px;
+  }
+  .path-step-dashes.is-bar {
+    height: 5px;
+    border-radius: 3px;
+    background: var(--rule-strong);
+    overflow: hidden;
+  }
+  .path-step-dashes.is-bar i {
+    flex: none;
+    border-radius: 0;
+    background: var(--fam, var(--garden));
+  }
+  .path-step-nav {
+    flex: none;
+    flex-wrap: nowrap;
+    gap: 0.3rem;
+  }
+  main .path-step-link {
+    align-items: center;
+    padding: 0.35rem 0.7rem;
+    border-radius: var(--radius-pill);
+    font-weight: 500;
+    color: var(--ink);
+  }
+  main .path-step-link:hover {
+    background: var(--wash-2);
+  }
+  main .path-step-link:hover .path-step-name {
+    text-decoration: none;
+  }
+  main .path-step-link--next {
+    color: var(--fam-ink, var(--garden));
+  }
+  .path-step-link .path-step-name,
+  .path-step-link--prev .path-step-dir {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .path-step-link--next .path-step-dir {
+    font-size: 0.95rem;
+    text-transform: none;
+    color: inherit;
+  }
+  .path-step-dir::first-letter {
+    text-transform: uppercase;
+  }
+  .path-step-arrow {
+    color: inherit;
+  }
+  .path-step .prereq {
+    margin-top: 0.6rem;
+    border-top-style: solid;
+    border-top-color: var(--rule);
+  }
+}
+
+@media screen and (min-width: 1280px) and (max-width: 1500px) {
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) main .path-step {
+    position: fixed;
+    z-index: 10;
+    top: 5.5rem;
+    left: calc(50% + 340px + 2.5rem);
+    width: min(16rem, calc(50% - 340px - 4rem));
+    max-height: calc(100vh - 12rem);
+    overflow-y: auto;
+    margin: 0;
+    padding: 0.95rem 1rem 1rem;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.7rem;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) main .path-step-where {
+    grid-template-columns: 1fr;
+    row-gap: 0.1rem;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-label {
+    grid-row: 1;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) main .path-step-path {
+    grid-row: 2;
+    white-space: normal;
+    font: 500 1.15rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-open {
+    grid-row: 4;
+    margin-top: 0.15rem;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-dashes {
+    flex: none;
+    order: 0;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-nav {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    margin: 0;
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) main .path-step-link {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0;
+    max-width: none;
+    padding: 0.4rem 0;
+    border-radius: 0;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) main .path-step-link:hover {
+    background: none;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) main .path-step-link:hover .path-step-name {
+    text-decoration: underline;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-link .path-step-dir {
+    position: static;
+    width: auto;
+    height: auto;
+    clip-path: none;
+    grid-column: 1;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-link .path-step-name {
+    position: static;
+    width: auto;
+    height: auto;
+    clip-path: none;
+    grid-column: 1;
+    font-size: 0.98rem;
+    white-space: normal;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-link .path-step-arrow {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-link--prev .path-step-arrow {
+    display: none;
+  }
+}

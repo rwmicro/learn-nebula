@@ -257,7 +257,7 @@ describe("figures", () => {
   it("leaves an image inside a sentence inline", async () => {
     const { html } = await renderMarkdown(`Du texte ![alt](${IMG}) au milieu.`);
     expect(html).not.toContain("<figure");
-    expect(html).toContain("<p>");
+    expect(html).toMatch(/<p[ >]/);
   });
 
   it("leaves a paragraph holding two images alone", async () => {
@@ -450,5 +450,35 @@ describe("data widgets and prices", () => {
     const { html } = await renderMarkdown("```widget:convertisseur\nmontant: 300\nmonnaie: AF\nannee: 1950\n```");
     expect(html).toContain('data-widget="convertisseur"');
     expect(html).toContain("&#x22;ipc&#x22;");
+  });
+});
+
+describe("outline (rehypeOutline)", () => {
+  it("lifts ### sections to h2 when the note has no ##", async () => {
+    const { html } = await renderMarkdown("### Tragédie\n\nTexte.\n\n#### Détail\n\nSuite.");
+    expect(html).toMatch(/<h2[^>]*>Tragédie/);
+    expect(html).toMatch(/<h3[^>]*>Détail/);
+  });
+  it("leaves ### alone under a ##", async () => {
+    const { html } = await renderMarkdown("## A\n\n### B\n\nTexte.");
+    expect(html).toMatch(/<h3[^>]*>B/);
+  });
+  it("marks a bold-only paragraph before a list as a lead-in, never the dropcap", async () => {
+    const { html } = await renderMarkdown("### Tragédie\n\n**Définition**\n- un\n- deux\n\nPlus loin un paragraphe.");
+    expect(html).toContain('<p class="lead-in"><strong>Définition</strong></p>');
+    expect(html).not.toContain("dropcap");
+  });
+  it("gives the dropcap to the paragraph the note opens on, past its heading", async () => {
+    const { html } = await renderMarkdown("## Intro\n\nLe début.\n\nLa suite.");
+    expect(html).toContain('<p class="dropcap">Le début.</p>');
+    expect(html.match(/dropcap/g)).toHaveLength(1);
+  });
+  it("numbers two sections or more, unless they are numbered by hand", async () => {
+    const a = await renderMarkdown("## Un\n\nx\n\n## Deux\n\ny");
+    expect(a.html.match(/class="sec-n"/g)).toHaveLength(2);
+    const b = await renderMarkdown("## 1. Un\n\nx\n\n## 2. Deux\n\ny");
+    expect(b.html).not.toContain("sec-n");
+    const c = await renderMarkdown("## Seule\n\nx");
+    expect(c.html).not.toContain("sec-n");
   });
 });

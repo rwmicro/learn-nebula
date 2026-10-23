@@ -802,6 +802,94 @@ function rehypeHeadingIds() {
   };
 }
 
+const SELF_NUMBERED = /^\s*(?:\d+|[IVXLC]+)[.)\s]/;
+
+function textOf(node: ElementContent | RootContent): string {
+  if (node.type === "text") return node.value;
+  if (node.type === "element") return node.children.map(textOf).join("");
+  return "";
+}
+
+/**
+ * The note's outline, made legible:
+ * - a note whose sections are `###` (no `##` anywhere) gets them one level up,
+ *   so its sections read as sections (and the phone's section pill, which
+ *   follows h2, finds them);
+ * - a paragraph that is only bold text and opens a list ("**Évolution**" then
+ *   bullets) is a lead-in, not body text: `.lead-in`, styled as a label, and
+ *   never the paragraph that gets the dropcap;
+ * - two sections or more, none numbered by hand, are numbered i., ii.… in the
+ *   margin (`.sec-n`, a CSS counter).
+ */
+export function rehypeOutline() {
+  return (tree: Root) => {
+    let h2 = false;
+    let h3 = false;
+    visit(tree, "element", (node: Element) => {
+      if (node.tagName === "h2") h2 = true;
+      else if (node.tagName === "h3") h3 = true;
+    });
+    if (!h2 && h3) {
+      visit(tree, "element", (node: Element) => {
+        const m = /^h([3-6])$/.exec(node.tagName);
+        if (m) node.tagName = `h${Number(m[1]) - 1}`;
+      });
+    }
+
+    const kids = tree.children;
+    const next = (i: number) => {
+      for (let j = i + 1; j < kids.length; j++) {
+        const k = kids[j];
+        if (k.type === "element") return k;
+        if (k.type === "text" && k.value.trim()) return null;
+      }
+      return null;
+    };
+    const sections: Element[] = [];
+    kids.forEach((node, i) => {
+      if (node.type !== "element") return;
+      if (node.tagName === "h2") sections.push(node);
+      if (node.tagName !== "p") return;
+      const els = node.children.filter((c) => c.type === "element");
+      const loose = node.children.some((c) => c.type === "text" && c.value.trim());
+      const after = next(i);
+      if (
+        els.length === 1 &&
+        (els[0] as Element).tagName === "strong" &&
+        !loose &&
+        after &&
+        (after.tagName === "ul" || after.tagName === "ol")
+      ) {
+        const cls = node.properties.className;
+        node.properties.className = [...(Array.isArray(cls) ? cls : []), "lead-in"];
+      }
+    });
+    // The dropcap goes to the paragraph the note opens on: past headings and
+    // pictures, but not past a list, a lead-in or a callout — a note that
+    // opens on bullets has no opening paragraph, and a letter dropped into
+    // its third block read as a glitch.
+    for (const node of kids) {
+      if (node.type !== "element") continue;
+      if (/^h[1-6]$|^hr$|^figure$/.test(node.tagName)) continue;
+      if (node.tagName === "p") {
+        const text = textOf(node).trim();
+        if (!text) continue;
+        const cls = node.properties.className;
+        if (!(Array.isArray(cls) && cls.includes("lead-in"))) {
+          node.properties.className = [...(Array.isArray(cls) ? cls : []), "dropcap"];
+        }
+      }
+      break;
+    }
+    if (sections.length >= 2 && !sections.some((h) => SELF_NUMBERED.test(textOf(h)))) {
+      for (const h of sections) {
+        const cls = h.properties.className;
+        h.properties.className = [...(Array.isArray(cls) ? cls : []), "sec-n"];
+      }
+    }
+  };
+}
+
 // Speaker icon shared by every `.pron` player (see rehypeVaultAssets below).
 // The two outer arcs carry `.pron-wave` so main.css can pulse them while
 // `data-state="playing"` without needing a second icon swapped in by JS.
@@ -1831,6 +1919,7 @@ export async function renderMarkdown(
     .use(rehypePrix)
     .use(rehypeShiki)
     .use(rehypePlaceholders, ph.map)
+    .use(rehypeOutline)
     .use(rehypeHeadingIds)
     .use(rehypeSlug)
     .use(rehypeAutolinkHeadings, {
