@@ -18,6 +18,24 @@ import { prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
 import { splitMinutes } from "@/lib/path-study";
 import { pathLevels } from "@/lib/path-levels";
 import { FamilyIcon } from "@/components/FamilyIcon";
+import { paintingFor, type Painting } from "@/lib/paintings";
+
+/** A family's painting (lib/paintings.ts), as the backdrop of a heading:
+ *  decorative, its credit carried by the caption next to it. */
+function Art({ art, eager = false }: { art: Painting; eager?: boolean }) {
+  return (
+    <picture className="parcours-art" aria-hidden="true">
+      <source type="image/avif" srcSet={`${art.src}.avif`} />
+      <img
+        src={`${art.src}.webp`}
+        alt=""
+        decoding="async"
+        loading={eager ? "eager" : "lazy"}
+        {...(eager ? { fetchPriority: "high" as const } : {})}
+      />
+    </picture>
+  );
+}
 
 /**
  * /parcours/ (an index of reading paths, one card each) and /parcours/<slug>/
@@ -89,15 +107,21 @@ export function ParcoursIndex({
             data-family={family ?? undefined}
             data-path-family
           >
-            <h2 className="themes-h2">
-              <span {...attrs(i18nAttrs(label))}>{t(label)}</span>
-              <span
-                className="parcours-family-count"
-                {...attrs(i18nAttrs(countKey(list.length), { n: list.length }))}
-              >
-                {t(countKey(list.length), { n: list.length })}
-              </span>
-            </h2>
+            {/* The family's painting behind its heading, as on the phone
+                home's "Aujourd'hui" card. */}
+            <div className={family ? "parcours-band" : undefined}>
+              {family && <Art art={paintingFor(family)} />}
+              <h2 className="themes-h2">
+                <span {...attrs(i18nAttrs(label))}>{t(label)}</span>
+                <span
+                  className="parcours-family-count"
+                  {...attrs(i18nAttrs(countKey(list.length), { n: list.length }))}
+                >
+                  {t(countKey(list.length), { n: list.length })}
+                </span>
+              </h2>
+              {family && <small className="parcours-art-credit">{paintingFor(family).credit}</small>}
+            </div>
             {tiles.length > 0 && (
               <div className="parcours-tiles-block" data-path-block>
                 <p className="parcours-tiles-intro" {...attrs(i18nAttrs("parcours.langIntro"))}>
@@ -297,6 +321,7 @@ export function ParcoursPage({
       </p>
     </figure>
   );
+  const art = paintingFor(pathFamily(path.discipline), path.notes[0]?.slug);
   return (
     <main
       id="main"
@@ -310,12 +335,18 @@ export function ParcoursPage({
         <link rel="stylesheet" href="/katex/katex.min.css" />
       )}
       <Back href="/parcours/" labelKey="parcours.title" />
-      {path.discipline && (
-        <p className="themes-kicker">
-          <DisciplineName name={path.discipline} />
-        </p>
-      )}
-      <h1 className="themes-title">{path.name}</h1>
+      {/* The path's cover: its discipline's or family's painting, the title
+          on it (lib/paintings.ts). */}
+      <header className="parcours-cover">
+        <Art art={art} eager />
+        {path.discipline && (
+          <p className="themes-kicker">
+            <DisciplineName name={path.discipline} />
+          </p>
+        )}
+        <h1 className="themes-title">{path.name}</h1>
+        <small className="parcours-art-credit">{art.credit}</small>
+      </header>
       {path.description && (
         <p className="themes-intro parcours-desc">{path.description}</p>
       )}
