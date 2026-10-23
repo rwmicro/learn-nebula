@@ -297,6 +297,7 @@ import { detectLanguage } from "../../lib/browser-ai.ts";
   }
 
   function applyTranslation(html, targetLang) {
+    hideVia();
     articleBody.innerHTML = html;
     fixRelativeAssets(articleBody);
     const main = document.getElementById("main");
@@ -468,6 +469,15 @@ import { detectLanguage } from "../../lib/browser-ai.ts";
     }
     setState("idle");
     if (label) label.textContent = message;
+    // On a phone the button sits in the closed display sheet, its label
+    // hidden while idle, so the failure is also said above the text.
+    hideVia();
+    viaNote = document.createElement("div");
+    viaNote.className = "translate-via";
+    viaNote.setAttribute("role", "alert");
+    viaNote.setAttribute("data-pagefind-ignore", "");
+    viaNote.textContent = message;
+    articleBody.before(viaNote);
   }
 
   async function translateOnServer(targetLang) {
