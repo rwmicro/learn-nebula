@@ -81,8 +81,13 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
 
 - **Pages**: `app/page.tsx` (home), `app/posts/[...slug]/page.tsx` (notes via
   `components/SinglePage.tsx`), `app/graph/`, `app/cartes/` (Anki). Note `<main>`
-  is built as an HTML string (`dangerouslySetInnerHTML`) so content `<p>` stay
-  direct children of `<main>` (dropcap selectors depend on it).
+  is built as an HTML string (`dangerouslySetInnerHTML`). The dropcap goes to
+  the `.dropcap` paragraph `rehypeOutline` (`lib/markdown.ts`) marks — the one
+  the note opens on, never a bold-only `.lead-in` or past a list; the same
+  plugin lifts `###`-only notes to `##` and numbers sections (`.sec-n`). From
+  640px the reading tools are a liquid-glass bar at the bottom
+  (`noteDockHtml`, `public/js/note-dock.js`) that shrinks while scrolling down;
+  phones keep `lib/note-app.ts`'s own toolbar.
 - **Content/build libs**: `lib/content.ts` (loading, tree, slugs, wikilinks,
   backlinks, `getPdfAssets`, `getHomeTree`, `IGNORE_DIRS`), `lib/markdown.ts`
   (unified pipeline: callouts, manim, YouTube facade, vault assets, sidenotes),
