@@ -95,6 +95,24 @@ import { scrollProgress } from "../../lib/reading-progress";
   dock.querySelector(".dock-now")?.addEventListener("click", () => dock.classList.remove("is-compact"));
   paint();
 
+  // The right-hand column (main.css .note-side) stays on screen while it
+  // fits; a taller one (a long path card, many links) scrolls with the page
+  // instead, so none of it waits behind a scrollbar of its own.
+  const side = document.querySelector(".note-side");
+  if (side) {
+    const fit = () => {
+      const fixed = getComputedStyle(side).position === "fixed";
+      const tall = side.classList.contains("is-tall");
+      if (!fixed && !tall) return;
+      const rem = parseFloat(getComputedStyle(document.documentElement).fontSize) || 15;
+      const h = tall ? side.offsetHeight : side.scrollHeight;
+      side.classList.toggle("is-tall", h > window.innerHeight - 8.5 * rem);
+    };
+    fit();
+    window.addEventListener("resize", fit, { passive: true });
+    if ("ResizeObserver" in window) new ResizeObserver(fit).observe(side);
+  }
+
   // Phones never show the bar: only give it a lens where it is visible.
   const wide = matchMedia("(min-width: 640px)");
   let detach = null;

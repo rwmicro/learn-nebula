@@ -20,7 +20,8 @@
     "themesAriaLabel": "Thèmes",
     "toggleOpen": "sommaire",
     "toggleOpenAria": "Ouvrir le sommaire et la recherche",
-    "toggleCloseAria": "Fermer le sommaire"
+    "toggleCloseAria": "Fermer le sommaire",
+    "onPage": "Sur cette page"
   },
   "noteActions": {
     "audioListen": "écouter",
@@ -1064,7 +1065,9 @@
     "folderNext": "Note suivante du dossier",
     "unread": "Pas encore lue, en {discipline}",
     "allRead": "Vous avez tout lu en {discipline} !",
-    "seeAll": "Toute la discipline : {discipline}"
+    "seeAll": "Toute la discipline : {discipline}",
+    "prev": "Précédente",
+    "step": "Étape {n} sur {total}"
   },
   "condensed": {
     "left": "encore {min} min"
@@ -1673,5 +1676,13 @@
       "fallback": "Ou copiez ce lien dans votre navigateur :",
       "ignore": "Vous n’avez rien demandé ? Ignorez ce message : aucun compte n’est créé sans ce clic."
     }
+  },
+  "noteSide": {
+    "cited": "Cité dans cette note",
+    "inbound": "Pointent ici · {n}",
+    "questions": "{n} questions dans cette note",
+    "questionsOne": "1 question dans cette note",
+    "questionsGo": "Y répondre",
+    "aria": "Autour de cette note"
   }
 }

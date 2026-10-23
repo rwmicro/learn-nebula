@@ -804,6 +804,17 @@ function rehypeHeadingIds() {
 
 const SELF_NUMBERED = /^\s*(?:\d+|[IVXLC]+)[.)\s]/;
 
+function slugText(s: string): string {
+  return (
+    s
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "x"
+  );
+}
+
 function textOf(node: ElementContent | RootContent): string {
   if (node.type === "text") return node.value;
   if (node.type === "element") return node.children.map(textOf).join("");
@@ -817,7 +828,8 @@ function textOf(node: ElementContent | RootContent): string {
  *   follows h2, finds them);
  * - a paragraph that is only bold text and opens a list ("**Évolution**" then
  *   bullets) is a lead-in, not body text: `.lead-in`, styled as a label, and
- *   never the paragraph that gets the dropcap;
+ *   never the paragraph that gets the dropcap; under a section it gets an id
+ *   (`s-évolution` → `s-evolution`), so the left rail can list it;
  * - two sections or more, none numbered by hand, are numbered i., ii.… in the
  *   margin (`.sec-n`, a CSS counter).
  */
@@ -846,6 +858,7 @@ export function rehypeOutline() {
       return null;
     };
     const sections: Element[] = [];
+    const leadIds = new Set<string>();
     kids.forEach((node, i) => {
       if (node.type !== "element") return;
       if (node.tagName === "h2") sections.push(node);
@@ -862,6 +875,15 @@ export function rehypeOutline() {
       ) {
         const cls = node.properties.className;
         node.properties.className = [...(Array.isArray(cls) ? cls : []), "lead-in"];
+        // Inside a section, an anchor: the left rail lists it under its
+        // section (buildToc, lib/html.ts).
+        if (sections.length && node.properties.id == null) {
+          const base = `s-${slugText(textOf(node))}`;
+          let id = base;
+          for (let n = 2; leadIds.has(id); n++) id = `${base}-${n}`;
+          leadIds.add(id);
+          node.properties.id = id;
+        }
       }
     });
     // The dropcap goes to the paragraph the note opens on: past headings and

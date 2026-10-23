@@ -20,7 +20,8 @@
     "themesAriaLabel": "主题",
     "toggleOpen": "目录",
     "toggleOpenAria": "打开目录和搜索",
-    "toggleCloseAria": "关闭目录"
+    "toggleCloseAria": "关闭目录",
+    "onPage": "本页内容"
   },
   "noteActions": {
     "audioListen": "收听",
@@ -1064,7 +1065,9 @@
     "folderNext": "本文件夹的下一篇",
     "unread": "尚未阅读 · {discipline}",
     "allRead": "你已读完 {discipline} 的全部笔记！",
-    "seeAll": "整个学科：{discipline}"
+    "seeAll": "整个学科：{discipline}",
+    "prev": "上一篇",
+    "step": "第 {n} 步，共 {total} 步"
   },
   "condensed": {
     "left": "还剩 {min} 分钟"
@@ -1673,5 +1676,13 @@
       "fallback": "或将此链接复制到浏览器中：",
       "ignore": "不是您本人的请求？请忽略此邮件：不点击此链接就不会创建任何账户。"
     }
+  },
+  "noteSide": {
+    "cited": "本笔记引用",
+    "inbound": "链接到此 · {n}",
+    "questions": "本笔记有 {n} 道题",
+    "questionsOne": "本笔记有 1 道题",
+    "questionsGo": "去作答",
+    "aria": "与本笔记相关"
   }
 }

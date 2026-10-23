@@ -20,7 +20,8 @@
     "themesAriaLabel": "Themes",
     "toggleOpen": "contents",
     "toggleOpenAria": "Open the table of contents and search",
-    "toggleCloseAria": "Close the table of contents"
+    "toggleCloseAria": "Close the table of contents",
+    "onPage": "On this page"
   },
   "noteActions": {
     "audioListen": "listen",
@@ -1064,7 +1065,9 @@
     "folderNext": "Next note in this folder",
     "unread": "Not read yet, in {discipline}",
     "allRead": "You’ve read everything in {discipline}!",
-    "seeAll": "The whole discipline: {discipline}"
+    "seeAll": "The whole discipline: {discipline}",
+    "prev": "Previous",
+    "step": "Step {n} of {total}"
   },
   "condensed": {
     "left": "{min} min left"
@@ -1673,5 +1676,13 @@
       "fallback": "Or copy this link into your browser:",
       "ignore": "Didn’t ask for this? Just ignore this message: no account is created without this click."
     }
+  },
+  "noteSide": {
+    "cited": "Cited in this note",
+    "inbound": "Linking here · {n}",
+    "questions": "{n} questions in this note",
+    "questionsOne": "1 question in this note",
+    "questionsGo": "Answer them",
+    "aria": "Around this note"
   }
 }
