@@ -4995,6 +4995,30 @@
   .road-chest .road-disk:disabled {
     cursor: default;
   }
+  /* A finished level whose questions are due again: its discs and its
+     stretch of road go pale, the chest pulses gently and says "À
+     rafraîchir". */
+  .road-level.is-faded .road-pn.done .road-disk,
+  .road-level.is-faded .road-done,
+  .road-level.is-faded .road-done-line {
+    filter: saturate(0.25) opacity(0.65);
+  }
+  .road-chest.due .road-disk {
+    animation: road-due 2.4s ease-in-out infinite;
+  }
+  .road-chest.due em {
+    color: #b07a00;
+  }
+  @keyframes road-due {
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .road-chest.due .road-disk {
+      animation: none;
+    }
+  }
   .road-lb {
     position: absolute;
     top: 0;

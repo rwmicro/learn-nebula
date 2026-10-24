@@ -11,6 +11,8 @@ import { loadStore, type ReadingStore } from "@/lib/reading-progress";
 import type { HomeData } from "@/lib/home-data";
 import type { PathFamily } from "@/lib/path-family";
 import { ERAGNY, paintingFor } from "@/lib/paintings";
+import { dueQuestions, loadAllNoteDecks, NOTE_PREFIX } from "@/lib/note-quiz";
+import { dayKey } from "@/lib/srs";
 
 // The home as an app dashboard, on phones only (app.css hides it from 640px,
 // and hides there the masthead it replaces). From the top: the date and a
@@ -37,6 +39,33 @@ export interface DashPath {
   family: PathFamily | null;
   /** Its notes' slugs, to count the ones read. */
   slugs: string[];
+  /** What the path aims at (`cible:` of its `parcours:` block). */
+  cible?: string;
+}
+
+/** Saved questions due today, by note slug (this browser). */
+function useDueBySlug(): Map<string, number> {
+  const [m, setM] = useState<Map<string, number>>(new Map());
+  useEffect(() => {
+    const load = () => {
+      try {
+        const out = new Map<string, number>();
+        for (const d of dueQuestions(loadAllNoteDecks(localStorage), dayKey())) out.set(d.slug, (out.get(d.slug) ?? 0) + 1);
+        setM(out);
+      } catch {
+        /* storage blocked: nothing to refresh */
+      }
+    };
+    load();
+    const onStorage = (e: StorageEvent) => e.key?.startsWith(NOTE_PREFIX) && load();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("gk:quiz-change", load);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("gk:quiz-change", load);
+    };
+  }, []);
+  return m;
 }
 
 /** A note the "note du jour" can show: one a day, picked by the date. */
@@ -202,6 +231,7 @@ export function HomeDashboard({
   const store = useReadingStore();
   const due = useReviewDue();
   const me = usePersonal(store);
+  const dueBySlug = useDueBySlug();
 
   const resume = useMemo(() => resumePath(data, store), [data, store]);
   const rows = useMemo(
@@ -216,6 +246,13 @@ export function HomeDashboard({
   const mine = rows
     .filter((p) => p.read > 0 && p.read < p.total)
     .sort((a, b) => b.read / b.total - a.read / a.total)
+    .slice(0, 3);
+  // "À rafraîchir": the paths whose saved questions are due again, most
+  // first; the path page's chests launch the review.
+  const refresh = rows
+    .map((p) => ({ ...p, due: p.slugs.reduce((n, s) => n + (dueBySlug.get(s) ?? 0), 0) }))
+    .filter((p) => p.due > 0)
+    .sort((a, b) => b.due - a.due)
     .slice(0, 3);
   // Not started, largest first, then one family after another.
   const discover = mixFamilies(rows.filter((p) => p.read === 0).sort((a, b) => b.total - a.total || a.i - b.i));
@@ -394,11 +431,39 @@ export function HomeDashboard({
               <svg className="dash-flame" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.7 2-4.5 0 2 1 3 2 3 0-4 1-6.5 1-8.5z" />
               </svg>
-              {tr(me.run === 1 ? "dash.run1" : "dash.run", { n: me.run })}
+              {me.run === 0 ? tr("defis.noRun") : tr(me.run === 1 ? "dash.run1" : "dash.run", { n: me.run })}
             </b>
             <small>{tr(activeToday ? "dash.runKept" : me.run > 0 ? "dash.runKeep" : "dash.runStart")}</small>
           </span>
         </a>
+      )}
+
+      {refresh.length > 0 && (
+        <>
+          <div className="dash-row-h">
+            <h2 className="dash-h">{tr("dash.refresh")}</h2>
+            <a href="/cartes/revision/">{tr("dash.refreshAll")}</a>
+          </div>
+          <ul className="dash-mine dash-refresh">
+            {refresh.map((p) => (
+              <li key={p.slug} data-family={p.family ?? undefined}>
+                <a href={`/parcours/${encodeURIComponent(p.slug)}/`}>
+                  <span className="dash-mine-icon" aria-hidden="true">
+                    <FamilyIcon family={p.family} />
+                  </span>
+                  <span className="dash-mine-text">
+                    <b>{shortName(p.name)}</b>
+                    <small>
+                      {tr("dash.refreshN", { n: p.due })}
+                      {p.cible ? ` · ${tr("parcours.cible", { c: p.cible })}` : ""}
+                    </small>
+                  </span>
+                  <Chevron />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       {mine.length > 0 && (
@@ -421,7 +486,7 @@ export function HomeDashboard({
                       <b>{shortName(p.name)}</b>
                       <small>
                         {tr("dash.pathRead", { read: p.read, total: p.total })}
-                        {next ? ` · ${tr("dash.next", { title: next })}` : ""}
+                        {next ? ` · ${tr("dash.next", { title: next })}` : p.cible ? ` · ${tr("parcours.cible", { c: p.cible })}` : ""}
                       </small>
                       <i className="dash-bar" aria-hidden="true">
                         <i style={{ width: `${pct}%` }} />

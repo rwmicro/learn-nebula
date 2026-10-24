@@ -1236,6 +1236,11 @@ export interface ReadingPathNote {
   /** The folder the note sits in, as on disk ("Antiquité", "History",
    *  "02-Communication"): the path page names its levels after it. */
   folder: string;
+  /** `cible:` in its frontmatter ("A1", "Elo 1200", "Sup"): what the level
+   *  it ends reaches. */
+  cible?: string;
+  /** `niveau:` in its frontmatter: the name of the level it opens. */
+  niveau?: string;
 }
 
 export interface ReadingPathView {
@@ -1244,6 +1249,8 @@ export interface ReadingPathView {
   /** From frontmatter `parcours:` on one of its notes, else its common folder. */
   name: string;
   description?: string;
+  /** `cible:` of its `parcours:` block: what the whole path aims at. */
+  cible?: string;
   /** Majority discipline of the path's notes, "" when none. */
   discipline: string;
   /** In reading (topological) order. */
@@ -1259,7 +1266,7 @@ export interface ReadingPathView {
 /** `parcours: "Nom"`, or `parcours: { titre|title: "Nom", description: "…",
  *  suite: "Nom du parcours suivant" }` (plus `parcours-description:` and
  *  `parcours-suite:` next to the string form). */
-function pathMeta(fm: Frontmatter): { name: string; description?: string; next?: string } | null {
+function pathMeta(fm: Frontmatter): { name: string; description?: string; next?: string; cible?: string } | null {
   const f = fm as unknown as Record<string, unknown>;
   const raw = f.parcours;
   const extra = f["parcours-description"];
@@ -1274,9 +1281,18 @@ function pathMeta(fm: Frontmatter): { name: string; description?: string; next?:
         name,
         description: str(o.description) ?? str(extra),
         next: str(o.suite) ?? str(o.next) ?? nextOut,
+        cible: str(o.cible) ?? str(o.target) ?? str(o.objectif),
       };
   }
   return null;
+}
+
+/** A note's `cible:` (or `key:`; string or number), trimmed; undefined
+ *  without one. */
+function noteCible(fm: Frontmatter, key = "cible"): string | undefined {
+  const v = (fm as unknown as Record<string, unknown>)[key];
+  const s = typeof v === "number" ? String(v) : typeof v === "string" ? v.trim() : "";
+  return s ? s.slice(0, 40) : undefined;
 }
 
 /** Display name of the deepest folder all `rawPaths` share, top group
@@ -1331,6 +1347,7 @@ export function getReadingPaths(): ReadingPathView[] {
         slug,
         name,
         ...(meta?.description ? { description: meta.description } : {}),
+        ...(meta?.cible ? { cible: meta.cible } : {}),
         discipline: c.discipline,
         notes: docs.map((d) => ({
           slug: d.slug,
@@ -1338,6 +1355,8 @@ export function getReadingPaths(): ReadingPathView[] {
           href: `/posts/${d.slug}/`,
           prereqs: c.edges.filter(([, b]) => b === d.slug).map(([a]) => a),
           folder: homeDisplayName(d.rawPath.split("/").slice(-2, -1)[0] ?? ""),
+          ...(noteCible(d.frontmatter) ? { cible: noteCible(d.frontmatter) } : {}),
+          ...(noteCible(d.frontmatter, "niveau") ? { niveau: noteCible(d.frontmatter, "niveau") } : {}),
         })),
         edges: c.edges,
       };

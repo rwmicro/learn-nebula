@@ -12,6 +12,8 @@ import {
   loadStudyStates,
   type NoteState,
 } from "@/lib/path-study";
+import { dueQuestions, loadAllNoteDecks } from "@/lib/note-quiz";
+import { dayKey } from "@/lib/srs";
 
 // A reading path on a phone (app.css shows it below 640px, in place of the
 // levels list and the prerequisites graph): a winding road of discs, one per
@@ -21,7 +23,9 @@ import {
 // show their time and what they hold. Each level ends on a chest, the level
 // review (ParcoursStudy.tsx opens it: [data-level-review-btn]), then a
 // divider names the next level. The current level stays pinned on top with
-// its progress and the revision sheet.
+// its progress and the revision sheet. A finished level whose saved
+// questions are due again fades (its discs go pale) and its chest says
+// "À rafraîchir": opening it is the refresh.
 
 export interface RoadNote {
   slug: string;
@@ -34,6 +38,8 @@ export interface RoadNote {
 export interface RoadLevel {
   n: number;
   name: string;
+  /** What the level reaches (`cible:`), shown beside its name. */
+  cible?: string;
   notes: RoadNote[];
 }
 
@@ -117,10 +123,21 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
   const locale = useLocale();
   const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
   const [states, setStates] = useState<Map<string, NoteState> | null>(null);
+  /** Saved questions due today, by note slug. */
+  const [due, setDue] = useState<Map<string, number>>(new Map());
   const all = useMemo(() => levels.flatMap((l) => l.notes), [levels]);
   const study = useMemo(() => all.map((n) => ({ slug: n.slug, prereqs: [], quiz: n.quiz })), [all]);
 
-  const reload = useCallback(() => setStates(loadStudyStates(study).states), [study]);
+  const reload = useCallback(() => {
+    setStates(loadStudyStates(study).states);
+    try {
+      const m = new Map<string, number>();
+      for (const d of dueQuestions(loadAllNoteDecks(localStorage), dayKey())) m.set(d.slug, (m.get(d.slug) ?? 0) + 1);
+      setDue(m);
+    } catch {
+      /* storage blocked: nothing fades */
+    }
+  }, [study]);
   useEffect(() => {
     reload();
     const onStorage = (e: StorageEvent) => isStudyKey(e.key) && reload();
@@ -146,6 +163,7 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
           <div className="road-bar-tx">
             <small>
               {tr("road.levelOf", { n: curLevel.n, total: levels.length })} · {tr("road.min", { n: curMinutes })}
+              {curLevel.cible && ` · ${tr("parcours.cible", { c: curLevel.cible })}`}
             </small>
             <b>{curLevel.name}</b>
             <span className="road-bar-p" aria-hidden="true">
@@ -187,8 +205,10 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
         const d = roadPath(pts);
         const dd = lastDone > 0 ? roadPath(pts.slice(0, lastDone + 1)) : "";
         const lvMinutes = lv.notes.reduce((m, n) => m + n.minutes, 0);
+        const lvDue = lv.notes.reduce((m, n) => m + (due.get(n.slug) ?? 0), 0);
+        const faded = doneCount === lv.notes.length && lvDue > 0;
         return (
-          <div key={lv.n} className="road-level" style={{ height }}>
+          <div key={lv.n} className={`road-level${faded ? " is-faded" : ""}`} style={{ height }}>
             {li > 0 && (
               <div className="road-div">
                 <p className="road-div-h">
@@ -196,6 +216,7 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
                 </p>
                 <p className="road-div-sub">
                   {tr("road.levelSub", { n: lv.notes.length, m: lvMinutes })}
+                  {lv.cible && ` · ${tr("parcours.cible", { c: lv.cible })}`}
                 </p>
               </div>
             )}
@@ -278,7 +299,7 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
               })}
               {chest && (
                 <li
-                  className={`road-pn road-chest${doneCount === lv.notes.length ? " done" : " lock"}${chest[0] > W / 2 ? " r" : ""}`}
+                  className={`road-pn road-chest${faded ? " due" : doneCount === lv.notes.length ? " done" : " lock"}${chest[0] > W / 2 ? " r" : ""}`}
                   style={{ left: `${(100 * chest[0]) / W}%`, top: chest[1] }}
                 >
                   <button type="button" className="road-disk" data-level-review-btn={levels.length > 1 ? lv.n : 1}>
@@ -286,7 +307,11 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
                     <span className="sr-only">{tr(levels.length > 1 ? "parcours.levelReview" : "parcours.review", { n: lv.n })}</span>
                   </button>
                   <div className="road-lb">
-                    {doneCount === lv.notes.length && <em>{tr("road.levelDone", { n: lv.n })}</em>}
+                    {faded ? (
+                      <em>{tr("road.refresh", { n: lvDue })}</em>
+                    ) : (
+                      doneCount === lv.notes.length && <em>{tr("road.levelDone", { n: lv.n })}</em>
+                    )}
                     <b>{tr(levels.length > 1 ? "parcours.levelReview" : "parcours.review", { n: lv.n })}</b>
                     <small>{tr("road.questions", { n: quiz })}</small>
                   </div>

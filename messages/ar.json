@@ -664,7 +664,8 @@
     "followedBy": "التالي: {name}",
     "followsFrom": "بعد «{name}»",
     "graphAll": "مخطط المتطلبات",
-    "sheet": "ورقة مراجعة"
+    "sheet": "ورقة مراجعة",
+    "cible": "الهدف {c}"
   },
   "reading": {
     "read": "مقروءة",
@@ -1246,7 +1247,10 @@
     "map": "الخريطة",
     "mapText": "الملاحظات حول العالم",
     "themes": "المواضيع",
-    "themesText": "كل التخصصات"
+    "themesText": "كل التخصصات",
+    "refresh": "للمراجعة",
+    "refreshAll": "راجع الكل",
+    "refreshN": "{n} سؤال للمراجعة"
   },
   "noteApp": {
     "back": "رجوع",
@@ -1372,7 +1376,8 @@
     "levelDone": "اكتمل المستوى {n}",
     "placement": "تحديد المستوى",
     "review": "مراجعة",
-    "sheet": "ملخص"
+    "sheet": "ملخص",
+    "refresh": "للمراجعة · {n} سؤال"
   },
   "defis": {
     "title": "التحديات",

@@ -664,7 +664,8 @@
     "followedBy": "Suite : {name}",
     "followsFrom": "Après « {name} »",
     "graphAll": "Graphe des prérequis",
-    "sheet": "Fiche de révision"
+    "sheet": "Fiche de révision",
+    "cible": "objectif {c}"
   },
   "reading": {
     "read": "Lue",
@@ -1246,7 +1247,10 @@
     "map": "La carte",
     "mapText": "Les notes sur le monde",
     "themes": "Les thèmes",
-    "themesText": "Toutes les disciplines"
+    "themesText": "Toutes les disciplines",
+    "refresh": "À rafraîchir",
+    "refreshAll": "Tout revoir",
+    "refreshN": "{n} question(s) à revoir"
   },
   "noteApp": {
     "back": "Retour",
@@ -1372,7 +1376,8 @@
     "levelDone": "Niveau {n} terminé",
     "placement": "Placement",
     "review": "Réviser",
-    "sheet": "Fiche"
+    "sheet": "Fiche",
+    "refresh": "À rafraîchir · {n} question(s)"
   },
   "defis": {
     "title": "Défis",

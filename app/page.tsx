@@ -109,6 +109,7 @@ function dashboardData(): { paths: DashPath[]; recent: DashRecent[]; dayNotes: D
     name: p.name,
     family: pathFamily(p.discipline),
     slugs: p.notes.map((n) => n.slug),
+    ...(p.cible ? { cible: p.cible } : {}),
   }));
   return { paths, recent, dayNotes };
 }

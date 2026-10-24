@@ -366,6 +366,14 @@ export function ParcoursPage({
               </span>
             </>
           )}
+          {path.cible && (
+            <>
+              {" · "}
+              <span {...attrs(i18nAttrs("parcours.cible", { c: path.cible }))}>
+                {t("parcours.cible", { c: path.cible })}
+              </span>
+            </>
+          )}
         </span>
         <Progress
           slugs={path.notes.map((n) => n.slug)}
@@ -390,6 +398,7 @@ export function ParcoursPage({
           return {
             n: lv.n,
             name: levelName(notes, levels.map((l) => path.notes.slice(l.from, l.to)), path.discipline) ?? titleOf(notes[0].slug),
+            cible: levelCible(notes),
             notes: notes.map((n) => ({
               slug: n.slug,
               title: titleOf(n.slug),
@@ -479,6 +488,14 @@ export function ParcoursPage({
                   })}
                 </span>
                 <span className="parcours-level-meta">
+                  {levelCible(notes) && (
+                    <>
+                      <span className="parcours-level-cible" {...attrs(i18nAttrs("parcours.cible", { c: levelCible(notes)! }))}>
+                        {t("parcours.cible", { c: levelCible(notes)! })}
+                      </span>
+                      {" · "}
+                    </>
+                  )}
                   <span className="parcours-level-done" data-level-done>
                     0/{notes.length}
                   </span>
@@ -525,11 +542,20 @@ export function ParcoursPage({
  *  their French label ("History" → "Histoire", "02-Communication" →
  *  "Communication"), two at most; null when every level would get the same
  *  name (a path from one folder). */
+/** What a level reaches: the `cible:` of its last note that has one. */
+function levelCible(notes: ReadingPathView["notes"]): string | undefined {
+  for (let i = notes.length - 1; i >= 0; i--) if (notes[i].cible) return notes[i].cible;
+  return undefined;
+}
+
 function levelName(
   notes: ReadingPathView["notes"],
   all: ReadingPathView["notes"][],
   discipline?: string | null,
 ): string | null {
+  // Named by hand: `niveau:` on one of its notes.
+  const named = notes.find((n) => n.niveau)?.niveau;
+  if (named) return named;
   const label = (folder: string) => {
     const key = folderKey(folder);
     return key ? t(key) : splitRank(folder).label;
@@ -545,7 +571,8 @@ function levelName(
   const mine = folders(notes);
   const name = mine
     .slice(0, 2)
-    .map((f, i) => (i ? f.charAt(0).toLowerCase() + f.slice(1) : f.charAt(0).toUpperCase() + f.slice(1)))
+    // "et antiquité", but "et XXe siècle", "et WW2": an acronym keeps its case.
+    .map((f, i) => (i ? (/^\p{Lu}\p{Ll}/u.test(f) ? f.charAt(0).toLowerCase() + f.slice(1) : f) : f.charAt(0).toUpperCase() + f.slice(1)))
     .join(" et ");
   return name || null;
 }

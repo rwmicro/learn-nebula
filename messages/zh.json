@@ -664,7 +664,8 @@
     "followedBy": "接下来：{name}",
     "followsFrom": "在「{name}」之后",
     "graphAll": "先修关系图",
-    "sheet": "复习卡"
+    "sheet": "复习卡",
+    "cible": "目标 {c}"
   },
   "reading": {
     "read": "已读",
@@ -1246,7 +1247,10 @@
     "map": "地图",
     "mapText": "世界各地的笔记",
     "themes": "主题",
-    "themesText": "所有学科"
+    "themesText": "所有学科",
+    "refresh": "待复习",
+    "refreshAll": "全部复习",
+    "refreshN": "{n} 道题待复习"
   },
   "noteApp": {
     "back": "返回",
@@ -1372,7 +1376,8 @@
     "levelDone": "第 {n} 级完成",
     "placement": "定级",
     "review": "复习",
-    "sheet": "讲义"
+    "sheet": "讲义",
+    "refresh": "待复习 · {n} 题"
   },
   "defis": {
     "title": "挑战",

@@ -664,7 +664,8 @@
     "followedBy": "Después: {name}",
     "followsFrom": "Después de «{name}»",
     "graphAll": "Grafo de prerrequisitos",
-    "sheet": "Ficha de repaso"
+    "sheet": "Ficha de repaso",
+    "cible": "objetivo {c}"
   },
   "reading": {
     "read": "Leída",
@@ -1246,7 +1247,10 @@
     "map": "El mapa",
     "mapText": "Las notas en el mundo",
     "themes": "Los temas",
-    "themesText": "Todas las disciplinas"
+    "themesText": "Todas las disciplinas",
+    "refresh": "Para repasar",
+    "refreshAll": "Repasar todo",
+    "refreshN": "{n} pregunta(s) para repasar"
   },
   "noteApp": {
     "back": "Volver",
@@ -1372,7 +1376,8 @@
     "levelDone": "Nivel {n} terminado",
     "placement": "Nivelación",
     "review": "Repasar",
-    "sheet": "Ficha"
+    "sheet": "Ficha",
+    "refresh": "Para repasar · {n} pregunta(s)"
   },
   "defis": {
     "title": "Retos",

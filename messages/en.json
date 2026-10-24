@@ -664,7 +664,8 @@
     "followedBy": "Next: {name}",
     "followsFrom": "After “{name}”",
     "graphAll": "Prerequisite graph",
-    "sheet": "Revision sheet"
+    "sheet": "Revision sheet",
+    "cible": "target {c}"
   },
   "reading": {
     "read": "Read",
@@ -1246,7 +1247,10 @@
     "map": "The map",
     "mapText": "Notes around the world",
     "themes": "Themes",
-    "themesText": "Every discipline"
+    "themesText": "Every discipline",
+    "refresh": "To refresh",
+    "refreshAll": "Review all",
+    "refreshN": "{n} question(s) due"
   },
   "noteApp": {
     "back": "Back",
@@ -1372,7 +1376,8 @@
     "levelDone": "Level {n} done",
     "placement": "Placement",
     "review": "Review",
-    "sheet": "Sheet"
+    "sheet": "Sheet",
+    "refresh": "To refresh · {n} question(s)"
   },
   "defis": {
     "title": "Challenges",
