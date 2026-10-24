@@ -1394,9 +1394,10 @@
 
   // ------------------------------------------------------ chessboard widget
 
-  function echiquier(props) {
+  function echiquier(props, ctx) {
     const GLYPH = { K: "♔", Q: "♕", R: "♖", B: "♗", N: "♘", P: "♙",
                     k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" };
+    if (props.etoiles) return etoiles(props, ctx, GLYPH);
     const start = String(props.fen ?? "8/8/8/4k3/8/4K3/4P3/8 w - - 0 1");
     // Moves are given in coordinate form (e2e4), one per `moves` prop, space separated.
     const moves = String(props.moves ?? "").trim().split(/\s+/).filter(Boolean);
@@ -1461,6 +1462,119 @@
     draw();
     return el("div", { class: "w-root" }, [
       el("div", { class: "w-controls" }, ctrls),
+      grid,
+      out,
+    ]);
+  }
+
+  /**
+   * `etoiles: c3 e4 f6` on a chessboard: the white piece of the position (the
+   * first one that is not the king) collects the stars with legal moves of
+   * its own kind; the other pieces are walls. Tapping a square it can reach
+   * moves it there. Reports `etoiles` (left), `coups` and `fini` (0/1), so
+   * `cible: fini=1, coups<=4` reads as "in four moves".
+   */
+  function etoiles(props, ctx, GLYPH) {
+    const fen = String(props.fen ?? "8/8/8/8/8/8/8/1N6 w - - 0 1").split(" ")[0];
+    const board = fen.split("/").map((r) => {
+      const line = [];
+      for (const c of r) {
+        if (/\d/.test(c)) for (let k = 0; k < Number(c); k++) line.push("");
+        else line.push(c);
+      }
+      return line;
+    });
+    const name = (r, c) => String.fromCharCode(97 + c) + (8 - r);
+    let piece = null;
+    for (let r = 0; r < 8 && !piece; r++)
+      for (let c = 0; c < 8; c++)
+        if (/[QRBNP]/.test(board[r][c])) { piece = { kind: board[r][c], r, c }; break; }
+    const stars0 = String(props.etoiles).trim().split(/\s+/)
+      .filter((q) => /^[a-h][1-8]$/.test(q));
+    const par = Number(props.coups) || 0;
+    if (!piece) return el("p", { class: "w-warn" }, ["Il faut une pièce blanche (hors roi) dans le fen."]);
+    const home = { r: piece.r, c: piece.c };
+    board[piece.r][piece.c] = "";
+    let stars = new Set(stars0);
+    let moves = 0;
+
+    const free = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && !board[r][c];
+    function reach() {
+      const out = [];
+      const { kind, r, c } = piece;
+      const slide = (dirs) => {
+        for (const [dr, dc] of dirs)
+          for (let k = 1; free(r + dr * k, c + dc * k); k++) out.push([r + dr * k, c + dc * k]);
+      };
+      const ORTHO = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+      const DIAG = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+      if (kind === "R") slide(ORTHO);
+      else if (kind === "B") slide(DIAG);
+      else if (kind === "Q") slide([...ORTHO, ...DIAG]);
+      else if (kind === "N") {
+        for (const [dr, dc] of [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]])
+          if (free(r + dr, c + dc)) out.push([r + dr, c + dc]);
+      } else if (kind === "P") {
+        if (free(r - 1, c)) {
+          out.push([r - 1, c]);
+          if (r === 6 && free(r - 2, c)) out.push([r - 2, c]);
+        }
+      }
+      return out;
+    }
+
+    const grid = el("div", { class: "w-board w-board--stars" });
+    const out = el("div", { class: "w-out" });
+    function report() {
+      ctx && ctx.report && ctx.report({ etoiles: stars.size, coups: moves, fini: stars.size ? 0 : 1 });
+    }
+    function draw() {
+      const can = reach();
+      const cells = [];
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const here = piece.r === r && piece.c === c;
+          const star = stars.has(name(r, c));
+          const ok = can.some(([a, b]) => a === r && b === c) && stars.size > 0;
+          const cls = "w-sq" + ((r + c) % 2 === 1 ? " is-dark" : "") +
+            (ok ? " is-reach" : "") + (star ? " is-star" : "");
+          const kids = [here ? GLYPH[piece.kind] : board[r][c] ? GLYPH[board[r][c]] : star ? "★" : ""];
+          if (ok) {
+            const b = el("button", { type: "button", class: cls, "aria-label": "Aller en " + name(r, c) +
+              (star ? " (étoile)" : "") }, kids);
+            b.addEventListener("click", () => {
+              piece.r = r;
+              piece.c = c;
+              moves++;
+              stars.delete(name(r, c));
+              draw();
+              report();
+            });
+            cells.push(b);
+          } else cells.push(el("i", { class: cls + (here ? " is-last" : "") }, kids));
+        }
+      }
+      grid.replaceChildren(...cells);
+      out.replaceChildren(el("p", { class: "w-note" }, [
+        stars.size
+          ? stars.size + (stars.size > 1 ? " étoiles" : " étoile") + " à prendre · " + moves + " coup" + (moves > 1 ? "s" : "") +
+            (par ? " (en " + par + " c'est parfait)" : "")
+          : "Toutes les étoiles en " + moves + " coup" + (moves > 1 ? "s" : "") +
+            (par ? (moves <= par ? " : parfait." : " : faisable en " + par + ".") : "."),
+      ]));
+    }
+    const again = el("button", { type: "button", class: "w-btn", onclick: () => {
+      piece.r = home.r;
+      piece.c = home.c;
+      stars = new Set(stars0);
+      moves = 0;
+      draw();
+      report();
+    } }, ["Recommencer"]);
+    draw();
+    report();
+    return el("div", { class: "w-root" }, [
+      el("div", { class: "w-controls" }, [again, el("span", { class: "w-hint" }, ["touchez une case en surbrillance"])]),
       grid,
       out,
     ]);
