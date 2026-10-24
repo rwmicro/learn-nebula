@@ -17,12 +17,14 @@ export const ORIGINAL_AUTHOR_URL = "https://david.alvarezrosa.com";
 /** NAV entries store an i18n key in `name`; navHtml resolves it via t() at
  * build time and the runtime swap (/js/i18n.js) does the same at locale
  * change. */
+// The phone's tabs, on every screen: Accueil, Parcours, Notes, Réviser (and
+// "Moi", added by the bars that show it). The graph and the timeline sit
+// under Notes ("Autres vues", components/NotesViews.tsx).
 export const NAV = [
   { name: "nav.home", href: "/" },
   { name: "nav.parcours", href: "/parcours/" },
-  { name: "nav.graph", href: "/graph/" },
-  { name: "nav.frise", href: "/frise/" },
-  { name: "nav.cartes", href: "/cartes/" },
+  { name: "tabbar.notes", href: "/notes/" },
+  { name: "tabbar.review", href: "/cartes/" },
 ];
 
 /** RSS autodiscovery (app/feed.xml) for `metadata.alternates.types`. Shared

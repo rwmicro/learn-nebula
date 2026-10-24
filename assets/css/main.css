@@ -3482,11 +3482,11 @@ button.w-sq:focus-visible {
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.92rem;
   line-height: 1.1;
-  padding: 0.42rem 0.8rem;
+  padding: 0.42rem 1rem;
   color: var(--c);
   background: var(--paper);
-  border: 1px solid var(--c);
-  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--c);
+  border-radius: var(--radius-pill);
   cursor: pointer;
   transition: background-color 0.15s, color 0.15s;
 }

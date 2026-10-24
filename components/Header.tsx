@@ -116,7 +116,7 @@ export default function Header({ doc }: { doc: Doc }) {
           <SiteNavLinks
             links={[
               ...NAV.filter((n) => n.href !== "/"),
-              { name: "nav.progression", href: "/progression/" },
+              { name: "moi.title", href: "/progression/" },
             ].map((n) => ({ href: n.href, key: n.name, label: t(n.name) }))}
           />
         </div>
