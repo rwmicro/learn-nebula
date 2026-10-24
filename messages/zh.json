@@ -906,7 +906,9 @@
     "contents": "打开目录",
     "focus": "专注模式",
     "bookmark": "稍后阅读",
-    "home": "回到首页"
+    "home": "回到首页",
+    "lesson": "以课程方式阅读",
+    "answer": "选择答案或词语（当前题目）"
   },
   "siteBar": {
     "brand": "Garden of Knowledge",

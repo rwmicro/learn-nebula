@@ -279,6 +279,24 @@ import { bankWords, sameSentence } from "../../lib/exercises.ts";
     });
     document.querySelectorAll(".frise-ex[data-frise]").forEach(frise);
   }
+  // Keyboard, in the note: with the focus inside a card, 1–9 press its Nth
+  // answer, word or item (the lesson has its own, lesson.js).
+  document.addEventListener("keydown", (e) => {
+    if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey || !/^[1-9]$/.test(e.key)) return;
+    const t = e.target;
+    if (!(t instanceof Element) || t.closest("input, textarea, select, [contenteditable]")) return;
+    const card = t.closest(".callout-ex, .callout-quiz.quiz--choice, .callout-predict");
+    if (!card) return;
+    const b = card.querySelectorAll(".quiz-choice:not(:disabled), .ex-bank .ex-chip, .ex-col .ex-chip:not(:disabled)")[
+      Number(e.key) - 1
+    ];
+    if (!b) return;
+    e.preventDefault();
+    b.click();
+    const first = card.querySelector(".ex-bank .ex-chip, .ex-col .ex-chip:not(:disabled), .ex-check:not(:disabled)");
+    if (!b.isConnected || !card.contains(document.activeElement)) (first || card).focus?.();
+  });
+
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
   // A translation (translate.js) swaps the article body, cards included:

@@ -906,7 +906,9 @@
     "contents": "Open the contents",
     "focus": "Focus mode",
     "bookmark": "Read later",
-    "home": "Go home"
+    "home": "Go home",
+    "lesson": "Read as a lesson",
+    "answer": "Pick an answer or a word (current question)"
   },
   "siteBar": {
     "brand": "Garden of Knowledge",

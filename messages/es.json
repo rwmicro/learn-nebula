@@ -906,7 +906,9 @@
     "contents": "Abrir el índice",
     "focus": "Modo concentración",
     "bookmark": "Leer después",
-    "home": "Ir al inicio"
+    "home": "Ir al inicio",
+    "lesson": "Leer como lección",
+    "answer": "Elegir una respuesta o una palabra (pregunta actual)"
   },
   "siteBar": {
     "brand": "Garden of Knowledge",

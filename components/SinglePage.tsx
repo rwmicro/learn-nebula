@@ -239,7 +239,7 @@ export async function SinglePage({
   };
   const nextBlock = note ? nextUpHtml(nextUp) : "";
 
-  const lessonSteps = (html.match(/class="callout callout-(?:quiz|predict)\b/g) ?? []).length;
+  const lessonSteps = (html.match(/class="callout callout-(?:quiz|predict|ex)\b/g) ?? []).length;
 
   // The phone app chrome: crumbs, section pill, toolbar and display sheet.
   const family = disc ? familyOfPrefix(disc.prefix) : null;

@@ -906,7 +906,9 @@
     "contents": "Ouvrir le sommaire",
     "focus": "Mode concentration",
     "bookmark": "À lire plus tard",
-    "home": "Aller à l’accueil"
+    "home": "Aller à l’accueil",
+    "lesson": "Lire en leçon",
+    "answer": "Choisir une réponse, un mot (question en cours)"
   },
   "siteBar": {
     "brand": "Garden of Knowledge",

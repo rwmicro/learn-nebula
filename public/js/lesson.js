@@ -33,7 +33,8 @@ import { keepAwake } from "../../lib/wake-lock";
   const isQuestion = (n) =>
     n instanceof Element &&
     (n.classList.contains("callout-quiz") ||
-      n.classList.contains("callout-predict"));
+      n.classList.contains("callout-predict") ||
+      n.classList.contains("callout-ex"));
   const isBlank = (n) => n.nodeType === Node.TEXT_NODE && !n.textContent.trim();
 
   // Steps from the article's top-level nodes, in order.
@@ -154,7 +155,7 @@ import { keepAwake } from "../../lib/wake-lock";
       scroll.scrollTop = 0;
       update();
       const focusable = stage.querySelector(
-        ".quiz-choice:not(:disabled), .quiz-reveal",
+        ".quiz-choice:not(:disabled), .quiz-reveal, .ex-bank .ex-chip, .ex-col .ex-chip",
       );
       (focusable || next).focus({ preventScroll: true });
     }
@@ -260,6 +261,24 @@ import { keepAwake } from "../../lib/wake-lock";
     }
 
     function onKey(e) {
+      // Desktop: answer with the keyboard. 1–9 press the Nth answer (or
+      // word, or item) of the current card, Enter goes on once answered.
+      if (!e.metaKey && !e.ctrlKey && !e.altKey && /^[1-9]$/.test(e.key)) {
+        const opts = stage.querySelectorAll(
+          ".quiz-choice:not(:disabled), .ex-bank .ex-chip, .ex-col .ex-chip:not(:disabled)",
+        );
+        const b = opts[Number(e.key) - 1];
+        if (b) {
+          e.preventDefault();
+          b.click();
+          return;
+        }
+      }
+      if (e.key === "Enter" && !(e.target instanceof HTMLButtonElement) && !next.disabled) {
+        e.preventDefault();
+        next.click();
+        return;
+      }
       if (e.key === "Escape") {
         e.preventDefault();
         close();

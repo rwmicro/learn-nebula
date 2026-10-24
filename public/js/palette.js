@@ -1360,6 +1360,8 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
         [["s"], "shortcuts.contents"],
         [["f"], "shortcuts.focus"],
         [["b"], "shortcuts.bookmark"],
+        [["l"], "shortcuts.lesson"],
+        [["1", "…", "9"], "shortcuts.answer"],
         [["g a"], "shortcuts.home"],
       ]],
       ["shortcuts.paletteGroup", [
