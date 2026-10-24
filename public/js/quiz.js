@@ -29,6 +29,8 @@ import { dayKey } from "../../lib/srs.ts";
 import { loadSettings } from "../../lib/srs-settings.ts";
 // "Lire en leçon" rides along: only notes with questions offer it.
 import "./lesson.js";
+// The other exercises of a note ([!traduire], [!ordre]…, lib/exercises.ts).
+import "./exercises.js";
 
 (function () {
   const slug = noteSlugFromPath(location.pathname);

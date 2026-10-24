@@ -1693,5 +1693,26 @@
     "questionsOne": "本笔记有 1 道题",
     "questionsGo": "去作答",
     "aria": "与本笔记相关"
+  },
+  "ex": {
+    "traduire": "翻译",
+    "ordre": "排序",
+    "associer": "配对",
+    "ligne": "点出那一行",
+    "traduirePrompt": "翻译这个句子。",
+    "ordrePrompt": "按正确顺序点击各项。",
+    "associerPrompt": "把每一项与对应项配对。",
+    "lignePrompt": "哪一行有问题？",
+    "check": "检查",
+    "again": "重来",
+    "right": "正确！",
+    "wrong": "不完全对。",
+    "answer": "答案：{answer}",
+    "bankAria": "待放置的词",
+    "lineAria": "你的答案",
+    "lineN": "第 {n} 行",
+    "friseOpen": "把这条时间线排好顺序",
+    "frisePrompt": "从最早到最近。",
+    "trapsLeft": "有一项不属于这里。"
   }
 }

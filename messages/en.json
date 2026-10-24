@@ -1693,5 +1693,26 @@
     "questionsOne": "1 question in this note",
     "questionsGo": "Answer them",
     "aria": "Around this note"
+  },
+  "ex": {
+    "traduire": "Translate",
+    "ordre": "Put in order",
+    "associer": "Match",
+    "ligne": "Tap the line",
+    "traduirePrompt": "Translate the sentence.",
+    "ordrePrompt": "Tap the items in the right order.",
+    "associerPrompt": "Match each item with its pair.",
+    "lignePrompt": "Which line is the problem?",
+    "check": "Check",
+    "again": "Try again",
+    "right": "Right!",
+    "wrong": "Not quite.",
+    "answer": "Answer: {answer}",
+    "bankAria": "Words to place",
+    "lineAria": "Your answer",
+    "lineN": "Line {n}",
+    "friseOpen": "Put this timeline back in order",
+    "frisePrompt": "From the oldest to the most recent.",
+    "trapsLeft": "One item doesn’t belong here."
   }
 }

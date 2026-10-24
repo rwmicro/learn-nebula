@@ -1693,5 +1693,26 @@
     "questionsOne": "سؤال واحد في هذه الملاحظة",
     "questionsGo": "أجب عنها",
     "aria": "حول هذه الملاحظة"
+  },
+  "ex": {
+    "traduire": "ترجم",
+    "ordre": "رتّب",
+    "associer": "طابق",
+    "ligne": "المس السطر",
+    "traduirePrompt": "ترجم الجملة.",
+    "ordrePrompt": "المس العناصر بالترتيب الصحيح.",
+    "associerPrompt": "طابق كل عنصر مع نظيره.",
+    "lignePrompt": "أي سطر فيه المشكلة؟",
+    "check": "تحقّق",
+    "again": "أعد المحاولة",
+    "right": "صحيح!",
+    "wrong": "ليس تمامًا.",
+    "answer": "الإجابة: {answer}",
+    "bankAria": "كلمات للترتيب",
+    "lineAria": "إجابتك",
+    "lineN": "السطر {n}",
+    "friseOpen": "أعد ترتيب هذا الخط الزمني",
+    "frisePrompt": "من الأقدم إلى الأحدث.",
+    "trapsLeft": "عنصر دخيل لا مكان له هنا."
   }
 }

@@ -5993,8 +5993,12 @@ main[data-family],
     font: 500 0.9rem/1.5 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
     color: var(--muted);
   }
+  .note-meta > .subtitle:empty {
+    display: none;
+  }
   .note-meta > .subtitle,
   .note-meta > .reading-time {
+    flex: none;
     margin: 0;
     padding: 0;
     font: inherit;
@@ -6003,6 +6007,9 @@ main[data-family],
   }
   .note-meta .note-growth {
     display: contents;
+  }
+  .note-meta > .subtitle:empty + .reading-time::before {
+    content: none;
   }
   .note-meta .growth-sep {
     display: none;
@@ -6098,6 +6105,12 @@ main[data-family],
     content: "·";
     padding-inline: 0.55rem;
     color: var(--faint);
+  }
+  .note-meta > .subtitle:empty {
+    display: none;
+  }
+  .note-meta > .subtitle:empty + .reading-time::before {
+    content: none;
   }
   .note-meta > .subtitle,
   .note-meta > .reading-time {
@@ -6724,5 +6737,185 @@ body[data-focus="true"] .note-meta {
   }
   .next-up-pager > .next-up-main {
     grid-column: 1;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Exercises (lib/exercises.ts, public/js/exercises.js): the multiple-choice
+ * card's frame, with chips instead of answers. Words of a translation and
+ * items to order go from the bank to the answer line and back; pairs light
+ * up together; a code line is tapped.
+ * ------------------------------------------------------------------------- */
+.callout-ex {
+  --c: var(--link);
+}
+.ex-stage {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.8rem;
+}
+.ex-stage:empty {
+  display: none;
+}
+.ex-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 0.45rem;
+  min-height: 3.1rem;
+  padding: 0.35rem 0 0.55rem;
+  border-bottom: 1.5px solid var(--rule-strong);
+}
+.ex-stage--list .ex-line {
+  flex-direction: column;
+  align-items: stretch;
+  counter-reset: ex;
+  border: 1.5px dashed var(--rule-strong);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem;
+}
+.ex-stage--list .ex-line .ex-chip {
+  counter-increment: ex;
+}
+.ex-stage--list .ex-line .ex-chip::before {
+  content: counter(ex) ".";
+  margin-inline-end: 0.45rem;
+  color: var(--muted);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+.ex-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.ex-stage--list .ex-bank {
+  flex-direction: column;
+  align-items: stretch;
+}
+.ex-chip {
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.3;
+  text-align: start;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--rule-strong);
+  border-bottom-width: 3px;
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  transition: transform 0.08s, border-color 0.15s, background-color 0.15s;
+}
+.ex-chip:active:not(:disabled) {
+  transform: translateY(1px);
+}
+.ex-chip:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .ex-chip:hover:not(:disabled) {
+    border-color: var(--c);
+  }
+}
+.ex-chip.is-picked {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 10%, var(--paper));
+}
+.ex-chip.is-right {
+  border-color: var(--garden);
+  background: var(--garden-wash);
+  cursor: default;
+}
+.ex-chip.is-wrong {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 10%, var(--paper));
+  animation: ex-shake 0.3s;
+}
+@keyframes ex-shake {
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ex-chip.is-wrong {
+    animation: none;
+  }
+}
+.ex-stage--pairs {
+  grid-template-columns: 1fr 1fr;
+}
+.ex-col {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+}
+.ex-check {
+  justify-self: start;
+  font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--paper);
+  background: var(--garden);
+  border: 0;
+  border-radius: 999px;
+  padding: 0.6rem 1.4rem;
+  cursor: pointer;
+}
+.ex-check:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.is-answered .ex-check {
+  display: none;
+}
+.ex-hint {
+  margin: 0;
+  color: var(--ink-2);
+  font-style: italic;
+  font-size: 0.95rem;
+}
+.ex-answer {
+  margin: 0.3rem 0 0;
+}
+.ex-again {
+  margin-top: 0.6rem;
+}
+.ex-after {
+  margin-top: 1rem;
+}
+.ex-code pre {
+  margin: 0.8rem 0 0;
+}
+.ex-pickable .line {
+  display: inline-block;
+  width: 100%;
+  border-radius: 3px;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .ex-pickable .line:hover {
+    background: color-mix(in srgb, var(--c) 12%, transparent);
+  }
+}
+.ex-pickable .line:focus-visible {
+  outline: 2px solid var(--c);
+}
+.ex-pickable .line.is-right {
+  background: color-mix(in srgb, var(--garden) 22%, transparent);
+}
+.ex-pickable .line.is-wrong {
+  background: color-mix(in srgb, var(--warn) 22%, transparent);
+}
+.frise-ex {
+  margin: 0.6rem 0 1.4rem;
+}
+.ex-frise-key {
+  padding-inline-start: 1.2rem;
+}
+.ex-frise-key b {
+  font-variant-numeric: lining-nums;
+}
+@media print {
+  .ex-stage,
+  .frise-ex {
+    display: none;
   }
 }

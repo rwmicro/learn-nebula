@@ -1693,5 +1693,26 @@
     "questionsOne": "1 pregunta en esta nota",
     "questionsGo": "Responder",
     "aria": "Alrededor de esta nota"
+  },
+  "ex": {
+    "traduire": "Traducir",
+    "ordre": "Ordenar",
+    "associer": "Relacionar",
+    "ligne": "Toca la línea",
+    "traduirePrompt": "Traduce la frase.",
+    "ordrePrompt": "Toca los elementos en el orden correcto.",
+    "associerPrompt": "Relaciona cada elemento con su pareja.",
+    "lignePrompt": "¿Qué línea da problemas?",
+    "check": "Comprobar",
+    "again": "Reintentar",
+    "right": "¡Correcto!",
+    "wrong": "No del todo.",
+    "answer": "Respuesta: {answer}",
+    "bankAria": "Palabras para colocar",
+    "lineAria": "Tu respuesta",
+    "lineN": "Línea {n}",
+    "friseOpen": "Ordenar esta cronología",
+    "frisePrompt": "Del más antiguo al más reciente.",
+    "trapsLeft": "Un intruso no pertenece aquí."
   }
 }

@@ -26,6 +26,7 @@ import {
 import { t } from "./i18n";
 import { cardId } from "./srs";
 import { EXTRA_WIDGETS } from "./widgets-extra";
+import { EXERCISE_ALIAS, exerciseCallout, rehypeFrise } from "./exercises";
 import { enrichWidget } from "./widget-data";
 import { parsePrix, toEuros, formatEuros, IPC_LAST } from "./prix";
 import {
@@ -204,6 +205,15 @@ const CALLOUT_ALIAS: Record<string, string> = {
   // « L'essentiel sur… » boxes.
   chiffres: "chiffres",
   figures: "chiffres",
+  // Exercises (lib/exercises.ts): their own card when the body holds one.
+  traduire: "ex",
+  translate: "ex",
+  ordre: "ex",
+  order: "ex",
+  associer: "ex",
+  match: "ex",
+  ligne: "ex",
+  line: "ex",
 };
 // Default (French) title when the callout has none.
 const CALLOUT_LABEL: Record<string, string> = {
@@ -223,8 +233,10 @@ const CALLOUT_LABEL: Record<string, string> = {
   quiz: "Question",
   predict: "À ton avis ?",
   chiffres: "En quelques chiffres",
+  ex: "Exercice",
 };
 const CALLOUT_ICON: Record<string, string> = {
+  ex: calloutSvg('<path d="M4 7h10M4 12h7M4 17h10"/><path d="m15 14 2.5 2.5L22 12"/>'),
   note: calloutSvg(
     '<path d="M4 20h4L18 8a2 2 0 0 0-3-3L5 16v4z"/><path d="M14 6l3 3"/>',
   ),
@@ -735,6 +747,16 @@ function rehypeCallouts(ph: Map<string, string> = new Map()) {
         children: bodyChildren,
       };
 
+      // [!traduire] / [!ordre] / [!associer] / [!ligne] (lib/exercises.ts);
+      // one whose body doesn't hold an exercise stays a plain callout.
+      const ex = EXERCISE_ALIAS[type];
+      if (ex) {
+        const card = exerciseCallout(ex, hasTitle ? titleNodes : [], bodyChildren, icon, (k) => t(k));
+        if (card) {
+          parent.children[index] = card;
+          return SKIP;
+        }
+      }
       if (canon === "predict") {
         parent.children[index] = predictCallout(hasTitle ? titleNodes : [], bodyChildren, icon);
         return SKIP;
@@ -1939,6 +1961,7 @@ export async function renderMarkdown(
     .use(rehypeWidgets, dir)
     .use(rehypeIsoFigures)
     .use(rehypePrix)
+    .use(rehypeFrise)
     .use(rehypeShiki)
     .use(rehypePlaceholders, ph.map)
     .use(rehypeOutline)
@@ -1969,7 +1992,7 @@ export async function renderMarkdown(
     html,
     plain: extractPlain(raw),
     hasMath: ph.map.size > 0,
-    hasQuiz: /class="[^"]*\bcallout-(?:quiz|predict)\b/.test(html),
+    hasQuiz: /class="[^"]*\b(?:callout-(?:quiz|predict|ex)|frise-ex)\b/.test(html),
     hasGlossary: /<a class="gloss"/.test(html),
   };
 }
