@@ -1233,6 +1233,9 @@ export interface ReadingPathNote {
   href: string;
   /** Slugs of this note's direct prerequisites within the path. */
   prereqs: string[];
+  /** The folder the note sits in, as on disk ("Antiquité", "History",
+   *  "02-Communication"): the path page names its levels after it. */
+  folder: string;
 }
 
 export interface ReadingPathView {
@@ -1284,7 +1287,9 @@ function commonFolderName(rawPaths: string[]): string {
   for (let i = 0; dirs.every((d) => i < d.length && d[i] === dirs[0][i]); i++) {
     common.push(dirs[0][i]);
   }
-  return common.slice(1).map(homeDisplayName).join(" › ");
+  // The deepest shared folder names the path ("Malware Development"), not
+  // the whole breadcrumb ("Computer Science › Software › Security › …").
+  return common.length > 1 ? homeDisplayName(common[common.length - 1]) : "";
 }
 
 let prereqComponentsCache: ReturnType<typeof buildPrereqComponents> | null = null;
@@ -1332,6 +1337,7 @@ export function getReadingPaths(): ReadingPathView[] {
           title: d.frontmatter.title,
           href: `/posts/${d.slug}/`,
           prereqs: c.edges.filter(([, b]) => b === d.slug).map(([a]) => a),
+          folder: homeDisplayName(d.rawPath.split("/").slice(-2, -1)[0] ?? ""),
         })),
         edges: c.edges,
       };

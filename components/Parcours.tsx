@@ -1,4 +1,5 @@
-import { t, i18nAttrs, disciplineKey } from "@/lib/i18n";
+import { t, i18nAttrs, disciplineKey, folderKey } from "@/lib/i18n";
+import { splitRank } from "@/lib/folder-label";
 import { OfflinePath } from "@/components/OfflinePath";
 import type { ReadingPathView } from "@/lib/content";
 import {
@@ -388,7 +389,7 @@ export function ParcoursPage({
           const notes = path.notes.slice(lv.from, lv.to);
           return {
             n: lv.n,
-            name: levelName(notes, levels.map((l) => path.notes.slice(l.from, l.to))) ?? titleOf(notes[0].slug),
+            name: levelName(notes, levels.map((l) => path.notes.slice(l.from, l.to)), path.discipline) ?? titleOf(notes[0].slug),
             notes: notes.map((n) => ({
               slug: n.slug,
               title: titleOf(n.slug),
@@ -520,26 +521,32 @@ export function ParcoursPage({
   );
 }
 
-/** A level's name for the phone road: the folders its notes sit in
- *  ("02-communication" → "Communication"), two at most; null when every
- *  level would get the same name (a path from one folder). */
+/** A level's name for the phone road: the folders its notes sit in, by
+ *  their French label ("History" → "Histoire", "02-Communication" →
+ *  "Communication"), two at most; null when every level would get the same
+ *  name (a path from one folder). */
 function levelName(
   notes: ReadingPathView["notes"],
   all: ReadingPathView["notes"][],
+  discipline?: string | null,
 ): string | null {
+  const label = (folder: string) => {
+    const key = folderKey(folder);
+    return key ? t(key) : splitRank(folder).label;
+  };
+  // The path's own discipline ("Histoire" on the history path) says nothing
+  // about a level: "Antiquité", not "Histoire et antiquité".
+  const skip = discipline ? label(discipline) : "";
   const folders = (ns: ReadingPathView["notes"]) => [
-    ...new Set(
-      ns.map((n) => {
-        const seg = n.href.split("/").filter(Boolean);
-        const f = (seg[seg.length - 2] ?? "").replace(/^\d+[-_ ]*/, "").replace(/-/g, " ");
-        return f.charAt(0).toUpperCase() + f.slice(1);
-      }),
-    ),
+    ...new Set(ns.map((n) => label(n.folder)).filter((f) => f && f !== skip)),
   ];
   const names = all.map((ns) => folders(ns).slice(0, 2).join(" et ").toLowerCase());
   if (all.length > 1 && new Set(names).size === 1) return null;
   const mine = folders(notes);
-  const name = mine.slice(0, 2).map((f, i) => (i ? f.toLowerCase() : f)).join(" et ");
+  const name = mine
+    .slice(0, 2)
+    .map((f, i) => (i ? f.charAt(0).toLowerCase() + f.slice(1) : f.charAt(0).toUpperCase() + f.slice(1)))
+    .join(" et ");
   return name || null;
 }
 

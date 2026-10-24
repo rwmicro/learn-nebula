@@ -2045,8 +2045,10 @@ a.parcours-tool {
   main.parcours-page .parcours-band .parcours-art-credit {
     display: none;
   }
+  /* A band, not a poster: the first note's "Commencer" has to clear the
+     tab bar on the first screen. */
   main.parcours-page--path .parcours-cover {
-    min-height: 15rem;
+    min-height: 10.5rem;
     margin: 0.5rem 0 0.25rem;
     padding: 1rem 1.1rem 0.9rem;
     border-radius: 18px;
@@ -2057,7 +2059,7 @@ a.parcours-tool {
   }
   main.parcours-page--path .parcours-cover .themes-title {
     margin: 0;
-    font-size: 1.95rem;
+    font-size: 1.75rem;
     color: #fff;
   }
 }

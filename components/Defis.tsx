@@ -188,9 +188,14 @@ export function Defis({ paths }: { paths: DefisPath[] }) {
 
       <section className="defis-run">
         <div>
-          <p className="defis-run-n">
-            {d?.run ?? 0} <span>{tr("defis.days", { n: d?.run ?? 0 })}</span>
-          </p>
+          {/* No run yet: a word rather than a big zero. */}
+          {d?.run ? (
+            <p className="defis-run-n">
+              {d.run} <span>{tr("defis.days", { n: d.run })}</span>
+            </p>
+          ) : (
+            <p className="defis-run-n defis-run-none">{tr("defis.noRun")}</p>
+          )}
           <p className="defis-run-tx">{tr(d && d.week.includes("y") && d.run > 0 ? "defis.keep" : "defis.start")}</p>
         </div>
         {ICON.flame}
@@ -227,7 +232,7 @@ export function Defis({ paths }: { paths: DefisPath[] }) {
       </ul>
 
       <div className="defis-h">
-        <h2>{tr("defis.month", { month: monthName })}</h2>
+        <h2>{tr(/^[aeiouyàâéèêh]/i.test(monthName) ? "defis.monthVowel" : "defis.month", { month: monthName })}</h2>
       </div>
       <ul className="defis-list">
         <li className="defi defi-month" data-family="pensee">

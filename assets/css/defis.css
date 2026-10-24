@@ -51,6 +51,10 @@
 .defis-run-n {
   font: 800 2.5rem/1 "Alegreya", "Alegreya Fallback", serif;
 }
+.defis-run-n.defis-run-none {
+  font-size: 1.625rem;
+  line-height: 1.15;
+}
 .defis-run-n span {
   font: 600 1.125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
 }

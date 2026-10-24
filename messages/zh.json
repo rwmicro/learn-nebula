@@ -1163,7 +1163,7 @@
     "title": "探索",
     "lede": "换个角度看花园。",
     "graph": "图谱",
-    "graphDesc": "所有笔记及其链接",
+    "graphDesc": "所有笔记，按学科",
     "frise": "时间线",
     "friseDesc": "从古代到今天",
     "carte": "地图",
@@ -1223,7 +1223,7 @@
     "wayPath": "跟随一条路线",
     "wayPathText": "{n} 组按顺序阅读的笔记",
     "wayGraph": "探索关系图",
-    "wayGraphText": "所有笔记及其链接",
+    "wayGraphText": "所有笔记，按学科",
     "wayRandom": "随机一篇笔记",
     "wayRandomText": "给自己一个惊喜",
     "weekLetters": "一|二|三|四|五|六|日",
@@ -1348,7 +1348,14 @@
     "decks": "卡组",
     "dueAria": "今天 {n} 张卡片",
     "practice": "练习",
-    "practiceText": "错题、易忘卡片、听力、快速测验"
+    "practiceText": "错题、易忘卡片、听力、快速测验",
+    "startKicker": "开始",
+    "startTitle": "暂时没有要复习的内容",
+    "startText": "打开一个卡组，或在阅读时保存笔记中的问题：到了该复习的那天，它们会回到这里。",
+    "startGo": "选择卡组",
+    "doneTitle": "今天的复习已完成",
+    "doneText": "没有到期的卡片。你可以练习不牢固的卡片，或打开新的卡组。",
+    "doneGo": "练习"
   },
   "road": {
     "levelOf": "第 {n} 级，共 {total} 级",
@@ -1382,8 +1389,10 @@
     "done": "完成",
     "coins": "{n} 枚金币",
     "month": "{month}挑战",
+    "monthVowel": "{month}挑战",
     "paths": "完成 {n} 条学习路径",
-    "note": "在本浏览器中根据你的阅读和复习统计。"
+    "note": "在本浏览器中根据你的阅读和复习统计。",
+    "noRun": "还没有连续记录"
   },
   "practice": {
     "title": "练习",

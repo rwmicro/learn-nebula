@@ -1163,7 +1163,7 @@
     "title": "Explorar",
     "lede": "El jardín desde otros ángulos.",
     "graph": "Grafo",
-    "graphDesc": "Todas las notas y sus enlaces",
+    "graphDesc": "Todas las notas, por disciplina",
     "frise": "Cronología",
     "friseDesc": "De la Antigüedad a hoy",
     "carte": "Mapa",
@@ -1223,7 +1223,7 @@
     "wayPath": "Seguir un recorrido",
     "wayPathText": "{n} series de notas, en orden",
     "wayGraph": "Explorar el grafo",
-    "wayGraphText": "Todas las notas y sus enlaces",
+    "wayGraphText": "Todas las notas, por disciplina",
     "wayRandom": "Una nota al azar",
     "wayRandomText": "Para dejarse sorprender",
     "weekLetters": "L|M|X|J|V|S|D",
@@ -1348,7 +1348,14 @@
     "decks": "Mazos",
     "dueAria": "{n} tarjetas para hoy",
     "practice": "Practicar",
-    "practiceText": "Errores, tarjetas frágiles, escucha, quiz rápido"
+    "practiceText": "Errores, tarjetas frágiles, escucha, quiz rápido",
+    "startKicker": "Para empezar",
+    "startTitle": "Nada que repasar por ahora",
+    "startText": "Abre un mazo o guarda las preguntas de una nota mientras lees: volverán aquí el día que toque repasarlas.",
+    "startGo": "Elegir un mazo",
+    "doneTitle": "Al día por hoy",
+    "doneText": "No hay nada pendiente. Puedes practicar tus tarjetas frágiles o abrir un mazo nuevo.",
+    "doneGo": "Practicar"
   },
   "road": {
     "levelOf": "Nivel {n} de {total}",
@@ -1382,8 +1389,10 @@
     "done": "Hecho",
     "coins": "{n} monedas",
     "month": "Reto de {month}",
+    "monthVowel": "Reto de {month}",
     "paths": "Terminar {n} itinerarios",
-    "note": "Contado en este navegador, a partir de tus lecturas y repasos."
+    "note": "Contado en este navegador, a partir de tus lecturas y repasos.",
+    "noRun": "Aún sin racha"
   },
   "practice": {
     "title": "Practicar",

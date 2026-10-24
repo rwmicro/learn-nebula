@@ -5,6 +5,7 @@ import { CartesToday, DeckDue, StartedDecks } from "@/components/CartesToday";
 import { homeFolderLabel } from "@/lib/content";
 import { CartesPhone } from "@/components/CartesPhone";
 import { familyOfFolder } from "@/lib/path-family";
+import { fold } from "@/lib/palette-match";
 
 /**
  * /cartes/ — every Anki deck (lib/anki.ts's manifest), grouped under the vault
@@ -30,7 +31,11 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
     const family = familyOfFolder(d.folder);
     const parts = folderLabel(d.folder).split(" › ");
     const place = family === "langues" ? [parts[0], ...parts.slice(1).map((p) => p.toLowerCase())].join(" ") : parts[parts.length - 1];
-    return { slug: d.slug, label: place && place !== "—" ? `${place} · ${d.name}` : d.name, count: d.count, family };
+    // "Anglais · Anglais Vocabulaire TOEIC" says the language twice: the
+    // deck's own name loses a leading copy of the place.
+    const name = place && fold(d.name).startsWith(fold(place) + " ") ? d.name.slice(place.length).trim() : d.name;
+    const label = place && place !== "—" && fold(name) !== fold(place) ? `${place} · ${name}` : name;
+    return { slug: d.slug, label, count: d.count, family };
   });
 
   return (

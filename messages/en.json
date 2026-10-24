@@ -1163,7 +1163,7 @@
     "title": "Explore",
     "lede": "The garden from other angles.",
     "graph": "Graph",
-    "graphDesc": "Every note and its links",
+    "graphDesc": "Every note, by discipline",
     "frise": "Timeline",
     "friseDesc": "From Antiquity to today",
     "carte": "Map",
@@ -1223,7 +1223,7 @@
     "wayPath": "Follow a path",
     "wayPathText": "{n} series of notes, in order",
     "wayGraph": "Explore the graph",
-    "wayGraphText": "Every note and its links",
+    "wayGraphText": "Every note, by discipline",
     "wayRandom": "A random note",
     "wayRandomText": "Let yourself be surprised",
     "weekLetters": "M|T|W|T|F|S|S",
@@ -1348,7 +1348,14 @@
     "decks": "Decks",
     "dueAria": "{n} cards for today",
     "practice": "Practice",
-    "practiceText": "Mistakes, shaky cards, listening, quick quiz"
+    "practiceText": "Mistakes, shaky cards, listening, quick quiz",
+    "startKicker": "Getting started",
+    "startTitle": "Nothing to review yet",
+    "startText": "Open a deck, or keep a note’s questions while you read: they come back here on the day they are due.",
+    "startGo": "Pick a deck",
+    "doneTitle": "All caught up for today",
+    "doneText": "Nothing is due. You can practise your shaky cards, or open a new deck.",
+    "doneGo": "Practise"
   },
   "road": {
     "levelOf": "Level {n} of {total}",
@@ -1382,8 +1389,10 @@
     "done": "Done",
     "coins": "{n} coins",
     "month": "{month} challenge",
+    "monthVowel": "{month} challenge",
     "paths": "Finish {n} reading paths",
-    "note": "Counted in this browser, from your reading and reviews."
+    "note": "Counted in this browser, from your reading and reviews.",
+    "noRun": "No run yet"
   },
   "practice": {
     "title": "Practice",

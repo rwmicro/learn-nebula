@@ -57,6 +57,7 @@
     const d = document.createElement("i");
     d.addEventListener("click", () => h.scrollIntoView({ behavior: "smooth", block: "start" }));
     d.dataset.i = String(i);
+    d.title = headText(h);
     dotsEl && dotsEl.appendChild(d);
     return d;
   });
@@ -87,6 +88,9 @@
     dots.forEach((d, i) => {
       d.className = i < cur ? "done" : i === cur ? "on" : "";
     });
+    // Above the first section the row has nothing to say yet (the pill shows
+    // the title, not "1/9"): it appears with the section count.
+    if (dotsEl) dotsEl.classList.toggle("na-dots--wait", cur < 0);
   }
   let queued = false;
   window.addEventListener(

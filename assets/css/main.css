@@ -220,6 +220,8 @@ main ol li {
   margin-top: 0;
   margin-bottom: 1.2rem;
   padding-right: 0;
+  /* Old-style figures sit well in running text (body is lining-nums). */
+  font-variant-numeric: oldstyle-nums;
 }
 
 figcaption p {
@@ -5977,15 +5979,47 @@ main[data-family],
   margin: 0;
 }
 @media (max-width: 639.98px) {
-  /* Phones: the app layout has the date and time elsewhere; the growth line
-     stays as it was. */
-  .note-meta > .subtitle,
-  .note-meta > .reading-time,
+  /* Phones: the "historique" link alone under the title read like a
+     category label. It joins the growth line, after the date and reading
+     time, as on wider screens: "28 février 2026 · 8 min · historique". */
   .note-meta > .read-badge {
     display: none !important;
   }
-  .note-meta .note-growth {
+  .note-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
     margin: -0.2rem 0 0.9rem;
+    font: 500 0.9rem/1.5 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .note-meta > .subtitle,
+  .note-meta > .reading-time {
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    font-style: normal;
+    color: inherit;
+  }
+  .note-meta .note-growth {
+    display: contents;
+  }
+  .note-meta .growth-sep {
+    display: none;
+  }
+  .note-meta > :not([hidden]) ~ :not(.note-growth)::before,
+  .note-meta .note-growth > :not(.growth-sep)::before {
+    content: "·";
+    padding-inline: 0.45rem;
+    color: var(--faint);
+  }
+  .note-meta > :first-child::before {
+    content: none !important;
+  }
+  .note-meta .growth-history {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
   }
 }
 

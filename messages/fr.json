@@ -1163,7 +1163,7 @@
     "title": "Explorer",
     "lede": "Le jardin sous d’autres angles.",
     "graph": "Graphe",
-    "graphDesc": "Toutes les notes et leurs liens",
+    "graphDesc": "Toutes les notes, par discipline",
     "frise": "Frise",
     "friseDesc": "De l’Antiquité à aujourd’hui",
     "carte": "Carte",
@@ -1223,7 +1223,7 @@
     "wayPath": "Suivre un parcours",
     "wayPathText": "{n} suites de notes, dans l’ordre",
     "wayGraph": "Explorer le graphe",
-    "wayGraphText": "Toutes les notes et leurs liens",
+    "wayGraphText": "Toutes les notes, par discipline",
     "wayRandom": "Une note au hasard",
     "wayRandomText": "Pour se laisser surprendre",
     "weekLetters": "L|M|M|J|V|S|D",
@@ -1348,7 +1348,14 @@
     "decks": "Paquets",
     "dueAria": "{n} cartes pour aujourd’hui",
     "practice": "S’entraîner",
-    "practiceText": "Erreurs, cartes fragiles, écoute, quiz éclair"
+    "practiceText": "Erreurs, cartes fragiles, écoute, quiz éclair",
+    "startKicker": "Pour commencer",
+    "startTitle": "Rien à réviser pour l’instant",
+    "startText": "Ouvre un paquet, ou garde les questions d’une note pendant ta lecture : elles reviendront ici le jour où il faut les revoir.",
+    "startGo": "Choisir un paquet",
+    "doneTitle": "À jour pour aujourd’hui",
+    "doneText": "Rien n’est dû. Tu peux t’entraîner sur tes cartes fragiles, ou ouvrir un nouveau paquet.",
+    "doneGo": "S’entraîner"
   },
   "road": {
     "levelOf": "Niveau {n} sur {total}",
@@ -1382,8 +1389,10 @@
     "done": "Fait",
     "coins": "{n} pièces",
     "month": "Défi de {month}",
+    "monthVowel": "Défi d’{month}",
     "paths": "Terminer {n} parcours",
-    "note": "Compté dans ce navigateur, à partir de vos lectures et révisions."
+    "note": "Compté dans ce navigateur, à partir de vos lectures et révisions.",
+    "noRun": "Pas encore de série"
   },
   "practice": {
     "title": "S’entraîner",

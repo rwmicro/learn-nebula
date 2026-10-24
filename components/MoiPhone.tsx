@@ -46,6 +46,9 @@ export function MoiPhone() {
   const [look, setLook] = useState<Look | undefined>(undefined);
   const [keepHidden, setKeepHidden] = useState(true);
   const [theme, setTheme] = useState<Theme>("auto");
+  // Nothing recorded in this browser yet: one invitation stands in for the
+  // four zero tiles and the empty calendar.
+  const [fresh, setFresh] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -63,6 +66,7 @@ export function MoiPhone() {
           else if (e.r == null && e.t >= since) started++;
         }
         setWeek({ read, started });
+        setFresh(Object.keys(store).length === 0 && Object.keys(loadActivity()).length === 0);
       } catch {
         /* storage blocked: zeros */
       }
@@ -186,6 +190,17 @@ export function MoiPhone() {
         </a>
       )}
 
+      {fresh ? (
+        <div className="moi-card moi-fresh">
+          <b>{tr("progression.welcomeTitle")}</b>
+          <p>{tr("progression.welcomeText")}</p>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a className="moi-fresh-go" href="/parcours/">
+            {tr("progression.welcomePaths")}
+          </a>
+        </div>
+      ) : (
+        <>
       <div className="moi-row-h">
         <h2 className="moi-h">{tr("moi.week")}</h2>
         <a className="moi-row-link" href="/defis/">
@@ -225,6 +240,8 @@ export function MoiPhone() {
           <i key={c.day} className={c.future ? "f" : c.level ? `l${c.level}` : undefined} />
         ))}
       </div>
+        </>
+      )}
 
       <h2 className="moi-h" id="moi-reglages">
         {tr("settings.title")}
