@@ -10,6 +10,7 @@ import { LANG_OPTIONS } from "@/components/LangSwitcher";
 import { themePref } from "@/components/AppSettings";
 import { Avatar } from "@/components/Avatar";
 import type { Look } from "@/lib/avatar";
+import { Milestones } from "@/components/Milestones";
 
 /** The reader closed the "Garder ma progression" card (this browser). */
 const KEEP_HIDDEN_KEY = "gkKeepHidden";
@@ -240,6 +241,7 @@ export function MoiPhone() {
           <i key={c.day} className={c.future ? "f" : c.level ? `l${c.level}` : undefined} />
         ))}
       </div>
+      <Milestones className="moi-jalons" />
         </>
       )}
 

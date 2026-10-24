@@ -1721,5 +1721,16 @@
     "friseOpen": "把这条时间线排好顺序",
     "frisePrompt": "从最早到最近。",
     "trapsLeft": "有一项不属于这里。"
+  },
+  "jalons": {
+    "title": "里程碑",
+    "read": "读完 {n} 篇笔记",
+    "bestRun": "连续 {n} 天",
+    "right": "答对 {n} 题",
+    "disciplines": "探索了 {n} 个学科",
+    "next": "下一个：{have}/{next}",
+    "all": "全部达成",
+    "reached": "已达成 {n} 个",
+    "read1": "读完第一篇笔记"
   }
 }

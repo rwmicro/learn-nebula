@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { ActivityCalendar } from "@/components/ActivityCalendar";
+import { Milestones } from "@/components/Milestones";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import {
@@ -266,6 +267,8 @@ export function Account() {
           <p className="acct-private">{tr("account.private")}</p>
         </div>
       </section>
+
+      <Milestones className="acct-card acct-card--wide" />
 
       <section className="acct-card acct-card--wide" aria-labelledby="acct-wardrobe">
         <h2 id="acct-wardrobe">{tr("avatar.title")}</h2>

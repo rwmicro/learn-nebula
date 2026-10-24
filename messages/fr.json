@@ -1721,5 +1721,16 @@
     "friseOpen": "Remettre cette frise dans l’ordre",
     "frisePrompt": "Du plus ancien au plus récent.",
     "trapsLeft": "Un intrus n’a pas sa place ici."
+  },
+  "jalons": {
+    "title": "Jalons",
+    "read": "{n} notes lues",
+    "bestRun": "Série de {n} jours",
+    "right": "{n} questions réussies",
+    "disciplines": "{n} disciplines explorées",
+    "next": "{have} sur {next} pour le prochain",
+    "all": "Tous atteints",
+    "reached": "{n} jalon(s) atteint(s)",
+    "read1": "Première note lue"
   }
 }

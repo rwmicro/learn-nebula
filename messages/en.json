@@ -1721,5 +1721,16 @@
     "friseOpen": "Put this timeline back in order",
     "frisePrompt": "From the oldest to the most recent.",
     "trapsLeft": "One item doesn’t belong here."
+  },
+  "jalons": {
+    "title": "Milestones",
+    "read": "{n} notes read",
+    "bestRun": "{n}-day run",
+    "right": "{n} questions right",
+    "disciplines": "{n} disciplines explored",
+    "next": "{have} of {next} for the next one",
+    "all": "All reached",
+    "reached": "{n} milestone(s) reached",
+    "read1": "First note read"
   }
 }

@@ -1721,5 +1721,16 @@
     "friseOpen": "Ordenar esta cronología",
     "frisePrompt": "Del más antiguo al más reciente.",
     "trapsLeft": "Un intruso no pertenece aquí."
+  },
+  "jalons": {
+    "title": "Hitos",
+    "read": "{n} notas leídas",
+    "bestRun": "Racha de {n} días",
+    "right": "{n} preguntas acertadas",
+    "disciplines": "{n} disciplinas exploradas",
+    "next": "{have} de {next} para el siguiente",
+    "all": "Todos alcanzados",
+    "reached": "{n} hito(s) alcanzado(s)",
+    "read1": "Primera nota leída"
   }
 }
