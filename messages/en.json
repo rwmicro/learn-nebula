@@ -1249,8 +1249,13 @@
     "themes": "Themes",
     "themesText": "Every discipline",
     "refresh": "To refresh",
-    "refreshAll": "Review all",
-    "refreshN": "{n} to review"
+    "refreshN": "{n} to review",
+    "fadeOne": "One level is starting to fade",
+    "fadeN": "{n} levels are starting to fade",
+    "fadeSubOne": "{n} questions in one path.",
+    "fadeSub": "{n} questions in {p} paths.",
+    "fadeGo": "Refresh all · {n} min",
+    "fadeOldest": "Oldest first."
   },
   "noteApp": {
     "back": "Back",

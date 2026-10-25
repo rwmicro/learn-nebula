@@ -1249,8 +1249,13 @@
     "themes": "主题",
     "themesText": "所有学科",
     "refresh": "待复习",
-    "refreshAll": "全部复习",
-    "refreshN": "{n} 道题待复习"
+    "refreshN": "{n} 道题待复习",
+    "fadeOne": "有 1 个级别开始淡忘",
+    "fadeN": "有 {n} 个级别开始淡忘",
+    "fadeSubOne": "1 条路线中的 {n} 道题。",
+    "fadeSub": "{p} 条路线中的 {n} 道题。",
+    "fadeGo": "全部温习 · {n} 分钟",
+    "fadeOldest": "最久的在前。"
   },
   "noteApp": {
     "back": "返回",

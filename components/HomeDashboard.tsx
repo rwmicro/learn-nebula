@@ -11,8 +11,8 @@ import { loadStore, type ReadingStore } from "@/lib/reading-progress";
 import type { HomeData } from "@/lib/home-data";
 import type { PathFamily } from "@/lib/path-family";
 import { ERAGNY, paintingFor } from "@/lib/paintings";
-import { fadingBySlug, loadAllNoteDecks, NOTE_PREFIX } from "@/lib/note-quiz";
-import { dayKey } from "@/lib/srs";
+import { daysAgo, loadAllNoteDecks, NOTE_PREFIX, retentionBySlug, type Retention } from "@/lib/note-quiz";
+import { dayKey, daysBetween } from "@/lib/srs";
 
 // The home as an app dashboard, on phones only (app.css hides it from 640px,
 // and hides there the masthead it replaces). From the top: the date and a
@@ -41,15 +41,17 @@ export interface DashPath {
   slugs: string[];
   /** What the path aims at (`cible:` of its `parcours:` block). */
   cible?: string;
+  /** Its levels (lib/path-levels.ts), named as on its road. */
+  levels: { n: number; name: string; slugs: string[] }[];
 }
 
-/** Saved questions due today, by note slug (this browser). */
-function useDueBySlug(): Map<string, number> {
-  const [m, setM] = useState<Map<string, number>>(new Map());
+/** Answered questions, and those due again, by note slug (this browser). */
+function useRetention(): Map<string, Retention> {
+  const [m, setM] = useState<Map<string, Retention>>(new Map());
   useEffect(() => {
     const load = () => {
       try {
-        setM(fadingBySlug(loadAllNoteDecks(localStorage), dayKey()));
+        setM(retentionBySlug(loadAllNoteDecks(localStorage), dayKey()));
       } catch {
         /* storage blocked: nothing to refresh */
       }
@@ -229,7 +231,7 @@ export function HomeDashboard({
   const store = useReadingStore();
   const due = useReviewDue();
   const me = usePersonal(store);
-  const dueBySlug = useDueBySlug();
+  const ret = useRetention();
 
   const resume = useMemo(() => resumePath(data, store), [data, store]);
   const rows = useMemo(
@@ -245,13 +247,29 @@ export function HomeDashboard({
     .filter((p) => p.read > 0 && p.read < p.total)
     .sort((a, b) => b.read / b.total - a.read / a.total)
     .slice(0, 3);
-  // "À rafraîchir": the paths whose saved questions are due again, most
-  // first; the path page's chests launch the review.
-  const refresh = rows
-    .map((p) => ({ ...p, due: p.slugs.reduce((n, s) => n + (dueBySlug.get(s) ?? 0), 0) }))
-    .filter((p) => p.due > 0)
-    .sort((a, b) => b.due - a.due)
-    .slice(0, 3);
+  // "À rafraîchir": the levels whose answered questions are due again, the
+  // longest unreviewed first; each opens its path, where the chest sheet
+  // starts the level review.
+  const fading = rows
+    .flatMap((p) =>
+      p.levels.map((lv) => {
+        let due = 0;
+        let last: string | null = null;
+        for (const s of lv.slugs) {
+          const r = ret.get(s);
+          if (!r) continue;
+          due += r.due;
+          if (r.last && (!last || r.last > last)) last = r.last;
+        }
+        return { path: p, lv, due, last };
+      }),
+    )
+    .filter((x) => x.due > 0)
+    .sort((a, b) => (a.last ?? "").localeCompare(b.last ?? ""));
+  const refresh = fading.slice(0, 4);
+  const fadingDue = fading.reduce((n, x) => n + x.due, 0);
+  const fadingPaths = new Set(fading.map((x) => x.path.slug)).size;
+  const todayKey = dayKey();
   // Not started, largest first, then one family after another.
   const discover = mixFamilies(rows.filter((p) => p.read === 0).sort((a, b) => b.total - a.total || a.i - b.i));
   const nextTitle = (slug: string) => {
@@ -437,31 +455,45 @@ export function HomeDashboard({
       )}
 
       {refresh.length > 0 && (
-        <>
-          <div className="dash-row-h">
-            <h2 className="dash-h">{tr("dash.refresh")}</h2>
-            <a href="/cartes/revision/">{tr("dash.refreshAll")}</a>
-          </div>
-          <ul className="dash-mine dash-refresh">
-            {refresh.map((p) => (
-              <li key={p.slug} data-family={p.family ?? undefined}>
+        <section className="dash-fade" aria-labelledby="dash-fade-h">
+          <p className="dash-fade-k">
+            <svg viewBox="0 0 24 24" aria-hidden="true" {...s}>
+              <path d="M20 12a8 8 0 1 1-2.3-5.6" />
+              <path d="M20 4v5h-5" />
+            </svg>
+            {tr("dash.refresh")}
+          </p>
+          <h2 id="dash-fade-h">{tr(fading.length === 1 ? "dash.fadeOne" : "dash.fadeN", { n: fading.length })}</h2>
+          <p className="dash-fade-sub">
+            {tr(fadingPaths === 1 ? "dash.fadeSubOne" : "dash.fadeSub", { n: fadingDue, p: fadingPaths })}
+            {fading.length > 1 && ` ${tr("dash.fadeOldest")}`}
+          </p>
+          <ul>
+            {refresh.map(({ path: p, lv, due: n, last }) => (
+              <li key={`${p.slug}:${lv.n}`} data-family={p.family ?? undefined}>
                 <a href={`/parcours/${encodeURIComponent(p.slug)}/`}>
-                  <span className="dash-mine-icon" aria-hidden="true">
-                    <FamilyIcon family={p.family} />
+                  <span className="dash-fade-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" {...s}>
+                      <path d="M20 12a8 8 0 1 1-2.3-5.6" />
+                      <path d="M20 4v5h-5" />
+                    </svg>
                   </span>
-                  <span className="dash-mine-text">
-                    <b>{shortName(p.name)}</b>
+                  <span className="dash-fade-text">
+                    <b>{lv.name}</b>
                     <small>
-                      {tr("dash.refreshN", { n: p.due })}
-                      {p.cible ? ` · ${tr("parcours.cible", { c: p.cible })}` : ""}
+                      {shortName(p.name)} · {tr("parcours.level", { n: lv.n }).toLowerCase()}
+                      {last ? ` · ${daysAgo(daysBetween(last, todayKey), locale)}` : ""}
                     </small>
                   </span>
-                  <Chevron />
+                  <em>{tr("dash.refreshN", { n })}</em>
                 </a>
               </li>
             ))}
           </ul>
-        </>
+          <a className="dash-fade-go" href="/cartes/revision/">
+            {tr("dash.fadeGo", { n: Math.max(1, Math.round((fadingDue * 25) / 60)) })}
+          </a>
+        </section>
       )}
 
       {mine.length > 0 && (

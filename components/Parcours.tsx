@@ -542,6 +542,21 @@ export function ParcoursPage({
  *  their French label ("History" → "Histoire", "02-Communication" →
  *  "Communication"), two at most; null when every level would get the same
  *  name (a path from one folder). */
+/** A path's levels with their names, as the road names them (the home's
+ *  "À rafraîchir" lists them too). */
+export function namedLevels(
+  path: ReadingPathView,
+  titleOf: (slug: string) => string,
+): { n: number; name: string; slugs: string[] }[] {
+  const levels = pathLevels(path.notes);
+  const groups = levels.map((l) => path.notes.slice(l.from, l.to));
+  return levels.map((lv, i) => ({
+    n: lv.n,
+    name: levelName(groups[i], groups, path.discipline) ?? titleOf(groups[i][0].slug),
+    slugs: groups[i].map((n) => n.slug),
+  }));
+}
+
 /** What a level reaches: the `cible:` of its last note that has one. */
 function levelCible(notes: ReadingPathView["notes"]): string | undefined {
   for (let i = notes.length - 1; i >= 0; i--) if (notes[i].cible) return notes[i].cible;

@@ -5948,3 +5948,110 @@
   font: 700 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   cursor: pointer;
 }
+
+/* "À rafraîchir" on the phone home (HomeDashboard.tsx): one card, the
+   fading levels oldest first, and one button for all of them. */
+.dash-fade {
+  margin: 1.5rem 1rem 0.5rem;
+  padding: 1rem 1rem 1.1rem;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.25rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+}
+.dash-fade-k {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.3rem;
+  font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--warn);
+}
+.dash-fade-k svg {
+  width: 1rem;
+  height: 1rem;
+  stroke-width: 2.4;
+}
+.dash-fade h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.dash-fade-sub {
+  margin: 0.2rem 0 0.4rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.dash-fade ul {
+  margin: 0 0 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+.dash-fade li a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-top: 1px solid var(--rule);
+  color: inherit;
+}
+.dash-fade-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.7rem;
+  background: var(--fam-wash, var(--wash-2));
+  color: var(--fam, var(--garden));
+}
+.dash-fade-icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  stroke-width: 2.4;
+}
+.dash-fade-text {
+  flex: 1;
+  min-width: 0;
+}
+.dash-fade-text b {
+  display: block;
+  overflow: hidden;
+  font-size: 1.02rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dash-fade-text small {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font: 0.82rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dash-fade li em {
+  flex: none;
+  color: var(--warn);
+  font: normal 700 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.dash-fade-go {
+  display: grid;
+  place-items: center;
+  min-height: 3rem;
+  border-radius: 1rem;
+  background: var(--garden);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--garden) 70%, #000);
+  color: #fff;
+  font: 700 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.dash-fade-go:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--garden) 70%, #000);
+}

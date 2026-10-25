@@ -1249,8 +1249,13 @@
     "themes": "Los temas",
     "themesText": "Todas las disciplinas",
     "refresh": "Para repasar",
-    "refreshAll": "Repasar todo",
-    "refreshN": "{n} por repasar"
+    "refreshN": "{n} por repasar",
+    "fadeOne": "Un nivel empieza a borrarse",
+    "fadeN": "{n} niveles empiezan a borrarse",
+    "fadeSubOne": "{n} preguntas en un recorrido.",
+    "fadeSub": "{n} preguntas en {p} recorridos.",
+    "fadeGo": "Refrescar todo · {n} min",
+    "fadeOldest": "El más antiguo primero."
   },
   "noteApp": {
     "back": "Volver",
