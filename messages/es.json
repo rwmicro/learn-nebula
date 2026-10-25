@@ -1377,7 +1377,18 @@
     "placement": "Nivelación",
     "review": "Repasar",
     "sheet": "Ficha",
-    "refresh": "Para repasar · {n} por repasar"
+    "refresh": "Para repasar · {n} por repasar",
+    "sheetKick": "Para refrescar",
+    "sheetLast": "Último repaso {ago}.",
+    "sheetLead": "Una parte empieza a borrarse: {n} preguntas para repasar.",
+    "sheetHolds": "Lo que se mantiene en este nivel",
+    "sheetOf": "{n} de {total}",
+    "sheetSolid": "Sólido",
+    "sheetDue": "Para repasar",
+    "dueN": "{n} para repasar",
+    "solid": "sólido",
+    "sheetGo": "Refrescar el nivel",
+    "later": "Más tarde"
   },
   "defis": {
     "title": "Retos",

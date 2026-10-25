@@ -1377,7 +1377,18 @@
     "placement": "تحديد المستوى",
     "review": "مراجعة",
     "sheet": "ملخص",
-    "refresh": "للمراجعة · {n} سؤال"
+    "refresh": "للمراجعة · {n} سؤال",
+    "sheetKick": "للتنشيط",
+    "sheetLast": "آخر مراجعة {ago}.",
+    "sheetLead": "بدأ جزء منه يتلاشى: {n} أسئلة للمراجعة.",
+    "sheetHolds": "ما بقي راسخًا في هذا المستوى",
+    "sheetOf": "{n} من {total}",
+    "sheetSolid": "راسخ",
+    "sheetDue": "للمراجعة",
+    "dueN": "{n} للمراجعة",
+    "solid": "راسخ",
+    "sheetGo": "تنشيط المستوى",
+    "later": "لاحقًا"
   },
   "defis": {
     "title": "التحديات",

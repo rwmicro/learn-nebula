@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
@@ -12,8 +12,8 @@ import {
   loadStudyStates,
   type NoteState,
 } from "@/lib/path-study";
-import { fadingBySlug, loadAllNoteDecks } from "@/lib/note-quiz";
-import { dayKey } from "@/lib/srs";
+import { daysAgo, loadAllNoteDecks, retentionBySlug, type Retention } from "@/lib/note-quiz";
+import { dayKey, daysBetween } from "@/lib/srs";
 
 // A reading path on a phone (app.css shows it below 640px, in place of the
 // levels list and the prerequisites graph): a winding road of discs, one per
@@ -25,7 +25,8 @@ import { dayKey } from "@/lib/srs";
 // divider names the next level. The current level stays pinned on top with
 // its progress and the revision sheet. A finished level whose saved
 // questions are due again fades (its discs go pale) and its chest says
-// "À rafraîchir": opening it is the refresh.
+// "À rafraîchir": it opens a sheet (what the level still holds, note by
+// note) whose button starts the refresh.
 
 export interface RoadNote {
   slug: string;
@@ -123,15 +124,18 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
   const locale = useLocale();
   const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
   const [states, setStates] = useState<Map<string, NoteState> | null>(null);
-  /** Saved questions due today, by note slug. */
-  const [due, setDue] = useState<Map<string, number>>(new Map());
+  /** Answered questions, and those due again, by note slug. */
+  const [ret, setRet] = useState<Map<string, Retention>>(new Map());
+  /** The faded level whose sheet is open. */
+  const [sheet, setSheet] = useState<RoadLevel | null>(null);
+  const sheetRef = useRef<HTMLDialogElement>(null);
   const all = useMemo(() => levels.flatMap((l) => l.notes), [levels]);
   const study = useMemo(() => all.map((n) => ({ slug: n.slug, prereqs: [], quiz: n.quiz })), [all]);
 
   const reload = useCallback(() => {
     setStates(loadStudyStates(study).states);
     try {
-      setDue(fadingBySlug(loadAllNoteDecks(localStorage), dayKey()));
+      setRet(retentionBySlug(loadAllNoteDecks(localStorage), dayKey()));
     } catch {
       /* storage blocked: nothing fades */
     }
@@ -146,6 +150,11 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
       for (const ev of [CHANGE_EVENT, STUDY_EVENT, QUIZ_EVENT, "pageshow"]) window.removeEventListener(ev, reload);
     };
   }, [reload]);
+
+  useEffect(() => {
+    const d = sheetRef.current;
+    if (sheet && d && !d.open) d.showModal();
+  }, [sheet]);
 
   const stateOf = (s: string): NoteState => states?.get(s) ?? "unread";
   const next = states ? (all.find((n) => !isDone(stateOf(n.slug)))?.slug ?? null) : null;
@@ -203,7 +212,7 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
         const d = roadPath(pts);
         const dd = lastDone > 0 ? roadPath(pts.slice(0, lastDone + 1)) : "";
         const lvMinutes = lv.notes.reduce((m, n) => m + n.minutes, 0);
-        const lvDue = lv.notes.reduce((m, n) => m + (due.get(n.slug) ?? 0), 0);
+        const lvDue = lv.notes.reduce((m, n) => m + (ret.get(n.slug)?.due ?? 0), 0);
         const faded = doneCount === lv.notes.length && lvDue > 0;
         return (
           <div key={lv.n} className={`road-level${faded ? " is-faded" : ""}`} style={{ height }}>
@@ -300,7 +309,13 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
                   className={`road-pn road-chest${faded ? " due" : doneCount === lv.notes.length ? " done" : " lock"}${chest[0] > W / 2 ? " r" : ""}`}
                   style={{ left: `${(100 * chest[0]) / W}%`, top: chest[1] }}
                 >
-                  <button type="button" className="road-disk" data-level-review-btn={levels.length > 1 ? lv.n : 1}>
+                  <button
+                    type="button"
+                    className="road-disk"
+                    {...(faded
+                      ? { onClick: () => setSheet(lv), "aria-haspopup": "dialog" as const }
+                      : { "data-level-review-btn": levels.length > 1 ? lv.n : 1 })}
+                  >
                     <span>{ICON.chest}</span>
                     <span className="sr-only">{tr(levels.length > 1 ? "parcours.levelReview" : "parcours.review", { n: lv.n })}</span>
                   </button>
@@ -319,6 +334,112 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
           </div>
         );
       })}
+      {sheet && (
+        <RefreshSheet
+          ref={sheetRef}
+          level={sheet}
+          review={levels.length > 1 ? sheet.n : 1}
+          ret={ret}
+          tr={tr}
+          locale={locale}
+          onClose={() => setSheet(null)}
+        />
+      )}
     </section>
+  );
+}
+
+const CELLS = 32;
+const REFRESH = svg(
+  <>
+    <path d="M20 12a8 8 0 1 1-2.3-5.6" />
+    <path d="M20 4v5h-5" />
+  </>,
+  2.2,
+);
+
+/** The sheet a faded chest opens: how long since the level was last
+ *  reviewed, what still holds (a row of squares, solid then due), each
+ *  note's questions due, and the button that starts the level review. */
+function RefreshSheet({
+  ref,
+  level,
+  review,
+  ret,
+  tr,
+  locale,
+  onClose,
+}: {
+  ref: React.RefObject<HTMLDialogElement | null>;
+  level: RoadLevel;
+  review: number;
+  ret: Map<string, Retention>;
+  tr: (k: string, v?: Record<string, string | number>) => string;
+  locale: string;
+  onClose: () => void;
+}) {
+  const rows = level.notes.flatMap((n) => {
+    const r = ret.get(n.slug);
+    return r ? [{ n, r }] : [];
+  });
+  const total = rows.reduce((m, x) => m + x.r.saved, 0);
+  const due = rows.reduce((m, x) => m + x.r.due, 0);
+  const last = rows.reduce<string | null>((m, x) => (x.r.last && (!m || x.r.last > m) ? x.r.last : m), null);
+  const cells = Math.min(total, CELLS);
+  const solidCells = total ? Math.round(((total - due) / total) * cells) : 0;
+  const close = () => ref.current?.close();
+  return (
+    <dialog
+      ref={ref}
+      className="road-sheet"
+      aria-labelledby="road-sheet-h"
+      onClose={onClose}
+      onClick={(e) => e.target === e.currentTarget && close()}
+    >
+      <div className="road-sheet-in">
+        <i className="road-sheet-grip" aria-hidden="true" />
+        <p className="road-sheet-k">
+          {REFRESH}
+          {tr("road.sheetKick")}
+        </p>
+        <h2 id="road-sheet-h">
+          {tr("parcours.level", { n: level.n })} · {level.name}
+        </h2>
+        <p className="road-sheet-lead">
+          {last && `${tr("road.sheetLast", { ago: daysAgo(daysBetween(last, dayKey()), locale) })} `}
+          {tr("road.sheetLead", { n: due })}
+        </p>
+        <div className="road-sheet-box">
+          <p>
+            <b>{tr("road.sheetHolds")}</b>
+            <span>{tr("road.sheetOf", { n: total - due, total })}</span>
+          </p>
+          <span className="road-sheet-cells" aria-hidden="true">
+            {Array.from({ length: cells }, (_, i) => (
+              <i key={i} className={i < solidCells ? "ok" : "due"} />
+            ))}
+          </span>
+          <p className="road-sheet-legend" aria-hidden="true">
+            <span className="ok">{tr("road.sheetSolid")}</span>
+            <span className="due">{tr("road.sheetDue")}</span>
+          </p>
+        </div>
+        <ul className="road-sheet-notes">
+          {rows.map(({ n, r }) => (
+            <li key={n.slug} className={r.due ? "due" : "ok"}>
+              <i aria-hidden="true">{r.due ? REFRESH : ICON.check}</i>
+              <a href={n.href}>{n.title}</a>
+              <small>{r.due ? tr("road.dueN", { n: r.due }) : tr("road.solid")}</small>
+            </li>
+          ))}
+        </ul>
+        <button type="button" className="road-sheet-go" data-level-review-btn={review} onClick={close}>
+          {tr("road.sheetGo")}
+        </button>
+        <button type="button" className="road-sheet-later" onClick={close}>
+          {tr("road.later")}
+        </button>
+      </div>
+    </dialog>
   );
 }

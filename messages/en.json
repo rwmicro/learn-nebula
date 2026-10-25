@@ -1377,7 +1377,18 @@
     "placement": "Placement",
     "review": "Review",
     "sheet": "Sheet",
-    "refresh": "To refresh · {n} to review"
+    "refresh": "To refresh · {n} to review",
+    "sheetKick": "To refresh",
+    "sheetLast": "Last reviewed {ago}.",
+    "sheetLead": "Some of it is starting to fade: {n} questions are due again.",
+    "sheetHolds": "What still holds in this level",
+    "sheetOf": "{n} of {total}",
+    "sheetSolid": "Solid",
+    "sheetDue": "Due",
+    "dueN": "{n} due",
+    "solid": "solid",
+    "sheetGo": "Refresh the level",
+    "later": "Later"
   },
   "defis": {
     "title": "Challenges",

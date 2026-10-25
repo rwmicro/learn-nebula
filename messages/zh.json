@@ -1377,7 +1377,18 @@
     "placement": "定级",
     "review": "复习",
     "sheet": "讲义",
-    "refresh": "待复习 · {n} 题"
+    "refresh": "待复习 · {n} 题",
+    "sheetKick": "需要温习",
+    "sheetLast": "上次复习：{ago}。",
+    "sheetLead": "部分内容开始淡忘：有 {n} 道题需要复习。",
+    "sheetHolds": "本级仍记得的内容",
+    "sheetOf": "{total} 中的 {n}",
+    "sheetSolid": "牢固",
+    "sheetDue": "待复习",
+    "dueN": "{n} 道待复习",
+    "solid": "牢固",
+    "sheetGo": "温习本级",
+    "later": "稍后"
   },
   "defis": {
     "title": "挑战",

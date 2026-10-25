@@ -1377,7 +1377,18 @@
     "placement": "Placement",
     "review": "Réviser",
     "sheet": "Fiche",
-    "refresh": "À rafraîchir · {n} à revoir"
+    "refresh": "À rafraîchir · {n} à revoir",
+    "sheetKick": "À rafraîchir",
+    "sheetLast": "Dernière révision {ago}.",
+    "sheetLead": "Une partie commence à s’effacer : {n} questions sont à revoir.",
+    "sheetHolds": "Ce qui tient dans ce niveau",
+    "sheetOf": "{n} sur {total}",
+    "sheetSolid": "Solide",
+    "sheetDue": "À revoir",
+    "dueN": "{n} à revoir",
+    "solid": "solide",
+    "sheetGo": "Rafraîchir le niveau",
+    "later": "Plus tard"
   },
   "defis": {
     "title": "Défis",
