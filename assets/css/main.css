@@ -4577,12 +4577,23 @@ html.lesson-open {
   font: inherit;
   padding: 0;
 }
+/* Above a question: "Discipline · Note", with the family's dot. */
 .lesson-check {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  color: var(--garden);
-  margin: 0 0 0.6rem;
+  font: 700 0.74rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin: 0 0 0.3rem;
+}
+.lesson-check::before {
+  content: "";
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--fam, var(--garden));
+  margin-inline-end: 7px;
+  vertical-align: 1px;
 }
 .lesson-bottom {
   display: flex;
@@ -6765,73 +6776,132 @@ body[data-focus="true"] .note-meta {
 }
 
 /* ---------------------------------------------------------------------------
- * Exercises (lib/exercises.ts, public/js/exercises.js): the multiple-choice
- * card's frame, with chips instead of answers. Words of a translation and
- * items to order go from the bank to the answer line and back; pairs light
- * up together; a code line is tapped.
+ * Exercises (lib/exercises.ts, public/js/exercises.js), drawn after
+ * revues/maquettes-duolingo-2026-10-24: a white card with "À toi · Associer"
+ * and the instruction as its title, raised tiles (a number or a letter for
+ * the keyboard), a foot with the hints and "Vérifier". In lesson mode
+ * (.lesson-stage) the frame goes: kicker, action as a big title, the
+ * instruction in a speech bubble, and "Vérifier" at the bottom.
  * ------------------------------------------------------------------------- */
-.callout-ex {
-  --c: var(--link);
+.callout.callout-ex.callout-ex {
+  --c: var(--fam, var(--garden));
+  --tile: var(--paper-raised, var(--paper));
+  padding: 0;
+  border: 1.5px solid var(--rule);
+  border-radius: 20px;
+  box-shadow: 0 2px 0 var(--rule);
+  background: var(--tile);
+  overflow: hidden;
+}
+.callout-ex > .ex-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.9rem 1.25rem 0;
+  color: var(--c);
+  font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.callout-ex > .ex-head svg {
+  width: 15px;
+  height: 15px;
+}
+.ex-count {
+  margin-inline-start: auto;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 0.8rem;
+  font-variant-numeric: lining-nums;
+}
+.ex-action {
+  display: none;
+}
+.callout-ex > .ex-prompt {
+  margin: 0.2rem 1.25rem 0;
+  font: 600 1.3rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+  color: var(--ink);
+}
+.callout-ex > .ex-prompt.ex-src {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+}
+.ex-say {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--c);
+  color: var(--paper);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--c) 70%, #000);
+  cursor: pointer;
+}
+.ex-say svg {
+  width: 24px;
+  height: 24px;
+}
+.ex-say:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--c) 70%, #000);
+}
+.callout-ex > .ex-code {
+  margin: 0 1.25rem;
 }
 .ex-stage {
   display: grid;
   gap: 0.75rem;
-  margin-top: 0.8rem;
+  padding: 1rem 1.25rem 1.1rem;
 }
 .ex-stage:empty {
   display: none;
 }
-.ex-line {
-  display: flex;
-  flex-wrap: wrap;
-  align-content: flex-start;
-  gap: 0.45rem;
-  min-height: 3.1rem;
-  padding: 0.35rem 0 0.55rem;
-  border-bottom: 1.5px solid var(--rule-strong);
-}
-.ex-stage--list .ex-line {
-  flex-direction: column;
-  align-items: stretch;
-  counter-reset: ex;
-  border: 1.5px dashed var(--rule-strong);
-  border-radius: var(--radius-sm);
-  padding: 0.45rem;
-}
-.ex-stage--list .ex-line .ex-chip {
-  counter-increment: ex;
-}
-.ex-stage--list .ex-line .ex-chip::before {
-  content: counter(ex) ".";
-  margin-inline-end: 0.45rem;
-  color: var(--muted);
-  font-variant-numeric: lining-nums tabular-nums;
-}
-.ex-bank {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-.ex-stage--list .ex-bank {
-  flex-direction: column;
-  align-items: stretch;
-}
+
+/* Tiles. */
 .ex-chip {
-  font: inherit;
-  font-size: 1rem;
-  line-height: 1.3;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  font: 500 1.05rem/1.25 "Alegreya", "Alegreya Fallback", serif;
   text-align: start;
   color: var(--ink);
-  background: var(--paper);
+  background: var(--tile, var(--paper));
   border: 1.5px solid var(--rule-strong);
-  border-bottom-width: 3px;
-  border-radius: var(--radius-sm);
-  padding: 0.4rem 0.7rem;
+  border-radius: 12px;
+  box-shadow: 0 3px 0 var(--rule-strong);
+  padding: 0.35rem 0.85rem;
   cursor: pointer;
-  transition: transform 0.08s, border-color 0.15s, background-color 0.15s;
+  transition: transform 0.08s, box-shadow 0.08s, border-color 0.15s, background-color 0.15s, opacity 0.2s;
+}
+.ex-k {
+  flex: none;
+  display: none;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--wash-2);
+  color: var(--muted);
+  font: 700 0.7rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ex-k {
+    display: inline-grid;
+  }
+}
+.ex-line .ex-k {
+  display: none;
 }
 .ex-chip:active:not(:disabled) {
-  transform: translateY(1px);
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--rule-strong);
 }
 .ex-chip:focus-visible {
   outline: 2px solid var(--c);
@@ -6844,16 +6914,18 @@ body[data-focus="true"] .note-meta {
 }
 .ex-chip.is-picked {
   border-color: var(--c);
-  background: color-mix(in srgb, var(--c) 10%, var(--paper));
+  background: color-mix(in srgb, var(--c) 13%, var(--tile, var(--paper)));
+  box-shadow: 0 3px 0 var(--c);
 }
 .ex-chip.is-right {
-  border-color: var(--garden);
-  background: var(--garden-wash);
+  border-color: color-mix(in srgb, var(--garden) 60%, transparent);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--garden) 60%, transparent);
   cursor: default;
 }
 .ex-chip.is-wrong {
-  border-color: var(--warn);
-  background: color-mix(in srgb, var(--warn) 10%, var(--paper));
+  border-color: color-mix(in srgb, var(--warn) 70%, transparent);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--warn) 70%, transparent);
+  color: var(--warn);
   animation: ex-shake 0.3s;
 }
 @keyframes ex-shake {
@@ -6865,30 +6937,217 @@ body[data-focus="true"] .note-meta {
     animation: none;
   }
 }
-.ex-stage--pairs {
-  grid-template-columns: 1fr 1fr;
+.ex-ghost {
+  display: inline-block;
+  border-radius: 12px;
+  background: var(--wash-2);
 }
-.ex-col {
+
+/* Word bank: the answer on two ruled lines, the words centred under it. */
+.ex-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 10px 8px;
+  min-height: 112px;
+  padding-top: 6px;
+  background: linear-gradient(var(--rule), var(--rule)) 0 56px / 100% 1.5px no-repeat,
+    linear-gradient(var(--rule), var(--rule)) 0 110px / 100% 1.5px no-repeat;
+}
+.ex-bank {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 8px;
+  margin-top: 0.6rem;
+}
+.ex-type {
+  font: 500 1.15rem "Alegreya", "Alegreya Fallback", serif;
+  color: var(--ink);
+  background: var(--tile, var(--paper));
+  border: 1.5px solid var(--c);
+  border-radius: 12px;
+  padding: 0.55rem 0.8rem;
+}
+.ex-stage.is-typing .ex-line,
+.ex-stage.is-typing .ex-bank {
+  display: none;
+}
+
+/* Steps to order: the answer as numbered slots, the steps (lettered) under
+   it; side by side on a wide card. */
+.ex-stage--list .ex-line {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 8px;
+  min-height: 0;
+  padding: 0;
+  background: none;
+  counter-reset: ex;
+}
+.ex-stage--list .ex-chip {
+  width: 100%;
+  min-height: 50px;
+  font-size: 1rem;
+}
+.ex-stage--list .ex-line .ex-chip {
+  counter-increment: ex;
+}
+.ex-stage--list .ex-line .ex-chip::before {
+  content: counter(ex);
+  flex: none;
   display: grid;
-  align-content: start;
-  gap: 0.45rem;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--c) 13%, transparent);
+  color: var(--c);
+  font: 700 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.ex-slot {
+  display: grid;
+  place-items: center;
+  min-height: 50px;
+  border: 1.5px dashed var(--rule-strong);
+  border-radius: 12px;
+  color: var(--muted);
+  font: 500 0.88rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.ex-stage--list .ex-bank {
+  flex-direction: column;
+  align-items: stretch;
+  margin: 0;
+  gap: 8px;
+}
+.ex-stage--list .ex-ghost {
+  display: none;
+}
+.ex-colh {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font: 700 0.7rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.ex-col-b > .ex-colh::after {
+  content: "";
+  flex: 1;
+  border-top: 1.5px solid var(--rule);
+}
+.ex-col-a > .ex-colh {
+  display: none;
+}
+@container (min-width: 34rem) {
+  .ex-stage--list {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+    align-items: start;
+  }
+  .ex-stage--list > .ex-hint {
+    grid-column: 1 / -1;
+  }
+  .ex-col-a > .ex-colh {
+    display: flex;
+  }
+  .ex-col-b > .ex-colh::after {
+    display: none;
+  }
+}
+.callout-ex {
+  container-type: inline-size;
+}
+
+/* Pairs: one row per pair, a found pair faded on its row. */
+.ex-pairs {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: 10px;
+}
+.ex-pairs .ex-chip {
+  min-height: 52px;
+  font-size: 1rem;
+}
+.ex-pairs .ex-who {
+  font-weight: 600;
+}
+.ex-pairs .ex-chip.is-right {
+  opacity: 0.42;
+}
+
+/* The foot: hints, then the buttons. */
+.ex-foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.9rem;
+  padding: 0.7rem 1.25rem;
+  border-top: 1px solid var(--rule);
+  background: var(--wash);
+}
+.ex-keys {
+  flex: 1;
+  min-width: 12rem;
+  margin: 0;
+  color: var(--muted);
+  font: 500 0.82rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.ex-keys-kbd {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ex-keys-kbd {
+    display: inline;
+  }
+  .ex-keys-tap {
+    display: none;
+  }
+}
+.ex-acts {
+  display: flex;
+  gap: 0.5rem;
+  margin-inline-start: auto;
 }
 .ex-check {
-  justify-self: start;
-  font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  height: 40px;
+  padding: 0 1.1rem;
+  border: 0;
+  border-radius: 12px;
+  font: 700 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   color: var(--paper);
   background: var(--garden);
-  border: 0;
-  border-radius: 999px;
-  padding: 0.6rem 1.4rem;
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--garden) 65%, #000);
   cursor: pointer;
 }
+.ex-check:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--garden) 65%, #000);
+}
 .ex-check:disabled {
-  opacity: 0.45;
+  background: var(--wash-2);
+  color: var(--muted);
+  box-shadow: 0 3px 0 var(--rule-strong);
   cursor: default;
 }
-.is-answered .ex-check {
+.ex-restart {
+  background: transparent;
+  color: var(--ink-2);
+  box-shadow: none;
+  border: 1.5px solid var(--rule-strong);
+}
+.is-answered .ex-foot {
   display: none;
+}
+.callout-ex > .quiz-feedback {
+  margin: 0;
+  padding: 0.9rem 1.25rem 1rem;
+  border-top: 1px solid var(--rule);
 }
 .ex-hint {
   margin: 0;
@@ -6902,16 +7161,21 @@ body[data-focus="true"] .note-meta {
 .ex-again {
   margin-top: 0.6rem;
 }
-.ex-after {
-  margin-top: 1rem;
+.ex-why {
+  display: none;
+}
+.callout-ex > .ex-after {
+  margin: 0;
+  padding: 0.9rem 1.25rem 1rem;
 }
 .ex-code pre {
-  margin: 0.8rem 0 0;
+  margin: 1rem 0 0;
 }
 .ex-pickable .line {
   display: inline-block;
   width: 100%;
   border-radius: 3px;
+  border-left: 4px solid transparent;
   cursor: pointer;
 }
 @media (hover: hover) {
@@ -6924,21 +7188,139 @@ body[data-focus="true"] .note-meta {
 }
 .ex-pickable .line.is-right {
   background: color-mix(in srgb, var(--garden) 22%, transparent);
+  border-left-color: var(--garden);
 }
 .ex-pickable .line.is-wrong {
   background: color-mix(in srgb, var(--warn) 22%, transparent);
+  border-left-color: var(--warn);
 }
 .frise-ex {
   margin: 0.6rem 0 1.4rem;
 }
 .ex-frise-key {
-  padding-inline-start: 1.2rem;
+  padding-inline-start: 2.4rem;
 }
 .ex-frise-key b {
   font-variant-numeric: lining-nums;
 }
+
+/* Lesson mode: no frame. Kicker (lesson.js), the action as the title, the
+   instruction in a bubble, the stage; "Vérifier" is the bottom button, the
+   explanation rides in the feedback band. */
+.lesson-stage .callout.callout-ex.callout-ex {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+  overflow: visible;
+  margin: 0;
+}
+.lesson-stage .callout-ex > .ex-head {
+  display: none;
+}
+.lesson-stage .ex-action {
+  display: block;
+  margin: 0.15rem 0 0;
+  font: 600 clamp(1.55rem, 1.2rem + 1.2vw, 2.1rem) / 1.15 "Alegreya", "Alegreya Fallback", serif;
+  color: var(--ink);
+}
+.lesson-stage .callout-ex > .ex-prompt:not(.ex-src) {
+  position: relative;
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--rule);
+  border-radius: 18px;
+  background: var(--tile);
+  font: 400 clamp(1.06rem, 1rem + 0.3vw, 1.15rem) / 1.42 "Alegreya", "Alegreya Fallback", serif;
+}
+.lesson-stage .callout-ex > .ex-prompt:not(.ex-src)::before {
+  content: "";
+  position: absolute;
+  left: 26px;
+  top: -9px;
+  width: 16px;
+  height: 16px;
+  background: var(--tile);
+  border-left: 1.5px solid var(--rule);
+  border-top: 1.5px solid var(--rule);
+  transform: rotate(45deg);
+}
+.lesson-stage .callout-ex > .ex-prompt.ex-src {
+  margin: 1rem 0 0;
+  font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.6rem);
+}
+.lesson-stage .callout-ex > .ex-code {
+  margin: 1rem 0 0;
+}
+.lesson-stage .ex-stage {
+  padding: 1.4rem 0 0;
+}
+.lesson-stage .ex-foot {
+  justify-content: center;
+  padding: 1rem 0 0;
+  border: 0;
+  background: none;
+}
+.lesson-stage .ex-keys {
+  flex: 1 1 100%;
+  text-align: center;
+}
+.lesson-stage .ex-acts .ex-check:not(.ex-restart) {
+  display: none;
+}
+.lesson-stage .ex-bank {
+  margin-top: 1.6rem;
+}
+.lesson-stage .callout-ex > .ex-after {
+  display: none;
+}
+.lesson-stage .ex-why {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--ink-2);
+}
+.lesson-stage .ex-why > :first-child {
+  margin-top: 0;
+}
+.lesson-stage .callout-ex > .quiz-feedback {
+  border-top: 1px solid var(--rule);
+}
+.lesson-stage .callout-ex .quiz-feedback-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font: 700 1.2rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.lesson-stage .callout-ex .quiz-feedback--ok .quiz-feedback-title {
+  color: var(--garden);
+}
+.lesson-stage .callout-ex .quiz-feedback--bad .quiz-feedback-title {
+  color: var(--warn);
+}
+.lesson-stage .callout-ex .quiz-feedback-title::before {
+  content: "";
+  flex: none;
+  width: 24px;
+  height: 24px;
+  background: currentColor;
+  -webkit-mask: var(--ex-ico) center / contain no-repeat;
+  mask: var(--ex-ico) center / contain no-repeat;
+}
+.lesson-stage .callout-ex .quiz-feedback--ok {
+  --ex-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10' stroke-width='2'/%3E%3Cpath d='m7.5 12.5 3 3 6-6.5'/%3E%3C/svg%3E");
+}
+.lesson-stage .callout-ex .quiz-feedback--bad {
+  --ex-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 7.5v5.5M12 16.5h.01' stroke-width='2.6'/%3E%3C/svg%3E");
+}
+/* A wrong answer: "Continuer" in the band's amber. */
+.lesson:has(.callout-ex.is-answered > .quiz-feedback--bad:not([hidden])) .lesson-next {
+  background: var(--warn);
+  border-color: color-mix(in srgb, var(--warn) 80%, #000);
+  border-bottom-color: color-mix(in srgb, var(--warn) 60%, #000);
+}
 @media print {
   .ex-stage,
+  .ex-foot,
   .frise-ex {
     display: none;
   }

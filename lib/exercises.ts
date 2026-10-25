@@ -66,6 +66,9 @@ const KEYS: Record<string, string> = {
   faille: "ligne",
   reponse: "ligne",
   answer: "ligne",
+  vers: "vers",
+  langue: "vers",
+  to: "vers",
 };
 const fold = (s: string) =>
   s
@@ -151,7 +154,7 @@ const items = (list: Element) =>
     .filter(Boolean);
 
 export interface ExerciseData {
-  traduire: { answer: string; also: string[]; traps: string[] };
+  traduire: { answer: string; also: string[]; traps: string[]; lang?: string };
   ordre: { items: string[]; traps: string[] };
   associer: { pairs: [string, string][] };
   ligne: { line: number };
@@ -166,7 +169,8 @@ export function exerciseData<T extends ExerciseType>(type: T, body: ElementConte
     const answer = p.lines[0];
     if (!answer) return null;
     const also = p.keys.filter((k) => k.key === "aussi").map((k) => k.value);
-    return { answer, also, traps } as ExerciseData[T];
+    const lang = p.keys.find((k) => k.key === "vers")?.value;
+    return (lang ? { answer, also, traps, lang } : { answer, also, traps }) as ExerciseData[T];
   }
   if (type === "ordre") {
     const list = p.blocks.find((b) => b.tagName === "ol" || b.tagName === "ul");
@@ -207,8 +211,17 @@ const LABEL: Record<ExerciseType, string> = {
 };
 
 /**
- * The exercise card: title row, the prompt, an empty stage the script fills,
- * and the explanation (hidden until answered). `t` is lib/i18n's.
+ * The exercise card, laid out as the mockups (revues/maquettes-duolingo):
+ *
+ * - a head, "À toi · Traduire", and a count the script fills ("1 sur 5");
+ * - the action ("Traduis en indonésien"), shown as the title in lesson mode
+ *   only: in a note the instruction is the title;
+ * - the instruction (the callout's title line), a speech bubble in lesson
+ *   mode; for a translation, the sentence to translate;
+ * - the code to tap, the empty stage the script fills, the feedback band
+ *   and the explanation (hidden until answered).
+ *
+ * The script adds the foot (keyboard hints, "Vérifier"). `t` is lib/i18n's.
  */
 export function exerciseCallout(
   type: ExerciseType,
@@ -224,6 +237,9 @@ export function exerciseCallout(
   // is the instruction, with a default when the title line is empty.
   const prompt = titleNodes.length ? titleNodes : [txt(t(`ex.${type}Prompt`))];
   const code = type === "ligne" ? p.blocks.find((b) => b.tagName === "pre") : undefined;
+  const lang = type === "traduire" ? (data as ExerciseData["traduire"]).lang : undefined;
+  const actionKey = lang ? "ex.doTraduireVers" : `ex.do_${type}`;
+  const action = (t(actionKey) || ACTION[type]).replace("{lang}", lang ?? "");
   return el(
     "div",
     {
@@ -233,11 +249,26 @@ export function exerciseCallout(
       dataExData: JSON.stringify(data),
     },
     [
-      el("div", { className: ["callout-title"], dataPagefindIgnore: "" }, [
+      el("div", { className: ["callout-title", "ex-head"], dataPagefindIgnore: "" }, [
         icon,
-        el("span", { dataI18n: `ex.${type}` }, [txt(t(`ex.${type}`) || LABEL[type])]),
+        el("span", { className: ["ex-kick"] }, [
+          el("span", { dataI18n: "ex.yourTurn" }, [txt(t("ex.yourTurn") || "À toi")]),
+          txt(" · "),
+          el("span", { dataI18n: `ex.${type}` }, [txt(t(`ex.${type}`) || LABEL[type])]),
+        ]),
+        el("span", { className: ["ex-count"] }),
       ]),
-      el("p", { className: ["quiz-question", "ex-prompt"] }, prompt),
+      el(
+        "p",
+        {
+          className: ["ex-action"],
+          dataPagefindIgnore: "",
+          dataI18n: actionKey,
+          ...(lang ? { dataI18nVars: JSON.stringify({ lang }) } : {}),
+        },
+        [txt(action)],
+      ),
+      el("p", { className: ["quiz-question", "ex-prompt", ...(type === "traduire" ? ["ex-src"] : [])] }, prompt),
       ...(code ? [el("div", { className: ["ex-code"] }, [code])] : []),
       el("div", { className: ["ex-stage"], dataPagefindIgnore: "" }),
       el("div", { className: ["quiz-feedback"], ariaLive: "polite", hidden: true, dataPagefindIgnore: "" }),
@@ -245,6 +276,14 @@ export function exerciseCallout(
     ],
   );
 }
+
+/** The action, as the lesson's title (French fallback; messages/ex.do_*). */
+const ACTION: Record<ExerciseType, string> = {
+  traduire: "Traduis la phrase",
+  ordre: "Remets dans l’ordre",
+  associer: "Associe les paires",
+  ligne: "Touche la bonne ligne",
+};
 
 // ---------------------------------------------------------------------------
 // Frise: a mermaid timeline's dates, to put back in order.
