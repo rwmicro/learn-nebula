@@ -1250,7 +1250,7 @@
     "themesText": "Toutes les disciplines",
     "refresh": "À rafraîchir",
     "refreshAll": "Tout revoir",
-    "refreshN": "{n} question(s) à revoir"
+    "refreshN": "{n} à revoir"
   },
   "noteApp": {
     "back": "Retour",
@@ -1377,7 +1377,7 @@
     "placement": "Placement",
     "review": "Réviser",
     "sheet": "Fiche",
-    "refresh": "À rafraîchir · {n} question(s)"
+    "refresh": "À rafraîchir · {n} à revoir"
   },
   "defis": {
     "title": "Défis",

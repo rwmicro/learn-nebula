@@ -858,6 +858,13 @@ button.prix[aria-expanded="true"] {
 .widget.is-live .w-sq.is-last {
   box-shadow: inset 0 0 0 3px rgb(63 107 74 / 0.75);
 }
+/* Stars: where the piece can go, a dot (the wood above would hide it). */
+.widget.is-live .w-sq.is-reach {
+  background-image: radial-gradient(circle, rgb(63 107 74 / 0.55) 0 18%, transparent 20%);
+}
+.widget.is-live .w-sq.is-reach.is-star {
+  background-image: none;
+}
 .widget.is-live .l-board {
   max-width: 22rem;
 }

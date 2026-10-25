@@ -2853,6 +2853,9 @@
     let solved = false;
     let tries = 0;
 
+    // `**mot**` in a goal's line: the key word in bold, as in a lesson.
+    const setRich = (node, str) =>
+      node.replaceChildren(...String(str).split(/\*\*(.+?)\*\*/).map((part, i) => (i % 2 ? el("b", {}, [part]) : part)));
     const kicker = el("span", { class: "w-goal-k" });
     const steps = el("span", { class: "w-goal-steps", "aria-hidden": "true" });
     const text = el("p", { class: "w-goal-text" });
@@ -2893,7 +2896,7 @@
       }
       const g = goals[cur];
       kicker.textContent = goals.length > 1 ? "Objectif " + (cur + 1) + " sur " + goals.length : "Objectif";
-      text.textContent = g.text;
+      setRich(text, g.text);
       hint.textContent = g.hint ? "Indice : " + g.hint : "";
       hintBtn.hidden = !g.hint;
       skipBtn.hidden = false;

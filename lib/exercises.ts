@@ -87,8 +87,14 @@ export const listValue = (v: string) =>
     .map((s) => s.trim())
     .filter(Boolean);
 
-/** Words of a sentence for the word bank: punctuation stays on its word. */
-export const bankWords = (s: string) => s.split(/\s+/).filter(Boolean);
+/** Words of a sentence for the word bank: punctuation stays on its word,
+ *  except the closing stop, which would give away the last word. */
+export const bankWords = (s: string) =>
+  s
+    .trim()
+    .replace(/\s*[.!?…。！？]+$/u, "")
+    .split(/\s+/)
+    .filter(Boolean);
 
 /** Compare two sentences ignoring case, accents, punctuation and spacing. */
 export function sameSentence(a: string, b: string): boolean {

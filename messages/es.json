@@ -1250,7 +1250,7 @@
     "themesText": "Todas las disciplinas",
     "refresh": "Para repasar",
     "refreshAll": "Repasar todo",
-    "refreshN": "{n} pregunta(s) para repasar"
+    "refreshN": "{n} por repasar"
   },
   "noteApp": {
     "back": "Volver",
@@ -1377,7 +1377,7 @@
     "placement": "Nivelación",
     "review": "Repasar",
     "sheet": "Ficha",
-    "refresh": "Para repasar · {n} pregunta(s)"
+    "refresh": "Para repasar · {n} por repasar"
   },
   "defis": {
     "title": "Retos",

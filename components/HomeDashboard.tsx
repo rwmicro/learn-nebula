@@ -11,7 +11,7 @@ import { loadStore, type ReadingStore } from "@/lib/reading-progress";
 import type { HomeData } from "@/lib/home-data";
 import type { PathFamily } from "@/lib/path-family";
 import { ERAGNY, paintingFor } from "@/lib/paintings";
-import { dueQuestions, loadAllNoteDecks, NOTE_PREFIX } from "@/lib/note-quiz";
+import { fadingBySlug, loadAllNoteDecks, NOTE_PREFIX } from "@/lib/note-quiz";
 import { dayKey } from "@/lib/srs";
 
 // The home as an app dashboard, on phones only (app.css hides it from 640px,
@@ -49,9 +49,7 @@ function useDueBySlug(): Map<string, number> {
   useEffect(() => {
     const load = () => {
       try {
-        const out = new Map<string, number>();
-        for (const d of dueQuestions(loadAllNoteDecks(localStorage), dayKey())) out.set(d.slug, (out.get(d.slug) ?? 0) + 1);
-        setM(out);
+        setM(fadingBySlug(loadAllNoteDecks(localStorage), dayKey()));
       } catch {
         /* storage blocked: nothing to refresh */
       }

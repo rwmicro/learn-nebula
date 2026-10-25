@@ -5,6 +5,7 @@ import {
   countSaved,
   dueQuestions,
   emptyNoteDeck,
+  fadingBySlug,
   gradeQuestion,
   loadAllNoteDecks,
   loadNoteDeck,
@@ -68,6 +69,12 @@ describe("add / grade / remove", () => {
     expect(nextDueDay({ n: knew }, T)).toBe("2026-10-03");
     const notYet = addQuestion(emptyNoteDeck(), "q1", item("Q1"), "again", T);
     expect(notYet.cards.q1.due).toBe(T);
+  });
+  it("counts as fading only the answered questions that are due again", () => {
+    const fresh = { ...emptyNoteDeck(), items: { q0: { ...item("Q0"), added: T } } };
+    const knew = addQuestion(emptyNoteDeck(), "q1", item("Q1"), "good", T);
+    expect(fadingBySlug({ a: fresh, b: knew }, T).size).toBe(0);
+    expect(fadingBySlug({ a: fresh, b: knew }, "2026-10-03")).toEqual(new Map([["b", 1]]));
   });
   it("ignores grades for unsaved questions and forgets removed ones", () => {
     const d0 = emptyNoteDeck();

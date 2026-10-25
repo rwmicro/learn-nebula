@@ -12,7 +12,7 @@ import {
   loadStudyStates,
   type NoteState,
 } from "@/lib/path-study";
-import { dueQuestions, loadAllNoteDecks } from "@/lib/note-quiz";
+import { fadingBySlug, loadAllNoteDecks } from "@/lib/note-quiz";
 import { dayKey } from "@/lib/srs";
 
 // A reading path on a phone (app.css shows it below 640px, in place of the
@@ -131,9 +131,7 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
   const reload = useCallback(() => {
     setStates(loadStudyStates(study).states);
     try {
-      const m = new Map<string, number>();
-      for (const d of dueQuestions(loadAllNoteDecks(localStorage), dayKey())) m.set(d.slug, (m.get(d.slug) ?? 0) + 1);
-      setDue(m);
+      setDue(fadingBySlug(loadAllNoteDecks(localStorage), dayKey()));
     } catch {
       /* storage blocked: nothing fades */
     }

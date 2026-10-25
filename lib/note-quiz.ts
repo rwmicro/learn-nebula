@@ -203,6 +203,21 @@ export function dueQuestions(
   return out.sort((a, b) => (rank(a) < rank(b) ? -1 : rank(a) > rank(b) ? 1 : 0));
 }
 
+/** Questions answered before and due again, by note slug: what has started
+ *  to fade (a saved question never answered is new, not forgotten). */
+export function fadingBySlug(
+  decks: Record<string, NoteDeck>,
+  today: string = dayKey(),
+): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const [slug, d] of Object.entries(decks))
+    for (const id of Object.keys(d.items)) {
+      const state = d.cards[id];
+      if (state && state.due <= today) out.set(slug, (out.get(slug) ?? 0) + 1);
+    }
+  return out;
+}
+
 export function countSaved(decks: Record<string, NoteDeck>): number {
   return Object.values(decks).reduce((n, d) => n + Object.keys(d.items).length, 0);
 }

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderMarkdown } from "./markdown";
-import { parseTimeline, periodYear, sameSentence, keyLine } from "./exercises";
+import { bankWords, parseTimeline, periodYear, sameSentence, keyLine } from "./exercises";
 
 const data = (html: string) => {
   const m = html.match(/data-ex-data="([^"]*)"/);
@@ -76,6 +76,10 @@ describe("helpers", () => {
   it("compares sentences loosely", () => {
     expect(sameSentence("Nama saya Andi.", "nama  saya andi")).toBe(true);
     expect(sameSentence("Saya nama Andi", "Nama saya Andi")).toBe(false);
+  });
+  it("leaves the closing stop out of the word bank", () => {
+    expect(bankWords(" Nama saya Andi. ")).toEqual(["Nama", "saya", "Andi"]);
+    expect(bankWords("Oui, merci !")).toEqual(["Oui,", "merci"]);
   });
   it("reads key lines with or without accents", () => {
     expect(keyLine("Piège : a, b")).toEqual({ key: "piege", value: "a, b" });

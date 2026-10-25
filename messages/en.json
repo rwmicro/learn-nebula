@@ -1250,7 +1250,7 @@
     "themesText": "Every discipline",
     "refresh": "To refresh",
     "refreshAll": "Review all",
-    "refreshN": "{n} question(s) due"
+    "refreshN": "{n} to review"
   },
   "noteApp": {
     "back": "Back",
@@ -1377,7 +1377,7 @@
     "placement": "Placement",
     "review": "Review",
     "sheet": "Sheet",
-    "refresh": "To refresh · {n} question(s)"
+    "refresh": "To refresh · {n} to review"
   },
   "defis": {
     "title": "Challenges",
