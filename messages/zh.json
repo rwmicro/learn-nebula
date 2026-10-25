@@ -1734,8 +1734,8 @@
     "tap_traduire": "点一下放入单词，再点一下撤回。",
     "keys_ordre": "点击步骤或按其字母 · ⌫ 撤回最后一步",
     "tap_ordre": "按顺序点击各步骤。",
-    "keys_frise": "点击事件或按其字母 · ⌫ 撤回最后一个",
-    "tap_frise": "从最早到最近依次点击事件。",
+    "keys_frise": "先点标签再点位置，或按 A 再按 2 · ⌫ 撤回最后一个",
+    "tap_frise": "先点标签，再点时间轴上的位置（也可拖动）。",
     "keys_associer": "先点名字再点对应的句子，或按 2 再按 C",
     "tap_associer": "先点一个名字，再点与之对应的内容。",
     "keys_ligne": "点击该行或按其行号",
@@ -1745,7 +1745,10 @@
     "nextSlot": "点下一步",
     "countOf": "{n} / {total}",
     "listen": "收听",
-    "typeAria": "输入句子"
+    "typeAria": "输入句子",
+    "pinN": "时间轴上的第 {n} 个位置",
+    "friseFrom": "根据本笔记的时间轴生成",
+    "friseAsk": "笔记中的这 {n} 个事件分别落在哪里？"
   },
   "jalons": {
     "title": "里程碑",

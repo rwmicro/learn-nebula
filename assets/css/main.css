@@ -7325,3 +7325,161 @@ body[data-focus="true"] .note-meta {
     display: none;
   }
 }
+
+/* Frise (exercises.js play.frise): a graduated axis, the pins at their
+   years, the lettered labels in a tray under it. Narrow: the axis runs down
+   the left, labels to its right. Wide (.is-wide): across, labels above. */
+.ex-stage--frise {
+  gap: 1rem;
+}
+.ex-frise-axis {
+  position: relative;
+}
+.ex-axis-line {
+  position: absolute;
+  display: block;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--rule-strong);
+}
+.is-wide .ex-axis-line {
+  height: 4px;
+}
+.ex-tick {
+  position: absolute;
+  transform: translate(calc(-100% - 14px), -50%);
+  font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-variant-numeric: lining-nums;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.ex-tick::after {
+  content: "";
+  position: absolute;
+  left: calc(100% + 4px);
+  top: 50%;
+  width: 8px;
+  height: 2px;
+  background: var(--rule-strong);
+}
+.is-wide .ex-tick {
+  transform: translate(-50%, 14px);
+}
+.is-wide .ex-tick::after {
+  left: 50%;
+  top: -8px;
+  width: 2px;
+  height: 8px;
+}
+.ex-pin {
+  position: absolute;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+.ex-pin::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3.5px solid var(--c);
+}
+.ex-pin:not(.is-full)::before {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--c) 10%, var(--paper));
+}
+.ex-pin.is-over::before,
+.ex-pin:focus-visible::before {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 30%, transparent);
+}
+.ex-ev {
+  position: absolute;
+  z-index: 1;
+  transform: translateY(-50%);
+  right: 0;
+}
+.ex-ev .ex-chip {
+  min-height: 0;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  border-color: color-mix(in srgb, var(--garden) 55%, transparent);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--garden) 55%, transparent);
+}
+.ex-ev .ex-k {
+  display: none;
+}
+.ex-ev svg.ex-stem {
+  position: absolute;
+  left: -26px;
+  overflow: visible;
+}
+.ex-ev svg.ex-stem line {
+  stroke: color-mix(in srgb, var(--garden) 45%, transparent);
+  stroke-width: 2;
+}
+.is-wide .ex-ev {
+  right: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 0;
+  transform: none;
+}
+.is-wide .ex-ev .ex-chip {
+  flex: none;
+  width: max-content;
+  max-width: 11.5rem;
+  text-align: center;
+  justify-content: center;
+}
+.is-wide .ex-ev i.ex-stem {
+  flex: 1;
+  width: 2px;
+  background: color-mix(in srgb, var(--garden) 45%, transparent);
+}
+.ex-when {
+  display: block;
+  font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--garden);
+}
+.ex-chip.is-wrong .ex-when {
+  color: var(--warn);
+}
+.ex-ev .ex-chip:is(.is-right, .is-wrong) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  opacity: 1;
+}
+.is-wide .ex-ev .ex-chip:is(.is-right, .is-wrong) {
+  align-items: center;
+}
+.ex-frise-tray {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.ex-frise-tray .ex-chip {
+  font-size: 0.98rem;
+  touch-action: none;
+}
+.ex-chip.is-dragging {
+  position: relative;
+  z-index: 5;
+  border-color: var(--c);
+  box-shadow: 0 12px 26px rgb(0 0 0 / 0.18), 0 3px 0 var(--c);
+  transition: none;
+}
+.ex-from {
+  font-weight: 500;
+}

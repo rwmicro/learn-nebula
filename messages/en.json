@@ -1734,8 +1734,8 @@
     "tap_traduire": "Tap a word to place it, tap it again to take it back.",
     "keys_ordre": "Click a step or type its letter · ⌫ removes the last",
     "tap_ordre": "Tap the steps in order.",
-    "keys_frise": "Click an event or type its letter · ⌫ removes the last",
-    "tap_frise": "Tap the events from oldest to newest.",
+    "keys_frise": "Click a label then its slot, or A then 2 · ⌫ removes the last",
+    "tap_frise": "Tap a label, then its point on the timeline (or drag it).",
     "keys_associer": "Click a name then its phrase, or 2 then C",
     "tap_associer": "Tap a name, then what goes with it.",
     "keys_ligne": "Click the line or type its number",
@@ -1745,7 +1745,10 @@
     "nextSlot": "Tap the next step",
     "countOf": "{n} of {total}",
     "listen": "Listen",
-    "typeAria": "Type the sentence"
+    "typeAria": "Type the sentence",
+    "pinN": "Slot {n} on the timeline",
+    "friseFrom": "built from the note’s timeline",
+    "friseAsk": "Where do these {n} events from the note fall?"
   },
   "jalons": {
     "title": "Milestones",

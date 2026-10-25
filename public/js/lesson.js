@@ -35,6 +35,8 @@ import { keepAwake } from "../../lib/wake-lock";
     (n.classList.contains("callout-quiz") ||
       n.classList.contains("callout-predict") ||
       n.classList.contains("callout-ex") ||
+      // The timeline exercise under a mermaid frise (exercises.js).
+      (n.classList.contains("frise-ex") && !!n.querySelector(".callout-ex")) ||
       // A widget with a goal (widgets.js withGoals) is a question too.
       (n.classList.contains("widget") && !!n.querySelector(".w-goals")));
   const isHeading = (n) => n instanceof Element && /^H[1-6]$/.test(n.tagName);
@@ -65,6 +67,12 @@ import { keepAwake } from "../../lib/wake-lock";
     flush();
     return steps;
   }
+
+  // The card of a question step (a frise's sits inside its box).
+  const cardOf = (step) => {
+    const n = step.nodes[0];
+    return n.classList.contains("frise-ex") ? n.querySelector(".callout-ex") || n : n;
+  };
 
   let ui = null;
 
@@ -174,7 +182,7 @@ import { keepAwake } from "../../lib/wake-lock";
     function answered() {
       const step = steps[i];
       if (!step || step.kind !== "question" || skipped.has(i)) return true;
-      const card = step.nodes[0];
+      const card = cardOf(step);
       return (
         !!card.querySelector('.w-goal-foot:is([data-state="ok"], [data-state="done"])') ||
         card.classList.contains("is-answered") ||
@@ -189,7 +197,7 @@ import { keepAwake } from "../../lib/wake-lock";
     function proxyCheck() {
       const step = steps[i];
       if (!step || step.kind !== "question" || skipped.has(i)) return null;
-      const card = step.nodes[0];
+      const card = cardOf(step);
       if (!card.classList.contains("callout-ex") || card.classList.contains("is-answered")) return null;
       return card.querySelector(".ex-foot .ex-check:not(.ex-restart)");
     }

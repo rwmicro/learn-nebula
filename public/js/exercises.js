@@ -9,7 +9,7 @@
 // "Vérifier" (lesson.js moves that one to the bottom bar).
 // Imported by quiz.js, so it rides in quiz.bundle.js.
 import { recordActivity } from "../../lib/personal";
-import { bankWords, sameSentence } from "../../lib/exercises.ts";
+import { bankWords, periodYear, sameSentence } from "../../lib/exercises.ts";
 
 (function () {
   const LETTERS = "ABCDEFGHI";
@@ -122,7 +122,7 @@ import { bankWords, sameSentence } from "../../lib/exercises.ts";
   }
 
   function count(card, n, total) {
-    const c = card.querySelector(".ex-count");
+    const c = card.querySelector(".ex-count:not(.ex-from)");
     if (!c) return;
     if (total) i18n(c, "ex.countOf", { n, total });
     else c.replaceChildren();
@@ -376,14 +376,242 @@ import { bankWords, sameSentence } from "../../lib/exercises.ts";
     const stage = card.querySelector(".ex-stage");
     if (!d || !fn || !stage) return;
     if (again) reset(card);
-    card._exBack = card._exType = null;
+    card._exBack = card._exType = card._exPin = null;
+    if (stage._ro) stage._ro.disconnect();
     stage.replaceChildren();
     stage.className = "ex-stage";
     count(card, 0, 0);
     fn(card, stage, d);
   }
 
-  // A mermaid timeline's dates: a folded card under the diagram.
+  // A mermaid timeline's dates: place the events on a graduated axis
+  // (vertical on a narrow card, horizontal on a wide one). The pins sit at
+  // their years; the labels wait in a tray, lettered. Tap (or drag) a label,
+  // then its pin; tap a placed label to take it back.
+  const yearLabel = (y) => (y < 0 ? `${-y} av.` : String(y));
+  function friseTicks(lo, hi) {
+    const span = Math.max(1, hi - lo);
+    const step = [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000].find((s) => span / s <= 6) || 10000;
+    const a = Math.floor(lo / step) * step;
+    const b = Math.ceil(hi / step) * step;
+    const out = [];
+    for (let y = a; y <= b; y += step) out.push(y);
+    return { a, b: b === a ? a + step : b, out };
+  }
+  // Keep `pos` (sorted) at least `gap` apart, inside [0, max].
+  function spread(pos, gap, max) {
+    const p = pos.slice();
+    for (let i = 1; i < p.length; i++) p[i] = Math.max(p[i], p[i - 1] + gap);
+    const over = p.length ? p[p.length - 1] - max : 0;
+    if (over > 0) {
+      p[p.length - 1] = max;
+      for (let i = p.length - 2; i >= 0; i--) p[i] = Math.min(p[i], p[i + 1] - gap);
+    }
+    return p.map((v) => Math.max(0, v));
+  }
+
+  play.frise = (card, stage, d) => {
+    const ev = d.items.map((e, i) => ({ ...e, i, y: periodYear(e.when) }));
+    const ys = ev.map((e) => e.y).filter(Number.isFinite);
+    const { a, b, out: ticks } = friseTicks(Math.min(...ys), Math.max(...ys));
+    const frac = (y) => (y - a) / (b - a);
+    const acts = foot(card, "frise");
+    const placed = new Map(); // pin index → event index
+    const tray = h("div", "ex-frise-tray");
+    const axisBox = h("div", "ex-frise-axis");
+    const order = shuffle(ev.map((e) => e.i));
+    const chips = order.map((idx, k) => {
+      const c = chip(ev[idx].what, LETTERS[k]);
+      c.dataset.ev = String(idx);
+      return c;
+    });
+    let selected = null;
+    const check = checkButton(acts, () => {
+      let ok = true;
+      for (const [pin, idx] of placed) {
+        const right = ev[idx].y === ev[pin].y;
+        if (!right) ok = false;
+        const c = chips.find((x) => x.dataset.ev === String(idx));
+        c.classList.add(right ? "is-right" : "is-wrong");
+        c.disabled = true;
+        const tag = h("small", "ex-when", `${ev[idx].when} ${right ? "✓" : "✗"}`);
+        c.prepend(tag);
+      }
+      finish(card, ok, "");
+    });
+    const select = (c) => {
+      if (card.classList.contains("is-answered")) return;
+      if (c.parentElement !== tray) {
+        // A placed label goes back to the tray.
+        for (const [pin, idx] of placed) if (String(idx) === c.dataset.ev) placed.delete(pin);
+        selected = null;
+        draw();
+        return;
+      }
+      selected = selected === c ? null : c;
+      chips.forEach((x) => x.classList.toggle("is-picked", x === selected));
+    };
+    const drop = (pin, c = selected) => {
+      if (!c || card.classList.contains("is-answered")) return;
+      for (const [p, idx] of placed) if (String(idx) === c.dataset.ev) placed.delete(p);
+      placed.set(pin, Number(c.dataset.ev));
+      selected = null;
+      draw();
+    };
+    chips.forEach((c) => {
+      c.addEventListener("click", () => {
+        if (c._dragged) return;
+        select(c);
+      });
+      // Drag a label onto a pin (mouse, pen or finger).
+      c.addEventListener("pointerdown", (e) => {
+        if (card.classList.contains("is-answered") || e.button !== 0) return;
+        const x0 = e.clientX;
+        const y0 = e.clientY;
+        c._dragged = false;
+        const move = (m) => {
+          const dx = m.clientX - x0;
+          const dy = m.clientY - y0;
+          if (!c._dragged && Math.hypot(dx, dy) < 6) return;
+          c._dragged = true;
+          c.classList.add("is-dragging");
+          c.style.transform = `translate(${dx}px, ${dy}px) rotate(-2deg)`;
+          const under = document.elementsFromPoint(m.clientX, m.clientY).find((n) => n.classList?.contains("ex-pin"));
+          axisBox.querySelectorAll(".ex-pin").forEach((p) => p.classList.toggle("is-over", p === under));
+        };
+        const up = (u) => {
+          removeEventListener("pointermove", move);
+          removeEventListener("pointerup", up);
+          c.classList.remove("is-dragging");
+          c.style.transform = "";
+          axisBox.querySelectorAll(".ex-pin.is-over").forEach((p) => p.classList.remove("is-over"));
+          if (!c._dragged) return;
+          const under = document.elementsFromPoint(u.clientX, u.clientY).find((n) => n.classList?.contains("ex-pin"));
+          if (under) drop(Number(under.dataset.pin), c);
+          setTimeout(() => (c._dragged = false), 0);
+        };
+        addEventListener("pointermove", move);
+        addEventListener("pointerup", up);
+      });
+    });
+
+    function draw() {
+      const wide = stage.clientWidth >= 520;
+      stage.classList.toggle("is-wide", wide);
+      const PAD = wide ? 28 : 20;
+      const len = wide ? Math.max(200, stage.clientWidth - 2 * PAD - 8) : 400;
+      const pinPos = spread(ev.map((e) => frac(e.y) * len), 26, len);
+      const pins = [...placed.keys()].sort((x, y) => x - y);
+      // Narrow: labels right of the axis, pushed apart so none overlap.
+      // Wide: rows above the axis, a label going up a row when it would
+      // touch the previous one on its row.
+      const labelPos = wide ? pins.map((p) => pinPos[p]) : spread(pins.map((p) => pinPos[p]), 56, len);
+      const rowOf = [];
+      const ends = [];
+      pins.forEach((_, k) => {
+        let row = ends.findIndex((end) => end < labelPos[k] - 100);
+        if (row < 0) row = ends.length;
+        ends[row] = labelPos[k] + 100;
+        rowOf.push(row);
+      });
+      const rows = Math.max(1, ends.length);
+      axisBox.replaceChildren();
+      // Wide rows grow with their tallest label, so build the labels first.
+      const wraps = pins.map((pin) => {
+        const c = chips.find((x) => x.dataset.ev === String(placed.get(pin)));
+        c.style.transform = "";
+        const wrap = h("div", "ex-ev");
+        if (wide) wrap.append(c, h("i", "ex-stem"));
+        axisBox.append(wrap);
+        return wrap;
+      });
+      const rowH = Array.from({ length: rows }, () => 0);
+      if (wide) wraps.forEach((w, k) => (rowH[rowOf[k]] = Math.max(rowH[rowOf[k]], w.firstChild.offsetHeight)));
+      const rowTop = []; // distance from the axis to the top of each row
+      rowH.reduce((acc, ht, r) => (rowTop[r] = acc + 16 + ht), 0);
+      const axisAt = wide ? 16 + rowTop[rows - 1] + 2 : 62; // y of the axis (wide), x (narrow)
+      const along = (v) => (wide ? { left: `${PAD + v}px`, top: `${axisAt}px` } : { left: `${axisAt}px`, top: `${14 + v}px` });
+      axisBox.style.height = wide ? `${axisAt + 34}px` : `${len + 28}px`;
+      const line = h("i", "ex-axis-line");
+      Object.assign(line.style, wide
+        ? { left: `${PAD}px`, width: `${len}px`, top: `${axisAt - 2}px` }
+        : { top: "14px", height: `${len}px`, left: `${axisAt - 2}px` });
+      axisBox.prepend(line);
+      for (const t of ticks) {
+        const k = h("span", "ex-tick", yearLabel(t));
+        Object.assign(k.style, along(frac(t) * len));
+        axisBox.append(k);
+      }
+      pins.forEach((pin, k) => {
+        const wrap = wraps[k];
+        const c = wrap.firstChild || chips.find((x) => x.dataset.ev === String(placed.get(pin)));
+        if (wide) {
+          const top = axisAt - rowTop[rowOf[k]];
+          Object.assign(wrap.style, { left: `${PAD + labelPos[k]}px`, top: `${top}px`, height: `${axisAt - top}px`, zIndex: String(rows - rowOf[k]) });
+          // Keep the label inside the card: slide it, not its stem.
+          const x = PAD + labelPos[k];
+          const half = c.offsetWidth / 2;
+          const shift = Math.max(0, half - x) || Math.min(0, axisBox.clientWidth - x - half);
+          if (shift) c.style.transform = `translateX(${shift}px)`;
+        } else {
+          Object.assign(wrap.style, { left: `${axisAt + 26}px`, top: `${14 + labelPos[k]}px` });
+          const dy = pinPos[pin] - labelPos[k];
+          const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          svg.setAttribute("class", "ex-stem");
+          svg.setAttribute("width", "26");
+          svg.setAttribute("height", String(Math.abs(dy) + 4));
+          svg.style.top = `calc(50% + ${Math.min(dy, 0) - 2}px)`;
+          const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          l.setAttribute("x1", "0");
+          l.setAttribute("y1", String((dy > 0 ? Math.abs(dy) : 0) + 2));
+          l.setAttribute("x2", "26");
+          l.setAttribute("y2", String((dy > 0 ? 0 : Math.abs(dy)) + 2));
+          svg.append(l);
+          wrap.append(svg, c);
+        }
+      });
+      ev.forEach((e, pin) => {
+        const p = h("button", "ex-pin");
+        p.type = "button";
+        p.dataset.pin = String(pin);
+        p.dataset.k = String(pin + 1);
+        Object.assign(p.style, along(pinPos[pin]));
+        p.setAttribute("aria-label", tt("ex.pinN", { n: pin + 1 }));
+        if (placed.has(pin)) p.classList.add("is-full");
+        p.addEventListener("click", () => {
+          if (selected) drop(pin);
+          else if (placed.has(pin)) select(chips.find((x) => x.dataset.ev === String(placed.get(pin))));
+        });
+        axisBox.append(p);
+      });
+      tray.replaceChildren(...chips.filter((c) => ![...placed.values()].includes(Number(c.dataset.ev))));
+      tray.hidden = !tray.childElementCount;
+      check.disabled = placed.size < ev.length;
+    }
+    card._exBack = () => {
+      const pins = [...placed.keys()];
+      if (pins.length) {
+        placed.delete(pins[pins.length - 1]);
+        draw();
+      }
+    };
+    card._exPin = (n) => selected && n >= 1 && n <= ev.length && drop(n - 1);
+    stage.classList.add("ex-stage--frise");
+    stage.append(axisBox, tray);
+    draw();
+    let wasWide = stage.classList.contains("is-wide");
+    if ("ResizeObserver" in window) {
+      stage._ro = new ResizeObserver(() => {
+        const wide = stage.clientWidth >= 520;
+        if (wide !== wasWide && stage.isConnected) {
+          wasWide = wide;
+          draw();
+        }
+      });
+      stage._ro.observe(stage);
+    }
+  };
+
   function frise(box) {
     let items;
     try {
@@ -392,44 +620,38 @@ import { bankWords, sameSentence } from "../../lib/exercises.ts";
       return;
     }
     if (!items || items.length < 3 || box.childElementCount) return;
-    const open = i18n(h("button", "quiz-btn ex-frise-open"), "ex.friseOpen");
-    open.type = "button";
-    open.addEventListener("click", () => {
-      open.remove();
-      const card = h("div", "callout callout-ex quiz--choice ex-frise");
-      card.dataset.ex = "ordre";
-      card.dataset.exData = JSON.stringify({ items: items.map((e) => e.what), traps: [] });
-      const head = h("div", "callout-title ex-head");
-      const kick = h("span", "ex-kick");
-      kick.append(i18n(h("span"), "ex.yourTurn"), " · ", i18n(h("span"), "ex.frise"));
-      head.append(kick, h("span", "ex-count"));
-      card.append(
-        head,
-        i18n(h("p", "ex-action"), "ex.do_frise"),
-        i18n(h("p", "quiz-question ex-prompt"), "ex.frisePrompt"),
-        h("div", "ex-stage"),
-      );
-      const fb = h("div", "quiz-feedback");
-      fb.hidden = true;
-      fb.setAttribute("aria-live", "polite");
-      const after = h("ol", "callout-body ex-after ex-frise-key");
-      after.hidden = true;
-      for (const e of items) {
-        const li = h("li");
-        li.append(h("b", null, e.when), ` ${e.what}`);
-        after.appendChild(li);
-      }
-      card.append(fb, after);
-      box.appendChild(card);
-      mount(card, false);
-    });
-    box.appendChild(open);
+    const card = h("div", "callout callout-ex quiz--choice ex-frise");
+    card.dataset.ex = "frise";
+    card.dataset.exData = JSON.stringify({ items });
+    const head = h("div", "callout-title ex-head");
+    const kick = h("span", "ex-kick");
+    kick.append(i18n(h("span"), "ex.yourTurn"), " · ", i18n(h("span"), "ex.frise"));
+    head.append(kick, i18n(h("span", "ex-count ex-from"), "ex.friseFrom"));
+    card.append(
+      head,
+      i18n(h("p", "ex-action"), "ex.do_frise"),
+      i18n(h("p", "quiz-question ex-prompt"), "ex.friseAsk", { n: items.length }),
+      h("div", "ex-stage"),
+    );
+    const fb = h("div", "quiz-feedback");
+    fb.hidden = true;
+    fb.setAttribute("aria-live", "polite");
+    const after = h("ol", "callout-body ex-after ex-frise-key");
+    after.hidden = true;
+    for (const e of items) {
+      const li = h("li");
+      li.append(h("b", null, e.when), ` ${e.what}`);
+      after.appendChild(li);
+    }
+    card.append(fb, after);
+    box.appendChild(card);
+    mount(card, false);
   }
 
   function init() {
     document.querySelectorAll(".callout-ex[data-ex]").forEach((c) => {
       const stage = c.querySelector(".ex-stage");
-      if (!c.closest(".ex-frise") && stage && !stage.childElementCount) mount(c, false);
+      if (stage && !stage.childElementCount) mount(c, false);
     });
     document.querySelectorAll(".frise-ex[data-frise]").forEach(frise);
   }
@@ -469,13 +691,18 @@ import { bankWords, sameSentence } from "../../lib/exercises.ts";
       return;
     }
     if (!/^[1-9A-ZÀ-Ý]$/.test(key)) return;
+    if (/^[1-9]$/.test(key) && card._exPin && card.querySelector(".ex-chip.is-picked")) {
+      e.preventDefault();
+      card._exPin(Number(key));
+      return;
+    }
     if (/^[A-Z]$/.test(key) && card._exType) {
       e.preventDefault();
       card._exType(e.key);
       return;
     }
     const target = card.querySelector(
-      `.ex-bank .ex-chip[data-k="${key}"], .ex-pairs .ex-chip[data-k="${key}"]:not(:disabled), .ex-pickable .line[data-k="${key}"]`,
+      `.ex-bank .ex-chip[data-k="${key}"], .ex-frise-tray .ex-chip[data-k="${key}"], .ex-pairs .ex-chip[data-k="${key}"]:not(:disabled), .ex-pickable .line[data-k="${key}"]`,
     );
     if (!target) return;
     e.preventDefault();

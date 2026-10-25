@@ -1734,8 +1734,8 @@
     "tap_traduire": "Toca una palabra para colocarla y otra vez para quitarla.",
     "keys_ordre": "Haz clic en un paso o teclea su letra · ⌫ quita el último",
     "tap_ordre": "Toca los pasos en orden.",
-    "keys_frise": "Haz clic en un hecho o teclea su letra · ⌫ quita el último",
-    "tap_frise": "Toca los hechos del más antiguo al más reciente.",
+    "keys_frise": "Haz clic en una etiqueta y luego en su posición, o A y luego 2 · ⌫ quita la última",
+    "tap_frise": "Toca una etiqueta y luego su punto en la cronología (o arrástrala).",
     "keys_associer": "Haz clic en un nombre y luego en su frase, o 2 y luego C",
     "tap_associer": "Toca un nombre y luego lo que le corresponde.",
     "keys_ligne": "Haz clic en la línea o teclea su número",
@@ -1745,7 +1745,10 @@
     "nextSlot": "Toca el siguiente paso",
     "countOf": "{n} de {total}",
     "listen": "Escuchar",
-    "typeAria": "Escribe la frase"
+    "typeAria": "Escribe la frase",
+    "pinN": "Posición {n} en la cronología",
+    "friseFrom": "hecho a partir de la cronología de la nota",
+    "friseAsk": "¿Dónde caen estos {n} acontecimientos de la nota?"
   },
   "jalons": {
     "title": "Hitos",

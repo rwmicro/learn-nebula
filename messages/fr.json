@@ -1734,8 +1734,8 @@
     "tap_traduire": "Touche un mot pour le placer, touche-le encore pour le retirer.",
     "keys_ordre": "Clique une étape ou tape sa lettre · ⌫ retire la dernière",
     "tap_ordre": "Touche les étapes dans l’ordre.",
-    "keys_frise": "Clique un événement ou tape sa lettre · ⌫ retire le dernier",
-    "tap_frise": "Touche les événements du plus ancien au plus récent.",
+    "keys_frise": "Clique une étiquette puis son emplacement, ou A puis 2 · ⌫ retire la dernière",
+    "tap_frise": "Touche une étiquette, puis son point sur la frise (ou fais-la glisser).",
     "keys_associer": "Clique un nom puis sa phrase, ou 2 puis C",
     "tap_associer": "Touche un nom, puis ce qui va avec.",
     "keys_ligne": "Clique la ligne ou tape son numéro",
@@ -1745,7 +1745,10 @@
     "nextSlot": "Touche l’étape suivante",
     "countOf": "{n} sur {total}",
     "listen": "Écouter",
-    "typeAria": "Écris la phrase"
+    "typeAria": "Écris la phrase",
+    "pinN": "Emplacement {n} sur la frise",
+    "friseFrom": "construit à partir de la frise de la note",
+    "friseAsk": "Où tombent ces {n} événements de la note ?"
   },
   "jalons": {
     "title": "Jalons",
