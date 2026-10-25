@@ -5024,6 +5024,50 @@
     opacity: 0.4;
     pointer-events: none;
   }
+  /* The road's drawings (lib/road-art.ts): three tones of the family, a
+     ground line, lighter or darker with the theme. */
+  .road {
+    --f1: var(--fam, var(--garden));
+    --f0: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 42%) - 12%));
+    --f2: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 42%) + 22%));
+    --f3: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 42%) + 40%));
+    --ground: hsl(var(--fam-h, 135) 18% 88%);
+  }
+  :root[data-theme="dark"] .road {
+    --f0: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) + 10%));
+    --f2: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) - 18%));
+    --f3: hsl(var(--fam-h, 135) 22% 26%);
+    --ground: hsl(var(--fam-h, 135) 10% 24%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .road {
+      --f0: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) + 10%));
+      --f2: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) - 18%));
+      --f3: hsl(var(--fam-h, 135) 22% 26%);
+      --ground: hsl(var(--fam-h, 135) 10% 24%);
+    }
+  }
+  .road-art {
+    position: absolute;
+    width: 18%;
+    max-width: 5rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .road-art svg,
+  .road-div-art svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .road-art.is-lock {
+    filter: grayscale(1);
+    opacity: 0.45;
+  }
+  .road-div-art {
+    display: block;
+    margin: 0 -1.5rem 0.25rem;
+  }
   .road-div {
     position: absolute;
     top: 1.5rem;

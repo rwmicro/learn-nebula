@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
@@ -14,6 +14,8 @@ import {
 } from "@/lib/path-study";
 import { daysAgo, loadAllNoteDecks, retentionBySlug, type Retention } from "@/lib/note-quiz";
 import { dayKey, daysBetween } from "@/lib/srs";
+import { ART, artStrip, levelArt } from "@/lib/road-art";
+import type { PathFamily } from "@/lib/path-family";
 
 // A reading path on a phone (app.css shows it below 640px, in place of the
 // levels list and the prerequisites graph): a winding road of discs, one per
@@ -26,7 +28,9 @@ import { dayKey, daysBetween } from "@/lib/srs";
 // its progress and the revision sheet. A finished level whose saved
 // questions are due again fades (its discs go pale) and its chest says
 // "À rafraîchir": it opens a sheet (what the level still holds, note by
-// note) whose button starts the refresh.
+// note) whose button starts the refresh. Small drawings of the path's theme
+// (lib/road-art.ts) stand beside the notes, away from their discs, and a strip
+// of them sits over each level's heading; those not reached yet stay grey.
 
 export interface RoadNote {
   slug: string;
@@ -48,6 +52,8 @@ const STEP = 112;
 const CARD = 196;
 const X = [100, 288, 108, 284];
 const W = 390;
+/** Room over a level heading for its strip of drawings. */
+const STRIP = 96;
 
 const svg = (d: React.ReactNode, w = 1.9) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -120,7 +126,17 @@ function roadPath(pts: [number, number][]): string {
   return d;
 }
 
-export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadLevel[] }) {
+export function PathRoad({
+  pathSlug,
+  pathName,
+  family,
+  levels,
+}: {
+  pathSlug: string;
+  pathName: string;
+  family: PathFamily | null;
+  levels: RoadLevel[];
+}) {
   const locale = useLocale();
   const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
   const [states, setStates] = useState<Map<string, NoteState> | null>(null);
@@ -186,7 +202,8 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
         // Points: one per note, then the chest; the next note leaves room
         // for its card below.
         const pts: [number, number][] = [];
-        let y = li > 0 ? 150 : 70;
+        let y = li > 0 ? 150 + STRIP : 70;
+        const art = levelArt(pathName, lv.name, family);
         const nodes = lv.notes.map((n) => {
           const x = X[k++ % X.length];
           const at: [number, number] = [x, y];
@@ -218,6 +235,7 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
           <div key={lv.n} className={`road-level${faded ? " is-faded" : ""}`} style={{ height }}>
             {li > 0 && (
               <div className="road-div">
+                <span className="road-div-art" dangerouslySetInnerHTML={{ __html: artStrip(art) }} />
                 <p className="road-div-h">
                   {tr("parcours.level", { n: lv.n })} · {lv.name}
                 </p>
@@ -233,18 +251,31 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
               {dd && <path d={dd} className="road-done" vectorEffect="non-scaling-stroke" />}
               {dd && <path d={dd} className="road-done-line" vectorEffect="non-scaling-stroke" />}
             </svg>
-            {nodes.map(({ n, at }, i) =>
-              i % 2 === 1 ? (
-                <span
-                  key={`s${n.slug}`}
-                  className="road-sprout"
-                  style={{ left: at[0] > W / 2 ? "3%" : "87%", top: at[1] + 4 }}
-                  aria-hidden="true"
-                >
-                  {ICON.sprout}
-                </span>
-              ) : null,
-            )}
+            {nodes.map(({ n, at }, i) => {
+              const st = stateOf(n.slug);
+              const reached = isDone(st) || n.slug === next;
+              const right = at[0] > W / 2;
+              const after = nodes[i + 1];
+              return (
+                <Fragment key={`a${n.slug}`}>
+                  <span
+                    className={`road-art${reached ? "" : " is-lock"}`}
+                    style={{ left: right ? "2%" : "80%", top: at[1] }}
+                    aria-hidden="true"
+                    dangerouslySetInnerHTML={{ __html: ART[art[i % art.length]] }}
+                  />
+                  {i % 2 === 1 && after && n.slug !== next && (
+                    <span
+                      className="road-sprout"
+                      style={{ left: right ? "87%" : "3%", top: (at[1] + after.at[1]) / 2 - 16 }}
+                      aria-hidden="true"
+                    >
+                      {ICON.sprout}
+                    </span>
+                  )}
+                </Fragment>
+              );
+            })}
             <ol className="road-list">
               {nodes.map(({ n, at }) => {
                 const st = stateOf(n.slug);
