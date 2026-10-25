@@ -111,7 +111,7 @@ export const FAMILY_ART: Record<PathFamily, readonly ArtKey[]> = {
 const LEVEL_THEMES: [RegExp, readonly ArtKey[]][] = [
   [/(^|[^\p{L}])(antiq|[ée]gypt|gr[eè]c|rom(e|ain))/iu, ["pyramid", "temple", "amphora", "palm", "scroll"]],
   [/industri/i, ["windmill", "factory", "train", "scroll"]],
-  [/xxe|xixe|contemporain|modern/i, ["train", "globe", "bridge", "screen"]],
+  [/xxe|xixe|contemporain|modern/i, ["train", "globe", "bridge", "house"]],
 ];
 /** Subjects a whole path is about. */
 const PATH_THEMES: [RegExp, readonly ArtKey[]][] = [
