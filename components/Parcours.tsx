@@ -395,6 +395,7 @@ export function ParcoursPage({
         pathSlug={path.slug}
         pathName={path.name}
         family={pathFamily(path.discipline)}
+        discipline={path.discipline}
         levels={levels.map((lv) => {
           const notes = path.notes.slice(lv.from, lv.to);
           return {

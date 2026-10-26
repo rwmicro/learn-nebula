@@ -130,11 +130,14 @@ export function PathRoad({
   pathSlug,
   pathName,
   family,
+  discipline,
   levels,
 }: {
   pathSlug: string;
   pathName: string;
   family: PathFamily | null;
+  /** The vault folder of the path (English), which can pick its drawings. */
+  discipline: string;
   levels: RoadLevel[];
 }) {
   const locale = useLocale();
@@ -203,7 +206,7 @@ export function PathRoad({
         // for its card below.
         const pts: [number, number][] = [];
         let y = li > 0 ? 150 + STRIP : 70;
-        const art = levelArt(pathName, lv.name, family);
+        const art = levelArt(pathName, lv.name, family, discipline);
         const nodes = lv.notes.map((n) => {
           const x = X[k++ % X.length];
           const at: [number, number] = [x, y];

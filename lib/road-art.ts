@@ -89,6 +89,60 @@ export const ART = {
     '<svg viewBox="0 0 60 80"><circle cx="30" cy="18" r="11" fill="var(--f1)"/><path d="M22 30h16l-2 6c8 6 10 18 10 28H14c0-10 2-22 10-28z" fill="var(--f2)"/><rect x="8" y="62" width="44" height="9" rx="3" fill="var(--f0)"/><path d="M4 76h52" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
   die:
     '<svg viewBox="0 0 80 80"><path d="M40 6 72 22v36L40 74 8 58V22z" fill="var(--f2)"/><path d="M40 38 72 22v36L40 74z" fill="var(--f1)"/><path d="M40 6 72 22 40 38 8 22z" fill="var(--f3)"/><g fill="var(--f0)"><circle cx="40" cy="22" r="4"/><circle cx="22" cy="40" r="3.5"/><circle cx="30" cy="54" r="3.5"/><circle cx="54" cy="46" r="3.5"/><circle cx="62" cy="38" r="3.5"/><circle cx="58" cy="58" r="3.5"/></g></svg>',
+  guitar:
+    '<svg viewBox="0 0 60 90"><rect x="26" y="4" width="8" height="44" rx="2" fill="var(--f0)"/><rect x="22" y="2" width="16" height="10" rx="3" fill="var(--f1)"/><path d="M30 40c-10 0-16 6-14 14-8 2-12 8-12 16 0 10 10 16 26 16s26-6 26-16c0-8-4-14-12-16 2-8-4-14-14-14z" fill="var(--f1)"/><circle cx="30" cy="62" r="7" fill="var(--f0)"/><rect x="22" y="74" width="16" height="4" rx="2" fill="var(--f2)"/><path d="M28 12v62M32 12v62" stroke="var(--f3)" stroke-width="1"/></svg>',
+  keys:
+    '<svg viewBox="0 0 100 60"><rect x="4" y="8" width="92" height="46" rx="4" fill="var(--f0)"/><g fill="var(--f3)"><rect x="9" y="14" width="12" height="36" rx="2"/><rect x="23" y="14" width="12" height="36" rx="2"/><rect x="37" y="14" width="12" height="36" rx="2"/><rect x="51" y="14" width="12" height="36" rx="2"/><rect x="65" y="14" width="12" height="36" rx="2"/><rect x="79" y="14" width="12" height="36" rx="2"/></g><g fill="var(--f1)"><rect x="17" y="14" width="8" height="22" rx="1"/><rect x="31" y="14" width="8" height="22" rx="1"/><rect x="59" y="14" width="8" height="22" rx="1"/><rect x="73" y="14" width="8" height="22" rx="1"/></g></svg>',
+  metronome:
+    '<svg viewBox="0 0 70 90"><path d="M26 6h18l18 76H8z" fill="var(--f2)"/><path d="M14 60h42l6 22H8z" fill="var(--f1)"/><path d="M35 58 52 14" stroke="var(--f0)" stroke-width="4" stroke-linecap="round"/><rect x="43" y="30" width="10" height="7" rx="2" fill="var(--f0)" transform="rotate(21 48 33)"/><path d="M4 86h62" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  clap:
+    '<svg viewBox="0 0 90 80"><rect x="8" y="30" width="74" height="44" rx="4" fill="var(--f1)"/><path d="M8 30h74v10H8z" fill="var(--f0)"/><path d="M8 14 78 4l2 12L10 26z" fill="var(--f2)"/><g fill="var(--f0)"><path d="M20 12l8 12 8-1-8-12zM40 9l8 12 8-1-8-12zM60 6l8 12 8-1-8-12z"/></g><path d="M18 52h40M18 62h26" stroke="var(--f3)" stroke-width="3.5" stroke-linecap="round"/></svg>',
+  reel:
+    '<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="var(--f1)"/><circle cx="40" cy="40" r="7" fill="var(--f0)"/><g fill="var(--f3)"><circle cx="40" cy="19" r="9"/><circle cx="58" cy="32" r="9"/><circle cx="51" cy="56" r="9"/><circle cx="29" cy="56" r="9"/><circle cx="22" cy="32" r="9"/></g></svg>',
+  camera:
+    '<svg viewBox="0 0 100 80"><circle cx="30" cy="18" r="13" fill="var(--f2)"/><circle cx="58" cy="18" r="13" fill="var(--f2)"/><circle cx="30" cy="18" r="4" fill="var(--f0)"/><circle cx="58" cy="18" r="4" fill="var(--f0)"/><rect x="12" y="32" width="58" height="30" rx="4" fill="var(--f1)"/><path d="M70 40l20-10v34L70 54z" fill="var(--f0)"/><path d="M30 62 22 78M52 62l8 16" stroke="var(--f0)" stroke-width="4" stroke-linecap="round"/></svg>',
+  masks:
+    '<svg viewBox="0 0 100 80"><path d="M8 10c14 6 30 6 44 0 2 26-6 44-22 44S6 36 8 10z" fill="var(--f1)"/><path d="M18 24c3-2 6-2 9 0M33 24c3-2 6-2 9 0" stroke="var(--f3)" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M20 38c6 6 14 6 20 0" stroke="var(--f3)" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M46 24c14 6 30 6 46 0 2 26-6 44-23 44S44 50 46 24z" fill="var(--f2)"/><path d="M56 38c3 2 6 2 9 0M73 38c3 2 6 2 9 0" stroke="var(--f0)" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M60 56c6-6 14-6 20 0" stroke="var(--f0)" stroke-width="3" stroke-linecap="round" fill="none"/></svg>',
+  curtain:
+    '<svg viewBox="0 0 100 80"><rect x="4" y="4" width="92" height="10" rx="2" fill="var(--f0)"/><path d="M8 14h34c-4 20-2 40 6 58H8z" fill="var(--f1)"/><path d="M92 14H58c4 20 2 40-6 58h40z" fill="var(--f1)"/><path d="M18 14v58M30 14c-2 20 0 40 4 58M82 14v58M70 14c2 20 0 40-4 58" stroke="var(--f2)" stroke-width="2.5" fill="none"/><path d="M4 74h92" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  spotlight:
+    '<svg viewBox="0 0 90 80"><path d="M30 26 84 70H6z" fill="var(--f3)"/><rect x="18" y="8" width="26" height="22" rx="4" fill="var(--f1)" transform="rotate(-10 31 19)"/><path d="M22 26l18-4 6 10-28 6z" fill="var(--f0)"/><path d="M4 74h82" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  heart:
+    '<svg viewBox="0 0 80 75"><path d="M40 70C14 52 4 38 4 24 4 12 14 4 24 4c8 0 13 4 16 10 3-6 8-10 16-10 10 0 20 8 20 20 0 14-10 28-36 46z" fill="var(--f1)"/><path d="M14 34h14l6-10 8 20 6-10h18" fill="none" stroke="var(--f3)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  stethoscope:
+    '<svg viewBox="0 0 80 85"><path d="M16 6v24a16 16 0 0 0 32 0V6" fill="none" stroke="var(--f1)" stroke-width="5" stroke-linecap="round"/><path d="M32 46v12a14 14 0 0 0 28 0V44" fill="none" stroke="var(--f1)" stroke-width="5" stroke-linecap="round"/><circle cx="60" cy="36" r="10" fill="var(--f2)"/><circle cx="60" cy="36" r="4" fill="var(--f0)"/><g fill="var(--f0)"><circle cx="16" cy="6" r="4"/><circle cx="48" cy="6" r="4"/></g></svg>',
+  capsule:
+    '<svg viewBox="0 0 80 80"><g transform="rotate(-40 40 40)"><rect x="22" y="8" width="36" height="64" rx="18" fill="var(--f2)"/><path d="M22 40h36v14a18 18 0 0 1-36 0z" fill="var(--f1)"/></g><circle cx="16" cy="66" r="7" fill="var(--f3)"/><circle cx="66" cy="16" r="5" fill="var(--f3)"/></svg>',
+  dumbbell:
+    '<svg viewBox="0 0 100 60"><rect x="24" y="26" width="52" height="8" rx="3" fill="var(--f0)"/><g fill="var(--f1)"><rect x="12" y="10" width="12" height="40" rx="3"/><rect x="76" y="10" width="12" height="40" rx="3"/></g><g fill="var(--f2)"><rect x="4" y="18" width="8" height="24" rx="2"/><rect x="88" y="18" width="8" height="24" rx="2"/></g></svg>',
+  stopwatch:
+    '<svg viewBox="0 0 70 80"><rect x="28" y="2" width="14" height="8" rx="2" fill="var(--f0)"/><circle cx="35" cy="46" r="30" fill="var(--f1)"/><circle cx="35" cy="46" r="23" fill="var(--f3)"/><path d="M35 46V30M35 46l10 6" stroke="var(--f0)" stroke-width="4" stroke-linecap="round"/><path d="M58 18l6-6" stroke="var(--f0)" stroke-width="5" stroke-linecap="round"/></svg>',
+  shoe:
+    '<svg viewBox="0 0 100 60"><path d="M10 14c8 0 14 4 20 10l14 8c16 2 34 6 44 12 6 4 6 10 0 10H10z" fill="var(--f1)"/><path d="M8 48h84v6H8z" fill="var(--f0)"/><path d="M34 26l6-6M42 30l6-6M50 33l6-6" stroke="var(--f3)" stroke-width="3" stroke-linecap="round"/></svg>',
+  ball:
+    '<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="34" fill="var(--f2)"/><path d="M40 26l13 10-5 15H32l-5-15z" fill="var(--f0)"/><path d="M40 26V8M53 36l16-6M48 51l10 14M32 51 22 65M27 36l-16-6" stroke="var(--f0)" stroke-width="3"/></svg>',
+  gavel:
+    '<svg viewBox="0 0 100 80"><g transform="rotate(-35 40 34)"><rect x="18" y="20" width="44" height="22" rx="4" fill="var(--f1)"/><rect x="12" y="16" width="8" height="30" rx="2" fill="var(--f0)"/><rect x="60" y="16" width="8" height="30" rx="2" fill="var(--f0)"/><rect x="36" y="42" width="8" height="40" rx="3" fill="var(--f2)"/></g><rect x="50" y="62" width="44" height="12" rx="3" fill="var(--f2)"/><path d="M46 76h52" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  candle:
+    '<svg viewBox="0 0 60 90"><path d="M30 6c-6 8-8 14-4 20 2 2 6 2 8 0 4-6 2-12-4-20z" fill="var(--f2)"/><path d="M30 14c-2 4-3 7-1 10h2c2-3 1-6-1-10z" fill="var(--f3)"/><rect x="20" y="30" width="20" height="44" rx="3" fill="var(--f1)"/><path d="M8 76h44l-6 8H14z" fill="var(--f0)"/></svg>',
+  quill:
+    '<svg viewBox="0 0 80 90"><path d="M70 4C40 10 22 34 18 62l8 4C40 46 58 28 70 4z" fill="var(--f2)"/><path d="M70 4C52 22 36 42 22 64" stroke="var(--f0)" stroke-width="2.5" fill="none"/><path d="M18 62l-4 14 8-6z" fill="var(--f0)"/><path d="M30 80h36" stroke="var(--f1)" stroke-width="4" stroke-linecap="round"/><path d="M40 72h26v8H40z" fill="var(--f1)"/></svg>',
+  glasses:
+    '<svg viewBox="0 0 100 50"><g fill="var(--f3)" stroke="var(--f1)" stroke-width="5"><circle cx="26" cy="28" r="17"/><circle cx="74" cy="28" r="17"/></g><path d="M43 26c4-4 10-4 14 0" fill="none" stroke="var(--f1)" stroke-width="5" stroke-linecap="round"/><path d="M9 24 2 14M91 24l7-10" stroke="var(--f0)" stroke-width="4" stroke-linecap="round"/></svg>',
+  cell:
+    '<svg viewBox="0 0 90 80"><path d="M46 6c22 0 40 14 40 34S68 74 44 74 4 62 4 40 24 6 46 6z" fill="var(--f3)"/><path d="M46 6c22 0 40 14 40 34S68 74 44 74 4 62 4 40 24 6 46 6z" fill="none" stroke="var(--f1)" stroke-width="4"/><circle cx="42" cy="38" r="13" fill="var(--f1)"/><circle cx="42" cy="38" r="5" fill="var(--f0)"/><g fill="var(--f2)"><ellipse cx="68" cy="28" rx="8" ry="4" transform="rotate(30 68 28)"/><ellipse cx="66" cy="54" rx="7" ry="4"/><ellipse cx="20" cy="50" rx="6" ry="4"/></g></svg>',
+  dna:
+    '<svg viewBox="0 0 60 90"><path d="M14 4c0 20 32 22 32 41S14 66 14 86" fill="none" stroke="var(--f1)" stroke-width="5" stroke-linecap="round"/><path d="M46 4c0 20-32 22-32 41s32 21 32 41" fill="none" stroke="var(--f2)" stroke-width="5" stroke-linecap="round"/><g stroke="var(--f0)" stroke-width="3" stroke-linecap="round"><path d="M18 14h24M24 26h12M24 64h12M18 76h24"/></g></svg>',
+  microscope:
+    '<svg viewBox="0 0 80 90"><g transform="rotate(-25 40 30)"><rect x="32" y="4" width="14" height="40" rx="3" fill="var(--f1)"/><rect x="30" y="0" width="18" height="8" rx="2" fill="var(--f0)"/><rect x="35" y="44" width="8" height="10" fill="var(--f0)"/></g><path d="M54 38c10 6 12 20 4 30" fill="none" stroke="var(--f2)" stroke-width="6" stroke-linecap="round"/><rect x="20" y="60" width="34" height="6" rx="2" fill="var(--f2)"/><rect x="12" y="76" width="56" height="8" rx="3" fill="var(--f0)"/><path d="M50 66v10" stroke="var(--f2)" stroke-width="6"/></svg>',
+  sun:
+    '<svg viewBox="0 0 80 80"><g stroke="var(--f2)" stroke-width="5" stroke-linecap="round"><path d="M40 4v10M40 66v10M4 40h10M66 40h10M14 14l7 7M59 59l7 7M14 66l7-7M59 21l7-7"/></g><circle cx="40" cy="40" r="18" fill="var(--f1)"/></svg>',
+  river:
+    '<svg viewBox="0 0 100 70"><path d="M4 34 30 10l16 14 14-12 36 22z" fill="var(--f2)"/><path d="M30 10l16 14-6 4z" fill="var(--f1)"/><path d="M4 34h92v32H4z" fill="var(--f3)"/><path d="M40 34c10 8-14 14-4 22s20 4 16 10" fill="none" stroke="var(--f1)" stroke-width="7" stroke-linecap="round"/><g fill="var(--f1)"><path d="M14 52l6-12 6 12zM74 48l6-12 6 12z"/></g></svg>',
+  server:
+    '<svg viewBox="0 0 70 90"><g fill="var(--f1)"><rect x="8" y="6" width="54" height="22" rx="4"/><rect x="8" y="32" width="54" height="22" rx="4"/><rect x="8" y="58" width="54" height="22" rx="4"/></g><g fill="var(--f3)"><circle cx="18" cy="17" r="3"/><circle cx="18" cy="43" r="3"/><circle cx="18" cy="69" r="3"/></g><path d="M30 17h24M30 43h24M30 69h24" stroke="var(--f2)" stroke-width="3" stroke-linecap="round"/><path d="M4 86h62" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  padlock:
+    '<svg viewBox="0 0 70 80"><path d="M20 36V24a15 15 0 0 1 30 0v12" fill="none" stroke="var(--f0)" stroke-width="7" stroke-linecap="round"/><rect x="10" y="34" width="50" height="40" rx="7" fill="var(--f1)"/><circle cx="35" cy="50" r="6" fill="var(--f3)"/><rect x="32" y="52" width="6" height="12" rx="2" fill="var(--f3)"/></svg>',
 } as const;
 
 export type ArtKey = keyof typeof ART;
@@ -118,10 +172,46 @@ const PATH_THEMES: [RegExp, readonly ArtKey[]][] = [
   [/indon[ée]si/i, ["flower", "boat", "volcano", "terraces", "roof"]],
   [/[ée]checs|chess/i, ["knight", "rook", "pawn", "die"]],
 ];
+/** A discipline's own set (its English folder name, ReadingPathView's
+ *  `discipline`), before any era: a Greek philosopher gets a temple, not a
+ *  pyramid. */
+const DISCIPLINE_ART: Record<string, readonly ArtKey[]> = {
+  Music: ["note", "guitar", "keys", "metronome"],
+  Cinema: ["clap", "reel", "camera", "frame"],
+  Theatre: ["masks", "curtain", "spotlight"],
+  Medicine: ["heart", "stethoscope", "capsule", "atom"],
+  Sport: ["dumbbell", "stopwatch", "shoe", "ball"],
+  Law: ["scales", "gavel", "book", "temple"],
+  Biology: ["cell", "dna", "microscope", "butterfly", "leaf"],
+  Ecology: ["tree", "sun", "river", "butterfly", "mushroom"],
+  "Computer Science": ["server", "padlock", "graph", "screen", "chip"],
+};
+/** Philosophy's levels are named after a philosopher and their dates: the
+ *  first year picks the era. */
+const PHILOSOPHY: [number, readonly ArtKey[]][] = [
+  [500, ["temple", "lamp", "scroll", "amphora"]],
+  [1500, ["scroll", "candle", "quill", "lamp"]],
+  [Infinity, ["book", "quill", "glasses", "candle"]],
+];
 
-/** The drawings for one level of a path: its era when its name says one,
- *  else the path's subject, else its family's set (or the default one). */
-export function levelArt(pathName: string, levelName: string, family: PathFamily | null): readonly ArtKey[] {
+function philosophyArt(levelName: string): readonly ArtKey[] {
+  const m = levelName.match(/(-?)(\d{3,4})/);
+  if (!m) return PHILOSOPHY[0][1];
+  const year = (m[1] ? -1 : 1) * Number(m[2]);
+  return PHILOSOPHY.find(([until]) => year < until)![1];
+}
+
+/** The drawings for one level of a path: the discipline's own set (by era
+ *  for philosophy), else the level's era, else the path's subject, else its
+ *  family's set (or the default one). */
+export function levelArt(
+  pathName: string,
+  levelName: string,
+  family: PathFamily | null,
+  discipline = "",
+): readonly ArtKey[] {
+  if (discipline === "Philosophy") return philosophyArt(levelName);
+  if (DISCIPLINE_ART[discipline]) return DISCIPLINE_ART[discipline];
   for (const [re, keys] of LEVEL_THEMES) if (re.test(levelName)) return keys;
   for (const [re, keys] of PATH_THEMES) if (re.test(pathName)) return keys;
   return family ? FAMILY_ART[family] : FAMILY_ART.vivant;

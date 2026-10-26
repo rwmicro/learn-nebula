@@ -15,6 +15,10 @@ describe("road art", () => {
     expect(levelArt("Indonésien", "Les sons et l'alphabet", "langues")).toContain("volcano");
     expect(levelArt("Biologie", "La cellule", "vivant")).toBe(FAMILY_ART.vivant);
     expect(levelArt("Divers", "Niveau", null)).toBe(FAMILY_ART.vivant);
+    expect(levelArt("Musique", "Périodes", "arts", "Music")[0]).toBe("note");
+    expect(levelArt("Philosophie", "Thomas d'Aquin (1225-1274)", "pensee", "Philosophy")).toContain("candle");
+    expect(levelArt("Philosophie", "Emmanuel Kant (1724-1804)", "pensee", "Philosophy")).toContain("glasses");
+    expect(levelArt("Philosophie", "Platon (-428--348)", "pensee", "Philosophy")[0]).toBe("temple");
     // An era in the path's name doesn't theme its other levels.
     expect(levelArt("Philosophie : de l'Antiquité aux modernes", "Les présocratiques", "pensee")).toBe(FAMILY_ART.pensee);
     expect(levelArt("Histoire", "WW2 et XXe siècle", "pensee")[0]).toBe("train");
