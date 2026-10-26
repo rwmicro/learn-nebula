@@ -1,8 +1,8 @@
 // Deletes the RSC flight payloads Next writes beside every exported page
 // (`index.txt`, `__next.*.txt`). They exist for the App Router's client-side
 // navigation, and nothing here ever asks for them: the site imports next/link
-// nowhere, every link is a plain <a> (instantpage.js prefetches whole
-// documents through speculation rules), and the service worker precaches only
+// nowhere, every link is a plain <a> (the speculation rules in app/layout.tsx
+// prerender whole documents), and the service worker precaches only
 // "/" and the offline page. On a 600-note build they were a third of out/ by
 // weight — dead bytes in the Docker image and on the volume it ships to.
 //

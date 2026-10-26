@@ -8,8 +8,9 @@
 // to be a markup sink. Same-origin fetch only, so the `connect-src 'self'` CSP
 // in lib/site.ts holds unchanged.
 //
-// instantpage.js already prefetches these very URLs on hover, so by the time
-// this asks for one the browser usually answers from its cache.
+// The speculation rules (app/layout.tsx) prerender these very URLs on hover,
+// but in a separate document: this fetch() doesn't share that work, it just
+// asks the Pi for one more (small, brotli) page.
 //
 // Where the browser has CSS anchor positioning, the card is a popover="hint"
 // anchored to the link (lib/anchor-popover.ts): it follows the link and turns

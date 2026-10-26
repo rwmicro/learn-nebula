@@ -1069,3 +1069,27 @@ html:has(.palette--phone .palette-input:focus) .palette--phone .palette-field {
   animation-duration: 0.32s;
   animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
+
+/* The bars stay put while the page changes under them. Named, they leave the
+   root cross-fade: the phone's bottom bar (the tab bar, or a note's toolbar —
+   same place, same capsule, lib/note-app.ts) and the wider screens' site bar
+   only fade their own content, and the tab bar's pill glides from the old
+   tab to the new one, as in a native app. The pill is in the exported HTML
+   at its tab (components/MobileTabBar.tsx), so the new page has it from its
+   first frame. */
+@media (max-width: 639.98px) {
+  .tabbar,
+  .na-toolbar {
+    view-transition-name: bottom-bar;
+  }
+  .tabbar-pill {
+    view-transition-name: tabbar-pill;
+  }
+}
+.site-bar {
+  view-transition-name: site-bar;
+}
+::view-transition-group(tabbar-pill) {
+  animation-duration: 0.42s;
+  animation-timing-function: cubic-bezier(0.3, 1.35, 0.5, 1);
+}

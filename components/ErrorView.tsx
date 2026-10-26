@@ -1,7 +1,7 @@
 "use client";
 
 // What an error boundary shows instead of the blank "This page couldn't load":
-// a short explanation, Réessayer (React's reset) and a way home. The error is
+// a short explanation, Réessayer (React's reset, a reload on a note) and a way home. The error is
 // reported to /admin through /js/error-beacon.js (window.__gkReportError).
 // Self-styled with Tailwind for the same reason as app/not-found.tsx: it can
 // show on any route, so it must not pull a route-scoped stylesheet.
@@ -16,6 +16,13 @@ declare global {
 }
 
 export function ErrorView({ error, reset }: { error: Error; reset: () => void }) {
+  // On a note, React's reset would render <main> again from the hydration
+  // payload, whose copy of the note text scripts/strip-rsc-html.mjs empties:
+  // the note would come back blank. A reload brings the whole page back.
+  const retry = () => {
+    if (window.location.pathname.startsWith("/posts/")) window.location.reload();
+    else reset();
+  };
   useEffect(() => {
     window.__gkReportError?.(error);
   }, [error]);
@@ -30,7 +37,7 @@ export function ErrorView({ error, reset }: { error: Error; reset: () => void })
       <div className="flex flex-wrap gap-3">
         <button
           type="button"
-          onClick={reset}
+          onClick={retry}
           className="rounded-full bg-garden px-5 py-2 text-paper [font-family:'Alegreya_Sans',sans-serif]"
           data-i18n="errorPage.retry"
         >

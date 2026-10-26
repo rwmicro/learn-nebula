@@ -5,12 +5,14 @@
 // runs them in the order below. Regenerated on `predev`/`build`; output is
 // git-ignored.
 import { build } from "esbuild";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { HASHED_SCRIPTS, hashedScriptName } from "../lib/hashed-scripts.js";
 
 const JS_DIR = join(process.cwd(), "public", "js");
 
 // Order mirrors components/NoteScripts.tsx. Turnstile stays a separate external
-// <script>; i18n/instantpage/lightbox stay global (loaded site-wide in layout).
+// <script>; i18n/lightbox stay global (loaded site-wide in layout).
 const SCRIPTS = [
   "toc",
   "audio",
@@ -111,3 +113,16 @@ for (const name of ["palette", "quiz", "glossary", "note-end", "widgets-data", "
   });
   console.log(`bundle-js: public/js/${name}.js → public/js/${name}.bundle.js`);
 }
+
+// Hashed copies of the scripts every navigation loads (lib/hashed-scripts.js),
+// served immutable from /js/h/ (server/static-cache.ts); the layout points at
+// them through lib/js-assets.ts. The folder is rebuilt from scratch so it
+// never piles up old hashes.
+const HASHED_DIR = join(JS_DIR, "h");
+rmSync(HASHED_DIR, { recursive: true, force: true });
+mkdirSync(HASHED_DIR, { recursive: true });
+for (const file of HASHED_SCRIPTS) {
+  const bytes = readFileSync(join(JS_DIR, file));
+  writeFileSync(join(HASHED_DIR, hashedScriptName(file, bytes)), bytes);
+}
+console.log(`bundle-js: ${HASHED_SCRIPTS.length} hashed copies → public/js/h/`);

@@ -123,12 +123,17 @@ export function isFresh(
  * it lapses the ETag above makes the recheck a 304, not a re-download.
  *
  * `/i18n/**` are the UI message bundles, named `<locale>.<content hash>.js`
- * (lib/i18n-assets.ts), so they are immutable too.
+ * (lib/i18n-assets.ts), and `/js/h/**` the page scripts, `<name>.<content
+ * hash>.js` (lib/js-assets.ts), so they are immutable too.
  *
  * Everything else stays `no-cache`: the notes are a garden, they get retended.
  */
 export function cacheControlFor(urlPath: string): string | null {
-  if (urlPath.startsWith("/_next/static/") || urlPath.startsWith("/i18n/"))
+  if (
+    urlPath.startsWith("/_next/static/") ||
+    urlPath.startsWith("/i18n/") ||
+    urlPath.startsWith("/js/h/")
+  )
     return "public, max-age=31536000, immutable";
   if (urlPath.startsWith("/fonts/")) return "public, max-age=2592000";
   if (urlPath.startsWith("/api/")) return null;

@@ -158,7 +158,9 @@
     }
   });
 
-  window.addEventListener("beforeunload", () => synth.cancel());
+  // pagehide, not beforeunload: a beforeunload listener can keep the page out
+  // of the back/forward cache, and this one fired on every note.
+  window.addEventListener("pagehide", () => synth.cancel());
 
   // Voices load asynchronously on some browsers; trigger a load.
   if (typeof synth.getVoices === "function") synth.getVoices();

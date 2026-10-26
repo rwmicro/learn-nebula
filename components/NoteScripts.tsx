@@ -1,4 +1,5 @@
 import Script from "next/script";
+import { jsAsset } from "@/lib/js-assets";
 
 /**
  * Vanilla enhancers that only make sense on a note page (they hook into elements
@@ -17,7 +18,7 @@ export function NoteScripts() {
           translate, aside-toggle, sticky-header, reading-state, diagrams-loader, widgets-loader, scroll-focus, related,
           comments, youtube, popover, copy-links, selection-menu), generated
           by scripts/bundle-js.mjs. quiz / glossary: <NoteFeatureScripts>. */}
-      <Script src="/js/note.bundle.js" strategy="afterInteractive" />
+      <Script src={jsAsset("note.bundle.js")} strategy="afterInteractive" />
       <Script
         src="https://challenges.cloudflare.com/turnstile/v0/api.js"
         strategy="afterInteractive"
@@ -45,10 +46,10 @@ export function NoteFeatureScripts({
 }) {
   return (
     <>
-      {path && <Script src="/js/note-end.bundle.js" strategy="afterInteractive" />}
-      {quiz && <Script src="/js/quiz.bundle.js" strategy="afterInteractive" />}
+      {path && <Script src={jsAsset("note-end.bundle.js")} strategy="afterInteractive" />}
+      {quiz && <Script src={jsAsset("quiz.bundle.js")} strategy="afterInteractive" />}
       {glossary && (
-        <Script src="/js/glossary.bundle.js" strategy="afterInteractive" />
+        <Script src={jsAsset("glossary.bundle.js")} strategy="afterInteractive" />
       )}
     </>
   );

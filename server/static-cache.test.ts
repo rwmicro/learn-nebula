@@ -102,6 +102,13 @@ describe("cacheControlFor", () => {
     );
   });
 
+  it("caches the hashed page scripts for a year, not their plain names", () => {
+    expect(cacheControlFor("/js/h/note.bundle.0123456789.js")).toBe(
+      "public, max-age=31536000, immutable",
+    );
+    expect(cacheControlFor("/js/note.bundle.js")).toBe("no-cache");
+  });
+
   it("caches content-hashed build output forever", () => {
     expect(cacheControlFor("/_next/static/chunks/x.js")).toBe(
       "public, max-age=31536000, immutable",
