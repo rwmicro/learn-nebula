@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { ASK_LANG_NAMES, explainSystem, explainUser, langReminder, replyLangHint } from "./ask-prompts";
+import {
+  ASK_LANG_NAMES,
+  explainSystem,
+  explainUser,
+  langReminder,
+  parseCard,
+  parseExplainFeedback,
+  replyLangHint,
+} from "./ask-prompts";
 
 describe("replyLangHint", () => {
   it("keeps allow-listed languages, by their base subtag", () => {
@@ -36,5 +44,41 @@ describe("explain prompt", () => {
     expect(u).toContain("La photosynthèse…");
     expect(u).toContain("Les plantes mangent la lumière");
     expect(explainUser("p", "e", "")).not.toContain("Note :");
+  });
+});
+
+describe("parseExplainFeedback", () => {
+  it("reads the three lines", () => {
+    const f = parseExplainFeedback(
+      "TIENT: L'idée générale est là.\nMANQUE: Les jugements et les désirs.\nQUESTION: Et la colère ?",
+    );
+    expect(f).toEqual({
+      ok: "L'idée générale est là.",
+      missing: "Les jugements et les désirs.",
+      question: "Et la colère ?",
+    });
+  });
+  it("tolerates bold labels and a missing question", () => {
+    expect(parseExplainFeedback("**TIENT** : oui\n**MANQUE**: non")).toEqual({
+      ok: "oui",
+      missing: "non",
+      question: "",
+    });
+  });
+  it("is null without the format", () => {
+    expect(parseExplainFeedback("Bonne explication, bravo.")).toBeNull();
+  });
+});
+
+describe("parseCard", () => {
+  it("reads recto and verso", () => {
+    expect(parseCard("RECTO: Que distingue Épictète ?\nVERSO: Ce qui dépend de nous\net le reste.")).toEqual({
+      front: "Que distingue Épictète ?",
+      back: "Ce qui dépend de nous\net le reste.",
+    });
+  });
+  it("is null when a side is missing", () => {
+    expect(parseCard("RECTO: Une question")).toBeNull();
+    expect(parseCard("Une carte")).toBeNull();
   });
 });

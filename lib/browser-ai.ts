@@ -4,9 +4,9 @@
 // falls back to the server (or to nothing) when they are absent, which is
 // every browser but desktop Chrome.
 //
-// Shared by the React assistant (components/PinnedAssistant.tsx,
-// HomeContent.tsx) and the vanilla note bundle (public/js/translate.js), the
-// way lib/ask-stream.ts is. Every function feature-detects and never throws.
+// Shared by the garden chat (components/GardenChat.tsx) and the vanilla
+// note bundle (public/js/translate.js), the way lib/ask-stream.ts is. Every
+// function feature-detects and never throws.
 //
 // Downloads: create() fetches the model the first time, which Chrome only
 // allows with a user activation. Callers on a page load pass
