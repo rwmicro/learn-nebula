@@ -24,7 +24,10 @@ export function TopBarScroll() {
       const h = title();
       const past = h ? h.getBoundingClientRect().bottom < 56 : window.scrollY > 80;
       if (past && pill && !pill.textContent) fill();
-      document.documentElement.dataset.topbar = past ? "scrolled" : "top";
+      // Only on a change: an attribute on <html>, written every scroll frame,
+      // re-styles the whole page each time.
+      const state = past ? "scrolled" : "top";
+      if (document.documentElement.dataset.topbar !== state) document.documentElement.dataset.topbar = state;
     };
     const onScroll = () => {
       if (queued) return;

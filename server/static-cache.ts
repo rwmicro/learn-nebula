@@ -124,7 +124,8 @@ export function isFresh(
  *
  * `/i18n/**` are the UI message bundles, named `<locale>.<content hash>.js`
  * (lib/i18n-assets.ts), and `/js/h/**` the page scripts, `<name>.<content
- * hash>.js` (lib/js-assets.ts), so they are immutable too.
+ * hash>.js` (lib/js-assets.ts), so they are immutable too, as are the
+ * hash-named engine files under `/engine/`.
  *
  * Everything else stays `no-cache`: the notes are a garden, they get retended.
  */
@@ -132,7 +133,10 @@ export function cacheControlFor(urlPath: string): string | null {
   if (
     urlPath.startsWith("/_next/static/") ||
     urlPath.startsWith("/i18n/") ||
-    urlPath.startsWith("/js/h/")
+    urlPath.startsWith("/js/h/") ||
+    // The chess engine's files carry their build's hash in the name
+    // (stockfish-17.1-lite-single-03e3232.wasm, 7 MB): never re-asked for.
+    /^\/engine\/[^/]+-[0-9a-f]{7,}\.(?:js|wasm)$/.test(urlPath)
   )
     return "public, max-age=31536000, immutable";
   if (urlPath.startsWith("/fonts/")) return "public, max-age=2592000";

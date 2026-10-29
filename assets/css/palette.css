@@ -1089,6 +1089,13 @@ html:has(.palette--phone .palette-input:focus) .palette--phone .palette-field {
 .site-bar {
   view-transition-name: site-bar;
 }
+/* From 640px, a note's floating reading bar (public/js/note-dock.js): from
+   one note to the next it stays where it is. */
+@media (min-width: 640px) {
+  .note-dock {
+    view-transition-name: note-dock;
+  }
+}
 ::view-transition-group(tabbar-pill) {
   animation-duration: 0.42s;
   animation-timing-function: cubic-bezier(0.3, 1.35, 0.5, 1);

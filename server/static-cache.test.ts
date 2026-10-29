@@ -109,6 +109,16 @@ describe("cacheControlFor", () => {
     expect(cacheControlFor("/js/note.bundle.js")).toBe("no-cache");
   });
 
+  it("caches the hash-named engine files, not the rest of /engine/", () => {
+    expect(cacheControlFor("/engine/stockfish-17.1-lite-single-03e3232.wasm")).toBe(
+      "public, max-age=31536000, immutable",
+    );
+    expect(cacheControlFor("/engine/stockfish-17.1-lite-single-03e3232.js")).toBe(
+      "public, max-age=31536000, immutable",
+    );
+    expect(cacheControlFor("/engine/COPYING.txt")).toBe("no-cache");
+  });
+
   it("caches content-hashed build output forever", () => {
     expect(cacheControlFor("/_next/static/chunks/x.js")).toBe(
       "public, max-age=31536000, immutable",

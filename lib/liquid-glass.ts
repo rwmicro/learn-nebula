@@ -169,17 +169,38 @@ export function attachLens(el: HTMLElement, opts: LensOptions = {}): () => void 
     el.classList.add("has-lens");
   };
 
-  // While a size animates the map is redrawn once per frame at most.
+  // While a size animates (the tab bar shrinking as the reader scrolls
+  // down), the map already drawn is only stretched to the new size: the
+  // filter region and the image's box, two attributes. Drawing a new one
+  // (the map, a canvas, a PNG data URL the filter then decodes) costs 3 to
+  // 6 ms on a phone, per frame for the length of the animation: frames
+  // dropped exactly while the bar moves. It is redrawn once the size has
+  // held still for SETTLE_MS.
+  const SETTLE_MS = 160;
   let frame = 0;
+  let settle = 0;
+  const stretch = () => {
+    const w = Math.round(el.offsetWidth);
+    const h = Math.round(el.offsetHeight);
+    const img = filter.firstElementChild;
+    if (!w || !h || !size || !img) return draw();
+    for (const [k, v] of [["width", w], ["height", h]] as const) {
+      filter.setAttribute(k, String(v));
+      img.setAttribute(k, String(v));
+    }
+  };
   const ro = new ResizeObserver(() => {
     cancelAnimationFrame(frame);
-    frame = requestAnimationFrame(draw);
+    frame = requestAnimationFrame(stretch);
+    clearTimeout(settle);
+    settle = window.setTimeout(draw, SETTLE_MS);
   });
   ro.observe(el);
   draw();
   return () => {
     ro.disconnect();
     cancelAnimationFrame(frame);
+    clearTimeout(settle);
     filter.remove();
     el.style.removeProperty("backdrop-filter");
     el.style.removeProperty("-webkit-backdrop-filter");

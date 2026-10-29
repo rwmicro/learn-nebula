@@ -58,6 +58,10 @@ const EXTS = new Set([
   ".xml",
   ".map",
   ".webmanifest",
+  // WebAssembly is not pre-compressed by its build: the chess engine
+  // (public/engine/, 7.3 MB) comes down 25 % smaller in brotli, an ONNX
+  // runtime far more.
+  ".wasm",
 ]);
 
 // Below this, the HTTP round trip dominates and the variants are mostly
