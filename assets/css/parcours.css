@@ -354,8 +354,8 @@ body:has(.parcours-page) footer {
   align-items: baseline;
   gap: 0 0.4rem;
   max-width: 100%;
-  padding: 0.45rem 1.1rem;
-  border-radius: var(--radius-pill);
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-sm);
   background: var(--garden);
   color: var(--paper);
   font-weight: 600;
@@ -450,16 +450,13 @@ body:has(.parcours-page) footer {
   align-items: center;
   gap: 0.5rem;
 }
-/* The secondary button of the site (the app's: a pill with a light rim),
-   as "Fiche", "Recommencer" and "Afficher la réponse"; the primary one is
-   filled garden green ("Commencer", "Vérifier"). */
 .parcours-tool {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.42rem 1rem;
-  border: 1.5px solid var(--rule-strong);
-  border-radius: var(--radius-pill);
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--ink);
+  border-radius: var(--radius-sm);
   background: var(--paper);
   color: var(--ink);
   font: inherit;
@@ -472,8 +469,8 @@ a.parcours-tool {
   text-decoration: none;
 }
 .parcours-tool:hover:not(:disabled) {
-  border-color: var(--garden);
-  color: var(--garden);
+  background: var(--ink);
+  color: var(--paper);
 }
 .parcours-tool:disabled {
   border-color: var(--rule-strong);
@@ -1366,11 +1363,10 @@ a.parcours-tool {
 
 /* --- "pressable" actions (idea from Brilliant) ------------------------------
    The page's buttons get a thicker bottom edge that gives on press, so they
-   read as buttons rather than boxed text; links stay links. Pills, as the
-   phone's buttons ("Commencer", "Tout réviser"). */
+   read as buttons rather than boxed text; links stay links. */
 .parcours-cta,
 .parcours-tool {
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   border-bottom-width: 3px;
   transition: transform 0.08s;
 }

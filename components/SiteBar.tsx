@@ -18,7 +18,7 @@ import { LangSwitcher } from "@/components/LangSwitcher";
 // language (the home's inline list folded into a dropdown), search,
 // light/dark, and the account button.
 export function SiteBar() {
-  const links = [...NAV, { name: "moi.title", href: "/progression/" }].map((n) => ({
+  const links = [...NAV, { name: "nav.progression", href: "/progression/" }].map((n) => ({
     href: n.href,
     key: n.name,
     label: t(n.name),
