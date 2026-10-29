@@ -5899,9 +5899,10 @@ main.nf-page .nf-title {
   }
 }
 
-/* Réviser on a phone: the decks as seed drawers, two to a row
-   (CartesPhone.tsx, lib/deco-art.ts). */
-@media (max-width: 639.98px) {
+/* Réviser: the decks as seed drawers, two to a row on a phone and three
+   from 640px (CartesPhone.tsx, lib/deco-art.ts). At every width, like the
+   rest of .rv: the desktop /cartes/ is the same page. */
+@media all {
   .rv-decks {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -5944,6 +5945,11 @@ main.nf-page .nf-title {
     margin-top: 0.125rem;
     font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
     color: var(--muted);
+  }
+}
+@media (min-width: 640px) {
+  .rv-decks {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
