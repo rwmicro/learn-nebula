@@ -1,5 +1,7 @@
 "use client";
 
+import { drawer, levelArt } from "@/lib/road-art";
+import type { PathFamily } from "@/lib/path-family";
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -33,19 +35,6 @@ const svg = (d: React.ReactNode) => (
     {d}
   </svg>
 );
-const LANG = svg(
-  <>
-    <path d="M4 5h8M8 3v2M5.5 5c.8 3 2.8 5.3 5.5 6.5M10.5 5C9.7 8 7.6 10.5 4.5 12" />
-    <path d="m12.5 20 4-9 4 9M14 17h5" />
-  </>,
-);
-const CODE = svg(<path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14" />);
-const CARDS = svg(
-  <>
-    <rect x="4" y="6" width="13" height="15" rx="2" />
-    <path d="M8 3h10a2 2 0 0 1 2 2v12" />
-  </>,
-);
 const QUIZ = svg(
   <>
     <circle cx="12" cy="12" r="9" />
@@ -63,6 +52,7 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
   const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
   const [counts, setCounts] = useState<Record<string, Count> | null>(null);
   const [notes, setNotes] = useState(0);
+  const [saved, setSaved] = useState(0);
   const [run, setRun] = useState(0);
 
   useEffect(() => {
@@ -76,7 +66,9 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
       out[d.slug] = { ...quickCounts(p, d.count, cfg, today), paused: cfg.paused, started: isStarted(p) };
     }
     setCounts(out);
-    setNotes(dueQuestions(loadAllNoteDecks(localStorage), today).length);
+    const noteDecks = loadAllNoteDecks(localStorage);
+    setNotes(dueQuestions(noteDecks, today).length);
+    setSaved(Object.values(noteDecks).reduce((n, d) => n + Object.keys(d.items).length, 0));
     const reads = Object.values(loadStore())
       .map((e) => e.r)
       .filter((r): r is number => typeof r === "number");
@@ -95,12 +87,37 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
     const c = counts?.[d.slug];
     return !c?.started ? -2 : c.paused ? -1 : c.due + c.fresh;
   };
+  const started = Object.values(counts ?? {}).some((c) => c.started);
+  // Before the counts load (or without storage) the regular card shows.
+  const state = counts === null ? "counts" : !started && saved === 0 ? "new" : total === 0 ? "done" : "counts";
   const sorted = [...decks].sort((a, b) => load(b) - load(a) || a.label.localeCompare(b.label));
 
   return (
     <div className="rv" data-pagefind-ignore>
       <h1 className="rv-title">{tr("tabbar.review")}</h1>
 
+      {/* A fresh browser has nothing to count: one invitation instead of a
+          row of zeros and a "Tout réviser" with nothing behind it. */}
+      {state === "new" ? (
+        <section className="rv-today rv-start">
+          <p className="rv-kicker">{tr("rv.startKicker")}</p>
+          <p className="rv-start-h">{tr("rv.startTitle")}</p>
+          <p className="rv-start-p">{tr("rv.startText")}</p>
+          <a className="rv-go" href="#rv-decks">
+            {tr("rv.startGo")}
+          </a>
+        </section>
+      ) : state === "done" ? (
+        <section className="rv-today rv-start">
+          <p className="rv-kicker">{tr("rv.today")}</p>
+          <p className="rv-start-h">{tr("rv.doneTitle")}</p>
+          <p className="rv-start-p">{tr("rv.doneText")}</p>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a className="rv-go" href="/cartes/entrainer/">
+            {tr("rv.doneGo")}
+          </a>
+        </section>
+      ) : (
       <section className="rv-today">
         <p className="rv-kicker">{tr("rv.today")}</p>
         <p className="rv-big">
@@ -128,6 +145,7 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
           {tr("cartesIndex.today")}
         </a>
       </section>
+      )}
 
       <h2 className="rv-h">{tr("rv.myQuestions")}</h2>
       <ul className="rv-list">
@@ -156,30 +174,31 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
         </li>
       </ul>
 
-      <h2 className="rv-h">{tr("rv.decks")}</h2>
+      <h2 className="rv-h" id="rv-decks">{tr("rv.decks")}</h2>
       {decks.length === 0 ? (
         <p className="rv-empty">{tr("cartesIndex.empty")}</p>
       ) : (
-        <ul className="rv-list">
+        // Each deck as a seed drawer with its theme's drawing on the corner
+        // (lib/road-art.ts), two to a row.
+        <ul className="rv-decks">
           {sorted.map((d) => {
             const c = counts?.[d.slug];
             const n = c && c.started && !c.paused ? c.due + c.fresh : 0;
+            const art = levelArt(d.label, "", (d.family as PathFamily | null) ?? null)[0];
             return (
               <li key={d.slug} data-family={d.family ?? undefined}>
                 <a href={`/cartes/${d.slug}/`}>
-                  <span className="rv-ico">{d.family === "langues" ? LANG : d.family === "informatique" ? CODE : CARDS}</span>
-                  <span className="rv-tx">
-                    <b>{d.label}</b>
-                    <small>
-                      {c?.paused ? tr("cartesIndex.paused") : tr("cartesIndex.count", { count: d.count.toLocaleString(locale) })}
-                    </small>
-                  </span>
-                  {c?.started && !c.paused && (
-                    <span className={`rv-pill${n ? "" : " soft"}`} aria-label={n ? tr("rv.dueAria", { n }) : tr("cartesIndex.upToDate")}>
-                      {n || "✓"}
-                    </span>
-                  )}
-                  {CHEV}
+                  <span className="rv-drawer deco" aria-hidden="true" dangerouslySetInnerHTML={{ __html: drawer(art) }} />
+                  <b>{d.label}</b>
+                  <small>
+                    {c?.paused
+                      ? tr("cartesIndex.paused")
+                      : c?.started
+                        ? n
+                          ? tr("rv.due", { n })
+                          : tr("rv.nothingToday")
+                        : tr("cartesIndex.count", { count: d.count.toLocaleString(locale) })}
+                  </small>
                 </a>
               </li>
             );

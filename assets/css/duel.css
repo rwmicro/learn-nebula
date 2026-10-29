@@ -364,3 +364,16 @@
   border-color: var(--warn);
   color: var(--warn);
 }
+
+/* Waiting for the guest: a table, a board, a chair (lib/deco-art.ts). */
+.duo-share {
+  text-align: center;
+}
+.duo-scene {
+  width: min(18rem, 100%);
+  margin: 0 auto 0.25rem;
+}
+.duo-share-h {
+  margin: 0 0 0.4rem;
+  font: 500 1.4rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+}

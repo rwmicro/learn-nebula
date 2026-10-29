@@ -1,5 +1,6 @@
 "use client";
 
+import { SCENES } from "@/lib/deco-art";
 import { useEffect, useMemo, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -10,6 +11,7 @@ import { LANG_OPTIONS } from "@/components/LangSwitcher";
 import { themePref } from "@/components/AppSettings";
 import { Avatar } from "@/components/Avatar";
 import type { Look } from "@/lib/avatar";
+import { Milestones } from "@/components/Milestones";
 
 /** The reader closed the "Garder ma progression" card (this browser). */
 const KEEP_HIDDEN_KEY = "gkKeepHidden";
@@ -46,6 +48,9 @@ export function MoiPhone() {
   const [look, setLook] = useState<Look | undefined>(undefined);
   const [keepHidden, setKeepHidden] = useState(true);
   const [theme, setTheme] = useState<Theme>("auto");
+  // Nothing recorded in this browser yet: one invitation stands in for the
+  // four zero tiles and the empty calendar.
+  const [fresh, setFresh] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -63,6 +68,7 @@ export function MoiPhone() {
           else if (e.r == null && e.t >= since) started++;
         }
         setWeek({ read, started });
+        setFresh(Object.keys(store).length === 0 && Object.keys(loadActivity()).length === 0);
       } catch {
         /* storage blocked: zeros */
       }
@@ -186,6 +192,19 @@ export function MoiPhone() {
         </a>
       )}
 
+      {fresh ? (
+        <div className="moi-fresh">
+          {/* A seed packet (lib/deco-art.ts). */}
+          <div className="moi-fresh-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.packet }} />
+          <b>{tr("moi.freshTitle")}</b>
+          <p>{tr("moi.freshText")}</p>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+          <a className="moi-fresh-go" href="/parcours/">
+            {tr("progression.welcomePaths")}
+          </a>
+        </div>
+      ) : (
+        <>
       <div className="moi-row-h">
         <h2 className="moi-h">{tr("moi.week")}</h2>
         <a className="moi-row-link" href="/defis/">
@@ -225,6 +244,9 @@ export function MoiPhone() {
           <i key={c.day} className={c.future ? "f" : c.level ? `l${c.level}` : undefined} />
         ))}
       </div>
+      <Milestones className="moi-jalons" />
+        </>
+      )}
 
       <h2 className="moi-h" id="moi-reglages">
         {tr("settings.title")}

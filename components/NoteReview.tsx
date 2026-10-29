@@ -18,6 +18,7 @@ import { loadSettings } from "@/lib/srs-settings";
 import { ReviewSession, type Graded, type ReviewItem } from "@/components/ReviewSession";
 import { AppBack } from "@/components/AppBack";
 import { EmptyActions } from "@/components/EmptyActions";
+import { GrowLoader } from "@/components/GrowLoader";
 
 /**
  * /cartes/revision/ — review the note questions (`> [!quiz]` callouts) the
@@ -132,13 +133,13 @@ export function NoteReview() {
       )}
 
       {decks === null ? (
-        <p className="italic text-muted-warm">{tr("flashcards.loading")}</p>
+        <GrowLoader>{tr("flashcards.loading")}</GrowLoader>
       ) : decks === false ? (
         <p className="italic text-muted-warm">{tr("noteReview.noStorage")}</p>
       ) : saved === 0 ? (
         <section className="review-empty">
           <p className="italic text-muted-warm">{tr("noteReview.empty")}</p>
-          <EmptyActions />
+          <EmptyActions scene="packet" />
         </section>
       ) : (
         <ReviewSession

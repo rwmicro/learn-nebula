@@ -259,6 +259,11 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
       s: openContents,
       f: () => setFocus(document.body.dataset.focus !== "true"),
       b: () => bm && toggleBm(),
+      // "Lire en leçon", where the note offers it (public/js/lesson.js).
+      l: () => {
+        const lb = document.querySelector(".lesson-btn:not([hidden])");
+        if (lb) lb.click();
+      },
     }[k];
     if (act) {
       e.preventDefault();

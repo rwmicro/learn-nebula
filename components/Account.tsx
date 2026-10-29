@@ -1,8 +1,10 @@
 "use client";
 
+import { SCENES } from "@/lib/deco-art";
 import { useCallback, useEffect, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { ActivityCalendar } from "@/components/ActivityCalendar";
+import { Milestones } from "@/components/Milestones";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import {
@@ -266,6 +268,8 @@ export function Account() {
           <p className="acct-private">{tr("account.private")}</p>
         </div>
       </section>
+
+      <Milestones className="acct-card acct-card--wide" />
 
       <section className="acct-card acct-card--wide" aria-labelledby="acct-wardrobe">
         <h2 id="acct-wardrobe">{tr("avatar.title")}</h2>
@@ -558,9 +562,15 @@ function Login({
         </ul>
         {expired && <p className="acct-warn">{tr("account.expired")}</p>}
         {state === "sent" ? (
-          <p className="acct-ok" role="status">
-            {tr("account.sent", { email })}
-          </p>
+          // A letterbox with its flag up (lib/deco-art.ts).
+          <div className="acct-sent" role="status">
+            <div className="acct-sent-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.mailbox }} />
+            <h3>{tr("account.sentTitle")}</h3>
+            <p>{tr("account.sent", { email })}</p>
+            <button type="button" className="acct-btn" onClick={() => setState("")}>
+              {tr("account.resend")}
+            </button>
+          </div>
         ) : (
           <form className="acct-form" onSubmit={(e) => void submit(e)}>
             <label>

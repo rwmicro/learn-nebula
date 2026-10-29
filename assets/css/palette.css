@@ -231,6 +231,13 @@ html.palette-open {
   text-align: center;
   color: var(--muted-warm);
 }
+.palette-empty p {
+  margin: 0;
+}
+.palette-empty-ill {
+  width: 12rem;
+  margin: 0 auto 0.5rem;
+}
 .palette-foot {
   display: flex;
   justify-content: space-between;
@@ -895,19 +902,10 @@ html:has(.palette--phone .palette-input:focus) .palette--phone .palette-field {
   padding: 1.6rem 1.9rem 0.4rem;
   text-align: center;
 }
+/* A magnifier over bare ground (lib/deco-art.ts). */
 .pp-empty-ill {
-  display: grid;
-  place-items: center;
-  width: 4.75rem;
-  height: 4.75rem;
-  margin: 0 auto 0.6rem;
-  border-radius: 50%;
-  background: var(--wash-2);
-  color: var(--muted-warm);
-}
-.pp-empty-ill svg {
-  width: 2.25rem;
-  height: 2.25rem;
+  width: min(17rem, 100%);
+  margin: 0 auto 0.75rem;
 }
 .pp-empty h3 {
   margin: 0;

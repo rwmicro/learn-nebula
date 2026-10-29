@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
@@ -12,6 +12,11 @@ import {
   loadStudyStates,
   type NoteState,
 } from "@/lib/path-study";
+import { daysAgo, loadAllNoteDecks, retentionBySlug, type Retention } from "@/lib/note-quiz";
+import { dayKey, daysBetween } from "@/lib/srs";
+import { ART, artStrip, levelArt } from "@/lib/road-art";
+import { SCENES } from "@/lib/deco-art";
+import type { PathFamily } from "@/lib/path-family";
 
 // A reading path on a phone (app.css shows it below 640px, in place of the
 // levels list and the prerequisites graph): a winding road of discs, one per
@@ -21,7 +26,12 @@ import {
 // show their time and what they hold. Each level ends on a chest, the level
 // review (ParcoursStudy.tsx opens it: [data-level-review-btn]), then a
 // divider names the next level. The current level stays pinned on top with
-// its progress and the revision sheet.
+// its progress and the revision sheet. A finished level whose saved
+// questions are due again fades (its discs go pale) and its chest says
+// "À rafraîchir": it opens a sheet (what the level still holds, note by
+// note) whose button starts the refresh. Small drawings of the path's theme
+// (lib/road-art.ts) stand beside the notes, away from their discs, and a strip
+// of them sits over each level's heading; those not reached yet stay grey.
 
 export interface RoadNote {
   slug: string;
@@ -34,6 +44,8 @@ export interface RoadNote {
 export interface RoadLevel {
   n: number;
   name: string;
+  /** What the level reaches (`cible:`), shown beside its name. */
+  cible?: string;
   notes: RoadNote[];
 }
 
@@ -41,6 +53,8 @@ const STEP = 112;
 const CARD = 196;
 const X = [100, 288, 108, 284];
 const W = 390;
+/** Room over a level heading for its strip of drawings. */
+const STRIP = 96;
 
 const svg = (d: React.ReactNode, w = 1.9) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={w} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -113,14 +127,39 @@ function roadPath(pts: [number, number][]): string {
   return d;
 }
 
-export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadLevel[] }) {
+export function PathRoad({
+  pathSlug,
+  pathName,
+  family,
+  discipline,
+  levels,
+}: {
+  pathSlug: string;
+  pathName: string;
+  family: PathFamily | null;
+  /** The vault folder of the path (English), which can pick its drawings. */
+  discipline: string;
+  levels: RoadLevel[];
+}) {
   const locale = useLocale();
   const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
   const [states, setStates] = useState<Map<string, NoteState> | null>(null);
+  /** Answered questions, and those due again, by note slug. */
+  const [ret, setRet] = useState<Map<string, Retention>>(new Map());
+  /** The faded level whose sheet is open. */
+  const [sheet, setSheet] = useState<RoadLevel | null>(null);
+  const sheetRef = useRef<HTMLDialogElement>(null);
   const all = useMemo(() => levels.flatMap((l) => l.notes), [levels]);
   const study = useMemo(() => all.map((n) => ({ slug: n.slug, prereqs: [], quiz: n.quiz })), [all]);
 
-  const reload = useCallback(() => setStates(loadStudyStates(study).states), [study]);
+  const reload = useCallback(() => {
+    setStates(loadStudyStates(study).states);
+    try {
+      setRet(retentionBySlug(loadAllNoteDecks(localStorage), dayKey()));
+    } catch {
+      /* storage blocked: nothing fades */
+    }
+  }, [study]);
   useEffect(() => {
     reload();
     const onStorage = (e: StorageEvent) => isStudyKey(e.key) && reload();
@@ -131,6 +170,11 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
       for (const ev of [CHANGE_EVENT, STUDY_EVENT, QUIZ_EVENT, "pageshow"]) window.removeEventListener(ev, reload);
     };
   }, [reload]);
+
+  useEffect(() => {
+    const d = sheetRef.current;
+    if (sheet && d && !d.open) d.showModal();
+  }, [sheet]);
 
   const stateOf = (s: string): NoteState => states?.get(s) ?? "unread";
   const next = states ? (all.find((n) => !isDone(stateOf(n.slug)))?.slug ?? null) : null;
@@ -146,6 +190,7 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
           <div className="road-bar-tx">
             <small>
               {tr("road.levelOf", { n: curLevel.n, total: levels.length })} · {tr("road.min", { n: curMinutes })}
+              {curLevel.cible && ` · ${tr("parcours.cible", { c: curLevel.cible })}`}
             </small>
             <b>{curLevel.name}</b>
             <span className="road-bar-p" aria-hidden="true">
@@ -161,7 +206,8 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
         // Points: one per note, then the chest; the next note leaves room
         // for its card below.
         const pts: [number, number][] = [];
-        let y = li > 0 ? 150 : 70;
+        let y = li > 0 ? 150 + STRIP : 70;
+        const art = levelArt(pathName, lv.name, family, discipline);
         const nodes = lv.notes.map((n) => {
           const x = X[k++ % X.length];
           const at: [number, number] = [x, y];
@@ -187,15 +233,19 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
         const d = roadPath(pts);
         const dd = lastDone > 0 ? roadPath(pts.slice(0, lastDone + 1)) : "";
         const lvMinutes = lv.notes.reduce((m, n) => m + n.minutes, 0);
+        const lvDue = lv.notes.reduce((m, n) => m + (ret.get(n.slug)?.due ?? 0), 0);
+        const faded = doneCount === lv.notes.length && lvDue > 0;
         return (
-          <div key={lv.n} className="road-level" style={{ height }}>
+          <div key={lv.n} className={`road-level${faded ? " is-faded" : ""}`} style={{ height }}>
             {li > 0 && (
               <div className="road-div">
+                <span className="road-div-art" dangerouslySetInnerHTML={{ __html: artStrip(art) }} />
                 <p className="road-div-h">
                   {tr("parcours.level", { n: lv.n })} · {lv.name}
                 </p>
                 <p className="road-div-sub">
                   {tr("road.levelSub", { n: lv.notes.length, m: lvMinutes })}
+                  {lv.cible && ` · ${tr("parcours.cible", { c: lv.cible })}`}
                 </p>
               </div>
             )}
@@ -205,18 +255,31 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
               {dd && <path d={dd} className="road-done" vectorEffect="non-scaling-stroke" />}
               {dd && <path d={dd} className="road-done-line" vectorEffect="non-scaling-stroke" />}
             </svg>
-            {nodes.map(({ n, at }, i) =>
-              i % 2 === 1 ? (
-                <span
-                  key={`s${n.slug}`}
-                  className="road-sprout"
-                  style={{ left: at[0] > W / 2 ? "3%" : "87%", top: at[1] + 4 }}
-                  aria-hidden="true"
-                >
-                  {ICON.sprout}
-                </span>
-              ) : null,
-            )}
+            {nodes.map(({ n, at }, i) => {
+              const st = stateOf(n.slug);
+              const reached = isDone(st) || n.slug === next;
+              const right = at[0] > W / 2;
+              const after = nodes[i + 1];
+              return (
+                <Fragment key={`a${n.slug}`}>
+                  <span
+                    className={`road-art${reached ? "" : " is-lock"}`}
+                    style={{ left: right ? "2%" : "80%", top: at[1] }}
+                    aria-hidden="true"
+                    dangerouslySetInnerHTML={{ __html: ART[art[i % art.length]] }}
+                  />
+                  {i % 2 === 1 && after && n.slug !== next && (
+                    <span
+                      className="road-sprout"
+                      style={{ left: right ? "87%" : "3%", top: (at[1] + after.at[1]) / 2 - 16 }}
+                      aria-hidden="true"
+                    >
+                      {ICON.sprout}
+                    </span>
+                  )}
+                </Fragment>
+              );
+            })}
             <ol className="road-list">
               {nodes.map(({ n, at }) => {
                 const st = stateOf(n.slug);
@@ -278,15 +341,25 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
               })}
               {chest && (
                 <li
-                  className={`road-pn road-chest${doneCount === lv.notes.length ? " done" : " lock"}${chest[0] > W / 2 ? " r" : ""}`}
+                  className={`road-pn road-chest${faded ? " due" : doneCount === lv.notes.length ? " done" : " lock"}${chest[0] > W / 2 ? " r" : ""}`}
                   style={{ left: `${(100 * chest[0]) / W}%`, top: chest[1] }}
                 >
-                  <button type="button" className="road-disk" data-level-review-btn={levels.length > 1 ? lv.n : 1}>
+                  <button
+                    type="button"
+                    className="road-disk"
+                    {...(faded
+                      ? { onClick: () => setSheet(lv), "aria-haspopup": "dialog" as const }
+                      : { "data-level-review-btn": levels.length > 1 ? lv.n : 1 })}
+                  >
                     <span>{ICON.chest}</span>
                     <span className="sr-only">{tr(levels.length > 1 ? "parcours.levelReview" : "parcours.review", { n: lv.n })}</span>
                   </button>
                   <div className="road-lb">
-                    {doneCount === lv.notes.length && <em>{tr("road.levelDone", { n: lv.n })}</em>}
+                    {faded ? (
+                      <em>{tr("road.refresh", { n: lvDue })}</em>
+                    ) : (
+                      doneCount === lv.notes.length && <em>{tr("road.levelDone", { n: lv.n })}</em>
+                    )}
                     <b>{tr(levels.length > 1 ? "parcours.levelReview" : "parcours.review", { n: lv.n })}</b>
                     <small>{tr("road.questions", { n: quiz })}</small>
                   </div>
@@ -296,6 +369,146 @@ export function PathRoad({ pathSlug, levels }: { pathSlug: string; levels: RoadL
           </div>
         );
       })}
+      {states && all.length > 0 && !next && (
+        // The whole path read: the road reaches a tree in bloom (lib/deco-art.ts).
+        <div className="road-end">
+          <div className="road-end-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.done }} />
+          <div className="road-end-card">
+            <small>{tr("road.endKicker")}</small>
+            <h2>{pathName}</h2>
+            <p>{tr("road.endText", { n: all.length, q: all.reduce((m, n) => m + n.quiz.length, 0) })}</p>
+            <div className="road-end-stats">
+              <div>
+                <b>{all.length}</b>
+                <span>{tr("road.endNotes")}</span>
+              </div>
+              <div>
+                <b>{levels.length}</b>
+                <span>{tr("road.endLevels")}</span>
+              </div>
+              <div>
+                <b>{hours(all.reduce((m, n) => m + n.minutes, 0))}</b>
+                <span>{tr("road.endReading")}</span>
+              </div>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a className="road-end-go" href="/cartes/aujourdhui/">
+              {tr("road.endGo")}
+            </a>
+          </div>
+        </div>
+      )}
+      {sheet && (
+        <RefreshSheet
+          ref={sheetRef}
+          level={sheet}
+          review={levels.length > 1 ? sheet.n : 1}
+          ret={ret}
+          tr={tr}
+          locale={locale}
+          onClose={() => setSheet(null)}
+        />
+      )}
     </section>
+  );
+}
+
+/** Reading time as "9 h", or "40 min" under an hour. */
+function hours(min: number): string {
+  return min < 60 ? `${min} min` : `${Math.round(min / 60)} h`;
+}
+
+const CELLS = 32;
+const REFRESH = svg(
+  <>
+    <path d="M20 12a8 8 0 1 1-2.3-5.6" />
+    <path d="M20 4v5h-5" />
+  </>,
+  2.2,
+);
+
+/** The sheet a faded chest opens: how long since the level was last
+ *  reviewed, what still holds (a row of squares, solid then due), each
+ *  note's questions due, and the button that starts the level review. */
+function RefreshSheet({
+  ref,
+  level,
+  review,
+  ret,
+  tr,
+  locale,
+  onClose,
+}: {
+  ref: React.RefObject<HTMLDialogElement | null>;
+  level: RoadLevel;
+  review: number;
+  ret: Map<string, Retention>;
+  tr: (k: string, v?: Record<string, string | number>) => string;
+  locale: string;
+  onClose: () => void;
+}) {
+  const rows = level.notes.flatMap((n) => {
+    const r = ret.get(n.slug);
+    return r ? [{ n, r }] : [];
+  });
+  const total = rows.reduce((m, x) => m + x.r.saved, 0);
+  const due = rows.reduce((m, x) => m + x.r.due, 0);
+  const last = rows.reduce<string | null>((m, x) => (x.r.last && (!m || x.r.last > m) ? x.r.last : m), null);
+  const cells = Math.min(total, CELLS);
+  const solidCells = total ? Math.round(((total - due) / total) * cells) : 0;
+  const close = () => ref.current?.close();
+  return (
+    <dialog
+      ref={ref}
+      className="road-sheet"
+      aria-labelledby="road-sheet-h"
+      onClose={onClose}
+      onClick={(e) => e.target === e.currentTarget && close()}
+    >
+      <div className="road-sheet-in">
+        <i className="road-sheet-grip" aria-hidden="true" />
+        <p className="road-sheet-k">
+          {REFRESH}
+          {tr("road.sheetKick")}
+        </p>
+        <h2 id="road-sheet-h">
+          {tr("parcours.level", { n: level.n })} · {level.name}
+        </h2>
+        <p className="road-sheet-lead">
+          {last && `${tr("road.sheetLast", { ago: daysAgo(daysBetween(last, dayKey()), locale) })} `}
+          {tr("road.sheetLead", { n: due })}
+        </p>
+        <div className="road-sheet-box">
+          <p>
+            <b>{tr("road.sheetHolds")}</b>
+            <span>{tr("road.sheetOf", { n: total - due, total })}</span>
+          </p>
+          <span className="road-sheet-cells" aria-hidden="true">
+            {Array.from({ length: cells }, (_, i) => (
+              <i key={i} className={i < solidCells ? "ok" : "due"} />
+            ))}
+          </span>
+          <p className="road-sheet-legend" aria-hidden="true">
+            <span className="ok">{tr("road.sheetSolid")}</span>
+            <span className="due">{tr("road.sheetDue")}</span>
+          </p>
+        </div>
+        <ul className="road-sheet-notes">
+          {rows.map(({ n, r }) => (
+            <li key={n.slug} className={r.due ? "due" : "ok"}>
+              <i aria-hidden="true">{r.due ? REFRESH : ICON.check}</i>
+              <a href={n.href}>{n.title}</a>
+              <small>{r.due ? tr("road.dueN", { n: r.due }) : tr("road.solid")}</small>
+            </li>
+          ))}
+        </ul>
+        <button type="button" className="road-sheet-go" data-level-review-btn={review} onClick={close}>
+          {tr("road.sheetGo")}
+        </button>
+        <button type="button" className="road-sheet-later" onClick={close}>
+          {tr("road.later")}
+        </button>
+      </div>
+    </dialog>
   );
 }

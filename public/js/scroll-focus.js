@@ -48,4 +48,13 @@
     },
     { passive: true },
   );
+  // A box can also widen with no window resize: a table whose cells fill in
+  // late, or a column that narrows once the page's own scripts lay it out.
+  if ("ResizeObserver" in window) {
+    const ro = new ResizeObserver(() => {
+      clearTimeout(t);
+      t = setTimeout(sync, 50);
+    });
+    for (const el of document.querySelectorAll(SELECTOR)) ro.observe(el);
+  }
 })();

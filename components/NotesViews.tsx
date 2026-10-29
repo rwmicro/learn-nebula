@@ -88,6 +88,16 @@ const VIEWS: {
     ),
   },
   {
+    key: "echecs",
+    href: "/echecs/",
+    family: "jeux",
+    icon: (
+      <svg viewBox="0 0 24 24" {...ic}>
+        <path d="M8 21h8M9 21l.8-6h4.4l.8 6M9.5 15c-1-1.5-1.5-3-1-4.5L10 8h4l1.5 2.5c.5 1.5 0 3-1 4.5M10 8 9 5h6l-1 3M12 3v2" />
+      </svg>
+    ),
+  },
+  {
     key: "random",
     href: "/hasard/",
     family: "jeux",

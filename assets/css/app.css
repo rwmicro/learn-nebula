@@ -882,27 +882,825 @@
 .home-ask-send-icon {
   display: none;
 }
-@media (max-width: 639.98px) {
-  :root {
-    --dash-card: #fff;
-    --seg-on: #fff;
-    --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 14px rgb(0 0 0 / 0.06);
-    --dash-edge: var(--rule);
-  }
-  :root[data-theme="dark"] {
+/* The dashboard's own parts, at every width: the phone home shows all
+   of it, the desktop home its "Aujourd'hui" card (below). */
+:root {
+  --dash-card: #fff;
+  --seg-on: #fff;
+  --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 14px rgb(0 0 0 / 0.06);
+  --dash-edge: var(--rule);
+}
+
+:root[data-theme="dark"] {
+  --dash-card: #262522;
+  --seg-on: #403d38;
+  --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
+  --dash-edge: #34322e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
     --dash-card: #262522;
-    --seg-on: #403d38;
+  --seg-on: #403d38;
     --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
     --dash-edge: #34322e;
   }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) {
-      --dash-card: #262522;
-    --seg-on: #403d38;
-      --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
-      --dash-edge: #34322e;
-    }
+}
+
+.dash {
+  display: block;
+  color: var(--ink);
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+}
+
+.dash a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dash a:hover {
+  background-color: transparent;
+}
+
+.dash ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash li {
+  margin: 0;
+}
+
+.dash-top {
+  padding: calc(0.95rem + env(safe-area-inset-top, 0px)) 1.25rem 0;
+}
+
+.dash-date {
+  margin: 0;
+  padding-right: 3.5rem;
+  min-height: 1.1rem;
+  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+}
+
+.dash .dash-hello {
+  margin: 0.15rem 0 0;
+  padding: 0;
+  border: 0;
+  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-size: 1.875rem;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.dash-hello em {
+  color: var(--garden);
+}
+
+/* The greeting depends on the hour and on this browser's history: it
+   waits for them rather than changing under the reader's eyes. */
+.dash-hello:not([data-ready]) {
+  visibility: hidden;
+}
+
+/* "Aujourd'hui": the painting over the next step, its progress, the
+   button, and today's cards and notes. */
+.dash-today {
+  margin: 1.125rem 1rem 0;
+  overflow: hidden;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.625rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+}
+
+.dash .dash-art {
+  position: relative;
+  display: block;
+  height: 10.75rem;
+  background: #5b4a32;
+  color: #fff;
+}
+
+.dash-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 58%;
+}
+
+/* The disciplines' paintings are already cropped to the band. */
+.dash-art .is-family img {
+  object-position: 50% 50%;
+}
+
+.dash-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.05) 20%, rgb(0 0 0 / 0.72));
+}
+
+.dash-chip {
+  position: absolute;
+  top: 0.875rem;
+  left: 0.875rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  max-width: calc(100% - 1.75rem);
+  padding: 0.3rem 0.65rem 0.3rem 0.4rem;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgb(20 18 14 / 0.45);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font: 500 0.8125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dash-chip-dot {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: hsl(var(--fam-h, 135) var(--fam-s, 42%) 72%);
+  color: #1c1b19;
+}
+
+.dash-chip-dot svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.dash-cap {
+  position: absolute;
+  left: 1.125rem;
+  right: 1.125rem;
+  bottom: 0.875rem;
+  z-index: 1;
+}
+
+.dash-cap small {
+  display: block;
+  font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  opacity: 0.88;
+}
+
+.dash-cap b {
+  display: -webkit-box;
+  margin-top: 0.125rem;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 1.5625rem;
+  font-weight: 500;
+  line-height: 1.1;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 0.35);
+}
+
+.dash-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem 0.25rem;
+  font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.dash-dashes {
+  flex: 1;
+  display: flex;
+  gap: 3px;
+}
+
+.dash-dashes i {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--garden) calc(var(--f) * 100%), var(--wash-2) 0);
+}
+
+.dash .dash-go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 3.125rem;
+  margin: 0.625rem 1rem 0;
+  border-radius: 1rem;
+  background: var(--garden);
+  color: var(--paper);
+  font: 700 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  transition: transform 0.15s;
+}
+
+.dash-go:active,
+.dash-session a:active,
+.dash-mine a:active,
+.dash-disc a:active,
+.dash-day a:active,
+.dash-ways a:active {
+  transform: scale(0.98);
+}
+
+.dash-go svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.dash-session {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 0.875rem;
+  border-top: 0.5px solid var(--dash-edge);
+}
+
+.dash-session a {
+  display: grid;
+  justify-items: center;
+  gap: 0.125rem;
+  padding: 0.75rem 0.375rem 0.8rem;
+}
+
+.dash-session a + a {
+  border-left: 0.5px solid var(--dash-edge);
+}
+
+.dash-session b {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font: 700 1.3125rem/1.1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+.dash-session b svg {
+  width: 1.0625rem;
+  height: 1.0625rem;
+}
+
+.dash-session small {
+  font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+}
+
+.dash-session .is-due b {
+  color: #c2410c;
+}
+
+:root[data-theme="dark"] .dash-session .is-due b {
+  color: #f0a46a;
+}
+
+.dash-session .is-done b {
+  color: var(--garden);
+}
+
+/* Nothing under way: the quote on the painting, and three ways in. */
+.dash-welcome .dash-art {
+  height: 12.5rem;
+}
+
+.dash-welcome .dash-cap b {
+  font-size: 1.5rem;
+  font-style: italic;
+  -webkit-line-clamp: 3;
+}
+
+.dash-welcome .dash-cap small {
+  margin-top: 0.375rem;
+}
+
+.dash-welcome-text {
+  margin: 0;
+  padding: 1rem 1rem 0.875rem;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.dash .dash-ways {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem;
+}
+
+.dash-ways a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 1rem;
+  background: var(--wash);
+  transition: transform 0.15s;
+}
+
+.dash-ways a > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-ways b {
+  display: block;
+  font: 700 0.9375rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+
+.dash-ways small {
+  display: block;
+  font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+}
+
+.dash-way-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 0.75rem;
+  background: var(--dash-card);
+  color: var(--garden);
+}
+
+.dash-way-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.dash .dash-ways .is-main {
+  background: var(--garden);
+  color: var(--paper);
+}
+
+.dash-ways .is-main .dash-way-icon {
+  border: 0;
+  background: rgb(255 255 255 / 0.16);
+  color: inherit;
+}
+
+.dash-ways .is-main small,
+.dash-ways .is-main .dash-chev {
+  color: inherit;
+  opacity: 0.85;
+}
+
+/* The week: one dot a day, Monday first, and the run of days. */
+.dash .dash-week {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin: 0.875rem 1rem 0;
+  padding: 0.875rem 1rem;
+  border-radius: 1.25rem;
+  background: var(--wash);
+}
+
+.dash-week-days {
+  flex: none;
+  display: flex;
+  gap: 3px;
+}
+
+.dash-week-days > span {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  width: 1.5625rem;
+  font: 500 0.6875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+}
+
+.dash-week-days i {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1.5px dashed var(--faint);
+  border-radius: 50%;
+}
+
+.dash-week-days i.is-on {
+  border: 0;
+  background: var(--garden);
+  color: var(--paper);
+}
+
+.dash-week-days i.is-now {
+  border: 2px solid var(--garden);
+}
+
+.dash-week-days svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.dash-week-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-week-text b {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font: 700 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+
+.dash-week-text small {
+  display: block;
+  margin-top: 0.125rem;
+  font: 400 0.8125rem/1.25 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+}
+
+.dash-flame {
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: #e0782f;
+}
+
+.dash-row-h {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-right: 1.25rem;
+}
+
+.dash .dash-row-h > a {
+  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--garden);
+}
+
+/* My paths: one wide row each, with the next note and the share read. */
+.dash .dash-mine {
+  display: grid;
+  /* minmax: a long "ensuite : …" ellipsizes instead of widening the page. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.625rem;
+  margin: 0 1rem;
+}
+
+.dash-mine a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.125rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+  transition: transform 0.15s;
+}
+
+.dash-mine-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.8rem;
+  background: var(--fam-wash, var(--wash-2));
+  color: var(--fam, var(--garden));
+}
+
+.dash-mine-icon svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+.dash-mine-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-mine-text b {
+  display: block;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.dash-mine-text small {
+  display: block;
+  margin-top: 0.125rem;
+  overflow: hidden;
+  font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--ink-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-bar {
+  display: block;
+  height: 0.25rem;
+  margin-top: 0.45rem;
+  overflow: hidden;
+  border-radius: 0.125rem;
+  background: var(--wash-2);
+}
+
+.dash-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--fam, var(--garden));
+}
+
+.dash-mine-pct {
+  flex: none;
+  font: 700 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-variant-numeric: lining-nums;
+  color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
+}
+
+/* Paths to discover: a row that scrolls sideways, one family after
+   another. */
+.dash .dash-disc {
+  display: flex;
+  gap: 0.625rem;
+  padding: 0.125rem 1rem 0.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1rem;
+  scrollbar-width: none;
+}
+
+.dash-disc::-webkit-scrollbar {
+  display: none;
+}
+
+.dash-disc li {
+  flex: none;
+  scroll-snap-align: start;
+}
+
+.dash-disc a {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 8.875rem;
+  height: 7.5rem;
+  padding: 0.875rem;
+  border-radius: 1.25rem;
+  background: var(--fam-wash, var(--wash-2));
+  transition: transform 0.15s;
+}
+
+.dash-disc b {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.dash-disc small {
+  display: block;
+  margin-top: 0.125rem;
+  font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--ink-2); /* --muted falls under 4.5:1 on the family washes */
+}
+
+.dash-disc-icon {
+  display: grid;
+  place-items: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 0.625rem;
+  background: var(--fam, var(--garden));
+  color: var(--paper);
+}
+
+.dash-disc-icon svg {
+  width: 1.1875rem;
+  height: 1.1875rem;
+}
+
+/* The note of the day: an editorial card, its initial in the family's
+   colour. */
+.dash-day a {
+  display: block;
+  margin: 0 1rem;
+  padding: 1.125rem 1.125rem 1rem;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.375rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+  transition: transform 0.15s;
+}
+
+.dash-day-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  /* Toward the ink: some family colours alone (informatique, vivant,
+     pensée) fall under 4.5:1 on the card. */
+  color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
+}
+
+.dash-day-kicker svg {
+  width: 0.9375rem;
+  height: 0.9375rem;
+}
+
+.dash-day b {
+  display: block;
+  margin: 0.375rem 0 0.5rem;
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.dash-day p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.dash-day p::first-letter {
+  float: left;
+  padding: 0.25rem 0.375rem 0 0;
+  font-size: 2.875rem;
+  font-weight: 500;
+  line-height: 0.86;
+  color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
+}
+
+.dash-day-read {
+  display: block;
+  margin-top: 0.75rem;
+  text-align: end;
+  font: 700 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--garden);
+}
+
+/* The latest notes, as a grouped list. */
+.dash .dash-list {
+  margin: 0 1rem;
+  overflow: hidden;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.25rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+}
+
+.dash-list a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.75rem;
+  padding: 0.6875rem 0.875rem;
+}
+
+.dash-list a:active {
+  background: var(--wash-2);
+}
+
+.dash-list li + li a::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 3.875rem;
+  right: 0;
+  border-top: 0.5px solid var(--rule);
+}
+
+.dash-list-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background: var(--fam-wash, var(--wash-2));
+  color: var(--fam, var(--ink-2));
+}
+
+.dash-list-icon svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.dash-list-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-list-text b {
+  display: block;
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-list-text small {
+  display: block;
+  margin-top: 0.125rem;
+  font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+}
+
+.dash-new {
+  margin-inline-start: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--garden);
+}
+
+.dash-chev {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--rule-strong);
+}
+
+[dir="rtl"] .dash-chev {
+  transform: scaleX(-1);
+}
+
+/* Desktop: the phone's "Aujourd'hui" card (resume, or three ways in), the
+   week, the paths to refresh and those under way, in one column under the
+   masthead, in place of the intro and the tall painting. The date and
+   greeting (the masthead has its own), the note of the day and the latest
+   notes (the "dernières pousses" below) stay on phones. */
+@media (min-width: 640px) {
+  :root {
+    --dash-card: var(--paper);
+    --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 14px rgb(0 0 0 / 0.06);
+    --dash-edge: var(--rule);
   }
+  .home-intro {
+    display: none;
+  }
+  .dash.dash {
+    max-width: 44rem;
+    margin: 2rem auto 0;
+    padding: 0 1.25rem;
+  }
+  .dash-top,
+  .dash-day,
+  .dash-list,
+  .dash-row-h:has(+ .dash-day),
+  .dash-row-h:has(+ .dash-list) {
+    display: none;
+  }
+  .dash .dash-today .dash-art {
+    height: 13rem;
+  }
+  .dash .dash-art picture {
+    display: block;
+    height: 100%;
+  }
+  .dash .dash-art img {
+    max-width: none;
+  }
+  /* The paths to discover: a grid, not a row that scrolls sideways. */
+  .dash .dash-disc {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+    overflow: visible;
+    padding-inline: 0;
+  }
+  .dash .dash-disc > li:nth-child(n + 9) {
+    display: none;
+  }
+  .dash .dash-row-h {
+    padding-inline: 1rem;
+  }
+}
+
+@media (max-width: 639.98px) {
 
   /* The masthead becomes an app bar: the wordmark on the left, "Moi" on the
      right. Its intro and painting, the "dernières pousses" and the charts
@@ -954,381 +1752,15 @@
     display: none;
   }
 
-  .dash {
-    display: block;
-    color: var(--ink);
-    font-family: "Alegreya", "Alegreya Fallback", serif;
-  }
-  .dash a {
-    color: inherit;
-    text-decoration: none;
-  }
-  .dash a:hover {
-    background-color: transparent;
-  }
-  .dash ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .dash li {
-    margin: 0;
-  }
 
   /* The masthead gives way to the dashboard's own top: date and greeting,
      with the site bar's round "Moi" button at the top right. */
   .home-masthead.home-masthead {
     display: none;
   }
-  .dash-top {
-    padding: calc(0.95rem + env(safe-area-inset-top, 0px)) 1.25rem 0;
-  }
-  .dash-date {
-    margin: 0;
-    padding-right: 3.5rem;
-    min-height: 1.1rem;
-    font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-  }
-  .dash .dash-hello {
-    margin: 0.15rem 0 0;
-    padding: 0;
-    border: 0;
-    font-family: "Alegreya", "Alegreya Fallback", serif;
-    font-size: 1.875rem;
-    font-weight: 500;
-    line-height: 1.1;
-    letter-spacing: -0.005em;
-    color: var(--ink);
-  }
-  .dash-hello em {
-    color: var(--garden);
-  }
-  /* The greeting depends on the hour and on this browser's history: it
-     waits for them rather than changing under the reader's eyes. */
-  .dash-hello:not([data-ready]) {
-    visibility: hidden;
-  }
 
-  /* "Aujourd'hui": the painting over the next step, its progress, the
-     button, and today's cards and notes. */
-  .dash-today {
-    margin: 1.125rem 1rem 0;
-    overflow: hidden;
-    border: 0.5px solid var(--dash-edge);
-    border-radius: 1.625rem;
-    background: var(--dash-card);
-    box-shadow: var(--dash-shadow);
-  }
-  .dash .dash-art {
-    position: relative;
-    display: block;
-    height: 10.75rem;
-    background: #5b4a32;
-    color: #fff;
-  }
-  .dash-art img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 58%;
-  }
-  /* The disciplines' paintings are already cropped to the band. */
-  .dash-art .is-family img {
-    object-position: 50% 50%;
-  }
-  .dash-art::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgb(0 0 0 / 0.05) 20%, rgb(0 0 0 / 0.72));
-  }
-  .dash-chip {
-    position: absolute;
-    top: 0.875rem;
-    left: 0.875rem;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-    max-width: calc(100% - 1.75rem);
-    padding: 0.3rem 0.65rem 0.3rem 0.4rem;
-    overflow: hidden;
-    border-radius: 99px;
-    background: rgb(20 18 14 / 0.45);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    font: 500 0.8125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-  }
-  .dash-chip-dot {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 1.125rem;
-    height: 1.125rem;
-    border-radius: 50%;
-    background: hsl(var(--fam-h, 135) var(--fam-s, 42%) 72%);
-    color: #1c1b19;
-  }
-  .dash-chip-dot svg {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
-  .dash-cap {
-    position: absolute;
-    left: 1.125rem;
-    right: 1.125rem;
-    bottom: 0.875rem;
-    z-index: 1;
-  }
-  .dash-cap small {
-    display: block;
-    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    opacity: 0.88;
-  }
-  .dash-cap b {
-    display: -webkit-box;
-    margin-top: 0.125rem;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    font-size: 1.5625rem;
-    font-weight: 500;
-    line-height: 1.1;
-    text-shadow: 0 1px 8px rgb(0 0 0 / 0.35);
-  }
-  .dash-progress {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.875rem 1rem 0.25rem;
-    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--muted);
-    white-space: nowrap;
-  }
-  .dash-dashes {
-    flex: 1;
-    display: flex;
-    gap: 3px;
-  }
-  .dash-dashes i {
-    flex: 1;
-    height: 5px;
-    border-radius: 3px;
-    background: linear-gradient(90deg, var(--garden) calc(var(--f) * 100%), var(--wash-2) 0);
-  }
-  .dash .dash-go {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    height: 3.125rem;
-    margin: 0.625rem 1rem 0;
-    border-radius: 1rem;
-    background: var(--garden);
-    color: var(--paper);
-    font: 700 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    transition: transform 0.15s;
-  }
-  .dash-go:active,
-  .dash-session a:active,
-  .dash-mine a:active,
-  .dash-disc a:active,
-  .dash-day a:active,
-  .dash-ways a:active {
-    transform: scale(0.98);
-  }
-  .dash-go svg {
-    width: 1.125rem;
-    height: 1.125rem;
-  }
-  .dash-session {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin-top: 0.875rem;
-    border-top: 0.5px solid var(--dash-edge);
-  }
-  .dash-session a {
-    display: grid;
-    justify-items: center;
-    gap: 0.125rem;
-    padding: 0.75rem 0.375rem 0.8rem;
-  }
-  .dash-session a + a {
-    border-left: 0.5px solid var(--dash-edge);
-  }
-  .dash-session b {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font: 700 1.3125rem/1.1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-variant-numeric: lining-nums tabular-nums;
-  }
-  .dash-session b svg {
-    width: 1.0625rem;
-    height: 1.0625rem;
-  }
-  .dash-session small {
-    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--muted);
-  }
-  .dash-session .is-due b {
-    color: #c2410c;
-  }
-  :root[data-theme="dark"] .dash-session .is-due b {
-    color: #f0a46a;
-  }
-  .dash-session .is-done b {
-    color: var(--garden);
-  }
 
-  /* Nothing under way: the quote on the painting, and three ways in. */
-  .dash-welcome .dash-art {
-    height: 12.5rem;
-  }
-  .dash-welcome .dash-cap b {
-    font-size: 1.5rem;
-    font-style: italic;
-    -webkit-line-clamp: 3;
-  }
-  .dash-welcome .dash-cap small {
-    margin-top: 0.375rem;
-  }
-  .dash-welcome-text {
-    margin: 0;
-    padding: 1rem 1rem 0.875rem;
-    font-size: 1rem;
-    line-height: 1.45;
-    color: var(--ink-2);
-  }
-  .dash .dash-ways {
-    display: grid;
-    gap: 0.5rem;
-    padding: 0 1rem 1rem;
-  }
-  .dash-ways a {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.625rem 0.75rem;
-    border-radius: 1rem;
-    background: var(--wash);
-    transition: transform 0.15s;
-  }
-  .dash-ways a > span:nth-child(2) {
-    flex: 1;
-    min-width: 0;
-  }
-  .dash-ways b {
-    display: block;
-    font: 700 0.9375rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-  }
-  .dash-ways small {
-    display: block;
-    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--muted);
-  }
-  .dash-way-icon {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 0.5px solid var(--dash-edge);
-    border-radius: 0.75rem;
-    background: var(--dash-card);
-    color: var(--garden);
-  }
-  .dash-way-icon svg {
-    width: 1.25rem;
-    height: 1.25rem;
-  }
-  .dash .dash-ways .is-main {
-    background: var(--garden);
-    color: var(--paper);
-  }
-  .dash-ways .is-main .dash-way-icon {
-    border: 0;
-    background: rgb(255 255 255 / 0.16);
-    color: inherit;
-  }
-  .dash-ways .is-main small,
-  .dash-ways .is-main .dash-chev {
-    color: inherit;
-    opacity: 0.85;
-  }
 
-  /* The week: one dot a day, Monday first, and the run of days. */
-  .dash .dash-week {
-    display: flex;
-    align-items: center;
-    gap: 0.875rem;
-    margin: 0.875rem 1rem 0;
-    padding: 0.875rem 1rem;
-    border-radius: 1.25rem;
-    background: var(--wash);
-  }
-  .dash-week-days {
-    flex: none;
-    display: flex;
-    gap: 3px;
-  }
-  .dash-week-days > span {
-    display: grid;
-    justify-items: center;
-    gap: 0.25rem;
-    width: 1.5625rem;
-    font: 500 0.6875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--muted);
-  }
-  .dash-week-days i {
-    display: grid;
-    place-items: center;
-    width: 1.5rem;
-    height: 1.5rem;
-    border: 1.5px dashed var(--faint);
-    border-radius: 50%;
-  }
-  .dash-week-days i.is-on {
-    border: 0;
-    background: var(--garden);
-    color: var(--paper);
-  }
-  .dash-week-days i.is-now {
-    border: 2px solid var(--garden);
-  }
-  .dash-week-days svg {
-    width: 0.8rem;
-    height: 0.8rem;
-  }
-  .dash-week-text {
-    flex: 1;
-    min-width: 0;
-  }
-  .dash-week-text b {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font: 700 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-  }
-  .dash-week-text small {
-    display: block;
-    margin-top: 0.125rem;
-    font: 400 0.8125rem/1.25 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--muted);
-  }
-  .dash-flame {
-    width: 0.95rem;
-    height: 0.95rem;
-    fill: #e0782f;
-  }
 
   /* Section headings: a serif title, "Tout voir" on the right. */
   .dash-h,
@@ -1344,286 +1776,10 @@
     text-transform: none;
     color: var(--ink);
   }
-  .dash-row-h {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    padding-right: 1.25rem;
-  }
-  .dash .dash-row-h > a {
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--garden);
-  }
 
-  /* My paths: one wide row each, with the next note and the share read. */
-  .dash .dash-mine {
-    display: grid;
-    /* minmax: a long "ensuite : …" ellipsizes instead of widening the page. */
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0.625rem;
-    margin: 0 1rem;
-  }
-  .dash-mine a {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 0.875rem;
-    border: 0.5px solid var(--dash-edge);
-    border-radius: 1.125rem;
-    background: var(--dash-card);
-    box-shadow: var(--dash-shadow);
-    transition: transform 0.15s;
-  }
-  .dash-mine-icon {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 0.8rem;
-    background: var(--fam-wash, var(--wash-2));
-    color: var(--fam, var(--garden));
-  }
-  .dash-mine-icon svg {
-    width: 1.375rem;
-    height: 1.375rem;
-  }
-  .dash-mine-text {
-    flex: 1;
-    min-width: 0;
-  }
-  .dash-mine-text b {
-    display: block;
-    font-size: 1.0625rem;
-    font-weight: 500;
-    line-height: 1.15;
-  }
-  .dash-mine-text small {
-    display: block;
-    margin-top: 0.125rem;
-    overflow: hidden;
-    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--ink-2);
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .dash-bar {
-    display: block;
-    height: 0.25rem;
-    margin-top: 0.45rem;
-    overflow: hidden;
-    border-radius: 0.125rem;
-    background: var(--wash-2);
-  }
-  .dash-bar i {
-    display: block;
-    height: 100%;
-    border-radius: inherit;
-    background: var(--fam, var(--garden));
-  }
-  .dash-mine-pct {
-    flex: none;
-    font: 700 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    font-variant-numeric: lining-nums;
-    color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
-  }
 
-  /* Paths to discover: a row that scrolls sideways, one family after
-     another. */
-  .dash .dash-disc {
-    display: flex;
-    gap: 0.625rem;
-    padding: 0.125rem 1rem 0.25rem;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scroll-padding-inline: 1rem;
-    scrollbar-width: none;
-  }
-  .dash-disc::-webkit-scrollbar {
-    display: none;
-  }
-  .dash-disc li {
-    flex: none;
-    scroll-snap-align: start;
-  }
-  .dash-disc a {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    width: 8.875rem;
-    height: 7.5rem;
-    padding: 0.875rem;
-    border-radius: 1.25rem;
-    background: var(--fam-wash, var(--wash-2));
-    transition: transform 0.15s;
-  }
-  .dash-disc b {
-    display: -webkit-box;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    font-size: 1.0625rem;
-    font-weight: 500;
-    line-height: 1.12;
-  }
-  .dash-disc small {
-    display: block;
-    margin-top: 0.125rem;
-    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--ink-2); /* --muted falls under 4.5:1 on the family washes */
-  }
-  .dash-disc-icon {
-    display: grid;
-    place-items: center;
-    width: 2.125rem;
-    height: 2.125rem;
-    border-radius: 0.625rem;
-    background: var(--fam, var(--garden));
-    color: var(--paper);
-  }
-  .dash-disc-icon svg {
-    width: 1.1875rem;
-    height: 1.1875rem;
-  }
 
-  /* The note of the day: an editorial card, its initial in the family's
-     colour. */
-  .dash-day a {
-    display: block;
-    margin: 0 1rem;
-    padding: 1.125rem 1.125rem 1rem;
-    border: 0.5px solid var(--dash-edge);
-    border-radius: 1.375rem;
-    background: var(--dash-card);
-    box-shadow: var(--dash-shadow);
-    transition: transform 0.15s;
-  }
-  .dash-day-kicker {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    /* Toward the ink: some family colours alone (informatique, vivant,
-       pensée) fall under 4.5:1 on the card. */
-    color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
-  }
-  .dash-day-kicker svg {
-    width: 0.9375rem;
-    height: 0.9375rem;
-  }
-  .dash-day b {
-    display: block;
-    margin: 0.375rem 0 0.5rem;
-    font-size: 1.375rem;
-    font-weight: 500;
-    line-height: 1.15;
-  }
-  .dash-day p {
-    display: -webkit-box;
-    margin: 0;
-    overflow: hidden;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
-    font-size: 1rem;
-    line-height: 1.45;
-    color: var(--ink-soft);
-  }
-  .dash-day p::first-letter {
-    float: left;
-    padding: 0.25rem 0.375rem 0 0;
-    font-size: 2.875rem;
-    font-weight: 500;
-    line-height: 0.86;
-    color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
-  }
-  .dash-day-read {
-    display: block;
-    margin-top: 0.75rem;
-    text-align: end;
-    font: 700 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--garden);
-  }
 
-  /* The latest notes, as a grouped list. */
-  .dash .dash-list {
-    margin: 0 1rem;
-    overflow: hidden;
-    border: 0.5px solid var(--dash-edge);
-    border-radius: 1.25rem;
-    background: var(--dash-card);
-    box-shadow: var(--dash-shadow);
-  }
-  .dash-list a {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-height: 3.75rem;
-    padding: 0.6875rem 0.875rem;
-  }
-  .dash-list a:active {
-    background: var(--wash-2);
-  }
-  .dash-list li + li a::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 3.875rem;
-    right: 0;
-    border-top: 0.5px solid var(--rule);
-  }
-  .dash-list-icon {
-    flex: none;
-    display: grid;
-    place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 0.625rem;
-    background: var(--fam-wash, var(--wash-2));
-    color: var(--fam, var(--ink-2));
-  }
-  .dash-list-icon svg {
-    width: 1.125rem;
-    height: 1.125rem;
-  }
-  .dash-list-text {
-    flex: 1;
-    min-width: 0;
-  }
-  .dash-list-text b {
-    display: block;
-    overflow: hidden;
-    font-size: 1rem;
-    font-weight: 500;
-    line-height: 1.2;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .dash-list-text small {
-    display: block;
-    margin-top: 0.125rem;
-    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--muted);
-  }
-  .dash-new {
-    margin-inline-start: 0.375rem;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--garden);
-  }
-  .dash-chev {
-    flex: none;
-    width: 1rem;
-    height: 1rem;
-    color: var(--rule-strong);
-  }
-  [dir="rtl"] .dash-chev {
-    transform: scaleX(-1);
-  }
 
   /* --- The rest of the home: the assistant as a card, then home-more --- */
   .home-main.home-main {
@@ -2340,6 +2496,13 @@
   .na-dots i.done {
     background: var(--fam, var(--garden));
   }
+  .na-dots {
+    transition: opacity 0.25s;
+  }
+  .na-dots.na-dots--wait {
+    opacity: 0;
+    pointer-events: none;
+  }
   .na-dots i.on {
     background: var(--garden);
   }
@@ -2952,13 +3115,13 @@
     content: "";
     position: absolute;
     top: 0;
-    left: 3.6rem;
+    left: 4.4rem;
     right: 0;
     border-top: 0.5px solid var(--dash-edge);
   }
   main.parcours-page :is(.parcours-card-link, .parcours-tile-link) {
     display: grid;
-    grid-template-columns: 2.1rem 1fr 1rem;
+    grid-template-columns: 2.875rem 1fr 1rem;
     grid-template-rows: auto auto;
     column-gap: 0.75rem;
     align-items: center;
@@ -2981,20 +3144,20 @@
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
   }
+  /* The path's first drawing (lib/road-art.ts) on its family's tint. */
   main.parcours-page .parcours-ic {
     grid-column: 1;
     grid-row: 1 / 3;
     display: grid;
     place-items: center;
-    width: 2.1rem;
-    height: 2.1rem;
-    border-radius: 0.6rem;
+    width: 2.875rem;
+    height: 2.875rem;
+    border-radius: 0.75rem;
     background: var(--fam-wash, var(--garden-wash));
-    color: var(--fam, var(--garden));
   }
   main.parcours-page .parcours-ic svg {
-    width: 1.15rem;
-    height: 1.15rem;
+    width: 2.125rem;
+    height: 2.125rem;
   }
   main.parcours-page :is(.parcours-card-title, .parcours-tile-name) {
     grid-column: 2;
@@ -3390,6 +3553,38 @@
     width: 1.25rem;
     height: 1.25rem;
     fill: #e0782f;
+  }
+  .moi-fresh {
+    margin-top: 1rem;
+    padding: 1.125rem 1.25rem 1.375rem;
+    border-radius: 1.375rem;
+    background: color-mix(in srgb, var(--ink) 5%, transparent);
+    text-align: center;
+  }
+  .moi-fresh-scene {
+    width: min(17rem, 100%);
+    margin: 0 auto 0.5rem;
+  }
+  .moi-fresh b {
+    display: block;
+    font: 600 1.375rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .moi-fresh p {
+    margin: 0.375rem 0 0;
+    font: 400 0.9375rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  main .moi-fresh-go {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 3rem;
+    margin-top: 0.875rem;
+    border-radius: 1.5rem;
+    background: var(--garden);
+    color: var(--paper);
+    font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-decoration: none;
   }
   /* The 84 days in reading order, eighteen to a row. */
   .moi-heat {
@@ -4167,34 +4362,11 @@
   .rsm-end .rsm-top {
     justify-content: flex-start;
   }
-  .rsm-ring {
+  /* A basket of picked fruit over the title (lib/deco-art.ts). */
+  .rsm-scene {
     flex: none;
-    display: grid;
-    place-items: center;
-    width: 9.375rem;
-    height: 9.375rem;
-    margin: 1rem auto 0;
-    border-radius: 50%;
-    background: conic-gradient(var(--garden) calc(var(--p) * 1turn), var(--wash-2) 0);
-  }
-  .rsm-ring::before {
-    content: "";
-    grid-area: 1 / 1;
-    width: 7.875rem;
-    height: 7.875rem;
-    border-radius: 50%;
-    background: var(--paper);
-  }
-  .rsm-ring div {
-    grid-area: 1 / 1;
-  }
-  .rsm-ring b {
-    display: block;
-    font: 600 2.5rem/1 "Alegreya", "Alegreya Fallback", serif;
-  }
-  .rsm-ring small {
-    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--muted);
+    width: min(20rem, 82%);
+    margin: 1.5rem auto 0;
   }
   .rsm-end h2 {
     margin: 1.375rem 1.25rem 0.375rem;
@@ -4207,73 +4379,22 @@
     font: 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
     color: var(--muted);
   }
-  .rsm-stats,
-  .rsm-week {
-    flex: none;
-    margin: 0 1rem;
-    border: 0.5px solid var(--rule);
-    border-radius: 1.25rem;
-    background: var(--dash-card);
-    box-shadow: var(--dash-shadow);
-  }
   .rsm-stats {
+    flex: none;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    margin-top: 1.5rem;
-    padding: 0.25rem 0;
+    margin: 1.5rem 1rem 0;
   }
   .rsm-stats div {
-    padding: 0.75rem 0.25rem;
-  }
-  .rsm-stats div + div {
-    border-left: 0.5px solid var(--rule);
+    padding: 0.25rem;
   }
   .rsm-stats b {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.25rem;
-    font: 600 1.5rem/1 "Alegreya", "Alegreya Fallback", serif;
-  }
-  .rsm-stats b svg {
-    width: 1.25rem;
-    height: 1.25rem;
-    color: #e0672f;
+    display: block;
+    font: 600 1.5rem/1.1 "Alegreya", "Alegreya Fallback", serif;
   }
   .rsm-stats small {
     font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--ink-2);
-  }
-  .rsm-week {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.625rem;
-    padding: 0.875rem 1rem;
-  }
-  .rsm-week span {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.375rem;
-    font: 600 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
     color: var(--muted);
-    text-transform: uppercase;
-  }
-  .rsm-week i {
-    display: grid;
-    place-items: center;
-    width: 1.875rem;
-    height: 1.875rem;
-    border-radius: 50%;
-    background: var(--wash-2);
-  }
-  .rsm-week .y i {
-    background: var(--garden);
-    color: var(--paper);
-  }
-  .rsm-week svg {
-    width: 0.875rem;
-    height: 0.875rem;
   }
 
   /* Folded away: one button brings it back. */
@@ -4315,7 +4436,8 @@
 .rv {
   display: none;
 }
-@media (max-width: 639.98px) {
+/* At every width: the desktop /cartes/ is the same page, in a column. */
+@media all {
   main.cartes-index > :not(.rv) {
     display: none;
   }
@@ -4350,6 +4472,15 @@
   }
   .rv-today p {
     margin: 0;
+  }
+  .rv-today .rv-start-h {
+    margin-top: 0.375rem;
+    font: 600 1.5rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .rv-today .rv-start-p {
+    margin-top: 0.375rem;
+    font: 500 0.9375rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    opacity: 0.9;
   }
   .rv-kicker {
     font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
@@ -4505,6 +4636,16 @@
   .rv-empty {
     margin: 0 0.375rem;
     color: var(--muted);
+  }
+}
+@media (min-width: 640px) {
+  main.cartes-index {
+    max-width: 40rem;
+    margin: 2.5rem auto 3rem;
+    padding: 0 1.25rem;
+  }
+  main.cartes-index .rv .rv-title {
+    font-size: 2.5rem;
   }
 }
 
@@ -4837,6 +4978,50 @@
     opacity: 0.4;
     pointer-events: none;
   }
+  /* The road's drawings (lib/road-art.ts): three tones of the family, a
+     ground line, lighter or darker with the theme. */
+  .road {
+    --f1: var(--fam, var(--garden));
+    --f0: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 42%) - 12%));
+    --f2: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 42%) + 22%));
+    --f3: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 42%) + 40%));
+    --ground: hsl(var(--fam-h, 135) 18% 88%);
+  }
+  :root[data-theme="dark"] .road {
+    --f0: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) + 10%));
+    --f2: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) - 18%));
+    --f3: hsl(var(--fam-h, 135) 22% 26%);
+    --ground: hsl(var(--fam-h, 135) 10% 24%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .road {
+      --f0: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) + 10%));
+      --f2: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) - 18%));
+      --f3: hsl(var(--fam-h, 135) 22% 26%);
+      --ground: hsl(var(--fam-h, 135) 10% 24%);
+    }
+  }
+  .road-art {
+    position: absolute;
+    width: 18%;
+    max-width: 5rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .road-art svg,
+  .road-div-art svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .road-art.is-lock {
+    filter: grayscale(1);
+    opacity: 0.45;
+  }
+  .road-div-art {
+    display: block;
+    margin: 0 -1.5rem 0.25rem;
+  }
   .road-div {
     position: absolute;
     top: 1.5rem;
@@ -4974,6 +5159,30 @@
   }
   .road-chest .road-disk:disabled {
     cursor: default;
+  }
+  /* A finished level whose questions are due again: its discs and its
+     stretch of road go pale, the chest pulses gently and says "À
+     rafraîchir". */
+  .road-level.is-faded .road-pn.done .road-disk,
+  .road-level.is-faded .road-done,
+  .road-level.is-faded .road-done-line {
+    filter: saturate(0.25) opacity(0.65);
+  }
+  .road-chest.due .road-disk {
+    animation: road-due 2.4s ease-in-out infinite;
+  }
+  .road-chest.due em {
+    color: #b07a00;
+  }
+  @keyframes road-due {
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .road-chest.due .road-disk {
+      animation: none;
+    }
   }
   .road-lb {
     position: absolute;
@@ -5260,8 +5469,14 @@
   padding: 2rem 1rem;
   text-align: center;
 }
-.review-empty-icon {
-  display: none;
+/* Their scene (lib/deco-art.ts): the watering can, the basket, the packet. */
+.review-done-scene,
+.review-empty-scene {
+  width: min(18rem, 100%);
+  margin: 0 auto -0.25rem;
+}
+.review-empty-scene {
+  order: -1;
 }
 .review-empty-text {
   max-width: 30rem;
@@ -5283,24 +5498,12 @@
     padding: 1.75rem 1.25rem !important;
     gap: 0.75rem !important;
   }
-  .review-empty-icon {
-    order: -1;
-    display: grid;
-    place-items: center;
-    width: 3.25rem;
-    height: 3.25rem;
-    margin: 0 auto 0.25rem;
-    border-radius: 0.9rem;
-    background: var(--garden-wash);
-    color: var(--garden);
-  }
-  .review-empty-icon svg {
-    width: 1.5rem;
-    height: 1.5rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.7;
-    stroke-linejoin: round;
+  .review-done {
+    border: 0 !important;
+    border-radius: 1.25rem !important;
+    background: color-mix(in srgb, var(--ink) 5%, transparent) !important;
+    padding: 1.25rem 1.25rem 1.75rem !important;
+    gap: 0.75rem !important;
   }
   .review-empty-text {
     font: 0.9375rem/1.45 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
@@ -5314,181 +5517,141 @@
   }
 }
 
-/* The 404 (app/not-found.tsx; it may not import route CSS, so its phone
-   layer lives here): a centred sprout and title, the search as a field-like
-   row, the closest notes on a grouped card, the other ways out as pills. */
-.nf-icon,
-.nf-narrow,
-.nf-sub,
-.nf-pill-icon {
-  display: none;
+/* The 404 (app/not-found.tsx; it may not import route CSS, so it lives
+   here): the sown bed with its "?" label (lib/deco-art.ts), the title, two
+   ways out, then the closest notes on a grouped card. Same at every width. */
+main.nf-page {
+  max-width: 28rem;
+  padding-top: 3.5rem;
+  text-align: center;
+}
+.nf-scene {
+  max-width: 20rem;
+  margin: 0 auto 1.25rem;
+}
+main.nf-page .nf-title {
+  margin: 0 0 0.6rem;
+  font: 500 clamp(1.6rem, 1.4rem + 1vw, 2rem) / 1.15 "Alegreya", "Alegreya Fallback", serif;
+}
+.nf-body {
+  margin: 0 0 1.4rem;
+  color: var(--ink-2);
+  font: 1rem/1.5 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.nf-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.nf-btn {
+  display: block;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-pill);
+  color: var(--ink);
+  font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  text-decoration: none;
+}
+.nf-btn--primary {
+  border-color: var(--garden);
+  background: var(--garden);
+  color: var(--paper);
+  font-weight: 700;
+}
+.nf-btn:hover {
+  border-color: var(--garden);
+}
+.nf-suggest {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+  text-align: start;
+}
+.nf-search {
+  order: -1;
+  margin-bottom: 1.25rem !important;
+}
+.nf-search a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.9rem;
+  background: color-mix(in srgb, var(--ink) 7%, transparent);
+  color: var(--ink-2);
+  font: 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  text-decoration: none;
+}
+.nf-search a::before {
+  content: "";
+  flex: none;
+  width: 1.1rem;
+  height: 1.1rem;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.nf-suggest h2 {
+  margin: 0 0 0.5rem 0.25rem !important;
+  font: 600 0.78rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.nf-list {
+  list-style: none !important;
+  padding: 0 !important;
+  border: 0.5px solid var(--rule);
+  border-radius: 1rem;
+  background: var(--paper-raised);
+  overflow: hidden;
+}
+.nf-list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 2.25rem 1fr;
+  column-gap: 0.75rem;
+  align-items: center;
+  margin: 0 0 0 1rem !important;
+  padding: 0.6rem 1rem 0.6rem 0;
+  border-bottom: 0.5px solid var(--rule);
+}
+.nf-list li:last-child {
+  border-bottom: 0;
+}
+.nf-list li::before {
+  content: "";
+  grid-row: span 2;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.6rem;
+  background:
+    radial-gradient(circle, var(--fam, var(--muted)) 0 0.3rem, transparent 0.32rem),
+    var(--fam-wash, color-mix(in srgb, var(--ink) 7%, transparent));
+}
+.nf-list a {
+  display: block;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nf-list li a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.nf-sub {
+  display: block;
+  grid-column: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
 }
 @media (max-width: 639.98px) {
   main.nf-page {
-    padding-top: 4.5rem;
-  }
-  .nf-icon {
-    display: grid;
-    place-items: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    margin: 0 auto 1rem;
-    border-radius: 1rem;
-    background: var(--garden-wash);
-    color: var(--garden);
-  }
-  .nf-icon svg {
-    width: 1.75rem;
-    height: 1.75rem;
-  }
-  main.nf-page .nf-title {
-    margin-bottom: 0.4rem;
-    text-align: center;
-    font-size: 1.6rem;
-    font-weight: 600;
-  }
-  .nf-body {
-    text-align: center;
-    color: var(--muted);
-    font-size: 1rem;
-  }
-  .nf-suggest {
-    display: flex;
-    flex-direction: column;
-    margin-top: 1.5rem;
-  }
-  /* The search first, styled like the search field. */
-  .nf-search {
-    order: -1;
-    margin-bottom: 1.25rem !important;
-  }
-  .nf-search a {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    min-height: 2.9rem;
-    padding: 0.5rem 1rem;
-    border-radius: 0.9rem;
-    background: color-mix(in srgb, var(--ink) 7%, transparent);
-    color: var(--ink-2);
-    font: 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    text-decoration: none;
-  }
-  .nf-search a::before {
-    content: "";
-    flex: none;
-    width: 1.1rem;
-    height: 1.1rem;
-    background: currentColor;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E") center / contain no-repeat;
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-4-4'/%3E%3C/svg%3E") center / contain no-repeat;
-  }
-  .nf-suggest h2 {
-    margin: 0 0 0.5rem 0.25rem !important;
-    font: 600 0.78rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-  .nf-list {
-    list-style: none !important;
-    padding: 0 !important;
-    border: 0.5px solid var(--rule);
-    border-radius: 1rem;
-    background: var(--paper-raised);
-    overflow: hidden;
-  }
-  .nf-list li {
-    margin: 0 0 0 1rem !important;
-    border-bottom: 0.5px solid var(--rule);
-  }
-  .nf-list li:last-child {
-    border-bottom: 0;
-  }
-  .nf-list a {
-    display: block;
-    padding: 0.75rem 1rem 0.75rem 0;
-    color: var(--ink);
-    text-decoration: none;
-  }
-  .nf-links {
-    margin-top: 1.25rem;
-    gap: 0.5rem;
-    text-transform: none;
-    letter-spacing: 0;
-  }
-  .nf-links a {
-    padding: 0.45rem 1rem;
-    border: 1px solid var(--rule-strong);
-    border-radius: var(--radius-pill);
-    font: 500 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-  }
-  .nf-links a:hover {
-    text-decoration: none;
-  }
-  /* The garden's wording, an icon and a line under each suggestion, the
-     pills with their icons (the tab bar already leads home). */
-  main.nf-page .nf-wide,
-  .nf-links .nf-home {
-    display: none;
-  }
-  main.nf-page span.nf-narrow {
-    display: inline;
-  }
-  main.nf-page p.nf-narrow {
-    display: block;
-    margin: 0 0 0.5rem;
-  }
-  .nf-list li {
-    display: grid;
-    grid-template-columns: 2.25rem 1fr;
-    column-gap: 0.75rem;
-    align-items: center;
-    padding: 0.6rem 1rem 0.6rem 0;
-  }
-  .nf-list li::before {
-    content: "";
-    grid-row: span 2;
-    width: 2.25rem;
-    height: 2.25rem;
-    border-radius: 0.6rem;
-    background:
-      radial-gradient(circle, var(--fam, var(--muted)) 0 0.3rem, transparent 0.32rem),
-      var(--fam-wash, color-mix(in srgb, var(--ink) 7%, transparent));
-  }
-  .nf-list li a {
-    padding: 0;
-  }
-  .nf-list li a::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-  }
-  .nf-list li {
-    position: relative;
-  }
-  .nf-sub {
-    display: block;
-    grid-column: 2;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-    color: var(--muted);
-  }
-  .nf-links a {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-  }
-  .nf-pill-icon {
-    display: block;
-    width: 1rem;
-    height: 1rem;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
+    padding-top: 2.5rem;
   }
 }
 
@@ -5542,5 +5705,455 @@
 @media (min-width: 640px) {
   .parcours-tool-locked {
     display: none;
+  }
+}
+
+/* The sheet a faded chest opens (PathRoad.tsx RefreshSheet): a bottom
+   sheet on phones, a centred card from 640px. */
+.road-sheet {
+  inset: auto 0 0;
+  width: 100%;
+  max-width: 34rem;
+  max-height: 92dvh;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 1.5rem 1.5rem 0 0;
+  background: var(--paper-raised);
+  color: var(--ink);
+  box-shadow: 0 -12px 40px rgb(0 0 0 / 0.18);
+}
+.road-sheet::backdrop {
+  background: rgb(20 18 16 / 0.42);
+}
+.road-sheet[open] {
+  animation: road-sheet-up 0.28s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+@keyframes road-sheet-up {
+  from {
+    transform: translateY(40%);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .road-sheet[open] {
+    animation: none;
+  }
+}
+@media (min-width: 640px) {
+  .road-sheet {
+    margin: auto;
+    border-radius: 1.5rem;
+  }
+}
+.road-sheet-in {
+  display: flex;
+  flex-direction: column;
+  padding: 0.6rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
+}
+.road-sheet-grip {
+  align-self: center;
+  width: 2.5rem;
+  height: 0.3rem;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  background: var(--rule-strong);
+}
+.road-sheet-k {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.35rem;
+  font: 700 0.78rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--warn);
+}
+.road-sheet-k svg {
+  width: 1rem;
+  height: 1rem;
+}
+.road-sheet h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.45rem;
+  line-height: 1.2;
+}
+.road-sheet-lead {
+  margin: 0 0 1rem;
+  color: var(--ink-2);
+  line-height: 1.45;
+}
+.road-sheet-box {
+  padding: 0.85rem 0.9rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 1rem;
+  background: var(--wash-2);
+}
+.road-sheet-box > p:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.6rem;
+  font: 0.92rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.road-sheet-box > p:first-child span {
+  color: var(--muted);
+}
+.road-sheet-cells {
+  display: flex;
+  gap: 3px;
+}
+.road-sheet-cells i {
+  flex: 1;
+  height: 0.6rem;
+  border-radius: 3px;
+}
+.road-sheet-cells .ok,
+.road-sheet-legend .ok::before {
+  background: var(--fam, var(--garden));
+}
+/* Due squares are hollow, so they read apart from a warm family colour. */
+.road-sheet-cells .due,
+.road-sheet-legend .due::before {
+  background: color-mix(in srgb, var(--warn) 18%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--warn);
+}
+.road-sheet-legend {
+  display: flex;
+  gap: 1.2rem;
+  margin: 0.5rem 0 0;
+  font: 0.82rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+}
+.road-sheet-legend span::before {
+  content: "";
+  display: inline-block;
+  width: 0.6rem;
+  height: 0.6rem;
+  margin-right: 0.35rem;
+  border-radius: 2px;
+}
+.road-sheet-notes {
+  margin: 0.6rem 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+.road-sheet-notes li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.road-sheet-notes li:last-child {
+  border-bottom: 0;
+}
+.road-sheet-notes i {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  background: var(--fam-wash, var(--garden-wash));
+  color: var(--fam, var(--garden));
+}
+.road-sheet-notes i svg {
+  width: 0.95rem;
+  height: 0.95rem;
+}
+.road-sheet-notes a {
+  flex: 1;
+  color: inherit;
+  text-decoration: none;
+}
+.road-sheet-notes small {
+  font: 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+}
+.road-sheet-notes .due small {
+  font-weight: 700;
+  color: var(--warn);
+}
+.road-sheet-go {
+  min-height: 3.2rem;
+  border: 0;
+  border-radius: 1rem;
+  background: var(--garden);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--garden) 70%, #000);
+  color: #fff;
+  font: 700 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.road-sheet-go:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--garden) 70%, #000);
+}
+.road-sheet-later {
+  margin-top: 0.6rem;
+  padding: 0.5rem;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: 700 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  cursor: pointer;
+}
+
+/* "À rafraîchir" on the phone home (HomeDashboard.tsx): one card, the
+   fading levels oldest first, and one button for all of them. */
+.dash-fade {
+  margin: 1.5rem 1rem 0.5rem;
+  padding: 1rem 1rem 1.1rem;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.25rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+}
+.dash-fade-k {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0 0 0.3rem;
+  font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--warn);
+}
+.dash-fade-k svg {
+  width: 1rem;
+  height: 1rem;
+  stroke-width: 2.4;
+}
+.dash-fade h2 {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 500;
+  line-height: 1.2;
+}
+.dash-fade-sub {
+  margin: 0.2rem 0 0.4rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+.dash-fade ul {
+  margin: 0 0 0.9rem;
+  padding: 0;
+  list-style: none;
+}
+.dash-fade li a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0;
+  border-top: 1px solid var(--rule);
+  color: inherit;
+}
+.dash-fade-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.7rem;
+  background: var(--fam-wash, var(--wash-2));
+  color: var(--fam, var(--garden));
+}
+.dash-fade-icon svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  stroke-width: 2.4;
+}
+.dash-fade-text {
+  flex: 1;
+  min-width: 0;
+}
+.dash-fade-text b {
+  display: block;
+  overflow: hidden;
+  font-size: 1.02rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dash-fade-text small {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font: 0.82rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dash-fade li em {
+  flex: none;
+  color: var(--warn);
+  font: normal 700 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.dash-fade-go {
+  display: grid;
+  place-items: center;
+  min-height: 3rem;
+  border-radius: 1rem;
+  background: var(--garden);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--garden) 70%, #000);
+  color: #fff;
+  font: 700 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.dash-fade-go:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--garden) 70%, #000);
+}
+
+/* The end of a finished path's road (PathRoad.tsx): the tree in bloom, then
+   a card with what the path held. */
+@media (max-width: 639.98px) {
+  .road-end {
+    position: relative;
+    margin: 0.5rem 0 1rem;
+  }
+  .road-end-scene {
+    margin: 0 0 -0.375rem;
+  }
+  .road-end-card {
+    position: relative;
+    margin: 0 1rem;
+    padding: 1rem 1.25rem 1.25rem;
+    border: 0.5px solid var(--rule);
+    border-radius: 1.375rem;
+    background: var(--paper-raised);
+    text-align: center;
+  }
+  .road-end-card small {
+    font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fam, var(--garden));
+  }
+  .road-end-card h2 {
+    margin: 0.25rem 0 0.5rem;
+    font: 500 1.8rem/1.1 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .road-end-card p {
+    margin: 0 0 0.875rem;
+    font: 400 0.95rem/1.45 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .road-end-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 1rem;
+  }
+  .road-end-stats b {
+    display: block;
+    font: 600 1.4rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .road-end-stats span {
+    font: 400 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  main .road-end-go {
+    display: block;
+    padding: 0.8rem;
+    border-radius: var(--radius-pill);
+    background: var(--garden);
+    color: var(--paper);
+    font: 700 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    text-decoration: none;
+  }
+}
+
+/* Réviser on a phone: the decks as seed drawers, two to a row
+   (CartesPhone.tsx, lib/deco-art.ts). */
+@media (max-width: 639.98px) {
+  .rv-decks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .rv-decks li {
+    margin: 0;
+    min-width: 0;
+  }
+  .rv-decks li::marker {
+    content: none;
+  }
+  .rv-decks a {
+    display: block;
+    height: 100%;
+    padding: 0.75rem;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.25rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .rv-drawer {
+    display: block;
+    margin-bottom: 0.375rem;
+  }
+  .rv-decks b {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font: 600 1.05rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+  }
+  .rv-decks small {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+}
+
+/* A wait as a seed coming up (components/GrowLoader.tsx): the three
+   drawings stacked, each shown in turn; the grown one alone when motion is
+   reduced. */
+.grow-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 2rem 0;
+  color: var(--muted);
+  font-style: italic;
+}
+.grow-loader-art {
+  display: grid;
+  width: 4.5rem;
+}
+.grow-loader-art i {
+  grid-area: 1 / 1;
+  opacity: 0;
+  animation: grow-frame 1.8s steps(1, end) infinite;
+}
+.grow-loader-art i:nth-child(2) {
+  animation-delay: 0.6s;
+}
+.grow-loader-art i:nth-child(3) {
+  animation-delay: 1.2s;
+}
+@keyframes grow-frame {
+  0% {
+    opacity: 1;
+  }
+  33.34% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .grow-loader-art i {
+    animation: none;
+  }
+  .grow-loader-art i:last-child {
+    opacity: 1;
   }
 }

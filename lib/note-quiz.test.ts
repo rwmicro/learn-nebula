@@ -5,6 +5,9 @@ import {
   countSaved,
   dueQuestions,
   emptyNoteDeck,
+  fadingBySlug,
+  retentionBySlug,
+  daysAgo,
   gradeQuestion,
   loadAllNoteDecks,
   loadNoteDeck,
@@ -68,6 +71,26 @@ describe("add / grade / remove", () => {
     expect(nextDueDay({ n: knew }, T)).toBe("2026-10-03");
     const notYet = addQuestion(emptyNoteDeck(), "q1", item("Q1"), "again", T);
     expect(notYet.cards.q1.due).toBe(T);
+  });
+  it("counts as fading only the answered questions that are due again", () => {
+    const fresh = { ...emptyNoteDeck(), items: { q0: { ...item("Q0"), added: T } } };
+    const knew = addQuestion(emptyNoteDeck(), "q1", item("Q1"), "good", T);
+    expect(fadingBySlug({ a: fresh, b: knew }, T).size).toBe(0);
+    expect(fadingBySlug({ a: fresh, b: knew }, "2026-10-03")).toEqual(new Map([["b", 1]]));
+  });
+  it("sums what a note's answered questions hold", () => {
+    const fresh = { ...emptyNoteDeck(), items: { q0: { ...item("Q0"), added: T } } };
+    let b = addQuestion(emptyNoteDeck(), "q1", item("Q1"), "good", T);
+    b = addQuestion(b, "q2", item("Q2"), "again", "2026-10-02");
+    const r = retentionBySlug({ a: fresh, b }, "2026-10-03");
+    expect(r.has("a")).toBe(false);
+    expect(r.get("b")).toEqual({ saved: 2, due: 2, last: "2026-10-02" });
+    expect(retentionBySlug({ b }, T).get("b")?.due).toBe(0);
+  });
+  it("says how long ago in days, weeks or months", () => {
+    expect(daysAgo(3, "fr")).toBe("il y a 3 jours");
+    expect(daysAgo(35, "fr")).toBe("il y a 5 semaines");
+    expect(daysAgo(90, "en")).toBe("3 months ago");
   });
   it("ignores grades for unsaved questions and forgets removed ones", () => {
     const d0 = emptyNoteDeck();

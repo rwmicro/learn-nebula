@@ -858,6 +858,181 @@ button.prix[aria-expanded="true"] {
 .widget.is-live .w-sq.is-last {
   box-shadow: inset 0 0 0 3px rgb(63 107 74 / 0.75);
 }
+/* Stars (echiquier `etoiles:`), as the lesson mockup: a pale board, the
+   reachable squares dotted, gold stars, the tools under it (Annuler, the
+   count, Indice). */
+.w-stars {
+  --sq-l: #f1ece0;
+  --sq-d: #d9cfb8;
+  --dot: rgb(63 107 74 / 0.45);
+}
+:root[data-theme="dark"] .w-stars {
+  --sq-l: #3a3731;
+  --sq-d: #2a2824;
+  --dot: rgb(134 184 147 / 0.5);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .w-stars {
+    --sq-l: #3a3731;
+    --sq-d: #2a2824;
+    --dot: rgb(134 184 147 / 0.5);
+  }
+}
+.widget.is-live .w-board--stars {
+  grid-template-rows: repeat(8, 1fr);
+  max-width: 26rem;
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1.5px var(--rule);
+}
+.widget.is-live .w-board--stars .w-sq {
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--sq-l);
+  box-shadow: none;
+}
+.widget.is-live .w-board--stars .w-sq.is-dark {
+  background: var(--sq-d);
+}
+.widget.is-live .w-board--stars .w-sq.is-reach::after {
+  content: "";
+  width: 28%;
+  height: 28%;
+  border-radius: 50%;
+  background: var(--dot);
+}
+.widget.is-live .w-board--stars .w-sq.is-star::after {
+  display: none;
+}
+.widget.is-live .w-board--stars .w-sq.is-last {
+  box-shadow: inset 0 0 0 100px rgb(243 198 74 / 0.28);
+}
+.widget.is-live .w-board--stars .w-sq.is-got::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(243 198 74 / 0.3);
+}
+.widget.is-live .w-board--stars .w-sq.is-hint {
+  box-shadow: inset 0 0 0 4px var(--garden);
+  animation: w-hint 1.2s ease-in-out infinite alternate;
+}
+@keyframes w-hint {
+  to {
+    box-shadow: inset 0 0 0 2px var(--garden);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .widget.is-live .w-board--stars .w-sq.is-hint {
+    animation: none;
+  }
+}
+.w-board--stars .w-sq > svg {
+  position: absolute;
+  inset: 14%;
+  width: 72%;
+  height: 72%;
+  color: #f3c64a;
+  filter: drop-shadow(0 2px 0 #c99a1c);
+  z-index: 1;
+}
+.w-board--stars .w-pc {
+  position: relative;
+  z-index: 2;
+  font-size: clamp(1.6rem, 8vw, 2.6rem);
+  line-height: 1;
+  color: var(--ink);
+}
+.w-board--stars .w-rank,
+.w-board--stars .w-file {
+  position: absolute;
+  font: 600 0.6rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+  opacity: 0.85;
+}
+.w-board--stars .w-rank {
+  left: 3px;
+  top: 1px;
+}
+.w-board--stars .w-file {
+  right: 3px;
+  bottom: 0;
+}
+.w-stars-tools {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: 26rem;
+  margin: 1rem auto 0;
+}
+.w-stars-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 44px;
+  min-width: 52px;
+  padding: 0 14px;
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 14px;
+  box-shadow: 0 3px 0 var(--rule-strong);
+  background: var(--paper-raised, var(--paper));
+  color: var(--ink-2);
+  font: 700 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.w-stars-tool svg {
+  width: 19px;
+  height: 19px;
+}
+.w-stars-undo span {
+  display: none;
+}
+.w-stars-tool:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--rule-strong);
+}
+.w-stars-tool:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.w-stars-count {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font: 600 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--ink-2);
+  font-variant-numeric: lining-nums;
+}
+.w-stars-count svg {
+  width: 18px;
+  height: 18px;
+  color: #f3c64a;
+  filter: drop-shadow(0 1px 0 #c99a1c);
+}
+.w-stars-count b {
+  color: var(--ink);
+}
+.w-stars-note {
+  margin: 0.9rem 0 0;
+  text-align: center;
+  font: 500 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: var(--muted);
+}
+.w-stars-keys {
+  display: none;
+}
+.w-goal-action {
+  display: none;
+}
 .widget.is-live .l-board {
   max-width: 22rem;
 }
@@ -961,4 +1136,187 @@ button.prix[aria-expanded="true"] {
 }
 .widget.is-live .l-tree.is-mine:hover {
   text-decoration: underline;
+}
+
+/* Lesson mode (lesson.js): a widget with a goal is a question screen. No
+   frame; "À toi de jouer" as the title, the goal in a speech bubble, and
+   the verdict as the band at the bottom. From 900px the board stands on
+   the left (560px) and the rest beside it, as the desktop mockup. */
+.lesson-stage .widget.is-live {
+  margin: 0;
+}
+.lesson-stage .widget.is-live .w-goals {
+  border: 0;
+  background: none;
+}
+.lesson-stage .widget.is-live .w-goal {
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.lesson-stage .w-goal-top {
+  display: none;
+}
+.lesson-stage .w-goal-action {
+  display: block;
+  margin: 0.15rem 0 0;
+  font: 600 clamp(1.55rem, 1.2rem + 1.2vw, 2.1rem) / 1.15 "Alegreya", "Alegreya Fallback", serif;
+  color: var(--ink);
+}
+.lesson-stage .w-goal-text {
+  position: relative;
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--rule);
+  border-radius: 18px;
+  background: var(--paper-raised, var(--paper));
+  font: 400 clamp(1.06rem, 1rem + 0.3vw, 1.15rem) / 1.42 "Alegreya", "Alegreya Fallback", serif;
+}
+.lesson-stage .w-goal-text::before {
+  content: "";
+  position: absolute;
+  left: 26px;
+  top: -9px;
+  width: 16px;
+  height: 16px;
+  background: var(--paper-raised, var(--paper));
+  border-left: 1.5px solid var(--rule);
+  border-top: 1.5px solid var(--rule);
+  transform: rotate(45deg);
+}
+.lesson-stage .widget.is-live .w-goals .w-root {
+  padding: 1.1rem 0 0;
+  border: 0;
+}
+.lesson-stage .w-goal-foot:not([data-state="ok"]):not([data-state="ko"]) {
+  display: none;
+}
+.lesson-stage .w-goal-foot :is(.w-goal-btn, .w-goal-link) {
+  display: none;
+}
+.lesson-stage .w-goal-foot:is([data-state="ok"], [data-state="ko"]) {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: var(--lesson-bottom-h, 4.5rem);
+  z-index: 2;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0.85rem max(1.2rem, calc((100% - 42rem) / 2 + 1.2rem)) 0.2rem;
+  font: 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+}
+.lesson-stage .w-goal-foot .w-goal-msg {
+  color: var(--ink-2);
+}
+.lesson-stage .w-goal-foot .w-goal-msg > b {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 0.25rem;
+  font: 700 1.2rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.lesson-stage .w-goal-foot .w-goal-msg > b::before {
+  content: "";
+  flex: none;
+  width: 24px;
+  height: 24px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10' stroke-width='2'/%3E%3Cpath d='m7.5 12.5 3 3 6-6.5'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10' stroke-width='2'/%3E%3Cpath d='m7.5 12.5 3 3 6-6.5'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.lesson-stage .w-goal-foot .w-goal-msg > b > span {
+  display: contents;
+}
+.lesson:has(.w-goal-foot[data-state="ok"]) .lesson-bottom {
+  background: var(--garden-wash);
+  border-top-color: transparent;
+}
+.lesson:has(.w-goal-foot[data-state="ko"]) .lesson-bottom {
+  background: color-mix(in srgb, var(--warn) 12%, var(--paper));
+  border-top-color: transparent;
+}
+.lesson:has(.w-goal-foot:is([data-state="ok"], [data-state="ko"])) .lesson-scroll {
+  padding-bottom: 12rem;
+}
+.lesson-stage .widget.is-live .w-board--stars {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+}
+.lesson-stage .w-stars-tools {
+  max-width: none;
+}
+@media (min-width: 900px) {
+  .lesson-stage:has(.w-stars) {
+    display: grid;
+    grid-template-columns: minmax(0, 560px) minmax(0, 1fr);
+    column-gap: 3rem;
+    align-items: start;
+    max-width: 66rem;
+  }
+  .lesson-stage:has(.w-stars) > .lesson-check {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .lesson-stage:has(.w-stars) :is(.widget, .w-goals, .w-root) {
+    display: contents;
+  }
+  .lesson-stage .w-board--stars {
+    grid-column: 1;
+    grid-row: 1 / span 7;
+  }
+  .lesson-stage .w-goals > .w-goal {
+    grid-column: 2;
+    grid-row: 2;
+  }
+  .lesson-stage .w-stars-tools {
+    grid-column: 2;
+    grid-row: 3;
+    justify-content: flex-start;
+    margin-top: 1.5rem;
+  }
+  .lesson-stage .w-stars-undo span {
+    display: inline;
+  }
+  .lesson-stage .w-stars-count {
+    order: -1;
+    flex-basis: 100%;
+    margin-bottom: 0.4rem;
+    font-size: 1.1rem;
+  }
+  .lesson-stage .w-stars-tools {
+    flex-wrap: wrap;
+  }
+  .lesson-stage .w-stars-note {
+    grid-column: 2;
+    grid-row: 4;
+    text-align: start;
+  }
+  .lesson-stage .w-stars-keys {
+    display: block;
+    grid-column: 2;
+    grid-row: 5;
+    margin: 1.4rem 0 0;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+    font: 500 0.88rem/2.1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--muted);
+  }
+  .lesson-stage .w-stars-keys kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 6px;
+    border: 1px solid var(--rule-strong);
+    border-bottom-width: 2.5px;
+    background: var(--paper-raised, var(--paper));
+    font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    color: var(--ink-2);
+  }
+  .lesson-stage .w-goals > .w-goal-foot {
+    grid-column: 2;
+  }
 }

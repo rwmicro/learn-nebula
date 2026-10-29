@@ -38,6 +38,7 @@ import {
   topLanguage,
 } from "../../lib/palette-phone";
 import { pathFamily } from "../../lib/path-family";
+import { SCENES } from "../../lib/deco-art";
 import { isRead, loadStore, slugFromHref } from "../../lib/reading-progress";
 import { downloadExport } from "../../lib/progress-transfer";
 import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "../../lib/search-miss";
@@ -597,7 +598,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     else if (q && notesState === "error") status = tt("palette.loadError");
     else if (q && textPending) status = tt("palette.searchingText");
     if (!shown.length) {
-      html += `<p class="palette-empty">${esc(status || tt("palette.empty"))}</p>`;
+      html += `<div class="palette-empty">${status ? "" : `<div class="palette-empty-ill deco">${SCENES.search}</div>`}<p>${esc(status || tt("palette.empty"))}</p></div>`;
     }
     list.innerHTML = html;
     statusEl.textContent = q ? status || tt("palette.results", { n: shown.length }) : "";
@@ -984,7 +985,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
 
   function phoneEmpty(q, near) {
     let h =
-      `<div class="pp-empty"><span class="pp-empty-ill">${FAM.none}</span>` +
+      `<div class="pp-empty"><div class="pp-empty-ill deco">${SCENES.search}</div>` +
       `<h3>${esc(tt("palette.emptyTitle", { q }))}</h3><p>${esc(tt(pfState === "off" ? "palette.emptyBodyTitles" : "palette.emptyBody"))}</p></div>`;
     h += suggestion(q);
     if (near.length) h += sect(esc(tt("palette.near"))) + listOf(near.map((n) => noteRow(n, "")));
@@ -1345,6 +1346,8 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
         [["s"], "shortcuts.contents"],
         [["f"], "shortcuts.focus"],
         [["b"], "shortcuts.bookmark"],
+        [["l"], "shortcuts.lesson"],
+        [["1", "…", "9"], "shortcuts.answer"],
         [["g a"], "shortcuts.home"],
       ]],
       ["shortcuts.paletteGroup", [

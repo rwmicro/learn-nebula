@@ -5,6 +5,7 @@ import { GRADES, type Grade } from "@/lib/srs";
 import { diff } from "@/lib/typed-answer";
 import type { ReviewItem } from "@/lib/review-item";
 import { DeckFace } from "@/components/DeckFace";
+import { SCENES } from "@/lib/deco-art";
 import { formatInterval } from "@/components/ReviewSession";
 
 // The review session on a phone (ReviewSession.tsx renders this below 640px):
@@ -377,7 +378,6 @@ export function PhoneSession({
 
 export function PhoneEnd({
   tr,
-  locale,
   n,
   again,
   end,
@@ -386,7 +386,6 @@ export function PhoneEnd({
   onClose,
 }: {
   tr: Tr;
-  locale: string;
   n: number;
   again: number;
   end: SessionEnd;
@@ -396,9 +395,6 @@ export function PhoneEnd({
 }) {
   const pct = n ? Math.round((100 * (n - again)) / n) : 0;
   const minutes = Math.max(1, Math.round(end.ms / 60000));
-  const day = new Intl.DateTimeFormat(locale, { weekday: "narrow" });
-  // 2024-01-01 was a Monday.
-  const names = Array.from({ length: 7 }, (_, i) => day.format(new Date(2024, 0, 1 + i)));
   return (
     <div className="rsm rsm-end" role="dialog" aria-modal="true" aria-labelledby="rsm-done">
       <div className="rsm-top">
@@ -406,43 +402,28 @@ export function PhoneEnd({
           {ICON.close}
         </button>
       </div>
-      <div className="rsm-ring" style={{ "--p": pct / 100 } as React.CSSProperties}>
-        <div>
-          <b>{pct} %</b>
-          <small>{tr("rs.retained")}</small>
-        </div>
-      </div>
+      {/* A basket of picked fruit (lib/deco-art.ts). */}
+      <div className="rsm-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.basket }} />
       <h2 id="rsm-done" ref={doneRef} tabIndex={-1}>
         {tr("rs.doneTitle")}
       </h2>
-      {note && <p className="rsm-end-note">{note}</p>}
+      <p className="rsm-end-note">
+        {!n ? note : again ? tr("rs.harvest", { n, good: n - again, again }) : tr("rs.harvestAll", { n })}
+      </p>
       <div className="rsm-stats">
         <div>
           <b>{n}</b>
           <small>{tr("rs.cards")}</small>
         </div>
         <div>
-          <b>{tr("rs.minutes", { n: minutes })}</b>
-          <small>{tr("rs.ofReview")}</small>
+          <b>{pct} %</b>
+          <small>{tr("rs.retained")}</small>
         </div>
         <div>
-          <b>
-            {ICON.flame}
-            {end.run}
-          </b>
-          <small>{tr("rs.daysRun")}</small>
+          <b>{tr("rs.minutes", { n: minutes })}</b>
+          <small>{tr("rs.ofSession")}</small>
         </div>
       </div>
-      {end.week.length === 7 && (
-        <div className="rsm-week">
-          {end.week.map((on, i) => (
-            <span key={i} className={on ? "y" : undefined}>
-              <i>{on && ICON.check}</i>
-              {names[i]}
-            </span>
-          ))}
-        </div>
-      )}
       <div className="rsm-foot rsm-end-actions">
         {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full load leaves the session for the hub */}
         <a className="rsm-btn rsm-big" href="/cartes/">

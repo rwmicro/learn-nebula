@@ -203,6 +203,59 @@ export function dueQuestions(
   return out.sort((a, b) => (rank(a) < rank(b) ? -1 : rank(a) > rank(b) ? 1 : 0));
 }
 
+/** Questions answered before and due again, by note slug: what has started
+ *  to fade (a saved question never answered is new, not forgotten). */
+export function fadingBySlug(
+  decks: Record<string, NoteDeck>,
+  today: string = dayKey(),
+): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const [slug, d] of Object.entries(decks))
+    for (const id of Object.keys(d.items)) {
+      const state = d.cards[id];
+      if (state && state.due <= today) out.set(slug, (out.get(slug) ?? 0) + 1);
+    }
+  return out;
+}
+
+/** What a note's answered questions still hold: how many were answered
+ *  (`saved`), how many are due again, and the day of the latest review. */
+export interface Retention {
+  saved: number;
+  due: number;
+  last: string | null;
+}
+
+export function retentionBySlug(
+  decks: Record<string, NoteDeck>,
+  today: string = dayKey(),
+): Map<string, Retention> {
+  const out = new Map<string, Retention>();
+  for (const [slug, d] of Object.entries(decks)) {
+    const r: Retention = { saved: 0, due: 0, last: null };
+    for (const id of Object.keys(d.items)) {
+      const state = d.cards[id];
+      if (!state) continue;
+      r.saved++;
+      if (state.due <= today) r.due++;
+      if (state.last && (!r.last || state.last > r.last)) r.last = state.last;
+    }
+    if (r.saved) out.set(slug, r);
+  }
+  return out;
+}
+
+/** "il y a 5 semaines" for a day count, in days, weeks or months. */
+export function daysAgo(days: number, locale: string): string {
+  const [n, unit]: [number, Intl.RelativeTimeFormatUnit] =
+    days < 14 ? [-days, "day"] : days < 60 ? [-Math.round(days / 7), "week"] : [-Math.round(days / 30), "month"];
+  try {
+    return new Intl.RelativeTimeFormat(locale, { numeric: "auto" }).format(n, unit);
+  } catch {
+    return `${days} j`;
+  }
+}
+
 export function countSaved(decks: Record<string, NoteDeck>): number {
   return Object.values(decks).reduce((n, d) => n + Object.keys(d.items).length, 0);
 }

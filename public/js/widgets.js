@@ -1394,9 +1394,10 @@
 
   // ------------------------------------------------------ chessboard widget
 
-  function echiquier(props) {
+  function echiquier(props, ctx) {
     const GLYPH = { K: "♔", Q: "♕", R: "♖", B: "♗", N: "♘", P: "♙",
                     k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟" };
+    if (props.etoiles) return etoiles(props, ctx, GLYPH);
     const start = String(props.fen ?? "8/8/8/4k3/8/4K3/4P3/8 w - - 0 1");
     // Moves are given in coordinate form (e2e4), one per `moves` prop, space separated.
     const moves = String(props.moves ?? "").trim().split(/\s+/).filter(Boolean);
@@ -1463,6 +1464,213 @@
       el("div", { class: "w-controls" }, ctrls),
       grid,
       out,
+    ]);
+  }
+
+  /**
+   * `etoiles: c3 e4 f6` on a chessboard: the white piece of the position (the
+   * first one that is not the king) collects the stars with legal moves of
+   * its own kind; the other pieces are walls. Tapping a square it can reach
+   * moves it there. Reports `etoiles` (left), `coups` and `fini` (0/1), so
+   * `cible: fini=1, coups<=4` reads as "in four moves".
+   */
+  function etoiles(props, ctx, GLYPH) {
+    const fen = String(props.fen ?? "8/8/8/8/8/8/8/1N6 w - - 0 1").split(" ")[0];
+    const board = fen.split("/").map((r) => {
+      const line = [];
+      for (const c of r) {
+        if (/\d/.test(c)) for (let k = 0; k < Number(c); k++) line.push("");
+        else line.push(c);
+      }
+      return line;
+    });
+    const name = (r, c) => String.fromCharCode(97 + c) + (8 - r);
+    let piece = null;
+    for (let r = 0; r < 8 && !piece; r++)
+      for (let c = 0; c < 8; c++)
+        if (/[QRBNP]/.test(board[r][c])) { piece = { kind: board[r][c], r, c }; break; }
+    const stars0 = String(props.etoiles).trim().split(/\s+/)
+      .filter((q) => /^[a-h][1-8]$/.test(q));
+    const par = Number(props.coups) || 0;
+    if (!piece) return el("p", { class: "w-warn" }, ["Il faut une pièce blanche (hors roi) dans le fen."]);
+    const home = { r: piece.r, c: piece.c };
+    board[piece.r][piece.c] = "";
+    let stars = new Set(stars0);
+    let moves = 0;
+    let undo = [];
+    let hintAt = null;
+    const PIECE = { R: "la tour", B: "le fou", Q: "la dame", N: "le cavalier", P: "le pion" }[piece.kind];
+
+    const free = (r, c) => r >= 0 && r < 8 && c >= 0 && c < 8 && !board[r][c];
+    function reachFrom(r, c) {
+      const out = [];
+      const kind = piece.kind;
+      const slide = (dirs) => {
+        for (const [dr, dc] of dirs)
+          for (let k = 1; free(r + dr * k, c + dc * k); k++) out.push([r + dr * k, c + dc * k]);
+      };
+      const ORTHO = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+      const DIAG = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+      if (kind === "R") slide(ORTHO);
+      else if (kind === "B") slide(DIAG);
+      else if (kind === "Q") slide([...ORTHO, ...DIAG]);
+      else if (kind === "N") {
+        for (const [dr, dc] of [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]])
+          if (free(r + dr, c + dc)) out.push([r + dr, c + dc]);
+      } else if (kind === "P") {
+        if (free(r - 1, c)) {
+          out.push([r - 1, c]);
+          if (r === 6 && free(r - 2, c)) out.push([r - 2, c]);
+        }
+      }
+      return out;
+    }
+    const reach = () => reachFrom(piece.r, piece.c);
+
+    // Indice: the first move of a shortest route through the stars left
+    // (breadth-first over square × stars-left; a handful of stars at most).
+    function bestNext() {
+      const list = [...stars];
+      if (!list.length) return null;
+      const bit = (r, c) => list.indexOf(name(r, c));
+      const full = (1 << list.length) - 1;
+      const seen = new Set([piece.r * 8 + piece.c + "," + full]);
+      let frontier = [{ r: piece.r, c: piece.c, left: full, first: null }];
+      for (let depth = 0; depth < 40 && frontier.length; depth++) {
+        const next = [];
+        for (const s of frontier) {
+          for (const [r, c] of reachFrom(s.r, s.c)) {
+            const b = bit(r, c);
+            const left = b >= 0 ? s.left & ~(1 << b) : s.left;
+            const first = s.first || [r, c];
+            if (!left) return first;
+            const k = r * 8 + c + "," + left;
+            if (seen.has(k)) continue;
+            seen.add(k);
+            next.push({ r, c, left, first });
+          }
+        }
+        frontier = next;
+      }
+      return null;
+    }
+
+    const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12 2.5 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z"/></svg>';
+    const grid = el("div", { class: "w-board w-board--stars" });
+    const counter = el("p", { class: "w-stars-count", "aria-live": "polite" });
+    const note = el("p", { class: "w-stars-note" }, ["Les points montrent où " + PIECE + " peut aller."]);
+    const undoBtn = el("button", { type: "button", class: "w-stars-tool w-stars-undo", "aria-label": "Annuler le coup",
+      title: "Annuler (Z)" });
+    undoBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span>Annuler</span>';
+    const hintBtn = el("button", { type: "button", class: "w-stars-tool w-stars-hint", title: "Indice (H)" });
+    hintBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg><span>Indice</span>';
+    const total = stars0.length;
+
+    function report() {
+      ctx && ctx.report && ctx.report({ etoiles: stars.size, coups: moves, fini: stars.size ? 0 : 1 });
+      // All the stars: no need to press « Vérifier ».
+      if (!stars.size && ctx && ctx.autoCheck) ctx.autoCheck();
+    }
+    function go(r, c) {
+      undo.push({ r: piece.r, c: piece.c, stars: new Set(stars), moves });
+      piece.r = r;
+      piece.c = c;
+      moves++;
+      stars.delete(name(r, c));
+      hintAt = null;
+      draw();
+      report();
+    }
+    function draw() {
+      const can = reach();
+      const cells = [];
+      for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+          const here = piece.r === r && piece.c === c;
+          const star = stars.has(name(r, c));
+          const ok = can.some(([a, b]) => a === r && b === c) && stars.size > 0;
+          const got = !star && stars0.includes(name(r, c));
+          const cls = "w-sq" + ((r + c) % 2 === 1 ? " is-dark" : "") + (ok ? " is-reach" : "") +
+            (star ? " is-star" : "") + (got ? " is-got" : "") +
+            (hintAt && hintAt[0] === r && hintAt[1] === c ? " is-hint" : "");
+          const kids = here
+            ? [el("span", { class: "w-pc" }, [GLYPH[piece.kind]])]
+            : board[r][c]
+              ? [GLYPH[board[r][c]]]
+              : [];
+          const label = (c === 0 ? el("span", { class: "w-rank" }, [String(8 - r)]) : null);
+          const file = (r === 7 ? el("span", { class: "w-file" }, [String.fromCharCode(97 + c)]) : null);
+          if (label) kids.push(label);
+          if (file) kids.push(file);
+          if (ok) {
+            const b = el("button", { type: "button", class: cls, "aria-label": "Aller en " + name(r, c) +
+              (star ? " (étoile)" : "") }, kids);
+            if (star) b.insertAdjacentHTML("afterbegin", STAR);
+            b.addEventListener("click", () => go(r, c));
+            cells.push(b);
+          } else {
+            const i = el("i", { class: cls + (here ? " is-last" : "") }, kids);
+            if (star) i.insertAdjacentHTML("afterbegin", STAR);
+            cells.push(i);
+          }
+        }
+      }
+      grid.replaceChildren(...cells);
+      counter.innerHTML = STAR;
+      counter.append(
+        el("b", {}, [String(total - stars.size) + " / " + total]),
+        " · " + moves + " coup" + (moves > 1 ? "s" : "") + (par ? " (" + par + " au mieux)" : ""),
+      );
+      undoBtn.disabled = !undo.length;
+      hintBtn.disabled = !stars.size;
+    }
+    undoBtn.addEventListener("click", () => {
+      const u = undo.pop();
+      if (!u) return;
+      piece.r = u.r;
+      piece.c = u.c;
+      stars = u.stars;
+      moves = u.moves;
+      hintAt = null;
+      draw();
+      report();
+    });
+    hintBtn.addEventListener("click", () => {
+      hintAt = bestNext();
+      draw();
+    });
+    // Z undoes, H hints, when the board is on screen and nothing is typed in.
+    document.addEventListener("keydown", (e) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || !grid.isConnected) return;
+      const t = e.target;
+      if (t instanceof Element && t.closest("input, textarea, select, [contenteditable]")) return;
+      const box = grid.getBoundingClientRect();
+      if (box.bottom < 0 || box.top > innerHeight) return;
+      if (e.key === "z" || e.key === "Z") undoBtn.click();
+      else if (e.key === "h" || e.key === "H") hintBtn.click();
+    });
+    draw();
+    report();
+    const reset = () => {
+      piece.r = home.r;
+      piece.c = home.c;
+      stars = new Set(stars0);
+      moves = 0;
+      undo = [];
+      hintAt = null;
+      draw();
+      report();
+    };
+    ctx.reset = reset;
+    ctx.autoCheck = () => {};
+    ctx.okTitle = () => "Bravo, en " + moves + " coup" + (moves > 1 ? "s" : "") + " !";
+    return el("div", { class: "w-root w-stars" }, [
+      grid,
+      el("div", { class: "w-stars-tools" }, [undoBtn, counter, hintBtn]),
+      note,
+      el("p", { class: "w-stars-keys" }, [
+        el("kbd", {}, ["Z"]), " annuler · ", el("kbd", {}, ["H"]), " indice · ", el("kbd", {}, ["Échap"]), " quitter la leçon",
+      ]),
     ]);
   }
 
@@ -2739,6 +2947,10 @@
     let solved = false;
     let tries = 0;
 
+    // `**mot**` in a goal's line: the key word in bold, as in a lesson.
+    const richParts = (str) =>
+      el("span", {}, String(str).split(/\*\*(.+?)\*\*/).map((part, i) => (i % 2 ? el("b", {}, [part]) : part)));
+    const setRich = (node, str) => node.replaceChildren(richParts(str));
     const kicker = el("span", { class: "w-goal-k" });
     const steps = el("span", { class: "w-goal-steps", "aria-hidden": "true" });
     const text = el("p", { class: "w-goal-text" });
@@ -2747,8 +2959,11 @@
     const hintBtn = el("button", { type: "button", class: "w-goal-link" }, ["Un indice"]);
     const skipBtn = el("button", { type: "button", class: "w-goal-link" }, ["Passer"]);
     const checkBtn = el("button", { type: "button", class: "w-goal-btn" }, ["Vérifier"]);
+    // The title of the lesson screen (main.css shows it in lesson mode only).
+    const action = el("p", { class: "w-goal-action" }, ["À toi de jouer"]);
     const head = el("div", { class: "w-goal" }, [
       el("div", { class: "w-goal-top" }, [kicker, steps]),
+      action,
       text,
       hint,
     ]);
@@ -2779,12 +2994,14 @@
       }
       const g = goals[cur];
       kicker.textContent = goals.length > 1 ? "Objectif " + (cur + 1) + " sur " + goals.length : "Objectif";
-      text.textContent = g.text;
+      setRich(text, g.text);
       hint.textContent = g.hint ? "Indice : " + g.hint : "";
       hintBtn.hidden = !g.hint;
       skipBtn.hidden = false;
       checkBtn.textContent = "Vérifier";
-      feedback("idle", ["Manipulez le widget, puis vérifiez."]);
+      // A widget that knows when it is done (ctx.autoCheck) needs no button.
+      checkBtn.hidden = !!ctx.autoCheck;
+      feedback("idle", ctx.autoCheck ? [] : ["Manipulez le widget, puis vérifiez."]);
     }
 
     function check() {
@@ -2807,7 +3024,8 @@
         hintBtn.hidden = true;
         skipBtn.hidden = true;
         checkBtn.textContent = cur + 1 < goals.length ? "Objectif suivant" : "Terminer";
-        feedback("ok", [el("b", {}, ["Juste ! "]), g.bravo || ""]);
+        checkBtn.hidden = false;
+        feedback("ok", [el("b", {}, [(ctx.okTitle ? ctx.okTitle() : "Juste !") + " "]), g.bravo ? richParts(g.bravo) : ""]);
         document.dispatchEvent(new CustomEvent("gk:widget-goal", { detail: { first: tries === 1 } }));
         return;
       }
@@ -2816,6 +3034,7 @@
       else feedback("ko", [el("b", {}, ["Pas encore. "]), g.hint && hint.hidden && tries >= 2 ? "Un indice peut aider." : ""]);
     }
 
+    if (ctx.autoCheck) ctx.autoCheck = () => !solved && cur < goals.length && check();
     // Moving the widget after an answer clears the verdict, not the goal.
     ctx.onChange = () => {
       if (!solved && cur < goals.length && foot.dataset.state === "ko") {

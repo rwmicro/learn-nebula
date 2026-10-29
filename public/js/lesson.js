@@ -33,7 +33,13 @@ import { keepAwake } from "../../lib/wake-lock";
   const isQuestion = (n) =>
     n instanceof Element &&
     (n.classList.contains("callout-quiz") ||
-      n.classList.contains("callout-predict"));
+      n.classList.contains("callout-predict") ||
+      n.classList.contains("callout-ex") ||
+      // The timeline exercise under a mermaid frise (exercises.js).
+      (n.classList.contains("frise-ex") && !!n.querySelector(".callout-ex")) ||
+      // A widget with a goal (widgets.js withGoals) is a question too.
+      (n.classList.contains("widget") && !!n.querySelector(".w-goals")));
+  const isHeading = (n) => n instanceof Element && /^H[1-6]$/.test(n.tagName);
   const isBlank = (n) => n.nodeType === Node.TEXT_NODE && !n.textContent.trim();
 
   // Steps from the article's top-level nodes, in order.
@@ -48,6 +54,9 @@ import { keepAwake } from "../../lib/wake-lock";
     const split = body.querySelector(":scope > h2") ? "H2" : "H3";
     for (const n of Array.from(body.childNodes)) {
       if (isQuestion(n)) {
+        // A section that opens on its question: the heading alone would be
+        // a step of its own; the kicker says where we are instead.
+        if (cur.every((x) => isBlank(x) || isHeading(x))) cur = [];
         flush();
         steps.push({ kind: "question", nodes: [n] });
         continue;
@@ -58,6 +67,12 @@ import { keepAwake } from "../../lib/wake-lock";
     flush();
     return steps;
   }
+
+  // The card of a question step (a frise's sits inside its box).
+  const cardOf = (step) => {
+    const n = step.nodes[0];
+    return n.classList.contains("frise-ex") ? n.querySelector(".callout-ex") || n : n;
+  };
 
   let ui = null;
 
@@ -73,6 +88,10 @@ import { keepAwake } from "../../lib/wake-lock";
 
     const marks = [];
     const opener = document.activeElement;
+    const crumbs = document.querySelectorAll(".note-header .crumbs a");
+    const place = crumbs.length ? crumbs[crumbs.length - 1].textContent.trim() : "";
+    const title = (document.querySelector(".note-header h1, h1")?.textContent || "").trim();
+    const kicker = [place, title].filter(Boolean).join(" · ");
     // The screen stays on for the lesson's length (lib/wake-lock.ts).
     const sleep = keepAwake();
     const root = document.createElement("div");
@@ -136,9 +155,10 @@ import { keepAwake } from "../../lib/wake-lock";
       // The note's dropcap belongs to its opening only (main.css).
       stage.toggleAttribute("data-later", k > 0);
       if (steps[k].kind === "question") {
+        // "Discipline · Note" above the question, as the mockups' kicker.
         const h = document.createElement("div");
         h.className = "lesson-check";
-        h.textContent = tt("lesson.check");
+        h.textContent = kicker || tt("lesson.check");
         stage.prepend(h);
       }
       segs.forEach((s, j) => {
@@ -154,7 +174,7 @@ import { keepAwake } from "../../lib/wake-lock";
       scroll.scrollTop = 0;
       update();
       const focusable = stage.querySelector(
-        ".quiz-choice:not(:disabled), .quiz-reveal",
+        ".quiz-choice:not(:disabled), .quiz-reveal, .ex-bank .ex-chip, .ex-col .ex-chip",
       );
       (focusable || next).focus({ preventScroll: true });
     }
@@ -162,8 +182,9 @@ import { keepAwake } from "../../lib/wake-lock";
     function answered() {
       const step = steps[i];
       if (!step || step.kind !== "question" || skipped.has(i)) return true;
-      const card = step.nodes[0];
+      const card = cardOf(step);
       return (
+        !!card.querySelector('.w-goal-foot:is([data-state="ok"], [data-state="done"])') ||
         card.classList.contains("is-answered") ||
         card.classList.contains("is-revealed") ||
         card.classList.contains("is-open") ||
@@ -171,8 +192,26 @@ import { keepAwake } from "../../lib/wake-lock";
           !card.querySelector(".quiz-choice"))
       );
     }
+    // An exercise not yet answered: the bottom button is its "Vérifier"
+    // (the card's own is hidden here, main.css).
+    function proxyCheck() {
+      const step = steps[i];
+      if (!step || step.kind !== "question" || skipped.has(i)) return null;
+      const card = cardOf(step);
+      if (!card.classList.contains("callout-ex") || card.classList.contains("is-answered")) return null;
+      return card.querySelector(".ex-foot .ex-check:not(.ex-restart)");
+    }
     function update() {
       if (i >= steps.length) return;
+      const pc = proxyCheck();
+      if (pc) {
+        next.textContent = tt("ex.check");
+        next.disabled = pc.disabled;
+        skip.hidden = false;
+        wait.hidden = true;
+        return;
+      }
+      next.textContent = tt("lesson.next");
       const ok = answered();
       next.disabled = !ok;
       skip.hidden = ok;
@@ -183,7 +222,7 @@ import { keepAwake } from "../../lib/wake-lock";
     obs.observe(stage, {
       attributes: true,
       subtree: true,
-      attributeFilter: ["class"],
+      attributeFilter: ["class", "disabled"],
     });
 
     function finish() {
@@ -260,6 +299,23 @@ import { keepAwake } from "../../lib/wake-lock";
     }
 
     function onKey(e) {
+      // Desktop: answer with the keyboard. 1–9 press the Nth answer (or
+      // word, or item) of the current card, Enter goes on once answered.
+      if (!e.metaKey && !e.ctrlKey && !e.altKey && /^[1-9]$/.test(e.key)) {
+        // (Exercises have their own keys, exercises.js.)
+        const opts = stage.querySelectorAll(".quiz-choice:not(:disabled)");
+        const b = opts[Number(e.key) - 1];
+        if (b) {
+          e.preventDefault();
+          b.click();
+          return;
+        }
+      }
+      if (e.key === "Enter" && !(e.target instanceof HTMLButtonElement) && !next.disabled) {
+        e.preventDefault();
+        next.click();
+        return;
+      }
       if (e.key === "Escape") {
         e.preventDefault();
         close();
@@ -292,7 +348,10 @@ import { keepAwake } from "../../lib/wake-lock";
       show(i + 1);
     });
     next.onclick = () => {
-      if (!next.disabled) show(i + 1);
+      if (next.disabled) return;
+      const pc = proxyCheck();
+      if (pc) pc.click();
+      else show(i + 1);
     };
     ui = { close };
     show(0);

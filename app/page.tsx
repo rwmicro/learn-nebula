@@ -12,6 +12,7 @@ import { HomeContent } from "@/components/HomeContent";
 import { RecentNotes } from "@/components/RecentNotes";
 import { Graphiques } from "@/components/Graphiques";
 import { getGraphiques } from "@/lib/graphiques";
+import { namedLevels } from "@/components/Parcours";
 import { HomeDashboard, type DashDayNote, type DashPath, type DashRecent } from "@/components/HomeDashboard";
 import { extractPlain } from "@/lib/markdown";
 import { readingMinutes } from "@/lib/path-extras";
@@ -109,6 +110,8 @@ function dashboardData(): { paths: DashPath[]; recent: DashRecent[]; dayNotes: D
     name: p.name,
     family: pathFamily(p.discipline),
     slugs: p.notes.map((n) => n.slug),
+    levels: namedLevels(p, (slug) => getPost(slug).frontmatter.title),
+    ...(p.cible ? { cible: p.cible } : {}),
   }));
   return { paths, recent, dayNotes };
 }

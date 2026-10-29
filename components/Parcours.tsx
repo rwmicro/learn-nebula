@@ -1,4 +1,6 @@
-import { t, i18nAttrs, disciplineKey } from "@/lib/i18n";
+import { t, i18nAttrs, disciplineKey, folderKey } from "@/lib/i18n";
+import { ART, FAMILY_ART, artStrip, levelArt } from "@/lib/road-art";
+import { splitRank } from "@/lib/folder-label";
 import { OfflinePath } from "@/components/OfflinePath";
 import type { ReadingPathView } from "@/lib/content";
 import {
@@ -17,7 +19,6 @@ import { fold } from "@/lib/palette-match";
 import { prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
 import { splitMinutes } from "@/lib/path-study";
 import { pathLevels } from "@/lib/path-levels";
-import { FamilyIcon } from "@/components/FamilyIcon";
 import { paintingFor, type Painting } from "@/lib/paintings";
 
 /** A family's painting (lib/paintings.ts), as the backdrop of a heading:
@@ -111,6 +112,15 @@ export function ParcoursIndex({
                 home's "Aujourd'hui" card. */}
             <div className={family ? "parcours-band" : undefined}>
               {family && <Art art={paintingFor(family)} />}
+              {/* Phones: a strip of the family's drawings instead
+                  (lib/road-art.ts, app.css). */}
+              {family && (
+                <span
+                  className="parcours-band-art deco"
+                  aria-hidden="true"
+                  dangerouslySetInnerHTML={{ __html: artStrip(FAMILY_ART[family]) }}
+                />
+              )}
               <h2 className="themes-h2">
                 <span {...attrs(i18nAttrs(label))}>{t(label)}</span>
                 <span
@@ -139,9 +149,11 @@ export function ParcoursIndex({
                         data-search={searchText(p)}
                       >
                         <a href={`/parcours/${p.slug}/`} className="parcours-tile-link" title={p.name}>
-                          <span className="parcours-ic" aria-hidden="true">
-                            <FamilyIcon family={family} />
-                          </span>
+                          <span
+                            className="parcours-ic deco"
+                            aria-hidden="true"
+                            dangerouslySetInnerHTML={{ __html: ART[levelArt(p.name, "", family, p.discipline)[0]] }}
+                          />
                           <span className="parcours-tile-name">{splitName(p.name)[0]}</span>
                           <PathMeta path={p} extras={extras[p.slug]} />
                           <Progress
@@ -179,9 +191,11 @@ export function ParcoursIndex({
                               <DisciplineName name={p.discipline} />
                             </span>
                           )}
-                          <span className="parcours-ic" aria-hidden="true">
-                            <FamilyIcon family={family} />
-                          </span>
+                          <span
+                            className="parcours-ic deco"
+                            aria-hidden="true"
+                            dangerouslySetInnerHTML={{ __html: ART[levelArt(p.name, "", family, p.discipline)[0]] }}
+                          />
                           <span className="parcours-card-title">{title}</span>
                           <PathMeta path={p} extras={extras[p.slug]} />
                           {sub && <span className="parcours-card-sub">{sub}</span>}
@@ -365,6 +379,14 @@ export function ParcoursPage({
               </span>
             </>
           )}
+          {path.cible && (
+            <>
+              {" · "}
+              <span {...attrs(i18nAttrs("parcours.cible", { c: path.cible }))}>
+                {t("parcours.cible", { c: path.cible })}
+              </span>
+            </>
+          )}
         </span>
         <Progress
           slugs={path.notes.map((n) => n.slug)}
@@ -384,11 +406,15 @@ export function ParcoursPage({
 
       <PathRoad
         pathSlug={path.slug}
+        pathName={path.name}
+        family={pathFamily(path.discipline)}
+        discipline={path.discipline}
         levels={levels.map((lv) => {
           const notes = path.notes.slice(lv.from, lv.to);
           return {
             n: lv.n,
-            name: levelName(notes, levels.map((l) => path.notes.slice(l.from, l.to))) ?? titleOf(notes[0].slug),
+            name: levelName(notes, levels.map((l) => path.notes.slice(l.from, l.to)), path.discipline) ?? titleOf(notes[0].slug),
+            cible: levelCible(notes),
             notes: notes.map((n) => ({
               slug: n.slug,
               title: titleOf(n.slug),
@@ -478,6 +504,14 @@ export function ParcoursPage({
                   })}
                 </span>
                 <span className="parcours-level-meta">
+                  {levelCible(notes) && (
+                    <>
+                      <span className="parcours-level-cible" {...attrs(i18nAttrs("parcours.cible", { c: levelCible(notes)! }))}>
+                        {t("parcours.cible", { c: levelCible(notes)! })}
+                      </span>
+                      {" · "}
+                    </>
+                  )}
                   <span className="parcours-level-done" data-level-done>
                     0/{notes.length}
                   </span>
@@ -520,26 +554,57 @@ export function ParcoursPage({
   );
 }
 
-/** A level's name for the phone road: the folders its notes sit in
- *  ("02-communication" → "Communication"), two at most; null when every
- *  level would get the same name (a path from one folder). */
+/** A level's name for the phone road: the folders its notes sit in, by
+ *  their French label ("History" → "Histoire", "02-Communication" →
+ *  "Communication"), two at most; null when every level would get the same
+ *  name (a path from one folder). */
+/** A path's levels with their names, as the road names them (the home's
+ *  "À rafraîchir" lists them too). */
+export function namedLevels(
+  path: ReadingPathView,
+  titleOf: (slug: string) => string,
+): { n: number; name: string; slugs: string[] }[] {
+  const levels = pathLevels(path.notes);
+  const groups = levels.map((l) => path.notes.slice(l.from, l.to));
+  return levels.map((lv, i) => ({
+    n: lv.n,
+    name: levelName(groups[i], groups, path.discipline) ?? titleOf(groups[i][0].slug),
+    slugs: groups[i].map((n) => n.slug),
+  }));
+}
+
+/** What a level reaches: the `cible:` of its last note that has one. */
+function levelCible(notes: ReadingPathView["notes"]): string | undefined {
+  for (let i = notes.length - 1; i >= 0; i--) if (notes[i].cible) return notes[i].cible;
+  return undefined;
+}
+
 function levelName(
   notes: ReadingPathView["notes"],
   all: ReadingPathView["notes"][],
+  discipline?: string | null,
 ): string | null {
+  // Named by hand: `niveau:` on one of its notes.
+  const named = notes.find((n) => n.niveau)?.niveau;
+  if (named) return named;
+  const label = (folder: string) => {
+    const key = folderKey(folder);
+    return key ? t(key) : splitRank(folder).label;
+  };
+  // The path's own discipline ("Histoire" on the history path) says nothing
+  // about a level: "Antiquité", not "Histoire et antiquité".
+  const skip = discipline ? label(discipline) : "";
   const folders = (ns: ReadingPathView["notes"]) => [
-    ...new Set(
-      ns.map((n) => {
-        const seg = n.href.split("/").filter(Boolean);
-        const f = (seg[seg.length - 2] ?? "").replace(/^\d+[-_ ]*/, "").replace(/-/g, " ");
-        return f.charAt(0).toUpperCase() + f.slice(1);
-      }),
-    ),
+    ...new Set(ns.map((n) => label(n.folder)).filter((f) => f && f !== skip)),
   ];
   const names = all.map((ns) => folders(ns).slice(0, 2).join(" et ").toLowerCase());
   if (all.length > 1 && new Set(names).size === 1) return null;
   const mine = folders(notes);
-  const name = mine.slice(0, 2).map((f, i) => (i ? f.toLowerCase() : f)).join(" et ");
+  const name = mine
+    .slice(0, 2)
+    // "et antiquité", but "et XXe siècle", "et WW2": an acronym keeps its case.
+    .map((f, i) => (i ? (/^\p{Lu}\p{Ll}/u.test(f) ? f.charAt(0).toLowerCase() + f.slice(1) : f) : f.charAt(0).toUpperCase() + f.slice(1)))
+    .join(" et ");
   return name || null;
 }
 

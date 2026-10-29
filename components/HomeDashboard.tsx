@@ -11,6 +11,8 @@ import { loadStore, type ReadingStore } from "@/lib/reading-progress";
 import type { HomeData } from "@/lib/home-data";
 import type { PathFamily } from "@/lib/path-family";
 import { ERAGNY, paintingFor } from "@/lib/paintings";
+import { daysAgo, loadAllNoteDecks, NOTE_PREFIX, retentionBySlug, type Retention } from "@/lib/note-quiz";
+import { dayKey, daysBetween } from "@/lib/srs";
 
 // The home as an app dashboard, on phones only (app.css hides it from 640px,
 // and hides there the masthead it replaces). From the top: the date and a
@@ -37,6 +39,33 @@ export interface DashPath {
   family: PathFamily | null;
   /** Its notes' slugs, to count the ones read. */
   slugs: string[];
+  /** What the path aims at (`cible:` of its `parcours:` block). */
+  cible?: string;
+  /** Its levels (lib/path-levels.ts), named as on its road. */
+  levels: { n: number; name: string; slugs: string[] }[];
+}
+
+/** Answered questions, and those due again, by note slug (this browser). */
+function useRetention(): Map<string, Retention> {
+  const [m, setM] = useState<Map<string, Retention>>(new Map());
+  useEffect(() => {
+    const load = () => {
+      try {
+        setM(retentionBySlug(loadAllNoteDecks(localStorage), dayKey()));
+      } catch {
+        /* storage blocked: nothing to refresh */
+      }
+    };
+    load();
+    const onStorage = (e: StorageEvent) => e.key?.startsWith(NOTE_PREFIX) && load();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("gk:quiz-change", load);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("gk:quiz-change", load);
+    };
+  }, []);
+  return m;
 }
 
 /** A note the "note du jour" can show: one a day, picked by the date. */
@@ -202,6 +231,7 @@ export function HomeDashboard({
   const store = useReadingStore();
   const due = useReviewDue();
   const me = usePersonal(store);
+  const ret = useRetention();
 
   const resume = useMemo(() => resumePath(data, store), [data, store]);
   const rows = useMemo(
@@ -217,6 +247,29 @@ export function HomeDashboard({
     .filter((p) => p.read > 0 && p.read < p.total)
     .sort((a, b) => b.read / b.total - a.read / a.total)
     .slice(0, 3);
+  // "À rafraîchir": the levels whose answered questions are due again, the
+  // longest unreviewed first; each opens its path, where the chest sheet
+  // starts the level review.
+  const fading = rows
+    .flatMap((p) =>
+      p.levels.map((lv) => {
+        let due = 0;
+        let last: string | null = null;
+        for (const s of lv.slugs) {
+          const r = ret.get(s);
+          if (!r) continue;
+          due += r.due;
+          if (r.last && (!last || r.last > last)) last = r.last;
+        }
+        return { path: p, lv, due, last };
+      }),
+    )
+    .filter((x) => x.due > 0)
+    .sort((a, b) => (a.last ?? "").localeCompare(b.last ?? ""));
+  const refresh = fading.slice(0, 4);
+  const fadingDue = fading.reduce((n, x) => n + x.due, 0);
+  const fadingPaths = new Set(fading.map((x) => x.path.slug)).size;
+  const todayKey = dayKey();
   // Not started, largest first, then one family after another.
   const discover = mixFamilies(rows.filter((p) => p.read === 0).sort((a, b) => b.total - a.total || a.i - b.i));
   const nextTitle = (slug: string) => {
@@ -394,11 +447,53 @@ export function HomeDashboard({
               <svg className="dash-flame" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.7 2-4.5 0 2 1 3 2 3 0-4 1-6.5 1-8.5z" />
               </svg>
-              {tr(me.run === 1 ? "dash.run1" : "dash.run", { n: me.run })}
+              {me.run === 0 ? tr("defis.noRun") : tr(me.run === 1 ? "dash.run1" : "dash.run", { n: me.run })}
             </b>
             <small>{tr(activeToday ? "dash.runKept" : me.run > 0 ? "dash.runKeep" : "dash.runStart")}</small>
           </span>
         </a>
+      )}
+
+      {refresh.length > 0 && (
+        <section className="dash-fade" aria-labelledby="dash-fade-h">
+          <p className="dash-fade-k">
+            <svg viewBox="0 0 24 24" aria-hidden="true" {...s}>
+              <path d="M20 12a8 8 0 1 1-2.3-5.6" />
+              <path d="M20 4v5h-5" />
+            </svg>
+            {tr("dash.refresh")}
+          </p>
+          <h2 id="dash-fade-h">{tr(fading.length === 1 ? "dash.fadeOne" : "dash.fadeN", { n: fading.length })}</h2>
+          <p className="dash-fade-sub">
+            {tr(fadingPaths === 1 ? "dash.fadeSubOne" : "dash.fadeSub", { n: fadingDue, p: fadingPaths })}
+            {fading.length > 1 && ` ${tr("dash.fadeOldest")}`}
+          </p>
+          <ul>
+            {refresh.map(({ path: p, lv, due: n, last }) => (
+              <li key={`${p.slug}:${lv.n}`} data-family={p.family ?? undefined}>
+                <a href={`/parcours/${encodeURIComponent(p.slug)}/`}>
+                  <span className="dash-fade-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" {...s}>
+                      <path d="M20 12a8 8 0 1 1-2.3-5.6" />
+                      <path d="M20 4v5h-5" />
+                    </svg>
+                  </span>
+                  <span className="dash-fade-text">
+                    <b>{lv.name}</b>
+                    <small>
+                      {shortName(p.name)} · {tr("parcours.level", { n: lv.n }).toLowerCase()}
+                      {last ? ` · ${daysAgo(daysBetween(last, todayKey), locale)}` : ""}
+                    </small>
+                  </span>
+                  <em>{tr("dash.refreshN", { n })}</em>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a className="dash-fade-go" href="/cartes/revision/">
+            {tr("dash.fadeGo", { n: Math.max(1, Math.round((fadingDue * 25) / 60)) })}
+          </a>
+        </section>
       )}
 
       {mine.length > 0 && (
@@ -421,7 +516,7 @@ export function HomeDashboard({
                       <b>{shortName(p.name)}</b>
                       <small>
                         {tr("dash.pathRead", { read: p.read, total: p.total })}
-                        {next ? ` · ${tr("dash.next", { title: next })}` : ""}
+                        {next ? ` · ${tr("dash.next", { title: next })}` : p.cible ? ` · ${tr("parcours.cible", { c: p.cible })}` : ""}
                       </small>
                       <i className="dash-bar" aria-hidden="true">
                         <i style={{ width: `${pct}%` }} />

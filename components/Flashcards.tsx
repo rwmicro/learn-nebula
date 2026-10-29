@@ -1,5 +1,6 @@
 "use client";
 
+import { GrowLoader } from "@/components/GrowLoader";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -374,7 +375,7 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
       {error ? (
         <p className="italic text-muted-warm">{tr("err")}</p>
       ) : !deck ? (
-        <p className="italic text-muted-warm">{tr("loading")}</p>
+        <GrowLoader>{tr("loading")}</GrowLoader>
       ) : !cardCount ? (
         <p className="italic text-muted-warm">{tr("empty")}</p>
       ) : reviewing ? (

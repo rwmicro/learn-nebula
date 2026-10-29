@@ -1,5 +1,6 @@
 "use client";
 
+import { SCENES } from "@/lib/deco-art";
 import { useEffect, useState, type ReactNode } from "react";
 import { Avatar } from "@/components/Avatar";
 import { requestLink, type AuthConfig } from "@/lib/account-client";
@@ -86,18 +87,8 @@ export function LoginPhone({ cfg, expired, tr }: { cfg: AuthConfig; expired: boo
 
       {sent ? (
         <div className="ap-center">
-          <div className="ap-halo ap-halo--mail" aria-hidden="true">
-            <svg viewBox="0 0 120 120" width="118" height="118">
-              <rect x="14" y="44" width="92" height="62" rx="9" className="ap-env" />
-              <g transform="translate(30 6)">
-                <Avatar look={{ ...defaultLook(), background: "none" }} size={60} still />
-              </g>
-              <path d="M14 53 60 82 106 53V102a4 4 0 0 1-4 4H18a4 4 0 0 1-4-4Z" className="ap-env" />
-              <path d="M16 102 48 74M104 102 72 74" className="ap-env-line" />
-            </svg>
-            <span className="ap-dot ap-dot--gold" />
-            <span className="ap-dot ap-dot--coral" />
-          </div>
+          {/* A letterbox with its flag up (lib/deco-art.ts). */}
+          <div className="ap-sent-scene deco" aria-hidden="true" dangerouslySetInnerHTML={{ __html: SCENES.mailbox }} />
           <h1 className="ap-h1">{tr("compte.sentTitle")}</h1>
           <p className="ap-lede">
             {tr("compte.sentTo")}

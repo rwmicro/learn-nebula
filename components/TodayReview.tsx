@@ -30,6 +30,7 @@ import { familyOfFolder } from "@/lib/path-family";
 import { PRACTICE_SIZE, practicePick, shuffled, type PracticeMode } from "@/lib/practice";
 import { AppBack } from "@/components/AppBack";
 import { EmptyActions } from "@/components/EmptyActions";
+import { GrowLoader } from "@/components/GrowLoader";
 
 /**
  * /cartes/aujourdhui/ — "Tout réviser": one session over everything due
@@ -240,9 +241,9 @@ export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: Practic
         </p>
       )}
       {queue === null ? (
-        <p className="italic text-muted-warm" aria-live="polite">
+        <GrowLoader>
           {loading ? tr("todayReview.loading", { n: loading[0], total: loading[1] }) : tr("flashcards.loading")}
-        </p>
+        </GrowLoader>
       ) : queue === false ? (
         <p className="italic text-muted-warm">{tr("noteReview.noStorage")}</p>
       ) : (
