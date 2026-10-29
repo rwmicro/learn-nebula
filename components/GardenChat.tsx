@@ -494,7 +494,9 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     const onMq = () => setWide(mq.matches);
     onMq();
     mq.addEventListener("change", onMq);
-    refreshRoute();
+    // No aiRoute() here: it asks for a WebGPU adapter, which can wake the GPU
+    // on every page view. It runs when the chat (or its download sheet)
+    // first opens; lib/local-llm.ts keeps the answer for the session.
 
     const passageOf = (e: Event) =>
       String((e as CustomEvent<{ text?: string }>).detail?.text ?? "")
@@ -2047,7 +2049,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   return (
     <>
-      {!open && onNote && route !== null && (
+      {!open && onNote && (
         <button
           type="button"
           className="gk-pinned-trigger gc-trigger"
