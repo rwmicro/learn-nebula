@@ -3905,30 +3905,45 @@ main video {
   position: fixed;
   z-index: 1003;
   display: flex;
-  gap: 1px;
-  padding: 0;
-  background: var(--rule-strong);
-  border: 1px solid var(--ink);
-  border-radius: var(--radius-md);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
-  overflow: hidden;
+  align-items: center;
+  gap: 2px;
+  max-width: calc(100vw - 16px);
+  padding: 5px;
+  background: color-mix(in srgb, var(--paper-raised) 90%, transparent);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  backdrop-filter: blur(14px) saturate(1.6);
+  border: 0.5px solid var(--rule-strong);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.14);
+  overflow-x: auto;
+  scrollbar-width: none;
   animation: sel-menu-in 0.12s ease-out;
 }
 .sel-menu[hidden] {
   display: none;
 }
 .sel-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-  font-size: 0.92rem;
+  font-size: 0.95rem;
+  font-weight: 600;
   line-height: 1;
-  padding: 0.55rem 0.8rem;
+  padding: 0 0.6rem;
   min-height: 2.25rem;
-  color: var(--ink);
-  background: var(--paper-raised);
+  color: var(--ink-soft);
+  background: none;
   border: 0;
-  border-radius: 0;
+  border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
+}
+.sel-menu-btn svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
 }
 .sel-menu-btn:hover,
 .sel-menu-btn:focus-visible {
@@ -3939,10 +3954,34 @@ main video {
   outline-offset: -2px;
 }
 .sel-menu-explain {
-  color: var(--garden);
+  padding: 0 0.85rem 0 0.7rem;
+  color: var(--paper);
+  background: var(--garden);
   font-weight: 700;
 }
-.sel-menu[data-copied="true"] .sel-menu-btn:not(.sel-menu-explain) {
+.sel-menu-explain:hover,
+.sel-menu-explain:focus-visible {
+  background: var(--garden-hover);
+}
+/* Link and flag: the icon alone (aria-label says it); "Lien copié" shows. */
+.sel-menu-icon {
+  padding: 0 0.45rem;
+}
+.sel-menu-icon .sel-menu-tx {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.sel-menu[data-copied="true"] .sel-menu-copy .sel-menu-tx {
+  position: static;
+  width: auto;
+  height: auto;
+  clip-path: none;
+}
+.sel-menu[data-copied="true"] .sel-menu-copy {
   color: var(--garden);
 }
 .sel-menu-report {
@@ -4072,8 +4111,7 @@ main video {
 }
 @media (pointer: coarse) {
   .sel-menu-btn {
-    min-height: 2.75rem;
-    padding-inline: 1rem;
+    min-height: 2.6rem;
   }
 }
 
@@ -4206,7 +4244,7 @@ main video {
 }
 /* Stacked above the assistant's "Demander" button (bottom-right on notes). */
 body:has(.gk-pinned-trigger) .to-top,
-body:has(.gk-pinned) .to-top {
+body:has(.gc) .to-top {
   bottom: 5rem;
 }
 /* Phones: beside the round "Demander" button, same row, rather than above
@@ -4745,7 +4783,7 @@ body[data-focus="true"] .related-notes,
 body[data-focus="true"] .comments,
 body[data-focus="true"] .siblings,
 body[data-focus="true"] footer,
-body[data-focus="true"] .gk-pinned,
+body[data-focus="true"] .gc,
 body[data-focus="true"] .reading-progress {
   display: none !important;
 }
@@ -6343,7 +6381,7 @@ main[data-family],
   body:has(.note-dock) .path-dock {
     display: none !important;
   }
-  body:has(.gk-pinned) .note-dock,
+  body:has(.gc) .note-dock,
   html.lesson-open .note-dock,
   body[data-focus="true"] .note-dock,
   body[data-aside-open="true"] .note-dock {
