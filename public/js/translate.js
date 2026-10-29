@@ -20,13 +20,26 @@
 // there, whether the note is in a language other than the reader's, and
 // highlights the button if so.
 import { detectLanguage } from "../../lib/browser-ai.ts";
-import {
-  SERVER_LLM_OFFERED,
-  aiRoute,
-  deviceWord,
-  generateOnDevice,
-} from "../../lib/garden-ai.ts";
-import { translateSystem } from "../../lib/ask-prompts.ts";
+import { SERVER_LLM_OFFERED, deviceWord } from "../../lib/garden-ai-flags.ts";
+
+// The model side (lib/garden-ai.ts, lib/local-llm.ts) is its own bundle,
+// translate-device.bundle.js, fetched on the first translation that needs it:
+// most readers never translate, and it would weigh on every note.
+let devicePromise = null;
+function loadDevice() {
+  devicePromise ??= new Promise((resolve) => {
+    if (window.__gkTranslateDevice) return resolve(window.__gkTranslateDevice);
+    const s = document.createElement("script");
+    s.src = "/js/translate-device.bundle.js";
+    s.onload = () => resolve(window.__gkTranslateDevice || null);
+    s.onerror = () => {
+      devicePromise = null;
+      resolve(null);
+    };
+    document.head.appendChild(s);
+  });
+  return devicePromise;
+}
 
 (function () {
   const wrap = document.querySelector(".translate-wrap");
@@ -377,7 +390,7 @@ import { translateSystem } from "../../lib/ask-prompts.ts";
   // Translate the note in place on the device's model. Resolves true when
   // done, false when the model couldn't run; an abort ("voir l'original")
   // rejects.
-  async function translateLocally(route, targetLang) {
+  async function translateLocally(device, route, targetLang) {
     articleBody.innerHTML = originalHtml;
     fixRelativeAssets(articleBody);
     const blocks = leafBlocks(articleBody);
@@ -397,13 +410,13 @@ import { translateSystem } from "../../lib/ask-prompts.ts";
     showLocalBar(targetLang);
     setProgress(0, total);
     blocks[0].after(progressLine);
-    const system = translateSystem(langName(sourceLang || "fr", "fr"), langName(targetLang, "fr"));
+    const system = device.translateSystem(langName(sourceLang || "fr", "fr"), langName(targetLang, "fr"));
     localAbort = new AbortController();
     const signal = localAbort.signal;
     for (let i = 0; i < blocks.length; i++) {
       const el = blocks[i];
       const { text, shells, kept } = encodeBlock(el);
-      const out = await generateOnDevice({
+      const out = await device.generateOnDevice({
         route,
         system,
         prompt: text,
@@ -657,12 +670,15 @@ import { translateSystem } from "../../lib/ask-prompts.ts";
       }
       setState("idle");
     }
-    const route = await aiRoute(targetLang);
-    if (route === "nano" || route === "local") {
+    pending = true;
+    const device = await loadDevice();
+    const route = device ? await device.aiRoute(targetLang) : SERVER_LLM_OFFERED ? "server" : "none";
+    pending = false;
+    if (device && (route === "nano" || route === "local")) {
       pending = true;
       setState("loading");
       try {
-        const ok = await translateLocally(route, targetLang);
+        const ok = await translateLocally(device, route, targetLang);
         pending = false;
         if (ok) setState("translated");
         else {

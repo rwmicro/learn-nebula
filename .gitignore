@@ -24,6 +24,7 @@
 /public/js/pronounce.bundle.js
 /public/js/diagram-zoom.bundle.js
 /public/js/mermaid-render.bundle.js
+/public/js/translate-device.bundle.js
 /public/js/local-llm.worker.js
 /public/ort/
 

@@ -17,9 +17,9 @@ import {
   type ChatTurn,
 } from "./local-llm";
 
-/** Offer the server's LLM (paid API) when no model on the device can answer.
- *  Off: no budget for it. The routes and the client code stay in place. */
-export const SERVER_LLM_OFFERED = false;
+import { SERVER_LLM_OFFERED } from "./garden-ai-flags";
+
+export { SERVER_LLM_OFFERED, deviceWord } from "./garden-ai-flags";
 
 /** - "nano": Chrome's built-in model covers the language;
  *  - "local": the downloaded model is agreed to (it may still be loading);
@@ -71,15 +71,4 @@ export async function generateOnDevice(opts: {
     signal: opts.signal,
     onText: opts.onText,
   });
-}
-
-/** "téléphone" on a touch phone, "appareil" elsewhere (the badges' wording). */
-export function deviceWord(): "phone" | "device" {
-  try {
-    return matchMedia("(max-width: 639.98px) and (pointer: coarse)").matches
-      ? "phone"
-      : "device";
-  } catch {
-    return "device";
-  }
 }

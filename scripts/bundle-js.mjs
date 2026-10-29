@@ -99,7 +99,9 @@ console.log(`bundle-js: bundled ${SCRIPTS.length} scripts → public/js/note.bun
 // for lib/speech-match.ts (the coach's on-device "reconnu / pas reconnu").
 // diagram-zoom / mermaid-render: fetched by diagrams-loader.js on a note with a
 // diagram; mermaid-render is bundled for lib/mermaid-source.js.
-for (const name of ["palette", "quiz", "glossary", "note-end", "widgets-data", "widgets-sci", "widgets-lang", "pronounce", "diagram-zoom", "mermaid-render"]) {
+// translate-device: fetched by translate.js on the first translation the
+// Translator API can't do (the device model, lib/garden-ai.ts).
+for (const name of ["palette", "quiz", "glossary", "note-end", "widgets-data", "widgets-sci", "widgets-lang", "pronounce", "diagram-zoom", "mermaid-render", "translate-device"]) {
   await build({
     entryPoints: [join(JS_DIR, `${name}.js`)],
     outfile: join(JS_DIR, `${name}.bundle.js`),
