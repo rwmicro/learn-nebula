@@ -1,7 +1,7 @@
 // Prompt pieces for /api/ask's reply-language hint, its socratic mode and
 // /api/ask/explain ("Explique-le avec tes mots"). Pure, tested in
 // ask-prompts.test.ts; the same wording feeds the on-device Prompt API path
-// in the browser (components/PinnedAssistant.tsx) so both answer alike.
+// in the browser (components/GardenChat.tsx) so both answer alike.
 
 /** Languages the reader's question may be detected in (LanguageDetector in the
  *  browser, sent as `lang`), with their French name for the prompt. Anything
@@ -80,4 +80,71 @@ export function explainUser(passage: string, explanation: string, title: string)
   ]
     .filter(Boolean)
     .join("\n\n");
+}
+
+// --- On-device variants (components/GardenChat.tsx) -------------------------
+// A small model follows a fixed, line-based format better than free prose,
+// and the chat draws each part on its own (« Ce qui tient », « Ce qui
+// manque »). Parsing is lenient: when the format is not there, the caller
+// shows the answer as plain text.
+
+/** "Avec mes mots" on the device: same rules, fixed three-line format. */
+export function explainSystemDevice(lang: string): string {
+  return [
+    explainSystem(lang),
+    "Format OBLIGATOIRE, trois lignes, rien d'autre :",
+    "TIENT: <ce que l'explication a bien saisi, une phrase>",
+    "MANQUE: <ce qui manque ou est inexact par rapport au passage, une ou deux phrases>",
+    "QUESTION: <une question pour compléter l'explication>",
+  ].join("\n");
+}
+
+export interface ExplainFeedback {
+  ok: string;
+  missing: string;
+  question: string;
+}
+
+/** The three parts of explainSystemDevice()'s answer, or null when the model
+ *  didn't follow the format. */
+export function parseExplainFeedback(text: string): ExplainFeedback | null {
+  const grab = (key: string) => {
+    const m = new RegExp(`^\\s*\\**${key}\\**\\s*:\\s*(.+?)\\s*$`, "im").exec(text);
+    return m ? m[1].replace(/^\*+|\*+$/g, "").trim() : "";
+  };
+  const ok = grab("TIENT");
+  const missing = grab("MANQUE");
+  if (!ok && !missing) return null;
+  return { ok, missing, question: grab("QUESTION") };
+}
+
+/** "Faire une carte": one question / answer pair from an answer. */
+export function cardSystem(lang: string): string {
+  return [
+    "Tu écris une carte de révision (question au recto, réponse au verso) à partir d'une explication.",
+    "- La question est courte et précise ; la réponse tient en une ou deux phrases.",
+    "- N'ajoute rien qui ne figure pas dans l'explication.",
+    lang ? `- Écris en ${ASK_LANG_NAMES[lang] ?? "français"}.` : "- Écris dans la langue de l'explication.",
+    "Format OBLIGATOIRE, deux lignes, rien d'autre :",
+    "RECTO: <la question>",
+    "VERSO: <la réponse>",
+  ].join("\n");
+}
+
+export function parseCard(text: string): { front: string; back: string } | null {
+  const m = /\**RECTO\**\s*:\s*([\s\S]*?)\s*\**VERSO\**\s*:\s*([\s\S]*)$/i.exec(text);
+  if (!m) return null;
+  const front = m[1].trim();
+  const back = m[2].trim();
+  return front && back ? { front: front.slice(0, 500), back: back.slice(0, 1500) } : null;
+}
+
+/** Translate one HTML block of a note on the device (public/js/translate.js). */
+export function translateSystem(from: string, to: string): string {
+  return [
+    `Tu traduis un fragment HTML d'une note de ${from} vers ${to}.`,
+    "- Garde EXACTEMENT les balises et leurs attributs ; traduis seulement le texte.",
+    "- Ne traduis pas le code, les formules ni les mots cités dans une autre langue.",
+    "- Réponds uniquement par le fragment traduit, sans commentaire ni bloc de code.",
+  ].join("\n");
 }

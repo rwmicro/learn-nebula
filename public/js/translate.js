@@ -10,10 +10,36 @@
 // code, formulas and pronunciation words are left alone. A note under the
 // button says so and offers the server's (better) translation. Anywhere else,
 // or on any failure, the server path below runs as before.
+// Where the Translator API can't help, the device's own model writes the
+// translation (lib/garden-ai.ts: Gemini Nano, or the downloaded LFM3), one
+// block of the rendered note at a time, in place: the blocks not done yet are
+// dimmed and a line counts the sections. With neither, the button opens the
+// download (or "not available here") sheet of components/GardenChat.tsx. The
+// server's translation only runs while SERVER_LLM_OFFERED is on.
 // LanguageDetector (lib/browser-ai.ts) also checks, when its model is already
 // there, whether the note is in a language other than the reader's, and
 // highlights the button if so.
 import { detectLanguage } from "../../lib/browser-ai.ts";
+import { SERVER_LLM_OFFERED, deviceWord } from "../../lib/garden-ai-flags.ts";
+
+// The model side (lib/garden-ai.ts, lib/local-llm.ts) is its own bundle,
+// translate-device.bundle.js, fetched on the first translation that needs it:
+// most readers never translate, and it would weigh on every note.
+let devicePromise = null;
+function loadDevice() {
+  devicePromise ??= new Promise((resolve) => {
+    if (window.__gkTranslateDevice) return resolve(window.__gkTranslateDevice);
+    const s = document.createElement("script");
+    s.src = "/js/translate-device.bundle.js";
+    s.onload = () => resolve(window.__gkTranslateDevice || null);
+    s.onerror = () => {
+      devicePromise = null;
+      resolve(null);
+    };
+    document.head.appendChild(s);
+  });
+  return devicePromise;
+}
 
 (function () {
   const wrap = document.querySelector(".translate-wrap");
@@ -223,7 +249,7 @@ import { detectLanguage } from "../../lib/browser-ai.ts";
     text.textContent = tt(key);
     text.setAttribute("data-i18n", key);
     viaNote.append(text);
-    if (device) {
+    if (device && SERVER_LLM_OFFERED) {
       const better = document.createElement("button");
       better.type = "button";
       better.className = "translate-via-better";
@@ -239,6 +265,188 @@ import { detectLanguage } from "../../lib/browser-ai.ts";
   function hideVia() {
     if (viaNote) viaNote.remove();
     viaNote = null;
+  }
+
+  // --- on-device translation (the device's model) --------------------------
+  // Leaf blocks of the rendered note, each sent to the model on its own. Inline
+  // markup is swapped for short tags (<t0>…</t0> keeps the text inside to
+  // translate, <k0></k0> stands for something kept as is: code, maths, a
+  // pronunciation word), so the model never sees long attributes, and the
+  // original elements are put back around its words.
+  const BLOCKS = "p, li, h1, h2, h3, h4, h5, h6, td, th, figcaption, dt, dd, summary";
+  function leafBlocks(root) {
+    return Array.from(root.querySelectorAll(BLOCKS)).filter(
+      (el) =>
+        !el.closest(KEEP) && !el.querySelector(BLOCKS) && /\p{L}/u.test(el.textContent || ""),
+    );
+  }
+  const escText = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  function encodeBlock(el) {
+    const shells = [];
+    const kept = [];
+    const walk = (node) => {
+      let out = "";
+      for (const c of node.childNodes) {
+        if (c.nodeType === 3) out += escText(c.data);
+        else if (c.nodeType === 1) {
+          if (c.matches(KEEP) || !/\p{L}/u.test(c.textContent || "")) {
+            out += `<k${kept.length}></k${kept.length}>`;
+            kept.push(c);
+          } else {
+            const i = shells.length;
+            shells.push(c);
+            out += `<t${i}>${walk(c)}</t${i}>`;
+          }
+        }
+      }
+      return out;
+    };
+    return { text: walk(el), shells, kept };
+  }
+  // The model's fragment back into nodes; null when a tag went missing or
+  // was made up (the block then stays as written).
+  function decodeBlock(text, shells, kept) {
+    const tpl = document.createElement("template");
+    tpl.innerHTML = text.replace(/^```\w*\s*|\s*```$/g, "").trim();
+    const seen = new Set();
+    let ok = true;
+    const build = (src, dest) => {
+      for (const c of Array.from(src.childNodes)) {
+        if (c.nodeType === 3) dest.append(c.data);
+        else if (c.nodeType === 1) {
+          const m = /^([tk])(\d+)$/.exec(c.localName);
+          const key = m && m[0];
+          const orig = m && (m[1] === "t" ? shells : kept)[Number(m[2])];
+          if (!orig || seen.has(key)) {
+            ok = false;
+            continue;
+          }
+          seen.add(key);
+          if (m[1] === "k") dest.append(orig.cloneNode(true));
+          else {
+            const shell = orig.cloneNode(false);
+            build(c, shell);
+            dest.append(shell);
+          }
+        }
+      }
+    };
+    const frag = document.createDocumentFragment();
+    build(tpl.content, frag);
+    if (!ok || seen.size !== shells.length + kept.length) return null;
+    if (!/\p{L}/u.test(frag.textContent || "")) return null;
+    return frag;
+  }
+
+  const langName = (code, ui) => {
+    try {
+      return new Intl.DisplayNames([ui], { type: "language" }).of(code) || code;
+    } catch {
+      return code;
+    }
+  };
+  const uiLocale = () =>
+    (window.__i18n && (window.__i18n.locale || window.__i18n.defaultLocale)) || "fr";
+  const VIA_LOCAL = ":local";
+
+  // "Traduit sur ton téléphone · anglais · voir l'original", above the body,
+  // and the "Traduction… 3 sections sur 7" line while it runs.
+  let progressLine = null;
+  let localAbort = null;
+  function showLocalBar(targetLang) {
+    hideVia();
+    viaNote = document.createElement("div");
+    viaNote.className = "translate-local";
+    viaNote.setAttribute("role", "note");
+    viaNote.setAttribute("data-pagefind-ignore", "");
+    viaNote.innerHTML =
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg><span><b></b> · </span><button type="button"></button>';
+    const key = deviceWord() === "phone" ? "noteActions.translateViaPhone" : "noteActions.translateViaDevice";
+    viaNote.querySelector("b").textContent = tt(key);
+    viaNote.querySelector("span").append(langName(targetLang, uiLocale()));
+    const back = viaNote.querySelector("button");
+    back.textContent = tt("noteActions.translateShowOriginal");
+    back.addEventListener("click", () => {
+      if (localAbort) localAbort.abort();
+      restoreOriginal();
+    });
+    articleBody.before(viaNote);
+  }
+  function setProgress(done, total) {
+    if (!progressLine) {
+      progressLine = document.createElement("div");
+      progressLine.className = "translate-progress";
+      progressLine.setAttribute("role", "status");
+      progressLine.setAttribute("data-pagefind-ignore", "");
+      progressLine.innerHTML = '<span class="gc-typing" aria-hidden="true"><i></i><i></i><i></i></span><span></span>';
+    }
+    progressLine.lastChild.textContent = tt("noteActions.translateSections", { n: done, total });
+  }
+  function hideProgress() {
+    if (progressLine) progressLine.remove();
+    progressLine = null;
+  }
+
+  // Translate the note in place on the device's model. Resolves true when
+  // done, false when the model couldn't run; an abort ("voir l'original")
+  // rejects.
+  async function translateLocally(device, route, targetLang) {
+    articleBody.innerHTML = originalHtml;
+    fixRelativeAssets(articleBody);
+    const blocks = leafBlocks(articleBody);
+    if (!blocks.length) return false;
+    // Section of each block: how many h2 came before it.
+    const sec = [];
+    let n = 0;
+    for (const b of blocks) {
+      if (b.localName === "h2" && sec.length) n++;
+      sec.push(n);
+    }
+    const total = n + 1;
+    blocks.forEach((b) => b.classList.add("translate-pending"));
+    const main = document.getElementById("main");
+    if (main) main.setAttribute("lang", targetLang);
+    activeTarget = targetLang;
+    showLocalBar(targetLang);
+    setProgress(0, total);
+    blocks[0].after(progressLine);
+    const system = device.translateSystem(langName(sourceLang || "fr", "fr"), langName(targetLang, "fr"));
+    localAbort = new AbortController();
+    const signal = localAbort.signal;
+    for (let i = 0; i < blocks.length; i++) {
+      const el = blocks[i];
+      const { text, shells, kept } = encodeBlock(el);
+      const out = await device.generateOnDevice({
+        route,
+        system,
+        prompt: text,
+        lang: targetLang,
+        maxTokens: Math.min(2048, Math.ceil(text.length / 2) + 64),
+        signal,
+      });
+      if (out == null) {
+        if (i === 0) return false;
+      } else {
+        const frag = decodeBlock(out, shells, kept);
+        if (frag) el.replaceChildren(frag);
+      }
+      el.classList.remove("translate-pending");
+      if (el.classList.length === 0) el.removeAttribute("class");
+      const next = blocks[i + 1];
+      if (next) {
+        setProgress(sec[i + 1], total);
+        next.after(progressLine);
+      }
+    }
+    hideProgress();
+    localAbort = null;
+    try {
+      localStorage.setItem(cacheKeyFor(targetLang), articleBody.innerHTML);
+      localStorage.setItem(cacheKeyFor(targetLang) + VIA_LOCAL, "1");
+    } catch {
+      /* quota exceeded */
+    }
+    return true;
   }
 
   // Light hint: if the note reads as another language than the reader's
@@ -297,6 +505,7 @@ import { detectLanguage } from "../../lib/browser-ai.ts";
   }
 
   function applyTranslation(html, targetLang) {
+    hideVia();
     articleBody.innerHTML = html;
     fixRelativeAssets(articleBody);
     const main = document.getElementById("main");
@@ -306,6 +515,9 @@ import { detectLanguage } from "../../lib/browser-ai.ts";
   }
 
   function restoreOriginal() {
+    if (localAbort) localAbort.abort();
+    localAbort = null;
+    hideProgress();
     hideVia();
     articleBody.innerHTML = originalHtml;
     const main = document.getElementById("main");
@@ -434,15 +646,18 @@ import { detectLanguage } from "../../lib/browser-ai.ts";
     try {
       const cached = localStorage.getItem(cacheKeyFor(targetLang));
       if (cached) {
+        const local = localStorage.getItem(cacheKeyFor(targetLang) + VIA_LOCAL);
         applyTranslation(cached, targetLang);
-        if (hasTranslator) showVia(false, targetLang);
+        if (local) showLocalBar(targetLang);
+        else if (hasTranslator && SERVER_LLM_OFFERED) showVia(false, targetLang);
         return;
       }
     } catch {
       /* ignore */
     }
 
-    // On the device first; the server when the pair isn't covered or it fails.
+    // The Translator API first, then the device's model, then (if offered)
+    // the server.
     if (hasTranslator && sourceLang && sourceLang !== targetLang) {
       pending = true;
       setState("loading");
@@ -453,8 +668,36 @@ import { detectLanguage } from "../../lib/browser-ai.ts";
         showVia(true, targetLang);
         return;
       }
+      setState("idle");
     }
-    translateOnServer(targetLang);
+    pending = true;
+    const device = await loadDevice();
+    const route = device ? await device.aiRoute(targetLang) : SERVER_LLM_OFFERED ? "server" : "none";
+    pending = false;
+    if (device && (route === "nano" || route === "local")) {
+      pending = true;
+      setState("loading");
+      try {
+        const ok = await translateLocally(device, route, targetLang);
+        pending = false;
+        if (ok) setState("translated");
+        else {
+          restoreOriginal();
+          serverFailed(tt("noteActions.translateLocalFailed"));
+        }
+      } catch {
+        // "voir l'original" while it ran: restoreOriginal already did the rest.
+        pending = false;
+      }
+      return;
+    }
+    if (route === "server") {
+      translateOnServer(targetLang);
+      return;
+    }
+    // Nothing on this device yet: the chat's sheet offers the download, or
+    // says the assistant isn't available here.
+    window.dispatchEvent(new CustomEvent("gk:ai-setup"));
   });
 
   // A failed server call leaves a device translation on screen as it was
@@ -468,6 +711,15 @@ import { detectLanguage } from "../../lib/browser-ai.ts";
     }
     setState("idle");
     if (label) label.textContent = message;
+    // On a phone the button sits in the closed display sheet, its label
+    // hidden while idle, so the failure is also said above the text.
+    hideVia();
+    viaNote = document.createElement("div");
+    viaNote.className = "translate-via";
+    viaNote.setAttribute("role", "alert");
+    viaNote.setAttribute("data-pagefind-ignore", "");
+    viaNote.textContent = message;
+    articleBody.before(viaNote);
   }
 
   async function translateOnServer(targetLang) {

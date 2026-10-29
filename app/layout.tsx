@@ -12,7 +12,7 @@ import { i18nAssetUrls } from "@/lib/i18n-assets";
 import { getLanguageScopes } from "@/lib/content";
 import { notesIndexVersion, paletteExtraVersion } from "@/lib/home-data";
 import { Footer } from "@/components/Footer";
-import { PinnedAssistant } from "@/components/PinnedAssistant";
+import { GardenChat } from "@/components/GardenChat";
 import { SiteBar } from "@/components/SiteBar";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import "../assets/css/fonts.css";
@@ -24,6 +24,7 @@ import "../assets/css/palette.css";
 // Phone "app" layer: the glass tab bar, the sticky top bar, safe areas and
 // the shared phone components (large titles, tiles).
 import "../assets/css/app.css";
+import "../assets/css/chat.css";
 
 // Message bundles are static files (/i18n/<locale>.<hash>.js, lib/i18n-assets.ts)
 // cached for a year, not inlined: inlining all five cost ~220 KB per page, twice
@@ -180,7 +181,7 @@ export default function RootLayout({
         {/* Pinnable "Ask the garden" — hidden until pinned from the home chat,
             then docked bottom-right on every page (persists via localStorage).
             The language folders feed its retrieval-scope picker (read at build). */}
-        <PinnedAssistant scopes={getLanguageScopes()} />
+        <GardenChat scopes={getLanguageScopes()} />
         {/* Site-wide enhancers. Note-page-only behaviours (TOC, audio, comments,
             the floating assistant, …) load per-route via <NoteScripts /> so the
             home page no longer pulls scripts it doesn't use. */}

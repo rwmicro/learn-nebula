@@ -713,7 +713,6 @@
 
   /* Floating buttons and panels sit above the tab bar (or a note's
      toolbar, at the same height). */
-  html .gk-pinned,
   html .gk-pinned-trigger,
   html .ask-bar,
   html .ask-trigger,
@@ -2180,7 +2179,12 @@
   body:has(.na-has-cover) main {
     padding-top: 0;
   }
-  /* "Texte élargi": the text runs closer to the edges. */
+  /* "Texte élargi": the text runs closer to the edges. main.css's narrow
+     wide-text rule pads the body by 1.2rem, which would leave the column
+     narrower than with the option off. */
+  body[data-wide-text]:not([data-wide-text="normal"]):has(.na-chrome) {
+    padding-inline: 0;
+  }
   body[data-wide-text]:not([data-wide-text="normal"]):has(.na-chrome) main {
     margin-inline: 0.75rem;
   }
@@ -2929,6 +2933,23 @@
   .na-toast[data-on] {
     opacity: 1;
     transform: translate(-50%, 0);
+  }
+
+  /* "Concentration": the text alone here too. The section pill, the cover's
+     buttons, the crumbs and the toolbar go; "Quitter la concentration" (the
+     only way out without a keyboard) takes the pill's place. */
+  body[data-focus="true"] .na-secnav,
+  body[data-focus="true"] .na-top,
+  body[data-focus="true"] .na-toolbar,
+  body[data-focus="true"] .na-crumbs {
+    display: none !important;
+  }
+  body[data-focus="true"]:has(.na-chrome) .focus-exit {
+    top: max(0.8rem, env(safe-area-inset-top, 0px));
+    right: max(0.85rem, env(safe-area-inset-right, 0px));
+    z-index: 1100;
+    padding: 0.45rem 0.95rem;
+    opacity: 0.85;
   }
 }
 @media (max-width: 639.98px) and (prefers-reduced-motion: reduce) {
