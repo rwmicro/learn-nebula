@@ -27,14 +27,13 @@ import { escapeHtml } from "@/lib/escape";
 import { readAskStream } from "@/lib/ask-stream";
 import { detectLanguage } from "@/lib/browser-ai";
 import {
-  LOCAL_MODEL_BYTES,
-  LOCAL_MODEL_SIZE_GB,
   deleteLocalModel,
   loadLocalModel,
   localModelCached,
   localModelDownloadedOn,
   localModelError,
   localModelLoaded,
+  localModel,
   onLoadProgress,
   setLocalModelEnabled,
   storageFree,
@@ -1024,7 +1023,8 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   }
 
   // --- rendering -----------------------------------------------------------
-  const gb = LOCAL_MODEL_SIZE_GB.toLocaleString(locale);
+  const model = localModel();
+  const gb = model.gb.toLocaleString(locale);
   const msgs = conv.messages;
   const started = msgs.length > 0;
   const noteTitle = conv.note?.title ?? page?.title ?? "";
@@ -1053,7 +1053,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         <span className="gc-prog-ic">{Ic.dl}</span>
         <b>
           {tr(
-            fromCache || pct >= 100 || (progress && progress.total < LOCAL_MODEL_BYTES / 2)
+            fromCache || pct >= 100 || (progress && progress.total < model.bytes / 2)
               ? "chat.dlLoading"
               : "chat.dlProgress",
           )}
@@ -1778,8 +1778,9 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
                 {downloadedOn
                   ? tr("chat.setDownloaded", {
                       date: fmtDay(downloadedOn, locale),
+                      name: model.name,
                     })
-                  : tr("chat.setNotDownloaded")}
+                  : tr("chat.setNotDownloaded", { name: model.name })}
               </span>
             </span>
             <button
@@ -1831,7 +1832,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const freeBytes = storage?.free ?? null;
   const usedBytes = storage?.used ?? 0;
   const totalBytes = freeBytes !== null ? freeBytes + usedBytes : 0;
-  const noSpace = freeBytes !== null && freeBytes < LOCAL_MODEL_BYTES * 1.2;
+  const noSpace = freeBytes !== null && freeBytes < model.bytes * 1.2;
   const onWifi =
     (navigatorConnection()?.type ?? "") === "wifi" ||
     (navigatorConnection()?.type ?? "") === "ethernet";
@@ -1850,7 +1851,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         {sheet === "confirm" && (
           <>
             <h2 className="gc-big2">{tr("chat.dlConfirmTitle")}</h2>
-            <p className="gc-lead">{tr("chat.dlConfirmText", { n: gb })}</p>
+            <p className="gc-lead">{tr("chat.dlConfirmText", { n: gb, name: model.name })}</p>
             {freeBytes !== null && totalBytes > 0 && (
               <div className="gc-meter">
                 <div className="gc-meter-lbl">
@@ -1868,7 +1869,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
                   />
                   <i
                     style={{
-                      width: `${Math.max(2, (100 * LOCAL_MODEL_BYTES) / totalBytes)}%`,
+                      width: `${Math.max(2, (100 * model.bytes) / totalBytes)}%`,
                       background: noSpace ? "var(--danger)" : "var(--garden)",
                     }}
                   />

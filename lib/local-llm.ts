@@ -1,5 +1,7 @@
 // The assistant's downloaded model: LFM3-1.7B (Liquid AI, ~1.1 GB in q4f16)
 // run with Transformers.js on WebGPU, in a worker (public/js/local-llm-worker.js).
+// On iPhone and iPad, LFM2-700M (~0.5 GB): iOS ends a tab well before the
+// big one has loaded and answered, so it never got to write a word there.
 // It is the second on-device option after Chrome's Gemini Nano
 // (lib/browser-ai.ts), for browsers that have WebGPU but no Prompt API —
 // Safari on iPhone, Chrome on Android, Firefox. The download never starts by
@@ -15,9 +17,28 @@ const OPT_IN_KEY = "gk-local-llm";
 const DONE_KEY = "gk-local-llm-done";
 /** Transformers.js's Cache Storage bucket (env.cacheKey). */
 const CACHE_NAME = "transformers-cache";
-/** Shown on the download buttons. q4 (no shader-f16) is ~1.3 GB. */
-export const LOCAL_MODEL_SIZE_GB = 1.1;
-export const LOCAL_MODEL_BYTES = 1_100_000_000;
+/** The model this device downloads. Sizes are q4f16's (q4, without
+ *  shader-f16, is ~15 % more), shown on the download buttons. */
+export interface LocalModel {
+  id: string;
+  name: string;
+  gb: number;
+  bytes: number;
+}
+const BIG: LocalModel = { id: "onnx-community/LFM3-1.7B-ONNX", name: "LFM3", gb: 1.1, bytes: 1_100_000_000 };
+const SMALL: LocalModel = { id: "onnx-community/LFM2-700M-ONNX", name: "LFM2", gb: 0.5, bytes: 500_000_000 };
+
+/** iOS and iPadOS (every browser there is WebKit, with the same memory cap);
+ *  an iPad asking for the desktop site reports a Mac with a touch screen. */
+function onIos(): boolean {
+  const nav = globalThis.navigator;
+  if (!nav) return false;
+  return /iPhone|iPad|iPod/.test(nav.userAgent) || (nav.platform === "MacIntel" && nav.maxTouchPoints > 1);
+}
+
+export function localModel(): LocalModel {
+  return onIos() ? SMALL : BIG;
+}
 
 type GpuAdapter = { features: { has(f: string): boolean } };
 type Gpu = { requestAdapter(): Promise<GpuAdapter | null> };
@@ -117,7 +138,8 @@ export async function localModelCached(): Promise<boolean> {
   try {
     const cache = await caches.open(CACHE_NAME);
     const keys = await cache.keys();
-    return keys.some((r) => r.url.endsWith(`/onnx/model_${dtype}.onnx_data`));
+    const { id } = localModel();
+    return keys.some((r) => r.url.includes(`/${id}/`) && r.url.endsWith(`/onnx/model_${dtype}.onnx_data`));
   } catch {
     return false;
   }
@@ -223,7 +245,7 @@ export function loadLocalModel(): Promise<boolean> {
       };
       w.addEventListener("message", onMsg);
       w.addEventListener("error", onErr);
-      w.postMessage({ type: "load", dtype });
+      w.postMessage({ type: "load", dtype, model: localModel().id });
     });
   })();
   return loading;
@@ -300,6 +322,7 @@ export async function promptLocal(opts: {
       messages: [...(opts.history ?? []), { role: "user", content: opts.prompt }],
       maxTokens: opts.maxTokens,
       dtype,
+      model: localModel().id,
     });
   });
 }

@@ -4,8 +4,8 @@
 // (git-ignored) and driven by lib/local-llm.ts. The server still retrieves
 // the passages (/api/ask/context); only the writing happens here.
 //
-// Messages in:  {type: "load", dtype}           download / compile only
-//               {type: "generate", id, system, messages, dtype, maxTokens}
+// Messages in:  {type: "load", dtype, model}    download / compile only
+//               {type: "generate", id, system, messages, dtype, model, maxTokens}
 //               {type: "interrupt", id}
 // Messages out: {type: "progress", loaded, total} while the model downloads
 //               {type: "ready"} | {type: "load-error", message}
@@ -18,7 +18,9 @@ import {
   InterruptableStoppingCriteria,
 } from "@huggingface/transformers";
 
-const MODEL = "onnx-community/LFM3-1.7B-ONNX";
+// The models lib/local-llm.ts may ask for (the big one, or the iOS one).
+const MODELS = new Set(["onnx-community/LFM3-1.7B-ONNX", "onnx-community/LFM2-700M-ONNX"]);
+const DEFAULT_MODEL = "onnx-community/LFM3-1.7B-ONNX";
 
 // The ONNX runtime from our own origin (scripts/copy-ort.mjs), not a CDN.
 env.backends.onnx.wasm.wasmPaths = {
@@ -47,8 +49,8 @@ let running = 0;
 const cancelled = new Set();
 const stopping = new InterruptableStoppingCriteria();
 
-function load(dtype) {
-  generator ??= pipeline("text-generation", MODEL, {
+function load(dtype, model) {
+  generator ??= pipeline("text-generation", MODELS.has(model) ? model : DEFAULT_MODEL, {
     dtype,
     device: "webgpu",
     progress_callback(p) {
@@ -71,7 +73,7 @@ self.addEventListener("message", (e) => {
     return;
   }
   if (msg.type === "load") {
-    load(msg.dtype === "q4" ? "q4" : "q4f16").then(
+    load(msg.dtype === "q4" ? "q4" : "q4f16", msg.model).then(
       () => self.postMessage({ type: "ready" }),
       (err) => self.postMessage({ type: "load-error", message: String(err?.message || err) }),
     );
@@ -84,7 +86,7 @@ self.addEventListener("message", (e) => {
 async function generate(msg) {
   const { id } = msg;
   try {
-    const pipe = await load(msg.dtype === "q4" ? "q4" : "q4f16");
+    const pipe = await load(msg.dtype === "q4" ? "q4" : "q4f16", msg.model);
     if (cancelled.delete(id)) return;
     let raw = "";
     const streamer = new TextStreamer(pipe.tokenizer, {
