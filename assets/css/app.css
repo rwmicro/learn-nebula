@@ -1649,54 +1649,17 @@
   transform: scaleX(-1);
 }
 
-/* Desktop: the phone's "Aujourd'hui" card (resume, or three ways in), the
-   week, the paths to refresh and those under way, in one column under the
-   masthead, in place of the intro and the tall painting. The date and
-   greeting (the masthead has its own), the note of the day and the latest
-   notes (the "dernières pousses" below) stay on phones. */
+/* Desktop: the home keeps its masthead, intro and painting; the dashboard
+   is the phone's home. The card tokens stay for the pages that share them
+   at every width (Réviser). */
 @media (min-width: 640px) {
   :root {
     --dash-card: var(--paper);
     --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 14px rgb(0 0 0 / 0.06);
     --dash-edge: var(--rule);
   }
-  .home-intro {
+  .dash {
     display: none;
-  }
-  .dash.dash {
-    max-width: 44rem;
-    margin: 2rem auto 0;
-    padding: 0 1.25rem;
-  }
-  .dash-top,
-  .dash-day,
-  .dash-list,
-  .dash-row-h:has(+ .dash-day),
-  .dash-row-h:has(+ .dash-list) {
-    display: none;
-  }
-  .dash .dash-today .dash-art {
-    height: 13rem;
-  }
-  .dash .dash-art picture {
-    display: block;
-    height: 100%;
-  }
-  .dash .dash-art img {
-    max-width: none;
-  }
-  /* The paths to discover: a grid, not a row that scrolls sideways. */
-  .dash .dash-disc {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
-    overflow: visible;
-    padding-inline: 0;
-  }
-  .dash .dash-disc > li:nth-child(n + 9) {
-    display: none;
-  }
-  .dash .dash-row-h {
-    padding-inline: 1rem;
   }
 }
 
