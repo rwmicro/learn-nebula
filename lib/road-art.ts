@@ -85,6 +85,18 @@ export const ART = {
     '<svg viewBox="0 0 70 90"><path d="M18 74c0-16 6-24 12-30-8 2-14 0-16-6 6-10 14-18 16-30 14 2 26 14 28 36 2 14-2 24-2 30z" fill="var(--f1)"/><circle cx="34" cy="26" r="3.5" fill="var(--f3)"/><rect x="12" y="72" width="50" height="10" rx="3" fill="var(--f0)"/><path d="M6 86h58" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
   rook:
     '<svg viewBox="0 0 70 90"><path d="M14 8h10v8h7V8h8v8h7V8h10v18l-6 6v30h6v10H14V62h6V32l-6-6z" fill="var(--f1)"/><path d="M20 32h30" stroke="var(--f0)" stroke-width="3"/><rect x="10" y="72" width="50" height="10" rx="3" fill="var(--f0)"/><path d="M4 86h62" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  bishop:
+    '<svg viewBox="0 0 70 90"><circle cx="35" cy="10" r="4" fill="var(--f3)"/><path d="M35 14c10 8 15 18 13 30-2 8-6 12-6 12h-14s-4-4-6-12c-2-12 3-22 13-30z" fill="var(--f1)"/><path d="m31 26 10 10" stroke="var(--f0)" stroke-width="3" stroke-linecap="round"/><path d="M22 58h26l4 14H18z" fill="var(--f2)"/><rect x="10" y="72" width="50" height="10" rx="3" fill="var(--f0)"/><path d="M4 86h62" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  king:
+    '<svg viewBox="0 0 70 90"><path d="M35 4v14M29 10h12" stroke="var(--f0)" stroke-width="4" stroke-linecap="round"/><path d="M20 26c0-6 6-8 15-8s15 2 15 8c0 10-6 14-6 30H26c0-16-6-20-6-30z" fill="var(--f1)"/><path d="M22 32h26" stroke="var(--f3)" stroke-width="3"/><path d="M22 56h26l4 16H18z" fill="var(--f2)"/><rect x="10" y="72" width="50" height="10" rx="3" fill="var(--f0)"/><path d="M4 86h62" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  queen:
+    '<svg viewBox="0 0 70 90"><circle cx="17" cy="14" r="4" fill="var(--f3)"/><circle cx="35" cy="9" r="4" fill="var(--f3)"/><circle cx="53" cy="14" r="4" fill="var(--f3)"/><path d="M17 18l8 18 10-24 10 24 8-18-4 38H21z" fill="var(--f1)"/><path d="M22 56h26l4 16H18z" fill="var(--f2)"/><rect x="10" y="72" width="50" height="10" rx="3" fill="var(--f0)"/><path d="M4 86h62" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  board:
+    '<svg viewBox="0 0 90 80"><rect x="12" y="10" width="66" height="60" rx="4" fill="var(--f0)"/><rect x="17" y="15" width="56" height="50" fill="var(--f3)"/><path d="M17 15h14v12.5H17zM45 15h14v12.5H45zM31 27.5h14V40H31zM59 27.5h14V40H59zM17 40h14v12.5H17zM45 40h14v12.5H45zM31 52.5h14V65H31zM59 52.5h14V65H59z" fill="var(--f1)"/><path d="M6 76h78" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  clock:
+    '<svg viewBox="0 0 90 80"><path d="M28 18v-6h10M52 18v-6h10" stroke="var(--f0)" stroke-width="4" stroke-linecap="round"/><rect x="8" y="18" width="74" height="50" rx="6" fill="var(--f1)"/><circle cx="29" cy="42" r="14" fill="var(--f3)"/><circle cx="61" cy="42" r="14" fill="var(--f3)"/><path d="M29 42V32M61 42l8 4" stroke="var(--f0)" stroke-width="3" stroke-linecap="round"/><path d="M4 76h82" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
+  trophy:
+    '<svg viewBox="0 0 70 90"><path d="M18 16h-8c0 14 6 20 14 20M52 16h8c0 14-6 20-14 20" fill="none" stroke="var(--f2)" stroke-width="4"/><path d="M18 10h34v14c0 14-8 22-17 22s-17-8-17-22z" fill="var(--f1)"/><path d="M31 46h8v14h-8z" fill="var(--f2)"/><rect x="20" y="60" width="30" height="12" rx="3" fill="var(--f0)"/><circle cx="35" cy="24" r="5" fill="var(--f3)"/><path d="M4 86h62" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
   pawn:
     '<svg viewBox="0 0 60 80"><circle cx="30" cy="18" r="11" fill="var(--f1)"/><path d="M22 30h16l-2 6c8 6 10 18 10 28H14c0-10 2-22 10-28z" fill="var(--f2)"/><rect x="8" y="62" width="44" height="9" rx="3" fill="var(--f0)"/><path d="M4 76h52" stroke="var(--ground)" stroke-width="4" stroke-linecap="round"/></svg>',
   die:
@@ -194,6 +206,15 @@ const PHILOSOPHY: [number, readonly ArtKey[]][] = [
   [Infinity, ["book", "quill", "glasses", "candle"]],
 ];
 
+/** The chess path's levels are named after a playing strength (the vault's
+ *  `niveau:`): pieces and objects of that stage, pawn to trophy. */
+const CHESS_LEVELS: [RegExp, readonly ArtKey[]][] = [
+  [/d[ée]butant/i, ["pawn", "board", "rook"]],
+  [/club/i, ["knight", "bishop", "clock"]],
+  [/confirm/i, ["rook", "king", "pawn"]],
+  [/fort|ma[iî]tre/i, ["queen", "king", "trophy"]],
+];
+
 function philosophyArt(levelName: string): readonly ArtKey[] {
   const m = levelName.match(/(-?)(\d{3,4})/);
   if (!m) return PHILOSOPHY[0][1];
@@ -212,6 +233,8 @@ export function levelArt(
 ): readonly ArtKey[] {
   if (discipline === "Philosophy") return philosophyArt(levelName);
   if (DISCIPLINE_ART[discipline]) return DISCIPLINE_ART[discipline];
+  if (/[ée]checs|chess/i.test(pathName))
+    for (const [re, keys] of CHESS_LEVELS) if (re.test(levelName)) return keys;
   for (const [re, keys] of LEVEL_THEMES) if (re.test(levelName)) return keys;
   for (const [re, keys] of PATH_THEMES) if (re.test(pathName)) return keys;
   return family ? FAMILY_ART[family] : FAMILY_ART.vivant;

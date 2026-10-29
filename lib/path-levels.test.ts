@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { depths, pathLevels, type LevelNote } from "./path-levels";
+import { depths, groupNamedLevels, namedLevels, pathLevels, type LevelNote } from "./path-levels";
 
 const chain = (n: number): LevelNote[] =>
   Array.from({ length: n }, (_, i) => ({
@@ -63,5 +63,43 @@ describe("pathLevels", () => {
     const [first] = pathLevels(notes);
     // Not in the middle of the d…i fan (all depth 3): after it, before j.
     expect(first.to).toBe(9);
+  });
+});
+
+describe("named levels", () => {
+  // The chess path's shape: two branches read in title order, levels named
+  // on some notes, the rest inheriting from their prerequisites.
+  const notes: LevelNote[] = [
+    { slug: "rules", prereqs: [], niveau: "Débutant" },
+    { slug: "openings", prereqs: ["rules"] },
+    { slug: "tactics", prereqs: ["openings"], niveau: "Club" },
+    { slug: "endings", prereqs: ["tactics"], niveau: "Confirmé" },
+    { slug: "puzzles", prereqs: ["tactics"] },
+    { slug: "coaching", prereqs: ["puzzles", "endings"], niveau: "Fort" },
+    { slug: "strategy", prereqs: ["tactics"], niveau: "Fort" },
+  ];
+
+  it("keeps each named level together, prerequisites first", () => {
+    expect(groupNamedLevels(notes).map((n) => n.slug)).toEqual([
+      "rules", "openings", "tactics", "puzzles", "endings", "coaching", "strategy",
+    ]);
+  });
+
+  it("cuts a level wherever the name changes, whatever the path's size", () => {
+    expect(sizes(groupNamedLevels(notes))).toEqual([2, 2, 1, 2]);
+  });
+
+  it("never puts a note below its prerequisites", () => {
+    expect(
+      namedLevels([
+        { slug: "a", prereqs: [], niveau: "Haut" },
+        { slug: "b", prereqs: ["a"], niveau: "Bas" },
+      ]),
+    ).toEqual([0, 1]);
+  });
+
+  it("leaves paths without names to the size cut", () => {
+    expect(namedLevels(chain(5))).toBeNull();
+    expect(groupNamedLevels(chain(3))).toEqual(chain(3));
   });
 });

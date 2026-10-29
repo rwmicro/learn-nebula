@@ -11,6 +11,8 @@
 export interface LevelNote {
   slug: string;
   prereqs: string[];
+  /** `niveau:` in its frontmatter: the level it belongs to, by name. */
+  niveau?: string;
 }
 
 export interface PathLevel {
@@ -42,6 +44,37 @@ export function depths(notes: LevelNote[]): Map<string, number> {
   return d;
 }
 
+/** Levels named by hand: when some notes of a path carry `niveau:`, each
+ *  note's level, as an index (0 first). A named note is in its own level, an
+ *  unnamed one in the highest level of its prerequisites (the first for a
+ *  root), and no note sits below a prerequisite. Levels are ranked by where
+ *  their name first appears in the reading order. Null when no note names
+ *  one: the path is cut by size. */
+export function namedLevels(notes: LevelNote[]): number[] | null {
+  if (!notes.some((n) => n.niveau)) return null;
+  const rank = new Map<string, number>();
+  for (const n of notes) if (n.niveau && !rank.has(n.niveau)) rank.set(n.niveau, rank.size);
+  const level = new Map<string, number>();
+  return notes.map((n) => {
+    let l = n.niveau ? rank.get(n.niveau)! : 0;
+    for (const p of n.prereqs) l = Math.max(l, level.get(p) ?? 0);
+    level.set(n.slug, l);
+    return l;
+  });
+}
+
+/** The reading order with hand-named levels kept together: a stable sort on
+ *  the level, which keeps prerequisites first (a note is never in a lower
+ *  level than its prerequisites). Unchanged without `niveau:`. */
+export function groupNamedLevels<T extends LevelNote>(notes: T[]): T[] {
+  const levels = namedLevels(notes);
+  if (!levels) return notes;
+  return notes
+    .map((n, i) => ({ n, l: levels[i], i }))
+    .sort((a, b) => a.l - b.l || a.i - b.i)
+    .map((x) => x.n);
+}
+
 export function pathLevels(
   notes: LevelNote[],
   size = LEVEL_SIZE,
@@ -49,6 +82,16 @@ export function pathLevels(
 ): PathLevel[] {
   const total = notes.length;
   if (total === 0) return [];
+  // Named by hand: a level wherever the name changes, whatever its size.
+  const named = namedLevels(notes);
+  if (named) {
+    const levels: PathLevel[] = [];
+    for (let i = 0; i < total; i++) {
+      if (i && named[i] === named[i - 1]) levels[levels.length - 1].to = i + 1;
+      else levels.push({ n: levels.length + 1, from: i, to: i + 1 });
+    }
+    return levels;
+  }
   if (total < min) return [{ n: 1, from: 0, to: total }];
   const count = Math.max(2, Math.round(total / size));
   const depth = depths(notes);

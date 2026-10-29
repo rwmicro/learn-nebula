@@ -8,6 +8,7 @@ import { joinNotePath } from "./vault-health";
 import { getAnkiManifest } from "./anki";
 import { tagKey, tagSlug } from "./slug";
 import { tagLabel } from "./tag-label";
+import { groupNamedLevels } from "./path-levels";
 import {
   definitionAnchor,
   glossaryDiscipline,
@@ -1349,7 +1350,7 @@ export function getReadingPaths(): ReadingPathView[] {
         ...(meta?.description ? { description: meta.description } : {}),
         ...(meta?.cible ? { cible: meta.cible } : {}),
         discipline: c.discipline,
-        notes: docs.map((d) => ({
+        notes: groupNamedLevels(docs.map((d) => ({
           slug: d.slug,
           title: d.frontmatter.title,
           href: `/posts/${d.slug}/`,
@@ -1357,7 +1358,7 @@ export function getReadingPaths(): ReadingPathView[] {
           folder: homeDisplayName(d.rawPath.split("/").slice(-2, -1)[0] ?? ""),
           ...(noteCible(d.frontmatter) ? { cible: noteCible(d.frontmatter) } : {}),
           ...(noteCible(d.frontmatter, "niveau") ? { niveau: noteCible(d.frontmatter, "niveau") } : {}),
-        })),
+        }))),
         edges: c.edges,
       };
     });
