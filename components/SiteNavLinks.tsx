@@ -11,7 +11,15 @@ export function SiteNavLinks({
 }) {
   const norm = (p: string) => (p.endsWith("/") ? p : `${p}/`);
   const path = norm(usePathname() ?? "/");
-  const here = (href: string) => (href === "/" ? path === "/" : path.startsWith(norm(href)));
+  // A tab stays lit on the pages it leads to, as on the phone's tab bar:
+  // a note, the graph and the timeline are under Notes; Défis and the
+  // account under Moi.
+  const ALSO: Record<string, string[]> = {
+    "/notes/": ["/posts/", "/graph/", "/frise/", "/themes/", "/jardin/"],
+    "/progression/": ["/defis/", "/compte/"],
+  };
+  const here = (href: string) =>
+    href === "/" ? path === "/" : [href, ...(ALSO[href] ?? [])].some((h) => path.startsWith(norm(h)));
   return (
     <ul>
       {links.map((l) => (
