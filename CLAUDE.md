@@ -243,6 +243,14 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   and the socratic mode with `/api/ask/explain` / `socratic: true` as server
   fallback (prompts shared in `lib/ask-prompts.ts`). On-device speech check
   in the pronunciation coach (`lib/speech-match.ts`, `processLocally` only).
+  When a device model can answer (Nano, or the opt-in downloaded LFM3-1.7B
+  of `lib/local-llm.ts`: Transformers.js on WebGPU in a module worker,
+  `public/js/local-llm-worker.js` → `local-llm.worker.js`, ort runtime
+  self-hosted in `public/ort/` by `scripts/copy-ort.mjs`, weights from
+  Hugging Face, hence `https://*.hf.co` in `connect-src`), the pinned
+  assistant asks `/api/ask/context` (same retrieval and prompt as `/api/ask`,
+  no LLM backend needed) and writes the answer on the device, else falls back
+  to `/api/ask`. `HomeContent.tsx`'s assistant still only uses `/api/ask`.
 - **`/api/search`**: embedding-only nearest notes for the palette's "Proches
   par le sens" group (`server/routes/search.ts`, needs RAG).
 - **Duel / tandem** (`/duel/`, `components/Duel.tsx`, `lib/duo-rtc.ts`):

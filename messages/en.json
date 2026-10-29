@@ -172,7 +172,11 @@
     "socraticHint": "The assistant asks you questions instead of answering",
     "socraticDefault": "Help me understand this passage.",
     "onDevice": "Answer generated on your device — check it against the note.",
-    "deviceDownloading": "Downloading the model to your device… {n}%"
+    "deviceDownloading": "Downloading the model to your device… {n}%",
+    "localOptIn": "Answer on this device ({n} GB)",
+    "localOptInHint": "Downloads a small model (LFM3) once: your answers are then written in your browser, with no AI server. Wi‑Fi recommended, simpler answers.",
+    "localOn": "Answers written on this device.",
+    "localOff": "Turn off"
   },
   "lang": {
     "switcherAria": "Change interface language",

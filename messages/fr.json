@@ -172,7 +172,11 @@
     "socraticHint": "L'assistant te pose des questions au lieu de répondre",
     "socraticDefault": "Aide-moi à comprendre ce passage.",
     "onDevice": "Réponse générée sur ton appareil — vérifie-la dans la note.",
-    "deviceDownloading": "Téléchargement du modèle sur ton appareil… {n} %"
+    "deviceDownloading": "Téléchargement du modèle sur ton appareil… {n} %",
+    "localOptIn": "Répondre sur cet appareil ({n} Go)",
+    "localOptInHint": "Télécharge une fois un petit modèle (LFM3) : tes réponses sont alors rédigées dans ton navigateur, sans serveur d'IA. Wi‑Fi conseillé, réponses plus simples.",
+    "localOn": "Réponses rédigées sur cet appareil.",
+    "localOff": "Désactiver"
   },
   "lang": {
     "switcherAria": "Changer la langue de l'interface",

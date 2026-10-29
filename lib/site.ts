@@ -88,7 +88,9 @@ export function buildCSP(): string {
     scriptSrc,
     // The site's own WebSocket (/api/room/, the /duel/ signalling) spelled out:
     // CSP3 lets 'self' match ws(s): on the same host, older Safari didn't.
-    `connect-src 'self' ${SITE_URL.replace(/^http/, "ws")} https://cloudflareinsights.com`,
+    // Hugging Face: the assistant's downloadable model (lib/local-llm.ts) is
+    // fetched from huggingface.co, which redirects to its *.hf.co CDN.
+    `connect-src 'self' ${SITE_URL.replace(/^http/, "ws")} https://cloudflareinsights.com https://huggingface.co https://*.hf.co`,
     // Turnstile's challenge iframe + the click-to-load YouTube facade (#16),
     // which swaps in a youtube-nocookie.com player only after a click.
     `frame-src ${turnstile} https://www.youtube-nocookie.com`,

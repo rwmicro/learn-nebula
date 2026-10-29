@@ -145,23 +145,30 @@ function streamAnswer(
   });
 }
 
-askRoute.post("/", async (c) => {
-  if (!canGenerate()) {
-    return c.json({ error: "Assistant non configuré (aucun backend LLM)." }, 503);
-  }
+type AskPayload = {
+  question?: string;
+  selection?: string;
+  locale?: string;
+  scope?: string;
+  lang?: string;
+  socratic?: boolean;
+};
+type Prepared = {
+  ip: string;
+  system: string;
+  userContent: string;
+  sources: { title: string; url: string }[];
+};
 
-  let payload: {
-    question?: string;
-    selection?: string;
-    locale?: string;
-    scope?: string;
-    lang?: string;
-    socratic?: boolean;
-  };
+/** Everything /api/ask does before generating: validation, the cost guards,
+ *  retrieval, the questions log and the prompt. Shared with /api/ask/context,
+ *  which hands the prompt to the browser's own model instead. */
+async function prepareAsk(c: Context): Promise<Prepared | { res: Response }> {
+  let payload: AskPayload;
   try {
     payload = await c.req.json();
   } catch {
-    return c.json({ error: "Requête invalide." }, 400);
+    return { res: c.json({ error: "Requête invalide." }, 400) };
   }
 
   const replyLang = REPLY_LANGS.has(payload.locale ?? "") ? payload.locale! : "fr";
@@ -173,10 +180,10 @@ askRoute.post("/", async (c) => {
   const question = (
     (payload.question ?? "").trim() || (selection ? DEFAULT_Q[replyLang] : "")
   ).slice(0, MAX_QUESTION);
-  if (!question) return c.json({ error: "Question manquante." }, 400);
+  if (!question) return { res: c.json({ error: "Question manquante." }, 400) };
 
   const gate = admit(c);
-  if ("res" in gate) return gate.res;
+  if ("res" in gate) return gate;
   const { ip } = gate;
 
   // Retrieval (skipped/empty when EMBED_BASE_URL is unset or not ready yet).
@@ -245,7 +252,26 @@ askRoute.post("/", async (c) => {
     ? `${noteContext}\n\n---\nQuestion : ${question}${reminder}`
     : `${noHits}\n\nQuestion : ${question}${reminder}`;
 
-  return streamAnswer(c, ip, system, userContent, sources);
+  return { ip, system, userContent, sources };
+}
+
+askRoute.post("/", async (c) => {
+  if (!canGenerate()) {
+    return c.json({ error: "Assistant non configuré (aucun backend LLM)." }, 503);
+  }
+  const p = await prepareAsk(c);
+  if ("res" in p) return p.res;
+  return streamAnswer(c, p.ip, p.system, p.userContent, p.sources);
+});
+
+// The same retrieval and prompt, without generating: the browser runs its own
+// model (lib/local-llm.ts) on them, so this works with no LLM backend at all.
+askRoute.post("/context", async (c) => {
+  const p = await prepareAsk(c);
+  if ("res" in p) return p.res;
+  inflight.delete(p.ip);
+  c.header("cache-control", "no-store");
+  return c.json({ system: p.system, user: p.userContent, sources: p.sources });
 });
 
 // "Explique-le avec tes mots": the reader's own explanation of a passage,

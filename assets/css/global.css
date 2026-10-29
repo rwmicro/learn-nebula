@@ -2314,6 +2314,33 @@ body.rs-pip {
   font-style: italic;
   color: var(--muted-warm);
 }
+/* "Répondre sur cet appareil (1,1 Go)": the opt-in to the downloadable
+   model (lib/local-llm.ts), and its "Désactiver" link once on. */
+.gk-pinned-local {
+  display: inline-block;
+  margin: 0.5rem 0 0;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+.gk-pinned-local:hover {
+  border-color: var(--color-garden);
+  color: var(--color-garden);
+}
+.gk-pinned-local-off {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
 .gk-pinned-form--own {
   align-items: flex-end;
 }

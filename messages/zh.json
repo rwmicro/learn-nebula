@@ -172,7 +172,11 @@
     "socraticHint": "助手会向你提问，而不是直接回答",
     "socraticDefault": "帮我理解这段内容。",
     "onDevice": "回答在你的设备上生成——请对照笔记核实。",
-    "deviceDownloading": "正在把模型下载到你的设备…… {n}%"
+    "deviceDownloading": "正在把模型下载到你的设备…… {n}%",
+    "localOptIn": "在本设备上回答（{n} GB）",
+    "localOptInHint": "一次性下载一个小模型（LFM3）：之后回答在你的浏览器中生成，无需 AI 服务器。建议使用 Wi‑Fi，回答会更简单。",
+    "localOn": "回答在本设备上生成。",
+    "localOff": "关闭"
   },
   "lang": {
     "switcherAria": "切换界面语言",

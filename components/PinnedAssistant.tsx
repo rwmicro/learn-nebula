@@ -32,6 +32,14 @@ import { readAskStream, type AskSource } from "@/lib/ask-stream";
 import { markdownToHtml } from "@/lib/markdown-lite";
 import { detectLanguage, promptAvailable, promptOnDevice } from "@/lib/browser-ai";
 import {
+  LOCAL_MODEL_SIZE_GB,
+  localModelEnabled,
+  localModelReady,
+  localModelSupported,
+  promptLocal,
+  setLocalModelEnabled,
+} from "@/lib/local-llm";
+import {
   ASK_LANG_NAMES,
   MAX_EXPLAIN_TEXT,
   SOCRATIC_RULES,
@@ -92,6 +100,8 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const [socratic, setSocratic] = useState(false);
   // The last answer came from the device's model, not the server.
   const [onDevice, setOnDevice] = useState(false);
+  // The downloadable model (lib/local-llm.ts): null until checked / no WebGPU.
+  const [localModel, setLocalModel] = useState<"off" | "on" | null>(null);
   const ownRef = useRef<HTMLTextAreaElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const panelRef = useRef<HTMLElement>(null);
@@ -129,6 +139,9 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
       /* localStorage unavailable */
     }
     setIsNote(location.pathname.startsWith("/posts/"));
+    localModelSupported().then((ok) => {
+      if (ok) setLocalModel(localModelEnabled() ? "on" : "off");
+    });
     const onPin = () => open();
     // "Expliquer" from the note selection toolbar: pin the passage, open,
     // and ask the server's default "explain this passage" question (an
@@ -330,19 +343,36 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
     return (navigator.language || "fr").slice(0, 2).toLowerCase();
   }
 
+  /** Whether some model on the device can take a prompt in `lang`: Chrome's
+   *  Gemini Nano, else the downloaded LFM3 when the reader opted in. */
+  async function deviceCan(lang: string) {
+    return (await promptAvailable(lang)) || (await localModelReady());
+  }
+
   /** Run one prompt on the device's model when it covers `lang`; false when
    *  it doesn't (or fails before answering), so the caller asks the server. */
   async function tryDevice(ctrl: AbortController, lang: string, system: string, prompt: string) {
-    if (!(await promptAvailable(lang))) return false;
+    const nano = await promptAvailable(lang);
+    if (!nano && !(await localModelReady())) return false;
+    const onDownload = (f: number) =>
+      setAnswer(t("askAi.deviceDownloading", { n: Math.round(f * 100) }, locale));
     try {
-      const out = await promptOnDevice({
-        system,
-        prompt,
-        lang,
-        signal: ctrl.signal,
-        onText: (t2) => setAnswer(t2),
-        onDownload: (f) => setAnswer(t("askAi.deviceDownloading", { n: Math.round(f * 100) }, locale)),
-      });
+      const out = nano
+        ? await promptOnDevice({
+            system,
+            prompt,
+            lang,
+            signal: ctrl.signal,
+            onText: (t2) => setAnswer(t2),
+            onDownload,
+          })
+        : await promptLocal({
+            system,
+            prompt,
+            signal: ctrl.signal,
+            onText: (t2) => setAnswer(t2),
+            onProgress: onDownload,
+          });
       if (!out) return false;
       setAnswer(out);
       setOnDevice(true);
@@ -376,19 +406,42 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
       if (await tryDevice(ctrl, lang || preferredReplyLocale(), socraticDeviceSystem(lang), prompt)) return;
     }
 
+    const body = JSON.stringify({
+      question: text,
+      selection: sel || undefined,
+      locale: preferredReplyLocale(),
+      scope: scope || undefined,
+      lang: lang || undefined,
+      socratic: socratic || undefined,
+    });
+    // A model on the device: the server only retrieves the passages and
+    // builds the prompt (/api/ask/context), the device writes the answer.
+    if (await deviceCan(lang || preferredReplyLocale())) {
+      try {
+        const r = await fetch("/api/ask/context", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body,
+          signal: ctrl.signal,
+        });
+        if (r.ok) {
+          const ctx = (await r.json()) as { system: string; user: string; sources: AskSource[] };
+          setSources(ctx.sources.filter((x) => x && x.url && /^(https?:|\/)/.test(x.url)));
+          if (await tryDevice(ctrl, lang || preferredReplyLocale(), ctx.system, ctx.user)) return;
+          setSources([]);
+          setAnswer("");
+        }
+      } catch (e) {
+        if ((e as Error)?.name === "AbortError") return;
+      }
+    }
+
     let resp: Response;
     try {
       resp = await fetch("/api/ask", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          question: text,
-          selection: sel || undefined,
-          locale: preferredReplyLocale(),
-          scope: scope || undefined,
-          lang: lang || undefined,
-          socratic: socratic || undefined,
-        }),
+        body,
         signal: ctrl.signal,
       });
     } catch (e) {
@@ -595,6 +648,34 @@ export function PinnedAssistant({ scopes = [] }: { scopes?: ScopeOption[] }) {
           )}
           {asked && !busy && onDevice && (
             <p className="gk-pinned-device">{tr("askAi.onDevice")}</p>
+          )}
+          {localModel === "off" && !busy && (
+            <button
+              type="button"
+              className="gk-pinned-local"
+              title={tr("askAi.localOptInHint")}
+              onClick={() => {
+                setLocalModelEnabled(true);
+                setLocalModel("on");
+              }}
+            >
+              {t("askAi.localOptIn", { n: LOCAL_MODEL_SIZE_GB.toLocaleString(locale) }, locale)}
+            </button>
+          )}
+          {localModel === "on" && !busy && (
+            <p className="gk-pinned-device">
+              {tr("askAi.localOn")}{" "}
+              <button
+                type="button"
+                className="gk-pinned-local-off"
+                onClick={() => {
+                  setLocalModelEnabled(false);
+                  setLocalModel("off");
+                }}
+              >
+                {tr("askAi.localOff")}
+              </button>
+            </p>
           )}
           {sources.length > 0 && (
             <ul className="gk-pinned-sources">
