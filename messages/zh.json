@@ -1982,6 +1982,7 @@
     "setFailB": "助手会说明并提议重试。不会发送给任何在线 AI。",
     "setNano": "Chrome 已内置模型（Gemini Nano）：它懂这种语言时会作答。",
     "errNoAnswer": "模型无法回答。请重试或刷新页面。",
+    "errDevice": "设备给出的原因：{why}",
     "errContext": "花园没有响应。你的问题没有丢失：请稍后重试。",
     "errRate": "提问太频繁：请稍后再试。"
   }

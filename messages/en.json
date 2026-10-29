@@ -1982,6 +1982,7 @@
     "setFailB": "The assistant says so and offers to try again. Nothing is sent to an online AI.",
     "setNano": "Chrome already provides a model (Gemini Nano): it answers when it knows the language.",
     "errNoAnswer": "The model couldn't answer. Try again, or reload the page.",
+    "errDevice": "Reason given by the device: {why}",
     "errContext": "The garden isn't answering. Your question isn't lost: try again in a moment.",
     "errRate": "Too many questions at once: try again in a moment."
   }

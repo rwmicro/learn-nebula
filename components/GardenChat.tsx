@@ -31,7 +31,9 @@ import {
   LOCAL_MODEL_SIZE_GB,
   deleteLocalModel,
   loadLocalModel,
+  localModelCached,
   localModelDownloadedOn,
+  localModelError,
   localModelLoaded,
   onLoadProgress,
   setLocalModelEnabled,
@@ -351,6 +353,9 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const [dl, setDl] = useState<DlState>("idle");
   const [progress, setProgress] = useState<LoadProgress | null>(null);
   const [waitingModel, setWaitingModel] = useState(false);
+  // The weights are already on the device: a load reads them, it doesn't
+  // download them again (the progress says so).
+  const [fromCache, setFromCache] = useState(false);
   const [toast, setToast] = useState("");
   const [storage, setStorage] = useState<{ free: number; used: number } | null>(
     null,
@@ -406,6 +411,16 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   // --- the download --------------------------------------------------------
   useEffect(() => onLoadProgress(setProgress), []);
+  useEffect(() => {
+    if (dl === "loading") void localModelCached().then(setFromCache);
+  }, [dl]);
+
+  /** The "couldn't answer" line, with the device model's own reason when it
+   *  gave one (a load error, or the worker stopped, as for memory). */
+  function noAnswer(r: AiRoute): string {
+    const why = r === "local" ? localModelError() : "";
+    return why ? `${tr("chat.errNoAnswer")}\n\n${tr("chat.errDevice", { why })}` : tr("chat.errNoAnswer");
+  }
 
   function startDownload(then?: () => void) {
     setLocalModelEnabled(true);
@@ -753,14 +768,14 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       });
       setWaitingModel(false);
       if (r === "local") setDl(localModelLoaded() ? "ready" : "failed");
-      setLast(out ? { text: out } : { text: tr("chat.errNoAnswer") });
+      setLast(out ? { text: out } : { text: noAnswer(r) });
       finish(ctrl, !!out);
     } catch (e) {
       if ((e as Error)?.name === "AbortError") {
         setWaitingModel(false);
         return finish(ctrl, true);
       }
-      setLast({ text: tr("chat.errNoAnswer") });
+      setLast({ text: noAnswer(r) });
       finish(ctrl, false);
     }
   }
@@ -1038,7 +1053,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         <span className="gc-prog-ic">{Ic.dl}</span>
         <b>
           {tr(
-            pct >= 100 || (progress && progress.total < LOCAL_MODEL_BYTES / 2)
+            fromCache || pct >= 100 || (progress && progress.total < LOCAL_MODEL_BYTES / 2)
               ? "chat.dlLoading"
               : "chat.dlProgress",
           )}

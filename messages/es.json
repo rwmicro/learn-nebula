@@ -1982,6 +1982,7 @@
     "setFailB": "El asistente lo dice y propone reintentar. No se envía nada a una IA en línea.",
     "setNano": "Chrome ya ofrece un modelo (Gemini Nano): responde cuando conoce el idioma.",
     "errNoAnswer": "El modelo no pudo responder. Reintenta o recarga la página.",
+    "errDevice": "Motivo indicado por el dispositivo: {why}",
     "errContext": "El jardín no responde. Tu pregunta no se ha perdido: reinténtalo en un momento.",
     "errRate": "Demasiadas preguntas a la vez: reinténtalo en un momento."
   }

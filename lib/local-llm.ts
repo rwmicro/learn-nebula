@@ -24,6 +24,13 @@ type Gpu = { requestAdapter(): Promise<GpuAdapter | null> };
 
 let support: Promise<"q4f16" | "q4" | null> | null = null;
 
+/** Why the model last failed (the worker's own message, or that the worker
+ *  stopped, as when the system ends it for memory); "" after a success. */
+let lastError = "";
+export function localModelError(): string {
+  return lastError;
+}
+
 /** The model variant this device can run: q4f16 with half-precision shaders,
  *  q4 without, null with no WebGPU at all. */
 function variant(): Promise<"q4f16" | "q4" | null> {
@@ -56,6 +63,9 @@ export function localModelEnabled(): boolean {
 }
 
 export function setLocalModelEnabled(on: boolean): void {
+  // Ask to keep the site's storage: without it Safari may evict a 1 GB cache
+  // entry, and every load becomes a new download.
+  if (on) void navigator.storage?.persist?.().catch(() => false);
   try {
     if (on) localStorage.setItem(OPT_IN_KEY, "1");
     else localStorage.removeItem(OPT_IN_KEY);
@@ -96,6 +106,20 @@ export async function deleteLocalModel(): Promise<void> {
     await caches.delete(CACHE_NAME);
   } catch {
     /* no Cache Storage */
+  }
+}
+
+/** Whether the model's weights are already in Cache Storage, so a load reads
+ *  them from the device instead of downloading them. */
+export async function localModelCached(): Promise<boolean> {
+  const dtype = await variant();
+  if (!dtype) return false;
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    const keys = await cache.keys();
+    return keys.some((r) => r.url.endsWith(`/onnx/model_${dtype}.onnx_data`));
+  } catch {
+    return false;
   }
 }
 
@@ -174,19 +198,24 @@ export function loadLocalModel(): Promise<boolean> {
           const ok = e.data.type === "ready";
           if (ok) {
             loaded = true;
+            lastError = "";
             try {
               if (!localStorage.getItem(DONE_KEY))
                 localStorage.setItem(DONE_KEY, new Date().toISOString().slice(0, 10));
             } catch {
               /* localStorage unavailable */
             }
-          } else loading = null;
+          } else {
+            loading = null;
+            if (e.data.type === "load-error") lastError = e.data.message;
+          }
           resolve(ok);
         }
       };
-      const onErr = () => {
+      const onErr = (ev: ErrorEvent) => {
         w.removeEventListener("message", onMsg);
         w.removeEventListener("error", onErr);
+        lastError = ev.message || "worker stopped while loading";
         if (worker === w) worker = null;
         w.terminate();
         loading = null;
@@ -240,12 +269,14 @@ export async function promptLocal(opts: {
         opts.onText?.(out);
       } else {
         finish();
+        if (m.type === "error") lastError = m.message;
         const text = m.type === "done" ? m.text : out;
         resolve(text.trim() ? text : null);
       }
     };
-    const onErr = () => {
+    const onErr = (ev: ErrorEvent) => {
       finish();
+      lastError = ev.message || "worker stopped while answering";
       // A worker that crashed (e.g. out of memory) is useless from here on:
       // drop it so the next try starts a fresh one.
       if (worker === w) worker = null;
