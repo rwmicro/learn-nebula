@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SITE_TITLE } from "@/lib/site";
 import { t } from "@/lib/i18n";
+import { SCENES } from "@/lib/deco-art";
 import { NotFoundSuggestions } from "@/components/NotFoundSuggestions";
 
 export const metadata: Metadata = {
@@ -8,71 +9,28 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-// Self-styled with Tailwind (no main.css): not-found is Next's global error
-// boundary, so any stylesheet it imports would load on every route — exactly
-// what we're avoiding. The article typography in main.css stays note-only.
+// Styled from app.css (global), not main.css: not-found is Next's global
+// error boundary, so any route stylesheet it imported would load everywhere.
 export default function NotFound() {
   return (
-    <main id="main" className="nf-page mx-auto max-w-[42rem] px-5 py-16 text-ink">
-      {/* Phones only (app.css): the garden's sprout over the title. */}
-      <span className="nf-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 21v-9" />
-          <path d="M12 12c0-4-3-6-7-6 0 4 3 6 7 6Z" />
-          <path d="M12 10c0-3.5 2.5-5.5 7-5.5 0 3.5-2.5 5.5-7 5.5Z" />
-        </svg>
-      </span>
-      <h1 className="nf-title m-0 mb-5 text-balance text-[clamp(1.5rem,1.1rem+2.5vw,3rem)] font-medium leading-tight">
-        <span data-i18n="notFound.title" className="nf-wide">
-          {t("notFound.title")}
-        </span>
-        {/* Phones: the garden's own words (app.css swaps the two). */}
-        <span data-i18n="notFound.titlePhone" className="nf-narrow">
-          {t("notFound.titlePhone")}
-        </span>
+    <main id="main" className="nf-page mx-auto px-5 pb-16 text-ink">
+      {/* The sown bed with its "?" label (lib/deco-art.ts). */}
+      <div className="nf-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.bed }} />
+      <h1 className="nf-title" data-i18n="notFound.titlePhone">
+        {t("notFound.titlePhone")}
       </h1>
-      <p className="nf-body nf-narrow" data-i18n="notFound.bodyPhone">
+      <p className="nf-body" data-i18n="notFound.bodyPhone">
         {t("notFound.bodyPhone")}
       </p>
-      <p className="nf-body nf-wide mb-4 text-body leading-relaxed">
-        <span data-i18n="notFound.body">{t("notFound.body")}</span>{" "}
-        <a
-          href="/"
-          data-i18n="notFound.home"
-          className="text-link underline underline-offset-2"
-        >
-          {t("notFound.home")}
+      <nav className="nf-actions">
+        <a href="/" className="nf-btn nf-btn--primary" data-i18n="notFound.garden">
+          {t("notFound.garden")}
         </a>
-      </p>
-      <NotFoundSuggestions />
-      <nav className="nf-links mt-10 flex flex-wrap gap-x-7 gap-y-2 text-meta font-semibold uppercase tracking-[0.1em]">
-        <a
-          href="/"
-          data-i18n="nav.home"
-          className="nf-home text-ink no-underline underline-offset-[3px] hover:underline"
-        >
-          {t("nav.home")}
-        </a>
-        <a href="/graph/" className="text-ink no-underline underline-offset-[3px] hover:underline">
-          <svg className="nf-pill-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="6" cy="6" r="2.5" />
-            <circle cx="18" cy="8" r="2.5" />
-            <circle cx="10" cy="18" r="2.5" />
-            <path d="M8.3 7.1 15.6 7.6M7 8.3l2.2 7.4M16.6 10.1l-5.1 6" />
-          </svg>
-          <span data-i18n="nav.graph">{t("nav.graph")}</span>
-        </a>
-        <a href="/hasard/" className="text-ink no-underline underline-offset-[3px] hover:underline">
-          <svg className="nf-pill-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <rect x="4" y="4" width="16" height="16" rx="3" />
-            <circle cx="9" cy="9" r="1" />
-            <circle cx="15" cy="15" r="1" />
-            <circle cx="15" cy="9" r="1" />
-            <circle cx="9" cy="15" r="1" />
-          </svg>
-          <span data-i18n="nav.random">{t("nav.random")}</span>
+        <a href="/hasard/" className="nf-btn" data-i18n="notFound.random">
+          {t("notFound.random")}
         </a>
       </nav>
+      <NotFoundSuggestions />
     </main>
   );
 }

@@ -72,7 +72,8 @@
     "translateViaDevice": "Traducido en tu dispositivo",
     "translateViaServer": "Traducido por el servidor",
     "translateBetter": "Mejor traducción",
-    "translateSuggest": "Esta nota parece estar en {lang}: ¿traducirla?"
+    "translateSuggest": "Esta nota parece estar en {lang}: ¿traducirla?",
+    "endOfNote": "Fin de la nota · {min} min"
   },
   "growth": {
     "tended": "retocada el",
@@ -126,7 +127,7 @@
     "messageLabel": "Mensaje",
     "submit": "Enviar",
     "anonymous": "Anónimo",
-    "empty": "Aún no hay comentarios. Sé el primero.",
+    "empty": "El banco está libre. ¿Una pregunta, una precisión?",
     "loading": "Cargando comentarios…",
     "loadError": "No se pudieron cargar los comentarios.",
     "emptyMessage": "El mensaje no puede estar vacío.",
@@ -484,7 +485,9 @@
     "body": "Esta página no existe (error 404).",
     "home": "Volver al inicio",
     "titlePhone": "Esta página no ha brotado",
-    "bodyPhone": "Esta dirección no lleva a ninguna nota. Quizá cambió de nombre."
+    "bodyPhone": "Esta dirección no lleva a ninguna nota. Quizá cambió de nombre o aún no se ha sembrado.",
+    "garden": "Volver al jardín",
+    "random": "Una nota al azar"
   },
   "random": {
     "title": "Una nota al azar",
@@ -517,8 +520,8 @@
     "hintMore": "Otra pista",
     "hintN": "Pista {n}/{total}:",
     "answerIs": "Respuesta:",
-    "right": "¡Correcto!",
-    "notQuite": "No del todo",
+    "right": "Correcto. Una hoja más.",
+    "notQuite": "No del todo. El brote esperará a la próxima.",
     "retry": "Reintentar",
     "showAnswer": "Ver la respuesta",
     "hintLabel": "Pista:",
@@ -740,7 +743,7 @@
     "elsewhere": "La palabra en otros textos",
     "passages": "{n} pasajes",
     "allDisc": "Todas",
-    "emptyTitle": "Nada sobre «{q}»",
+    "emptyTitle": "Nada ha crecido bajo «{q}»",
     "emptyBody": "Ningún título, tema, mazo ni pasaje contiene esta palabra.",
     "emptyBodyTitles": "Ningún título, tema ni mazo contiene esta palabra.",
     "tryWord": "Prueba {w}",
@@ -932,7 +935,7 @@
     "emailLabel": "Correo electrónico",
     "emailPlaceholder": "tu@ejemplo.es",
     "sendLink": "Recibir el enlace",
-    "sent": "Listo: se envió un enlace a {email}. Es válido 15 minutos.",
+    "sent": "Abre el correo enviado a {email} para entrar. El enlace es válido 15 minutos.",
     "expired": "Este enlace ha caducado o ya se usó. Pide uno nuevo.",
     "err": {
       "invalid": "Esta dirección no parece válida.",
@@ -955,7 +958,9 @@
     "deleteWord": "borrar",
     "deleteType": "Para confirmar, escribe «{word}»:",
     "deleteNow": "Borrar para siempre",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "sentTitle": "El enlace ya salió",
+    "resend": "Reenviar el enlace"
   },
   "avatar": {
     "aria": "Tu pequeño jardinero",
@@ -1088,9 +1093,9 @@
     "title": "Repasarlo todo",
     "intro": "Las tarjetas que tocan hoy en los mazos que has empezado (salvo los pausados) y tus preguntas de notas, y luego las tarjetas nuevas de esos mazos.",
     "failed": "Mazos no disponibles: {decks}.",
-    "done": "Todo repasado por hoy.",
+    "done": "Todo está regado por hoy.",
     "loading": "Cargando mazos: {n} / {total}…",
-    "tomorrow": "Para mañana: {count}",
+    "tomorrow": "Las tarjetas volverán solas el día indicado. Para mañana: {count}",
     "nothingTitle": "Nada que repasar hoy",
     "nothingText": "Abra un mazo, o guarde una pregunta al final de una nota: volverá aquí el día indicado."
   },
@@ -1309,7 +1314,9 @@
     "activityAria": "{n} días activos en las últimas doce semanas",
     "keepHide": "Ocultar",
     "transfer": "Exportar o importar",
-    "transferSub": "Mi progreso, en un archivo"
+    "transferSub": "Mi progreso, en un archivo",
+    "freshTitle": "Nada sembrado todavía",
+    "freshText": "Lee una nota hasta el final o responde una pregunta: tu jardín empezará aquí."
   },
   "rs": {
     "close": "Cerrar la sesión",
@@ -1335,8 +1342,8 @@
     "continue": "Continuar",
     "run": "{n} seguidas",
     "runLost": "racha perdida",
-    "retained": "recordadas",
-    "doneTitle": "Sesión terminada",
+    "retained": "correctas",
+    "doneTitle": "Buena cosecha",
     "cards": "tarjetas",
     "minutes": "{n} min",
     "ofReview": "de repaso",
@@ -1344,7 +1351,10 @@
     "finish": "Terminar",
     "pip": "Repasar en ventana flotante",
     "pipActive": "El repaso continúa en la ventana flotante.",
-    "pipBack": "Volver aquí"
+    "pipBack": "Volver aquí",
+    "harvest": "{n} tarjetas repasadas, {good} correctas. Las otras {again} volverán pronto.",
+    "harvestAll": "{n} tarjetas repasadas, todas correctas.",
+    "ofSession": "de sesión"
   },
   "rv": {
     "today": "Hoy",
@@ -1366,7 +1376,8 @@
     "startGo": "Elegir un mazo",
     "doneTitle": "Al día por hoy",
     "doneText": "No hay nada pendiente. Puedes practicar tus tarjetas frágiles o abrir un mazo nuevo.",
-    "doneGo": "Practicar"
+    "doneGo": "Practicar",
+    "nothingToday": "nada hoy"
   },
   "road": {
     "levelOf": "Nivel {n} de {total}",
@@ -1393,7 +1404,13 @@
     "dueN": "{n} para repasar",
     "solid": "sólido",
     "sheetGo": "Refrescar el nivel",
-    "later": "Más tarde"
+    "later": "Más tarde",
+    "endKicker": "Recorrido terminado",
+    "endText": "{n} notas leídas, {q} preguntas guardadas. El árbol seguirá en flor mientras lo repases.",
+    "endNotes": "notas",
+    "endLevels": "etapas",
+    "endReading": "de lectura",
+    "endGo": "Mantener el árbol en flor"
   },
   "defis": {
     "title": "Retos",
@@ -1415,7 +1432,10 @@
     "monthVowel": "Reto de {month}",
     "paths": "Terminar {n} itinerarios",
     "note": "Contado en este navegador, a partir de tus lecturas y repasos.",
-    "noRun": "Aún sin racha"
+    "noRun": "Aún sin racha",
+    "runOne": "1 día seguido",
+    "runMany": "{n} días seguidos",
+    "pots": "Cada día de lectura hace crecer una maceta."
   },
   "practice": {
     "title": "Practicar",
@@ -1462,7 +1482,7 @@
     "perkAvatarT": "Un pequeño jardinero",
     "perkAvatarS": "Para vestir con tus monedas",
     "privacyShort": "Solo se guardan tu dirección, tu zona horaria, tu progreso y tus monedas. Se puede borrar en cualquier momento.",
-    "sentTitle": "Revisa tu correo",
+    "sentTitle": "El enlace ya salió",
     "sentTo": "Acabamos de enviar un enlace a",
     "validFor": "Válido {n} min más",
     "linkExpired": "Enlace caducado: envía otro",
@@ -1661,7 +1681,8 @@
       "tandemTitle": "Tándem de idiomas",
       "tandemText": "Una llamada de audio con un amigo, solo por invitación, para leer y hacer repetir las frases de esta nota.",
       "tandem": "Iniciar un tándem"
-    }
+    },
+    "chairTitle": "Una silla espera a la otra persona"
   },
   "duel": {
     "title": "Duelo",

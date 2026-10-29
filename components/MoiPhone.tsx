@@ -1,5 +1,6 @@
 "use client";
 
+import { SCENES } from "@/lib/deco-art";
 import { useEffect, useMemo, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -192,9 +193,11 @@ export function MoiPhone() {
       )}
 
       {fresh ? (
-        <div className="moi-card moi-fresh">
-          <b>{tr("progression.welcomeTitle")}</b>
-          <p>{tr("progression.welcomeText")}</p>
+        <div className="moi-fresh">
+          {/* A seed packet (lib/deco-art.ts). */}
+          <div className="moi-fresh-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.packet }} />
+          <b>{tr("moi.freshTitle")}</b>
+          <p>{tr("moi.freshText")}</p>
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a className="moi-fresh-go" href="/parcours/">
             {tr("progression.welcomePaths")}

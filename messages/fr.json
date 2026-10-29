@@ -72,7 +72,8 @@
     "translateViaDevice": "Traduit sur ton appareil",
     "translateViaServer": "Traduit par le serveur",
     "translateBetter": "Meilleure traduction",
-    "translateSuggest": "Cette note semble être en {lang} — la traduire ?"
+    "translateSuggest": "Cette note semble être en {lang} — la traduire ?",
+    "endOfNote": "Fin de la note · {min} min"
   },
   "growth": {
     "tended": "retouché le",
@@ -126,7 +127,7 @@
     "messageLabel": "Message",
     "submit": "Envoyer",
     "anonymous": "Anonyme",
-    "empty": "Aucun commentaire pour l'instant. Soyez le premier.",
+    "empty": "Le banc est libre. Une question, une précision ?",
     "loading": "Chargement des commentaires…",
     "loadError": "Impossible de charger les commentaires.",
     "emptyMessage": "Le message ne peut pas être vide.",
@@ -484,7 +485,9 @@
     "body": "Cette page n’existe pas (erreur 404).",
     "home": "Retour à l’accueil",
     "titlePhone": "Cette page n'a pas poussé",
-    "bodyPhone": "L'adresse ne mène à aucune note. Elle a peut-être changé de nom."
+    "bodyPhone": "L'adresse ne mène à aucune note. Elle a peut-être changé de nom, ou n'a pas encore été semée.",
+    "garden": "Retour au jardin",
+    "random": "Une note au hasard"
   },
   "random": {
     "title": "Une note au hasard",
@@ -517,8 +520,8 @@
     "hintMore": "Un autre indice",
     "hintN": "Indice {n}/{total} :",
     "answerIs": "Réponse :",
-    "right": "Juste !",
-    "notQuite": "Pas tout à fait",
+    "right": "Juste. Une feuille de plus.",
+    "notQuite": "Pas tout à fait. La pousse attend la prochaine fois.",
     "retry": "Réessayer",
     "showAnswer": "Voir la réponse",
     "hintLabel": "Indice :",
@@ -740,7 +743,7 @@
     "elsewhere": "Le mot ailleurs",
     "passages": "{n} passages",
     "allDisc": "Toutes",
-    "emptyTitle": "Rien sur « {q} »",
+    "emptyTitle": "Rien n’a poussé sous « {q} »",
     "emptyBody": "Aucun titre, thème, paquet ni passage ne contient ce mot.",
     "emptyBodyTitles": "Aucun titre, thème ni paquet ne contient ce mot.",
     "tryWord": "Essayez {w}",
@@ -932,7 +935,7 @@
     "emailLabel": "Adresse e-mail",
     "emailPlaceholder": "vous@exemple.fr",
     "sendLink": "Recevoir le lien",
-    "sent": "C’est parti : un lien vient d’être envoyé à {email}. Il est valable 15 minutes.",
+    "sent": "Ouvre l’e-mail envoyé à {email} pour entrer. Le lien reste valable 15 minutes.",
     "expired": "Ce lien a expiré ou a déjà servi. Demandez-en un nouveau.",
     "err": {
       "invalid": "Cette adresse ne semble pas valide.",
@@ -955,7 +958,9 @@
     "deleteWord": "supprimer",
     "deleteType": "Pour confirmer, tapez « {word} » :",
     "deleteNow": "Supprimer définitivement",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "sentTitle": "Le lien est parti",
+    "resend": "Renvoyer le lien"
   },
   "avatar": {
     "aria": "Votre petit jardinier",
@@ -1088,9 +1093,9 @@
     "title": "Tout réviser",
     "intro": "Les cartes à revoir aujourd’hui dans les paquets que vous avez commencés (sauf ceux en pause) et vos questions de notes, puis les nouvelles cartes de ces paquets.",
     "failed": "Paquets indisponibles : {decks}.",
-    "done": "Tout est révisé pour aujourd’hui.",
+    "done": "Tout est arrosé pour aujourd’hui.",
     "loading": "Chargement des paquets : {n} / {total}…",
-    "tomorrow": "À revoir demain : {count}",
+    "tomorrow": "Les cartes reviendront d’elles-mêmes le bon jour. À revoir demain : {count}",
     "nothingTitle": "Rien à réviser aujourd'hui",
     "nothingText": "Ouvrez un paquet, ou gardez une question à la fin d'une note : elle reviendra ici le bon jour."
   },
@@ -1309,7 +1314,9 @@
     "activityAria": "{n} jours actifs sur les douze dernières semaines",
     "keepHide": "Masquer",
     "transfer": "Exporter ou importer",
-    "transferSub": "Ma progression, en fichier"
+    "transferSub": "Ma progression, en fichier",
+    "freshTitle": "Rien de semé pour l’instant",
+    "freshText": "Lis une note jusqu’au bout ou réponds à une question : ton jardin commencera ici."
   },
   "rs": {
     "close": "Fermer la séance",
@@ -1335,8 +1342,8 @@
     "continue": "Continuer",
     "run": "{n} d’affilée",
     "runLost": "série perdue",
-    "retained": "retenues",
-    "doneTitle": "Séance terminée",
+    "retained": "justes",
+    "doneTitle": "Belle récolte",
     "cards": "cartes",
     "minutes": "{n} min",
     "ofReview": "de révision",
@@ -1344,7 +1351,10 @@
     "finish": "Terminer",
     "pip": "Réviser en flottant",
     "pipActive": "La révision continue dans la fenêtre flottante.",
-    "pipBack": "Revenir ici"
+    "pipBack": "Revenir ici",
+    "harvest": "{n} cartes revues, {good} justes. Les {again} autres reviendront bientôt.",
+    "harvestAll": "{n} cartes revues, toutes justes.",
+    "ofSession": "de séance"
   },
   "rv": {
     "today": "Aujourd’hui",
@@ -1366,7 +1376,8 @@
     "startGo": "Choisir un paquet",
     "doneTitle": "À jour pour aujourd’hui",
     "doneText": "Rien n’est dû. Tu peux t’entraîner sur tes cartes fragiles, ou ouvrir un nouveau paquet.",
-    "doneGo": "S’entraîner"
+    "doneGo": "S’entraîner",
+    "nothingToday": "rien aujourd’hui"
   },
   "road": {
     "levelOf": "Niveau {n} sur {total}",
@@ -1393,7 +1404,13 @@
     "dueN": "{n} à revoir",
     "solid": "solide",
     "sheetGo": "Rafraîchir le niveau",
-    "later": "Plus tard"
+    "later": "Plus tard",
+    "endKicker": "Parcours terminé",
+    "endText": "{n} notes lues, {q} questions en réserve. L’arbre restera en fleur tant que vous le révisez.",
+    "endNotes": "notes",
+    "endLevels": "étapes",
+    "endReading": "de lecture",
+    "endGo": "Garder l’arbre en fleur"
   },
   "defis": {
     "title": "Défis",
@@ -1415,7 +1432,10 @@
     "monthVowel": "Défi d’{month}",
     "paths": "Terminer {n} parcours",
     "note": "Compté dans ce navigateur, à partir de vos lectures et révisions.",
-    "noRun": "Pas encore de série"
+    "noRun": "Pas encore de série",
+    "runOne": "1 jour d’affilée",
+    "runMany": "{n} jours d’affilée",
+    "pots": "Chaque jour lu fait pousser un pot."
   },
   "practice": {
     "title": "S’entraîner",
@@ -1462,7 +1482,7 @@
     "perkAvatarT": "Un petit jardinier",
     "perkAvatarS": "À habiller avec vos pièces",
     "privacyShort": "Seuls votre adresse, votre fuseau horaire, votre progression et vos pièces sont gardés. Supprimable à tout moment.",
-    "sentTitle": "Vérifiez vos e-mails",
+    "sentTitle": "Le lien est parti",
     "sentTo": "Un lien vient de partir vers",
     "validFor": "Valable encore {n} min",
     "linkExpired": "Lien expiré : renvoyez-en un",
@@ -1661,7 +1681,8 @@
       "tandemTitle": "Tandem de langue",
       "tandemText": "Un appel audio avec un ami, sur invitation, pour lire et faire répéter les phrases de cette note.",
       "tandem": "Lancer un tandem"
-    }
+    },
+    "chairTitle": "Une chaise attend l’autre personne"
   },
   "duel": {
     "title": "Duel",

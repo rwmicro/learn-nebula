@@ -568,3 +568,9 @@
     color: var(--ink-2);
   }
 }
+
+/* The first visit's seed packet (lib/deco-art.ts). */
+.progression-welcome-scene {
+  width: min(16rem, 100%);
+  margin: 0 0 0.75rem;
+}

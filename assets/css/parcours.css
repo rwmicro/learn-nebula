@@ -2067,3 +2067,42 @@ a.parcours-tool {
     color: #fff;
   }
 }
+
+/* Phones: the family's band is a strip of its drawings (lib/road-art.ts) on
+   its tint, the heading under it as a coloured kicker; each path's row shows
+   its own first drawing. Wider screens keep the painting. */
+.parcours-band-art {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  main.parcours-page .parcours-band {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    min-height: 0;
+    padding: 0;
+    border-radius: 1.25rem 1.25rem 0 0;
+    background: var(--fam-wash);
+    color: var(--ink);
+  }
+  main.parcours-page .parcours-band::after,
+  main.parcours-page .parcours-band .parcours-art {
+    display: none;
+  }
+  main.parcours-page .parcours-band-art {
+    display: block;
+    padding-top: 0.375rem;
+  }
+  main.parcours-page .parcours-band > .themes-h2 {
+    padding: 0.625rem 1rem 0.5rem;
+    background: var(--paper-raised);
+    color: var(--fam);
+    font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow: none;
+  }
+  main.parcours-page .parcours-band .parcours-family-count {
+    color: var(--fam);
+  }
+}

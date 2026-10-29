@@ -1,5 +1,6 @@
 "use client";
 
+import { SCENES } from "@/lib/deco-art";
 import { calendarDays, currentRun, loadActivity, localDay, recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
@@ -252,7 +253,6 @@ export function ReviewSession({
     return (
       <PhoneEnd
         tr={tr}
-        locale={locale}
         n={tally.n}
         again={tally.again}
         end={end}
@@ -265,7 +265,13 @@ export function ReviewSession({
   if (!head)
     return (
       <>
-        <section className="flex min-h-[14rem] flex-col items-center justify-center gap-5 rounded-md border border-rule bg-paper p-8 text-center">
+        <section className="review-done flex min-h-[14rem] flex-col items-center justify-center gap-5 rounded-md border border-rule bg-paper p-8 text-center">
+          {/* The watering can at rest, or the basket once cards were picked
+              (lib/deco-art.ts). */}
+          <div
+            className="review-done-scene deco"
+            dangerouslySetInnerHTML={{ __html: tally.n ? SCENES.basket : SCENES.rest }}
+          />
           <h2
             ref={doneRef}
             tabIndex={-1}

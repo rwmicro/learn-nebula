@@ -1,5 +1,6 @@
 "use client";
 
+import { weekPots } from "@/lib/deco-art";
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -52,11 +53,6 @@ const ICON = {
   ),
   star: svg(<path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z" />),
   check: svg(<path d="m5 12.5 4.5 4.5L19 7.5" />, 2.6),
-  flame: (
-    <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
-      <path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.7 2-4.5 0 2 1 3 2 3 0-4 1-6.5 1-8.5z" />
-    </svg>
-  ),
 };
 
 interface Data {
@@ -181,34 +177,32 @@ export function Defis({ paths }: { paths: DefisPath[] }) {
     );
   };
 
+  // Only once the data is read: the build knows no "today".
+  const todayIdx = d ? (new Date().getDay() + 6) % 7 : -1;
+  const pots = weekPots(
+    Array.from({ length: 7 }, (_, i) => d?.week[i] === "y"),
+    todayIdx,
+  );
+
   return (
     <main className="defis" data-pagefind-ignore>
       <AppBack href="/progression/" labelKey="moi.title" />
       <h1 className="defis-title">{tr("defis.title")}</h1>
 
-      <section className="defis-run">
-        <div>
-          {/* No run yet: a word rather than a big zero. */}
-          {d?.run ? (
-            <p className="defis-run-n">
-              {d.run} <span>{tr("defis.days", { n: d.run })}</span>
-            </p>
-          ) : (
-            <p className="defis-run-n defis-run-none">{tr("defis.noRun")}</p>
-          )}
-          <p className="defis-run-tx">{tr(d && d.week.includes("y") && d.run > 0 ? "defis.keep" : "defis.start")}</p>
+      {/* The week as seven pots (lib/deco-art.ts): a day read sprouts, taller
+          as the run goes on; today waits as a seed. */}
+      <section className="defis-card defis-pots deco">
+        <div className="defis-pots-h">
+          <b>{d?.run ? tr(d.run === 1 ? "defis.runOne" : "defis.runMany", { n: d.run }) : tr("defis.noRun")}</b>
+          <small>{tr(d?.run ? "defis.pots" : "defis.start")}</small>
         </div>
-        {ICON.flame}
-      </section>
-
-      <section className="defis-card">
         <ol className="defis-week" aria-label={tr("defis.week")}>
           {names.map((n, i) => {
             const s = d?.week[i] ?? "";
             return (
-              <li key={i} className={s || undefined}>
-                <i>{s === "y" && ICON.check}</i>
-                {n}
+              <li key={i} className={`${s}${i === todayIdx ? " now" : ""}`.trim() || undefined}>
+                <i dangerouslySetInnerHTML={{ __html: pots[i] }} />
+                <span>{n}</span>
               </li>
             );
           })}

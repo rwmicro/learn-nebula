@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GrowLoader } from "@/components/GrowLoader";
 import { SITE_TITLE } from "@/lib/site";
 import { t, i18nAttrs } from "@/lib/i18n";
 
@@ -48,9 +49,11 @@ export default function RandomNotePage() {
       >
         {t("random.title")}
       </h1>
-      <p id="hasard-status" hidden className="text-body italic text-muted-warm">
-        <span {...attrs(i18nAttrs("random.loading"))}>{t("random.loading")}</span>
-      </p>
+      <div id="hasard-status" hidden>
+        <GrowLoader>
+          <span {...attrs(i18nAttrs("random.loading"))}>{t("random.loading")}</span>
+        </GrowLoader>
+      </div>
       <p id="hasard-error" hidden className="text-body">
         <a href="/" className={link} {...attrs(i18nAttrs("random.error"))}>
           {t("random.error")}

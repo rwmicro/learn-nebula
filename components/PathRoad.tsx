@@ -15,6 +15,7 @@ import {
 import { daysAgo, loadAllNoteDecks, retentionBySlug, type Retention } from "@/lib/note-quiz";
 import { dayKey, daysBetween } from "@/lib/srs";
 import { ART, artStrip, levelArt } from "@/lib/road-art";
+import { SCENES } from "@/lib/deco-art";
 import type { PathFamily } from "@/lib/path-family";
 
 // A reading path on a phone (app.css shows it below 640px, in place of the
@@ -368,6 +369,35 @@ export function PathRoad({
           </div>
         );
       })}
+      {states && all.length > 0 && !next && (
+        // The whole path read: the road reaches a tree in bloom (lib/deco-art.ts).
+        <div className="road-end">
+          <div className="road-end-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.done }} />
+          <div className="road-end-card">
+            <small>{tr("road.endKicker")}</small>
+            <h2>{pathName}</h2>
+            <p>{tr("road.endText", { n: all.length, q: all.reduce((m, n) => m + n.quiz.length, 0) })}</p>
+            <div className="road-end-stats">
+              <div>
+                <b>{all.length}</b>
+                <span>{tr("road.endNotes")}</span>
+              </div>
+              <div>
+                <b>{levels.length}</b>
+                <span>{tr("road.endLevels")}</span>
+              </div>
+              <div>
+                <b>{hours(all.reduce((m, n) => m + n.minutes, 0))}</b>
+                <span>{tr("road.endReading")}</span>
+              </div>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+            <a className="road-end-go" href="/cartes/aujourdhui/">
+              {tr("road.endGo")}
+            </a>
+          </div>
+        </div>
+      )}
       {sheet && (
         <RefreshSheet
           ref={sheetRef}
@@ -381,6 +411,11 @@ export function PathRoad({
       )}
     </section>
   );
+}
+
+/** Reading time as "9 h", or "40 min" under an hour. */
+function hours(min: number): string {
+  return min < 60 ? `${min} min` : `${Math.round(min / 60)} h`;
 }
 
 const CELLS = 32;

@@ -4,7 +4,7 @@
 // --f3, set on .road in app.css), so they follow light and dark. Static
 // strings, written here: nothing from the vault goes into them.
 
-import type { PathFamily } from "@/lib/path-family";
+import type { PathFamily } from "./path-family";
 
 export const ART = {
   pyramid:

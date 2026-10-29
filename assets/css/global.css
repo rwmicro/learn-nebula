@@ -2380,3 +2380,45 @@ body.rs-pip {
   background: var(--garden);
 }
 /* --- end Browser AI --- */
+
+/* Small flat scenes (lib/deco-art.ts): the road's tones (app.css .road),
+   from the element's family colour or the garden's green, at every width. */
+.deco {
+  --f1: var(--fam, var(--garden));
+  --f0: hsl(var(--fam-h, 135) var(--fam-s, 32%) calc(var(--fam-l, 42%) - 12%));
+  --f2: hsl(var(--fam-h, 135) var(--fam-s, 32%) calc(var(--fam-l, 42%) + 22%));
+  --f3: hsl(var(--fam-h, 135) var(--fam-s, 32%) calc(var(--fam-l, 42%) + 40%));
+  --ground: hsl(var(--fam-h, 135) 18% 88%);
+  --deco-road: hsl(var(--fam-h, 135) 14% 80%);
+  --deco-card: var(--paper-raised);
+  --deco-mark: #f3c64a;
+  --deco-fruit: hsl(8 66% 58%);
+  --deco-empty: var(--rule);
+  --deco-empty-2: var(--rule-strong);
+  --blossom: hsl(345 70% 78%);
+}
+.deco svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+:root[data-theme="dark"] .deco {
+  --f0: hsl(var(--fam-h, 135) var(--fam-s, 32%) calc(var(--fam-l, 68%) + 10%));
+  --f2: hsl(var(--fam-h, 135) var(--fam-s, 32%) calc(var(--fam-l, 68%) - 18%));
+  --f3: hsl(var(--fam-h, 135) 22% 26%);
+  --ground: hsl(var(--fam-h, 135) 10% 24%);
+  --deco-road: hsl(var(--fam-h, 135) 8% 32%);
+  --deco-fruit: hsl(8 55% 60%);
+  --blossom: hsl(345 55% 68%);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .deco {
+    --f0: hsl(var(--fam-h, 135) var(--fam-s, 32%) calc(var(--fam-l, 68%) + 10%));
+    --f2: hsl(var(--fam-h, 135) var(--fam-s, 32%) calc(var(--fam-l, 68%) - 18%));
+    --f3: hsl(var(--fam-h, 135) 22% 26%);
+    --ground: hsl(var(--fam-h, 135) 10% 24%);
+    --deco-road: hsl(var(--fam-h, 135) 8% 32%);
+    --deco-fruit: hsl(8 55% 60%);
+    --blossom: hsl(345 55% 68%);
+  }
+}

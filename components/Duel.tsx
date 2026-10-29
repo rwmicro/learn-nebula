@@ -1,5 +1,6 @@
 "use client";
 
+import { SCENES } from "@/lib/deco-art";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -487,6 +488,9 @@ export function Duel() {
 
   const shareBlock = (
     <section className="duo-card duo-share">
+      {/* A table with a board and a chair for the guest (lib/deco-art.ts). */}
+      <div className="duo-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.duel }} />
+      <h2 className="duo-share-h">{tr(peerHere ? "duo.peerHere" : "duo.chairTitle")}</h2>
       <p>{tr("duo.share")}</p>
       <div className="duo-link">
         <input readOnly value={link} aria-label={tr("duo.linkAria")} onFocus={(e) => e.currentTarget.select()} />

@@ -14,6 +14,7 @@
 // /js/translate.js swaps the article body. The self-grade row is created
 // here, after the build, so Pagefind never indexes it; print hides it.
 import { recordActivity } from "../../lib/personal";
+import { FEEDBACK_BAD, FEEDBACK_GOOD } from "../../lib/deco-art";
 import {
   SELF_GRADE,
   addQuestion,
@@ -256,6 +257,17 @@ import "./exercises.js";
     box.hidden = false;
   }
 
+  // The picked answer's drawing (lib/deco-art.ts): a leaf unfolds when it is
+  // right; when it is wrong the sprout only bends, nothing wilts.
+  function sprout(btn, art) {
+    if (btn.querySelector(".quiz-sprout")) return;
+    const s = document.createElement("span");
+    s.className = "quiz-sprout deco";
+    s.setAttribute("aria-hidden", "true");
+    s.innerHTML = art;
+    btn.appendChild(s);
+  }
+
   const whyOf = (btn) => btn.querySelector(".quiz-why")?.innerHTML || "";
 
   function lockChoices(card) {
@@ -292,6 +304,7 @@ import "./exercises.js";
     card.dataset.tries = String(tries);
     if (btn.dataset.ok === "1") {
       btn.classList.add("is-picked");
+      sprout(btn, FEEDBACK_GOOD);
       lockChoices(card);
       feedback(card, "ok", whyOf(btn));
       reveal(card, true);
@@ -301,6 +314,7 @@ import "./exercises.js";
     } else {
       btn.classList.add("is-wrong", "is-wrong-now");
       btn.disabled = true;
+      sprout(btn, FEEDBACK_BAD);
       feedback(card, "bad", whyOf(btn) || "", [
         ["quiz-retry", "quiz.retry"],
         ["quiz-show", "quiz.showAnswer"],
@@ -347,9 +361,12 @@ import "./exercises.js";
     btn.classList.add("is-picked");
     lockChoices(card);
     if (!hasRight) feedback(card, "guess", whyOf(btn));
-    else if (btn.dataset.ok === "1") feedback(card, "predictOk", whyOf(btn));
-    else {
+    else if (btn.dataset.ok === "1") {
+      sprout(btn, FEEDBACK_GOOD);
+      feedback(card, "predictOk", whyOf(btn));
+    } else {
       btn.classList.add("is-wrong");
+      sprout(btn, FEEDBACK_BAD);
       const right = card.querySelector('.quiz-choice[data-ok="1"]');
       feedback(card, "predictBad", [whyOf(btn), whyOf(right)].filter(Boolean).join(" "));
     }

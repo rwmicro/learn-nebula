@@ -1,5 +1,6 @@
 "use client";
 
+import { SCENES } from "@/lib/deco-art";
 import { useCallback, useEffect, useState } from "react";
 import { Avatar } from "@/components/Avatar";
 import { ActivityCalendar } from "@/components/ActivityCalendar";
@@ -561,9 +562,15 @@ function Login({
         </ul>
         {expired && <p className="acct-warn">{tr("account.expired")}</p>}
         {state === "sent" ? (
-          <p className="acct-ok" role="status">
-            {tr("account.sent", { email })}
-          </p>
+          // A letterbox with its flag up (lib/deco-art.ts).
+          <div className="acct-sent" role="status">
+            <div className="acct-sent-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.mailbox }} />
+            <h3>{tr("account.sentTitle")}</h3>
+            <p>{tr("account.sent", { email })}</p>
+            <button type="button" className="acct-btn" onClick={() => setState("")}>
+              {tr("account.resend")}
+            </button>
+          </div>
         ) : (
           <form className="acct-form" onSubmit={(e) => void submit(e)}>
             <label>

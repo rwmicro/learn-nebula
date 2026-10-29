@@ -2074,3 +2074,27 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   border-color: var(--garden);
   background: var(--garden);
 }
+
+/* The magic link sent: a letterbox with its flag up (lib/deco-art.ts). */
+.acct-sent {
+  margin: 0.75rem 0;
+  text-align: center;
+}
+.acct-sent-scene {
+  width: min(18rem, 100%);
+  margin: 0 auto 0.5rem;
+}
+.acct-sent h3 {
+  margin: 0 0 0.4rem;
+  font: 500 1.5rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+}
+.acct-sent p {
+  margin: 0 0 1rem;
+  color: var(--ink-2);
+}
+
+/* Phones: the letterbox over "Le lien est parti" (LoginPhone.tsx). */
+.ap-sent-scene {
+  width: min(17rem, 80%);
+  margin: 0 auto 0.75rem;
+}

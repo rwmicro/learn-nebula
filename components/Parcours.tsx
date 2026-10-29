@@ -1,4 +1,5 @@
 import { t, i18nAttrs, disciplineKey, folderKey } from "@/lib/i18n";
+import { ART, FAMILY_ART, artStrip, levelArt } from "@/lib/road-art";
 import { splitRank } from "@/lib/folder-label";
 import { OfflinePath } from "@/components/OfflinePath";
 import type { ReadingPathView } from "@/lib/content";
@@ -18,7 +19,6 @@ import { fold } from "@/lib/palette-match";
 import { prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
 import { splitMinutes } from "@/lib/path-study";
 import { pathLevels } from "@/lib/path-levels";
-import { FamilyIcon } from "@/components/FamilyIcon";
 import { paintingFor, type Painting } from "@/lib/paintings";
 
 /** A family's painting (lib/paintings.ts), as the backdrop of a heading:
@@ -112,6 +112,15 @@ export function ParcoursIndex({
                 home's "Aujourd'hui" card. */}
             <div className={family ? "parcours-band" : undefined}>
               {family && <Art art={paintingFor(family)} />}
+              {/* Phones: a strip of the family's drawings instead
+                  (lib/road-art.ts, app.css). */}
+              {family && (
+                <span
+                  className="parcours-band-art deco"
+                  aria-hidden="true"
+                  dangerouslySetInnerHTML={{ __html: artStrip(FAMILY_ART[family]) }}
+                />
+              )}
               <h2 className="themes-h2">
                 <span {...attrs(i18nAttrs(label))}>{t(label)}</span>
                 <span
@@ -140,9 +149,11 @@ export function ParcoursIndex({
                         data-search={searchText(p)}
                       >
                         <a href={`/parcours/${p.slug}/`} className="parcours-tile-link" title={p.name}>
-                          <span className="parcours-ic" aria-hidden="true">
-                            <FamilyIcon family={family} />
-                          </span>
+                          <span
+                            className="parcours-ic deco"
+                            aria-hidden="true"
+                            dangerouslySetInnerHTML={{ __html: ART[levelArt(p.name, "", family, p.discipline)[0]] }}
+                          />
                           <span className="parcours-tile-name">{splitName(p.name)[0]}</span>
                           <PathMeta path={p} extras={extras[p.slug]} />
                           <Progress
@@ -180,9 +191,11 @@ export function ParcoursIndex({
                               <DisciplineName name={p.discipline} />
                             </span>
                           )}
-                          <span className="parcours-ic" aria-hidden="true">
-                            <FamilyIcon family={family} />
-                          </span>
+                          <span
+                            className="parcours-ic deco"
+                            aria-hidden="true"
+                            dangerouslySetInnerHTML={{ __html: ART[levelArt(p.name, "", family, p.discipline)[0]] }}
+                          />
                           <span className="parcours-card-title">{title}</span>
                           <PathMeta path={p} extras={extras[p.slug]} />
                           {sub && <span className="parcours-card-sub">{sub}</span>}

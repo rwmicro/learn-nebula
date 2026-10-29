@@ -9,6 +9,7 @@ import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypeStringify from "rehype-stringify";
 import { visit, SKIP } from "unist-util-visit";
 import { fromHtml } from "hast-util-from-html";
+import { FLEURON } from "./deco-art";
 import { toString as mdToString } from "mdast-util-to-string";
 import katex from "katex";
 import type { Root, Element, ElementContent, RootContent } from "hast";
@@ -930,6 +931,21 @@ export function rehypeOutline() {
         const cls = h.properties.className;
         h.properties.className = [...(Array.isArray(cls) ? cls : []), "sec-n"];
       }
+    }
+    // A small fleuron (lib/deco-art.ts) between two sections: before each
+    // section heading that follows some text, never above the first one.
+    for (const h of sections.slice(1)) {
+      const i = kids.indexOf(h);
+      let j = i - 1;
+      while (j >= 0 && kids[j].type === "text" && !(kids[j] as { value: string }).value.trim()) j--;
+      const prev = kids[j];
+      if (!prev || prev.type !== "element" || /^h[1-6]$|^hr$/.test(prev.tagName)) continue;
+      kids.splice(i, 0, {
+        type: "element",
+        tagName: "div",
+        properties: { className: ["sec-fleuron", "deco"], ariaHidden: "true" },
+        children: fromHtml(FLEURON, { fragment: true }).children as ElementContent[],
+      });
     }
   };
 }

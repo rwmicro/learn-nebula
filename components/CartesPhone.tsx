@@ -1,5 +1,8 @@
 "use client";
 
+import { drawer } from "@/lib/deco-art";
+import { levelArt } from "@/lib/road-art";
+import type { PathFamily } from "@/lib/path-family";
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -32,19 +35,6 @@ const svg = (d: React.ReactNode) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     {d}
   </svg>
-);
-const LANG = svg(
-  <>
-    <path d="M4 5h8M8 3v2M5.5 5c.8 3 2.8 5.3 5.5 6.5M10.5 5C9.7 8 7.6 10.5 4.5 12" />
-    <path d="m12.5 20 4-9 4 9M14 17h5" />
-  </>,
-);
-const CODE = svg(<path d="m8 8-4 4 4 4M16 8l4 4-4 4M13.5 5l-3 14" />);
-const CARDS = svg(
-  <>
-    <rect x="4" y="6" width="13" height="15" rx="2" />
-    <path d="M8 3h10a2 2 0 0 1 2 2v12" />
-  </>,
 );
 const QUIZ = svg(
   <>
@@ -189,26 +179,27 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
       {decks.length === 0 ? (
         <p className="rv-empty">{tr("cartesIndex.empty")}</p>
       ) : (
-        <ul className="rv-list">
+        // Each deck as a seed drawer with its theme's drawing on the corner
+        // (lib/deco-art.ts), two to a row.
+        <ul className="rv-decks">
           {sorted.map((d) => {
             const c = counts?.[d.slug];
             const n = c && c.started && !c.paused ? c.due + c.fresh : 0;
+            const art = levelArt(d.label, "", (d.family as PathFamily | null) ?? null)[0];
             return (
               <li key={d.slug} data-family={d.family ?? undefined}>
                 <a href={`/cartes/${d.slug}/`}>
-                  <span className="rv-ico">{d.family === "langues" ? LANG : d.family === "informatique" ? CODE : CARDS}</span>
-                  <span className="rv-tx">
-                    <b>{d.label}</b>
-                    <small>
-                      {c?.paused ? tr("cartesIndex.paused") : tr("cartesIndex.count", { count: d.count.toLocaleString(locale) })}
-                    </small>
-                  </span>
-                  {c?.started && !c.paused && (
-                    <span className={`rv-pill${n ? "" : " soft"}`} aria-label={n ? tr("rv.dueAria", { n }) : tr("cartesIndex.upToDate")}>
-                      {n || "✓"}
-                    </span>
-                  )}
-                  {CHEV}
+                  <span className="rv-drawer deco" aria-hidden="true" dangerouslySetInnerHTML={{ __html: drawer(art) }} />
+                  <b>{d.label}</b>
+                  <small>
+                    {c?.paused
+                      ? tr("cartesIndex.paused")
+                      : c?.started
+                        ? n
+                          ? tr("rv.due", { n })
+                          : tr("rv.nothingToday")
+                        : tr("cartesIndex.count", { count: d.count.toLocaleString(locale) })}
+                  </small>
                 </a>
               </li>
             );

@@ -72,7 +72,8 @@
     "translateViaDevice": "已在你的设备上翻译",
     "translateViaServer": "由服务器翻译",
     "translateBetter": "更好的翻译",
-    "translateSuggest": "这篇笔记似乎是{lang}——要翻译吗？"
+    "translateSuggest": "这篇笔记似乎是{lang}——要翻译吗？",
+    "endOfNote": "笔记完 · {min} 分钟"
   },
   "growth": {
     "tended": "最近修订",
@@ -126,7 +127,7 @@
     "messageLabel": "留言",
     "submit": "发送",
     "anonymous": "匿名",
-    "empty": "还没有评论，来做第一个吧。",
+    "empty": "长椅空着。有问题或补充吗？",
     "loading": "正在加载评论…",
     "loadError": "评论加载失败。",
     "emptyMessage": "留言不能为空。",
@@ -484,7 +485,9 @@
     "body": "此页面不存在（404 错误）。",
     "home": "返回首页",
     "titlePhone": "这一页没有长出来",
-    "bodyPhone": "这个地址没有对应的笔记，可能已经改名。"
+    "bodyPhone": "这个地址没有对应的笔记。它可能已改名，或者还没有种下。",
+    "garden": "回到花园",
+    "random": "随机一篇笔记"
   },
   "random": {
     "title": "随机一篇笔记",
@@ -517,8 +520,8 @@
     "hintMore": "再给一个提示",
     "hintN": "提示 {n}/{total}：",
     "answerIs": "答案：",
-    "right": "答对了！",
-    "notQuite": "不太对",
+    "right": "答对了，又长出一片叶子。",
+    "notQuite": "不太对。嫩芽等下一次。",
     "retry": "再试一次",
     "showAnswer": "查看答案",
     "hintLabel": "提示：",
@@ -740,7 +743,7 @@
     "elsewhere": "在其他地方",
     "passages": "{n} 处",
     "allDisc": "全部",
-    "emptyTitle": "没有关于“{q}”的内容",
+    "emptyTitle": "“{q}”下什么也没长出来",
     "emptyBody": "没有标题、主题、卡组或段落包含这个词。",
     "emptyBodyTitles": "没有标题、主题或卡组包含这个词。",
     "tryWord": "试试 {w}",
@@ -932,7 +935,7 @@
     "emailLabel": "电子邮箱",
     "emailPlaceholder": "you@example.com",
     "sendLink": "发送链接",
-    "sent": "已向 {email} 发送链接，15 分钟内有效。",
+    "sent": "打开发送到 {email} 的邮件即可登录。链接 15 分钟内有效。",
     "expired": "此链接已过期或已使用，请重新获取。",
     "err": {
       "invalid": "邮箱地址似乎无效。",
@@ -955,7 +958,9 @@
     "deleteWord": "删除",
     "deleteType": "请输入“{word}”以确认：",
     "deleteNow": "永久删除",
-    "cancel": "取消"
+    "cancel": "取消",
+    "sentTitle": "链接已发出",
+    "resend": "重新发送链接"
   },
   "avatar": {
     "aria": "你的小园丁",
@@ -1088,9 +1093,9 @@
     "title": "全部复习",
     "intro": "你已开始的卡组（暂停的除外）中今天到期的卡片和你的笔记问题，然后是这些卡组的新卡片。",
     "failed": "无法加载的卡组：{decks}。",
-    "done": "今天的复习已全部完成。",
+    "done": "今天的都浇过水了。",
     "loading": "正在加载卡组：{n} / {total}…",
-    "tomorrow": "明天到期：{count}",
+    "tomorrow": "卡片会在合适的日子自己回来。明天复习：{count}",
     "nothingTitle": "今天没有要复习的内容",
     "nothingText": "打开一个卡组，或在笔记末尾保存一个问题：它会在合适的日子回到这里。"
   },
@@ -1309,7 +1314,9 @@
     "activityAria": "过去十二周中有 {n} 天活跃",
     "keepHide": "隐藏",
     "transfer": "导出或导入",
-    "transferSub": "我的进度，保存为文件"
+    "transferSub": "我的进度，保存为文件",
+    "freshTitle": "还什么都没种下",
+    "freshText": "读完一篇笔记或回答一个问题，你的花园就从这里开始。"
   },
   "rs": {
     "close": "关闭复习",
@@ -1335,8 +1342,8 @@
     "continue": "继续",
     "run": "连对 {n} 次",
     "runLost": "连对中断",
-    "retained": "记住",
-    "doneTitle": "复习完成",
+    "retained": "答对",
+    "doneTitle": "好收成",
     "cards": "张卡片",
     "minutes": "{n} 分钟",
     "ofReview": "复习时间",
@@ -1344,7 +1351,10 @@
     "finish": "完成",
     "pip": "在浮动窗口中复习",
     "pipActive": "复习正在浮动窗口中继续。",
-    "pipBack": "回到这里"
+    "pipBack": "回到这里",
+    "harvest": "复习了 {n} 张卡片，答对 {good} 张。其余 {again} 张很快会再出现。",
+    "harvestAll": "复习了 {n} 张卡片，全部答对。",
+    "ofSession": "本次用时"
   },
   "rv": {
     "today": "今天",
@@ -1366,7 +1376,8 @@
     "startGo": "选择卡组",
     "doneTitle": "今天的复习已完成",
     "doneText": "没有到期的卡片。你可以练习不牢固的卡片，或打开新的卡组。",
-    "doneGo": "练习"
+    "doneGo": "练习",
+    "nothingToday": "今天没有"
   },
   "road": {
     "levelOf": "第 {n} 级，共 {total} 级",
@@ -1393,7 +1404,13 @@
     "dueN": "{n} 道待复习",
     "solid": "牢固",
     "sheetGo": "温习本级",
-    "later": "稍后"
+    "later": "稍后",
+    "endKicker": "路线已完成",
+    "endText": "读完 {n} 篇笔记，留存 {q} 道问题。只要你复习，这棵树就会一直开花。",
+    "endNotes": "笔记",
+    "endLevels": "阶段",
+    "endReading": "阅读时长",
+    "endGo": "让树继续开花"
   },
   "defis": {
     "title": "挑战",
@@ -1415,7 +1432,10 @@
     "monthVowel": "{month}挑战",
     "paths": "完成 {n} 条学习路径",
     "note": "在本浏览器中根据你的阅读和复习统计。",
-    "noRun": "还没有连续记录"
+    "noRun": "还没有连续记录",
+    "runOne": "连续 1 天",
+    "runMany": "连续 {n} 天",
+    "pots": "每读一天，就有一盆发芽。"
   },
   "practice": {
     "title": "练习",
@@ -1462,7 +1482,7 @@
     "perkAvatarT": "一个小园丁",
     "perkAvatarS": "用金币来打扮它",
     "privacyShort": "只保存你的邮箱、时区、进度和金币。可随时删除。",
-    "sentTitle": "请查看邮箱",
+    "sentTitle": "链接已发出",
     "sentTo": "登录链接已发送至",
     "validFor": "还剩 {n} 分钟有效",
     "linkExpired": "链接已过期，请重新发送",
@@ -1661,7 +1681,8 @@
       "tandemTitle": "语伴练习",
       "tandemText": "仅限邀请的语音通话，和朋友一起朗读、练习这篇笔记中的句子。",
       "tandem": "发起语伴通话"
-    }
+    },
+    "chairTitle": "有一把椅子在等对方"
   },
   "duel": {
     "title": "对战",

@@ -6,6 +6,7 @@
 // and a transfer link that holds the data compressed in its #fragment. All of
 // it runs client-side; the format and merge rules are lib/progress-transfer.ts.
 
+import { SCENES } from "@/lib/deco-art";
 import { MyMarks } from "@/components/MyMarks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
@@ -303,6 +304,8 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
           className="progression-welcome"
           aria-labelledby="progression-welcome-title"
         >
+          {/* A seed packet (lib/deco-art.ts). */}
+          <div className="progression-welcome-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.packet }} />
           <h2
             id="progression-welcome-title"
             className="progression-welcome-title"

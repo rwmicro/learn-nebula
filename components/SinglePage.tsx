@@ -1,4 +1,5 @@
 import type { Doc, SiblingRef } from "@/lib/content";
+import { CUL_DE_LAMPE } from "@/lib/deco-art";
 import {
   formatDateLong,
   getSiblings,
@@ -329,6 +330,10 @@ export async function SinglePage({
       : "") +
     prereqs +
     `<div class="article-body">${html}</div>` +
+    // The vignette that closes a note (lib/deco-art.ts).
+    (note
+      ? `<div class="note-colophon deco" data-pagefind-ignore>${CUL_DE_LAMPE}<small${i18nAttrs("noteActions.endOfNote", { min: readingMinutes })}>${escapeHtml(t("noteActions.endOfNote", { min: readingMinutes }))}</small></div>`
+      : "") +
     articleSource +
     (note
       ? citeHtml({ slug: doc.slug, title: fm.title, author: fm.author, date: fm.date, updated: fm.updated })
