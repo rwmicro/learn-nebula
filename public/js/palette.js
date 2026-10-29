@@ -440,27 +440,12 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     else location.href = "/hasard/";
   }
 
-  // `question`: written into the assistant's field (the phone's empty state
-  // hands it the query), through the native setter so React sees it.
+  // Opens the garden chat (components/GardenChat.tsx), asking `question`
+  // straight away when there is one (the phone's empty state hands it the
+  // query).
   function openAssistant(question) {
-    try {
-      localStorage.setItem("gkChatPinned", "1");
-    } catch {
-      /* ignore */
-    }
-    window.dispatchEvent(new Event("gk:pin-chat"));
-    // Hand focus to its input once React has shown it.
-    setTimeout(() => {
-      const field = doc.querySelector(".gk-pinned-form input, .gk-pinned-form textarea");
-      if (!field) return;
-      if (typeof question === "string" && question) {
-        const proto = field instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
-        const set = Object.getOwnPropertyDescriptor(proto, "value");
-        if (set && set.set) set.set.call(field, question);
-        field.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-      field.focus();
-    }, 80);
+    const q = typeof question === "string" ? question.trim() : "";
+    window.dispatchEvent(new CustomEvent("gk:chat-ask", { detail: { question: q } }));
   }
 
   // Progress export runs right here (lib/progress-transfer.ts); importing

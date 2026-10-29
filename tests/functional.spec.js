@@ -284,7 +284,9 @@ test.describe("Widgets", () => {
     // "Signaler" joined, with the diagram scripts moved out to their own
     // bundles); ≈ 76 KB once the reading bar, note-dock.js and its liquid
     // glass lens, joined them; ≈ 78 KB with the left rail's sections and
-    // progress in toc.js).
+    // progress in toc.js; ≈ 83 KB with the glass selection menu and the
+    // in-place device translation, the model code itself being fetched on
+    // demand as translate-device.bundle.js).
     expect(bundle.length).toBeLessThan(84_000);
     // Those two load only where they are used (see below).
     expect(bundle).not.toContain("quiz-self-btn");

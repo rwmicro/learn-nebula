@@ -47,6 +47,18 @@ test.describe("Accessibility (axe · WCAG 2.1 A/AA)", () => {
     // The sitemap uses absolute production URLs (SITE_URL); navigate by path so
     // we audit the local build, not the deployed site.
     await page.goto(new URL(m[1]).pathname);
+    // The note enhancers load afterInteractive, after the load event, and one
+    // of them (scroll-focus.js) gives wide tables their tab stop: audit the
+    // page once they have run, or axe races them on a cold start.
+    await page
+      .waitForFunction(
+        () =>
+          !!document.querySelector("[data-scroll-focus]") ||
+          !document.querySelector("main table, main .katex-display"),
+        null,
+        { timeout: 5000 },
+      )
+      .catch(() => {});
     await audit(page);
   });
 

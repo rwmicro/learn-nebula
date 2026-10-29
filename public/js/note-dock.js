@@ -15,7 +15,7 @@ import { scrollProgress } from "../../lib/reading-progress";
   if (!dock || !bar || !body) return;
 
   // "Demander au jardin": the floating button's own click, so the assistant
-  // opens exactly as it does from there. PinnedAssistant mounts after this
+  // opens exactly as it does from there. GardenChat mounts after this
   // script, hence the wait for it.
   const ask = dock.querySelector(".dock-ask");
   const trigger = () => document.querySelector(".gk-pinned-trigger");

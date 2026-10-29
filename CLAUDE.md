@@ -240,11 +240,32 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   PUBLIC_URL/SITE_URL) beside the magic link; **Web Push reminders**
   (`server/push*.ts`, VAPID_*; Declarative Web Push payload, handled in
   `public/sw.js`); app badge = cards due (`lib/app-badge.ts`).
-- **On-device AI** (`lib/browser-ai.ts`): Translator first in `translate.js`,
-  LanguageDetector `lang` hint to `/api/ask`, Prompt API for "Avec mes mots"
-  and the socratic mode with `/api/ask/explain` / `socratic: true` as server
-  fallback (prompts shared in `lib/ask-prompts.ts`). On-device speech check
-  in the pronunciation coach (`lib/speech-match.ts`, `processLocally` only).
+- **Garden chat** (`components/GardenChat.tsx`, `assets/css/chat.css`,
+  mounted site-wide in `layout.tsx`): the one assistant. Full screen on
+  phones, a right panel from 640px. Opened by the note's "Demander sur cette
+  note…" bar (`.gk-pinned-trigger.gc-trigger`, which note-dock/note-app click),
+  the home field and palette (`gk:chat-ask {question}`), the selection menu
+  (`gk:explain`, `gk:explain-own`) and `gk:pin-chat`; `gk:ai-setup` opens only
+  the download / "not available here" sheet. Modes: answer, socratic, "Avec
+  mes mots" (`TIENT/MANQUE/QUESTION` feedback, `lib/ask-prompts.ts`); answers
+  can become a card in the note's SRS deck (`RECTO/VERSO`, `lib/note-quiz.ts`).
+  Conversations live in localStorage only (`lib/chat-history.ts`: "Reprendre"
+  on the chat home, "Mes questions" grouped by note).
+- **Everything is generated on the device** (`lib/garden-ai.ts` `aiRoute()`):
+  Chrome's Gemini Nano (`lib/browser-ai.ts`) when it covers the language, else
+  the opt-in downloaded LFM3-1.7B (`lib/local-llm.ts`: Transformers.js on
+  WebGPU in a module worker, `public/js/local-llm-worker.js` →
+  `local-llm.worker.js`, ort runtime self-hosted in `public/ort/` by
+  `scripts/copy-ort.mjs`, weights from Hugging Face, hence `https://*.hf.co` in
+  `connect-src`; consent sheet, then a settings page to delete it). The server
+  only retrieves: `/api/ask/context` (same retrieval and prompt as `/api/ask`,
+  no LLM backend). **`SERVER_LLM_OFFERED = false`**: the server's own
+  generation (`/api/ask`, `/api/ask/explain`, `/api/translate`) and its client
+  paths are kept but never offered (no budget); flip the flag to bring them
+  back as the last fallback. Translation (`translate.js`): Translator API,
+  then the device model block by block in place (inline markup swapped for
+  `<tN>`/`<kN>` tags and restored), else the setup sheet. On-device speech
+  check in the pronunciation coach (`lib/speech-match.ts`, `processLocally`).
 - **`/api/search`**: embedding-only nearest notes for the palette's "Proches
   par le sens" group (`server/routes/search.ts`, needs RAG).
 - **Duel / tandem** (`/duel/`, `components/Duel.tsx`, `lib/duo-rtc.ts`):
