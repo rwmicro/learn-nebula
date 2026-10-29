@@ -1,7 +1,7 @@
 // Floating toolbar over a text selection in the note body:
-// - "Expliquer" hands the passage to the site's assistant (<PinnedAssistant>,
-//   via a `gk:explain` event), which opens with the passage pinned as context
-//   and asks the server's default "explain this passage" question;
+// - "Expliquer" hands the passage to the garden chat (components/GardenChat.tsx,
+//   via a `gk:explain` event), which opens with the passage quoted and
+//   explains it on the device's model;
 // - "Avec mes mots" opens the same assistant in its "explique-le avec tes
 //   mots" mode (`gk:explain-own`): the reader writes their own explanation of
 //   the passage and gets feedback on it;
@@ -29,9 +29,29 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
   function tt(k) {
     return window.__i18n && window.__i18n.t ? window.__i18n.t(k) : k;
   }
+  // Each button: an icon, then its words in a span (the one data-i18n
+  // rewrites on a locale switch, so the icon stays). Link and flag show
+  // only the icon; their aria-label carries the words.
+  const svg = (d) =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+  const ICONS = {
+    explain: svg('<path d="M12 21v-9"/><path d="M12 12c0-4 3-6 7-6 0 4-3 6-7 6zM12 14c0-3.5-2.6-5.5-6-5.5 0 3.5 2.6 5.5 6 5.5z"/>'),
+    own: svg('<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>'),
+    hl: svg('<path d="M9 11l-5 5v3h3l5-5"/><path d="M9 11l6-6 4 4-6 6z"/><path d="M14 20h6"/>'),
+    link: svg('<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>'),
+    flag: svg('<path d="M5 21V4"/><path d="M5 4h11l-2 4 2 4H5"/>'),
+  };
+  function button(cls, icon) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = `sel-menu-btn ${cls}`;
+    b.innerHTML = `${ICONS[icon]}<span class="sel-menu-tx"></span>`;
+    return b;
+  }
   function label(el, key) {
-    el.textContent = tt(key);
-    el.setAttribute("data-i18n", key);
+    const tx = el.querySelector(".sel-menu-tx") || el;
+    tx.textContent = tt(key);
+    tx.setAttribute("data-i18n", key);
   }
 
   let lastPointer = "mouse";
@@ -50,36 +70,26 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
   menu.setAttribute("data-pagefind-ignore", "");
   menu.hidden = true;
 
-  const explain = document.createElement("button");
-  explain.type = "button";
-  explain.className = "sel-menu-btn sel-menu-explain";
+  const explain = button("sel-menu-explain", "explain");
   label(explain, "selMenu.explain");
 
-  const ownBtn = document.createElement("button");
-  ownBtn.type = "button";
-  ownBtn.className = "sel-menu-btn sel-menu-own";
+  const ownBtn = button("sel-menu-own", "own");
   ownBtn.setAttribute("aria-label", tt("selMenu.explainOwnAria"));
   ownBtn.setAttribute("data-i18n-aria-label", "selMenu.explainOwnAria");
   label(ownBtn, "selMenu.explainOwn");
 
-  const copyBtn = document.createElement("button");
-  copyBtn.type = "button";
-  copyBtn.className = "sel-menu-btn";
+  const copyBtn = button("sel-menu-copy sel-menu-icon", "link");
   copyBtn.setAttribute("aria-label", tt("selMenu.copyLinkAria"));
   copyBtn.setAttribute("data-i18n-aria-label", "selMenu.copyLinkAria");
   label(copyBtn, "selMenu.copyLink");
 
   // "Surligner": kept in this browser (lib/personal.ts), drawn and edited by
   // /js/highlights.js, which listens for this event.
-  const hlBtn = document.createElement("button");
-  hlBtn.type = "button";
-  hlBtn.className = "sel-menu-btn sel-menu-hl";
+  const hlBtn = button("sel-menu-hl", "hl");
   label(hlBtn, "selMenu.highlight");
 
   // "Signaler": an error in the passage, for the owner (/admin → Contenu).
-  const reportBtn = document.createElement("button");
-  reportBtn.type = "button";
-  reportBtn.className = "sel-menu-btn sel-menu-report";
+  const reportBtn = button("sel-menu-report sel-menu-icon", "flag");
   reportBtn.setAttribute("aria-label", tt("selMenu.reportAria"));
   reportBtn.setAttribute("data-i18n-aria-label", "selMenu.reportAria");
   label(reportBtn, "selMenu.report");

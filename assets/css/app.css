@@ -713,7 +713,6 @@
 
   /* Floating buttons and panels sit above the tab bar (or a note's
      toolbar, at the same height). */
-  html .gk-pinned,
   html .gk-pinned-trigger,
   html .ask-bar,
   html .ask-trigger,

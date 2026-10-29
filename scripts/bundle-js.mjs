@@ -64,7 +64,7 @@ const SCRIPTS = [
 // to the notes whose HTML has a `[!quiz]` card or a glossary mark — most
 // notes have neither, and quiz.js alone pulls lib/note-quiz.ts + lib/srs.ts.
 // Note: "ask" (the old floating note assistant) was removed — the note "AI"
-// button now opens the single, draggable <PinnedAssistant> mounted site-wide.
+// button now opens the garden chat (components/GardenChat.tsx) mounted site-wide.
 // public/js/ask.js went with it; its .ask-* rules in main.css are now dead.
 
 await build({

@@ -106,7 +106,7 @@ function streamAnswer(
   ip: string,
   system: string,
   userContent: string,
-  sources: { title: string; url: string }[],
+  sources: Source[],
 ) {
   const ac = new AbortController();
   const llm = chatConfig(env.llmBaseUrl, env.llmModel);
@@ -145,6 +145,18 @@ function streamAnswer(
   });
 }
 
+type Source = { title: string; url: string; crumb?: string; excerpt?: string };
+
+/** A chunk's breadcrumb line and the start of its text, for the chat's
+ *  « Sources » sheet (which quotes the passage each note was cited for). */
+function sourcePassage(text: string): { crumb?: string; excerpt?: string } {
+  const nl = text.indexOf("\n");
+  const crumb = (nl < 0 ? text : text.slice(0, nl)).trim().slice(0, 160);
+  const body = (nl < 0 ? "" : text.slice(nl + 1)).replace(/\s+/g, " ").trim();
+  const excerpt = body.length > 180 ? `${body.slice(0, 177).trimEnd()}…` : body;
+  return { ...(crumb ? { crumb } : {}), ...(excerpt ? { excerpt } : {}) };
+}
+
 type AskPayload = {
   question?: string;
   selection?: string;
@@ -157,7 +169,7 @@ type Prepared = {
   ip: string;
   system: string;
   userContent: string;
-  sources: { title: string; url: string }[];
+  sources: Source[];
 };
 
 /** Everything /api/ask does before generating: validation, the cost guards,
@@ -190,7 +202,7 @@ async function prepareAsk(c: Context): Promise<Prepared | { res: Response }> {
   // `scope` narrows it to one folder — the language picker in the assistant —
   // so a query doesn't pull chunks from 18 other languages at once.
   const prefix = scopePrefix(payload.scope);
-  const sources: { title: string; url: string }[] = [];
+  const sources: Source[] = [];
   let context = "";
   // Coverage for the /admin questions log; stays null (unknown, not "weak")
   // when retrieval isn't running or fails.
@@ -212,7 +224,7 @@ async function prepareAsk(c: Context): Promise<Prepared | { res: Response }> {
       blocks.push(`## ${h.text}`);
       if (h.url && h.title && !seen.has(h.url)) {
         seen.add(h.url);
-        sources.push({ title: h.title, url: h.url });
+        sources.push({ title: h.title, url: h.url, ...sourcePassage(h.text) });
       }
     }
     context = blocks.join("\n\n");

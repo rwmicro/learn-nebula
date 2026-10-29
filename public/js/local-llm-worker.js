@@ -4,10 +4,12 @@
 // (git-ignored) and driven by lib/local-llm.ts. The server still retrieves
 // the passages (/api/ask/context); only the writing happens here.
 //
-// Messages in:  {type: "generate", id, system, prompt, dtype}
+// Messages in:  {type: "load", dtype}           download / compile only
+//               {type: "generate", id, system, messages, dtype, maxTokens}
 //               {type: "interrupt", id}
-// Messages out: {type: "progress", fraction}   while the model downloads
-//               {type: "text", id, text}       the answer so far
+// Messages out: {type: "progress", loaded, total} while the model downloads
+//               {type: "ready"} | {type: "load-error", message}
+//               {type: "text", id, text}         the answer so far
 //               {type: "done", id, text} | {type: "error", id, message}
 import {
   env,
@@ -51,7 +53,7 @@ function load(dtype) {
     device: "webgpu",
     progress_callback(p) {
       if (p.status === "progress_total" && p.total > 0) {
-        self.postMessage({ type: "progress", fraction: p.loaded / p.total });
+        self.postMessage({ type: "progress", loaded: p.loaded, total: p.total });
       }
     },
   }).catch((e) => {
@@ -66,6 +68,13 @@ self.addEventListener("message", (e) => {
   if (msg.type === "interrupt") {
     if (msg.id === running) stopping.interrupt();
     else cancelled.add(msg.id);
+    return;
+  }
+  if (msg.type === "load") {
+    load(msg.dtype === "q4" ? "q4" : "q4f16").then(
+      () => self.postMessage({ type: "ready" }),
+      (err) => self.postMessage({ type: "load-error", message: String(err?.message || err) }),
+    );
     return;
   }
   if (msg.type !== "generate") return;
@@ -89,13 +98,14 @@ async function generate(msg) {
     });
     stopping.reset();
     running = id;
+    // Earlier turns of the conversation, then the new user turn.
+    const turns = (msg.messages || []).filter(
+      (m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string",
+    );
     await pipe(
-      [
-        { role: "system", content: msg.system },
-        { role: "user", content: msg.prompt },
-      ],
+      [{ role: "system", content: msg.system }, ...turns],
       {
-        max_new_tokens: 768,
+        max_new_tokens: Math.min(Number(msg.maxTokens) || 768, 2048),
         do_sample: false,
         repetition_penalty: 1.05,
         tokenizer_encode_kwargs: { enable_thinking: false },

@@ -566,7 +566,7 @@ main .path-sheet-btn:focus-visible {
   border-bottom: 3px solid color-mix(in srgb, var(--garden) 60%, #000);
   font-size: 1.1rem;
 }
-body:has(.gk-pinned) .path-dock,
+body:has(.gc) .path-dock,
 body[data-focus="true"] .path-dock,
 html.lesson-open .path-dock {
   display: none !important;

@@ -1,14 +1,12 @@
 "use client";
 
 import { HomeBookmarks } from "@/components/HomeBookmarks";
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { HomeTreeNode } from "@/lib/content";
 import type { HomeData } from "@/lib/home-data";
 import type { GraphData } from "@/lib/graph-data";
 import { CircularGraph } from "@/components/CircularGraph";
 import { t, folderKey, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
-import { readAskStream } from "@/lib/ask-stream";
-import { detectLanguage } from "@/lib/browser-ai";
 import { folderAnchor } from "@/lib/slug";
 import {
   CHANGE_EVENT,
@@ -46,78 +44,6 @@ const labelCls =
   "m-0 mb-4 border-0 p-0 text-meta font-semibold uppercase tracking-[0.1em] leading-tight text-ink [font-family:var(--gk-serif),Georgia,serif]";
 const linkCls =
   "text-ink no-underline underline-offset-[3px] hover:bg-transparent hover:underline focus-visible:underline";
-// Light Markdown → React for the assistant's answer (the system prompt asks for
-// **bold**, *italic*, `code`, [links] and "- " lists). Built as React nodes, not
-// via dangerouslySetInnerHTML, so there's no injection surface from the model.
-function inlineMd(text: string): ReactNode[] {
-  const out: ReactNode[] = [];
-  const re = /\*\*([^*]+)\*\*|\*([^*]+)\*|`([^`]+)`|\[([^\]]+)\]\(([^)\s]+)\)/g;
-  let last = 0;
-  let m: RegExpExecArray | null;
-  let i = 0;
-  while ((m = re.exec(text)) !== null) {
-    if (m.index > last) out.push(text.slice(last, m.index));
-    if (m[1] != null) {
-      out.push(<strong key={i}>{m[1]}</strong>);
-    } else if (m[2] != null) {
-      out.push(<em key={i}>{m[2]}</em>);
-    } else if (m[3] != null) {
-      out.push(
-        <code key={i} className="rounded bg-wash-2 px-1 py-0.5 text-[0.92em]">
-          {m[3]}
-        </code>,
-      );
-    } else if (m[4] != null && m[5] != null) {
-      // Only allow safe schemes; otherwise fall back to plain text.
-      out.push(
-        /^(https?:\/\/|\/)/.test(m[5]) ? (
-          <a key={i} href={m[5]} className={linkCls}>
-            {m[4]}
-          </a>
-        ) : (
-          m[0]
-        ),
-      );
-    }
-    last = m.index + m[0].length;
-    i++;
-  }
-  if (last < text.length) out.push(text.slice(last));
-  return out;
-}
-
-function renderAnswer(text: string): ReactNode {
-  return text
-    .split(/\n{2,}/)
-    .filter((b) => b.trim())
-    .map((block, bi) => {
-      const lines = block.split("\n");
-      const isUl = lines.every((l) => /^\s*[-*]\s+/.test(l));
-      const isOl = lines.every((l) => /^\s*\d+\.\s+/.test(l));
-      if (isUl || isOl) {
-        const ListTag = isOl ? "ol" : "ul";
-        const marker = isOl ? /^\s*\d+\.\s+/ : /^\s*[-*]\s+/;
-        return (
-          <ListTag
-            key={bi}
-            className={`m-0 mb-[0.7rem] pl-[1.2rem] last:mb-0 ${isOl ? "list-decimal" : "list-disc"}`}
-          >
-            {lines.map((l, li) => (
-              <li key={li} className="mb-1 last:mb-0">
-                {inlineMd(l.replace(marker, ""))}
-              </li>
-            ))}
-          </ListTag>
-        );
-      }
-      return (
-        <p key={bi} className="m-0 mb-[0.7rem] text-pretty whitespace-pre-wrap last:mb-0">
-          {inlineMd(block)}
-        </p>
-      );
-    });
-}
-
 function Chevron({ open, size = 11 }: { open: boolean; size?: number }) {
   return (
     <svg
@@ -139,26 +65,6 @@ function Chevron({ open, size = 11 }: { open: boolean; size?: number }) {
       />
     </svg>
   );
-}
-
-// Shown while the assistant works but before the first token — otherwise the
-// answer panel sits blank through the embed + retrieval + first-token latency.
-function Thinking({ label }: { label: string }) {
-  return (
-    <p className="m-0 flex items-center gap-2 text-body italic text-muted-warm">
-      {label}
-      <span aria-hidden="true" className="inline-flex gap-1">
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-warm [animation-delay:-0.3s]" />
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-warm [animation-delay:-0.15s]" />
-        <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-warm" />
-      </span>
-    </p>
-  );
-}
-
-interface Source {
-  title?: string;
-  url?: string;
 }
 
 // Mount the circular-map preview only once its box scrolls near the viewport,
@@ -489,14 +395,8 @@ export function HomeContent({
     </ul>
   );
 
-  // --- inline "ask the garden" --------------------------------------------
+  // --- "ask the garden": the question opens the chat (GardenChat) ---------
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [sources, setSources] = useState<Source[]>([]);
-  const [asked, setAsked] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const abortRef = useRef<AbortController | null>(null);
-  const answerRef = useRef<HTMLDivElement>(null);
   // Phones get the mockup's shorter placeholder (app.css draws the card).
   const [phone, setPhone] = useState(false);
   useEffect(() => {
@@ -506,68 +406,10 @@ export function HomeContent({
     mq.addEventListener("change", on);
     return () => mq.removeEventListener("change", on);
   }, []);
-  // Follow the streamed answer: keep the scroll pinned to the bottom while it grows.
-  useEffect(() => {
-    if (busy && answerRef.current) {
-      answerRef.current.scrollTop = answerRef.current.scrollHeight;
-    }
-  }, [answer, busy]);
-  // Abort any in-flight assistant stream if the page unmounts mid-answer.
-  useEffect(() => () => abortRef.current?.abort(), []);
 
-  async function ask(text: string) {
-    abortRef.current?.abort();
-    const ctrl = new AbortController();
-    abortRef.current = ctrl;
-
-    setAsked(true);
-    setAnswer("");
-    setSources([]);
-    setBusy(true);
-
-    // The question's language, when Chrome's on-device detector is sure of it
-    // (lib/browser-ai.ts): /api/ask then answers in it explicitly.
-    const lang = await detectLanguage(text, { allowDownload: true });
-    if (ctrl.signal.aborted) return;
-
-    let resp: Response;
-    try {
-      resp = await fetch("/api/ask", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ question: text, locale, lang: lang ?? undefined }),
-        signal: ctrl.signal,
-      });
-    } catch (e) {
-      if ((e as Error)?.name === "AbortError") return;
-      setAnswer(tr("askAi.errorReach"));
-      setBusy(false);
-      return;
-    }
-    if (!resp.ok || !resp.body) {
-      setAnswer(tr(resp.status === 429 ? "askAi.errorRate" : "askAi.errorUnavailable"));
-      setBusy(false);
-      return;
-    }
-
-    // NDJSON stream (shared parser): {sources}, then {chunk} deltas, {error}.
-    let raw = "";
-    try {
-      await readAskStream(resp.body, {
-        onSources: (s) =>
-          setSources(s.filter((x) => x && x.url && /^(https?:|\/)/.test(x.url))),
-        onChunk: (t) => {
-          raw = t;
-          setAnswer(t);
-        },
-        partialError: tr("askAi.errorPartial"),
-      });
-    } catch (e) {
-      if ((e as Error)?.name === "AbortError") return;
-      setAnswer(raw || tr("askAi.errorUnavailable"));
-    }
-    setBusy(false);
-    if (abortRef.current === ctrl) abortRef.current = null;
+  function ask(text: string) {
+    window.dispatchEvent(new CustomEvent("gk:chat-ask", { detail: { question: text } }));
+    setQuestion("");
   }
 
   // Full body width: <main> reserves a 26rem right gutter for note asides on
@@ -674,8 +516,8 @@ export function HomeContent({
           <section className="home-ask rounded-md bg-wash px-6 py-5">
             <div className="home-ask-head mb-[0.6rem] flex items-center justify-between gap-2">
               <h2 className={labelCls}>{tr("home.askLabel")}</h2>
-              {/* Pushpin: dock the assistant at the bottom-right and keep it there
-                  across navigation (PinnedAssistant, mounted site-wide). */}
+              {/* Pushpin: open the garden chat (components/GardenChat.tsx) and
+                  keep it open across navigation. */}
               <button
                 type="button"
                 className="home-ask-pin shrink-0 cursor-pointer border-0 bg-transparent p-1 text-muted-warm hover:text-garden"
@@ -719,14 +561,12 @@ export function HomeContent({
                 onChange={(e) => setQuestion(e.target.value)}
                 maxLength={1000}
                 autoComplete="off"
-                disabled={busy}
                 placeholder={tr(phone ? "dash.askPlaceholder" : "home.askPlaceholder")}
                 aria-label={tr("home.askAria")}
                 className="w-full flex-1 appearance-none border-0 bg-transparent p-0 text-body text-ink outline-none placeholder:italic placeholder:text-muted-warm disabled:opacity-60"
               />
               <button
                 type="submit"
-                disabled={busy}
                 aria-label={tr("home.askSend")}
                 className="home-ask-send shrink-0 cursor-pointer rounded-sm border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-paper transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-rule-strong disabled:text-paper"
               >
@@ -737,56 +577,15 @@ export function HomeContent({
               </button>
               </div>
             </form>
-            {!asked && (
-              <div className="home-ask-chips">
-                {tr("dash.askChips")
-                  .split("|")
-                  .map((q) => (
-                    <button
-                      key={q}
-                      type="button"
-                      onClick={() => {
-                        setQuestion(q);
-                        ask(q);
-                      }}
-                    >
-                      {q}
-                    </button>
-                  ))}
-              </div>
-            )}
-
-            {asked && (
-              <div
-                ref={answerRef}
-                aria-live={busy ? "off" : "polite"}
-                aria-busy={busy}
-                className="mt-[1.1rem] max-h-[22rem] overflow-y-auto text-body leading-relaxed text-ink"
-              >
-                {busy && !answer ? (
-                  <Thinking label={tr("askAi.searching")} />
-                ) : (
-                  renderAnswer(answer)
-                )}
-              </div>
-            )}
-
-            {sources.length > 0 && (
-              <div className="mt-3">
-                <p className="m-0 mb-[0.3rem] text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm">
-                  {tr("askAi.sourcesTitle")}
-                </p>
-                <ul className="m-0 list-disc pl-[1.1rem]">
-                  {sources.map((s, i) => (
-                    <li key={i}>
-                      <a href={s.url} className={linkCls}>
-                        {s.title || s.url}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+            <div className="home-ask-chips">
+              {tr("dash.askChips")
+                .split("|")
+                .map((q) => (
+                  <button key={q} type="button" onClick={() => ask(q)}>
+                    {q}
+                  </button>
+                ))}
+            </div>
           </section>
         </div>
       </div>
