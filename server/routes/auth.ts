@@ -3,7 +3,7 @@
 // only created when the link is opened.
 //
 //   GET  /api/auth/config  → { enabled, passkey, turnstileSiteKey? }
-//   POST /api/auth/request { email, turnstileToken?, next? } → { ok: true }
+//   POST /api/auth/request { email, turnstileToken?, next?, locale? } → { ok: true }
 //   POST /api/auth/verify  { token } → { ok: true } (sets gk_session) | 400 { error: "expired" }
 //
 // The e-mail links to /compte/#login=<token>&next=…, a static page whose
@@ -23,6 +23,7 @@ import { Quota } from "../ratelimit.ts";
 import { database } from "../db.ts";
 import { verifyTurnstile } from "../turnstile.ts";
 import { mailConfigured, sendLoginMail } from "../mail.ts";
+import { LOCALES, type Locale } from "../../lib/i18n.ts";
 import { passkeyRp } from "./passkey.ts";
 import { ACCOUNT_PATH, hashToken, normalizeEmail, safeNext } from "../accounts.ts";
 import {
@@ -68,7 +69,7 @@ authRoute.get("/config", (c) => {
 
 authRoute.post("/request", async (c) => {
   if (!authEnabled()) return c.json({ error: "disabled" }, 503);
-  let payload: { email?: unknown; turnstileToken?: unknown; next?: unknown };
+  let payload: { email?: unknown; turnstileToken?: unknown; next?: unknown; locale?: unknown };
   try {
     payload = await c.req.json();
   } catch {
@@ -79,7 +80,9 @@ authRoute.post("/request", async (c) => {
 
   const ip = getIp(c);
   if (ipQuota.exceeded(`ip:${ip}`)) return c.json({ error: "rate-limited" }, 429);
-  if (env.turnstileSecret) {
+  // Only when /api/auth/config hands out a site key: without one the form has
+  // no widget, every token would be empty and nobody could sign in.
+  if (env.turnstileSecret && env.turnstileSiteKey) {
     const token = typeof payload.turnstileToken === "string" ? payload.turnstileToken : "";
     if (!(await verifyTurnstile(token, ip))) return c.json({ error: "turnstile" }, 403);
   }
@@ -97,7 +100,9 @@ authRoute.post("/request", async (c) => {
 
   if (mailConfigured()) {
     try {
-      await sendLoginMail(email, link);
+      // The form's UI language; anything else gets the default (fr) mail.
+      const locale = (LOCALES as readonly unknown[]).includes(payload.locale) ? (payload.locale as Locale) : undefined;
+      await sendLoginMail(email, link, locale);
     } catch (e) {
       console.error("auth: mail failed", e instanceof Error ? e.message : e);
       return c.json({ error: "mail" }, 502);

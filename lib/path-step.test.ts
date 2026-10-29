@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { pathSheetHtml, pathStepHtml, pathStepOf, type PathStepPath } from "./path-step";
+import { dashesHtml, pathSheetHtml, pathStepHtml, pathStepOf, type PathStepPath } from "./path-step";
 
 const notes = (...s: string[]) => s.map((slug) => ({ slug, title: slug.toUpperCase() }));
 const big: PathStepPath = { slug: "analyse", name: "Analyse", notes: notes("a", "b", "c", "d") };
@@ -62,5 +62,16 @@ describe("pathSheetHtml", () => {
   });
   it("has no next-step button on the last step", () => {
     expect(pathSheetHtml(pathStepOf("d", [big])!)).not.toContain("path-sheet-btn--go");
+  });
+});
+
+describe("dashesHtml", () => {
+  it("fills the steps before, rings this one", () => {
+    expect(dashesHtml(1, 4)).toBe('<span class="path-step-dashes" aria-hidden="true"><i class="d"></i><i class="c"></i><i></i><i></i></span>');
+  });
+  it("draws a plain bar for a long path, nothing for a single note", () => {
+    expect(dashesHtml(9, 40)).toContain('class="path-step-dashes is-bar"');
+    expect(dashesHtml(9, 40)).toContain("width:25%");
+    expect(dashesHtml(0, 1)).toBe("");
   });
 });

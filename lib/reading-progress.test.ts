@@ -9,6 +9,8 @@ import {
   markRead,
   markUnread,
   minDwellMs,
+  nowPlaying,
+  parseNow,
   nextToRead,
   parseStore,
   pruneStore,
@@ -211,5 +213,29 @@ describe("loadStore / saveStore", () => {
     expect(loadStore(broken)).toEqual({});
     expect(saveStore({}, broken)).toBe(false);
     expect(saveStore({}, null)).toBe(false);
+  });
+});
+
+describe("now reading (mini player)", () => {
+  const now = { s: "a/b", title: "Les nombres", f: "langues", m: 10 };
+
+  it("parses what it wrote and drops junk", () => {
+    expect(parseNow(JSON.stringify(now))).toEqual(now);
+    expect(parseNow(JSON.stringify({ ...now, f: "<b>", m: -3 }))).toEqual({ s: "a/b", title: "Les nombres", m: 1 });
+    expect(parseNow("{")).toBeNull();
+    expect(parseNow(JSON.stringify({ s: "a" }))).toBeNull();
+    expect(parseNow(null)).toBeNull();
+  });
+
+  it("shows an unfinished note opened in the last 30 days, with the minutes left", () => {
+    const store: ReadingStore = { "a/b": { p: 400, t: S0 } };
+    expect(nowPlaying(now, store, T0)).toEqual({ note: now, progress: 0.4, left: 6 });
+    expect(nowPlaying(now, store, T0 + 31 * 86400_000)).toBeNull();
+  });
+
+  it("hides a note once read, or never opened", () => {
+    expect(nowPlaying(now, markRead({}, "a/b", T0), T0)).toBeNull();
+    expect(nowPlaying(now, {}, T0)).toBeNull();
+    expect(nowPlaying(null, {}, T0)).toBeNull();
   });
 });

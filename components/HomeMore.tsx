@@ -1,10 +1,12 @@
 import { t } from "@/lib/i18n";
 import { AUTHOR, ORIGINAL_AUTHOR } from "@/lib/site";
+import { blackletter } from "@/components/Header";
 
-// The end of the phone home (app.css shows it below 640px only): two ways to
-// wander (the graph, a note at random), the garden in three numbers, a short
-// "À propos" whose rest unfolds in place, and the licence in two lines. Built
-// at build time in French, swapped by /js/i18n.js through data-i18n.
+// The end of the phone home (app.css shows it below 640px only): four ways to
+// wander (the graph, the timeline, the map, the themes), then a footer with
+// the wordmark, a short "À propos" whose rest unfolds in place, the garden in
+// three numbers and the licence. Built at build time in French, swapped by
+// /js/i18n.js through data-i18n.
 
 const L = (k: string, v?: Record<string, string | number>) => ({
   "data-i18n": k,
@@ -59,56 +61,50 @@ export function HomeMore({ notes, paths, languages }: { notes: number; paths: nu
             <small {...L("dash.graphText")}>{t("dash.graphText")}</small>
           </span>
         </a>
-        <a href="/hasard/" data-family="pensee">
+        <a href="/frise/" data-family="societe">
           <span className="home-more-art">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5" />
-              <path d="M12 8v4l3 2" />
+              <path d="M3 12h18M6 9v6M12 7v10M18 10v4" />
             </svg>
           </span>
           <span className="home-more-tx">
-            <b {...L("dash.random")}>{t("dash.random")}</b>
-            <small {...L("dash.randomText")}>{t("dash.randomText")}</small>
+            <b {...L("dash.frise")}>{t("dash.frise")}</b>
+            <small {...L("dash.friseText")}>{t("dash.friseText")}</small>
+          </span>
+        </a>
+        <a href="/carte/" data-family="sciences">
+          <span className="home-more-art">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2z" /><path d="M9 4v14M15 6v14" />
+            </svg>
+          </span>
+          <span className="home-more-tx">
+            <b {...L("dash.map")}>{t("dash.map")}</b>
+            <small {...L("dash.mapText")}>{t("dash.mapText")}</small>
+          </span>
+        </a>
+        <a href="/themes/" data-family="pensee">
+          <span className="home-more-art">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5zM12 6.5v13" />
+            </svg>
+          </span>
+          <span className="home-more-tx">
+            <b {...L("dash.themes")}>{t("dash.themes")}</b>
+            <small {...L("dash.themesText")}>{t("dash.themesText")}</small>
           </span>
         </a>
       </div>
 
-      <div className="dash-row-h">
-        <h2 className="dash-h" {...L("dash.numbers")}>
-          {t("dash.numbers")}
-        </h2>
-        <a href="/jardin/" {...L("dash.details")}>
-          {t("dash.details")}
-        </a>
-      </div>
-      <div className="home-more-stats">
-        <div>
-          <b>{nf.format(notes)}</b>
-          <small {...L("dash.nNotes")}>{t("dash.nNotes")}</small>
-        </div>
-        <div>
-          <b>{nf.format(paths)}</b>
-          <small {...L("dash.nPaths")}>{t("dash.nPaths")}</small>
-        </div>
-        <div>
-          <b>{nf.format(languages)}</b>
-          <small {...L("dash.nLangs")}>{t("dash.nLangs")}</small>
-        </div>
-      </div>
-
-      <h2 className="dash-h" {...L("dash.aboutShort")}>
-        {t("dash.aboutShort")}
-      </h2>
-      <div className="home-more-about">
-        <span className="home-more-about-icon">{sprout}</span>
-        <details>
+      <footer className="home-more-foot">
+        <p className={`home-more-mark ${blackletter.className}`} lang="en" dir="ltr">
+          Garden of Knowledge
+        </p>
+        <details className="home-more-about">
           <summary>
             <span className="home-more-quote" {...L("dash.aboutQuote")}>
               {t("dash.aboutQuote")}
             </span>
-            <em lang="en" dir="ltr">
-              The Gardener
-            </em>
             <span className="home-more-more" {...L("dash.readMore")}>
               {t("dash.readMore")}
             </span>
@@ -116,16 +112,30 @@ export function HomeMore({ notes, paths, languages }: { notes: number; paths: nu
           <p>
             <span {...L("home.intro1")}>{t("home.intro1")}</span>{" "}
             <span {...L("home.intro2")}>{t("home.intro2")}</span>{" "}
-            <span {...L("home.intro3")}>{t("home.intro3")}</span>
+            <span {...L("home.intro3")}>{t("home.intro3")}</span>{" "}
+            <em lang="en" dir="ltr">
+              The Gardener
+            </em>
           </p>
         </details>
-      </div>
-
-      <footer className="home-more-foot">
-        <a className="home-more-cc" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
-          CC BY-NC-SA
+        <a className="home-more-stats" href="/jardin/" aria-label={t("dash.numbers")} data-i18n-aria-label="dash.numbers">
+          <span>
+            <b>{nf.format(notes)}</b>
+            <small {...L("dash.nNotes")}>{t("dash.nNotes")}</small>
+          </span>
+          <span>
+            <b>{nf.format(paths)}</b>
+            <small {...L("dash.nPaths")}>{t("dash.nPaths")}</small>
+          </span>
+          <span>
+            <b>{nf.format(languages)}</b>
+            <small {...L("dash.nLangs")}>{t("dash.nLangs")}</small>
+          </span>
         </a>
         <p>
+          <a className="home-more-cc" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">
+            CC BY-NC-SA
+          </a>{" "}
           © {year} {AUTHOR} ·{" "}
           <a href="https://www.gnu.org/licenses/gpl-3.0.html" {...L("dash.footerCode")}>
             {t("dash.footerCode")}

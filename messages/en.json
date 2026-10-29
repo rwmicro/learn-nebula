@@ -20,7 +20,8 @@
     "themesAriaLabel": "Themes",
     "toggleOpen": "contents",
     "toggleOpenAria": "Open the table of contents and search",
-    "toggleCloseAria": "Close the table of contents"
+    "toggleCloseAria": "Close the table of contents",
+    "onPage": "On this page"
   },
   "noteActions": {
     "audioListen": "listen",
@@ -1064,7 +1065,9 @@
     "folderNext": "Next note in this folder",
     "unread": "Not read yet, in {discipline}",
     "allRead": "You’ve read everything in {discipline}!",
-    "seeAll": "The whole discipline: {discipline}"
+    "seeAll": "The whole discipline: {discipline}",
+    "prev": "Previous",
+    "step": "Step {n} of {total}"
   },
   "condensed": {
     "left": "{min} min left"
@@ -1151,7 +1154,9 @@
     "explore": "Explore",
     "review": "Review",
     "due": "due today",
-    "notes": "Notes"
+    "notes": "Notes",
+    "resumeAria": "Resume reading: {title}",
+    "left": "{m} min left"
   },
   "explorer": {
     "metaTitle": "Explore",
@@ -1173,13 +1178,8 @@
     "randomDesc": "Let the garden choose"
   },
   "dash": {
-    "resume": "Pick up",
     "step": "Step {n} · {m} min",
     "continueAria": "Continue the path: {title}",
-    "startTitle": "Start a path",
-    "startText": "Notes to read in order",
-    "due": "cards to review today",
-    "dueNone": "nothing to review today",
     "streak": "days in a row",
     "disciplines": "Disciplines",
     "seeAll": "See all",
@@ -1189,9 +1189,6 @@
     "quote": "Knowledge, like a garden, is cultivated and passed on.",
     "credit": "Camille Pissarro, The Vegetable Garden at Éragny, 1897",
     "min": "{m} min",
-    "left": "{m} min of reading left",
-    "inviteTitle": "Your reviews will show up here",
-    "inviteText": "Open a card deck or keep a question from a note: each day, you will know what to go over.",
     "askIntro": "Ask a question: the garden searches its {n} notes and cites its sources.",
     "askPlaceholder": "What is semiology?",
     "askChips": "Kant and pure reason|What is an AS?|Saying thank you in Lebanese",
@@ -1199,19 +1196,55 @@
     "graph": "The graph",
     "graphText": "The links between notes",
     "random": "At random",
-    "randomText": "A note to discover",
     "numbers": "The garden in numbers",
-    "details": "Details",
     "nNotes": "notes",
     "nPaths": "paths",
     "nLangs": "languages",
-    "aboutShort": "About",
     "aboutQuote": "Everything I have learned to master, shared so it is never forgotten.",
     "readMore": "Read more",
     "footerCode": "code under GNU GPL",
     "footerOrigin": "Originally created by {author}",
     "paths": "Paths",
-    "pathRead": "{read}/{total} read"
+    "pathRead": "{read}/{total} read",
+    "hiFirst": "Welcome to the",
+    "hiFirstEm": "garden",
+    "hiDay": "A good day in the",
+    "hiDayEm": "garden",
+    "hiEvening": "A good evening in the",
+    "hiEveningEm": "garden",
+    "today": "Today",
+    "stepOf": "{path} · step {n} of {total}",
+    "resumeKicker": "Pick up where you left off · {m} min",
+    "pctRead": "{p}% read",
+    "resumeCta": "Resume reading",
+    "cardsDue": "cards to review",
+    "readToday": "notes read today",
+    "welcomeText": "{n} linked notes, from philosophy to Lebanese Arabic. Where to start?",
+    "wayPath": "Follow a path",
+    "wayPathText": "{n} series of notes, in order",
+    "wayGraph": "Explore the graph",
+    "wayGraphText": "Every note and its links",
+    "wayRandom": "A random note",
+    "wayRandomText": "Let yourself be surprised",
+    "weekLetters": "M|T|W|T|F|S|S",
+    "run": "{n} days",
+    "run1": "1 day",
+    "runKept": "Streak kept today",
+    "runKeep": "One more note today",
+    "runStart": "A note a day makes a streak",
+    "mine": "My paths",
+    "next": "next: {title}",
+    "discover": "To discover",
+    "startWith": "Paths to start with",
+    "dayNote": "Note of the day",
+    "read": "Read",
+    "new": "new",
+    "frise": "The timeline",
+    "friseText": "History in order",
+    "map": "The map",
+    "mapText": "Notes around the world",
+    "themes": "Themes",
+    "themesText": "Every discipline"
   },
   "noteApp": {
     "back": "Back",
@@ -1631,5 +1664,25 @@
     "unmute": "Unmute",
     "hangup": "Hang up",
     "ended": "Call ended."
+  },
+  "mail": {
+    "login": {
+      "subject": "Your sign-in link for {site}",
+      "preheader": "One click and your progress and coins are back.",
+      "title": "One click and you’re in the garden",
+      "intro": "This button signs you in on this device and syncs your progress and coins.",
+      "button": "Sign me in",
+      "validity": "Valid for 15 minutes · works once",
+      "fallback": "Or copy this link into your browser:",
+      "ignore": "Didn’t ask for this? Just ignore this message: no account is created without this click."
+    }
+  },
+  "noteSide": {
+    "cited": "Cited in this note",
+    "inbound": "Linking here · {n}",
+    "questions": "{n} questions in this note",
+    "questionsOne": "1 question in this note",
+    "questionsGo": "Answer them",
+    "aria": "Around this note"
   }
 }

@@ -128,7 +128,8 @@ export async function requestLink(
     const r = await fetch("/api/auth/request", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ email, turnstileToken, next }),
+      // The mail goes out in the UI language (public/js/i18n.js keeps <html lang>).
+      body: JSON.stringify({ email, turnstileToken, next, locale: document.documentElement.lang }),
     });
     if (r.ok) return "sent";
     if (r.status === 400) return "invalid";

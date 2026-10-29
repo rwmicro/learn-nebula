@@ -1905,3 +1905,159 @@ a.parcours-tool {
   font-size: 0.85rem;
   color: var(--garden);
 }
+
+/* --- Paintings (lib/paintings.ts) -------------------------------------------
+   The family's painting behind each family heading of the index, and the
+   path's own as the cover of its page, the title set on it in white over a
+   darkening gradient. The credit sits in the corner. Families with no
+   painting ("Autres") keep the plain heading. */
+.parcours-art {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.parcours-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.parcours-band,
+.parcours-cover {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--radius-lg, 16px);
+  background: #3a342c;
+  color: #fff;
+}
+.parcours-band::after,
+.parcours-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.parcours-band > :not(.parcours-art),
+.parcours-cover > :not(.parcours-art) {
+  position: relative;
+  z-index: 2;
+}
+.parcours-art-credit {
+  display: block;
+  font: italic 400 0.75rem/1.25 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  color: rgb(255 255 255 / 0.88);
+  /* Mondrian's whites run under it. */
+  text-shadow: 0 0 6px rgb(0 0 0 / 0.75), 0 1px 2px rgb(0 0 0 / 0.6);
+}
+
+/* Index: a low band, so eight paintings in a row stay a rhythm, not a
+   gallery. */
+.parcours-band {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 5.75rem;
+  margin: 2.5rem 0 0.9rem;
+  padding: 0.9rem 1.15rem 0.8rem;
+}
+.parcours-band::after {
+  background:
+    linear-gradient(90deg, rgb(0 0 0 / 0.72), rgb(0 0 0 / 0.3) 60%, rgb(0 0 0 / 0.12)),
+    linear-gradient(0deg, rgb(0 0 0 / 0.5), transparent 75%);
+}
+.parcours-band .parcours-art img {
+  object-position: 50% 45%;
+}
+.parcours-family > .parcours-band > .themes-h2 {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #fff;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 0.35);
+}
+/* The painting says which family it is: no colour dot. */
+.parcours-family > .parcours-band > .themes-h2::before {
+  display: none;
+}
+.parcours-band .parcours-family-count {
+  color: rgb(255 255 255 / 0.9);
+}
+.parcours-band .parcours-art-credit {
+  max-width: 45%;
+  text-align: end;
+}
+
+/* One path: the cover. */
+.parcours-cover {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  min-height: clamp(13rem, 22vw, 17.5rem);
+  max-width: 75rem;
+  margin: 0 0 1.4rem;
+  padding: 1.4rem clamp(1.1rem, 3vw, 2rem) 1.15rem;
+}
+.parcours-cover::after {
+  background:
+    linear-gradient(0deg, rgb(0 0 0 / 0.74), rgb(0 0 0 / 0.2) 62%, rgb(0 0 0 / 0.05)),
+    linear-gradient(90deg, rgb(0 0 0 / 0.35), transparent 70%);
+}
+.parcours-cover .themes-kicker,
+.parcours-page--path[data-family] .parcours-cover .themes-kicker {
+  margin: 0 0 0.3rem;
+  font: 700 0.8rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 0.92);
+}
+.parcours-cover .themes-title {
+  margin: 0;
+  color: #fff;
+  text-shadow: 0 1px 12px rgb(0 0 0 / 0.35);
+}
+.parcours-cover .parcours-art-credit {
+  margin-top: 0.55rem;
+}
+
+@media (max-width: 639.98px) {
+  main.parcours-page .parcours-band {
+    min-height: 4.5rem;
+    margin: 1.4rem 0 0.6rem;
+    padding: 0.7rem 0.95rem 0.6rem;
+    border-radius: 14px;
+  }
+  /* The phone's section heading over the painting: white, the count beside
+     the name rather than across the band; no credit (it is in the image's
+     page, and the band is too small for two lines). */
+  main.parcours-page .parcours-band > .themes-h2 {
+    justify-content: flex-start;
+    gap: 0.6rem;
+    margin: 0;
+    font-size: 0.95rem;
+    color: #fff;
+  }
+  main.parcours-page .parcours-band .parcours-family-count {
+    color: rgb(255 255 255 / 0.9);
+  }
+  main.parcours-page .parcours-band .parcours-art-credit {
+    display: none;
+  }
+  main.parcours-page--path .parcours-cover {
+    min-height: 15rem;
+    margin: 0.5rem 0 0.25rem;
+    padding: 1rem 1.1rem 0.9rem;
+    border-radius: 18px;
+  }
+  main.parcours-page--path .parcours-cover .themes-kicker {
+    margin: 0 0 0.25rem;
+    color: rgb(255 255 255 / 0.92);
+  }
+  main.parcours-page--path .parcours-cover .themes-title {
+    margin: 0;
+    font-size: 1.95rem;
+    color: #fff;
+  }
+}

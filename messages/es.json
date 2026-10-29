@@ -20,7 +20,8 @@
     "themesAriaLabel": "Temas",
     "toggleOpen": "contenido",
     "toggleOpenAria": "Abrir el índice y la búsqueda",
-    "toggleCloseAria": "Cerrar el índice"
+    "toggleCloseAria": "Cerrar el índice",
+    "onPage": "En esta página"
   },
   "noteActions": {
     "audioListen": "escuchar",
@@ -1064,7 +1065,9 @@
     "folderNext": "Siguiente nota de la carpeta",
     "unread": "Aún sin leer, en {discipline}",
     "allRead": "¡Lo has leído todo en {discipline}!",
-    "seeAll": "Toda la disciplina: {discipline}"
+    "seeAll": "Toda la disciplina: {discipline}",
+    "prev": "Anterior",
+    "step": "Paso {n} de {total}"
   },
   "condensed": {
     "left": "quedan {min} min"
@@ -1151,7 +1154,9 @@
     "explore": "Explorar",
     "review": "Repasar",
     "due": "para repasar hoy",
-    "notes": "Notas"
+    "notes": "Notas",
+    "resumeAria": "Seguir leyendo: {title}",
+    "left": "quedan {m} min"
   },
   "explorer": {
     "metaTitle": "Explorar",
@@ -1173,13 +1178,8 @@
     "randomDesc": "Deja que el jardín elija"
   },
   "dash": {
-    "resume": "Retomar",
     "step": "Paso {n} · {m} min",
     "continueAria": "Seguir el itinerario: {title}",
-    "startTitle": "Empezar un itinerario",
-    "startText": "Notas para leer en orden",
-    "due": "tarjetas para repasar hoy",
-    "dueNone": "nada que repasar hoy",
     "streak": "días seguidos",
     "disciplines": "Disciplinas",
     "seeAll": "Ver todo",
@@ -1189,9 +1189,6 @@
     "quote": "El conocimiento, como un jardín, se cultiva y se transmite.",
     "credit": "Camille Pissarro, El huerto en Éragny, 1897",
     "min": "{m} min",
-    "left": "Quedan {m} min de lectura",
-    "inviteTitle": "Tus repasos aparecerán aquí",
-    "inviteText": "Abre un mazo de tarjetas o guarda una pregunta de una nota: cada día sabrás qué repasar.",
     "askIntro": "Haz una pregunta: el jardín busca en sus {n} notas y cita sus fuentes.",
     "askPlaceholder": "¿Qué es la semiología?",
     "askChips": "Kant y la razón pura|¿Qué es un AS?|Decir gracias en libanés",
@@ -1199,19 +1196,55 @@
     "graph": "El grafo",
     "graphText": "Los vínculos entre las notas",
     "random": "Al azar",
-    "randomText": "Una nota por descubrir",
     "numbers": "El jardín en cifras",
-    "details": "Detalles",
     "nNotes": "notas",
     "nPaths": "recorridos",
     "nLangs": "idiomas",
-    "aboutShort": "Acerca de",
     "aboutQuote": "Todo lo que he aprendido a dominar, compartido para que nunca se olvide.",
     "readMore": "Leer más",
     "footerCode": "código bajo GNU GPL",
     "footerOrigin": "Creado originalmente por {author}",
     "paths": "Recorridos",
-    "pathRead": "{read}/{total} leídas"
+    "pathRead": "{read}/{total} leídas",
+    "hiFirst": "Bienvenido al",
+    "hiFirstEm": "jardín",
+    "hiDay": "Buen día en el",
+    "hiDayEm": "jardín",
+    "hiEvening": "Buenas noches en el",
+    "hiEveningEm": "jardín",
+    "today": "Hoy",
+    "stepOf": "{path} · paso {n} de {total}",
+    "resumeKicker": "Retoma donde lo dejaste · {m} min",
+    "pctRead": "{p} % leído",
+    "resumeCta": "Seguir leyendo",
+    "cardsDue": "tarjetas por repasar",
+    "readToday": "notas leídas hoy",
+    "welcomeText": "{n} notas enlazadas, de la filosofía al árabe libanés. ¿Por dónde empezar?",
+    "wayPath": "Seguir un recorrido",
+    "wayPathText": "{n} series de notas, en orden",
+    "wayGraph": "Explorar el grafo",
+    "wayGraphText": "Todas las notas y sus enlaces",
+    "wayRandom": "Una nota al azar",
+    "wayRandomText": "Para dejarse sorprender",
+    "weekLetters": "L|M|X|J|V|S|D",
+    "run": "{n} días",
+    "run1": "1 día",
+    "runKept": "Racha mantenida hoy",
+    "runKeep": "Una nota más hoy",
+    "runStart": "Una nota al día hace una racha",
+    "mine": "Mis recorridos",
+    "next": "después: {title}",
+    "discover": "Por descubrir",
+    "startWith": "Recorridos para empezar",
+    "dayNote": "La nota del día",
+    "read": "Leer",
+    "new": "nuevo",
+    "frise": "La cronología",
+    "friseText": "La historia en orden",
+    "map": "El mapa",
+    "mapText": "Las notas en el mundo",
+    "themes": "Los temas",
+    "themesText": "Todas las disciplinas"
   },
   "noteApp": {
     "back": "Volver",
@@ -1631,5 +1664,25 @@
     "unmute": "Activar el micrófono",
     "hangup": "Colgar",
     "ended": "Llamada terminada."
+  },
+  "mail": {
+    "login": {
+      "subject": "Tu enlace para entrar en {site}",
+      "preheader": "Un clic y recuperas tu progreso y tus monedas.",
+      "title": "Un clic y estás en el jardín",
+      "intro": "Este botón te conecta en este dispositivo y sincroniza tu progreso y tus monedas.",
+      "button": "Entrar",
+      "validity": "Válido 15 minutos · una sola vez",
+      "fallback": "O copia este enlace en tu navegador:",
+      "ignore": "¿No lo has pedido tú? Ignora este mensaje: no se crea ninguna cuenta sin este clic."
+    }
+  },
+  "noteSide": {
+    "cited": "Citado en esta nota",
+    "inbound": "Enlazan aquí · {n}",
+    "questions": "{n} preguntas en esta nota",
+    "questionsOne": "1 pregunta en esta nota",
+    "questionsGo": "Responder",
+    "aria": "Alrededor de esta nota"
   }
 }

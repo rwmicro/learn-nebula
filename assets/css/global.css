@@ -1080,8 +1080,8 @@ footer {
    Site bar (components/SiteBar.tsx): the one menu, the same on every page.
    The home's masthead carries the same links, so the bar steps aside there. */
 .site-bar {
-  /* Sized by its own width, not the viewport: on a note it only spans the
-     text column, where the links would wrap onto three lines. */
+  /* Sized by its own width, not the viewport: in a narrow window the links
+     fold into the menu (@container below). */
   container-type: inline-size;
   /* No negative top here: outside the note pages body has no top margin
      below 1650px, so a pull-up pushed the bar off the top of the screen.
@@ -1154,6 +1154,29 @@ body:has(.home-masthead) .site-bar {
   color: var(--garden);
   text-decoration: underline;
   text-decoration-thickness: 2px;
+}
+/* The bar's own links in sentence case, as the reading pages' sans; the
+   home's masthead keeps its tracked capitals. */
+.site-bar-nav a {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.site-bar-nav a[aria-current="page"] {
+  color: var(--ink);
+  text-decoration-color: var(--garden);
+  text-underline-offset: 0.45rem;
+}
+/* Search as a field where there is room, an icon where there isn't. */
+.site-bar .palette-btn[data-palette-open] {
+  min-width: 11rem;
+  padding-block: 0.3rem;
+  background: var(--wash);
+  border-color: var(--rule);
+}
+.site-bar .palette-kbd {
+  margin-inline-start: auto;
 }
 .home-nav ul {
   display: flex;
@@ -1235,8 +1258,8 @@ body:has(.home-masthead) .site-bar {
   display: none;
 }
 @media (min-width: 640px) {
-  /* One width and one place on every page but the notes (whose bar spans
-     the text column, main.css): the bar used to follow each page's own
+  /* One width and one place on every page (the notes' in main.css, from
+     their own centred column): the bar used to follow each page's own
      container, full width on Parcours, 1040px centred on Cartes, so the
      whole menu jumped sideways from one page to the next. */
   body:not(:has(.na-chrome)) .site-bar {
@@ -1292,6 +1315,14 @@ body:has(.home-masthead) .site-bar {
 }
 @container (max-width: 900px) {
   .site-bar-nav {
+    display: none;
+  }
+  .site-bar .palette-btn[data-palette-open] {
+    min-width: 0;
+    background: var(--paper);
+    border-color: var(--rule-strong);
+  }
+  .site-bar .palette-btn-label {
     display: none;
   }
   .site-bar-menu {

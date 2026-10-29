@@ -20,7 +20,8 @@
     "themesAriaLabel": "主题",
     "toggleOpen": "目录",
     "toggleOpenAria": "打开目录和搜索",
-    "toggleCloseAria": "关闭目录"
+    "toggleCloseAria": "关闭目录",
+    "onPage": "本页内容"
   },
   "noteActions": {
     "audioListen": "收听",
@@ -1064,7 +1065,9 @@
     "folderNext": "本文件夹的下一篇",
     "unread": "尚未阅读 · {discipline}",
     "allRead": "你已读完 {discipline} 的全部笔记！",
-    "seeAll": "整个学科：{discipline}"
+    "seeAll": "整个学科：{discipline}",
+    "prev": "上一篇",
+    "step": "第 {n} 步，共 {total} 步"
   },
   "condensed": {
     "left": "还剩 {min} 分钟"
@@ -1151,7 +1154,9 @@
     "explore": "探索",
     "review": "复习",
     "due": "今日待复习",
-    "notes": "笔记"
+    "notes": "笔记",
+    "resumeAria": "继续阅读：{title}",
+    "left": "还剩 {m} 分钟"
   },
   "explorer": {
     "metaTitle": "探索",
@@ -1173,13 +1178,8 @@
     "randomDesc": "让花园来选"
   },
   "dash": {
-    "resume": "继续",
     "step": "第 {n} 步 · {m} 分钟",
     "continueAria": "继续路径：{title}",
-    "startTitle": "开始一条路径",
-    "startText": "按顺序阅读的笔记",
-    "due": "张卡片今日待复习",
-    "dueNone": "今天没有要复习的",
     "streak": "天连续",
     "disciplines": "学科",
     "seeAll": "全部",
@@ -1189,9 +1189,6 @@
     "quote": "知识如花园，需要耕耘与传承。",
     "credit": "卡米耶·毕沙罗，《埃拉尼的菜园》，1897",
     "min": "{m} 分钟",
-    "left": "还剩 {m} 分钟阅读",
-    "inviteTitle": "你的复习会显示在这里",
-    "inviteText": "打开一副卡片，或保存笔记中的问题：每天你都会知道该复习什么。",
     "askIntro": "提一个问题：花园会在 {n} 篇笔记中查找并注明出处。",
     "askPlaceholder": "什么是符号学？",
     "askChips": "康德与纯粹理性|什么是自治系统（AS）？|用黎巴嫩语说谢谢",
@@ -1199,19 +1196,55 @@
     "graph": "关系图",
     "graphText": "笔记之间的联系",
     "random": "随机",
-    "randomText": "发现一篇笔记",
     "numbers": "花园数据",
-    "details": "详情",
     "nNotes": "篇笔记",
     "nPaths": "条路径",
     "nLangs": "种语言",
-    "aboutShort": "关于",
     "aboutQuote": "我学会掌握的一切，分享出来，永不遗忘。",
     "readMore": "阅读更多",
     "footerCode": "代码采用 GNU GPL",
     "footerOrigin": "最初由 {author} 创建",
     "paths": "学习路径",
-    "pathRead": "已读 {read}/{total}"
+    "pathRead": "已读 {read}/{total}",
+    "hiFirst": "欢迎来到",
+    "hiFirstEm": "花园",
+    "hiDay": "花园里的",
+    "hiDayEm": "美好一天",
+    "hiEvening": "花园里的",
+    "hiEveningEm": "美好夜晚",
+    "today": "今天",
+    "stepOf": "{path} · 第 {n} 步，共 {total} 步",
+    "resumeKicker": "从上次停下的地方继续 · {m} 分钟",
+    "pctRead": "已读 {p}%",
+    "resumeCta": "继续阅读",
+    "cardsDue": "张卡片待复习",
+    "readToday": "篇今日已读",
+    "welcomeText": "{n} 篇相互链接的笔记，从哲学到黎巴嫩阿拉伯语。从哪里开始？",
+    "wayPath": "跟随一条路线",
+    "wayPathText": "{n} 组按顺序阅读的笔记",
+    "wayGraph": "探索关系图",
+    "wayGraphText": "所有笔记及其链接",
+    "wayRandom": "随机一篇笔记",
+    "wayRandomText": "给自己一个惊喜",
+    "weekLetters": "一|二|三|四|五|六|日",
+    "run": "{n} 天",
+    "run1": "1 天",
+    "runKept": "今天已保持连续",
+    "runKeep": "今天再读一篇",
+    "runStart": "每天一篇，积累连续天数",
+    "mine": "我的路线",
+    "next": "下一篇：{title}",
+    "discover": "待发现",
+    "startWith": "入门路线",
+    "dayNote": "今日笔记",
+    "read": "阅读",
+    "new": "新",
+    "frise": "时间轴",
+    "friseText": "按顺序看历史",
+    "map": "地图",
+    "mapText": "世界各地的笔记",
+    "themes": "主题",
+    "themesText": "所有学科"
   },
   "noteApp": {
     "back": "返回",
@@ -1631,5 +1664,25 @@
     "unmute": "取消静音",
     "hangup": "挂断",
     "ended": "通话已结束。"
+  },
+  "mail": {
+    "login": {
+      "subject": "您的 {site} 登录链接",
+      "preheader": "点击一下，即可找回您的进度和金币。",
+      "title": "点击一下，即可进入花园",
+      "intro": "此按钮会在此设备上为您登录，并同步您的进度和金币。",
+      "button": "登录",
+      "validity": "15 分钟内有效 · 仅限一次",
+      "fallback": "或将此链接复制到浏览器中：",
+      "ignore": "不是您本人的请求？请忽略此邮件：不点击此链接就不会创建任何账户。"
+    }
+  },
+  "noteSide": {
+    "cited": "本笔记引用",
+    "inbound": "链接到此 · {n}",
+    "questions": "本笔记有 {n} 道题",
+    "questionsOne": "本笔记有 1 道题",
+    "questionsGo": "去作答",
+    "aria": "与本笔记相关"
   }
 }

@@ -11,6 +11,7 @@ import {
 import { folderAnchor } from "./slug";
 import { escapeHtml } from "./escape";
 import { t, i18nAttrs, i18nAttr, folderKey } from "./i18n";
+import type { PathFamily } from "./path-family";
 
 // Re-exported for the many modules (SinglePage, tests) that import it from here.
 export { escapeHtml };
@@ -59,20 +60,28 @@ export function themeToggleHtml(): string {
 }
 
 /**
- * Dropcap setup for single pages (layouts/single.html): the ::first-letter rule
- * plus, when enabled and the first letter is A–Z, the matching Goudy font.
+ * Dropcap setup for note pages: the ::first-letter rule plus, when enabled and
+ * the first letter is A–Z, the matching Goudy font. The letter goes to the
+ * paragraph lib/markdown.ts (rehypeOutline) marked `.dropcap` — the one the
+ * note opens on — and to nothing when the note opens on a list or a lead-in.
+ * `html` is the rendered body, read for that paragraph's first letter.
  */
 export function dropcapHtml(
-  plain: string,
+  html: string,
   dropcap: boolean | undefined,
 ): string {
+  const lead = /<p class="dropcap">([\s\S]*?)<\/p>/.exec(html);
+  if (!lead) return "";
   // Dropcap is fluid too: 60px @ 320px viewport → 99px @ ≥1080. The
   // tight line-height and small padding stay constant; only the cap scales.
   // `float`/`padding` are logical, not physical: /js/i18n.js sets <html dir="rtl">
   // for Arabic, and a `float: left` cap would sit at the end of the first line
   // instead of where reading starts, detached from its own paragraph.
-  const base = `<style>.article-body > p:first-of-type::first-letter, main > p:first-of-type::first-letter { font-family: "GoudyInitialen", "Alegreya", "Alegreya Fallback", serif; float: inline-start; font-size: clamp(3.8rem, 2.2rem + 5vw, 6.6rem); line-height: 0.8; padding-block: 0.4rem 0.08rem; padding-inline: 0 0.5rem; }</style>`;
-  const first = plain
+  // The lesson stage (public/js/lesson.js) takes the paragraph out of the
+  // body while it shows the opening step.
+  const base = `<style>.article-body > p.dropcap::first-letter, .lesson-stage > p.dropcap::first-letter { font-family: "GoudyInitialen", "Alegreya", "Alegreya Fallback", serif; float: inline-start; font-size: clamp(3.8rem, 2.2rem + 5vw, 6.6rem); line-height: 0.8; padding-block: 0.4rem 0.08rem; padding-inline: 0 0.5rem; color: var(--fam-ink, currentColor); }</style>`;
+  const first = lead[1]
+    .replace(/<[^>]+>/g, "")
     .replace(/^[^A-Za-z]*/, "")
     .charAt(0)
     .toUpperCase();
@@ -92,8 +101,8 @@ export function dropcapHtml(
 /** Text-to-speech toggle for note bodies; wired client-side by /js/audio.js. */
 export function audioButtonHtml(): string {
   const play =
-    `<svg class="audio-icon audio-icon-play" viewBox="0 0 32 32" width="14" height="14" aria-hidden="true">` +
-    `<path fill="currentColor" d="M31.995 18.892c0.003-0.658-0.101-3.141-0.18-3.851-0.91-8.149-7.523-14.063-15.724-14.063-8.542 0-15.463 6.582-15.932 15.309-0.010 0.191-0.080 1.542-0.085 2.346l-0.003 0.448c-0.041 0.185-0.066 0.376-0.066 0.573v8.708c0 1.465 1.192 2.657 2.656 2.657h2.696c1.465 0 2.657-1.192 2.657-2.657v-8.707c0-1.465-1.192-2.657-2.657-2.657h-2.697c-0.184 0-0.364 0.019-0.537 0.055 0.015-0.325 0.029-0.581 0.032-0.658 0.412-7.649 6.473-13.417 13.936-13.417 7.165 0 12.941 5.167 13.736 12.285 0.034 0.297 0.077 1.052 0.111 1.81-0.195-0.045-0.394-0.075-0.601-0.075h-2.665c-1.465 0-2.657 1.192-2.657 2.657v8.677c0 1.465 1.192 2.657 2.657 2.657h2.665c1.465 0 2.657-1.192 2.657-2.657v-8.677c0-0.163-0.020-0.322-0.049-0.476 0.029-0.092 0.048-0.188 0.049-0.288zM2.66 19h2.696c0.362 0 0.657 0.294 0.657 0.657v8.708c0 0.363-0.295 0.657-0.657 0.657h-2.696c-0.362 0-0.656-0.294-0.656-0.657v-8.708c0.001-0.363 0.295-0.657 0.657-0.657zM29.995 28.333c0 0.363-0.295 0.657-0.657 0.657h-2.665c-0.363 0-0.657-0.294-0.657-0.657v-8.677c0-0.363 0.294-0.657 0.657-0.657h2.665c0.363 0 0.657 0.294 0.657 0.657v8.677z"/>` +
+    `<svg class="audio-icon audio-icon-play" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">` +
+    `<path fill="currentColor" d="M7 4.9v14.2a1 1 0 0 0 1.52.85l11.3-7.1a1 1 0 0 0 0-1.7L8.52 4.05A1 1 0 0 0 7 4.9Z"/>` +
     `</svg>`;
   const pause =
     `<svg class="audio-icon audio-icon-pause" viewBox="0 0 24 24" width="12" height="12" aria-hidden="true">` +
@@ -389,6 +398,7 @@ export function noteHeaderHtml(
   title?: string,
   date?: { iso: string; formatted: string },
   discipline?: { href: string; depth: number } | null,
+  family?: PathFamily | null,
 ): string {
   // Each folder segment links to the home browse tree opened at that folder
   // (/#<folderAnchor>), so the breadcrumb doubles as navigation back up the
@@ -427,7 +437,12 @@ export function noteHeaderHtml(
   return (
     `<header class="note-header" data-pagefind-ignore>` +
     `<div class="note-header-crumb">` +
-    `<a href="/">${escapeHtml(INDEX_NOTE)}</a>${crumbs}` +
+    // The family ("◆ Arts") in its colour where the note has one: the site's
+    // name, which the bar just above already shows, used to lead the line.
+    (family
+      ? `<span class="note-fam"><i aria-hidden="true"></i><span${i18nAttrs(`parcours.family.${family}`)}>${escapeHtml(t(`parcours.family.${family}`))}</span></span>`
+      : `<a href="/">${escapeHtml(INDEX_NOTE)}</a>`) +
+    crumbs +
     `</div>` +
     `</header>` +
     // Zero-height sticky wrapper: a `scroll-state(stuck)` container, so the
@@ -491,10 +506,17 @@ export function buildToc(
   // opening tag — so a heading that ever carries a class (e.g. raw HTML in a
   // note) isn't silently dropped from the TOC. Headings without an id can't be
   // anchor targets and are skipped.
-  const re = /<h([23])\b([^>]*)>([\s\S]*?)<\/h\1>/g;
+  // Lead-ins under a section (rehypeOutline, lib/markdown.ts) come in as
+  // `sub` entries: the left rail lists them under the section being read.
+  const re = /<h([23])\b([^>]*)>([\s\S]*?)<\/h\1>|<p class="lead-in" (id="[^"]+")>([\s\S]*?)<\/p>/g;
   const items: { level: string; id: string; text: string }[] = [];
   let m: RegExpExecArray | null;
   while ((m = re.exec(html)) !== null) {
+    if (m[4]) {
+      const text = m[5].replace(/<[^>]+>/g, "").trim();
+      if (text) items.push({ level: "sub", id: m[4].slice(4, -1), text });
+      continue;
+    }
     const idMatch = m[2].match(/\bid="([^"]+)"/);
     if (!idMatch) continue;
     // Heading text is already HTML-escaped; just drop the anchor and any tags.
@@ -504,12 +526,15 @@ export function buildToc(
       .trim();
     if (text) items.push({ level: m[1], id: idMatch[1], text });
   }
+  // "Sommaire" in the drawer, "Sur cette page" over the left rail (toc.js
+  // clones this nav; main.css shows the title that fits where it is).
   const toc =
-    items.length >= 2
-      ? `<nav class="toc" aria-label="${escapeHtml(t("sidebar.tocTitle"))}"${i18nAttr("aria-label", "sidebar.tocTitle")}><p class="toc-title"${i18nAttrs("sidebar.tocTitle")}>${escapeHtml(t("sidebar.tocTitle"))}</p><ul>${items
+    items.filter((i) => i.level !== "sub").length >= 2
+      ? `<nav class="toc" aria-label="${escapeHtml(t("sidebar.tocTitle"))}"${i18nAttr("aria-label", "sidebar.tocTitle")}><p class="toc-title"${i18nAttrs("sidebar.tocTitle")}>${escapeHtml(t("sidebar.tocTitle"))}</p>` +
+        `<p class="toc-title toc-title-rail"${i18nAttrs("sidebar.onPage")}>${escapeHtml(t("sidebar.onPage"))}</p><ul>${items
           .map(
             (i) =>
-              `<li class="toc-h${i.level}"><a href="#${i.id}">${i.text}</a></li>`,
+              `<li class="toc-${i.level === "sub" ? "sub" : `h${i.level}`}"><a href="#${i.id}">${i.text}</a></li>`,
           )
           .join("")}</ul></nav>`
       : "";
@@ -807,15 +832,20 @@ export function readStateHtml(
   slug: string,
   minutes: number,
   folder?: { name: string; slugs: string[] },
+  now?: { title: string; family?: string | null },
 ): string {
   // The folder's notes, for the phone card's "1 sur 2 dans Un graphique".
   const f =
     folder && folder.slugs.length > 1
       ? ` data-folder="${escapeHtml(prettyFolder(folder.name))}" data-folder-slugs="${escapeHtml(folder.slugs.join(" "))}"`
       : "";
+  // Title and colour family, for the tab bar's mini player (gkNow).
+  const n = now
+    ? ` data-title="${escapeHtml(now.title)}"${now.family ? ` data-family-name="${escapeHtml(now.family)}"` : ""}`
+    : "";
   return (
     `<div class="read-state" data-pagefind-ignore hidden` +
-    ` data-slug="${escapeHtml(slug)}" data-minutes="${minutes}"${f}></div>`
+    ` data-slug="${escapeHtml(slug)}" data-minutes="${minutes}"${f}${n}></div>`
   );
 }
 
@@ -883,6 +913,45 @@ export function lessonButtonHtml(): string {
   );
 }
 
+/** The note's reading tools from 640px up: a liquid-glass bar floating at
+ *  the bottom (main.css `.note-dock`, public/js/note-dock.js). Sommaire (the
+ *  drawer, until the aside has its own column), the reading actions passed
+ *  in `tools`, then the assistant (proxying the floating "Demander à l'IA"
+ *  button, which the bar replaces). Scrolling down, it shrinks to the
+ *  progress ring, the section being read, the next note and the assistant;
+ *  scrolling back up brings it back whole. Phones keep lib/note-app.ts's. */
+export function noteDockHtml(
+  tools: string,
+  next: { slug: string; title: string } | null,
+): string {
+  const ic = (d: string) =>
+    `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+  const label = (key: string) => `<span class="dock-label"${i18nAttrs(key)}>${escapeHtml(t(key))}</span>`;
+  const aria = (key: string) => ` aria-label="${escapeHtml(t(key))}"${i18nAttr("aria-label", key)}`;
+  return (
+    `<div class="note-dock" data-pagefind-ignore>` +
+    `<div class="note-dock-bar glass" role="toolbar"${aria("noteApp.toolbarAria")}>` +
+    // An .aside-toggle: public/js/aside-toggle.js reveals and wires it.
+    `<button type="button" class="aside-toggle dock-toc" hidden${aria("noteApp.contents")}>` +
+    ic(`<path d="M4 6h16M4 12h11M4 18h14"/>`) +
+    label("noteApp.contents") +
+    `</button>` +
+    `<span class="dock-now" aria-hidden="true">` +
+    `<svg class="dock-ring" viewBox="0 0 20 20" width="20" height="20"><circle cx="10" cy="10" r="8"/><circle class="dock-ring-fill" cx="10" cy="10" r="8" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" transform="rotate(-90 10 10)"/></svg>` +
+    `<span class="dock-sec"></span></span>` +
+    `<span class="dock-tools">${tools}</span>` +
+    (next
+      ? `<a class="dock-next" href="/posts/${encodeSlug(next.slug)}/" rel="next" title="${escapeHtml(next.title)}"${aria("noteApp.next")}>${ic(`<path d="M5 12h14M13 6l6 6-6 6"/>`)}</a>`
+      : "") +
+    `<button type="button" class="dock-ask" hidden>` +
+    ic(`<path d="M12 21v-7"/><path d="M12 14C7 14 4.5 11 4.5 6.5 9 6.5 12 9 12 14Z"/><path d="M12 12c0-4.5 3-7.5 7.5-7.5 0 4.5-3 7.5-7.5 7.5Z"/>`) +
+    label("noteApp.ask") +
+    `</button>` +
+    `</div>` +
+    `</div>`
+  );
+}
+
 /** "Affichage ▾": the note's display tools (text size, width, focus) and
  *  "Traduire", folded so the action row holds on one line. A <details>, so
  *  it opens without JavaScript; /js/reader-tools.js closes it on a click
@@ -891,6 +960,7 @@ export function noteMoreHtml(inner: string): string {
   return (
     `<details class="note-more" data-pagefind-ignore>` +
     `<summary class="note-more-btn"${i18nAttr("aria-label", "noteActions.moreAria")} aria-label="${escapeHtml(t("noteActions.moreAria"))}">` +
+    `<b class="note-more-aa" aria-hidden="true">Aa</b>` +
     `<span${i18nAttrs("noteActions.more")}>${escapeHtml(t("noteActions.more"))}</span>` +
     `<svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>` +
     `</summary>` +
@@ -903,6 +973,10 @@ export interface NextUp {
   /** The logical next note: the next step of the reading path, else the next
    *  note of the folder. */
   next: { slug: string; title: string; path?: string } | null;
+  /** The one before it, in the same order: the pager's left card. */
+  prev?: { slug: string; title: string } | null;
+  /** In a reading path, the next note's place in it (1-based). */
+  step?: { n: number; total: number } | null;
   /** The note's discipline, and some of its notes to pick an unread one from
    *  (in reading order, starting after this note). */
   discipline: { name: string; href: string; notes: { slug: string; title: string }[] } | null;
@@ -912,16 +986,26 @@ export interface NextUp {
  *  filled in by /js/reader-tools.js from the candidates in `data-candidates`
  *  (reading state lives in the browser); without JS that half stays hidden. */
 export function nextUpHtml(n: NextUp): string {
-  if (!n.next && !n.discipline) return "";
+  if (!n.next && !n.prev && !n.discipline) return "";
+  const kicker = (key: string, vars?: Record<string, string | number>) =>
+    `<span class="next-up-kicker"${i18nAttrs(key, vars)}>${escapeHtml(t(key, vars))}</span>`;
   const main = n.next
-    ? `<a class="next-up-main" href="/posts/${encodeSlug(n.next.slug)}/">` +
-      `<span class="next-up-kicker"` +
-      (n.next.path
-        ? `${i18nAttrs("nextUp.pathNext", { path: n.next.path })}>${escapeHtml(t("nextUp.pathNext", { path: n.next.path }))}`
-        : `${i18nAttrs("nextUp.folderNext")}>${escapeHtml(t("nextUp.folderNext"))}`) +
-      `</span>` +
+    ? `<a class="next-up-main" href="/posts/${encodeSlug(n.next.slug)}/" rel="next">` +
+      (n.step
+        ? kicker("nextUp.step", n.step)
+        : n.next.path
+          ? kicker("nextUp.pathNext", { path: n.next.path })
+          : kicker("nextUp.folderNext")) +
       `<span class="next-up-title">${escapeHtml(n.next.title)}</span>` +
       `<span class="next-up-arrow" aria-hidden="true">→</span>` +
+      `</a>`
+    : "";
+  // "Précédente" on the left, the next step on the right, as a book's pager.
+  const prev = n.prev
+    ? `<a class="next-up-prev" href="/posts/${encodeSlug(n.prev.slug)}/" rel="prev">` +
+      `<span class="next-up-arrow" aria-hidden="true">←</span>` +
+      kicker("nextUp.prev") +
+      `<span class="next-up-title">${escapeHtml(n.prev.title)}</span>` +
       `</a>`
     : "";
   const d = n.discipline;
@@ -940,7 +1024,8 @@ export function nextUpHtml(n: NextUp): string {
   return (
     `<nav class="next-up" data-pagefind-ignore aria-labelledby="next-up-title">` +
     `<p class="next-up-heading" id="next-up-title"${i18nAttrs("nextUp.title")}>${escapeHtml(t("nextUp.title"))}</p>` +
-    `<div class="next-up-grid">${main}${side}</div>` +
+    (prev || main ? `<div class="next-up-pager${prev ? "" : " is-single"}">${prev}${main}</div>` : "") +
+    side +
     `</nav>`
   );
 }
@@ -956,4 +1041,44 @@ export function prerenderNextHtml(slug: string | undefined): string {
     prefetch: [{ urls: [`/posts/${encodeSlug(slug)}/`], eagerness: "eager" }],
   };
   return `<script type="speculationrules">${JSON.stringify(rules).replace(/</g, "\\u003c")}</script>`;
+}
+
+/** The right-hand column from 1100px (main.css `.note-side`): the reading
+ *  path's card, then what the note cites, what links to it, and its
+ *  questions. Below that width only the path card shows, in the flow, as the
+ *  strip under the title; the rest is already at the end of the note. */
+export function noteSideHtml(o: {
+  path: string;
+  cited: SiblingRef[];
+  inbound: SiblingRef[];
+  questions: { n: number; href: string } | null;
+}): string {
+  const list = (refs: SiblingRef[], max: number) =>
+    `<ul>${refs
+      .slice(0, max)
+      .map((r) => `<li><a href="/posts/${encodeSlug(r.slug)}/">${escapeHtml(r.title)}</a></li>`)
+      .join("")}</ul>`;
+  const head = (key: string, vars?: Record<string, string | number>) =>
+    `<p class="note-side-h"${i18nAttrs(key, vars)}>${escapeHtml(t(key, vars))}</p>`;
+  const q = o.questions;
+  const qKey = q && q.n === 1 ? "noteSide.questionsOne" : "noteSide.questions";
+  const extra =
+    (o.cited.length ? `<div class="note-side-sec">${head("noteSide.cited")}${list(o.cited, 4)}</div>` : "") +
+    (o.inbound.length
+      ? `<div class="note-side-sec">${head("noteSide.inbound", { n: o.inbound.length })}${list(o.inbound, 4)}</div>`
+      : "") +
+    (q
+      ? `<a class="note-side-cards" href="${escapeHtml(q.href)}">` +
+        `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="12" height="13" rx="2"/><path d="M8 4h10a2 2 0 0 1 2 2v11"/></svg>` +
+        `<span><b${i18nAttrs(qKey, { n: q.n })}>${escapeHtml(t(qKey, { n: q.n }))}</b>` +
+        `<small${i18nAttrs("noteSide.questionsGo")}>${escapeHtml(t("noteSide.questionsGo"))}</small></span></a>`
+      : "");
+  if (!o.path && !extra) return "";
+  return (
+    `<div class="note-side" data-pagefind-ignore>${o.path}` +
+    (extra
+      ? `<nav class="note-side-extra" aria-label="${escapeHtml(t("noteSide.aria"))}"${i18nAttr("aria-label", "noteSide.aria")}>${extra}</nav>`
+      : "") +
+    `</div>`
+  );
 }
