@@ -1074,23 +1074,27 @@ html:has(.palette--phone .palette-input:focus) .palette--phone .palette-field {
    only fade their own content, and the tab bar's pill glides from the old
    tab to the new one, as in a native app. The pill is in the exported HTML
    at its tab (components/MobileTabBar.tsx), so the new page has it from its
-   first frame. */
+   first frame.
+   Named only while a transition runs (both pages match the pseudo-class):
+   an element with a view-transition-name is a backdrop root, so the glass
+   inside it would blur nothing of the page and the text under the bar would
+   read through it. Where the pseudo-class is unknown the rules drop out and
+   the bars simply cross-fade. */
 @media (max-width: 639.98px) {
-  .tabbar,
-  .na-toolbar {
+  html:active-view-transition :is(.tabbar, .na-toolbar) {
     view-transition-name: bottom-bar;
   }
-  .tabbar-pill {
+  html:active-view-transition .tabbar-pill {
     view-transition-name: tabbar-pill;
   }
 }
-.site-bar {
+html:active-view-transition .site-bar {
   view-transition-name: site-bar;
 }
 /* From 640px, a note's floating reading bar (public/js/note-dock.js): from
    one note to the next it stays where it is. */
 @media (min-width: 640px) {
-  .note-dock {
+  html:active-view-transition .note-dock {
     view-transition-name: note-dock;
   }
 }
