@@ -50,11 +50,13 @@ import { scrollProgress } from "../../lib/reading-progress";
       .map((n) => n.textContent)
       .join("")
       .trim();
+  // Every scroll frame: measures first, then only the writes that change
+  // something (see reader-tools.js), so the long note is laid out once.
   let shown = "";
+  let dashAt = "";
   function paint() {
     const r = body.getBoundingClientRect();
     const p = scrollProgress(r.top, r.height, window.innerHeight);
-    if (fill) fill.setAttribute("stroke-dashoffset", String(Math.round(100 * (1 - p))));
     let cur = null;
     // The same line as the condensed header's (reader-tools.js).
     const line = 90;
@@ -62,6 +64,8 @@ import { scrollProgress } from "../../lib/reading-progress";
       if (h.getBoundingClientRect().top <= line) cur = h;
       else break;
     }
+    const dash = String(Math.round(100 * (1 - p)));
+    if (fill && dash !== dashAt) fill.setAttribute("stroke-dashoffset", (dashAt = dash));
     const text = cur ? headText(cur) : title;
     if (sec && text !== shown) {
       shown = text;
@@ -82,11 +86,14 @@ import { scrollProgress } from "../../lib/reading-progress";
       const dy = y - last;
       // Not while a menu of the bar is open: it would fold under the reader.
       const busy = bar.querySelector(".note-more[open], .translate-menu:not([hidden])");
-      if (y < FROM) dock.classList.remove("is-compact");
-      else if (dy > 6 && !busy) dock.classList.add("is-compact");
-      else if (dy < -10) dock.classList.remove("is-compact");
-      if (Math.abs(dy) > 6 || y < FROM) last = y;
       paint();
+      const was = dock.classList.contains("is-compact");
+      let compact = was;
+      if (y < FROM) compact = false;
+      else if (dy > 6 && !busy) compact = true;
+      else if (dy < -10) compact = false;
+      if (compact !== was) dock.classList.toggle("is-compact", compact);
+      if (Math.abs(dy) > 6 || y < FROM) last = y;
     });
   }
   window.addEventListener("scroll", onScroll, { passive: true });

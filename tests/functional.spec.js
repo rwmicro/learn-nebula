@@ -310,13 +310,14 @@ test.describe("Per-note bundles", () => {
       test.skip(!withIt, `no note uses ${name} in this build`);
       const fetched = [];
       page.on("response", (r) => {
-        if (r.url().endsWith(`/js/${name}.bundle.js`)) fetched.push(r.url());
+        // Served as a hashed copy, /js/h/<name>.bundle.<hash>.js (lib/js-assets.ts).
+        if (new RegExp(`/js/h/${name}\\.bundle\\.[0-9a-f]{10}\\.js$`).test(r.url())) fetched.push(r.url());
       });
       await page.goto(withIt);
       await page.waitForLoadState("networkidle");
       expect(fetched).toHaveLength(1);
 
-      const without = findPages("/js/note.bundle.js", 400).find(
+      const without = findPages("/js/h/note.bundle.", 400).find(
         (p) => !fs.readFileSync(path.join("out", p, "index.html"), "utf8").includes(needle),
       );
       test.skip(!without, "every note uses it");

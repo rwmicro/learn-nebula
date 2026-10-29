@@ -58,6 +58,10 @@ const EXTS = new Set([
   ".xml",
   ".map",
   ".webmanifest",
+  // WebAssembly is not pre-compressed by its build: the chess engine
+  // (public/engine/, 7.3 MB) comes down 25 % smaller in brotli, an ONNX
+  // runtime far more.
+  ".wasm",
 ]);
 
 // Below this, the HTTP round trip dominates and the variants are mostly
@@ -67,7 +71,7 @@ const MIN_BYTES = 1024;
 // Next emits an RSC flight payload beside every page (`index.txt`,
 // `__next.*.txt`) for the App Router's client-side navigation. Nothing here
 // ever asks for them: the site imports next/link nowhere, navigates with plain
-// <a> (instantpage.js prefetches those as whole documents), and the service
+// <a> (the speculation rules prerender those as whole documents), and the service
 // worker precaches only "/" and the offline page. They are a third of out/ by
 // weight, so compressing them would be the bulk of this step's cost for bytes
 // no one downloads. `robots.txt` and `llms.txt` are real, served files — the

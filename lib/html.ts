@@ -1031,8 +1031,9 @@ export function nextUpHtml(n: NextUp): string {
 }
 
 /** Ask the browser to prerender the note "Et ensuite ?" points to, so the
- *  click that follows a finished reading opens instantly (instant.page only
- *  does it on hover, which a phone never has). Ignored where unsupported. */
+ *  click that follows a finished reading opens instantly (the site-wide rules
+ *  in app/layout.tsx wait for a hover, or on a phone for the scroll to settle
+ *  on a link). Ignored where unsupported. */
 export function prerenderNextHtml(slug: string | undefined): string {
   if (!slug) return "";
   const rules = {

@@ -277,11 +277,19 @@ export function MobileTabBar() {
           }
         }}
       >
-        {width > 0 && shown >= 0 && (
+        {shown >= 0 && (
           <li
             className="tabbar-pill"
             aria-hidden="true"
-            style={{ width: cell, transform: `translateX(${pillX}px)${drag != null ? " scale(1.18, 1.28)" : ""}` }}
+            style={
+              width > 0
+                ? { width: cell, transform: `translateX(${pillX}px)${drag != null ? " scale(1.18, 1.28)" : ""}` }
+                : // Before the bar is measured (the exported HTML, the first
+                  // frame of a page): the same place in CSS, so the pill is
+                  // there when a view transition captures the new page and
+                  // can glide to it from the old one (palette.css).
+                  { width: `calc((100% - ${2 * PAD}px) / ${TABS.length})`, transform: `translateX(calc(${PAD}px + ${shown * 100}%))` }
+            }
           >
             {/* The lens magnifies the tabs under it: a copy of the row, lined
                 up with the real one, scaled with the pill (every browser). */}

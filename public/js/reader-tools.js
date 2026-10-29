@@ -70,19 +70,28 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
     return cur ? cur.textContent.replace(/#\s*$/, "").trim() : "";
   }
 
+  // Every scroll frame, so: all the measuring first, then only the writes
+  // that change something. Setting the same text again still replaces the
+  // text node and dirties the layout of the whole (long) note, which the
+  // next script to measure in the same frame then pays for in full.
   let queued = false;
+  let ringAt = "";
   function update() {
     queued = false;
     const r = body.getBoundingClientRect();
     const p = scrollProgress(r.top, r.height, window.innerHeight);
-    top.hidden = window.scrollY < window.innerHeight * 0.9;
-    ring.setAttribute("stroke-dashoffset", (C * (1 - p)).toFixed(2));
+    const sec = now ? currentSection() : "";
+    const hideTop = window.scrollY < window.innerHeight * 0.9;
+    if (top.hidden !== hideTop) top.hidden = hideTop;
+    const dash = (C * (1 - p)).toFixed(2);
+    if (dash !== ringAt) ring.setAttribute("stroke-dashoffset", (ringAt = dash));
     if (now) {
       const left = Math.ceil(minutes * (1 - p));
-      const sec = currentSection();
-      secEl.textContent = sec;
-      leftEl.textContent = left > 0 && p > 0 ? tt("condensed.left", { min: left }) : "";
-      now.hidden = !sec && !leftEl.textContent;
+      const leftText = left > 0 && p > 0 ? tt("condensed.left", { min: left }) : "";
+      if (secEl.textContent !== sec) secEl.textContent = sec;
+      if (leftEl.textContent !== leftText) leftEl.textContent = leftText;
+      const hideNow = !sec && !leftText;
+      if (now.hidden !== hideNow) now.hidden = hideNow;
     }
   }
   function onScroll() {

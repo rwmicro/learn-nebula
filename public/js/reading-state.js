@@ -4,7 +4,7 @@
 //
 // - Marks the note read when the reader reaches the end of the article body
 //   (≥ 90 % on the reading-progress bar's own measure) after a minimum time
-//   actually spent on the page (visible, not prerendered by instant.page).
+//   actually spent on the page (visible, not prerendered by the speculation rules).
 // - Remembers how far an unfinished note was read; /posts/<slug>/#reprendre
 //   (the home card's link) scrolls back there.
 // - Fills .read-state at the end of the note (read on… / mark read / unread /

@@ -44,6 +44,11 @@ export function Footer() {
           data-i18n-alt="footer.licenseAlt"
           width={88}
           height={31}
+          // Lazy, or React hoists a high-priority <link rel=preload> for this
+          // badge at the very bottom of every page into the <head>, where it
+          // competes with the CSS and the fonts.
+          loading="lazy"
+          decoding="async"
         />
         <div className="space-y-1">
           <p className="m-0" data-i18n="footer.copyright" data-i18n-vars={JSON.stringify(vars)}>

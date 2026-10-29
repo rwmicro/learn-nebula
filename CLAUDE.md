@@ -191,7 +191,9 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
 - **Note-page scripts**: `public/js/*.js` are vanilla IIFEs bundled by **esbuild**
   (`scripts/bundle-js.mjs`) into `note.bundle.js`, loaded once via
   `components/NoteScripts.tsx` (the `SCRIPTS` array lists them). Only
-  `i18n.js`/`instantpage.js`/`lightbox.js` load site-wide from `layout.tsx`.
+  `i18n.js`/`lightbox.js`/`theme.js`/`palette.bundle.js`… load site-wide from
+  `layout.tsx`, through `jsAsset()` (`lib/js-assets.ts`): hashed copies under
+  `/js/h/`, immutable.
   Shared client logic lives in `lib/*.ts` imported by **both** the vanilla bundle
   and React — e.g. `lib/ask-stream.ts` (the NDJSON parser).
 - **ESLint**: flat config (`eslint-config-next` 16). `react-hooks/set-state-in-effect`
@@ -271,6 +273,16 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
   two peers, nothing stored), RTCDataChannel / audio, optional Cloudflare
   TURN via TURN_KEY_ID/TURN_KEY_API_TOKEN. The duel only appears on notes with
   ≥ 2 `[!quiz]` cards that have a `- [x]` choice (`public/js/duo-invite.js`).
+- **Navigation**: plain `<a>` between documents, made instant without a SPA.
+  Speculation rules in `app/layout.tsx` (`moderate`: hover on desktop, the
+  settled-scroll heuristic on Android) prerender the next page in Chromium;
+  in Safari/Firefox `public/js/sw-register.js` posts a pressed/hovered link to
+  the service worker, which fetches it early ("warm", 30 s, memory only).
+  `public/sw.js` uses navigation preload. Cross-document view transitions
+  (`palette.css`): root cross-fade, the note title morphs, and the bottom bar
+  (`.tabbar` / `.na-toolbar`), its pill and `.site-bar` are named so they stay
+  put. Keep page-wide listeners off `beforeunload`/`unload` (bfcache): use
+  `pagehide`.
 - Native CSS: anchor-positioned popovers (`lib/anchor-popover.ts`) for the
   link preview and glossary, `scroll-state` sticky bar and scroll-driven
   progress (JS fallbacks kept), `@starting-style`, `field-sizing`; Wake Lock

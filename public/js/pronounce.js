@@ -108,7 +108,9 @@ import { matchSpoken, speechLangFor } from "../../lib/speech-match.ts";
     }
   });
 
-  window.addEventListener("beforeunload", () => {
+  // pagehide, not beforeunload, which can keep the page out of the
+  // back/forward cache.
+  window.addEventListener("pagehide", () => {
     if (current) resetToIdle(current);
   });
 

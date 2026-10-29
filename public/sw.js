@@ -2,7 +2,10 @@
  * static export, so the whole policy fits in a few rules.
  *
  *   documents  → network-first (a rebuild is picked up immediately), falling
- *                back to the cached copy, then to /offline.html
+ *                back to the cached copy, then to /offline.html. The request
+ *                leaves with navigation preload, in parallel with the worker
+ *                waking up; a page the reader is about to open (sw-register.js,
+ *                where speculation rules don't exist) may already be on its way.
  *   assets     → stale-while-revalidate (instant, refreshed in the background)
  *   /api/*     → never touched (the RAG assistant, comments and translation are
  *                dynamic and metered — a cached answer would be plain wrong)
@@ -54,10 +57,61 @@ self.addEventListener("activate", (event) => {
           .filter((k) => k.startsWith("gk-") && !keep.has(k))
           .map((k) => caches.delete(k)),
       );
+      // Navigation preload: without it a sleeping worker has to boot (~50 ms
+      // on a desktop, ~250 ms on a phone) before the page request even
+      // leaves. With it the browser sends the request alongside, and
+      // networkFirst() picks it up from event.preloadResponse.
+      if (self.registration.navigationPreload) {
+        await self.registration.navigationPreload.enable().catch(() => {});
+      }
       await self.clients.claim();
     })(),
   );
 });
+
+// --- warm next page (Safari, Firefox) ---------------------------------------
+// Where speculation rules don't exist, public/js/sw-register.js posts the URL
+// of a link the reader is pressing (or hovering) a few hundred ms before the
+// navigation. The fetch starts now and the navigation that follows reuses it.
+// Kept in memory only and for WARM_MS: a page fetched that recently is as
+// fresh as one fetched on click, so network-first still means what it says.
+
+const WARM_MS = 30000;
+const MAX_WARM = 4;
+/** url → { at, response: Promise<Response | null> } */
+const warm = new Map();
+
+self.addEventListener("message", (event) => {
+  const data = event.data;
+  if (!data || data.type !== "warm" || typeof data.url !== "string") return;
+  let url;
+  try {
+    url = new URL(data.url, self.location.origin);
+  } catch {
+    return;
+  }
+  url.hash = "";
+  if (url.origin !== self.location.origin || url.search || url.pathname.startsWith("/api/")) return;
+  const key = url.href;
+  const hit = warm.get(key);
+  if (hit && Date.now() - hit.at < WARM_MS) return;
+  if (warm.size >= MAX_WARM) warm.delete(warm.keys().next().value);
+  const response = fetch(key, { cache: "no-cache", credentials: "same-origin" })
+    .then((res) => (res && res.ok && !res.redirected ? res : null))
+    .catch(() => null);
+  warm.set(key, { at: Date.now(), response });
+  // Keep the worker alive until the page is in.
+  event.waitUntil(response);
+});
+
+/** The warmed response for this navigation, if one is fresh enough. */
+async function takeWarm(request) {
+  const hit = warm.get(request.url);
+  if (!hit) return null;
+  warm.delete(request.url);
+  if (Date.now() - hit.at >= WARM_MS) return null;
+  return hit.response;
+}
 
 /** Requests the worker must stay out of entirely. */
 function shouldBypass(request, url) {
@@ -76,13 +130,16 @@ self.addEventListener("fetch", (event) => {
   if (shouldBypass(request, url)) return;
 
   if (request.mode === "navigate") {
-    event.respondWith(networkFirst(request));
+    // Settled even when a warmed page wins, or the browser logs the
+    // preload as cancelled.
+    if (event.preloadResponse) event.waitUntil(event.preloadResponse.catch(() => {}));
+    event.respondWith(networkFirst(request, event.preloadResponse));
     return;
   }
   event.respondWith(staleWhileRevalidate(request));
 });
 
-async function networkFirst(request) {
+async function networkFirst(request, preloadResponse) {
   const cache = await caches.open(DOC_CACHE);
   try {
     // "no-cache", not "no-store": both bypass the browser's HTTP cache as a
@@ -92,7 +149,12 @@ async function networkFirst(request) {
     // server had to send the whole page back every time. no-cache revalidates
     // instead — server/static-cache.ts answers 304 for an unchanged page — so
     // freshness is guaranteed exactly as before at a fraction of the bytes.
-    const fresh = await fetch(request, { cache: "no-cache" });
+    // The preloaded response is that same request, sent by the browser (a
+    // `no-cache` document always revalidates); a warmed one is under 30 s old.
+    const fresh =
+      (await takeWarm(request)) ||
+      (await preloadResponse) ||
+      (await fetch(request, { cache: "no-cache" }));
     if (fresh && fresh.ok) {
       cache.put(request, fresh.clone()).then(() => trim(DOC_CACHE, MAX_DOCS));
     }

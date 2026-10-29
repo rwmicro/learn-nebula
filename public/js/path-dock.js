@@ -59,8 +59,10 @@ import { scrollProgress } from "../../lib/reading-progress";
     queued = false;
     const r = body.getBoundingClientRect();
     const p = scrollProgress(r.top, r.height, window.innerHeight);
-    fill.setAttribute("stroke-dashoffset", (C * (1 - p)).toFixed(2));
-    dock.hidden = !barGone;
+    // Only what changed: this runs every scroll frame (see reader-tools.js).
+    const dash = (C * (1 - p)).toFixed(2);
+    if (fill.getAttribute("stroke-dashoffset") !== dash) fill.setAttribute("stroke-dashoffset", dash);
+    if (dock.hidden !== !barGone) dock.hidden = !barGone;
   }
   window.addEventListener(
     "scroll",

@@ -9,6 +9,7 @@ import {
 } from "@/lib/site";
 import { DEFAULT_LOCALE, t } from "@/lib/i18n";
 import { i18nAssetUrls } from "@/lib/i18n-assets";
+import { jsAsset } from "@/lib/js-assets";
 import { getLanguageScopes } from "@/lib/content";
 import { notesIndexVersion, paletteExtraVersion } from "@/lib/home-data";
 import { Footer } from "@/components/Footer";
@@ -99,6 +100,32 @@ e.viewTransition.finished.finally(function(){unname(el)});return}}
 addEventListener("pageshow",function(e){if(e.persisted&&last)unname(last)});
 })();`;
 
+// Speculation rules (Chromium): prerender a same-site page the moment the
+// reader shows intent, so the click finds it already laid out. `moderate` is
+// a 200 ms hover on a desktop; on a phone (Chrome, since mid-2025) it is the prominent
+// link nearest the last touch once scrolling has settled. Chrome keeps at most
+// two of these alive (oldest dropped first), so the Pi serves one or two
+// extra pages per visit — instant.page, which this replaces, prerendered
+// every link that scrolled into view, up to ten at once.
+// Left out: the API and anything stateful or live (account, admin, duel's
+// WebSocket, /hasard/'s random pick), links with a query, downloads and new
+// tabs. Firefox and Safari ignore the block; public/js/sw-register.js warms
+// their next page through the service worker instead.
+const SPECULATION_RULES = JSON.stringify({
+  prerender: [
+    {
+      where: {
+        and: [
+          { href_matches: "/*" },
+          { not: { href_matches: ["/api/*", "/admin/*", "/compte/*", "/duel/*", "/hasard/*"] } },
+          { not: { selector_matches: "[data-no-instant], [download], [target=_blank], [href*='?'], [rel~=nofollow]" } },
+        ],
+      },
+      eagerness: "moderate",
+    },
+  ],
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: SITE_TITLE,
@@ -143,6 +170,7 @@ export default function RootLayout({
             paints. Covered by the CSP's script-src 'unsafe-inline'. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />
         <script dangerouslySetInnerHTML={{ __html: VIEW_TRANSITIONS }} />
+        <script type="speculationrules" dangerouslySetInnerHTML={{ __html: SPECULATION_RULES }} />
         {/* Sync, in <head>: must run before any vanilla module (audio.js,
             comments.js, …) so they can read window.__i18n.t at load. It only
             writes the tags for the cached bundle files (see I18N_BOOTSTRAP). */}
@@ -172,8 +200,8 @@ export default function RootLayout({
           {t("layout.skipLink")}
         </a>
         {/* First of the deferred scripts, so it catches the others' errors. */}
-        <Script src="/js/error-beacon.js" strategy="afterInteractive" />
-        <Script src="/js/i18n.js" strategy="afterInteractive" />
+        <Script src={jsAsset("error-beacon.js")} strategy="afterInteractive" />
+        <Script src={jsAsset("i18n.js")} strategy="afterInteractive" />
         <SiteBar />
         {children}
         <Footer />
@@ -185,21 +213,20 @@ export default function RootLayout({
         {/* Site-wide enhancers. Note-page-only behaviours (TOC, audio, comments,
             the floating assistant, …) load per-route via <NoteScripts /> so the
             home page no longer pulls scripts it doesn't use. */}
-        <Script src="/js/instantpage.js" strategy="afterInteractive" />
-        <Script src="/js/lightbox.js" strategy="afterInteractive" />
+        <Script src={jsAsset("lightbox.js")} strategy="afterInteractive" />
         {/* Theme toggle buttons (masthead + note nav); the palette itself is CSS. */}
-        <Script src="/js/theme.js" strategy="afterInteractive" />
+        <Script src={jsAsset("theme.js")} strategy="afterInteractive" />
         {/* Command palette (⌘K / Ctrl+K, "/"): built on first open; bundled
             with lib/palette-match.ts by scripts/bundle-js.mjs. */}
-        <Script src="/js/palette.bundle.js" strategy="afterInteractive" />
+        <Script src={jsAsset("palette.bundle.js")} strategy="afterInteractive" />
         {/* Pronunciation clips (.pron-btn): notes render them via Markdown
             (![word](clip.mp3)) and /cartes decks via [sound:clip.mp3]. The
             loader is site-wide and tiny; it fetches /js/pronounce.bundle.js only
             once a clip is on the page. */}
-        <Script src="/js/pronounce-loader.js" strategy="afterInteractive" />
+        <Script src={jsAsset("pronounce-loader.js")} strategy="afterInteractive" />
         {/* Service worker: offline reading of visited notes + instant repeat
             loads. It never caches /api/*. */}
-        <Script src="/js/sw-register.js" strategy="afterInteractive" />
+        <Script src={jsAsset("sw-register.js")} strategy="afterInteractive" />
         {/* Cloudflare Web Analytics (cookieless). Set NEXT_PUBLIC_CF_BEACON_TOKEN
             in the Pages env (from the Cloudflare dashboard) to enable it; unset
             in dev/local so no analytics are sent. */}
