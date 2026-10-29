@@ -368,3 +368,10 @@ export function artStrip(keys: readonly ArtKey[]): string {
   });
   return `<svg viewBox="0 0 390 110" aria-hidden="true"><path d="M0 94c70-12 140-12 200-4s130 8 190-2v22H0z" fill="var(--ground)"/>${parts.join("")}</svg>`;
 }
+
+/** A deck as a seed drawer, with its theme's drawing on the corner
+ *  (components/CartesPhone.tsx). */
+export function drawer(k: ArtKey): string {
+  const art = ART[k].replace(/<\/?svg[^>]*>/g, "");
+  return `<svg viewBox="0 0 120 80" aria-hidden="true" focusable="false"><rect x="4" y="10" width="112" height="64" rx="6" fill="var(--f2)"/><rect x="12" y="18" width="96" height="48" rx="4" fill="var(--f3)"/><rect x="46" y="38" width="28" height="7" rx="3.5" fill="var(--f0)"/><g transform="translate(82 -4) scale(.42)">${art}</g></svg>`;
+}

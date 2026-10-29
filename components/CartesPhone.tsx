@@ -1,7 +1,6 @@
 "use client";
 
-import { drawer } from "@/lib/deco-art";
-import { levelArt } from "@/lib/road-art";
+import { drawer, levelArt } from "@/lib/road-art";
 import type { PathFamily } from "@/lib/path-family";
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
@@ -180,7 +179,7 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
         <p className="rv-empty">{tr("cartesIndex.empty")}</p>
       ) : (
         // Each deck as a seed drawer with its theme's drawing on the corner
-        // (lib/deco-art.ts), two to a row.
+        // (lib/road-art.ts), two to a row.
         <ul className="rv-decks">
           {sorted.map((d) => {
             const c = counts?.[d.slug];

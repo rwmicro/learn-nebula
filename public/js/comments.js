@@ -7,7 +7,7 @@
 // fetch fails. When that happens on localhost we render an in-memory fixture
 // instead, and submissions are kept in memory only (no network). This is
 // strictly a UI-preview affordance; the real flow runs under `wrangler pages dev`.
-import { SCENES } from "../../lib/deco-art";
+import { BENCH } from "../../lib/deco-bench";
 
 (function () {
   const section = document.querySelector(".comments");
@@ -82,9 +82,9 @@ import { SCENES } from "../../lib/deco-art";
   function renderList(comments) {
     lastComments = comments;
     if (!comments.length) {
-      // An empty bench under a tree (lib/deco-art.ts).
+      // An empty bench under a tree (lib/deco-bench.ts).
       list.innerHTML =
-        '<div class="comments-empty-scene deco">' + SCENES.bench + "</div>" +
+        '<div class="comments-empty-scene deco">' + BENCH + "</div>" +
         '<p class="comments-empty">' + esc(tt("comments.empty")) + "</p>";
       return;
     }

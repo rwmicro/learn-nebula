@@ -3,35 +3,10 @@
 // (--f0 to --f3) and a ground, set on .deco / .road in app.css so they follow
 // light and dark. Static strings: nothing from the vault goes into them.
 
-import { ART, type ArtKey } from "./road-art";
+import { inner, leafPair, sprout, svg, plant } from "./deco-base";
+import { BENCH } from "./deco-bench";
 
-const inner = (svg: string) => svg.replace(/<\/?svg[^>]*>/g, "");
-
-function leafPair(x: number, y: number, s = 1): string {
-  return (
-    `<path d="M${x} ${y}c${-14 * s} ${-2 * s} ${-20 * s} ${-10 * s} ${-20 * s} ${-18 * s}c${10 * s} 0 ${18 * s} ${6 * s} ${20 * s} ${18 * s}z" fill="var(--f2)"/>` +
-    `<path d="M${x} ${y}c${14 * s} ${-2 * s} ${20 * s} ${-10 * s} ${20 * s} ${-18 * s}c${-10 * s} 0 ${-18 * s} ${6 * s} ${-20 * s} ${18 * s}z" fill="var(--f1)"/>`
-  );
-}
-
-function sprout(x: number, base: number, h: number, s = 1): string {
-  return `<path d="M${x} ${base}V${base - h}" stroke="var(--f0)" stroke-width="${3 * s}" stroke-linecap="round"/>` + leafPair(x, base - h, s);
-}
-
-const svg = (viewBox: string, body: string) => `<svg viewBox="${viewBox}" aria-hidden="true" focusable="false">${body}</svg>`;
-
-/** One plant in an 80×100 box, from sown (0) to a tree in bloom (4). */
-export function plant(stage: 0 | 1 | 2 | 3 | 4): string {
-  const ground = `<path d="M8 92c16-8 48-8 64 0z" fill="var(--ground)"/>`;
-  const body = [
-    `<ellipse cx="40" cy="86" rx="5" ry="3.5" fill="var(--f0)"/><path d="M33 78l-3-4M47 78l3-4M40 76v-5" stroke="var(--f2)" stroke-width="2.5" stroke-linecap="round"/>`,
-    sprout(40, 88, 14, 0.7),
-    `<path d="M40 88V44" stroke="var(--f0)" stroke-width="3.5" stroke-linecap="round"/>${leafPair(40, 70, 0.8)}${leafPair(40, 46, 0.9)}`,
-    `<rect x="37" y="58" width="6" height="30" rx="3" fill="var(--f0)"/><circle cx="40" cy="44" r="22" fill="var(--f1)"/><circle cx="27" cy="54" r="13" fill="var(--f2)"/><circle cx="53" cy="54" r="13" fill="var(--f2)"/>`,
-    `<rect x="36" y="56" width="8" height="32" rx="3" fill="var(--f0)"/><circle cx="40" cy="36" r="27" fill="var(--f1)"/><circle cx="22" cy="48" r="16" fill="var(--f2)"/><circle cx="58" cy="48" r="16" fill="var(--f2)"/><g fill="var(--blossom)"><circle cx="30" cy="24" r="4"/><circle cx="50" cy="20" r="4"/><circle cx="56" cy="40" r="4"/><circle cx="22" cy="44" r="4"/><circle cx="40" cy="38" r="4"/><circle cx="62" cy="54" r="3.5"/><circle cx="16" cy="56" r="3.5"/></g>`,
-  ][stage];
-  return svg("0 0 80 100", ground + body);
-}
+export { plant, BENCH };
 
 const can = (open: boolean) =>
   `<path d="M6 ${open ? 14 : 10}h${open ? 46 : 40}l${open ? -6 : -5} ${open ? 28 : 26}H${open ? 12 : 11}z" fill="var(--f1)"/>` +
@@ -112,12 +87,7 @@ export const SCENES = {
       sprout(70, 140, 16, 0.7) + sprout(250, 140, 12, 0.6),
   ),
   /** No comment yet: an empty bench under a tree. */
-  bench: svg(
-    "0 0 320 150",
-    `<path d="M20 138c40-14 240-14 280 0z" fill="var(--ground)"/><g transform="translate(40 20) scale(1.1)">${inner(plant(3))}</g>` +
-      `<g transform="translate(140 96)"><rect width="96" height="8" rx="3" fill="var(--f1)"/><rect y="-18" width="96" height="7" rx="3" fill="var(--f2)"/><g fill="var(--f0)"><rect x="8" y="6" width="6" height="26" rx="2"/><rect x="82" y="6" width="6" height="26" rx="2"/></g></g>` +
-      `<g transform="translate(222 36)"><path d="M0 12c0-8 6-12 14-12h28c8 0 14 4 14 12s-6 12-14 12H22l-10 8 2-8C6 24 0 20 0 12z" fill="var(--deco-card)" stroke="var(--f2)" stroke-width="2.5"/><g fill="var(--f2)"><circle cx="18" cy="12" r="2.5"/><circle cx="28" cy="12" r="2.5"/><circle cx="38" cy="12" r="2.5"/></g></g>`,
-  ),
+  bench: BENCH,
   /** Duel, waiting: a table with a board and two chairs, one for the guest. */
   duel: svg(
     "0 0 320 160",
@@ -137,18 +107,17 @@ export const FLEURON = svg(
 );
 
 /** The vignette that closes a note: an open book and a sprout. */
-export const CUL_DE_LAMPE = svg(
-  "0 0 160 70",
-  `<path d="M20 62c30-8 90-8 120 0z" fill="var(--ground)"/><g transform="translate(46 0) scale(.68)">${inner(ART.book)}</g>${sprout(116, 60, 18, 0.7)}`,
+// road-art's book, copied: importing ART would put every road drawing in
+// the note bundle (comments.js and quiz.js use these scenes).
+const BOOK = inner(
+  '<svg viewBox="0 0 90 70"><path d="M45 14C34 6 18 6 6 10v50c12-4 28-4 39 4z" fill="var(--f2)"/><path d="M45 14c11-8 27-8 39-4v50c-12-4-28-4-39 4z" fill="var(--f1)"/><path d="M14 22c8-2 16-2 24 2M14 32c8-2 16-2 24 2M14 42c8-2 16-2 24 2" stroke="var(--f3)" stroke-width="3" stroke-linecap="round"/></svg>',
 );
 
-/** A deck as a seed drawer, with its theme's drawing on the corner. */
-export function drawer(k: ArtKey): string {
-  return svg(
-    "0 0 120 80",
-    `<rect x="4" y="10" width="112" height="64" rx="6" fill="var(--f2)"/><rect x="12" y="18" width="96" height="48" rx="4" fill="var(--f3)"/><rect x="46" y="38" width="28" height="7" rx="3.5" fill="var(--f0)"/><g transform="translate(82 -4) scale(.42)">${inner(ART[k])}</g>`,
-  );
-}
+export const CUL_DE_LAMPE = svg(
+  "0 0 160 70",
+  `<path d="M20 62c30-8 90-8 120 0z" fill="var(--ground)"/><g transform="translate(46 0) scale(.68)">${BOOK}</g>${sprout(116, 60, 18, 0.7)}`,
+);
+
 
 /** Quiz feedback: a leaf unfolds on a right answer… */
 export const FEEDBACK_GOOD = svg(
