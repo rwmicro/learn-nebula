@@ -334,6 +334,11 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [route, setRoute] = useState<AiRoute | null>(null);
+  // Whether this is a note page, decided after mount: reading `location`
+  // while rendering would put the trigger in the client's first render but
+  // not in the exported HTML, and that hydration mismatch makes React
+  // re-render the whole page, the note's <main> included.
+  const [onNote, setOnNote] = useState(false);
   const [sheet, setSheet] = useState<Sheet>(null);
   const [sheetSources, setSheetSources] = useState<ChatSource[]>([]);
   const [card, setCard] = useState<{
@@ -490,6 +495,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       webkitSpeechRecognition?: unknown;
     };
     setCanDictate(!!(w.SpeechRecognition || w.webkitSpeechRecognition));
+    setOnNote(location.pathname.startsWith("/posts/"));
     const mq = window.matchMedia("(min-width: 640px)");
     const onMq = () => setWide(mq.matches);
     onMq();
@@ -2042,14 +2048,9 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     </>
   );
 
-  const onNote =
-    !!page ||
-    (typeof location !== "undefined" &&
-      location.pathname.startsWith("/posts/"));
-
   return (
     <>
-      {!open && onNote && (
+      {!open && (onNote || !!page) && (
         <button
           type="button"
           className="gk-pinned-trigger gc-trigger"
