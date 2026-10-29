@@ -217,7 +217,10 @@ export function normalizeEmail(raw: unknown): string | null {
   const e = raw.trim().toLowerCase();
   if (e.length > 254 || !EMAIL_RE.test(e)) return null;
   // Header injection guard, belt and braces (EMAIL_RE already excludes \s).
-  if (/[\r\n<>"',;]/.test(e)) return null;
+  // Parentheses and backslashes too: nodemailer's addressparser reads them as
+  // comments / escapes, and its comment handling let text leak into the
+  // recipient list until 10.1.4 (GHSA-8c8m-p3m8-cjg8).
+  if (/[\r\n<>"',;()\\]/.test(e)) return null;
   return e;
 }
 

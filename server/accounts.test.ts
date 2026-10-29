@@ -118,6 +118,8 @@ describe("helpers", () => {
     expect(normalizeEmail("nope")).toBeNull();
     expect(normalizeEmail("a@b")).toBeNull();
     expect(normalizeEmail("a b@c.fr")).toBeNull();
+    expect(normalizeEmail("a(x(y)z)@c.fr")).toBeNull();
+    expect(normalizeEmail("a\\b@c.fr")).toBeNull();
   });
   it("keeps only same-site redirect paths", () => {
     expect(safeNext("/posts/a/")).toBe("/posts/a/");
