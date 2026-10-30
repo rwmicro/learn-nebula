@@ -4657,8 +4657,9 @@
     position: fixed;
     top: calc(0.5rem + env(safe-area-inset-top, 0px));
     z-index: 901;
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     width: 2.75rem;
     height: 2.75rem;
     margin: 0;
@@ -4671,7 +4672,11 @@
     backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
     box-shadow: var(--glass-shadow);
     color: transparent;
+    /* One line, no gap: as a grid, the hidden label made a second row and
+       parcours.css's 0.35rem gap pushed the download icon above the centre. */
+    gap: 0;
     font-size: 0;
+    line-height: 0;
     text-decoration: none;
   }
   main.parcours-page--path .themes-back {
