@@ -10,7 +10,6 @@ import rehypeStringify from "rehype-stringify";
 import { visit, SKIP } from "unist-util-visit";
 import { fromHtml } from "hast-util-from-html";
 import { FLEURON } from "./deco-art";
-import { toString as mdToString } from "mdast-util-to-string";
 import katex from "katex";
 import type { Root, Element, ElementContent, RootContent } from "hast";
 import { createHash } from "node:crypto";
@@ -2025,7 +2024,14 @@ export function extractPlain(raw: string): string {
     .replace(/\\\\\[[\s\S]*?\\\\\]/g, "")
     .replace(/\\\\\([\s\S]*?\\\\\)/g, "")
     .replace(/\{\{<[\s\S]*?>\}\}/g, "")
-    .replace(/<[^>]+>/g, " ");
+    .replace(/<[^>]+>/g, " ")
+    // Obsidian syntax remark doesn't know: embeds go, a wikilink reads as
+    // its alias or the last segment of its target, a callout loses its tag.
+    .replace(/!\[\[[^\]\n]*\]\]/g, " ")
+    .replace(/\[\[([^\]|\n]*)(?:\|([^\]\n]*))?\]\]/g, (_, target: string, alias?: string) =>
+      (alias ?? target.replace(/#.*$/, "").split("/").pop() ?? "").trim(),
+    )
+    .replace(/^(\s*>\s*)\[![\w-]+\][+-]?/gm, "$1");
   const tree = unified().use(remarkParse).use(remarkGfm).parse(cleaned);
   visit(tree as unknown as Root, (node: any, index, parent: any) => {
     if (
@@ -2038,9 +2044,20 @@ export function extractPlain(raw: string): string {
       return [SKIP, index];
     }
   });
-  return mdToString(tree as any)
+  return blockText(tree)
     .replace(/\s+/g, " ")
     .trim();
+}
+
+/** Inline nodes run together; anything else (paragraph, heading, list item,
+ *  table cell…) ends with a space, so two blocks never fuse into one word. */
+const INLINE = new Set(["emphasis", "strong", "delete", "link", "linkReference"]);
+function blockText(node: any): string {
+  if (typeof node.value === "string" && node.type !== "code" && node.type !== "html")
+    return node.value;
+  if (!Array.isArray(node.children)) return "";
+  const inner = node.children.map(blockText).join("");
+  return INLINE.has(node.type) ? inner : `${inner} `;
 }
 
 /** Word-boundary truncation with an ellipsis, like Hugo's `truncate`. */
