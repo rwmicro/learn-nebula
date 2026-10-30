@@ -178,7 +178,7 @@
     "onDevice": "Respuesta generada en tu dispositivo: compruébala en la nota.",
     "deviceDownloading": "Descargando el modelo en tu dispositivo… {n} %",
     "localOptIn": "Responder en este dispositivo ({n} GB)",
-    "localOptInHint": "Descarga una vez un modelo pequeño (LFM3): tus respuestas se redactan entonces en tu navegador, sin servidor de IA. Se recomienda wifi; respuestas más sencillas.",
+    "localOptInHint": "Descarga una vez un modelo pequeño (LFM): tus respuestas se redactan entonces en tu navegador, sin servidor de IA. Se recomienda wifi; respuestas más sencillas.",
     "localOn": "Respuestas redactadas en este dispositivo.",
     "localOff": "Desactivar"
   },
@@ -1955,7 +1955,7 @@
     "dlGo": "Descargar {n} GB",
     "dlLater": "Más tarde",
     "dlConfirmTitle": "¿Descargar el modelo del jardín?",
-    "dlConfirmText": "Un modelo pequeño (LFM3, {n} GB) que redacta las respuestas a partir de tus notas. El jardín sigue buscando los pasajes en línea; solo la redacción se hace aquí.",
+    "dlConfirmText": "Un modelo pequeño ({name}, {n} GB) que redacta las respuestas a partir de tus notas. El jardín sigue buscando los pasajes en línea; solo la redacción se hace aquí.",
     "dlStorage": "Almacenamiento del navegador",
     "dlFree": "{n} GB libres",
     "dlUsed": "Ya usado",
@@ -1988,8 +1988,8 @@
     "setModel": "Modelo en este dispositivo",
     "setUsePhone": "Responder en este teléfono",
     "setUseDevice": "Responder en este dispositivo",
-    "setDownloaded": "LFM3 · descargado el {date}",
-    "setNotDownloaded": "LFM3 · aún no descargado",
+    "setDownloaded": "{name} · descargado el {date}",
+    "setNotDownloaded": "{name} · aún no descargado",
     "setSpace": "Espacio usado",
     "setDelete": "Eliminar el modelo (libera {n} GB)",
     "setFail": "Si el modelo no puede responder",
@@ -1997,6 +1997,7 @@
     "setFailB": "El asistente lo dice y propone reintentar. No se envía nada a una IA en línea.",
     "setNano": "Chrome ya ofrece un modelo (Gemini Nano): responde cuando conoce el idioma.",
     "errNoAnswer": "El modelo no pudo responder. Reintenta o recarga la página.",
+    "errDevice": "Motivo indicado por el dispositivo: {why}",
     "errContext": "El jardín no responde. Tu pregunta no se ha perdido: reinténtalo en un momento.",
     "errRate": "Demasiadas preguntas a la vez: reinténtalo en un momento."
   }

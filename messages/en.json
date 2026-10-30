@@ -178,7 +178,7 @@
     "onDevice": "Answer generated on your device — check it against the note.",
     "deviceDownloading": "Downloading the model to your device… {n}%",
     "localOptIn": "Answer on this device ({n} GB)",
-    "localOptInHint": "Downloads a small model (LFM3) once: your answers are then written in your browser, with no AI server. Wi‑Fi recommended, simpler answers.",
+    "localOptInHint": "Downloads a small model (LFM) once: your answers are then written in your browser, with no AI server. Wi‑Fi recommended, simpler answers.",
     "localOn": "Answers written on this device.",
     "localOff": "Turn off"
   },
@@ -1955,7 +1955,7 @@
     "dlGo": "Download {n} GB",
     "dlLater": "Later",
     "dlConfirmTitle": "Download the garden's model?",
-    "dlConfirmText": "A small model (LFM3, {n} GB) that writes answers from your notes. The garden still looks up the passages online; only the writing happens here.",
+    "dlConfirmText": "A small model ({name}, {n} GB) that writes answers from your notes. The garden still looks up the passages online; only the writing happens here.",
     "dlStorage": "Browser storage",
     "dlFree": "{n} GB free",
     "dlUsed": "Already used",
@@ -1988,8 +1988,8 @@
     "setModel": "Model on this device",
     "setUsePhone": "Answer on this phone",
     "setUseDevice": "Answer on this device",
-    "setDownloaded": "LFM3 · downloaded on {date}",
-    "setNotDownloaded": "LFM3 · not downloaded yet",
+    "setDownloaded": "{name} · downloaded on {date}",
+    "setNotDownloaded": "{name} · not downloaded yet",
     "setSpace": "Space used",
     "setDelete": "Delete the model (frees {n} GB)",
     "setFail": "If the model can't answer",
@@ -1997,6 +1997,7 @@
     "setFailB": "The assistant says so and offers to try again. Nothing is sent to an online AI.",
     "setNano": "Chrome already provides a model (Gemini Nano): it answers when it knows the language.",
     "errNoAnswer": "The model couldn't answer. Try again, or reload the page.",
+    "errDevice": "Reason given by the device: {why}",
     "errContext": "The garden isn't answering. Your question isn't lost: try again in a moment.",
     "errRate": "Too many questions at once: try again in a moment."
   }

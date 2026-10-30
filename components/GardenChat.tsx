@@ -27,12 +27,13 @@ import { escapeHtml } from "@/lib/escape";
 import { readAskStream } from "@/lib/ask-stream";
 import { detectLanguage } from "@/lib/browser-ai";
 import {
-  LOCAL_MODEL_BYTES,
-  LOCAL_MODEL_SIZE_GB,
   deleteLocalModel,
   loadLocalModel,
+  localModelCached,
   localModelDownloadedOn,
+  localModelError,
   localModelLoaded,
+  localModel,
   onLoadProgress,
   setLocalModelEnabled,
   storageFree,
@@ -351,6 +352,9 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const [dl, setDl] = useState<DlState>("idle");
   const [progress, setProgress] = useState<LoadProgress | null>(null);
   const [waitingModel, setWaitingModel] = useState(false);
+  // The weights are already on the device: a load reads them, it doesn't
+  // download them again (the progress says so).
+  const [fromCache, setFromCache] = useState(false);
   const [toast, setToast] = useState("");
   const [storage, setStorage] = useState<{ free: number; used: number } | null>(
     null,
@@ -406,6 +410,16 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   // --- the download --------------------------------------------------------
   useEffect(() => onLoadProgress(setProgress), []);
+  useEffect(() => {
+    if (dl === "loading") void localModelCached().then(setFromCache);
+  }, [dl]);
+
+  /** The "couldn't answer" line, with the device model's own reason when it
+   *  gave one (a load error, or the worker stopped, as for memory). */
+  function noAnswer(r: AiRoute): string {
+    const why = r === "local" ? localModelError() : "";
+    return why ? `${tr("chat.errNoAnswer")}\n\n${tr("chat.errDevice", { why })}` : tr("chat.errNoAnswer");
+  }
 
   function startDownload(then?: () => void) {
     setLocalModelEnabled(true);
@@ -753,14 +767,14 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       });
       setWaitingModel(false);
       if (r === "local") setDl(localModelLoaded() ? "ready" : "failed");
-      setLast(out ? { text: out } : { text: tr("chat.errNoAnswer") });
+      setLast(out ? { text: out } : { text: noAnswer(r) });
       finish(ctrl, !!out);
     } catch (e) {
       if ((e as Error)?.name === "AbortError") {
         setWaitingModel(false);
         return finish(ctrl, true);
       }
-      setLast({ text: tr("chat.errNoAnswer") });
+      setLast({ text: noAnswer(r) });
       finish(ctrl, false);
     }
   }
@@ -1009,7 +1023,8 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   }
 
   // --- rendering -----------------------------------------------------------
-  const gb = LOCAL_MODEL_SIZE_GB.toLocaleString(locale);
+  const model = localModel();
+  const gb = model.gb.toLocaleString(locale);
   const msgs = conv.messages;
   const started = msgs.length > 0;
   const noteTitle = conv.note?.title ?? page?.title ?? "";
@@ -1038,7 +1053,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         <span className="gc-prog-ic">{Ic.dl}</span>
         <b>
           {tr(
-            pct >= 100 || (progress && progress.total < LOCAL_MODEL_BYTES / 2)
+            fromCache || pct >= 100 || (progress && progress.total < model.bytes / 2)
               ? "chat.dlLoading"
               : "chat.dlProgress",
           )}
@@ -1763,8 +1778,9 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
                 {downloadedOn
                   ? tr("chat.setDownloaded", {
                       date: fmtDay(downloadedOn, locale),
+                      name: model.name,
                     })
-                  : tr("chat.setNotDownloaded")}
+                  : tr("chat.setNotDownloaded", { name: model.name })}
               </span>
             </span>
             <button
@@ -1816,7 +1832,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const freeBytes = storage?.free ?? null;
   const usedBytes = storage?.used ?? 0;
   const totalBytes = freeBytes !== null ? freeBytes + usedBytes : 0;
-  const noSpace = freeBytes !== null && freeBytes < LOCAL_MODEL_BYTES * 1.2;
+  const noSpace = freeBytes !== null && freeBytes < model.bytes * 1.2;
   const onWifi =
     (navigatorConnection()?.type ?? "") === "wifi" ||
     (navigatorConnection()?.type ?? "") === "ethernet";
@@ -1835,7 +1851,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         {sheet === "confirm" && (
           <>
             <h2 className="gc-big2">{tr("chat.dlConfirmTitle")}</h2>
-            <p className="gc-lead">{tr("chat.dlConfirmText", { n: gb })}</p>
+            <p className="gc-lead">{tr("chat.dlConfirmText", { n: gb, name: model.name })}</p>
             {freeBytes !== null && totalBytes > 0 && (
               <div className="gc-meter">
                 <div className="gc-meter-lbl">
@@ -1853,7 +1869,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
                   />
                   <i
                     style={{
-                      width: `${Math.max(2, (100 * LOCAL_MODEL_BYTES) / totalBytes)}%`,
+                      width: `${Math.max(2, (100 * model.bytes) / totalBytes)}%`,
                       background: noSpace ? "var(--danger)" : "var(--garden)",
                     }}
                   />
