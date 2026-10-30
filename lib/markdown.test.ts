@@ -23,6 +23,15 @@ describe("extractPlain", () => {
     expect(plain).not.toContain("**");
     expect(plain).not.toContain("note");
   });
+
+  it("keeps a space between blocks and reads wikilinks as words", () => {
+    const plain = extractPlain(
+      "Voir [[Courants & Écoles/Stoïcisme]] et [[Épictète|le maître]].\n\n## À retenir\n\n- **Dichotomie** du contrôle\n\n> [!tip] Astuce\n> ![[schema.png]] simple",
+    );
+    expect(plain).toBe(
+      "Voir Stoïcisme et le maître. À retenir Dichotomie du contrôle Astuce simple",
+    );
+  });
 });
 
 describe("renderMarkdown", () => {
