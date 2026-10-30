@@ -6473,6 +6473,25 @@ main[data-family],
   body:has(.note-dock) footer {
     padding-bottom: 5rem;
   }
+  /* A veil of paper under the bar: the line it floats over fades out
+     instead of running under its buttons. Hidden with the bar. */
+  body:has(.note-dock)::after {
+    content: "";
+    position: fixed;
+    z-index: 929;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(transparent, var(--paper) 55%);
+    pointer-events: none;
+  }
+  body:has(.gc):has(.note-dock)::after,
+  html.lesson-open body:has(.note-dock)::after,
+  body[data-focus="true"]:has(.note-dock)::after,
+  body[data-aside-open="true"]:has(.note-dock)::after {
+    display: none;
+  }
   /* "Remonter" sits above the bar's line on the right. */
   body:has(.note-dock) .to-top {
     bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));

@@ -405,6 +405,31 @@
   fill: currentColor;
 }
 
+/* Desktop: the views as a grid of wide tiles, icon and name on one line,
+   so none is cut at the edge. */
+@media (min-width: 640px) {
+  .nb-views {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    overflow: visible;
+  }
+  .nb-views li {
+    min-width: 0;
+  }
+  .nb-view {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.6rem;
+    width: auto;
+    height: auto;
+    padding: 0.7rem 0.8rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .nb-view,
   .nb-path {
