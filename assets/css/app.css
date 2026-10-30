@@ -2065,7 +2065,8 @@
     font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--fam, var(--garden));
+    /* The family accent alone fails AA on paper (as in .na-crumbs .na-fam). */
+    color: color-mix(in srgb, var(--fam, var(--garden)) 60%, var(--ink));
   }
   main .prereq-list {
     display: block;
