@@ -266,7 +266,6 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
     <main className="progression" data-pagefind-ignore>
       <MoiPhone />
       {/* A plain link: next/link would make scripts/prune-rsc.mjs keep every RSC payload. */}
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a href="/" className="progression-back">
         ← {t("nav.home", undefined, locale)}
       </a>
@@ -314,7 +313,6 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
           </h2>
           <p>{tr("welcomeText")}</p>
           <p className="progression-welcome-acts">
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a
               className="progression-btn progression-btn--primary"
               href="/parcours/"

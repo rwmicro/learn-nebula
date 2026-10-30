@@ -19,7 +19,6 @@ export default function AccountPage() {
     <main id="main" className="acct-page">
       {/* A plain link, like /progression/'s (next/link would keep RSC payloads). */}
       <AppBack href="/progression/" labelKey="moi.title" />
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a href="/" className="old-back acct-back">
         ← <span data-i18n="nav.home">{t("nav.home")}</span>
       </a>

@@ -165,7 +165,7 @@ export default function RootLayout({
     // hydrates, which is the point.
     <html lang="fr" suppressHydrationWarning>
       <head>
-        <meta httpEquiv="Content-Security-Policy" content={buildCSP()} />
+        <meta httpEquiv="Content-Security-Policy" content={buildCSP({ meta: true })} />
         {/* Blocking and first in <head> on purpose: must run before the body
             paints. Covered by the CSP's script-src 'unsafe-inline'. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOTSTRAP }} />

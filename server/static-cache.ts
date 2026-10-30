@@ -127,21 +127,48 @@ export function isFresh(
  * hash>.js` (lib/js-assets.ts), so they are immutable too, as are the
  * hash-named engine files under `/engine/`.
  *
+ * So are the files Pagefind names after their content (`/pagefind/fragment/`,
+ * `/pagefind/index/`, `/pagefind/filter/`, `pagefind.<lang>_<hash>.pf_meta`)
+ * and the share cards under `/og/` (named by lib/og.ts from what they draw).
+ * `pagefind.js`, `pagefind-entry.json` and `wasm.<lang>.pagefind` keep fixed
+ * names across builds, so they fall through to the default below.
+ *
+ * The JSON the pages fetch with `?v=<content hash>` (home-data.json,
+ * graph-data.json, palette-extra.json) gets a year too when `versioned`: the
+ * hash is in the URL, so a new build asks for a new URL.
+ *
+ * `/vault/**` (images, PDFs, clips copied from the notes) and `/images/**` keep
+ * their names when they change, but rarely change: a day, then served stale
+ * while a revalidation runs, so a corrected figure shows up by the next day
+ * without every view asking the Pi first.
+ *
  * Everything else stays `no-cache`: the notes are a garden, they get retended.
+ * `stale-if-error` lets a cache in front (Cloudflare, the browser) keep serving
+ * the last copy for a day when this server is down or restarting, instead of a
+ * 502 — the copy is always revalidated while the server answers.
  */
-export function cacheControlFor(urlPath: string): string | null {
+export const IMMUTABLE = "public, max-age=31536000, immutable";
+export const REVALIDATE = "no-cache, stale-if-error=86400";
+
+export function cacheControlFor(urlPath: string, versioned = false): string | null {
   if (
     urlPath.startsWith("/_next/static/") ||
     urlPath.startsWith("/i18n/") ||
     urlPath.startsWith("/js/h/") ||
+    urlPath.startsWith("/og/") ||
     // The chess engine's files carry their build's hash in the name
     // (stockfish-17.1-lite-single-03e3232.wasm, 7 MB): never re-asked for.
-    /^\/engine\/[^/]+-[0-9a-f]{7,}\.(?:js|wasm)$/.test(urlPath)
+    /^\/engine\/[^/]+-[0-9a-f]{7,}\.(?:js|wasm)$/.test(urlPath) ||
+    /^\/pagefind\/(?:fragment|index|filter)\//.test(urlPath) ||
+    /^\/pagefind\/pagefind\.[a-z-]+_[0-9a-f]+\.pf_meta$/.test(urlPath) ||
+    (versioned && /^\/(?:home-data|graph-data|palette-extra)\.json$/.test(urlPath))
   )
-    return "public, max-age=31536000, immutable";
+    return IMMUTABLE;
   if (urlPath.startsWith("/fonts/")) return "public, max-age=2592000";
   if (urlPath.startsWith("/api/")) return null;
-  return "no-cache";
+  if (urlPath.startsWith("/vault/") || urlPath.startsWith("/images/"))
+    return "public, max-age=86400, stale-while-revalidate=604800, stale-if-error=604800";
+  return REVALIDATE;
 }
 
 function statOrNull(file: string): fs.Stats | null {

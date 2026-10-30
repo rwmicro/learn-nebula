@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.19
 #
 # Runtime image for the self-hosted deploy. The static export (out/) and the RAG
 # chunks (data/rag-chunks.json) are built in CI *before* this image — see
@@ -52,6 +52,21 @@ ENV NODE_ENV=production \
     FACTS_TO_CHECK=/app/data/facts-to-check.json
 RUN corepack enable && corepack prepare pnpm@10.28.0 --activate
 
+# The static export in layers, steadiest first. A note edit used to change the
+# one `COPY out` layer, so every rebuild sent the whole ~1 GB (Anki decks,
+# pronunciation clips, PDFs, engine and ONNX runtime) to the Pi again, which
+# saturated its disk for minutes while it pulled. COPY's cache key is the files'
+# content, not their mtime, so with the gha cache an unchanged folder keeps its
+# layer digest and the Pi reuses it. They come before everything that changes
+# on each build (build-info.json, the server bundle): a changed layer
+# invalidates every layer after it. Each folder must exist in out/ (docker.yml
+# creates the optional ones); the rest of out/ is copied last, below.
+COPY out/engine ./out/engine
+COPY out/ort ./out/ort
+COPY out/katex ./out/katex
+COPY out/anki ./out/anki
+COPY out/vault ./out/vault
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY package.json ./
 # The compiled server (stage above); messages/ are bundled into it.
@@ -63,7 +78,8 @@ COPY data/rag-chunks.json ./data/rag-chunks.json
 # scripts/facts-to-check.ts)
 # — kept out of out/ so the static server never exposes them.
 COPY data/build-info.json data/vault-health.json data/prereq-suggestions.json data/facts-to-check.json ./data/
-COPY out ./out
+# --exclude needs dockerfile syntax 1.19+ (first line).
+COPY --exclude=engine --exclude=ort --exclude=katex --exclude=anki --exclude=vault out ./out
 
 # /data holds the SQLite comments DB and the embedded-vector cache — mount it so
 # comments and the (slow first-run) RAG index survive restarts. Owned by the

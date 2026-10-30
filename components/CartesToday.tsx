@@ -47,7 +47,6 @@ export function CartesToday({ decks }: { decks: AnkiDeck[] }) {
   return (
     <section className="cartes-today">
       {/* A plain link, like the rest of /cartes/: next/link would make scripts/prune-rsc.mjs keep RSC payloads. */}
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a href="/cartes/aujourdhui/" className="cartes-today-btn">
         {tr("today")}
       </a>

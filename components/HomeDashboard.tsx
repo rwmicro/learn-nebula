@@ -41,8 +41,10 @@ export interface DashPath {
   slugs: string[];
   /** What the path aims at (`cible:` of its `parcours:` block). */
   cible?: string;
-  /** Its levels (lib/path-levels.ts), named as on its road. */
-  levels: { n: number; name: string; slugs: string[] }[];
+  /** Its levels (lib/path-levels.ts), named as on its road: each covers
+   *  `slugs.slice(from, to)`. Positions, not the slugs again, because this
+   *  prop is serialised into the home page's HTML. */
+  levels: { n: number; name: string; from: number; to: number }[];
 }
 
 /** Answered questions, and those due again, by note slug (this browser). */
@@ -255,7 +257,7 @@ export function HomeDashboard({
       p.levels.map((lv) => {
         let due = 0;
         let last: string | null = null;
-        for (const s of lv.slugs) {
+        for (const s of p.slugs.slice(lv.from, lv.to)) {
           const r = ret.get(s);
           if (!r) continue;
           due += r.due;

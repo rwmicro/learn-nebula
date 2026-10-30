@@ -46,6 +46,47 @@ import { BENCH } from "../../lib/deco-bench";
   const submit = section.querySelector(".comments-submit");
   const statusEl = section.querySelector(".comments-status");
   const turnstileEl = section.querySelector(".cf-turnstile");
+  // Turnstile's script is Cloudflare's, keeps polling once loaded, and most
+  // readers never comment: load it only when the form comes near the screen
+  // or gets focus, then render explicitly into the widget's box.
+  let turnstileWidget = null;
+  if (turnstileEl) {
+    let asked = false;
+    const loadTurnstile = () => {
+      if (asked) return;
+      asked = true;
+      io && io.disconnect();
+      const render = () => {
+        if (!window.turnstile || turnstileWidget != null) return;
+        const d = turnstileEl.dataset;
+        turnstileWidget = window.turnstile.render(turnstileEl, {
+          sitekey: d.sitekey,
+          theme: d.theme,
+          size: d.size,
+          action: d.action,
+        });
+      };
+      if (window.turnstile) return render();
+      const s = document.createElement("script");
+      s.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+      s.async = true;
+      s.onload = render;
+      document.head.appendChild(s);
+    };
+    const io =
+      "IntersectionObserver" in window
+        ? new IntersectionObserver(
+            (entries) => entries.some((e) => e.isIntersecting) && loadTurnstile(),
+            { rootMargin: "600px 0px" },
+          )
+        : null;
+    if (io) io.observe(form);
+    else loadTurnstile();
+    form.addEventListener("focusin", loadTurnstile, { once: true });
+    // Phones fold the form away (it never intersects then): opening it counts.
+    const fold = section.querySelector(".fold-toggle");
+    if (fold) fold.addEventListener("change", loadTurnstile, { once: true });
+  }
 
   function tt(k, vars) {
     return window.__i18n && window.__i18n.t ? window.__i18n.t(k, vars) : k;
@@ -166,9 +207,9 @@ import { BENCH } from "../../lib/deco-bench";
     setStatus(tt("comments.sending"), "info");
 
     let turnstileToken = "";
-    if (turnstileEl && window.turnstile) {
+    if (turnstileWidget != null && window.turnstile) {
       try {
-        turnstileToken = window.turnstile.getResponse(turnstileEl) || "";
+        turnstileToken = window.turnstile.getResponse(turnstileWidget) || "";
       } catch {
         /* widget not ready */
       }
@@ -193,9 +234,9 @@ import { BENCH } from "../../lib/deco-bench";
         setStatus(tt("comments.publishedPending"), "success");
       }
       form.reset();
-      if (turnstileEl && window.turnstile) {
+      if (turnstileWidget != null && window.turnstile) {
         try {
-          window.turnstile.reset(turnstileEl);
+          window.turnstile.reset(turnstileWidget);
         } catch {
           /* widget not ready */
         }

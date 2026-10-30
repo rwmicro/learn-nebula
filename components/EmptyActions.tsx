@@ -16,11 +16,9 @@ export function EmptyActions({ text, scene }: { text?: string; scene?: SceneKey 
       {text && <p className="review-empty-text">{text}</p>}
       <div className="review-empty-actions">
         {/* Plain links, like the rest of /cartes/ (scripts/prune-rsc.mjs). */}
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a className="review-empty-btn review-empty-btn--primary" href="/cartes/">
           {t("reviewEmpty.decks", undefined, locale)}
         </a>
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a className="review-empty-btn" href="/parcours/">
           {t("reviewEmpty.path", undefined, locale)}
         </a>

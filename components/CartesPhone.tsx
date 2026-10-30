@@ -112,7 +112,6 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
           <p className="rv-kicker">{tr("rv.today")}</p>
           <p className="rv-start-h">{tr("rv.doneTitle")}</p>
           <p className="rv-start-p">{tr("rv.doneText")}</p>
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a className="rv-go" href="/cartes/entrainer/">
             {tr("rv.doneGo")}
           </a>
@@ -137,7 +136,6 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
             {tr("rv.days", { n: run })}
           </span>
         </p>
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a className="rv-go" href="/cartes/aujourdhui/">
           <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
             <path d="M8 5.5v13a1 1 0 0 0 1.5.9l10-6.5a1 1 0 0 0 0-1.8l-10-6.5A1 1 0 0 0 8 5.5Z" />
@@ -150,7 +148,6 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
       <h2 className="rv-h">{tr("rv.myQuestions")}</h2>
       <ul className="rv-list">
         <li>
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/cartes/revision/">
             <span className="rv-ico">{QUIZ}</span>
             <span className="rv-tx">
@@ -162,7 +159,6 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
           </a>
         </li>
         <li>
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a href="/cartes/entrainer/">
             <span className="rv-ico">{svg(<path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z" />)}</span>
             <span className="rv-tx">

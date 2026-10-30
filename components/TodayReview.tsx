@@ -215,7 +215,6 @@ export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: Practic
     <main id="main" className="flashcards-main note-review mx-auto max-w-[60rem] px-5 py-12 text-ink">
       {/* A plain link, like the rest of /cartes/: next/link would make scripts/prune-rsc.mjs keep RSC payloads. */}
       <AppBack href="/cartes/" labelKey="tabbar.review" />
-      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a
         href="/cartes/"
         className="old-back text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"

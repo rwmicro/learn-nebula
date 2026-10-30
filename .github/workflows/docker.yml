@@ -151,6 +151,11 @@ jobs:
           NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ vars.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
         run: pnpm build:docker
 
+      # The Dockerfile copies these folders as their own layers; COPY fails on a
+      # missing source, and a vault with no assets or decks is still a site.
+      - name: Ensure the layered folders exist
+        run: mkdir -p out/engine out/ort out/katex out/anki out/vault
+
       # The multi-arch buildx (two image filesystems) + gha cache export needs
       # more scratch than the runner has free once the ~20 GB of preinstalled
       # toolchains are counted — the first run died with "No space left on
