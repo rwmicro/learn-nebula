@@ -2,7 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { staticEntry, isFresh, cacheControlFor } from "./static-cache";
+import { staticEntry, isFresh, cacheControlFor, IMMUTABLE, REVALIDATE } from "./static-cache";
 
 let root: string;
 
@@ -106,7 +106,7 @@ describe("cacheControlFor", () => {
     expect(cacheControlFor("/js/h/note.bundle.0123456789.js")).toBe(
       "public, max-age=31536000, immutable",
     );
-    expect(cacheControlFor("/js/note.bundle.js")).toBe("no-cache");
+    expect(cacheControlFor("/js/note.bundle.js")).toBe(REVALIDATE);
   });
 
   it("caches the hash-named engine files, not the rest of /engine/", () => {
@@ -116,7 +116,7 @@ describe("cacheControlFor", () => {
     expect(cacheControlFor("/engine/stockfish-17.1-lite-single-03e3232.js")).toBe(
       "public, max-age=31536000, immutable",
     );
-    expect(cacheControlFor("/engine/COPYING.txt")).toBe("no-cache");
+    expect(cacheControlFor("/engine/COPYING.txt")).toBe(REVALIDATE);
   });
 
   it("caches content-hashed build output forever", () => {
@@ -131,9 +131,40 @@ describe("cacheControlFor", () => {
     expect(cc).not.toContain("immutable");
   });
 
+  it("caches Pagefind's content-named files, not its fixed-name entry points", () => {
+    expect(cacheControlFor("/pagefind/fragment/fr_1a2b3c4.pf_fragment")).toBe(IMMUTABLE);
+    expect(cacheControlFor("/pagefind/index/fr_1a2b3c4.pf_index")).toBe(IMMUTABLE);
+    expect(cacheControlFor("/pagefind/filter/fr_1a2b3c4.pf_filter")).toBe(IMMUTABLE);
+    expect(cacheControlFor("/pagefind/pagefind.fr_3751c4d413.pf_meta")).toBe(IMMUTABLE);
+    expect(cacheControlFor("/pagefind/pagefind.js")).toBe(REVALIDATE);
+    expect(cacheControlFor("/pagefind/pagefind-entry.json")).toBe(REVALIDATE);
+    expect(cacheControlFor("/pagefind/wasm.fr.pagefind")).toBe(REVALIDATE);
+  });
+
+  it("caches the hash-named share cards", () => {
+    expect(cacheControlFor("/og/379f1e69698f45dcdd7d.png")).toBe(IMMUTABLE);
+  });
+
+  it("caches the versioned page data only when the version is in the URL", () => {
+    expect(cacheControlFor("/home-data.json", true)).toBe(IMMUTABLE);
+    expect(cacheControlFor("/graph-data.json", true)).toBe(IMMUTABLE);
+    expect(cacheControlFor("/palette-extra.json", true)).toBe(IMMUTABLE);
+    expect(cacheControlFor("/home-data.json")).toBe(REVALIDATE);
+    expect(cacheControlFor("/notes-index.json", true)).toBe(REVALIDATE);
+  });
+
+  it("keeps vault files and site images a day, then serves them stale", () => {
+    for (const p of ["/vault/x.png", "/images/eragny.avif"]) {
+      const cc = cacheControlFor(p)!;
+      expect(cc).toContain("max-age=86400");
+      expect(cc).toContain("stale-while-revalidate");
+      expect(cc).not.toContain("immutable");
+    }
+  });
+
   it("leaves the API alone and revalidates everything else", () => {
     expect(cacheControlFor("/api/ask")).toBeNull();
-    expect(cacheControlFor("/posts/note/")).toBe("no-cache");
-    expect(cacheControlFor("/vault/x.png")).toBe("no-cache");
+    expect(cacheControlFor("/posts/note/")).toBe(REVALIDATE);
+    expect(REVALIDATE).toMatch(/^no-cache, stale-if-error=\d+$/);
   });
 });

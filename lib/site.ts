@@ -62,13 +62,14 @@ export function absoluteURL(path: string): string {
 /**
  * Content-Security-Policy delivered as a <meta> tag. `frame-ancestors` and a few
  * other directives are ignored in meta form, so the same policy is also shipped
- * as a real response header by server/index.ts.
+ * as a real response header by server/index.ts. `{ meta: true }` leaves
+ * `frame-ancestors` out: browsers log an error for it on every page otherwise.
  *
  * `script-src` keeps 'unsafe-inline' because a static export cannot emit a
  * per-request nonce for Next.js's inline bootstrap; the attack surface is small
  * since the site is fully static with no backend, third-party scripts or input.
  */
-export function buildCSP(): string {
+export function buildCSP({ meta = false }: { meta?: boolean } = {}): string {
   // React/Turbopack use eval() in dev only; production never needs it.
   const dev = process.env.NODE_ENV !== "production";
   // Turnstile loads its script + an iframed challenge from challenges.cloudflare.com.
@@ -97,8 +98,8 @@ export function buildCSP(): string {
     // which swaps in a youtube-nocookie.com player only after a click.
     `frame-src ${turnstile} https://www.youtube-nocookie.com`,
     "form-action 'none'",
-    "frame-ancestors 'none'",
   ];
+  if (!meta) directives.push("frame-ancestors 'none'");
   // Only force HTTPS upgrades on an HTTPS site (not on a .onion HTTP build).
   if (!dev && SITE_URL.startsWith("https://"))
     directives.push("upgrade-insecure-requests");

@@ -25,7 +25,7 @@ import { paintingFor, type Painting } from "@/lib/paintings";
  *  decorative, its credit carried by the caption next to it. */
 function Art({ art, eager = false }: { art: Painting; eager?: boolean }) {
   return (
-    <picture className="parcours-art" aria-hidden="true">
+    <picture className="parcours-art">
       <source type="image/avif" srcSet={`${art.src}.avif`} />
       <img
         src={`${art.src}.webp`}
@@ -563,13 +563,14 @@ export function ParcoursPage({
 export function namedLevels(
   path: ReadingPathView,
   titleOf: (slug: string) => string,
-): { n: number; name: string; slugs: string[] }[] {
+): { n: number; name: string; from: number; to: number }[] {
   const levels = pathLevels(path.notes);
   const groups = levels.map((l) => path.notes.slice(l.from, l.to));
   return levels.map((lv, i) => ({
     n: lv.n,
     name: levelName(groups[i], groups, path.discipline) ?? titleOf(groups[i][0].slug),
-    slugs: groups[i].map((n) => n.slug),
+    from: lv.from,
+    to: lv.to,
   }));
 }
 

@@ -33,6 +33,10 @@ const config = [
       // rule fires false positives here. Keep it visible as a warning rather than
       // contort working, hydration-sensitive code.
       "react-hooks/set-state-in-effect": "warn",
+      // Plain <a> between pages is the design (CLAUDE.md, Navigation): every
+      // page is its own document, made instant by speculation rules and view
+      // transitions, not by next/link.
+      "@next/next/no-html-link-for-pages": "off",
     },
   },
 ];

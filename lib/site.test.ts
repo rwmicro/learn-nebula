@@ -28,6 +28,11 @@ describe("buildCSP", () => {
     expect(csp).toContain("frame-ancestors 'none'");
   });
 
+  it("leaves frame-ancestors out of the <meta> version, which ignores it", () => {
+    expect(buildCSP({ meta: true })).not.toContain("frame-ancestors");
+    expect(buildCSP({ meta: true })).toContain("form-action 'none'");
+  });
+
   it("allows the Cloudflare Analytics beacon host", () => {
     const csp = buildCSP();
     expect(csp).toContain("https://static.cloudflareinsights.com");

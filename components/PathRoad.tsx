@@ -391,7 +391,6 @@ export function PathRoad({
                 <span>{tr("road.endReading")}</span>
               </div>
             </div>
-            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a className="road-end-go" href="/cartes/aujourdhui/">
               {tr("road.endGo")}
             </a>

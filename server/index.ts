@@ -30,6 +30,7 @@ import { createNodeWebSocket } from "@hono/node-ws";
 import { roomRoute } from "./routes/room.ts";
 import { buildCSP, SITE_URL } from "../lib/site.ts";
 import { staticEntry, isFresh, cacheControlFor } from "./static-cache.ts";
+import { loadLinkHeader } from "./early-hints.ts";
 
 const app = new Hono();
 
@@ -114,8 +115,19 @@ app.route("/api/room", roomRoute(nodeWs));
 app.use("*", async (c, next) => {
   await next();
   if (c.res.headers.has("Cache-Control")) return;
-  const value = cacheControlFor(c.req.path);
+  const value = cacheControlFor(c.req.path, c.req.query("v") !== undefined);
   if (value) c.header("Cache-Control", value);
+});
+
+// Early Hints: Cloudflare turns the `Link` of an HTML response into a 103 it
+// sends right away the next time, before the Pi answers (server/early-hints.ts).
+const linkHeader = loadLinkHeader(env.staticDir);
+app.use("*", async (c, next) => {
+  await next();
+  if (!linkHeader || c.req.method !== "GET") return;
+  if (c.res.status !== 200 && c.res.status !== 404) return;
+  if (!c.res.headers.get("Content-Type")?.startsWith("text/html")) return;
+  c.header("Link", linkHeader);
 });
 
 // Conditional requests. serveStatic sends Last-Modified but never reads the
@@ -141,6 +153,11 @@ app.use("*", async (c, next) => {
   await next();
   c.header("ETag", entry.etag);
 });
+
+// /posts/ has no page of its own (each note is /posts/<path>/): send the
+// reader who types it to the list of notes.
+app.get("/posts", (c) => c.redirect("/notes/", 301));
+app.get("/posts/", (c) => c.redirect("/notes/", 301));
 
 // Static export. trailingSlash:true means URLs are "/foo/" → out/foo/index.html,
 // which serveStatic maps automatically.

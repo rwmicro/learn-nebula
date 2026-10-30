@@ -425,7 +425,6 @@ export function PhoneEnd({
         </div>
       </div>
       <div className="rsm-foot rsm-end-actions">
-        {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full load leaves the session for the hub */}
         <a className="rsm-btn rsm-big" href="/cartes/">
           {tr("rs.finish")}
         </a>

@@ -198,7 +198,6 @@ export function MoiPhone() {
           <div className="moi-fresh-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.packet }} />
           <b>{tr("moi.freshTitle")}</b>
           <p>{tr("moi.freshText")}</p>
-          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a className="moi-fresh-go" href="/parcours/">
             {tr("progression.welcomePaths")}
           </a>

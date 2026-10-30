@@ -19,11 +19,7 @@ export function NoteScripts() {
           comments, youtube, popover, copy-links, selection-menu), generated
           by scripts/bundle-js.mjs. quiz / glossary: <NoteFeatureScripts>. */}
       <Script src={jsAsset("note.bundle.js")} strategy="afterInteractive" />
-      <Script
-        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
-        strategy="afterInteractive"
-        defer
-      />
+      {/* Turnstile is loaded by comments.js when the form comes near. */}
     </>
   );
 }
