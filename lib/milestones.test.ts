@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { disciplinesOf, longestRun, milestones } from "./milestones";
+import { byProximity, disciplinesOf, longestRun, milestones, progressToNext } from "./milestones";
 
 describe("milestones", () => {
   it("lists reached thresholds and the next one", () => {
@@ -18,5 +18,11 @@ describe("milestones", () => {
   });
   it("counts disciplines by their two top folders", () => {
     expect(disciplinesOf(["social-sciences/history/a", "social-sciences/history/b/c", "applied-sciences/chemistry/x", "top"])).toBe(2);
+  });
+  it("puts the closest open milestone first and the finished ones last", () => {
+    const rows = milestones({ read: 0, bestRun: 2, right: 3, disciplines: 20 });
+    expect(byProximity(rows).map((r) => r.kind)).toEqual(["bestRun", "right", "read", "disciplines"]);
+    expect(progressToNext(rows.find((r) => r.kind === "right")!)).toBeCloseTo(0.3);
+    expect(progressToNext(rows.find((r) => r.kind === "disciplines")!)).toBe(1);
   });
 });

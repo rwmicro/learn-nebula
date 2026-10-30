@@ -1308,10 +1308,8 @@
   },
   "moi": {
     "title": "Me",
-    "lede": "Reading, reviews and settings. Everything stays in this browser unless you sign in.",
     "keepTitle": "Keep my progress",
     "keepText": "An account by e-mail, no password: your notes and cards on all your devices.",
-    "signIn": "Sign in",
     "accountTitle": "My account",
     "accountText": "Progress synced across your devices",
     "week": "This week",
@@ -1319,11 +1317,25 @@
     "activity": "Activity",
     "weeks": "{n} weeks",
     "activityAria": "{n} active days in the last twelve weeks",
-    "keepHide": "Hide",
     "transfer": "Export or import",
     "transferSub": "My progress, as a file",
     "freshTitle": "Nothing sown yet",
-    "freshText": "Read a note to the end or answer a question: your garden will start here."
+    "freshText": "Read a note to the end or answer a question: your garden will start here.",
+    "kicker": "My garden",
+    "guestTitle": "Guest garden",
+    "guestText": "{n} notes in progress, kept in this browser only.",
+    "guestTextEmpty": "Your progress stays in this browser only.",
+    "later": "Later",
+    "localOnly": "Everything stays in this browser until you sign in.",
+    "record": "best: {n}",
+    "started": "started",
+    "nextRestart": "Finishing a note restarts the run",
+    "nextKeep": "A note today keeps the run going",
+    "nextMore": "Keep the momentum going",
+    "minutes": "{n} min",
+    "activeDays": "Active days: {n}",
+    "less": "less",
+    "more": "more"
   },
   "rs": {
     "close": "Close the session",
@@ -1803,7 +1815,9 @@
     "next": "{have} of {next} for the next one",
     "all": "All reached",
     "reached": "{n} milestone(s) reached",
-    "read1": "First note read"
+    "read1": "First note read",
+    "closest": "Closest",
+    "count": "{n} of {total}"
   },
   "chess": {
     "title": "Play chess",

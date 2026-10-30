@@ -73,3 +73,24 @@ export function longestRun(days: Record<string, { r: number; c: number }>): numb
 export function disciplinesOf(slugs: string[]): number {
   return new Set(slugs.map((s) => s.split("/").slice(0, 2).join("/")).filter((s) => s.includes("/"))).size;
 }
+
+/** Share of the way from the last threshold reached to the next one (0–1);
+ *  1 once every threshold is reached. */
+export function progressToNext(r: MilestoneRow): number {
+  if (r.next === null) return 1;
+  return Math.min(1, Math.max(0, (r.value - r.from) / (r.next - r.from)));
+}
+
+/** The rows still open, closest to their next threshold first (ties keep
+ *  STEPS order), then the families with every threshold reached. */
+export function byProximity(rows: MilestoneRow[]): MilestoneRow[] {
+  return rows
+    .map((r, i) => ({ r, i }))
+    .sort((a, b) => {
+      const da = a.r.next === null ? 1 : 0;
+      const db = b.r.next === null ? 1 : 0;
+      if (da !== db) return da - db;
+      return progressToNext(b.r) - progressToNext(a.r) || a.i - b.i;
+    })
+    .map(({ r }) => r);
+}
