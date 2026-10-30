@@ -6050,6 +6050,7 @@ main[data-family],
 /* One line under the title: date · time · stage · tended · history · Lue. */
 .note-meta .note-growth {
   margin: 0;
+  font-size: inherit;
 }
 @media (max-width: 639.98px) {
   /* Phones: the "historique" link alone under the title read like a
@@ -6096,10 +6097,17 @@ main[data-family],
   .note-meta > :first-child::before {
     content: none !important;
   }
+  /* Same size and dotted underline as the rest of the line (`main a` made
+     it larger), and its "·" kept out of the underline. */
   .note-meta .growth-history {
+    font: inherit;
     color: inherit;
-    text-decoration: underline;
+    text-decoration: underline dotted;
     text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.2em;
+  }
+  .note-meta .growth-history::before {
+    display: inline-block;
   }
 }
 
