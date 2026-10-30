@@ -5444,7 +5444,9 @@ html.ne-open {
   }
   main table:has(> tbody > tr > td:first-child > .pron) tr {
     display: grid;
-    grid-template-columns: 3.25rem auto minmax(0, 1fr) auto;
+    /* The word's square grows for a vocabulary word (up to 8.5rem, where it
+       wraps between words). */
+    grid-template-columns: fit-content(8.5rem) auto minmax(0, 1fr) auto;
     grid-template-areas:
       "l n t p"
       "l h h p"
@@ -5490,10 +5492,11 @@ html.ne-open {
     padding: 0.2rem;
     border-radius: 0.8rem;
     background: color-mix(in srgb, var(--ink) 6%, transparent);
+    min-width: 3.25rem;
     font-size: 1.15rem;
     line-height: 1.2;
     text-align: center;
-    overflow-wrap: anywhere;
+    overflow-wrap: break-word;
   }
   main table:has(> tbody > tr > td:first-child > .pron) .pron-label.is-rtl {
     font-size: 1.6rem;
@@ -5521,6 +5524,16 @@ html.ne-open {
     font-weight: 600;
     color: var(--link);
   }
+  /* A three-column vocabulary row (word | gloss | French): the gloss and the
+     French stack, so a long gloss no longer squeezes the French into a
+     one-word-per-line strip. The alphabets (four columns) keep their line. */
+  main table:has(> tbody > tr > td:first-child > .pron) tr:not(:has(> td:nth-child(4))) {
+    grid-template-columns: fit-content(8.5rem) minmax(0, 1fr) auto;
+    grid-template-areas:
+      "l n p"
+      "l t p"
+      "x . p";
+  }
   main table:has(> tbody > tr > td:first-child > .pron) td:nth-child(n + 4) {
     grid-column: 2 / 4;
     font-size: 0.92rem;
@@ -5529,6 +5542,53 @@ html.ne-open {
   }
   main table:has(> tbody > tr > td:first-child > .pron) td:nth-child(4) {
     grid-area: h;
+  }
+  /* "Gantang / Segantang": the first variant takes the square and the
+     buttons; each other one gets its own line under the row (they all
+     landed on the same square and buttons, one over the other). The " / "
+     between them is a bare text node: shrunk to nothing. */
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child:has(> .pron ~ .pron) {
+    font-size: 0;
+    color: transparent;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child:has(> .pron ~ .pron) > .pron {
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron ~ .pron {
+    grid-row: 4;
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.4rem;
+    padding-top: 0.4rem;
+    border-top: 0.5px dashed var(--dash-edge, var(--rule));
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron ~ .pron ~ .pron {
+    grid-row: 5;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron ~ .pron .pron-label {
+    display: inline;
+    min-height: 0;
+    min-width: 0;
+    padding: 0;
+    background: none;
+    font-size: 1.05rem;
+    text-align: start;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron ~ .pron .pron-label::before {
+    content: "ou ";
+    color: var(--muted);
+    font-style: normal;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron ~ .pron .pron-pill {
+    order: 1;
+    transform: scale(0.85);
+    transform-origin: right center;
   }
 }
 
