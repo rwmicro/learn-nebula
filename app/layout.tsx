@@ -133,7 +133,19 @@ export const metadata: Metadata = {
   // Feed autodiscovery (<link rel="alternate" type="application/rss+xml">)
   // for app/feed.xml; lib/seo.ts repeats it for pages with a canonical URL.
   alternates: { types: FEED_ALTERNATES },
-  // Favicon/apple-touch icons are auto-detected from app/icon.png & app/apple-icon.png.
+  // The linocut arch: E2-a on paper for light, the night version for a dark
+  // OS (the tab follows the system, not the in-page toggle). Declared here
+  // rather than as app/icon.png, which can't carry a `media` query. The
+  // 192px one serves bookmarks and shortcuts; /favicon.ico (16-48px) is the
+  // fallback for whatever asks for it by name.
+  icons: {
+    icon: [
+      { url: "/icon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-dark-32.png", sizes: "32x32", type: "image/png", media: "(prefers-color-scheme: dark)" },
+    ],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
   // Added to the home screen, the site opens full screen like an app. The
   // "default" status bar keeps its own strip, coloured by theme-color, so
   // the page never slides under it ("black-translucent" would force white
