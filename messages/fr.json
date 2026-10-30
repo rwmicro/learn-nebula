@@ -1308,10 +1308,8 @@
   },
   "moi": {
     "title": "Moi",
-    "lede": "Lecture, révisions et réglages. Tout reste dans ce navigateur, sauf si vous vous connectez.",
     "keepTitle": "Garder ma progression",
     "keepText": "Un compte par e-mail, sans mot de passe : vos notes et cartes sur tous vos appareils.",
-    "signIn": "Se connecter",
     "accountTitle": "Mon compte",
     "accountText": "Progression synchronisée sur vos appareils",
     "week": "Cette semaine",
@@ -1319,11 +1317,25 @@
     "activity": "Activité",
     "weeks": "{n} semaines",
     "activityAria": "{n} jours actifs sur les douze dernières semaines",
-    "keepHide": "Masquer",
     "transfer": "Exporter ou importer",
     "transferSub": "Ma progression, en fichier",
     "freshTitle": "Rien de semé pour l’instant",
-    "freshText": "Lis une note jusqu’au bout ou réponds à une question : ton jardin commencera ici."
+    "freshText": "Lis une note jusqu’au bout ou réponds à une question : ton jardin commencera ici.",
+    "kicker": "Mon jardin",
+    "guestTitle": "Jardin invité",
+    "guestText": "{n} notes en cours, gardées dans ce navigateur seulement.",
+    "guestTextEmpty": "Votre progression reste dans ce navigateur seulement.",
+    "later": "Plus tard",
+    "localOnly": "Tout reste dans ce navigateur tant que vous ne vous connectez pas.",
+    "record": "record : {n}",
+    "started": "commencées",
+    "nextRestart": "Finir une note relance la série",
+    "nextKeep": "Une note aujourd’hui garde la série",
+    "nextMore": "Continuer sur votre lancée",
+    "minutes": "{n} min",
+    "activeDays": "Jours actifs : {n}",
+    "less": "moins",
+    "more": "plus"
   },
   "rs": {
     "close": "Fermer la séance",
@@ -1803,7 +1815,9 @@
     "next": "{have} sur {next} pour le prochain",
     "all": "Tous atteints",
     "reached": "{n} jalon(s) atteint(s)",
-    "read1": "Première note lue"
+    "read1": "Première note lue",
+    "closest": "Le plus proche",
+    "count": "{n} sur {total}"
   },
   "chess": {
     "title": "Jouer aux échecs",

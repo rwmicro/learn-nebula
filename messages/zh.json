@@ -1308,10 +1308,8 @@
   },
   "moi": {
     "title": "我",
-    "lede": "阅读、复习和设置。除非登录，一切都只保存在此浏览器中。",
     "keepTitle": "保存我的进度",
     "keepText": "用邮箱建立账户，无需密码：你的笔记和卡片在所有设备上同步。",
-    "signIn": "登录",
     "accountTitle": "我的账户",
     "accountText": "进度已在你的设备间同步",
     "week": "本周",
@@ -1319,11 +1317,25 @@
     "activity": "活动",
     "weeks": "{n} 周",
     "activityAria": "过去十二周中有 {n} 天活跃",
-    "keepHide": "隐藏",
     "transfer": "导出或导入",
     "transferSub": "我的进度，保存为文件",
     "freshTitle": "还什么都没种下",
-    "freshText": "读完一篇笔记或回答一个问题，你的花园就从这里开始。"
+    "freshText": "读完一篇笔记或回答一个问题，你的花园就从这里开始。",
+    "kicker": "我的花园",
+    "guestTitle": "访客花园",
+    "guestText": "{n} 篇笔记进行中，仅保存在此浏览器。",
+    "guestTextEmpty": "你的进度只保存在此浏览器中。",
+    "later": "稍后",
+    "localOnly": "登录之前，一切都只保存在此浏览器中。",
+    "record": "最长：{n}",
+    "started": "已开始",
+    "nextRestart": "读完一篇笔记即可重新开始连续记录",
+    "nextKeep": "今天读一篇笔记即可保持连续记录",
+    "nextMore": "趁热打铁，继续阅读",
+    "minutes": "{n} 分钟",
+    "activeDays": "活跃天数：{n}",
+    "less": "少",
+    "more": "多"
   },
   "rs": {
     "close": "关闭复习",
@@ -1803,7 +1815,9 @@
     "next": "下一个：{have}/{next}",
     "all": "全部达成",
     "reached": "已达成 {n} 个",
-    "read1": "读完第一篇笔记"
+    "read1": "读完第一篇笔记",
+    "closest": "最接近",
+    "count": "{n}/{total}"
   },
   "chess": {
     "title": "下国际象棋",

@@ -1308,10 +1308,8 @@
   },
   "moi": {
     "title": "Yo",
-    "lede": "Lectura, repasos y ajustes. Todo se queda en este navegador, salvo si inicias sesión.",
     "keepTitle": "Guardar mi progreso",
     "keepText": "Una cuenta por correo, sin contraseña: tus notas y tarjetas en todos tus dispositivos.",
-    "signIn": "Iniciar sesión",
     "accountTitle": "Mi cuenta",
     "accountText": "Progreso sincronizado en tus dispositivos",
     "week": "Esta semana",
@@ -1319,11 +1317,25 @@
     "activity": "Actividad",
     "weeks": "{n} semanas",
     "activityAria": "{n} días activos en las últimas doce semanas",
-    "keepHide": "Ocultar",
     "transfer": "Exportar o importar",
     "transferSub": "Mi progreso, en un archivo",
     "freshTitle": "Nada sembrado todavía",
-    "freshText": "Lee una nota hasta el final o responde una pregunta: tu jardín empezará aquí."
+    "freshText": "Lee una nota hasta el final o responde una pregunta: tu jardín empezará aquí.",
+    "kicker": "Mi jardín",
+    "guestTitle": "Jardín de invitado",
+    "guestText": "{n} notas en curso, guardadas solo en este navegador.",
+    "guestTextEmpty": "Tu progreso se queda solo en este navegador.",
+    "later": "Más tarde",
+    "localOnly": "Todo se queda en este navegador hasta que inicies sesión.",
+    "record": "récord: {n}",
+    "started": "empezadas",
+    "nextRestart": "Terminar una nota reanuda la racha",
+    "nextKeep": "Una nota hoy mantiene la racha",
+    "nextMore": "Sigue con el impulso",
+    "minutes": "{n} min",
+    "activeDays": "Días activos: {n}",
+    "less": "menos",
+    "more": "más"
   },
   "rs": {
     "close": "Cerrar la sesión",
@@ -1803,7 +1815,9 @@
     "next": "{have} de {next} para el siguiente",
     "all": "Todos alcanzados",
     "reached": "{n} hito(s) alcanzado(s)",
-    "read1": "Primera nota leída"
+    "read1": "Primera nota leída",
+    "closest": "El más cercano",
+    "count": "{n} de {total}"
   },
   "chess": {
     "title": "Jugar al ajedrez",
