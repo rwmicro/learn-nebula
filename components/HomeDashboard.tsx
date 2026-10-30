@@ -126,16 +126,10 @@ function resumePath(data: HomeData | null, store: ReadingStore) {
 /** "Arabe libanais : des premiers mots à la culture" → "Arabe libanais". */
 const shortName = (name: string) => name.split(/\s+:\s+/)[0];
 
-/** Up to 12 dashes for a path: the share read, the current note's progress
- *  as a part-filled dash. */
-function dashes(read: number, total: number, pct: number) {
-  const n = Math.min(12, total);
-  const done = (read / total) * n;
-  const part = (pct / 100) * (n / total);
-  return Array.from({ length: n }, (_, i) => {
-    const fill = Math.max(0, Math.min(1, done + part - i));
-    return i < Math.floor(done) ? 1 : fill;
-  });
+/** The share of a path read, the current note's progress counting as part
+ *  of its step, 0–100. */
+function pathShare(read: number, total: number, pct: number) {
+  return Math.min(100, (100 * (read + pct / 100)) / total);
 }
 
 /** Round robin over the colour families, so the row never shows the same
@@ -293,6 +287,25 @@ export function HomeDashboard({
   const activeToday = !!me?.days[today] && (me.days[today].r > 0 || me.days[today].c > 0);
   const weekLetters = tr("dash.weekLetters").split("|");
   const art = paintingFor(resume?.path.family, resume?.slug);
+  const weekDays = (
+    <span className="dash-week-days" aria-hidden="true">
+      {week.map((d, i) => {
+        const on = !!me?.days[d] && (me.days[d].r > 0 || me.days[d].c > 0);
+        return (
+          <span key={d}>
+            <i className={on ? "is-on" : d === today ? "is-now" : undefined}>
+              {on && (
+                <svg viewBox="0 0 24 24" {...s} strokeWidth={3}>
+                  <path d="m5 12.5 4.5 4.5L19 7.5" />
+                </svg>
+              )}
+            </i>
+            {weekLetters[i]}
+          </span>
+        );
+      })}
+    </span>
+  );
 
   return (
     <section className="dash" data-pagefind-ignore>
@@ -317,45 +330,60 @@ export function HomeDashboard({
               {tr("dash.stepOf", { path: shortName(resume.path.name), n: resume.step, total: resume.total })}
             </span>
             <span className="dash-cap">
-              <small>{tr("dash.resumeKicker", { m: resume.left })}</small>
               <b>{resume.title}</b>
+              <small>{tr("dash.min", { m: resume.left })}</small>
             </span>
           </a>
           <div className="dash-progress" aria-hidden="true">
-            <span className="dash-dashes">
-              {dashes(resume.read, resume.total, resume.pct).map((f, i) => (
-                <i key={i} style={{ "--f": f } as React.CSSProperties} />
-              ))}
+            <span className="dash-line">
+              <i style={{ width: `${pathShare(resume.read, resume.total, resume.pct)}%` }} />
             </span>
-            <span>{tr("dash.pctRead", { p: resume.pct })}</span>
+            <span>
+              {resume.step} / {resume.total}
+            </span>
           </div>
           <a className="dash-go" href={`/posts/${resume.slug}/#reprendre`} aria-label={tr("dash.continueAria", { title: resume.title })}>
             <Play />
             {tr("dash.resumeCta")}
           </a>
-          <nav className="dash-session" aria-label={tr("dash.today")}>
-            <a className={due ? "is-due" : undefined} href={due?.href ?? "/cartes/"}>
+          {/* The week and today's notes, in the card's foot (the cards due
+              have their own row below). */}
+          <a className="dash-week-in" href="/defis/">
+            {weekDays}
+            <span className={(me?.readToday ?? 0) >= DAILY_GOAL ? "dash-goal is-done" : "dash-goal"}>
               <b>
-                <svg viewBox="0 0 24 24" {...s} strokeWidth={1.9} aria-hidden="true">
-                  <rect x="3" y="7" width="13" height="14" rx="2" />
-                  <path d="M8 3h11a2 2 0 0 1 2 2v12" />
-                </svg>
-                {due?.n ?? 0}
+                {(me?.readToday ?? 0) >= DAILY_GOAL ? Math.min(me?.readToday ?? 0, 99) : `${me?.readToday ?? 0} / ${DAILY_GOAL}`}
               </b>
-              <small>{tr("dash.cardsDue")}</small>
-            </a>
-            <a className={(me?.readToday ?? 0) >= DAILY_GOAL ? "is-done" : undefined} href="/progression/">
-              <b>
-                <svg viewBox="0 0 24 24" {...s} strokeWidth={2.2} aria-hidden="true">
-                  <path d="m5 12.5 4.5 4.5L19 7.5" />
-                </svg>
-                {(me?.readToday ?? 0) >= DAILY_GOAL ? Math.min(me?.readToday ?? 0, 99) : `${me?.readToday ?? 0}/${DAILY_GOAL}`}
-              </b>
-              <small>{tr("dash.readToday")}</small>
-            </a>
-          </nav>
+              {tr("dash.readToday")}
+            </span>
+          </a>
         </section>
-      ) : (
+      ) : null}
+
+      {resume && due && (
+        <>
+          <div className="dash-row-h">
+            <h2 className="dash-h">{tr("tabbar.review")}</h2>
+          </div>
+          <a className="dash-due" href={due.href}>
+            <span className="dash-due-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" {...s} strokeWidth={1.9}>
+                <rect x="3" y="7" width="13" height="14" rx="2" />
+                <path d="M8 3h11a2 2 0 0 1 2 2v12" />
+              </svg>
+            </span>
+            <span className="dash-due-text">
+              <b>
+                {due.n} {tr(due.n === 1 ? "dash.cardsDueOne" : "dash.cardsDue")}
+              </b>
+              <small>≈ {tr("dash.min", { m: Math.max(1, Math.round((due.n * 25) / 60)) })}</small>
+            </span>
+            <Chevron />
+          </a>
+        </>
+      )}
+
+      {!resume && (
         <section className="dash-today dash-welcome" aria-label={tr("dash.today")}>
           <div className="dash-art">
             <picture>
@@ -425,25 +453,9 @@ export function HomeDashboard({
         </section>
       )}
 
-      {me && Object.keys(me.days).length > 0 && (
+      {!resume && me && Object.keys(me.days).length > 0 && (
         <a className="dash-week" href="/defis/">
-          <span className="dash-week-days" aria-hidden="true">
-            {week.map((d, i) => {
-              const on = !!me.days[d] && (me.days[d].r > 0 || me.days[d].c > 0);
-              return (
-                <span key={d}>
-                  <i className={on ? "is-on" : d === today ? "is-now" : undefined}>
-                    {on && (
-                      <svg viewBox="0 0 24 24" {...s} strokeWidth={3}>
-                        <path d="m5 12.5 4.5 4.5L19 7.5" />
-                      </svg>
-                    )}
-                  </i>
-                  {weekLetters[i]}
-                </span>
-              );
-            })}
-          </span>
+          {weekDays}
           <span className="dash-week-text">
             <b>
               <svg className="dash-flame" viewBox="0 0 24 24" aria-hidden="true">

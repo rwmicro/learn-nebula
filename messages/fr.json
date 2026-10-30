@@ -1233,6 +1233,7 @@
     "pctRead": "{p} % lu",
     "resumeCta": "Reprendre la lecture",
     "cardsDue": "cartes à revoir",
+    "cardsDueOne": "carte à revoir",
     "readToday": "notes lues aujourd’hui",
     "welcomeText": "{n} notes reliées entre elles, de la philosophie à l’arabe libanais. Par où commencer ?",
     "wayPath": "Suivre un parcours",
