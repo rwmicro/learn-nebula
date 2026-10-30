@@ -229,7 +229,7 @@ button.gc-ib:hover {
 .gc-sugg {
   display: flex;
   gap: 10px;
-  padding: 0 16px;
+  padding: 2px 16px 8px;
   overflow-x: auto;
   scrollbar-width: none;
 }
@@ -239,8 +239,10 @@ button.gc-ib:hover {
   text-align: left;
   padding: 12px 14px;
   border-radius: 16px;
-  background: var(--wash);
-  border: 0.5px solid var(--rule);
+  /* Raised like the site's other cards (Réviser, Notes, "À lire avant"). */
+  background: var(--dash-card);
+  border: 0.5px solid var(--dash-edge);
+  box-shadow: var(--dash-shadow);
 }
 .gc-sugg b {
   display: block;

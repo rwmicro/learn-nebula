@@ -1233,6 +1233,7 @@
     "pctRead": "{p}% read",
     "resumeCta": "Resume reading",
     "cardsDue": "cards to review",
+    "cardsDueOne": "card to review",
     "readToday": "notes read today",
     "welcomeText": "{n} linked notes, from philosophy to Lebanese Arabic. Where to start?",
     "wayPath": "Follow a path",

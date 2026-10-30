@@ -1233,6 +1233,7 @@
     "pctRead": "已读 {p}%",
     "resumeCta": "继续阅读",
     "cardsDue": "张卡片待复习",
+    "cardsDueOne": "张卡片待复习",
     "readToday": "篇今日已读",
     "welcomeText": "{n} 篇相互链接的笔记，从哲学到黎巴嫩阿拉伯语。从哪里开始？",
     "wayPath": "跟随一条路线",

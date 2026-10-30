@@ -46,7 +46,7 @@ import {
   type ReviewItem,
 } from "@/lib/review-item";
 import { ReviewSession } from "@/components/ReviewSession";
-import { btn, btnOn, quiet } from "@/components/srs-ui";
+import { btn, quiet } from "@/components/srs-ui";
 import { DeckFace } from "@/components/DeckFace";
 import { AppBack } from "@/components/AppBack";
 
@@ -320,37 +320,36 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
         href="/cartes/"
         className="old-back text-micro font-semibold uppercase tracking-[0.1em] text-muted-warm no-underline hover:bg-transparent hover:text-ink"
       >
-        ← {t("cartesIndex.title", undefined, locale)}
+        ← {t("tabbar.review", undefined, locale)}
       </a>
 
-      <header className="mb-6 mt-3 flex items-baseline justify-between gap-4 border-b border-ink pb-2">
-        <h1 className="m-0 text-balance text-[clamp(1.25rem,1rem+1.8vw,2.2rem)] font-medium leading-tight">
+      <header className="fc-head">
+        <h1 className="fc-title">
           {name}
           {cfg.sub && <span className="text-muted-warm"> › {cfg.sub}</span>}
         </h1>
         {cardCount > 0 && !(reviewing && !queue.length) && (
-          <span className="shrink-0 text-meta tabular-nums text-muted-warm">
+          <span className="fc-count">
             {reviewing ? `${queue.length} ${tr("left")}` : `${pos + 1} / ${browse.length}`}
           </span>
         )}
       </header>
 
       {deck && progress && summary && (
-        <div className="mb-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-          <div role="group" aria-label={tr("modes")} className="flex">
+        <div className="fc-bar">
+          <div role="group" aria-label={tr("modes")} className="fc-seg">
             {(["review", "browse"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 aria-pressed={mode === m}
                 onClick={() => mode !== m && startMode(m)}
-                className={`${mode === m ? btnOn : btn} -ml-px first:ml-0`}
               >
                 {tr(m === "review" ? "modeReview" : "modeBrowse")}
               </button>
             ))}
           </div>
-          <dl className="m-0 flex gap-5 text-meta tabular-nums text-muted-warm">
+          <dl className="fc-stats">
             {(
               [
                 ["due", summary.due],
@@ -358,9 +357,9 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
                 ["learned", summary.learned],
               ] as const
             ).map(([k, n]) => (
-              <div key={k} className="flex items-baseline gap-1.5">
+              <div key={k} className="fc-stat">
                 <dt>{tr(k)}</dt>
-                <dd className="m-0 font-semibold text-ink">{n}</dd>
+                <dd>{n}</dd>
               </div>
             ))}
           </dl>
@@ -436,9 +435,9 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
       )}
 
       {deck && progress && settings && (
-        <details className="deck-settings mt-10 border-t border-rule pt-4">
-          <summary className="cursor-pointer text-small font-semibold text-ink-2">{tr("settings")}</summary>
-          <div className="mt-4 grid gap-4 text-small sm:grid-cols-2">
+        <details className="fc-panel deck-settings">
+          <PanelSummary icon={GEAR}>{tr("settings")}</PanelSummary>
+          <div className="fc-panel-body grid gap-4 text-small sm:grid-cols-2">
             <Field label={tr("newPerDay")}>
               <select
                 value={cfg.newPerDay}
@@ -512,11 +511,10 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
       )}
 
       {deck && progress && troubled.length > 0 && (
-        <details className="deck-leeches mt-6 border-t border-rule pt-4">
-          <summary className="cursor-pointer text-small font-semibold text-ink-2">
-            {tr("leeches", { count: troubled.length })}
-          </summary>
-          <p className="mt-2 text-small text-ink-2">{tr("leechesIntro")}</p>
+        <details className="fc-panel deck-leeches">
+          <PanelSummary icon={LEECH}>{tr("leeches", { count: troubled.length })}</PanelSummary>
+          <div className="fc-panel-body">
+          <p className="mt-0 text-small text-ink-2">{tr("leechesIntro")}</p>
           <ul className="m-0 mt-3 list-none border-t border-rule p-0">
             {troubled.map((c) => {
               const st = progress.cards[c.key];
@@ -537,6 +535,7 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
               );
             })}
           </ul>
+          </div>
         </details>
       )}
 
@@ -551,10 +550,39 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
   );
 }
 
+// The two folds (settings, troubled cards) open from a row like the
+// /cartes/ index's (CartesPhone.tsx): icon tile, label, chevron.
+const icon = (d: React.ReactNode) => (
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    {d}
+  </svg>
+);
+const GEAR = icon(
+  <>
+    <path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12" />
+    <circle cx="16" cy="6" r="2" />
+    <circle cx="10" cy="12" r="2" />
+    <circle cx="18" cy="18" r="2" />
+  </>,
+);
+const LEECH = icon(<path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" />);
+
+function PanelSummary({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <summary className="fc-sum">
+      <span className="rv-ico">{icon}</span>
+      <span className="fc-sum-tx">{children}</span>
+      <svg className="rv-chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m9 5 7 7-7 7" />
+      </svg>
+    </summary>
+  );
+}
+
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
   return (
     <label className="deck-field flex flex-col gap-1">
-      <span className="text-micro font-semibold uppercase tracking-[0.08em] text-muted-warm">{label}</span>
+      <span className="deck-field-label">{label}</span>
       {children}
       {hint && <span className="text-micro text-muted-warm">{hint}</span>}
     </label>

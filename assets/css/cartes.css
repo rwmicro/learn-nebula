@@ -119,3 +119,149 @@ body:has(.flashcards-main) {
   outline: 2px solid var(--link);
   outline-offset: 1px;
 }
+
+/* A deck's page (Flashcards.tsx), in the /cartes/ index's idiom
+   (CartesPhone.tsx, .rv-* in app.css) at every width: serif title, Alegreya
+   Sans for the controls, a segmented mode switch, the counts and the folds
+   on raised cards. */
+.flashcards-main {
+  --fc-sans: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+}
+.fc-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0.75rem 0 1rem;
+}
+.flashcards-main .fc-title {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font: 600 clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem) / 1.08 "Alegreya", "Alegreya Fallback", serif;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.fc-count {
+  flex: none;
+  font: 500 0.875rem var(--fc-sans);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.fc-bar {
+  display: grid;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+.fc-seg {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 3px;
+  border-radius: 0.6875rem;
+  background: var(--wash-2);
+}
+.fc-seg button {
+  height: 2.125rem;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 0.5625rem;
+  background: none;
+  font: 500 0.95rem var(--fc-sans);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.fc-seg button:hover {
+  background: none;
+  color: var(--ink);
+}
+.fc-seg [aria-pressed="true"],
+.fc-seg [aria-pressed="true"]:hover {
+  background: var(--seg-on);
+  color: var(--ink);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+}
+.fc-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 0;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.125rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+}
+.fc-stat {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.125rem;
+  padding: 0.625rem 0.875rem;
+}
+.fc-stat + .fc-stat {
+  border-left: 0.5px solid var(--rule);
+}
+.fc-stat dt {
+  font: 500 0.8125rem var(--fc-sans);
+  color: var(--ink-2);
+}
+.fc-stat dd {
+  margin: 0;
+  font: 600 1.5rem/1 "Alegreya", "Alegreya Fallback", serif;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+@media (min-width: 640px) {
+  .fc-bar {
+    grid-template-columns: auto auto;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .fc-stat {
+    padding: 0.5rem 1.125rem;
+  }
+}
+
+/* The folds: a card whose summary is a /cartes/ row. */
+.fc-panel {
+  margin-top: 1.5rem;
+  overflow: hidden;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.125rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+}
+.fc-panel + .fc-panel {
+  margin-top: 0.75rem;
+}
+.fc-sum {
+  display: flex;
+  align-items: center;
+  gap: 0.8125rem;
+  min-height: 3.75rem;
+  padding: 0.75rem 0.875rem;
+  list-style: none;
+  cursor: pointer;
+}
+.fc-sum::-webkit-details-marker {
+  display: none;
+}
+.fc-sum-tx {
+  flex: 1;
+  min-width: 0;
+  font: 500 1.0625rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+  color: var(--ink);
+}
+.fc-sum .rv-chev {
+  transition: transform 0.2s;
+}
+.fc-panel[open] .rv-chev {
+  transform: rotate(90deg);
+}
+.fc-panel-body {
+  padding: 1rem 0.875rem 1.125rem;
+  border-top: 0.5px solid var(--rule);
+}
+.deck-field-label {
+  font: 600 0.8125rem var(--fc-sans);
+  color: var(--ink-2);
+}
+.fc-panel input[type="checkbox"] {
+  accent-color: var(--garden);
+}
