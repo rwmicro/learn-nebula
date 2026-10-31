@@ -547,6 +547,16 @@ footer {
   body {
     max-width: 680px;
   }
+  /* 680px is a note's reading measure: the index pages size their own
+     column (a tablet in portrait is under this breakpoint). */
+  body:has(> main:is(.cartes-index, .nb, .themes-page)) {
+    max-width: none;
+  }
+  body:has(> main:is(.cartes-index, .nb, .themes-page)) > footer {
+    max-width: 64rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
   main,
   footer {
     margin: 0 1.2rem;

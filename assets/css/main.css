@@ -1148,29 +1148,28 @@ h4:focus-within .anchor,
   display: inline-block;
 }
 
-/* Wide-reading cycler: each step extends the body to the LEFT only — its
-   right edge stays anchored where the centred 80rem body would normally end,
-   so the aside (which is positioned relative to a 100rem viewport reference)
-   keeps its exact normal-mode spot. Main keeps its default 26rem right
-   margin since the aside is unchanged; only the left gains room. The
-   per-state max-width on main caps line length progressively.
-     wide   → ~65rem ≈ 80 chars/line at body font
-     widest → ~80rem ≈ 100 chars/line (upper bound of comfort) */
+/* Wide-reading cycler: a wider column, still centred (the aside is a drawer
+   and the side column folds under the title in these states). The caps are
+   in characters at the body size, so a tablet does not get 105-char lines:
+     wide   → 50rem ≈ 80 chars/line
+     widest → 65rem ≈ 100 chars/line (upper bound of comfort) */
 body[data-wide-text="wide"],
 body[data-wide-text="widest"] {
   max-width: none;
-  margin-left: 2rem;
-  margin-right: max(2rem, calc(50vw - 40rem));
+  margin-inline: auto;
+  padding-inline: 1.2rem;
 }
 
 body[data-wide-text="wide"] main,
 body[data-wide-text="wide"] footer {
-  max-width: 65rem;
+  max-width: 50rem;
+  margin-inline: auto;
 }
 
 body[data-wide-text="widest"] main,
 body[data-wide-text="widest"] footer {
-  max-width: 80rem;
+  max-width: 65rem;
+  margin-inline: auto;
 }
 
 .audio-icon {
@@ -2073,7 +2072,7 @@ a.theme-pill:focus-visible {
   /* "Élargir" (wide-text) below the two-column breakpoint: the aside is now a
      drawer (#11), so widen a CENTRED column instead of anchoring a right gutter
      for a non-existent aside. Overrides the desktop anchored-right wide-text
-     rules; main keeps its per-state max-width (65rem / 80rem) from those. */
+     rules; main keeps its per-state max-width (50rem / 65rem) from those. */
   body[data-wide-text="wide"],
   body[data-wide-text="widest"] {
     max-width: none;

@@ -31,10 +31,12 @@ export const NAV = [
  *  of every other page (components/SiteBar.tsx): the two top disciplines,
  *  then Parcours and the flashcards. Home is the brand, Notes the palette and
  *  the disciplines' folders, Moi the avatar button. The phone keeps its tabs
- *  (NAV, components/MobileTabBar.tsx). */
-export const MENU = [
-  { name: "nav.socialsciences", href: "/notes/social-sciences/" },
-  { name: "nav.appliedsciences", href: "/notes/applied-sciences/" },
+ *  (NAV, components/MobileTabBar.tsx). On the home, `home` replaces `href`:
+ *  the disciplines open their group in the notes list below (HomeContent
+ *  opens the folder named by the hash). */
+export const MENU: { name: string; href: string; home?: string }[] = [
+  { name: "nav.socialsciences", href: "/notes/social-sciences/", home: "#social-sciences" },
+  { name: "nav.appliedsciences", href: "/notes/applied-sciences/", home: "#applied-sciences" },
   { name: "nav.parcours", href: "/parcours/" },
   { name: "nav.flashcards", href: "/cartes/" },
 ];
