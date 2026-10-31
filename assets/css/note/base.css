@@ -375,7 +375,7 @@ main dd {
   margin-inline-start: auto !important;
 }
 
-/* footer border + paragraph styles moved to Tailwind in components/Footer.tsx.
+/* footer border + paragraph styles moved to Tailwind in components/layout/Footer.tsx.
    The positional `main, footer { margin … }` rules (+ wide-text/responsive
    variants) stay here: the footer shares the article layout's margins. */
 

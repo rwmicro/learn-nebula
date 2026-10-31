@@ -1,5 +1,5 @@
 // "Citer cette note": a reference to the note as text and as BibTeX, under
-// the article (components/SinglePage.tsx). Built at build time; the access
+// the article (components/note/SinglePage.tsx). Built at build time; the access
 // date is the build's, and public/js/cite.js replaces it with the reader's
 // today and wires the copy buttons.
 import { escapeHtml } from "./escape";

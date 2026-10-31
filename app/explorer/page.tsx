@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: t("explorer.lede"),
 };
 
-// "Explorer", the third tab of the phone tab bar (components/MobileTabBar.tsx):
+// "Explorer", the third tab of the phone tab bar (components/layout/MobileTabBar.tsx):
 // the garden's other views (graph, timeline, map, themes, numbers, data, a
 // random note) as big tiles, so a phone reaches them without the site menu.
 // Desktop gets the same page; it is simply not in the desktop menu.

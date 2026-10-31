@@ -1,4 +1,4 @@
-// "À deux" under a note (/duel/, components/Duel.tsx):
+// "À deux" under a note (/duel/, components/play/Duel.tsx):
 // - "Défier quelqu'un" on a note with two multiple-choice questions or more
 //   (`[!quiz]` with `- [x]` choices): a revision duel on those questions;
 // - "Lancer un tandem" on a note of Languages - Dialects: an audio call with

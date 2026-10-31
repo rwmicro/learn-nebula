@@ -1,6 +1,6 @@
 /**
  * An Anki deck's own stylesheet, made to sit inside the site's card
- * (components/DeckFace.tsx) instead of over the whole page.
+ * (components/review/DeckFace.tsx) instead of over the whole page.
  *
  * The CSS comes verbatim from the .apkg (scripts/build-anki.mjs) and was
  * written for Anki's card window: `body { background: #1a1a1a }`,

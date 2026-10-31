@@ -1,5 +1,5 @@
 /* /progression/ — export / import of the reader's progress
-   (components/Progression.tsx). Same document-flow frame as /cartes/
+   (components/progress/Progression.tsx). Same document-flow frame as /cartes/
    (cartes-index.css); every colour from the global.css tokens. */
 
 .progression {
@@ -343,7 +343,7 @@
   }
 }
 
-/* Review statistics (components/ReviewStats.tsx). */
+/* Review statistics (components/review/ReviewStats.tsx). */
 .progression-review {
   margin: 0 0 2rem;
 }
@@ -413,7 +413,7 @@
   white-space: nowrap;
 }
 
-/* --- Moi on a phone: additions to app.css's .moi (components/MoiPhone.tsx) ---
+/* --- Moi on a phone: additions to app.css's .moi (components/progress/MoiPhone.tsx) ---
    Who keeps this garden: as a guest, the sprout with a lock, what stays in
    this browser and a button to keep it; signed in, the account's card. Then
    icons on the settings rows and the "Exporter ou importer" row. */

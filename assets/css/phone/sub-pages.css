@@ -2,7 +2,7 @@
    Pages one level under a tab (Frise, Carte, Thèmes, Le jardin en chiffres,
    Données, the graph under Notes; the sessions under Réviser; Défis and the
    account under Moi; a path's sheet under Parcours). On a phone they open
-   like a Notes folder: "‹ Notes" (components/AppBack.tsx) where the old
+   like a Notes folder: "‹ Notes" (components/layout/AppBack.tsx) where the old
    "← ACCUEIL" was, then a large title, then the page. Desktop unchanged.
    --------------------------------------------------------------------------- */
 .app-back {
@@ -50,7 +50,7 @@
   }
 }
 
-/* The site footer: on a phone, the home's short one (components/Footer.tsx). */
+/* The site footer: on a phone, the home's short one (components/layout/Footer.tsx). */
 .site-foot-phone {
   display: none;
 }
@@ -97,7 +97,7 @@
   }
 }
 
-/* Empty review screens (components/EmptyActions.tsx): two ways out. */
+/* Empty review screens (components/home/EmptyActions.tsx): two ways out. */
 .review-empty-actions {
   display: flex;
   flex-wrap: wrap;
@@ -830,7 +830,7 @@ main.nf-page .nf-title {
   }
 }
 
-/* A wait as a seed coming up (components/GrowLoader.tsx): the three
+/* A wait as a seed coming up (components/ui/GrowLoader.tsx): the three
    drawings stacked, each shown in turn; the grown one alone when motion is
    reduced. */
 .grow-loader {

@@ -3,7 +3,7 @@
    lists it reuses. Every colour is a palette token (global.css), so the
    inline SVG follows light/dark like the rest of the page.
 
-   Note states (components/ParcoursStudy.tsx, lib/path-study.ts): non lue
+   Note states (components/paths/ParcoursStudy.tsx, lib/path-study.ts): non lue
    (plain), lue (green wash + check), connue (green wash, dashed frame +
    dashed check — close to lue), maîtrisée (solid green + star); plus "next"
    (blue frame) and the target (violet ring). */
@@ -177,7 +177,7 @@ body:has(.parcours-page) footer {
   color: var(--muted-warm);
 }
 
-/* "Reprendre" and the filter bar (components/ParcoursBrowse.tsx). */
+/* "Reprendre" and the filter bar (components/paths/ParcoursBrowse.tsx). */
 .parcours-browse {
   margin: 0.6rem 0 0.4rem;
 }
@@ -537,7 +537,7 @@ a.parcours-tool {
   outline: 2px solid var(--link);
   outline-offset: 2px;
 }
-/* Zoom & pan (components/PathZoom.tsx) — only when the drawing overflows. */
+/* Zoom & pan (components/paths/PathZoom.tsx) — only when the drawing overflows. */
 .pz.is-on .pz-viewport {
   position: relative;
   overflow: hidden;
@@ -625,7 +625,7 @@ a.parcours-tool {
   overflow: hidden;
 }
 /* Two drawings of the same graph: roomy boxes on wide screens, tighter ones
-   on phones (see COMPACT in components/Parcours.tsx). */
+   on phones (see COMPACT in components/paths/Parcours.tsx). */
 .pg--compact {
   display: none;
 }
@@ -1326,7 +1326,7 @@ a.parcours-tool {
   }
 }
 
-/* "Disponible hors ligne" (components/OfflinePath.tsx). */
+/* "Disponible hors ligne" (components/paths/OfflinePath.tsx). */
 .offline-path {
   margin: 0.4rem 0 0.8rem;
   font-family: var(--font-ui);

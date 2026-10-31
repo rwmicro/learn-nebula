@@ -1,10 +1,10 @@
 /**
  * Note questions (`> [!quiz]` callouts, lib/markdown.ts) saved for spaced
  * repetition — pure, React-free, shared by public/js/quiz.js (note pages) and
- * components/NoteReview.tsx (/cartes/revision/).
+ * components/note/NoteReview.tsx (/cartes/revision/).
  *
  * Same scheduler and same stored shape as the Anki decks (lib/srs.ts,
- * `srs:<deck-slug>` in localStorage, read by components/Flashcards.tsx), one
+ * `srs:<deck-slug>` in localStorage, read by components/review/Flashcards.tsx), one
  * entry per note under its own namespace — `srs:note:<note-slug>` — so a note
  * question can never collide with a deck card id. On top of the deck
  * `Progress` the entry keeps each saved question's content (`items`): the

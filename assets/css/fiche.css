@@ -1,4 +1,4 @@
-/* Scoped to /parcours/<slug>/fiche/ (components/PathSheet.tsx): a revision
+/* Scoped to /parcours/<slug>/fiche/ (components/paths/PathSheet.tsx): a revision
    sheet meant as much for paper as for the screen. Same reading column and
    faces as the note pages; the print block at the end drops the site chrome
    and keeps each note's block on one page where it fits. */

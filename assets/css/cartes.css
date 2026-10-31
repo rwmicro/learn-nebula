@@ -11,7 +11,7 @@ body:has(.flashcards-main) {
   margin-inline: auto !important;
 }
 
-/* Note-questions review (/cartes/revision/, components/NoteReview.tsx): the
+/* Note-questions review (/cartes/revision/, components/note/NoteReview.tsx): the
    saved question/answer HTML comes from the note pages, without main.css. */
 .note-review-q > :first-child,
 .note-review-a > :first-child {
@@ -39,7 +39,7 @@ body:has(.flashcards-main) {
   margin: 0;
 }
 
-/* An Anki card face (components/DeckFace.tsx). The deck's own CSS, scoped by
+/* An Anki card face (components/review/DeckFace.tsx). The deck's own CSS, scoped by
    lib/deck-css.ts, comes after this file and wins over it: these :where()
    rules are only the defaults a deck doesn't set — the site's serif, the
    theme's ink, and a size that grows with the card. --deck-px is what the
@@ -76,7 +76,7 @@ body:has(.flashcards-main) {
 }
 
 /* Keyboard hints on a keyboard, touch hints on a touch screen
-   (components/ReviewSession.tsx, Flashcards.tsx). */
+   (components/review/ReviewSession.tsx, Flashcards.tsx). */
 .touch-only {
   display: none;
 }

@@ -1,7 +1,7 @@
 /**
  * Jalons: a handful of milestones read from this browser's own records
  * (notes read, the longest run of days, questions answered right, the
- * disciplines visited). Pure; components/Milestones.tsx gathers the inputs.
+ * disciplines visited). Pure; components/progress/Milestones.tsx gathers the inputs.
  * No points, no levels to grind: each family of milestones shows the ones
  * reached and how far the next one is.
  */

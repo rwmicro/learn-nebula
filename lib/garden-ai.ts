@@ -1,5 +1,5 @@
 // Which model writes the garden's AI answers, and one call to run it. Shared
-// by the chat (components/GardenChat.tsx) and the vanilla note bundle
+// by the chat (components/chat/GardenChat.tsx) and the vanilla note bundle
 // (public/js/translate.js).
 //
 // Everything runs on the reader's device: Chrome's Gemini Nano when it covers

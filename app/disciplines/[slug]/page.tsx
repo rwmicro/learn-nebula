@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getDisciplines } from "@/lib/content";
-import { DisciplinePage } from "@/components/Themes";
+import { DisciplinePage } from "@/components/explore/Themes";
 import { disciplineKey, t } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/themes.css";

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getCarte } from "@/lib/carte";
-import { Carte } from "@/components/Carte";
+import { Carte } from "@/components/explore/Carte";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/carte.css";
 

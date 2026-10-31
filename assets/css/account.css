@@ -1,5 +1,5 @@
-/* /compte/ (components/Account.tsx) and the regularity calendar, which
-   /progression/ shows too (components/ActivityCalendar.tsx). The page escapes
+/* /compte/ (components/account/Account.tsx) and the regularity calendar, which
+   /progression/ shows too (components/progress/ActivityCalendar.tsx). The page escapes
    the global note gutter (`main { margin-right: 26rem }`) and the body's
    centred 1100px column, like /parcours/ (parcours.css): a 76rem frame whose
    cards pair up two by two on a wide screen. The footer stays in a centred
@@ -654,7 +654,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   border-radius: var(--radius-xs);
 }
 
-/* /progression/: bookmarks and highlights (components/MyMarks.tsx). */
+/* /progression/: bookmarks and highlights (components/note/MyMarks.tsx). */
 .progression-marks {
   margin: 1.6rem 0;
 }
@@ -1958,7 +1958,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 }
 /* --- end passkeys and review reminder --- */
 
-/* Jalons (components/Milestones.tsx): one row per kind, the thresholds
+/* Jalons (components/progress/Milestones.tsx): one row per kind, the thresholds
    reached as filled marks, the next one as an empty mark and a thin bar. */
 .jalons-h {
   margin: 0 0 0.6rem;

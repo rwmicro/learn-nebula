@@ -1,5 +1,5 @@
 /**
- * What a review session (components/ReviewSession.tsx) shows: a note
+ * What a review session (components/review/ReviewSession.tsx) shows: a note
  * question or one direction of an Anki deck card, and the small storage
  * helpers the deck pages and the combined session share.
  */

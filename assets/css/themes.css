@@ -123,7 +123,7 @@
 .themes-page--index > .themes-intro {
   max-width: var(--measure-text);
 }
-/* Read progress (components/ReadMarks.tsx sets --read and the text). */
+/* Read progress (components/note/ReadMarks.tsx sets --read and the text). */
 .themes-read {
   display: flex;
   align-items: center;
@@ -238,7 +238,7 @@
   font-style: italic;
 }
 
-/* Read checkmark after a note link (components/ReadMarks.tsx, from the
+/* Read checkmark after a note link (components/note/ReadMarks.tsx, from the
    reader's localStorage). Also used by /parcours/, which loads this file. */
 .read-check {
   display: inline-flex;

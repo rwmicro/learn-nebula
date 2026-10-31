@@ -1,0 +1,71 @@
+import { MENU } from "@/lib/site";
+import { t, i18nAttrs } from "@/lib/i18n";
+import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
+import { SiteNavLinks } from "@/components/layout/SiteNavLinks";
+import { AccountChip, ReviewPill } from "@/components/account/AccountChip";
+import { MeButton } from "@/components/layout/MeButton";
+import { TopBarScroll } from "@/components/layout/TopBarScroll";
+import { LangSwitcher } from "@/components/layout/LangSwitcher";
+
+// The one site menu, the same on every page: the home's masthead lists the
+// same links (components/layout/Header.tsx) and this slim bar is hidden there (CSS,
+// global.css `.site-bar`), every other page opens with it. Before, the home
+// menu had no Parcours / Frise / Cartes, and a note page had its menu only at
+// the very bottom, after the comments.
+//
+// Desktop: links inline, as on the home's masthead (lib/site.ts MENU). Phone: a
+// <details> "Menu" (no JS needed). On the right: the review reminder, the
+// language (the home's inline list folded into a dropdown), search,
+// light/dark, and the account button.
+export function SiteBar() {
+  const links = MENU.map((n) => ({
+    href: n.href,
+    key: n.name,
+    label: t(n.name),
+  }));
+  return (
+    <header className="site-bar" data-pagefind-ignore>
+      <div className="site-bar-inner">
+        <a className="site-bar-brand" href="/">
+          {/* The linocut logo: the paper print in light, the night print in
+              dark (global.css shows one per theme, toggle included). */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- static export, 4 KB PNGs */}
+          <img className="site-bar-logo site-bar-logo--light" src="/brand/logo-clair.png" width="24" height="24" alt="" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="site-bar-logo site-bar-logo--dark" src="/brand/logo-sombre.png" width="24" height="24" alt="" />
+          <span data-i18n="siteBar.brand">{t("siteBar.brand")}</span>
+          {/* Phones: the page's title, once scrolled past (TopBarScroll). */}
+          <b className="site-bar-page" aria-hidden="true" />
+        </a>
+        <nav className="site-bar-nav" aria-label={t("siteBar.navAria")}>
+          <SiteNavLinks links={links} />
+        </nav>
+        <div className="site-bar-tools">
+          <ReviewPill />
+          <span className="site-bar-lang">
+            <LangSwitcher compact />
+          </span>
+          <span className="contents" dangerouslySetInnerHTML={{ __html: paletteButtonHtml() }} />
+          <span className="contents" dangerouslySetInnerHTML={{ __html: themeToggleHtml() }} />
+          <AccountChip />
+          {/* Phones: "Moi" (progress, account), the tab bar holding the rest
+              of the menu (components/layout/MobileTabBar.tsx). Shows the reader's
+              avatar once signed in (components/layout/MeButton.tsx). */}
+          <MeButton label={t("siteBar.me")} />
+          <details className="site-bar-menu">
+            <summary aria-label={t("nav.menu")}>
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+              <span className="sr-only" dangerouslySetInnerHTML={{ __html: `<span${i18nAttrs("nav.menu")}>${t("nav.menu")}</span>` }} />
+            </summary>
+            <div className="site-bar-menu-panel">
+              <SiteNavLinks links={links} />
+            </div>
+          </details>
+        </div>
+      </div>
+      <TopBarScroll />
+    </header>
+  );
+}

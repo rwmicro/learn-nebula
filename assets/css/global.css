@@ -961,7 +961,7 @@ footer {
 [data-family="jeux"] { --fam-h: 210; --fam-s: 12%; }
 
 /* ---------------------------------------------------------------------------
-   Site bar (components/SiteBar.tsx): the one menu, the same on every page.
+   Site bar (components/layout/SiteBar.tsx): the one menu, the same on every page.
    The home's masthead carries the same links, so the bar steps aside there. */
 .site-bar {
   /* Sized by its own width, not the viewport: in a narrow window the links
@@ -999,7 +999,7 @@ body:has(.home-masthead) .site-bar {
   background: transparent;
   color: var(--garden);
 }
-/* The linocut logo (components/SiteBar.tsx): one print per theme, following
+/* The linocut logo (components/layout/SiteBar.tsx): one print per theme, following
    the toggle and, unpinned, the OS — same rule as the palette above. */
 .site-bar-logo {
   flex: none;
@@ -1264,7 +1264,7 @@ body:has(.home-masthead) .site-bar {
   }
 }
 
-/* Account button (components/AccountChip.tsx) and the review reminder. */
+/* Account button (components/account/AccountChip.tsx) and the review reminder. */
 .account-login {
   display: inline-flex;
   align-items: center;
@@ -1393,7 +1393,7 @@ body:has(.home-masthead) .site-bar {
   }
 }
 
-/* The sprout avatar (components/Avatar.tsx). */
+/* The sprout avatar (components/account/Avatar.tsx). */
 .avatar {
   display: block;
   flex: none;
@@ -2199,7 +2199,7 @@ body:has(.home-masthead) .site-bar {
   }
 }
 
-/* "Réviser en flottant" (components/ReviewPip.tsx): the body of the Document
+/* "Réviser en flottant" (components/review/ReviewPip.tsx): the body of the Document
    Picture-in-Picture window, which receives copies of the page's sheets. */
 body.rs-pip {
   margin: 0 !important;

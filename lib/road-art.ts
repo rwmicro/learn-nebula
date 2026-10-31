@@ -1,4 +1,4 @@
-// Small flat drawings along a path's road (components/PathRoad.tsx): one
+// Small flat drawings along a path's road (components/paths/PathRoad.tsx): one
 // beside each note, on the side away from its disc, and a strip of them over
 // each level's heading. Three tones of the path's family colour (--f0 to
 // --f3, set on .road in app.css), so they follow light and dark. Static
@@ -370,7 +370,7 @@ export function artStrip(keys: readonly ArtKey[]): string {
 }
 
 /** A deck as a seed drawer, with its theme's drawing on the corner
- *  (components/CartesPhone.tsx). */
+ *  (components/review/CartesPhone.tsx). */
 export function drawer(k: ArtKey): string {
   const art = ART[k].replace(/<\/?svg[^>]*>/g, "");
   return `<svg viewBox="0 0 120 80" aria-hidden="true" focusable="false"><rect x="4" y="10" width="112" height="64" rx="6" fill="var(--f2)"/><rect x="12" y="18" width="96" height="48" rx="4" fill="var(--f3)"/><rect x="46" y="38" width="28" height="7" rx="3.5" fill="var(--f0)"/><g transform="translate(82 -4) scale(.42)">${art}</g></svg>`;

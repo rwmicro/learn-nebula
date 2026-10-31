@@ -4,7 +4,7 @@
 // passkeys (lib/passkey-client.ts) and the daily review reminder by Web Push
 // (lib/push-client.ts). Each renders nothing when the browser or the server
 // can't do it. `phone` picks the phone screens' rows over the desktop card's
-// sub-sections (components/account/AccountPhone.tsx, components/Account.tsx).
+// sub-sections (components/account/AccountPhone.tsx, components/account/Account.tsx).
 
 import { useEffect, useState } from "react";
 import {

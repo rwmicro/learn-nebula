@@ -2,8 +2,8 @@
    Phone "app" layer. Loaded site-wide (app/layout.tsx), but nearly everything
    here lives under 640px (Tailwind's `sm`), so the desktop site is untouched:
    - "liquid glass" surfaces (.glass)
-   - the floating tab bar (components/MobileTabBar.tsx)
-   - the sticky top bar (components/SiteBar.tsx)
+   - the floating tab bar (components/layout/MobileTabBar.tsx)
+   - the sticky top bar (components/layout/SiteBar.tsx)
    - safe areas for the site installed on the home screen
    - shared phone pieces: large page titles, the Explorer tiles.
    --------------------------------------------------------------------------- */

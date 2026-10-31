@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AppBack } from "@/components/AppBack";
+import { AppBack } from "@/components/layout/AppBack";
 
 // The top of a page: the phone's "‹ Notes" back link, an optional kicker, the
 // <h1> and its intro. The look is global.css's .page-title / .page-intro (the

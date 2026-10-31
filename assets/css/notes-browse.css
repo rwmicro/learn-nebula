@@ -1,4 +1,4 @@
-/* The "Notes" tab (app/notes/, components/NotesBrowse.tsx): grouped lists of
+/* The "Notes" tab (app/notes/, components/explore/NotesBrowse.tsx): grouped lists of
    folders and notes, as in the Notes mockup (A). The cards use the phone
    dashboard's tokens (app.css, --dash-*) and fall back to a bordered paper
    card on wider screens, where those are not defined. */

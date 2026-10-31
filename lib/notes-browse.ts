@@ -16,7 +16,7 @@ import { pathFamily, type PathFamily } from "./path-family";
  * pages, one per folder, built from the same tree as the desktop home
  * (getHomeTree). A folder page lists its sub-folders, then its own notes in
  * folder order (01-…, 02-…), each with its reading time. Read state is added
- * in the browser (components/NotesBrowse.tsx).
+ * in the browser (components/explore/NotesBrowse.tsx).
  */
 
 export interface FolderRef {

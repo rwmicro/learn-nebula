@@ -1,6 +1,6 @@
 /* ---------------------------------------------------------------------------
    A reading path on a phone: the header as an app page, then the road
-   (components/PathRoad.tsx) in place of the levels list and the graph.
+   (components/paths/PathRoad.tsx) in place of the levels list and the graph.
    --------------------------------------------------------------------------- */
 .road,
 .pt-short {

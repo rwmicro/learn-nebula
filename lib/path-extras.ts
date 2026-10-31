@@ -1,5 +1,5 @@
 // Build-time extras for the reading paths (/parcours/): each note's reading
-// time (same estimate as the note page, components/SinglePage.tsx) and its
+// time (same estimate as the note page, components/note/SinglePage.tsx) and its
 // `[!quiz]` questions, extracted from the rendered HTML so the path page can
 // run a revision session and derive "maîtrisée" without visiting the notes.
 // Only notes that contain a quiz callout are rendered here.

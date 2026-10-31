@@ -65,7 +65,7 @@ export const PROGRESS_KEYS: KeySpec[] = [
   { kind: "activity", key: "gkActivity" },
   // Questions saved from notes, with their SRS state (lib/note-quiz.ts).
   { kind: "questions", prefix: "srs:note:" },
-  // Anki deck SRS state, one key per deck (components/Flashcards.tsx).
+  // Anki deck SRS state, one key per deck (components/review/Flashcards.tsx).
   // "srs:probe" is a write test, never data.
   { kind: "decks", prefix: "srs:", exclude: ["srs:probe"] },
   // Reviews per day, {day: [reviews, failed]} (lib/srs-log.ts). No "srs:"

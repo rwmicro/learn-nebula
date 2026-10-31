@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getAnkiManifest } from "@/lib/anki";
-import { CartesIndex } from "@/components/CartesIndex";
+import { CartesIndex } from "@/components/review/CartesIndex";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/cartes-index.css";
 

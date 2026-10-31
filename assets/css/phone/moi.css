@@ -109,7 +109,7 @@
   }
 }
 
-/* --- Moi (phone, components/MoiPhone.tsx) ---------------------------------
+/* --- Moi (phone, components/progress/MoiPhone.tsx) ---------------------------------
    Stands in for the desktop page's title, summary and settings. */
 .moi {
   display: none;

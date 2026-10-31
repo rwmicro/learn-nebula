@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getReadingPaths } from "@/lib/content";
-import { ParcoursPage } from "@/components/Parcours";
+import { ParcoursPage } from "@/components/paths/Parcours";
 import { pathExtras } from "@/lib/path-extras";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/themes.css";

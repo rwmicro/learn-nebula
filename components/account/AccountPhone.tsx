@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Avatar } from "@/components/Avatar";
+import { Avatar } from "@/components/account/Avatar";
 import { localDay } from "@/lib/personal";
 import { logout, readHint, syncNow, writeHint, type Me } from "@/lib/account-client";
 import { ITEMS, MAX_FREEZES, STREAK_FREEZE, type Look } from "@/lib/avatar";
@@ -95,7 +95,7 @@ function thisWeek(): string[] {
  * /compte/ on a phone, signed in: the profile (the sprout, the coins, the
  * streak and this week), and three pushed screens — the wardrobe and shop,
  * the coin history, the account (sync, data, sign out, delete). Same data
- * and calls as the desktop page (components/Account.tsx).
+ * and calls as the desktop page (components/account/Account.tsx).
  */
 export function AccountPhone({
   me,

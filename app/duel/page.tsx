@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Duel } from "@/components/Duel";
+import { Duel } from "@/components/play/Duel";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/duel.css";
 

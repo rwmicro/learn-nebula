@@ -33,7 +33,7 @@ export function navHtml(): string {
 }
 
 /** Light / dark / auto toggle, shared by the note nav above and the home
- * masthead (components/Header.tsx). Wired by /js/theme.js; CSS (global.css)
+ * masthead (components/layout/Header.tsx). Wired by /js/theme.js; CSS (global.css)
  * shows the icon matching <html data-theme> — no JS needed for the first
  * paint to be right. The label is the "auto" one at build time and is synced
  * to the stored choice by theme.js. */

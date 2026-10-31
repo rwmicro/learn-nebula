@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { graphDataVersion } from "@/lib/home-data";
-import { GraphLoader } from "@/components/GraphLoader";
+import { GraphLoader } from "@/components/explore/GraphLoader";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/graph.css";
 

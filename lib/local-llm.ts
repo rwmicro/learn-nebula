@@ -5,7 +5,7 @@
 // It is the second on-device option after Chrome's Gemini Nano
 // (lib/browser-ai.ts), for browsers that have WebGPU but no Prompt API —
 // Safari on iPhone, Chrome on Android, Firefox. The download never starts by
-// itself: the reader agrees to it (components/GardenChat.tsx), which is
+// itself: the reader agrees to it (components/chat/GardenChat.tsx), which is
 // remembered in localStorage, and the browser keeps the files in its Cache
 // Storage ("transformers-cache") until the reader deletes them.
 //

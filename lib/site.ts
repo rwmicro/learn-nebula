@@ -19,7 +19,7 @@ export const ORIGINAL_AUTHOR_URL = "https://david.alvarezrosa.com";
  * change. */
 // The phone's tabs, on every screen: Accueil, Parcours, Notes, Réviser (and
 // "Moi", added by the bars that show it). The graph and the timeline sit
-// under Notes ("Autres vues", components/NotesViews.tsx).
+// under Notes ("Autres vues", components/explore/NotesViews.tsx).
 export const NAV = [
   { name: "nav.home", href: "/" },
   { name: "nav.parcours", href: "/parcours/" },
@@ -27,11 +27,11 @@ export const NAV = [
   { name: "tabbar.review", href: "/cartes/" },
 ];
 
-/** The site menu, on the home's masthead (components/Header.tsx) and the bar
- *  of every other page (components/SiteBar.tsx): the two top disciplines,
+/** The site menu, on the home's masthead (components/layout/Header.tsx) and the bar
+ *  of every other page (components/layout/SiteBar.tsx): the two top disciplines,
  *  then Parcours and the flashcards. Home is the brand, Notes the palette and
  *  the disciplines' folders, Moi the avatar button. The phone keeps its tabs
- *  (NAV, components/MobileTabBar.tsx). On the home, `home` replaces `href`:
+ *  (NAV, components/layout/MobileTabBar.tsx). On the home, `home` replaces `href`:
  *  the disciplines open their group in the notes list below (HomeContent
  *  opens the folder named by the hash). */
 export const MENU: { name: string; href: string; home?: string }[] = [

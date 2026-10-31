@@ -1,5 +1,5 @@
 // Floating toolbar over a text selection in the note body:
-// - "Expliquer" hands the passage to the garden chat (components/GardenChat.tsx,
+// - "Expliquer" hands the passage to the garden chat (components/chat/GardenChat.tsx,
 //   via a `gk:explain` event), which opens with the passage quoted and
 //   explains it on the device's model;
 // - "Avec mes mots" opens the same assistant in its "explique-le avec tes

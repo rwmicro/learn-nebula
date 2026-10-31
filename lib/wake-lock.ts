@@ -1,4 +1,4 @@
-// Screen Wake Lock for the review session (components/ReviewSession.tsx) and
+// Screen Wake Lock for the review session (components/review/ReviewSession.tsx) and
 // the lesson mode (public/js/lesson.js): on a phone the screen used to go dark
 // between two cards, or while the reader thought over a `[!predict]`.
 // The browser drops the lock whenever the page is hidden, so it is asked for

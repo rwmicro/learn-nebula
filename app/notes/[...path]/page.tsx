@@ -4,7 +4,7 @@ import { getFolderPages, type FolderRef } from "@/lib/notes-browse";
 import { splitRank } from "@/lib/folder-label";
 import { t } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
-import { FolderRows, NoteRows, RememberFolder } from "@/components/NotesBrowse";
+import { FolderRows, NoteRows, RememberFolder } from "@/components/explore/NotesBrowse";
 import "@/assets/css/notes-browse.css";
 
 // One folder of the "Notes" tab (see app/notes/page.tsx): a back link to its

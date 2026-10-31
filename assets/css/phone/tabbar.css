@@ -83,7 +83,7 @@
   .tabbar-tab.is-lit {
     color: var(--garden);
   }
-  /* The glass pill under the current tab (components/MobileTabBar.tsx). It
+  /* The glass pill under the current tab (components/layout/MobileTabBar.tsx). It
      glides to a new tab, and while a finger slides along the bar it becomes
      a larger, clearer lens that follows it, as on iOS 26. */
   .tabbar-bar {

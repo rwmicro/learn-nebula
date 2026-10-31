@@ -1,6 +1,6 @@
 /**
  * "Taper la réponse" — comparing what the reader typed with a card's answer.
- * Pure, shared by the review surface (components/ReviewSession.tsx).
+ * Pure, shared by the review surface (components/review/ReviewSession.tsx).
  *
  * The comparison is forgiving by design: case, accents and other combining
  * marks (Arabic harakat, Vietnamese tones…), punctuation and spacing are

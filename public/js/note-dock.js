@@ -3,7 +3,7 @@
 // scrolls under it on Chromium (lib/liquid-glass.ts). Scrolling down it
 // shrinks to the progress ring, the section being read, the next note and
 // the assistant; scrolling up, or near the top, it comes back whole, like the
-// phone's tab bar (components/MobileTabBar.tsx). Phones have their own
+// phone's tab bar (components/layout/MobileTabBar.tsx). Phones have their own
 // toolbar (note-app.js) and never see this one.
 import { attachLens } from "../../lib/liquid-glass";
 import { scrollProgress } from "../../lib/reading-progress";

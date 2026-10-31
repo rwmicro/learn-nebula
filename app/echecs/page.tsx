@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import { ChessPlay } from "@/components/ChessPlay";
-import { AppBack } from "@/components/AppBack";
+import { ChessPlay } from "@/components/play/ChessPlay";
+import { AppBack } from "@/components/layout/AppBack";
 import { getAllPosts } from "@/lib/content";
 import { CHESS_NOTES, type ChessTopic } from "@/lib/chess-play";
 import { t } from "@/lib/i18n";
