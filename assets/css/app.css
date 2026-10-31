@@ -3400,8 +3400,16 @@
   main.progression:not(.moi-transfer-open) > :is(.progression-actions, .progression-privacy) {
     display: none;
   }
+  /* The footer's own margin is enough below Moi: no bottom padding, and the
+     status line (export / import messages, a live region so it stays in the
+     tree) only takes room once it speaks. */
   main.progression {
     padding-top: 0;
+    padding-bottom: 0;
+  }
+  main.progression .progression-status:empty {
+    min-height: 0;
+    margin: 0;
   }
   body:has(.moi) .site-bar .site-bar-me,
   body:has(.moi) .site-bar .account-chip {
