@@ -29,6 +29,34 @@
   --font-caps: "Alegreya SC", "Alegreya SC Fallback", serif;
 }
 
+/* Page titles — the one <h1> size of every page but the notes (which keep
+   their own reading typography) and the parcours cover (white on a picture).
+   Use as `font: var(--title-page); letter-spacing: var(--title-page-tracking)`.
+   Phones: 2.125rem, the tabs' size since #138; up from 640px it grows to 3rem. */
+:root {
+  --title-page-size: clamp(2.1rem, 1.6rem + 2.5vw, 3rem);
+  --title-page: 600 var(--title-page-size) / 1.06 var(--font-text);
+  --title-page-tracking: -0.01em;
+}
+@media (max-width: 639.98px) {
+  :root {
+    --title-page-size: 2.125rem;
+  }
+}
+
+/* Page widths — four columns, picked by what the page holds, so a page keeps
+   its left edge when the reader moves to the next one:
+     narrow  30rem  one card column: Défis, Duel.
+     text    46rem  reading and short lists: Jardin, Frise, Données, Thèmes…
+     page    64rem  indexes and tools: Notes, Parcours, Réviser, Carte, Échecs.
+     wide    72rem  grids that need the room: the themes cloud. */
+:root {
+  --measure-narrow: 30rem;
+  --measure-text: 46rem;
+  --measure-page: 64rem;
+  --measure-wide: 72rem;
+}
+
 /* Corner radii — the ONE scale every surface draws from (CSS: var(--radius-md);
    Tailwind: rounded-md, rounded-pill…). Tailwind's default steps are wiped so
    an off-scale rounded-xl can't creep back in. Pick by what the element IS,

@@ -5,7 +5,7 @@
   --duo-card: #fff;
   --duo-ok: var(--garden);
   --duo-bad: var(--danger);
-  max-width: 34rem;
+  max-width: var(--measure-narrow);
   margin: 0 auto;
   padding: 2.5rem 1rem 3rem;
   color: var(--ink);
@@ -34,8 +34,8 @@
 }
 .duo-title {
   margin: 0.25rem 0.25rem 0.875rem;
-  font: 600 2.125rem/1.06 var(--font-text);
-  letter-spacing: -0.0125rem;
+  font: var(--title-page);
+  letter-spacing: var(--title-page-tracking);
 }
 .duo-lede {
   margin: 0 0.25rem 1rem !important;

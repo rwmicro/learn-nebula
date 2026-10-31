@@ -1,7 +1,7 @@
 /* Scoped to /donnees — same per-route pattern as frise.css. */
 
 .donnees-page {
-  max-width: 46rem;
+  max-width: var(--measure-text);
   margin: 0 auto;
   padding: 2.5rem 1.2rem 4rem;
 }
@@ -19,11 +19,8 @@
   text-decoration: underline;
 }
 .donnees-title {
-  font-family: var(--font-text);
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-  font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.5rem);
+  font: var(--title-page);
+  letter-spacing: var(--title-page-tracking);
   margin: 0 0 0.5rem;
 }
 .donnees-intro {

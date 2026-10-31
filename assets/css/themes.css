@@ -2,7 +2,7 @@
    whose typography it follows. */
 
 .themes-page {
-  max-width: 46rem;
+  max-width: var(--measure-text);
   margin: 0 auto;
   padding: 2.5rem 1.2rem 4rem;
 }
@@ -32,11 +32,8 @@
 .themes-title {
   /* Page titles in normal case, like a note's H1; small caps stay for
      the small labels (kicker, back link, section headings). */
-  font-family: var(--font-text);
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-  font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.5rem);
+  font: var(--title-page);
+  letter-spacing: var(--title-page-tracking);
   margin: 0 0 0.5rem;
   overflow-wrap: anywhere;
 }
@@ -121,10 +118,10 @@
 
 /* --- /themes/ index: wider page, grouped cloud ---------------------- */
 .themes-page--index {
-  max-width: 72rem;
+  max-width: var(--measure-wide);
 }
 .themes-page--index > .themes-intro {
-  max-width: 46rem;
+  max-width: var(--measure-text);
 }
 /* Read progress (components/ReadMarks.tsx sets --read and the text). */
 .themes-read {

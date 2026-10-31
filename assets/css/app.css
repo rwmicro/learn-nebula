@@ -759,7 +759,7 @@
 }
 /* --- Large page titles (phone tab pages) ------------------------------- */
 .app-page {
-  max-width: 60rem;
+  max-width: var(--measure-page);
   margin: 0 auto;
   padding: 0 1.25rem 2rem;
   color: var(--ink);
@@ -769,10 +769,8 @@
 }
 .app-large-title h1 {
   margin: 0;
-  font-size: clamp(2.1rem, 1.6rem + 2.5vw, 3rem);
-  font-weight: 600;
-  line-height: 1.05;
-  letter-spacing: -0.01em;
+  font: var(--title-page);
+  letter-spacing: var(--title-page-tracking);
 }
 .app-large-title p {
   margin: 0.35rem 0 0;
@@ -2986,9 +2984,6 @@
     margin: 0;
     padding: 0;
     border: 0;
-    font-size: 2.125rem;
-    font-weight: 600;
-    line-height: 1.1;
   }
   main.parcours-page > .themes-intro {
     margin: 0.3rem 0 1rem;
@@ -3284,9 +3279,6 @@
     margin: 0.4rem 0 0;
     padding: 0;
     border: 0;
-    font-size: 2.125rem;
-    font-weight: 600;
-    line-height: 1.1;
   }
   main :is(.progression-intro, .cartes-index-intro) {
     margin: 0.3rem 0 1rem;
@@ -4597,8 +4589,8 @@
     margin: 0.25rem 0.25rem 0.875rem;
     padding: 0;
     border: 0;
-    font: 600 2.125rem/1.06 var(--font-text);
-    letter-spacing: -0.0125rem;
+    font: var(--title-page);
+    letter-spacing: var(--title-page-tracking);
   }
   .rv-today {
     padding: 1.125rem;
@@ -4780,9 +4772,6 @@
     margin: 2.5rem auto 3rem;
     padding: 0 1.25rem;
   }
-  main.cartes-index .rv .rv-title {
-    font-size: 2.5rem;
-  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -4892,8 +4881,6 @@
   }
   main.parcours-page--path .themes-title {
     margin: 0.25rem 0 0;
-    font: 600 2.125rem/1.08 var(--font-text);
-    letter-spacing: -0.0125rem;
   }
   main.parcours-page--path .parcours-status {
     display: flex;
@@ -5525,10 +5512,6 @@
   main:is(.frise-page, .carte-page, .jardin-page, .donnees-page, .acct-page, .themes-page, .fiche-page, .defis, .flashcards-main)
     :is(.frise-title, .carte-title, .jardin-title, .donnees-title, .acct-title, .themes-title, .fiche-title, .defis-title, header > h1) {
     margin-top: 0.5rem;
-    font-size: 2rem;
-    font-weight: 600;
-    line-height: 1.08;
-    letter-spacing: -0.01em;
     text-wrap: balance;
   }
 }
@@ -6372,12 +6355,6 @@ main.nf-page .nf-title {
    phone keeps its own titles (above, under 640px).
    --------------------------------------------------------------------------- */
 @media (min-width: 640px) {
-  main.cartes-index .rv .rv-title,
-  main .app-large-title h1,
-  main.themes-page .themes-title {
-    font: 600 clamp(2.1rem, 1.6rem + 2.5vw, 3rem) / 1.05 var(--font-text);
-    letter-spacing: -0.01em;
-  }
   main.cartes-index .rv .rv-title {
     margin-inline: 0;
   }
@@ -6386,7 +6363,7 @@ main.nf-page .nf-title {
   main.cartes-index,
   main.nb,
   main.parcours-page:not(.parcours-page--path) {
-    max-width: 64rem;
+    max-width: var(--measure-page);
     padding-inline: 1.25rem;
   }
   /* The width is there: the folders in two columns. */
@@ -6426,8 +6403,5 @@ main.nf-page .nf-title {
     margin-top: 0;
     padding-top: 0;
     padding-inline-end: 3.5rem;
-    font-size: 2.125rem;
-    font-weight: 600;
-    line-height: 1.06;
   }
 }

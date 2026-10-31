@@ -38,11 +38,8 @@ main.acct-page {
   text-decoration: underline;
 }
 .acct-title {
-  font-family: var(--font-text);
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-  font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.5rem);
+  font: var(--title-page);
+  letter-spacing: var(--title-page-tracking);
   margin: 0 0 1.4rem;
 }
 /* No accounts on this server (or still loading): one short card, so the
