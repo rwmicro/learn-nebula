@@ -8,7 +8,7 @@ import { SinglePage } from "@/components/SinglePage";
 import { ogCardFor, ogImagePath } from "@/lib/og";
 import { NoteScripts } from "@/components/NoteScripts";
 // Article typography + note-widget styles, scoped to this route only.
-import "@/assets/css/main.css";
+import "@/assets/css/note";
 import "@/assets/css/syntax.css";
 import "@/assets/css/note-paths.css";
 import "@/assets/css/path-step.css";

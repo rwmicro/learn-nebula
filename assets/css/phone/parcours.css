@@ -1,0 +1,236 @@
+/* --- Parcours (phone): large title, one row of chips, grouped lists -------- */
+.parcours-ic,
+.parcours-meta {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  main.themes-page > .themes-back {
+    display: none;
+  }
+  main.parcours-page {
+    padding: 1.1rem 1.25rem 2rem;
+  }
+  main.parcours-page .themes-title {
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  main.parcours-page > .themes-intro {
+    margin: 0.3rem 0 1rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  main.parcours-page .parcours-filter-q {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: none;
+    height: 2.5rem;
+    padding: 0 0.9rem 0 2.4rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: var(--wash-2)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E")
+      0.8rem 50% / 1.1rem no-repeat;
+    font: 400 1rem var(--font-ui);
+    color: var(--ink);
+  }
+  main.parcours-page .parcours-chips {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    margin: 0.75rem -1.25rem 0;
+    padding: 0 1.25rem 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  main.parcours-page .parcours-chips::-webkit-scrollbar {
+    display: none;
+  }
+  main.parcours-page .parcours-chip {
+    flex: none;
+    gap: 7px;
+    height: var(--chip-h);
+    padding: var(--chip-pad);
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--chip-bg);
+    color: var(--ink);
+    font: var(--chip-font);
+    white-space: nowrap;
+  }
+  /* Spacing as in the mockup: the chips, then the first heading 18px below
+     (the filter's live status takes no room until it has something to say,
+     and the browse block adds none). */
+  main.parcours-page .parcours-browse {
+    margin-bottom: 0;
+  }
+  main.parcours-page .parcours-filter-status:empty {
+    margin: 0;
+    height: 0;
+    min-height: 0;
+    overflow: hidden;
+  }
+  main.parcours-page .parcours-chip[aria-pressed="true"] {
+    background: var(--chip-on-bg);
+    color: var(--chip-on-ink);
+  }
+  main.parcours-page .parcours-chip[aria-pressed="true"] > span {
+    color: inherit;
+    opacity: 0.7;
+  }
+
+  /* Section headings: small capitals, the count on the right. */
+  main.parcours-page .themes-h2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 18px 0.25rem 8px;
+    padding: 0;
+    border: 0;
+    font: 700 0.8rem var(--font-ui);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  main.parcours-page .themes-h2::before {
+    display: none;
+  }
+  main.parcours-page .parcours-family-count {
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    /* The family colour, deepened towards the ink to reach 4.5:1. */
+    color: color-mix(in oklab, var(--fam, var(--muted)) 62%, var(--ink));
+  }
+  main.parcours-page .parcours-chip > span {
+    color: var(--ink-2);
+  }
+  main.parcours-page .parcours-tiles-intro,
+  main.parcours-page .parcours-cards-label,
+  main.parcours-page .parcours-card-kicker,
+  main.parcours-page .parcours-card-sub,
+  main.parcours-page .parcours-card-desc,
+  main.parcours-page .parcours-card-chain,
+  main.parcours-page :is(.parcours-card, .parcours-tile) .parcours-progress {
+    display: none;
+  }
+  main.parcours-page .parcours-cards-block + .parcours-cards-block,
+  main.parcours-page .parcours-tiles-block + .parcours-cards-block {
+    margin-top: 0.75rem;
+  }
+
+  /* One card per family, a row per path. */
+  main.parcours-page :is(.parcours-cards, .parcours-tiles, .parcours-resume-list) {
+    display: block;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    border-radius: 1rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+    overflow: hidden;
+  }
+  main.parcours-page :is(.parcours-card, .parcours-tile) {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  main.parcours-page :is(.parcours-card, .parcours-tile) + :is(.parcours-card, .parcours-tile)::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 4.4rem;
+    right: 0;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  main.parcours-page :is(.parcours-card-link, .parcours-tile-link) {
+    display: grid;
+    grid-template-columns: 2.875rem 1fr 1rem;
+    grid-template-rows: auto auto;
+    column-gap: 0.75rem;
+    align-items: center;
+    min-height: 3.6rem;
+    padding: 0.6rem 0.9rem;
+    border: 0;
+    background: none;
+    text-decoration: none;
+  }
+  main.parcours-page :is(.parcours-card-link, .parcours-tile-link):hover {
+    text-decoration: none;
+  }
+  main.parcours-page :is(.parcours-card-link, .parcours-tile-link)::after {
+    content: "";
+    grid-column: 3;
+    grid-row: 1 / 3;
+    width: 0.9rem;
+    height: 0.9rem;
+    background: var(--muted);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  /* The path's first drawing (lib/road-art.ts) on its family's tint. */
+  main.parcours-page .parcours-ic {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    display: grid;
+    place-items: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    border-radius: 0.75rem;
+    background: var(--fam-wash, var(--garden-wash));
+  }
+  main.parcours-page .parcours-ic svg {
+    width: 2.125rem;
+    height: 2.125rem;
+  }
+  main.parcours-page :is(.parcours-card-title, .parcours-tile-name) {
+    grid-column: 2;
+    margin: 0;
+    font: 500 1.06rem/1.25 var(--font-text);
+    color: var(--ink);
+  }
+  main.parcours-page .parcours-meta {
+    grid-column: 2;
+    display: block;
+    margin-top: 0.1rem;
+    font: 400 0.8rem var(--font-ui);
+    color: var(--muted);
+  }
+
+  /* "En cours": the card's own gap above the filter field (the rule
+     above zeroes the margins it shares with the path cards). */
+  main.parcours-page .parcours-resume-list {
+    margin-bottom: 1rem;
+  }
+  main.parcours-page .parcours-resume-list li {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0.8rem 0.95rem;
+    border: 0;
+  }
+  main.parcours-page .parcours-resume-list li + li {
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  main.parcours-page .parcours-resume-path {
+    font: 500 1.06rem var(--font-text);
+  }
+  main.parcours-page .parcours-resume-meta,
+  main.parcours-page .parcours-resume-next {
+    font: 400 0.82rem var(--font-ui);
+    color: var(--muted);
+  }
+  main.parcours-page .parcours-resume-next {
+    color: var(--fam, var(--garden));
+  }
+  main.parcours-page .parcours-privacy {
+    margin-top: 1.5rem;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+}

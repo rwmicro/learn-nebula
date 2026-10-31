@@ -1,0 +1,57 @@
+/* ---------------------------------------------------------------------------
+   Index pages from a tablet up: Réviser (/cartes/), the folders (/notes/…)
+   and the reading paths (/parcours/) share one title and one column, so the
+   left edge and the heading stay put from one menu entry to the next. The
+   phone keeps its own titles (above, under 640px).
+   --------------------------------------------------------------------------- */
+@media (min-width: 640px) {
+  main.cartes-index .rv .rv-title {
+    margin-inline: 0;
+  }
+}
+@media (min-width: 900px) {
+  main.cartes-index,
+  main.nb,
+  main.parcours-page:not(.parcours-page--path) {
+    max-width: var(--measure-page);
+    padding-inline: 1.25rem;
+  }
+  /* The width is there: the folders in two columns. */
+  .nb-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .nb-list li:nth-child(odd) {
+    border-right: 0.5px solid var(--nb-edge);
+  }
+  .nb-list li:nth-child(2) .nb-row::before {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The tabs' top (Parcours, Notes, Réviser: main.tab-root). Each page used to
+   start under a band kept clear for the "Moi" button (body's 3.9rem), then
+   add its own title margin and size, so the title sat lower than the home's
+   greeting and a few pixels apart from tab to tab. Now every tab starts as
+   the home does: the large title on the button's row (the home's .dash-top
+   top), the same size everywhere, the right end kept clear for the button.
+   Last in the file, and doubled, to win over the pages' own rules above.
+   --------------------------------------------------------------------------- */
+@media (max-width: 639.98px) {
+  body:not(:has(.na-chrome)):has(main.tab-root) {
+    padding-top: 0;
+  }
+  main.tab-root.tab-root {
+    margin-top: 0 !important;
+    padding-top: calc(0.95rem + env(safe-area-inset-top, 0px)) !important;
+  }
+  main.tab-root.tab-root .app-large-title {
+    padding-top: 0;
+  }
+  main.tab-root.tab-root :is(.app-large-title h1, .themes-title, .rv-title) {
+    margin-top: 0;
+    padding-top: 0;
+    padding-inline-end: 3.5rem;
+  }
+}

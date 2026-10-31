@@ -1,0 +1,704 @@
+/* ---------------------------------------------------------------------------
+ * Manim figures — produced by rehypeManim. A <figure.manim-figure> wraps the
+ * rendered <video|img.manim-output> and a collapsible <details.manim-source>
+ * with the syntax-highlighted Python source.
+ * ------------------------------------------------------------------------- */
+.manim-figure {
+  margin: 1.6rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.manim-output {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  background: #000;
+  border-radius: var(--radius-md);
+}
+
+.manim-figure .manim-source {
+  width: 100%;
+  font-size: 0.95rem;
+  border: 1px solid var(--rule-strong);
+  background: inherit;
+}
+.manim-figure .manim-source > summary {
+  cursor: pointer;
+  padding: 0.3rem 0.6rem;
+  color: var(--ink-2);
+  user-select: none;
+  font-family: "Inconsolata", monospace;
+  font-size: 1.05rem;
+}
+.manim-figure .manim-source[open] > summary {
+  border-bottom: 1px solid var(--rule-strong);
+}
+.manim-figure .manim-source .chroma {
+  border: 0;
+  margin: 0;
+}
+
+.manim-missing {
+  margin: 0;
+  padding: 0.5rem 0.8rem;
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--muted);
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--radius-md);
+  background: var(--wash);
+  width: 100%;
+  text-align: center;
+}
+
+/* Inline videos produced by `![clip](demo.mp4)` (img→video promotion). */
+main video {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0.6rem auto;
+}
+
+/* ---------------------------------------------------------------- widgets
+   Interactive figures built by public/js/widgets.js from ```widget: blocks
+   (rehypeWidgets in lib/markdown.ts). Same visual grammar as the rest of the
+   article: page-coloured surfaces, 1px hairlines, square corners, #003366 as
+   the only accent. Before hydration — and without JS — the figure holds just
+   .widget-fallback, so it reads as a normal line of text. */
+.widget {
+  margin: 1.8rem 0;
+  padding: 0;
+}
+.widget-fallback {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  color: var(--muted);
+  font-size: var(--text-small);
+}
+.widget.is-live .w-root {
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  padding: 0.9rem;
+  background: var(--paper);
+}
+.w-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 0.9rem;
+  font-size: var(--text-small);
+}
+.w-hint {
+  color: var(--muted);
+  font-size: var(--text-meta);
+}
+.w-btn,
+.w-input {
+  font: inherit;
+  font-size: var(--text-small);
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+.w-input {
+  cursor: text;
+  width: 12ch;
+  font-variant-numeric: tabular-nums;
+}
+.w-btn:hover {
+  background: var(--link-wash);
+  border-color: var(--link);
+}
+.w-btn.is-active {
+  background: var(--link-wash);
+  border-color: var(--link);
+  color: var(--link);
+}
+
+/* Bit rows: monospace cells, grouped with a caption under each run. */
+.w-bits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+}
+.w-group {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.w-group-bits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.w-group-label {
+  font-size: var(--text-micro);
+  font-style: normal;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.w-bit {
+  font: 500 var(--text-meta) / 1 ui-monospace, "SFMono-Regular", Menlo, monospace;
+  width: 1.5em;
+  height: 1.8em;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--muted);
+  padding: 0;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+}
+.w-bit.is-on {
+  background: var(--link-wash);
+  border-color: var(--link);
+  color: var(--link);
+  font-weight: 700;
+}
+.w-group-sign .w-bit.is-on {
+  background: var(--link);
+  color: var(--paper);
+}
+
+.w-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-small);
+}
+.w-table th,
+.w-table td {
+  text-align: left;
+  padding: 0.25rem 0.5rem 0.25rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top;
+}
+.w-table th {
+  font-weight: 500;
+  color: var(--muted);
+  white-space: nowrap;
+  width: 14em;
+}
+.w-table td {
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.w-steps {
+  margin-top: 0.8rem;
+}
+.w-steps code {
+  display: block;
+  font-size: var(--text-meta);
+  color: var(--ink-2);
+  white-space: pre;
+  overflow-x: auto;
+}
+
+/* Cache grid: one cell per array element, laid out in memory order. */
+.w-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  gap: 1px;
+  max-width: 26rem;
+  margin-bottom: 0.9rem;
+  background: var(--wash-2);
+  border: 1px solid var(--rule-strong);
+}
+.w-cell {
+  aspect-ratio: 1;
+  background: var(--paper);
+  display: block;
+}
+.w-cell.is-line {
+  background: var(--link-wash);
+}
+.w-cell.is-read {
+  background: var(--link-wash);
+}
+.w-cell.is-cached {
+  background: var(--link-soft);
+}
+.w-cell.is-now {
+  background: var(--link);
+}
+
+@media (max-width: 639.98px) {
+  .w-table th {
+    width: auto;
+    white-space: normal;
+  }
+  .w-grid {
+    max-width: 100%;
+  }
+}
+
+/* Controls and surfaces shared by the later widgets. */
+.w-range {
+  width: 12rem;
+  accent-color: var(--link);
+  vertical-align: middle;
+}
+.w-area {
+  font: inherit;
+  font-size: var(--text-small);
+  width: 100%;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--radius-sm);
+  resize: vertical;
+  margin-bottom: 0.7rem;
+}
+.w-mono {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: var(--text-meta);
+  overflow-wrap: anywhere;
+}
+.w-warn {
+  margin: 0;
+  color: var(--danger);
+  font-size: var(--text-small);
+}
+.w-note {
+  margin: 0.7rem 0 0;
+  font-size: var(--text-small);
+  color: var(--ink-2);
+}
+
+/* Hash avalanche: one square per output bit, filled when the bit flipped. */
+.w-hashbits {
+  display: grid;
+  grid-template-columns: repeat(64, 1fr);
+  gap: 1px;
+  max-width: 24rem;
+  margin-bottom: 0.9rem;
+}
+.w-hbit {
+  aspect-ratio: 1;
+  background: var(--wash-2);
+  display: block;
+}
+.w-hbit.is-flip {
+  background: var(--link);
+}
+
+/* Endianness: byte boxes carrying their offset. */
+.w-byte {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid var(--rule-strong);
+  background: var(--link-wash);
+  padding: 0.2rem 0.45rem;
+  font: 500 var(--text-meta) / 1.3 ui-monospace, Menlo, monospace;
+}
+.w-byte em {
+  font-style: normal;
+  font-size: var(--text-micro);
+  color: var(--muted);
+}
+
+/* Regex: the sample text with matches marked. */
+.w-highlight {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: var(--text-meta);
+  white-space: pre-wrap;
+  border: 1px solid var(--rule-strong);
+  padding: 0.5rem;
+  margin-bottom: 0.8rem;
+  overflow-wrap: anywhere;
+}
+.w-highlight mark {
+  background: var(--link-wash);
+  outline: 1px solid var(--link);
+  color: var(--link);
+}
+
+/* Threshold plot. */
+.w-plot {
+  margin-bottom: 0.9rem;
+}
+.w-legend {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  font-size: var(--text-meta);
+  color: var(--muted);
+}
+.w-key::before {
+  content: "";
+  display: inline-block;
+  width: 0.7em;
+  height: 0.7em;
+  margin-right: 0.3em;
+}
+.w-key-neg::before {
+  background: var(--rule-strong);
+}
+.w-key-pos::before {
+  background: var(--link-mid);
+}
+
+.w-table-3 td:first-of-type {
+  width: 10em;
+}
+.w-truth td,
+.w-truth th {
+  text-align: center;
+  padding: 0.2rem 0.5rem;
+}
+.w-truth th:first-child,
+.w-truth td:first-child {
+  text-align: left;
+}
+.w-truth td.is-true {
+  color: var(--link);
+  font-weight: 700;
+}
+
+/* Stack frame: program listing beside the stack itself. */
+.w-split {
+  display: flex;
+  gap: 1.4rem;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.w-prog {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--text-meta) / 1.7 ui-monospace, Menlo, monospace;
+  flex: 1 1 18rem;
+}
+.w-prog li {
+  white-space: pre;
+  color: var(--muted);
+}
+.w-prog li.is-now {
+  color: var(--link);
+  background: var(--link-wash);
+  font-weight: 700;
+}
+.w-stack {
+  flex: 1 1 16rem;
+}
+.w-slot {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  border: 1px solid var(--rule-strong);
+  border-bottom: none;
+  padding: 0.25rem 0.5rem;
+  font-size: var(--text-meta);
+}
+.w-slot:last-child {
+  border-bottom: 1px solid var(--rule-strong);
+}
+.w-addr {
+  font-family: ui-monospace, Menlo, monospace;
+  color: var(--muted);
+  font-size: var(--text-micro);
+}
+.w-slot-v {
+  flex: 1;
+}
+.w-reg {
+  background: var(--link);
+  color: var(--paper);
+  padding: 0 0.35em;
+  font: 700 var(--text-micro) / 1.6 ui-monospace, Menlo, monospace;
+  margin-left: 0.25em;
+}
+
+/* Pipeline: instructions down, cycles across. */
+.w-pipe {
+  overflow-x: auto;
+  margin-bottom: 0.9rem;
+}
+.w-pipe-row {
+  display: flex;
+  align-items: stretch;
+}
+.w-pipe-label {
+  flex: 0 0 11rem;
+  font: var(--text-meta) / 1.9 ui-monospace, Menlo, monospace;
+  color: var(--ink-2);
+  white-space: pre;
+}
+.w-pipe-c {
+  flex: 0 0 2.6rem;
+  text-align: center;
+  font: 500 var(--text-micro) / 1.9 ui-monospace, Menlo, monospace;
+  color: var(--muted);
+  border: 1px solid transparent;
+}
+.w-pipe-c.is-if,
+.w-pipe-c.is-id,
+.w-pipe-c.is-ex,
+.w-pipe-c.is-mem,
+.w-pipe-c.is-wb {
+  border-color: var(--rule-strong);
+  background: var(--link-wash);
+  color: var(--link);
+}
+.w-pipe-c.is-ex {
+  background: var(--link);
+  color: var(--paper);
+}
+
+@media (max-width: 639.98px) {
+  .w-hashbits {
+    grid-template-columns: repeat(32, 1fr);
+  }
+  .w-pipe-label {
+    flex-basis: 8rem;
+  }
+}
+
+/* Chessboard: Unicode pieces on a plain grid, no sprites. */
+.w-board {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  max-width: 21rem;
+  border: 1px solid var(--rule-strong);
+  margin-bottom: 0.8rem;
+}
+.w-sq {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  font-size: 1.5rem;
+  line-height: 1;
+  background: var(--paper);
+  font-style: normal;
+}
+.w-sq.is-dark {
+  background: var(--link-wash);
+}
+.w-sq.is-last {
+  box-shadow: inset 0 0 0 2px var(--link);
+}
+
+/* Stars (echiquier `etoiles:`): the squares the piece can reach. */
+button.w-sq {
+  border: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 1.5rem;
+  color: inherit;
+  cursor: pointer;
+}
+.w-sq.is-reach {
+  background-image: radial-gradient(circle, color-mix(in srgb, var(--garden) 55%, transparent) 0 18%, transparent 20%);
+}
+.w-sq.is-star {
+  color: #d39b16;
+}
+.w-sq.is-reach.is-star {
+  background-image: none;
+  box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--garden) 70%, transparent);
+}
+button.w-sq:focus-visible {
+  outline: 2px solid var(--garden);
+  outline-offset: -2px;
+}
+
+/* Vowel trapezoid. */
+.w-trap svg {
+  max-width: 28rem;
+}
+.w-vowel.is-sel circle {
+  stroke-width: 3;
+}
+
+/* Logistic map: the bifurcation canvas with a marker at the current r. */
+.w-canvas-wrap {
+  position: relative;
+}
+.w-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--warn);
+  pointer-events: none;
+}
+
+/* Payoff matrix: inputs sit inside the cells. */
+.w-payoff .w-input {
+  width: 6.5ch;
+  border-color: transparent;
+  background: transparent;
+  text-align: center;
+}
+.w-payoff td.is-true {
+  background: var(--link-wash);
+  outline: 1px solid var(--link);
+}
+.w-payoff td.is-true .w-input {
+  color: var(--link);
+  font-weight: 700;
+}
+
+/* Vowel harmony: each suffix application shown as its own line. */
+.w-step {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: baseline;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.w-step code {
+  font-size: var(--text-small);
+  color: var(--link);
+  min-width: 18rem;
+}
+.w-step em {
+  font-style: normal;
+  font-size: var(--text-micro);
+  color: var(--muted);
+}
+.w-result {
+  font-size: var(--text-lead);
+  font-weight: 700;
+  color: var(--link);
+  margin: 0.8rem 0 0.6rem;
+}
+
+/* Tone contours. */
+.w-tone {
+  margin: 0 0 0.6rem;
+}
+.w-tone .w-hint {
+  margin: 0 0 0.2rem;
+}
+.w-tone svg {
+  max-width: 26rem;
+}
+
+/* Arabic roots: the derived form large and right-to-left. */
+.w-ar {
+  font-size: 1.15em;
+}
+.w-ar-big {
+  font-size: 1.5em;
+  line-height: 1.8;
+  color: var(--link);
+}
+.w-roots th {
+  width: 7em;
+  color: var(--muted);
+}
+
+/* Abugida composition. */
+.w-glyph {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+.w-glyph-parts {
+  font-size: 2rem;
+  color: var(--muted);
+  font-weight: 400;
+}
+.w-glyph-parts i {
+  font-style: normal;
+  margin: 0 0.4rem;
+  color: var(--rule-strong);
+}
+.w-glyph-out {
+  font-size: 3rem;
+  color: var(--link);
+  line-height: 1.2;
+}
+.w-chars {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-bottom: 0.8rem;
+}
+.w-char {
+  font: 1.25rem/1 inherit;
+  min-width: 2.1em;
+  padding: 0.25em 0;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.w-char.is-active {
+  background: var(--link-wash);
+  border-color: var(--link);
+  color: var(--link);
+}
+
+/* Word order: constituents as labelled blocks in the language's order. */
+.w-order {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin: 0.9rem 0;
+}
+.w-cst {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rule-strong);
+  padding: 0.45rem 0.8rem;
+  min-width: 6rem;
+}
+.w-cst b {
+  font-size: var(--text-body);
+}
+.w-cst em {
+  font-style: normal;
+  font-size: var(--text-micro);
+  color: var(--muted);
+}
+.w-sujet {
+  background: var(--link-wash);
+  border-color: var(--link);
+}
+.w-verbe {
+  background: var(--wash-2);
+  border-color: var(--warn);
+}
+.w-objet {
+  background: var(--garden-wash);
+  border-color: var(--garden);
+}
+
+/* Screening: four-colour legend matching the population square. */
+.w-key-vp::before { background: var(--link); }
+.w-key-fn::before { background: var(--link-mid); }
+.w-key-fp::before { background: var(--warn); }
+.w-key-vn::before { background: var(--wash-2); outline: 1px solid var(--rule-strong); }
+
+/* Framing: the two options as full-width choices, not inline buttons. */
+.w-frame p {
+  margin: 0 0 0.7rem;
+  font-size: var(--text-small);
+}
+.w-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.w-choice {
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  white-space: normal;
+  line-height: 1.45;
+}

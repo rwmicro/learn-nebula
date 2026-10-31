@@ -1,0 +1,617 @@
+/* --- Tab bar ------------------------------------------------------------- */
+.tabbar,
+.site-bar-me {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  :root {
+    --gk-tabbar-h: calc(4.9rem + var(--gk-safe-b));
+  }
+  /* Phones: a 16px rem (the desktop's 15px base reads small here), so the
+     app's sizes are the mockups' pixels. Still a %, so the reader's own
+     font-size setting keeps working. */
+  html {
+    font-size: 100%;
+  }
+
+  .tabbar {
+    position: fixed;
+    left: max(0.85rem, env(safe-area-inset-left, 0px));
+    right: max(0.85rem, env(safe-area-inset-right, 0px));
+    bottom: calc(0.9rem + var(--gk-safe-b) * 0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-ui);
+    transition:
+      transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 0.25s;
+  }
+  /* A light veil of paper under the bar: the page still shows through the
+     glass, but the labels never sit on busy text. */
+  .tabbar::before {
+    content: "";
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: -1;
+    height: calc(6.5rem + var(--gk-safe-b));
+    background: linear-gradient(transparent, color-mix(in srgb, var(--paper) 45%, transparent) 70%);
+    pointer-events: none;
+  }
+  .tabbar-bar {
+    flex: 1 1 0%;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: 3.85rem;
+    margin: 0;
+    padding: 0.25rem;
+    list-style: none;
+    border-radius: 2rem;
+  }
+  .tabbar-bar li {
+    margin: 0;
+    display: flex;
+  }
+  .tabbar-tab {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1rem;
+    border-radius: 1.7rem;
+    color: var(--ink);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    transition:
+      background-color 0.2s,
+      transform 0.15s;
+  }
+  .tabbar-tab:hover {
+    background: transparent;
+  }
+  .tabbar-tab:active {
+    transform: scale(0.92);
+  }
+  .tabbar-tab[aria-current="page"],
+  .tabbar-tab.is-lit {
+    color: var(--garden);
+  }
+  /* The glass pill under the current tab (components/MobileTabBar.tsx). It
+     glides to a new tab, and while a finger slides along the bar it becomes
+     a larger, clearer lens that follows it, as on iOS 26. */
+  .tabbar-bar {
+    position: relative;
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+  .tabbar-pill {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: 0;
+    z-index: 0;
+    border-radius: 1.7rem;
+    background: var(--glass-on);
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
+    pointer-events: none;
+    transition:
+      transform 0.42s cubic-bezier(0.3, 1.35, 0.5, 1),
+      background-color 0.2s,
+      box-shadow 0.2s;
+  }
+  /* Sliding: the lens (scaled up from the tab bar's script) keeps up with
+     the finger. */
+  .tabbar-bar.is-sliding .tabbar-pill {
+    transition:
+      transform 0.1s ease-out,
+      background-color 0.2s,
+      box-shadow 0.2s;
+    background: rgb(255 255 255 / 0.16);
+    -webkit-backdrop-filter: blur(2px) saturate(1.6) brightness(1.08);
+    backdrop-filter: blur(2px) saturate(1.6) brightness(1.08);
+    box-shadow:
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.8),
+      inset 0 1.5px 1px rgb(255 255 255 / 0.7),
+      inset 0 -2px 6px rgb(255 255 255 / 0.25),
+      0 6px 18px rgb(0 0 0 / 0.14);
+  }
+  .tabbar-bar.is-sliding {
+    scale: 1.02;
+  }
+  .tabbar-bar {
+    transition: scale 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .tabbar-tab {
+    z-index: 1;
+  }
+  /* While sliding, only the tab under the lens is lit. */
+  .tabbar-bar.is-sliding .tabbar-tab:not(.is-lit) {
+    color: var(--ink);
+  }
+  .tabbar-bar.is-sliding .tabbar-tab:not(.is-lit) .tabbar-fill {
+    fill: none;
+  }
+  .tabbar-bar.is-sliding .tabbar-tab.is-lit .tabbar-icon {
+    transform: scale(1.12);
+  }
+  .tabbar-icon {
+    transition: transform 0.2s;
+  }
+  .tabbar-icon svg {
+    display: block;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .tabbar-fill {
+    fill: none;
+  }
+  .tabbar-tab[aria-current="page"] .tabbar-fill,
+  .tabbar-tab.is-lit .tabbar-fill {
+    fill: currentColor;
+    fill-opacity: 0.22;
+  }
+  .tabbar-badge {
+    position: absolute;
+    top: 0.2rem;
+    left: calc(50% + 0.35rem);
+    min-width: 1.15rem;
+    height: 1.15rem;
+    padding: 0 0.3rem;
+    border-radius: 0.6rem;
+    background: #c2410c;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.15rem;
+    text-align: center;
+  }
+  .tabbar-search {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.85rem;
+    height: 3.85rem;
+    padding: 0;
+    border-radius: 50%;
+    color: var(--ink);
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .tabbar-search:active {
+    transform: scale(0.92);
+  }
+  .tabbar-search svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .tabbar-tab:focus-visible,
+  .tabbar-search:focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
+  }
+
+  /* Drop shadows on their own elements (see lib/liquid-glass.ts), under the
+     glass they follow; the glass keeps only its inner light. */
+  .tabbar .glass {
+    box-shadow: var(--glass-inset);
+  }
+  .tabbar-shadow {
+    position: absolute;
+    top: 0;
+    height: 3.85rem;
+    border-radius: 2rem;
+    box-shadow: var(--glass-drop);
+    pointer-events: none;
+  }
+  .tabbar-shadow-bar {
+    left: 0;
+    width: calc(100% - 4.45rem);
+  }
+  .tabbar-shadow-search {
+    right: 0;
+    width: 3.85rem;
+  }
+  /* While a finger slides, the pill grows past the bar: Chromium would shift
+     the bending by that much, so the bar is plain glass for the moment. */
+  .tabbar-bar.has-lens.is-sliding {
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04) !important;
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04) !important;
+  }
+  /* The sliding lens magnifies the tabs under it: a copy of the row, held
+     in place under the moving pill and scaled with it. */
+  .tabbar-bar.is-sliding .tabbar-pill {
+    z-index: 2;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--paper) 55%, transparent);
+    -webkit-backdrop-filter: blur(8px) saturate(1.6) brightness(1.06);
+    backdrop-filter: blur(8px) saturate(1.6) brightness(1.06);
+    box-shadow:
+      inset 0 0 0 0.5px rgb(255 255 255 / 0.8),
+      inset 0 1.5px 1px rgb(255 255 255 / 0.7),
+      inset 0 -2px 6px rgb(255 255 255 / 0.25);
+  }
+  .tabbar-lens {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .tabbar-lens .tabbar-tab {
+    z-index: auto;
+  }
+  .tabbar-lens .tabbar-tab:not(.is-lit) {
+    color: var(--ink);
+  }
+
+  /* Shrunk while scrolling down: the current tab alone, the search on the
+     right, and the mini player between them. */
+  .tabbar-bar,
+  .tabbar-shadow-bar {
+    transition:
+      flex 0.42s cubic-bezier(0.3, 1.2, 0.5, 1),
+      width 0.42s cubic-bezier(0.3, 1.2, 0.5, 1),
+      scale 0.25s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .tabbar.is-compact .tabbar-bar {
+    flex: 0 0 3.85rem;
+    grid-template-columns: 1fr;
+  }
+  .tabbar.is-compact .tabbar-shadow-bar {
+    width: 3.85rem;
+  }
+  .tabbar.is-compact .tabbar-bar li:not(:has(> .is-current)) {
+    display: none;
+  }
+  .tabbar.is-compact .tabbar-tab {
+    border-radius: 50%;
+    background: var(--glass-on);
+    animation: tabbar-pop 0.3s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .tabbar.is-compact .tabbar-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+  .tabbar.is-compact .tabbar-badge {
+    top: 0.1rem;
+    left: calc(50% + 0.25rem);
+  }
+  @keyframes tabbar-pop {
+    from {
+      scale: 0.7;
+      opacity: 0.4;
+    }
+  }
+  .tabbar-search {
+    margin-left: auto;
+  }
+  .tabbar-mini,
+  .tabbar-shadow-mini {
+    position: absolute;
+    top: 0;
+    left: 4.45rem;
+    right: 4.45rem;
+    height: 3.85rem;
+    border-radius: 2rem;
+    opacity: 0;
+    scale: 0.6 0.9;
+    pointer-events: none;
+    transition:
+      opacity 0.22s,
+      scale 0.42s cubic-bezier(0.3, 1.3, 0.5, 1);
+  }
+  .tabbar.is-compact .tabbar-mini,
+  .tabbar.is-compact .tabbar-shadow-mini {
+    opacity: 1;
+    scale: 1;
+    pointer-events: auto;
+    transition-delay: 0.08s;
+  }
+  .tabbar-shadow-mini {
+    box-shadow: var(--glass-drop);
+  }
+  .tabbar-mini {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0 0.4rem 0 0.5rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .tabbar-mini:hover {
+    background: var(--glass-bg);
+  }
+  .tabbar-mini:active {
+    scale: 0.97;
+  }
+  .tabbar-mini-ring {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.375rem;
+    height: 2.375rem;
+    border-radius: 50%;
+    position: relative;
+    background: conic-gradient(var(--fam, var(--garden)) calc(var(--p, 0) * 360deg), var(--glass-on) 0);
+    color: var(--fam, var(--garden));
+  }
+  .tabbar-mini-ring::before {
+    content: "";
+    position: absolute;
+    inset: 0.19rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+  }
+  .tabbar-mini-ring svg {
+    position: relative;
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+  .tabbar-mini-text {
+    flex: 1;
+    min-width: 0;
+    line-height: 1.15;
+  }
+  .tabbar-mini-text b {
+    display: block;
+    overflow: hidden;
+    font: 500 0.95rem var(--font-text);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .tabbar-mini-text small {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .tabbar-mini-play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.375rem;
+    height: 2.375rem;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .tabbar-mini-play svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* The page scrolls under the bar, but its end stays reachable. */
+  body {
+    padding-bottom: calc(4.9rem + var(--gk-safe-b));
+  }
+
+  /* The menu, review reminder, language and search of the site bar live in
+     the tab bar (or Moi) now; the account and the theme stay at the top. */
+  .site-bar .site-bar-menu,
+  .site-bar .review-pill,
+  .site-bar .palette-btn,
+  .site-bar .site-bar-lang,
+  .home-masthead .gk-menu-btn,
+  .home-masthead .palette-btn {
+    display: none;
+  }
+  /* "Se connecter" too: a visitor signs in from Moi (its "keep my
+     progress" card), so the corner keeps only the round "Moi" button. */
+  .account-login {
+    display: none;
+  }
+  .site-bar-me {
+    display: inline-grid;
+    place-items: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 50%;
+    background: var(--garden-wash);
+    color: var(--garden);
+  }
+  .site-bar-me svg {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+  .site-bar-me:hover {
+    background: var(--garden-wash);
+    color: var(--garden);
+  }
+  /* Signed in, "Moi" carries the reader's avatar (MeButton.tsx), so the
+     account chip and its coins stay on wider screens. */
+  .site-bar .account-chip,
+  .home-masthead .account-chip {
+    display: none;
+  }
+  .site-bar-me.has-avatar {
+    padding: 0.1875rem;
+  }
+  .site-bar-me.has-avatar .avatar {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* No top bar: the "Moi" avatar as a round glass button at the top right
+     and, once the large title has scrolled away, a glass pill with the leaf
+     and the page's title at the top left (TopBarScroll.tsx), over a soft
+     fade of the paper. Notes have their own chrome, the home its masthead. */
+  body:not(:has(.na-chrome)):not(:has(.home-masthead)) {
+    padding-top: 3.9rem;
+  }
+  body:not(:has(.na-chrome)) .site-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    margin: 0;
+    padding: calc(0.5rem + env(safe-area-inset-top, 0px)) 0.875rem 0;
+    background: none;
+    border: 0;
+    pointer-events: none;
+  }
+  body:not(:has(.na-chrome)) .site-bar::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 -1.2rem;
+    z-index: -1;
+    background: linear-gradient(var(--paper) 50%, transparent);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar::before {
+    opacity: 1;
+  }
+  body:not(:has(.na-chrome)) .site-bar-inner {
+    height: 2.875rem;
+    padding: 0;
+    border: 0;
+  }
+  body:not(:has(.na-chrome)) .site-bar :is(.site-bar-brand, .site-bar-me) {
+    pointer-events: auto;
+  }
+  body:not(:has(.na-chrome)) .site-bar .theme-toggle {
+    display: none;
+  }
+  /* The pill: logo + page title, in glass, once scrolled, centred. */
+  body:not(:has(.na-chrome)) .site-bar-inner {
+    position: relative;
+    justify-content: flex-end;
+  }
+  body:not(:has(.na-chrome)) .site-bar-brand {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 2.75rem;
+    max-width: calc(100vw - 8rem);
+    padding: 0 1rem 0 0.75rem;
+    border-radius: 1.375rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+    color: var(--ink);
+    opacity: 0;
+    /* Centred through transform, not the `translate` property: the CSS
+       build merged `translate` away next to `transform`, which left the
+       pill starting at mid-screen, under the avatar. */
+    transform: translate(-50%, -0.4rem);
+    transition:
+      opacity 0.25s,
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    pointer-events: none;
+  }
+  :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar-brand {
+    opacity: 1;
+    transform: translateX(-50%);
+    pointer-events: auto;
+  }
+  body:not(:has(.na-chrome)) .site-bar-brand .site-bar-logo {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+  /* Out of sight, but still the link's name for screen readers (the page
+     title beside it is aria-hidden). */
+  body:not(:has(.na-chrome)) .site-bar-brand > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .site-bar-page {
+    display: none;
+  }
+  body:not(:has(.na-chrome)) .site-bar-page {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font: 600 1.06rem var(--font-ui);
+    letter-spacing: 0;
+    font-variant: normal;
+    text-transform: none;
+  }
+  /* The avatar: a round glass button. */
+  body:not(:has(.na-chrome)) .site-bar .site-bar-me {
+    width: 2.75rem;
+    height: 2.75rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+    color: var(--ink);
+  }
+
+  /* No grey flash on tap; buttons answer with a slight press instead. */
+  a,
+  button,
+  summary,
+  label {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Floating buttons and panels sit above the tab bar (or a note's
+     toolbar, at the same height). */
+  html .gk-pinned-trigger,
+  html .to-top {
+    bottom: calc(1rem + var(--gk-tabbar-h));
+    transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  html .coin-toast {
+    bottom: calc(1.4rem + var(--gk-tabbar-h));
+  }
+  /* The pronunciation coach is a bottom sheet drawn over the tab bar. */
+  html .pron-coach {
+    bottom: 0;
+  }
+  html .path-dock:not([hidden]) {
+    bottom: calc(0.75rem + var(--gk-tabbar-h));
+    transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  html .parcours-dock:not([hidden]) {
+    bottom: var(--gk-tabbar-h);
+    padding-bottom: 0.7rem;
+  }
+}
+@media (max-width: 639.98px) and (prefers-reduced-motion: reduce) {
+  .tabbar,
+  .tabbar-shadow,
+  .tabbar-mini,
+  .tabbar.is-compact .tabbar-tab,
+  .tabbar-bar,
+  .tabbar-pill,
+  .tabbar-bar.is-sliding .tabbar-pill,
+  .tabbar-icon,
+  .tabbar-tab,
+  .tabbar-search {
+    transition: none;
+  }
+  .tabbar.is-compact .tabbar-tab {
+    animation: none;
+  }
+}
+@media print {
+  .tabbar {
+    display: none;
+  }
+}

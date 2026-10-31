@@ -1,0 +1,689 @@
+/* ---------------------------------------------------------------------------
+   A reading path on a phone: the header as an app page, then the road
+   (components/PathRoad.tsx) in place of the levels list and the graph.
+   --------------------------------------------------------------------------- */
+.road,
+.pt-short {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  main.parcours-page--path {
+    --on-fam: #fff;
+    padding-top: 0;
+    padding-bottom: 1rem;
+  }
+  :root[data-theme="dark"] main.parcours-page--path {
+    --on-fam: var(--paper);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) main.parcours-page--path {
+      --on-fam: var(--paper);
+    }
+  }
+  main.parcours-page--path > :is(.parcours-levels, .parcours-graph-fold, h2.visually-hidden, h2.themes-h2),
+  main.parcours-page--path .parcours-desc,
+  main.parcours-page--path .parcours-dock,
+  main.parcours-page--path .parcours-bar,
+  main.parcours-page--path .pt-long {
+    display: none !important;
+  }
+  main.parcours-page--path .pt-short {
+    display: inline;
+  }
+  /* The level bar names where one is: no title pill in the site bar. */
+  body:has(main.parcours-page--path) .site-bar-brand {
+    display: none;
+  }
+
+  /* Back and "available offline" as glass buttons over the page. */
+  main.parcours-page--path .themes-back,
+  main.parcours-page--path .offline-path-btn {
+    position: fixed;
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    z-index: 901;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    border: 0.5px solid var(--glass-edge);
+    border-radius: 50%;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    box-shadow: var(--glass-shadow);
+    color: transparent;
+    /* One line, no gap: as a grid, the hidden label made a second row and
+       parcours.css's 0.35rem gap pushed the download icon above the centre. */
+    gap: 0;
+    font-size: 0;
+    line-height: 0;
+    text-decoration: none;
+  }
+  main.parcours-page--path .themes-back {
+    left: 0.875rem;
+  }
+  main.parcours-page--path .offline-path-btn {
+    right: 4.125rem;
+  }
+  main.parcours-page--path :is(.themes-back, .offline-path-btn)::before {
+    content: "";
+    width: 1.375rem;
+    height: 1.375rem;
+    background: var(--fam, var(--ink));
+    -webkit-mask: var(--ico) center / contain no-repeat;
+    mask: var(--ico) center / contain no-repeat;
+  }
+  main.parcours-page--path .themes-back::before {
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m15 5-7 7 7 7'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path .offline-path-btn::before {
+    background: var(--ink);
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 4v11m-5-5 5 5 5-5M5 20h14'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path .offline-path:has(.offline-path-ok) .offline-path-btn::before {
+    background: var(--garden);
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path .offline-path-ok {
+    display: none;
+  }
+  main.parcours-page--path .offline-path {
+    margin: 0;
+  }
+
+  /* Header. */
+  main.parcours-page--path .themes-kicker {
+    margin: 0.75rem 0 0;
+    font: 700 0.78125rem var(--font-ui);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fam, var(--garden));
+  }
+  main.parcours-page--path .themes-title {
+    margin: 0.25rem 0 0;
+  }
+  main.parcours-page--path .parcours-status {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin: 0.875rem 0 0;
+    font: 500 0.875rem var(--font-ui);
+    font-variant-numeric: lining-nums;
+    color: var(--ink-2);
+  }
+  main.parcours-page--path .parcours-progress {
+    margin: 0;
+  }
+  main.parcours-page--path .parcours-study {
+    margin-top: 1rem;
+  }
+  /* The tools share the row, however many there are (Révision only shows
+     once a note is read): no empty third of a row. */
+  main.parcours-page--path .parcours-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+  }
+  main.parcours-page--path .parcours-cta {
+    flex: 1 1 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 4.25rem;
+    margin: 0;
+    padding: 0.625rem 4rem 0.625rem 1.375rem;
+    border: 0;
+    border-radius: 2.125rem;
+    background: var(--garden);
+    box-shadow: none;
+    color: var(--paper);
+    text-decoration: none;
+  }
+  main.parcours-page--path .parcours-cta-verb {
+    font: 500 0.8125rem var(--font-ui);
+    opacity: 0.85;
+  }
+  main.parcours-page--path .parcours-cta-title {
+    font: 600 1.0625rem/1.2 var(--font-ui);
+  }
+  main.parcours-page--path .parcours-cta > [aria-hidden] {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--paper) 20%, transparent);
+    transform: translateY(-50%);
+    font: 600 1.25rem/1 var(--font-ui);
+  }
+  /* Tinted tiles, icon over label, as Notes' "Autres vues"
+     (notes-browse.css .nb-view). */
+  main.parcours-page--path .parcours-tools > [data-tool] {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    height: 4.75rem;
+    margin: 0;
+    padding: 0.7rem 0.8rem 0.65rem;
+    border: 0;
+    border-radius: 1rem;
+    background: var(--fam-wash, var(--wash-2));
+    box-shadow: none;
+    color: var(--ink);
+    font: 500 0.9375rem/1.1 var(--font-ui);
+    text-align: start;
+    text-decoration: none;
+  }
+  main.parcours-page--path .parcours-tools > [data-tool]:disabled {
+    opacity: 0.55;
+  }
+  main.parcours-page--path .parcours-tools > [data-tool]::before {
+    content: "";
+    width: 1.375rem;
+    height: 1.375rem;
+    background: var(--fam, var(--garden));
+    -webkit-mask: var(--ico) center / contain no-repeat;
+    mask: var(--ico) center / contain no-repeat;
+  }
+  main.parcours-page--path [data-tool="placement"]::before {
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.9'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Ccircle cx='12' cy='12' r='1.5' fill='%23000'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path [data-tool="review"]::before {
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.4M12 17h.01'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path [data-tool="sheet"]::before {
+    --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='1.9' stroke-linecap='round'%3E%3Crect x='5' y='3' width='14' height='18' rx='2'/%3E%3Cpath d='M9 8h6M9 12h6M9 16h4'/%3E%3C/svg%3E");
+  }
+  main.parcours-page--path .parcours-tool-count {
+    position: absolute;
+    top: 0.375rem;
+    right: 0.5rem;
+  }
+  main.parcours-page--path .parcours-tools > .parcours-tool--quiet {
+    flex: 1 1 100%;
+    margin: 0;
+  }
+  main.parcours-page--path .parcours-tools-note {
+    margin: 0.625rem 0.25rem 0;
+    font: 400 0.8125rem/1.35 var(--font-ui);
+    color: var(--muted);
+  }
+
+  /* The road. */
+  .road {
+    display: block;
+    position: relative;
+    margin: 1.25rem -1rem 0;
+    font-family: var(--font-text);
+    font-variant-numeric: lining-nums;
+  }
+  .road a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .road a:hover {
+    background: transparent;
+  }
+  .road-bar {
+    position: sticky;
+    top: calc(3.75rem + env(safe-area-inset-top, 0px));
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0 0.75rem;
+    padding: 0.625rem 0.75rem 0.625rem 0.875rem;
+    border-radius: 1.25rem;
+    background: var(--fam, var(--garden));
+    box-shadow: 0 8px 24px color-mix(in srgb, var(--fam, var(--garden)) 35%, transparent);
+    color: var(--on-fam);
+  }
+  .road-bar-tx {
+    flex: 1;
+    min-width: 0;
+  }
+  .road-bar-tx small {
+    display: block;
+    font: 700 0.71875rem var(--font-ui);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+  .road-bar-tx b {
+    display: block;
+    font: 600 1.09375rem/1.15 var(--font-text);
+  }
+  .road-bar-p {
+    display: block;
+    height: 0.375rem;
+    margin-top: 0.4375rem;
+    overflow: hidden;
+    border-radius: 0.1875rem;
+    background: color-mix(in srgb, var(--on-fam) 28%, transparent);
+  }
+  .road-bar-p i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--on-fam);
+  }
+  .road .road-bar-sheet {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1.5px solid color-mix(in srgb, var(--on-fam) 35%, transparent);
+    border-radius: 0.875rem;
+    background: color-mix(in srgb, var(--on-fam) 18%, transparent);
+    color: var(--on-fam);
+  }
+  .road-bar-sheet svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .road-level {
+    position: relative;
+  }
+  .road-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .road-svg path {
+    fill: none;
+    stroke-linecap: round;
+  }
+  .road-way {
+    stroke: var(--wash-2);
+    stroke-width: 18;
+  }
+  .road-dots {
+    stroke: var(--rule-strong);
+    stroke-width: 2.5;
+    stroke-dasharray: 2 11;
+  }
+  .road-done {
+    stroke: var(--fam-wash, var(--garden-wash));
+    stroke-width: 18;
+  }
+  .road-done-line {
+    stroke: var(--fam, var(--garden));
+    stroke-width: 3;
+    opacity: 0.55;
+  }
+  .road-sprout {
+    position: absolute;
+    width: 2.125rem;
+    height: 2.125rem;
+    color: var(--fam, var(--garden));
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  /* The road's drawings (lib/road-art.ts): three tones of the family, a
+     ground line, lighter or darker with the theme. */
+  .road {
+    --f1: var(--fam, var(--garden));
+    --f0: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 42%) - 12%));
+    --f2: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 42%) + 22%));
+    --f3: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 42%) + 40%));
+    --ground: hsl(var(--fam-h, 135) 18% 88%);
+  }
+  :root[data-theme="dark"] .road {
+    --f0: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) + 10%));
+    --f2: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) - 18%));
+    --f3: hsl(var(--fam-h, 135) 22% 26%);
+    --ground: hsl(var(--fam-h, 135) 10% 24%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .road {
+      --f0: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) + 10%));
+      --f2: hsl(var(--fam-h, 135) var(--fam-s, 42%) calc(var(--fam-l, 68%) - 18%));
+      --f3: hsl(var(--fam-h, 135) 22% 26%);
+      --ground: hsl(var(--fam-h, 135) 10% 24%);
+    }
+  }
+  .road-art {
+    position: absolute;
+    width: 18%;
+    max-width: 5rem;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+  .road-art svg,
+  .road-div-art svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .road-art.is-lock {
+    filter: grayscale(1);
+    opacity: 0.45;
+  }
+  .road-div-art {
+    display: block;
+    margin: 0 -1.5rem 0.25rem;
+  }
+  .road-div {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    right: 1.5rem;
+    text-align: center;
+  }
+  .road-div-h {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0;
+    font: 700 0.78125rem var(--font-ui);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .road-div-h::before,
+  .road-div-h::after {
+    content: "";
+    flex: 1;
+    border-top: 1.5px solid var(--rule);
+  }
+  .road-div-sub {
+    margin: 0.5rem 0 0;
+    font: 400 0.90625rem/1.35 var(--font-text);
+    color: var(--muted);
+  }
+  .road-list {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .road-pn {
+    --d: 3.875rem;
+    position: absolute;
+    z-index: 3;
+    width: 0;
+    height: 0;
+    margin: 0;
+  }
+  .road-pn::marker {
+    content: none;
+  }
+  .road .road-disk {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    place-items: center;
+    width: var(--d);
+    height: var(--d);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    --bg: var(--fam, var(--garden));
+    --sh: color-mix(in srgb, var(--fam, var(--garden)) 65%, #000);
+    --fg: var(--on-fam);
+  }
+  .road-disk::before {
+    content: "";
+    position: absolute;
+    inset: 4px 0 -4px;
+    border-radius: inherit;
+    background: var(--sh);
+  }
+  .road-disk > span:not(.sr-only) {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    border: 3px solid var(--rim, transparent);
+    border-radius: inherit;
+    background: var(--bg);
+    color: var(--fg);
+  }
+  .road-disk svg {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+  .road-pn.done .road-disk > span::after {
+    content: "";
+    position: absolute;
+    left: 0.75rem;
+    top: 0.5rem;
+    width: 1rem;
+    height: 0.4375rem;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.28);
+    transform: rotate(-30deg);
+  }
+  .road-pn.lock .road-disk {
+    --bg: var(--dash-card);
+    --sh: var(--rule-strong);
+    --fg: var(--muted);
+    --rim: var(--rule);
+  }
+  .road-pn.cur {
+    --d: 4.75rem;
+  }
+  .road-pn.cur .road-disk svg {
+    width: 2rem;
+    height: 2rem;
+  }
+  .road-ring {
+    position: absolute;
+    inset: -11px -11px -7px;
+    border-radius: 50%;
+    background: conic-gradient(var(--fam, var(--garden)) 140deg, var(--fam-wash, var(--garden-wash)) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5px));
+  }
+  .road-chest {
+    --d: 4.75rem;
+  }
+  .road-chest .road-disk {
+    width: 5.25rem;
+    height: 4.625rem;
+    border-radius: 1.25rem;
+    --bg: #f3c64a;
+    --sh: #c99a1c;
+    --fg: #6b4800;
+  }
+  .road-chest.lock .road-disk {
+    --bg: var(--dash-card);
+    --sh: var(--rule-strong);
+    --fg: var(--muted);
+    --rim: var(--rule);
+  }
+  .road-chest .road-disk:disabled {
+    cursor: default;
+  }
+  /* A finished level whose questions are due again: its discs and its
+     stretch of road go pale, the chest pulses gently and says "À
+     rafraîchir". */
+  .road-level.is-faded .road-pn.done .road-disk,
+  .road-level.is-faded .road-done,
+  .road-level.is-faded .road-done-line {
+    filter: saturate(0.25) opacity(0.65);
+  }
+  .road-chest.due .road-disk {
+    animation: road-due 2.4s ease-in-out infinite;
+  }
+  .road-chest.due em {
+    color: #b07a00;
+  }
+  @keyframes road-due {
+    50% {
+      transform: translateY(-3px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .road-chest.due .road-disk {
+      animation: none;
+    }
+  }
+  .road-lb {
+    position: absolute;
+    top: 0;
+    left: calc(var(--d) / 2 + 0.75rem);
+    width: 9.5rem;
+    transform: translateY(-50%);
+  }
+  .road-pn.r .road-lb {
+    left: auto;
+    right: calc(var(--d) / 2 + 0.75rem);
+    text-align: right;
+  }
+  .road-lb > a,
+  .road-lb b {
+    display: block;
+    font: 600 0.96875rem/1.18 var(--font-text);
+    color: var(--ink);
+    text-wrap: balance;
+  }
+  .road-pn.lock .road-lb > a,
+  .road-pn.lock .road-lb b {
+    font-weight: 500;
+    color: var(--muted);
+  }
+  .road-lb em {
+    display: block;
+    margin-bottom: 0.0625rem;
+    font: 700 0.6875rem var(--font-ui);
+    font-style: normal;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #a87512;
+  }
+  .road-lb small {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-top: 0.1875rem;
+    font: 500 0.75rem var(--font-ui);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .road-pn.r .road-lb small {
+    justify-content: flex-end;
+  }
+  .road-stars {
+    display: inline-flex;
+    gap: 1px;
+    color: #e2a72e;
+  }
+  .road-stars i {
+    opacity: 0.25;
+  }
+  .road-stars i.on {
+    opacity: 1;
+  }
+  .road-stars svg,
+  .road-mi svg {
+    display: block;
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+  .road-mi {
+    display: inline-flex;
+  }
+  .road-card {
+    position: absolute;
+    top: calc(var(--d) / 2 + 1.25rem);
+    left: -5rem;
+    z-index: 4;
+    width: 16.75rem;
+    padding: 0.875rem;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.25rem;
+    background: var(--dash-card);
+    box-shadow: 0 12px 30px rgb(0 0 0 / 0.12);
+  }
+  .road-card.r {
+    left: auto;
+    right: -5rem;
+  }
+  .road-card::before {
+    content: "";
+    position: absolute;
+    top: -0.5rem;
+    left: 4.5rem;
+    width: 1rem;
+    height: 1rem;
+    border-left: 0.5px solid var(--dash-edge);
+    border-top: 0.5px solid var(--dash-edge);
+    background: var(--dash-card);
+    transform: rotate(45deg);
+  }
+  .road-card.r::before {
+    left: auto;
+    right: 4.5rem;
+  }
+  .road-card p {
+    margin: 0;
+  }
+  .road-card-k {
+    font: 700 0.71875rem var(--font-ui);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--fam, var(--garden));
+  }
+  .road-card-t {
+    margin-top: 0.1875rem !important;
+    font: 600 1.1875rem/1.15 var(--font-text);
+  }
+  .road-card-m {
+    display: flex;
+    gap: 0.875rem;
+    margin-top: 0.375rem !important;
+    font: 500 0.8125rem var(--font-ui);
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .road-card-m span {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .road-card-m svg {
+    width: 0.9375rem;
+    height: 0.9375rem;
+  }
+  .road .road-go {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    height: var(--btn-h-sm);
+    margin-top: 0.75rem;
+    border-radius: var(--btn-radius);
+    background: var(--fam, var(--garden));
+    box-shadow: 0 4px 0 color-mix(in srgb, var(--fam, var(--garden)) 65%, #000);
+    color: var(--on-fam);
+    font: 600 1rem var(--font-ui);
+  }
+  .road-go svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}

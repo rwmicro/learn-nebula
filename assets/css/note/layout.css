@@ -1,0 +1,881 @@
+/* ===========================================================================
+ * Note page, October 2026 (revues/page-note-redesign-2026-10-23.md): the
+ * family's colour leads the line above the title, one line of metadata under
+ * it, the outline made legible (lead-ins, numbered sections), and the reading
+ * tools in a liquid-glass bar at the bottom (lib/html.ts noteDockHtml,
+ * public/js/note-dock.js). Phones keep lib/note-app.ts's layout (app.css).
+ * ======================================================================== */
+main {
+  --fam-ink: var(--ink);
+}
+main[data-family],
+.toc-rail[data-family] {
+  /* The family accent alone is too pale for text in some families; mixed
+     with the ink it keeps its hue and clears AA in both themes. */
+  --fam-ink: color-mix(in srgb, var(--fam) 72%, var(--ink));
+}
+
+/* "**Évolution**" then bullets: a label over its list, not a paragraph. */
+.article-body > p.lead-in {
+  margin: 1.8rem 0 0.55rem;
+  font-family: var(--font-ui);
+  font-size: clamp(0.82rem, 0.78rem + 0.2vw, 0.92rem);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  hyphens: manual;
+  break-after: avoid;
+}
+.article-body > p.lead-in strong {
+  font-weight: inherit;
+}
+.article-body > :is(h2, h3, h4) + p.lead-in {
+  margin-top: 1rem;
+}
+
+/* Sections: a hairline above each, numbered i., ii.… in the family colour
+   when the note has two or more and doesn't number them itself
+   (rehypeOutline, lib/markdown.ts). */
+.article-body {
+  counter-reset: sec;
+}
+.article-body > h2 {
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--rule);
+}
+.article-body > h2:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+.article-body > h2.sec-n {
+  counter-increment: sec;
+}
+.article-body > h2.sec-n::before {
+  content: counter(sec, lower-roman) ".";
+  display: inline-block;
+  min-width: 1.6em;
+  margin-inline-end: 0.35em;
+  font-family: var(--font-caps);
+  font-size: 0.68em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--fam-ink);
+}
+.article-body ul > li::marker {
+  color: color-mix(in srgb, var(--fam, var(--ink)) 75%, transparent);
+}
+
+/* Callouts: a soft tinted card, rounded, the label in small tracked capitals.
+   (Questions keep their own look, from .callout-quiz on.) */
+.callout:not(.callout-quiz):not(.callout-predict) {
+  padding: 0.85rem 1.1rem 0.95rem;
+  border-left: 0;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--c) 9%, var(--paper));
+}
+.callout:not(.callout-quiz):not(.callout-predict) > .callout-title {
+  /* At this size the label is normal text for contrast (4.5:1), which the
+     pure hue doesn't reach on its own tint: darkened (lightened in dark
+     mode) towards the ink. */
+  color: color-mix(in srgb, var(--c) 62%, var(--ink));
+  font-family: var(--font-ui);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* One line under the title: date · time · stage · tended · history · Lue. */
+.note-meta .note-growth {
+  margin: 0;
+  font-size: inherit;
+}
+@media (max-width: 639.98px) {
+  /* Phones: the "historique" link alone under the title read like a
+     category label. It joins the growth line, after the date and reading
+     time, as on wider screens: "28 février 2026 · 8 min · historique". */
+  .note-meta > .read-badge {
+    display: none !important;
+  }
+  .note-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: -0.2rem 0 0.9rem;
+    font: 500 0.9rem/1.5 var(--font-ui);
+    color: var(--muted);
+  }
+  .note-meta > .subtitle:empty {
+    display: none;
+  }
+  .note-meta > .subtitle,
+  .note-meta > .reading-time {
+    flex: none;
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    font-style: normal;
+    color: inherit;
+  }
+  .note-meta .note-growth {
+    display: contents;
+  }
+  .note-meta > .subtitle:empty + .reading-time::before {
+    content: none;
+  }
+  .note-meta .growth-sep {
+    display: none;
+  }
+  .note-meta > :not([hidden]) ~ :not(.note-growth)::before,
+  .note-meta .note-growth > :not(.growth-sep)::before {
+    content: "·";
+    padding-inline: 0.45rem;
+    color: var(--faint);
+  }
+  .note-meta > :first-child::before {
+    content: none !important;
+  }
+  /* Same size and dotted underline as the rest of the line (`main a` made
+     it larger), and its "·" kept out of the underline. */
+  .note-meta .growth-history {
+    font: inherit;
+    color: inherit;
+    text-decoration: underline dotted;
+    text-decoration-color: var(--rule-strong);
+    text-underline-offset: 0.2em;
+  }
+  .note-meta .growth-history::before {
+    display: inline-block;
+  }
+}
+
+.note-dock,
+.note-more-aa {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  /* --- Head ---------------------------------------------------------------- */
+  .note-header {
+    margin-bottom: 0.55rem;
+    padding-bottom: 0;
+    border-bottom: 0;
+    font-size: 1rem;
+  }
+  .note-header-crumb {
+    gap: 0.5rem;
+    font-family: var(--font-ui);
+    color: var(--muted);
+  }
+  .note-header .crumbs {
+    font-size: 1rem;
+  }
+  .note-header .crumbs a:last-child {
+    color: var(--ink-2);
+  }
+  .note-fam {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-weight: 700;
+    color: var(--fam-ink);
+  }
+  .note-fam i {
+    width: 0.48rem;
+    height: 0.48rem;
+    border-radius: 1px;
+    background: var(--fam, var(--garden));
+    transform: rotate(45deg);
+  }
+  .note-fam + .crumbs::before {
+    content: "·";
+    margin-inline-end: 0.5rem;
+    color: var(--faint);
+  }
+  /* The date moves into the meta line; "Sommaire" into the bar. */
+  main .subtitle-row {
+    display: none;
+  }
+  main .title-note {
+    margin: 0;
+    padding-top: 0;
+    border-top: 0;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .note-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0.75rem 0 1.6rem;
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+  .note-meta .note-growth {
+    display: contents;
+  }
+  .note-meta .growth-sep {
+    display: none;
+  }
+  .note-meta > :not([hidden]) ~ :not(.note-growth)::before,
+  .note-meta .note-growth > :not(.growth-sep)::before {
+    content: "·";
+    padding-inline: 0.55rem;
+    color: var(--faint);
+  }
+  .note-meta > .subtitle:empty {
+    display: none;
+  }
+  .note-meta > .subtitle:empty + .reading-time::before {
+    content: none;
+  }
+  .note-meta > .subtitle,
+  .note-meta > .reading-time {
+    margin: 0;
+    padding: 0;
+    font: inherit;
+    font-style: normal;
+    color: inherit;
+  }
+  .note-meta .read-badge {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font: 500 1rem/1.5 var(--font-ui);
+    text-transform: none;
+  }
+  .note-meta .growth-tended time {
+    font-style: normal;
+  }
+  .note-meta .growth-history {
+    text-decoration: underline;
+    text-decoration-color: var(--rule-strong);
+  }
+
+  /* --- The bar ------------------------------------------------------------- */
+  .note-dock {
+    display: block;
+    position: fixed;
+    z-index: 930;
+    left: 0;
+    right: 0;
+    bottom: calc(1.1rem + env(safe-area-inset-bottom, 0px));
+    width: fit-content;
+    max-width: calc(100vw - 2rem);
+    margin-inline: auto;
+    border-radius: var(--radius-pill);
+  }
+  /* The drop shadow on its own layer: a refracting glass is shifted by its
+     own outer shadow in Chromium (lib/liquid-glass.ts). */
+  .note-dock::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: var(--glass-drop);
+    pointer-events: none;
+  }
+  .note-dock-bar {
+    /* Denser than the tab bar's glass: this one floats over running text. */
+    --glass-bg: color-mix(in srgb, var(--paper) 58%, transparent);
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    padding: 0.3rem;
+    border-radius: inherit;
+    box-shadow: var(--glass-inset);
+    font-family: var(--font-ui);
+    color: var(--ink);
+  }
+  .note-dock .dock-tools {
+    display: contents;
+  }
+  .note-dock-bar :is(.dock-toc, .audio-btn, .bookmark-btn, .note-more-btn, .lesson-btn, .dock-next, .dock-ask, .dock-now) {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 2.6rem;
+    margin: 0;
+    padding: 0 0.95rem;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: transparent;
+    color: var(--ink);
+    font: 500 1.02rem/1 var(--font-ui);
+    letter-spacing: 0;
+    text-transform: none;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .note-dock-bar :is(.dock-toc, .audio-btn, .bookmark-btn, .note-more-btn, .lesson-btn, .dock-next, .dock-now):hover,
+  .note-dock-bar .note-more[open] > .note-more-btn {
+    background: var(--glass-on);
+  }
+  .note-dock-bar :is(button, a, summary):focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 1px;
+  }
+  .note-dock-bar [hidden],
+  .note-dock-bar .bookmark-btn[hidden],
+  .note-dock-bar .audio-btn[hidden],
+  .note-dock-bar .lesson-btn[hidden] {
+    display: none;
+  }
+  .note-dock-bar svg {
+    flex: none;
+  }
+  /* The labels come lowercase for the small capitals of the old row. */
+  .note-dock-bar :is(.audio-label, .note-more-btn > span, .lesson-btn > span) {
+    display: inline-block;
+  }
+  .note-dock-bar :is(.audio-label, .note-more-btn > span, .lesson-btn > span)::first-letter {
+    text-transform: uppercase;
+  }
+  .note-dock-bar .audio-btn .audio-icon {
+    width: 17px;
+    height: 17px;
+    align-self: center;
+  }
+  .note-dock-bar .bookmark-btn {
+    padding: 0;
+    width: 2.6rem;
+    justify-content: center;
+  }
+  .note-dock-bar .bookmark-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  .note-dock-bar .bookmark-btn[aria-pressed="true"] {
+    color: var(--garden);
+  }
+  /* Labels the bar can do without: still read out (title / aria-label). */
+  .note-dock-bar .bookmark-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .note-dock-bar .lesson-btn {
+    color: var(--garden);
+    background: var(--garden-wash);
+  }
+  .note-dock-bar .note-more-btn svg {
+    transform: rotate(180deg);
+  }
+  .note-dock-bar .note-more[open] > .note-more-btn svg {
+    transform: none;
+  }
+  /* "Affichage" and the translate menu open upwards, over the text. */
+  .note-dock-bar .note-more-panel {
+    top: auto;
+    bottom: calc(100% + 0.75rem);
+    left: 50%;
+    translate: -50% 0;
+    background: var(--paper-raised);
+  }
+  .note-dock-bar .note-more-panel :is(button, .translate-btn) {
+    font-family: var(--font-ui);
+    font-size: 1rem;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    align-items: center;
+    padding: 0.45rem 0.6rem;
+    border-radius: var(--radius-sm);
+  }
+  .note-dock-bar .note-more-panel button > span {
+    display: inline-block;
+  }
+  .note-dock-bar .note-more-panel button > span::first-letter {
+    text-transform: uppercase;
+  }
+  .note-dock-bar .translate-menu {
+    top: auto;
+    bottom: calc(100% + 0.3rem);
+  }
+  /* An open menu hangs outside the bar, and Chromium would shift the bending
+     by that much: plain glass meanwhile. */
+  .note-dock-bar.has-lens:has(.note-more[open]) {
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04) !important;
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04) !important;
+  }
+  .note-dock-bar .dock-ask {
+    margin-inline-start: 0.3rem;
+    padding-inline: 0.85rem 1.05rem;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .note-dock-bar .dock-ask:hover {
+    background: var(--garden-hover);
+  }
+  .note-dock-bar .dock-ask[hidden] {
+    display: none;
+  }
+
+  /* Shrunk while scrolling down: ring + section, the next note, the
+     assistant. Écouter stays while it reads aloud. */
+  .note-dock-bar .dock-now,
+  .note-dock-bar .dock-next {
+    display: none;
+  }
+  .note-dock.is-compact :is(.dock-toc, .bookmark-btn, .note-more, .lesson-btn),
+  .note-dock.is-compact .audio-btn[data-state="idle"] {
+    display: none;
+  }
+  .note-dock.is-compact .dock-now {
+    display: inline-flex;
+    max-width: min(16rem, 46vw);
+    padding-inline: 0.75rem 1rem;
+    color: var(--ink-2);
+  }
+  .note-dock.is-compact .dock-next {
+    display: inline-flex;
+    width: 2.6rem;
+    padding: 0;
+    justify-content: center;
+  }
+  .note-dock.is-compact .dock-ask {
+    width: 2.6rem;
+    padding: 0;
+    justify-content: center;
+  }
+  .note-dock.is-compact .dock-ask .dock-label {
+    display: none;
+  }
+  .dock-sec {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dock-ring {
+    flex: none;
+    fill: none;
+    stroke-width: 2.6;
+  }
+  .dock-ring circle:first-child {
+    stroke: var(--rule-strong);
+  }
+  .dock-ring-fill {
+    stroke: var(--fam, var(--garden));
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.15s linear;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .note-dock.is-compact .note-dock-bar {
+      animation: dock-shrink 0.34s cubic-bezier(0.3, 1.35, 0.5, 1);
+    }
+    .note-dock:not(.is-compact) .note-dock-bar {
+      animation: dock-grow 0.34s cubic-bezier(0.3, 1.35, 0.5, 1);
+    }
+  }
+  /* Contents and display as icons, ≡ and Aa (their names stay in the
+     aria-label); "Affichage" and its chevron are for the old row. */
+  .note-dock-bar :is(.dock-toc, .note-more-btn) > :is(span, svg:last-child) {
+    display: none;
+  }
+  .note-dock-bar .dock-toc > svg {
+    display: block;
+  }
+  .note-dock-bar :is(.dock-toc, .note-more-btn) {
+    width: 2.6rem;
+    padding: 0;
+    justify-content: center;
+  }
+  .note-dock-bar .note-more-aa {
+    display: block;
+    font: 600 1.08rem/1 var(--font-text);
+    letter-spacing: -0.01em;
+  }
+  /* Where no rail shows the contents, the bar names the section being read
+     (from the width where it fits beside the tools). */
+  @media (min-width: 760px) and (max-width: 1099.98px) {
+    .note-dock-bar .dock-now {
+      display: inline-flex;
+      max-width: 11rem;
+      padding-inline: 0.7rem 0.9rem;
+      color: var(--ink-2);
+    }
+  }
+
+  /* The bar replaces the floating "Demander à l'IA" pill and the path's
+     "Étape suivante" chip, and keeps out of the way of the assistant, a
+     lesson and focus mode. */
+  html.has-note-dock-ask .gk-pinned-trigger,
+  body:has(.note-dock) .path-dock {
+    display: none !important;
+  }
+  body:has(.gc) .note-dock,
+  html.lesson-open .note-dock,
+  body[data-focus="true"] .note-dock,
+  body[data-aside-open="true"] .note-dock {
+    display: none;
+  }
+  /* Room under the last lines for the bar. */
+  body:has(.note-dock) footer {
+    padding-bottom: 5rem;
+  }
+  /* A veil of paper under the bar: the line it floats over fades out
+     instead of running under its buttons. Hidden with the bar. */
+  body:has(.note-dock)::after {
+    content: "";
+    position: fixed;
+    z-index: 929;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    background: linear-gradient(transparent, var(--paper) 55%);
+    pointer-events: none;
+  }
+  body:has(.gc):has(.note-dock)::after,
+  html.lesson-open body:has(.note-dock)::after,
+  body[data-focus="true"]:has(.note-dock)::after,
+  body[data-aside-open="true"]:has(.note-dock)::after {
+    display: none;
+  }
+  /* "Remonter" sits above the bar's line on the right. */
+  body:has(.note-dock) .to-top {
+    bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+/* "Sommaire" opens the drawer (the aside is one at every width). */
+@media (min-width: 640px) {
+  .note-dock-bar .dock-toc:not([hidden]) {
+    display: inline-flex;
+  }
+  .note-dock.is-compact .note-dock-bar .dock-toc {
+    display: none;
+  }
+  /* The bar has "Sommaire": the condensed header at the top needn't. */
+  .note-header-condensed .aside-toggle {
+    display: none;
+  }
+}
+@keyframes dock-shrink {
+  from {
+    transform: scale(1.06, 0.94);
+  }
+}
+@keyframes dock-grow {
+  from {
+    transform: scale(0.94, 1.06);
+  }
+}
+body[data-focus="true"] .note-meta {
+  display: none !important;
+}
+@media print {
+  .note-dock {
+    display: none !important;
+  }
+}
+
+/* The left rail (toc.js): the section being read in the family colour. */
+.toc-rail a.active::before {
+  background: var(--fam, var(--link));
+}
+
+/* --- Three columns from 1100px -------------------------------------------
+   The contents on the left (.toc-rail, public/js/toc.js), the text in the
+   middle (≤ 680px, about 66 characters), and on the right the path card,
+   what the note cites and what links to it, and its questions
+   (.note-side, lib/html.ts noteSideHtml). Below 1100px, or with "élargir"
+   or focus on, the path card is the strip under the title and the rest
+   waits at the end of the note. */
+.note-side {
+  display: contents;
+}
+.note-side-extra,
+.toc .toc-title-rail,
+.note-aside .toc-sub {
+  display: none;
+}
+.toc-progress {
+  display: none;
+}
+
+@media screen and (min-width: 1100px) {
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) {
+    --col: min(680px, calc(100vw - 30rem));
+    --side: min(16rem, calc(50vw - var(--col) / 2 - 2.75rem));
+    max-width: var(--col);
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .toc-rail,
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .note-side {
+    position: fixed;
+    z-index: 10;
+    top: 6.6rem;
+    width: var(--side);
+    max-height: calc(100vh - 8.5rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .toc-rail {
+    display: block;
+    right: calc(50% + var(--col) / 2 + 1.75rem);
+    padding: 0 0.4rem 0 0.75rem;
+    font-family: var(--font-ui);
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .note-side {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    left: calc(50% + var(--col) / 2 + 1.75rem);
+    padding-bottom: 1rem;
+  }
+  /* Taller than the screen: it scrolls with the page (note-dock.js). */
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .note-side.is-tall {
+    position: absolute;
+    max-height: none;
+    overflow: visible;
+  }
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .note-side-extra {
+    display: flex;
+    flex-direction: column;
+    gap: 1.35rem;
+    padding-inline: 0.15rem;
+  }
+}
+
+/* The left rail: "Sur cette page", the sections, the current one opened on
+   its subsections and lead-ins, and the progress under them. */
+.toc-rail .toc-title {
+  display: none;
+}
+.toc-rail .toc-title-rail,
+.note-side-h {
+  display: block;
+  margin: 0 0 0.7rem;
+  font: 700 0.75rem/1.3 var(--font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.toc-rail.toc {
+  border: 0;
+}
+.toc-rail ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.toc-rail li {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.3;
+}
+.toc-rail a {
+  padding: 0.3rem 0 0.3rem 0.85rem;
+}
+.toc-rail :is(.toc-h3, .toc-sub) a {
+  padding: 0.2rem 0 0.2rem 1.7rem;
+  font-size: 0.9rem;
+}
+.toc-rail li.in-sec:not(.is-open) {
+  display: none;
+}
+.toc-rail .is-parent > a {
+  color: var(--ink);
+}
+.toc-rail a.active::before {
+  inset-inline-start: -1px;
+  top: 0.3rem;
+  bottom: 0.3rem;
+}
+.toc-rail :is(.toc-h3, .toc-sub) a.active {
+  color: var(--fam-ink, var(--link));
+}
+.toc-rail :is(.toc-h3, .toc-sub) a.active::before {
+  inset-inline-start: -1px;
+  top: 0.2rem;
+  bottom: 0.2rem;
+}
+.toc-rail .toc-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.toc-progress svg {
+  flex: none;
+  fill: none;
+  stroke-width: 2.6;
+}
+.toc-progress circle:first-child {
+  stroke: var(--rule-strong);
+}
+.toc-progress-fill {
+  stroke: var(--fam, var(--garden));
+  stroke-linecap: round;
+}
+
+/* The right column, under the path card. */
+.note-side-extra {
+  font-family: var(--font-ui);
+}
+.note-side-extra ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.note-side-extra li {
+  position: relative;
+  margin: 0 0 0.4rem;
+  padding-inline-start: 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+.note-side-extra li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0.5em;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 50%;
+  background: var(--faint);
+}
+.note-side-extra li a {
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.note-side-extra li a:hover {
+  color: var(--ink);
+  text-decoration: underline;
+  background: none;
+}
+.note-side-cards {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px var(--rule-strong);
+  color: var(--ink-2);
+  text-decoration: none;
+}
+.note-side-cards:hover {
+  background: var(--wash);
+  color: var(--ink);
+}
+.note-side-cards svg {
+  flex: none;
+  margin-top: 0.1rem;
+  color: var(--fam-ink, var(--garden));
+}
+.note-side-cards b {
+  display: block;
+  font-size: 0.93rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.note-side-cards small {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* The site bar spans the page, not the text column, so its links fit. */
+@media (min-width: 640px) {
+  body .site-bar {
+    position: relative;
+    left: 50%;
+    width: min(75rem, calc(100vw - 2.4rem));
+    margin-inline: 0;
+    transform: translateX(-50%);
+  }
+}
+@media (min-width: 1100px) {
+  body .site-bar {
+    width: min(75rem, calc(100vw - 4rem));
+  }
+}
+
+/* End of the note: "Précédente" and the next step, side by side, then the
+   unread pick of the discipline. */
+.next-up-pager {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+.next-up-pager.is-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+.next-up-pager.is-single > .next-up-main {
+  grid-column: 1;
+}
+.next-up-pager > .next-up-main {
+  grid-column: 2;
+}
+.next-up-prev,
+.next-up-pager > .next-up-main {
+  display: grid;
+  align-items: center;
+  gap: 0.15rem 0.8rem;
+  padding: 0.85rem 1rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  box-shadow: inset 0 0 0 1px var(--rule-strong);
+  background: var(--paper);
+  color: var(--ink);
+  text-decoration: none;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.next-up-prev {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+.next-up-prev .next-up-arrow {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  color: var(--muted);
+}
+.next-up-prev :is(.next-up-kicker, .next-up-title) {
+  grid-column: 2;
+}
+.next-up-pager > .next-up-main {
+  grid-template-columns: minmax(0, 1fr) auto;
+  text-align: end;
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--fam, var(--garden)) 55%, transparent);
+}
+.next-up-pager > .next-up-main .next-up-kicker {
+  color: var(--fam-ink, var(--garden));
+}
+.next-up-pager > .next-up-main .next-up-arrow {
+  color: var(--fam-ink, var(--garden));
+}
+.next-up-prev:hover,
+.next-up-pager > .next-up-main:hover {
+  background: var(--wash);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+.next-up-prev .next-up-kicker {
+  color: var(--muted);
+}
+.next-up .next-up-side {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.2rem;
+}
+.next-up .next-up-side > .next-up-unread {
+  flex: 1 1 18rem;
+}
+@media (max-width: 639.98px) {
+  .next-up-pager {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .next-up-pager > .next-up-main {
+    grid-column: 1;
+  }
+}

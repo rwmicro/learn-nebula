@@ -1,0 +1,622 @@
+/* ---------------------------------------------------------------------------
+   Review session on a phone (components/ReviewPhone.tsx): a full-screen
+   layer over the page and the tab bar.
+   --------------------------------------------------------------------------- */
+.rsm-resume-row {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  :root {
+    --rsm-red: #b8432f;
+    --rsm-amber: #a86a12;
+    --rsm-blue: #2f63a8;
+    --rsm-red-w: #fbe9e5;
+    --rsm-amber-w: #fbf0de;
+    --rsm-blue-w: #e5edf8;
+  }
+  :root[data-theme="dark"] {
+    --rsm-red: #e88a78;
+    --rsm-amber: #e2b25e;
+    --rsm-blue: #8db4ea;
+    --rsm-red-w: #3a2622;
+    --rsm-amber-w: #372d1d;
+    --rsm-blue-w: #1f2a3a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      --rsm-red: #e88a78;
+      --rsm-amber: #e2b25e;
+      --rsm-blue: #8db4ea;
+      --rsm-red-w: #3a2622;
+      --rsm-amber-w: #372d1d;
+      --rsm-blue-w: #1f2a3a;
+    }
+  }
+  html.rsm-open,
+  html.rsm-open body {
+    overflow: hidden;
+  }
+  .rsm {
+    font-variant-numeric: lining-nums;
+    --fam: var(--garden);
+    --fam-wash: var(--garden-wash);
+    position: fixed;
+    inset: 0;
+    z-index: 1300;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-text);
+    overscroll-behavior: contain;
+  }
+  .rsm[data-family] {
+    --fam: hsl(var(--fam-h) var(--fam-s) var(--fam-l));
+    --fam-wash: hsl(var(--fam-h) var(--fam-s) var(--fam-l) / 0.14);
+  }
+  .rsm button {
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+  }
+
+  /* Top: close, progress, undo. */
+  .rsm-top {
+    flex: none;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: calc(3.875rem + env(safe-area-inset-top, 0px));
+    padding: calc(0.375rem + env(safe-area-inset-top, 0px)) 1rem 0;
+  }
+  .rsm-gbtn {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .rsm-gbtn svg {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .rsm-gbtn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+  .rsm-prog {
+    position: absolute;
+    left: 4.5rem;
+    right: 4.5rem;
+    top: calc(0.75rem + env(safe-area-inset-top, 0px));
+    text-align: center;
+  }
+  .rsm-cnt {
+    display: block;
+    font: 600 0.8125rem/1 var(--font-ui);
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+  }
+  .rsm-bar {
+    height: 0.3125rem;
+    margin-top: 0.5rem;
+    overflow: hidden;
+    border-radius: 0.1875rem;
+    background: var(--wash-2);
+  }
+  .rsm-bar i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--garden);
+    transition: width 0.3s;
+  }
+
+  .rsm-chip-row {
+    flex: none;
+    display: flex;
+    justify-content: center;
+    min-height: 1.875rem;
+    margin-top: 0.875rem;
+  }
+  .rsm-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4375rem;
+    max-width: calc(100% - 2.5rem);
+    height: 1.875rem;
+    padding: 0 0.75rem 0 0.5rem;
+    border-radius: 0.9375rem;
+    background: var(--fam-wash);
+    color: var(--fam);
+    font: 700 0.8125rem var(--font-ui);
+  }
+  .rsm-chip > span {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .rsm-chip i {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 0.375rem;
+    background: var(--fam);
+    color: #fff;
+  }
+  .rsm-chip i svg {
+    width: 0.6875rem;
+    height: 0.6875rem;
+  }
+
+  /* The card on its stack. */
+  .rsm-stack {
+    flex: 0 1 27.5rem;
+    position: relative;
+    min-height: 12rem;
+    margin: 0.75rem 1.25rem 0;
+  }
+  .rsm-fc {
+    position: absolute;
+    inset: 0;
+    border: 0.5px solid var(--rule);
+    border-radius: 1.75rem;
+    background: var(--dash-card);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 0.04), 0 18px 40px rgb(0 0 0 / 0.09);
+  }
+  .rsm-fc.b1 {
+    transform: translateY(1.25rem) scale(0.93);
+    opacity: 0.8;
+    box-shadow: 0 6px 14px rgb(0 0 0 / 0.05);
+  }
+  .rsm-fc.b2 {
+    transform: translateY(2.375rem) scale(0.86);
+    opacity: 0.5;
+    box-shadow: none;
+  }
+  .rsm-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1.75rem 1.75rem;
+    text-align: center;
+    outline: none;
+    cursor: pointer;
+    transition: transform 0.25s;
+    touch-action: pan-y;
+  }
+  .rsm-card.drag {
+    transition: none;
+  }
+  .rsm-tag {
+    position: absolute;
+    top: 1.125rem;
+    left: 1.25rem;
+    font: 700 0.71875rem var(--font-ui);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .rsm-snd {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--wash-2);
+  }
+  .rsm-snd svg,
+  .rsm-play svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .rsm-face {
+    width: 100%;
+    max-height: 100%;
+    overflow: auto;
+    font-size: 1.25rem;
+    line-height: 1.35;
+  }
+  .rsm-face:focus-visible {
+    outline: 2px solid var(--garden);
+    outline-offset: 4px;
+    border-radius: 0.5rem;
+  }
+  .rsm-face .card {
+    font: inherit;
+    color: inherit;
+    background: none;
+  }
+  /* The card's own clip buttons are played from the round button. */
+  .rsm-face .pron-btn {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .rsm-face hr {
+    width: 3.5rem;
+    margin: 1.125rem auto 0.875rem;
+    border: 0;
+    border-top: 1.5px solid var(--rule);
+  }
+  .rsm-q {
+    font-size: 1.375rem;
+    font-weight: 500;
+    line-height: 1.3;
+  }
+  .rsm-a {
+    font-size: 1.0625rem;
+    line-height: 1.45;
+    color: var(--ink-2);
+  }
+  .rsm-q > :first-child,
+  .rsm-a > :first-child {
+    margin-top: 0;
+  }
+  .rsm-q > :last-child,
+  .rsm-a > :last-child {
+    margin-bottom: 0;
+  }
+  .rsm-open {
+    display: inline-block;
+    margin-top: 0.875rem;
+    font: 500 0.9375rem var(--font-ui);
+    color: var(--garden);
+  }
+  .rsm-stamp {
+    position: absolute;
+    top: 2.5rem;
+    left: 1.625rem;
+    z-index: 2;
+    padding: 0.25rem 0.75rem;
+    border: 3px solid var(--garden);
+    border-radius: 0.625rem;
+    background: var(--dash-card);
+    color: var(--garden);
+    font: 800 1.5rem var(--font-ui);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transform: rotate(-14deg);
+    pointer-events: none;
+  }
+  .rsm-stamp.again {
+    left: auto;
+    right: 1.625rem;
+    border-color: var(--rsm-red);
+    color: var(--rsm-red);
+    transform: rotate(14deg);
+  }
+  .rsm-edge {
+    position: absolute;
+    top: 3.875rem;
+    bottom: 0;
+    right: 0;
+    width: 8.75rem;
+    background: linear-gradient(270deg, color-mix(in srgb, var(--garden) 22%, transparent), transparent);
+    pointer-events: none;
+  }
+  .rsm-edge.again {
+    right: auto;
+    left: 0;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--rsm-red) 22%, transparent), transparent);
+  }
+
+  .rsm-hint {
+    flex: none;
+    margin: 1.625rem 1.25rem 0;
+    text-align: center;
+    font: 400 0.84375rem var(--font-ui);
+    color: var(--muted);
+  }
+  .rsm-foot {
+    margin-top: auto;
+    padding: 1rem 1.25rem calc(2.5rem + var(--gk-safe-b));
+  }
+  .rsm-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    height: var(--btn-h);
+    border: 0;
+    border-radius: var(--btn-radius);
+    background: var(--btn-bg);
+    color: var(--btn-ink) !important;
+    font: var(--btn-font) !important;
+    text-decoration: none;
+  }
+  .rsm-big {
+    height: 3.625rem;
+    border-radius: 1.8125rem;
+  }
+  .rsm-grades {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin: 0 -0.375rem -0.625rem;
+    padding: 0.5rem;
+    border-radius: 1.875rem;
+    transition: opacity 0.2s;
+  }
+  .rsm-grades.dim {
+    opacity: 0.5;
+  }
+  .rsm-g {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1875rem;
+    height: 4.25rem;
+    padding: 0;
+    border: 0;
+    border-radius: 1.375rem;
+    background: var(--gw);
+    color: var(--gc) !important;
+  }
+  .rsm-g b {
+    font: 700 0.9375rem var(--font-ui);
+  }
+  .rsm-g small {
+    font: 600 0.78125rem var(--font-ui);
+    opacity: 0.85;
+  }
+  .rsm-g.again {
+    --gw: var(--rsm-red-w);
+    --gc: var(--rsm-red);
+  }
+  .rsm-g.hard {
+    --gw: var(--rsm-amber-w);
+    --gc: var(--rsm-amber);
+  }
+  .rsm-g.good {
+    --gw: var(--garden);
+    --gc: var(--paper);
+  }
+  .rsm-g.easy {
+    --gw: var(--rsm-blue-w);
+    --gc: var(--rsm-blue);
+  }
+
+  /* Typed answers. */
+  .rsm-run {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3125rem;
+    height: 1.625rem;
+    padding: 0 0.625rem;
+    border-radius: 0.8125rem;
+    background: #fdecd9;
+    color: #c25a12;
+    font: 800 0.8125rem var(--font-ui);
+  }
+  .rsm-run svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+  .rsm-run.lost {
+    background: var(--wash-2);
+    color: var(--muted);
+  }
+  .rsm-typed .rsm-chip-row {
+    margin-top: 0.25rem;
+  }
+  .rsm-ask {
+    flex: none;
+    margin: 0.75rem 1.25rem 0;
+    outline: none;
+  }
+  .rsm-kicker {
+    margin: 0;
+    font: 700 0.8125rem var(--font-ui);
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--fam);
+  }
+  .rsm-prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    margin-top: 0.75rem;
+  }
+  .rsm-play {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 1rem;
+    background: var(--fam);
+    color: #fff !important;
+  }
+  .rsm-prompt .rsm-face {
+    flex: 1;
+    min-width: 0;
+    text-align: start;
+  }
+  .rsm-inp {
+    flex: none;
+    width: calc(100% - 2.5rem);
+    min-height: 3.625rem;
+    margin: 1.75rem 1.25rem 0;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--dash-card);
+    color: var(--ink);
+    font: 500 1.25rem var(--font-text);
+    outline: none;
+  }
+  .rsm-inp:focus {
+    border-color: var(--fam);
+  }
+  .rsm-inp.ok {
+    border-color: var(--garden);
+  }
+  .rsm-inp.ko {
+    border-color: var(--rsm-red);
+  }
+  .rsm-fb {
+    margin-top: auto;
+    padding: 1.125rem 1.25rem calc(2.125rem + var(--gk-safe-b));
+    border-radius: 1.5rem 1.5rem 0 0;
+    background: var(--garden-wash);
+  }
+  .rsm-fb.ko {
+    background: var(--rsm-red-w);
+  }
+  .rsm-fb h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin: 0;
+    font: 700 1.3125rem var(--font-ui);
+    color: var(--garden);
+  }
+  .rsm-fb.ko h2 {
+    color: var(--rsm-red);
+  }
+  .rsm-fb h2 i {
+    display: grid;
+    place-items: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .rsm-fb.ko h2 i {
+    background: var(--rsm-red);
+  }
+  .rsm-fb h2 svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .rsm-fb p,
+  .rsm-fb-more {
+    margin: 0.5rem 0 0.875rem;
+    font: 400 1rem/1.4 var(--font-text);
+    color: var(--ink-2);
+  }
+  .rsm-fb-more * {
+    font: inherit !important;
+    margin: 0 !important;
+    opacity: 1 !important;
+  }
+  .rsm-fb-more > :first-child {
+    color: var(--ink);
+    font-weight: 600 !important;
+  }
+  .rsm-fb p b {
+    font-family: var(--font-ui);
+    color: var(--ink);
+  }
+  .rsm-fb ins {
+    text-decoration: underline 2px var(--rsm-red);
+    text-underline-offset: 3px;
+  }
+  .rsm-fb p small {
+    display: block;
+    font-size: 0.90625rem;
+    color: var(--muted);
+  }
+  .rsm-fb .rsm-btn {
+    height: 3.375rem;
+  }
+  .rsm-fb.ko .rsm-btn {
+    background: var(--rsm-red);
+    color: var(--paper) !important;
+  }
+
+  /* End of the session. */
+  .rsm-end {
+    overflow-y: auto;
+    text-align: center;
+  }
+  .rsm-end .rsm-top {
+    justify-content: flex-start;
+  }
+  /* A basket of picked fruit over the title (lib/deco-art.ts). */
+  .rsm-scene {
+    flex: none;
+    width: min(20rem, 82%);
+    margin: 1.5rem auto 0;
+  }
+  .rsm-end h2 {
+    margin: 1.375rem 1.25rem 0.375rem;
+    font: 600 1.875rem/1.1 var(--font-text);
+    outline: none;
+  }
+  .rsm-end-note {
+    margin: 0;
+    padding: 0 2.5rem;
+    font: 400 1rem/1.4 var(--font-text);
+    color: var(--muted);
+  }
+  .rsm-stats {
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 1.5rem 1rem 0;
+  }
+  .rsm-stats div {
+    padding: 0.25rem;
+  }
+  .rsm-stats b {
+    display: block;
+    font: 600 1.5rem/1.1 var(--font-text);
+  }
+  .rsm-stats small {
+    font: 400 0.8125rem var(--font-ui);
+    color: var(--muted);
+  }
+
+  /* Folded away: one button brings it back. */
+  .rsm-resume-row {
+    display: block;
+    margin: 0 0 1rem;
+  }
+  .rsm-resume {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    height: 3.25rem;
+    border: 0;
+    border-radius: 1.625rem;
+    background: var(--garden);
+    color: var(--paper);
+    font: 600 1.0625rem var(--font-ui);
+    cursor: pointer;
+  }
+  .rsm-resume span {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.8;
+  }
+}
+@media (max-width: 639.98px) {
+  .rsm-prompt .rsm-face .card,
+  .rsm-prompt .rsm-face .card * {
+    text-align: start;
+  }
+}

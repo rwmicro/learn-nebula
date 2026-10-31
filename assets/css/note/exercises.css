@@ -1,0 +1,761 @@
+/* ---------------------------------------------------------------------------
+ * Exercises (lib/exercises.ts, public/js/exercises.js), drawn after
+ * revues/maquettes-duolingo-2026-10-24: a white card with "À toi · Associer"
+ * and the instruction as its title, raised tiles (a number or a letter for
+ * the keyboard), a foot with the hints and "Vérifier". In lesson mode
+ * (.lesson-stage) the frame goes: kicker, action as a big title, the
+ * instruction in a speech bubble, and "Vérifier" at the bottom.
+ * ------------------------------------------------------------------------- */
+.callout.callout-ex.callout-ex {
+  --c: var(--fam, var(--garden));
+  --tile: var(--paper-raised, var(--paper));
+  padding: 0;
+  border: 1.5px solid var(--rule);
+  border-radius: 20px;
+  box-shadow: 0 2px 0 var(--rule);
+  background: var(--tile);
+  overflow: hidden;
+}
+.callout-ex > .ex-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.9rem 1.25rem 0;
+  color: var(--c);
+  font: 700 0.72rem var(--font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.callout-ex > .ex-head svg {
+  width: 15px;
+  height: 15px;
+}
+.ex-count {
+  margin-inline-start: auto;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 0.8rem;
+  font-variant-numeric: lining-nums;
+}
+.ex-action {
+  display: none;
+}
+.callout-ex > .ex-prompt {
+  margin: 0.2rem 1.25rem 0;
+  font: 600 1.3rem/1.25 var(--font-text);
+  color: var(--ink);
+}
+.callout-ex > .ex-prompt.ex-src {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 500;
+}
+.ex-say {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--c);
+  color: var(--paper);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--c) 70%, #000);
+  cursor: pointer;
+}
+.ex-say svg {
+  width: 24px;
+  height: 24px;
+}
+.ex-say:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--c) 70%, #000);
+}
+.callout-ex > .ex-code {
+  margin: 0 1.25rem;
+}
+.ex-stage {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem 1.1rem;
+}
+.ex-stage:empty {
+  display: none;
+}
+
+/* Tiles. */
+.ex-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+  font: 500 1.05rem/1.25 var(--font-text);
+  text-align: start;
+  color: var(--ink);
+  background: var(--tile, var(--paper));
+  border: 1.5px solid var(--rule-strong);
+  border-radius: 12px;
+  box-shadow: 0 3px 0 var(--rule-strong);
+  padding: 0.35rem 0.85rem;
+  cursor: pointer;
+  transition: transform 0.08s, box-shadow 0.08s, border-color 0.15s, background-color 0.15s, opacity 0.2s;
+}
+.ex-k {
+  flex: none;
+  display: none;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  background: var(--wash-2);
+  color: var(--muted);
+  font: 700 0.7rem var(--font-ui);
+}
+@media (hover: hover) and (pointer: fine) {
+  .ex-k {
+    display: inline-grid;
+  }
+}
+.ex-line .ex-k {
+  display: none;
+}
+.ex-chip:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--rule-strong);
+}
+.ex-chip:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .ex-chip:hover:not(:disabled) {
+    border-color: var(--c);
+  }
+}
+.ex-chip.is-picked {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 13%, var(--tile, var(--paper)));
+  box-shadow: 0 3px 0 var(--c);
+}
+.ex-chip.is-right {
+  border-color: color-mix(in srgb, var(--garden) 60%, transparent);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--garden) 60%, transparent);
+  cursor: default;
+}
+.ex-chip.is-wrong {
+  border-color: color-mix(in srgb, var(--warn) 70%, transparent);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--warn) 70%, transparent);
+  color: var(--warn);
+  animation: ex-shake 0.3s;
+}
+@keyframes ex-shake {
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ex-chip.is-wrong {
+    animation: none;
+  }
+}
+.ex-ghost {
+  display: inline-block;
+  border-radius: 12px;
+  background: var(--wash-2);
+}
+
+/* Word bank: the answer on two ruled lines, the words centred under it. */
+.ex-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 10px 8px;
+  min-height: 112px;
+  padding-top: 6px;
+  background: linear-gradient(var(--rule), var(--rule)) 0 56px / 100% 1.5px no-repeat,
+    linear-gradient(var(--rule), var(--rule)) 0 110px / 100% 1.5px no-repeat;
+}
+.ex-bank {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 8px;
+  margin-top: 0.6rem;
+}
+.ex-type {
+  font: 500 1.15rem var(--font-text);
+  color: var(--ink);
+  background: var(--tile, var(--paper));
+  border: 1.5px solid var(--c);
+  border-radius: 12px;
+  padding: 0.55rem 0.8rem;
+}
+.ex-stage.is-typing .ex-line,
+.ex-stage.is-typing .ex-bank {
+  display: none;
+}
+
+/* Steps to order: the answer as numbered slots, the steps (lettered) under
+   it; side by side on a wide card. */
+.ex-stage--list .ex-line {
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 8px;
+  min-height: 0;
+  padding: 0;
+  background: none;
+  counter-reset: ex;
+}
+.ex-stage--list .ex-chip {
+  width: 100%;
+  min-height: 50px;
+  font-size: 1rem;
+}
+.ex-stage--list .ex-line .ex-chip {
+  counter-increment: ex;
+}
+.ex-stage--list .ex-line .ex-chip::before {
+  content: counter(ex);
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--c) 13%, transparent);
+  color: var(--c);
+  font: 700 0.85rem var(--font-ui);
+}
+.ex-slot {
+  display: grid;
+  place-items: center;
+  min-height: 50px;
+  border: 1.5px dashed var(--rule-strong);
+  border-radius: 12px;
+  color: var(--muted);
+  font: 500 0.88rem var(--font-ui);
+}
+.ex-stage--list .ex-bank {
+  flex-direction: column;
+  align-items: stretch;
+  margin: 0;
+  gap: 8px;
+}
+.ex-stage--list .ex-ghost {
+  display: none;
+}
+.ex-colh {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 0.5rem;
+  color: var(--muted);
+  font: 700 0.7rem var(--font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.ex-col-b > .ex-colh::after {
+  content: "";
+  flex: 1;
+  border-top: 1.5px solid var(--rule);
+}
+.ex-col-a > .ex-colh {
+  display: none;
+}
+@container (min-width: 34rem) {
+  .ex-stage--list {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1rem;
+    align-items: start;
+  }
+  .ex-stage--list > .ex-hint {
+    grid-column: 1 / -1;
+  }
+  .ex-col-a > .ex-colh {
+    display: flex;
+  }
+  .ex-col-b > .ex-colh::after {
+    display: none;
+  }
+}
+.callout-ex {
+  container-type: inline-size;
+}
+
+/* Pairs: one row per pair, a found pair faded on its row. */
+.ex-pairs {
+  display: grid;
+  grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+  gap: 10px;
+}
+.ex-pairs .ex-chip {
+  min-height: 52px;
+  font-size: 1rem;
+}
+.ex-pairs .ex-who {
+  font-weight: 600;
+}
+.ex-pairs .ex-chip.is-right {
+  opacity: 0.42;
+}
+
+/* The foot: hints, then the buttons. */
+.ex-foot {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.9rem;
+  padding: 0.7rem 1.25rem;
+  border-top: 1px solid var(--rule);
+  background: var(--wash);
+}
+.ex-keys {
+  flex: 1;
+  min-width: 12rem;
+  margin: 0;
+  color: var(--muted);
+  font: 500 0.82rem/1.4 var(--font-ui);
+}
+.ex-keys-kbd {
+  display: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ex-keys-kbd {
+    display: inline;
+  }
+  .ex-keys-tap {
+    display: none;
+  }
+}
+.ex-acts {
+  display: flex;
+  gap: 0.5rem;
+  margin-inline-start: auto;
+}
+.ex-check {
+  height: 40px;
+  padding: 0 1.1rem;
+  border: 0;
+  border-radius: 12px;
+  font: 700 0.85rem var(--font-ui);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--paper);
+  background: var(--garden);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--garden) 65%, #000);
+  cursor: pointer;
+}
+.ex-check:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--garden) 65%, #000);
+}
+.ex-check:disabled {
+  background: var(--wash-2);
+  color: var(--muted);
+  box-shadow: 0 3px 0 var(--rule-strong);
+  cursor: default;
+}
+.ex-restart {
+  background: transparent;
+  color: var(--ink-2);
+  box-shadow: none;
+  border: 1.5px solid var(--rule-strong);
+}
+.is-answered .ex-foot {
+  display: none;
+}
+.callout-ex > .quiz-feedback {
+  margin: 0;
+  padding: 0.9rem 1.25rem 1rem;
+  border-top: 1px solid var(--rule);
+}
+.ex-hint {
+  margin: 0;
+  color: var(--ink-2);
+  font-style: italic;
+  font-size: 0.95rem;
+}
+.ex-answer {
+  margin: 0.3rem 0 0;
+}
+.ex-again {
+  margin-top: 0.6rem;
+}
+.ex-why {
+  display: none;
+}
+.callout-ex > .ex-after {
+  margin: 0;
+  padding: 0.9rem 1.25rem 1rem;
+}
+.ex-code pre {
+  margin: 1rem 0 0;
+}
+.ex-pickable .line {
+  display: inline-block;
+  width: 100%;
+  border-radius: 3px;
+  border-left: 4px solid transparent;
+  cursor: pointer;
+}
+@media (hover: hover) {
+  .ex-pickable .line:hover {
+    background: color-mix(in srgb, var(--c) 12%, transparent);
+  }
+}
+.ex-pickable .line:focus-visible {
+  outline: 2px solid var(--c);
+}
+.ex-pickable .line.is-right {
+  background: color-mix(in srgb, var(--garden) 22%, transparent);
+  border-left-color: var(--garden);
+}
+.ex-pickable .line.is-wrong {
+  background: color-mix(in srgb, var(--warn) 22%, transparent);
+  border-left-color: var(--warn);
+}
+.frise-ex {
+  margin: 0.6rem 0 1.4rem;
+}
+.ex-frise-key {
+  padding-inline-start: 2.4rem;
+}
+.ex-frise-key b {
+  font-variant-numeric: lining-nums;
+}
+
+/* Lesson mode: no frame. Kicker (lesson.js), the action as the title, the
+   instruction in a bubble, the stage; "Vérifier" is the bottom button, the
+   explanation rides in the feedback band. */
+.lesson-stage .callout.callout-ex.callout-ex {
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: none;
+  overflow: visible;
+  margin: 0;
+}
+.lesson-stage .callout-ex > .ex-head {
+  display: none;
+}
+.lesson-stage .ex-action {
+  display: block;
+  margin: 0.15rem 0 0;
+  font: 600 clamp(1.55rem, 1.2rem + 1.2vw, 2.1rem) / 1.15 var(--font-text);
+  color: var(--ink);
+}
+.lesson-stage .callout-ex > .ex-prompt:not(.ex-src) {
+  position: relative;
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid var(--rule);
+  border-radius: 18px;
+  background: var(--tile);
+  font: 400 clamp(1.06rem, 1rem + 0.3vw, 1.15rem) / 1.42 var(--font-text);
+}
+.lesson-stage .callout-ex > .ex-prompt:not(.ex-src)::before {
+  content: "";
+  position: absolute;
+  left: 26px;
+  top: -9px;
+  width: 16px;
+  height: 16px;
+  background: var(--tile);
+  border-left: 1.5px solid var(--rule);
+  border-top: 1.5px solid var(--rule);
+  transform: rotate(45deg);
+}
+.lesson-stage .callout-ex > .ex-prompt.ex-src {
+  margin: 1rem 0 0;
+  font-size: clamp(1.3rem, 1.1rem + 0.8vw, 1.6rem);
+}
+.lesson-stage .callout-ex > .ex-code {
+  margin: 1rem 0 0;
+}
+.lesson-stage .ex-stage {
+  padding: 1.4rem 0 0;
+}
+.lesson-stage .ex-foot {
+  justify-content: center;
+  padding: 1rem 0 0;
+  border: 0;
+  background: none;
+}
+.lesson-stage .ex-keys {
+  flex: 1 1 100%;
+  text-align: center;
+}
+.lesson-stage .ex-acts .ex-check:not(.ex-restart) {
+  display: none;
+}
+.lesson-stage .ex-bank {
+  margin-top: 1.6rem;
+}
+.lesson-stage .callout-ex > .ex-after {
+  display: none;
+}
+.lesson-stage .ex-why {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--ink-2);
+}
+.lesson-stage .ex-why > :first-child {
+  margin-top: 0;
+}
+.lesson-stage .callout-ex > .quiz-feedback {
+  border-top: 1px solid var(--rule);
+}
+.lesson-stage .callout-ex .quiz-feedback-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font: 700 1.2rem var(--font-ui);
+}
+.lesson-stage .callout-ex .quiz-feedback--ok .quiz-feedback-title {
+  color: var(--garden);
+}
+.lesson-stage .callout-ex .quiz-feedback--bad .quiz-feedback-title {
+  color: var(--warn);
+}
+.lesson-stage .callout-ex .quiz-feedback-title::before {
+  content: "";
+  flex: none;
+  width: 24px;
+  height: 24px;
+  background: currentColor;
+  -webkit-mask: var(--ex-ico) center / contain no-repeat;
+  mask: var(--ex-ico) center / contain no-repeat;
+}
+.lesson-stage .callout-ex .quiz-feedback--ok {
+  --ex-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10' stroke-width='2'/%3E%3Cpath d='m7.5 12.5 3 3 6-6.5'/%3E%3C/svg%3E");
+}
+.lesson-stage .callout-ex .quiz-feedback--bad {
+  --ex-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M12 7.5v5.5M12 16.5h.01' stroke-width='2.6'/%3E%3C/svg%3E");
+}
+/* A wrong answer: "Continuer" in the band's amber. */
+.lesson:has(.callout-ex.is-answered > .quiz-feedback--bad:not([hidden])) .lesson-next {
+  background: var(--warn);
+  border-color: color-mix(in srgb, var(--warn) 80%, #000);
+  border-bottom-color: color-mix(in srgb, var(--warn) 60%, #000);
+}
+@media print {
+  .ex-stage,
+  .ex-foot,
+  .frise-ex {
+    display: none;
+  }
+}
+
+/* Frise (exercises.js play.frise): a graduated axis, the pins at their
+   years, the lettered labels in a tray under it. Narrow: the axis runs down
+   the left, labels to its right. Wide (.is-wide): across, labels above. */
+.ex-stage--frise {
+  gap: 1rem;
+}
+.ex-frise-axis {
+  position: relative;
+}
+.ex-axis-line {
+  position: absolute;
+  display: block;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--rule-strong);
+}
+.is-wide .ex-axis-line {
+  height: 4px;
+}
+.ex-tick {
+  position: absolute;
+  transform: translate(calc(-100% - 14px), -50%);
+  font: 700 0.8rem var(--font-ui);
+  font-variant-numeric: lining-nums;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.ex-tick::after {
+  content: "";
+  position: absolute;
+  left: calc(100% + 4px);
+  top: 50%;
+  width: 8px;
+  height: 2px;
+  background: var(--rule-strong);
+}
+.is-wide .ex-tick {
+  transform: translate(-50%, 14px);
+}
+.is-wide .ex-tick::after {
+  left: 50%;
+  top: -8px;
+  width: 2px;
+  height: 8px;
+}
+.ex-pin {
+  position: absolute;
+  z-index: 2;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  transform: translate(-50%, -50%);
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+.ex-pin::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 3.5px solid var(--c);
+}
+.ex-pin:not(.is-full)::before {
+  border-style: dashed;
+  background: color-mix(in srgb, var(--c) 10%, var(--paper));
+}
+.ex-pin.is-over::before,
+.ex-pin:focus-visible::before {
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 30%, transparent);
+}
+.ex-ev {
+  position: absolute;
+  z-index: 1;
+  transform: translateY(-50%);
+  right: 0;
+}
+.ex-ev .ex-chip {
+  min-height: 0;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.95rem;
+  line-height: 1.2;
+  border-color: color-mix(in srgb, var(--garden) 55%, transparent);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--garden) 55%, transparent);
+}
+.ex-ev .ex-k {
+  display: none;
+}
+.ex-ev svg.ex-stem {
+  position: absolute;
+  left: -26px;
+  overflow: visible;
+}
+.ex-ev svg.ex-stem line {
+  stroke: color-mix(in srgb, var(--garden) 45%, transparent);
+  stroke-width: 2;
+}
+.is-wide .ex-ev {
+  right: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 0;
+  transform: none;
+}
+.is-wide .ex-ev .ex-chip {
+  flex: none;
+  width: max-content;
+  max-width: 11.5rem;
+  text-align: center;
+  justify-content: center;
+}
+.is-wide .ex-ev i.ex-stem {
+  flex: 1;
+  width: 2px;
+  background: color-mix(in srgb, var(--garden) 45%, transparent);
+}
+.ex-when {
+  display: block;
+  font: 700 0.72rem var(--font-ui);
+  color: var(--garden);
+}
+.ex-chip.is-wrong .ex-when {
+  color: var(--warn);
+}
+.ex-ev .ex-chip:is(.is-right, .is-wrong) {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+  opacity: 1;
+}
+.is-wide .ex-ev .ex-chip:is(.is-right, .is-wrong) {
+  align-items: center;
+}
+.ex-frise-tray {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.ex-frise-tray .ex-chip {
+  font-size: 0.98rem;
+  touch-action: none;
+}
+.ex-chip.is-dragging {
+  position: relative;
+  z-index: 5;
+  border-color: var(--c);
+  box-shadow: 0 12px 26px rgb(0 0 0 / 0.18), 0 3px 0 var(--c);
+  transition: none;
+}
+.ex-from {
+  font-weight: 500;
+}
+
+/* A note's ornaments (lib/deco-art.ts): a fleuron between two sections
+   (rehypeOutline, lib/markdown.ts) and the vignette that closes it. */
+.sec-fleuron {
+  width: 7.5rem;
+  margin: 2rem auto 1.5rem;
+}
+.note-colophon {
+  margin: 2.5rem auto 1.5rem;
+  text-align: center;
+}
+.note-colophon.deco svg {
+  width: 10rem;
+  margin: 0 auto 0.25rem;
+}
+.note-colophon small {
+  font: italic 400 0.9rem var(--font-text);
+  color: var(--muted);
+}
+
+/* The picked answer's drawing (public/js/quiz.js, lib/deco-art.ts). */
+.quiz-sprout {
+  flex: none;
+  width: 3.5rem;
+  margin: -0.4rem -0.3rem -0.4rem auto;
+}
+
+/* No comment yet: an empty bench under a tree (public/js/comments.js). */
+.comments-empty-scene {
+  width: min(16rem, 80%);
+  margin: 0.5rem auto 0.5rem;
+}
+.comments-empty-scene + .comments-empty {
+  text-align: center;
+}
+/* The fleuron stands for the hairline above the section it opens. */
+.article-body > .sec-fleuron + h2 {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+/* Side by side, the "À ton avis" answers have no room for it: it grows from
+   the top edge of the picked one. */
+.callout-predict .quiz-choice:has(.quiz-sprout) {
+  position: relative;
+}
+.callout-predict .quiz-sprout {
+  position: absolute;
+  top: -1.7rem;
+  right: 0.4rem;
+  width: 2.75rem;
+  margin: 0;
+}

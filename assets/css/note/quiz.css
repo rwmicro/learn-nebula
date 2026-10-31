@@ -1,0 +1,473 @@
+/* ---------------------------------------------------------------------------
+ * Retrieval-practice cards: `> [!quiz] Question` (lib/markdown.ts quizCallout)
+ * wired by /js/quiz.js. A callout in the garden accent: the question in the
+ * body face, the answer behind a disclosure button, then self-grading and
+ * "add to my reviews" (created by the script, never indexed by Pagefind).
+ * ------------------------------------------------------------------------- */
+.callout-quiz {
+  --c: var(--garden);
+}
+/* Review questions stand apart from the square callouts: no rule, no frame,
+   a softer tint and the Doux corners. */
+.callout-quiz:not(.quiz--choice) {
+  border: 0;
+  border-radius: var(--radius-md);
+  padding-left: 0.9rem;
+  background: color-mix(in srgb, var(--c) var(--tint-soft), var(--paper));
+}
+.quiz-question {
+  margin: 0.4rem 0 0;
+  color: var(--ink);
+  font-weight: 600;
+  /* The body size (main p), so the question reads as prose, not a caption. */
+  font-size: clamp(1.15rem, 1rem + 0.7vw, 1.4rem);
+  line-height: 1.4;
+}
+.quiz-controls {
+  margin-top: 0.65rem;
+}
+.quiz-reveal,
+.quiz-btn {
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  line-height: 1.1;
+  padding: 0.42rem 1rem;
+  color: var(--c);
+  background: var(--paper);
+  border: 1.5px solid var(--c);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.quiz-self-btn[aria-pressed="true"] {
+  color: var(--paper);
+  background: var(--c);
+}
+/* Hover only where it exists: on touch a tapped button would stay "hovered". */
+@media (hover: hover) {
+  .quiz-reveal:hover,
+  .quiz-btn:hover {
+    color: var(--paper);
+    background: var(--c);
+  }
+  .quiz-reveal[aria-expanded="true"]:hover {
+    color: var(--paper);
+    background: var(--muted-warm);
+  }
+}
+.quiz-reveal:focus-visible,
+.quiz-btn:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 2px;
+}
+.quiz-reveal[aria-expanded="true"] {
+  color: var(--muted-warm);
+  border-color: var(--rule-strong);
+}
+.quiz-answer {
+  margin-top: 0.75rem;
+  padding-top: 0.7rem;
+  border-top: 1px dashed color-mix(in srgb, var(--c) 45%, var(--rule));
+}
+.quiz-grade {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem 1rem;
+  margin-top: 0.8rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid var(--rule);
+}
+.quiz-grade[hidden] {
+  display: none;
+}
+.quiz-self {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+.quiz-prompt {
+  color: var(--ink-2);
+  font-style: italic;
+  font-size: 0.98rem;
+  margin-inline-end: 0.2rem;
+}
+.quiz-add {
+  margin-inline-start: auto;
+  border-style: dashed;
+}
+.quiz-status {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--muted-warm);
+  font-size: 0.92rem;
+}
+.quiz-status:empty {
+  display: none;
+}
+.article-body .quiz-status a.quiz-review-link {
+  color: var(--link);
+}
+@media (max-width: 34rem) {
+  .quiz-add {
+    margin-inline-start: 0;
+  }
+}
+
+/* Multiple-choice cards and "À ton avis ?" (lib/markdown.ts choicesEl):
+ * answers as "pressable" buttons (a thicker bottom edge that gives on press),
+ * then a feedback band — the garden green when right, amber (never red) when
+ * not quite. The explanation of each answer is its own line in the vault. */
+.callout-predict {
+  --c: var(--callout-violet);
+}
+/* Both read as one raised card (not the tinted callout bar): a question in
+   the body face, the answers, and the feedback as a band across the bottom. */
+.callout.quiz--choice,
+.callout-predict {
+  border: 1.5px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised, var(--paper));
+  padding: 0.7rem 1rem 1rem;
+  overflow: hidden;
+}
+.callout.quiz--choice {
+  --c: var(--link);
+}
+.callout-predict {
+  border-color: var(--c);
+}
+.quiz--choice .callout-title,
+.callout-predict .callout-title {
+  font-size: 1rem;
+  letter-spacing: 0.04em;
+}
+.quiz--choice .quiz-controls,
+.quiz--choice .quiz-self,
+.quiz--choice.is-answered .quiz-right {
+  display: none;
+}
+.quiz-choices {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+.quiz-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  text-align: start;
+  font: inherit;
+  font-size: 1.02rem;
+  line-height: 1.35;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--rule-strong);
+  border-bottom-width: 4px;
+  border-radius: var(--radius-sm);
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  transition: transform 0.08s, border-color 0.15s, background-color 0.15s;
+}
+.quiz-choice:active:not(:disabled) {
+  transform: translateY(2px);
+  border-bottom-width: 2px;
+  margin-bottom: 2px;
+}
+.quiz-choice:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .quiz-choice:hover:not(:disabled) {
+    border-color: var(--c);
+  }
+}
+.quiz-choice:disabled {
+  cursor: default;
+}
+.quiz-choice-key {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--rule-strong);
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.quiz-choice-text > p {
+  margin: 0;
+}
+.quiz-choice.is-wrong {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 9%, var(--paper));
+}
+.quiz-choice.is-wrong .quiz-choice-key {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+.quiz-choice.is-right {
+  border-color: var(--garden);
+  background: var(--garden-wash);
+}
+.quiz-choice.is-right .quiz-choice-key {
+  border-color: var(--garden);
+  background: var(--garden);
+  color: var(--paper);
+}
+.is-answered .quiz-choice:not(.is-right):not(.is-wrong):not(.is-picked) {
+  opacity: 0.6;
+}
+/* A guess has short answers: side by side while they fit. */
+.callout-predict .quiz-choices {
+  display: flex;
+  flex-wrap: wrap;
+}
+.callout-predict .quiz-choice {
+  flex: 1 1 9rem;
+  width: auto;
+}
+.callout-predict .quiz-choice.is-picked:not(.is-right):not(.is-wrong) {
+  border-color: var(--c);
+}
+.quiz-feedback {
+  margin: 1rem -1rem -1rem;
+  padding: 0.75rem 1rem 0.9rem;
+  border-top: 1px solid var(--rule);
+  background: var(--paper);
+}
+.quiz-feedback--shown {
+  background: var(--link-wash);
+}
+.quiz-feedback--shown .quiz-feedback-title {
+  color: var(--link);
+}
+/* "Ajouter à mes révisions" and its status, moved into the band once answered. */
+.quiz-feedback .quiz-grade {
+  margin-top: 0.6rem;
+  padding-top: 0;
+  border-top: 0;
+}
+.quiz-feedback .quiz-add {
+  margin-inline-start: 0;
+}
+/* Something shown after the band (the note's own answer text, the rest of a
+   prediction): the band closes on a rule instead of the card's edge. */
+.quiz-feedback:has(~ .quiz-answer:not([hidden])),
+.quiz-feedback:has(~ [data-predict-after]:not([hidden])) {
+  margin-bottom: 0;
+  border-bottom: 1px solid var(--rule);
+}
+/* The answer panel after the band: what else the note says about it. */
+.quiz--choice .quiz-feedback:not([hidden]) ~ .quiz-answer {
+  margin-top: 1.4rem;
+}
+.quiz-feedback[hidden] {
+  display: none;
+}
+.quiz-feedback--ok,
+.quiz-feedback--predictOk {
+  border-color: var(--garden);
+  background: var(--garden-wash);
+}
+.quiz-feedback--bad,
+.quiz-feedback--predictBad {
+  border-color: var(--warn);
+  background: color-mix(in srgb, var(--warn) 10%, var(--paper));
+}
+.quiz-feedback--guess {
+  border-color: var(--c);
+  background: color-mix(in srgb, var(--c) 9%, var(--paper));
+}
+.quiz-feedback-title {
+  margin: 0;
+  font-weight: 700;
+}
+.quiz-feedback--ok .quiz-feedback-title,
+.quiz-feedback--predictOk .quiz-feedback-title {
+  color: var(--garden);
+}
+.quiz-feedback--bad .quiz-feedback-title,
+.quiz-feedback--predictBad .quiz-feedback-title {
+  color: var(--warn);
+}
+.quiz-feedback-why {
+  margin-top: 0.2rem;
+  color: var(--ink-2);
+}
+.quiz-feedback-why p {
+  margin: 0.3rem 0 0;
+}
+.quiz-feedback-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.55rem;
+}
+.quiz-hints {
+  margin-top: 0.4rem;
+}
+.quiz-hint {
+  margin: 0.4rem 0 0;
+  padding: 0.35rem 0.75rem;
+  border-inline-start: 3px solid var(--link);
+  background: var(--link-wash);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  font-size: 0.98rem;
+}
+.quiz-hint-label {
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  color: var(--link);
+}
+/* "Un indice": a link at the end of the title row. */
+.quiz-hint-btn {
+  margin-inline-start: auto;
+  padding: 0.2rem 0;
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--link);
+  background: none;
+  border: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.quiz-hint-btn[hidden] {
+  display: none;
+}
+.quiz-hint-btn + .predict-skip {
+  margin-inline-start: 0.9rem;
+}
+.quiz-hint-btn:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
+}
+.quiz-right {
+  margin-top: 0;
+}
+.quiz-right-label {
+  color: var(--muted-warm);
+}
+.callout-predict .callout-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.predict-skip {
+  margin-inline-start: auto;
+  font-family: var(--font-ui);
+  font-size: 0.85rem;
+  color: var(--muted-warm);
+  background: none;
+  border: 0;
+  padding: 0.2rem 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.predict-skip[hidden] {
+  display: none;
+}
+.predict-veil-note {
+  margin: 0.8rem 0 0;
+  padding: 0.4rem;
+  text-align: center;
+  font-family: var(--font-ui);
+  font-size: 0.86rem;
+  color: var(--muted-warm);
+  border: 1px dashed var(--rule-strong);
+  border-radius: var(--radius-md);
+}
+.predict-rest {
+  transition: filter 0.35s, opacity 0.35s;
+}
+.predict-rest.is-veiled {
+  filter: blur(6px);
+  opacity: 0.5;
+  user-select: none;
+  max-height: 22rem;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
+  mask-image: linear-gradient(to bottom, #000 40%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .quiz-choice,
+  .predict-rest {
+    transition: none;
+  }
+  .quiz-choice:active:not(:disabled) {
+    transform: none;
+  }
+}
+@media print {
+  .predict-rest.is-veiled {
+    filter: none;
+    opacity: 1;
+    max-height: none;
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .predict-veil-note,
+  .predict-skip,
+  .quiz-feedback {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Glossary marks (lib/glossary.ts) and their card (/js/glossary.js, which
+ * reuses the link-preview card above). A dotted underline in the text colour:
+ * a hint, not a link-blue call to click.
+ * ------------------------------------------------------------------------- */
+.article-body a.gloss {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--muted-warm);
+  cursor: help;
+}
+.article-body a.gloss:hover,
+.article-body a.gloss:focus-visible,
+.article-body a.gloss[aria-describedby] {
+  background: var(--garden-wash);
+  text-decoration-color: var(--garden);
+  border-radius: var(--radius-xs);
+}
+.gloss-kicker {
+  margin: 0 0 0.1rem;
+  color: var(--garden);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.gloss-popover .note-popover-excerpt {
+  font-size: 0.98rem;
+}
+.gloss-source {
+  display: inline-block;
+  margin-top: 0.45rem;
+  color: var(--link);
+  font-family: var(--font-ui);
+  font-size: 0.88rem;
+  text-decoration: underline;
+  text-decoration-color: var(--link-soft);
+  text-underline-offset: 2px;
+}
+.gloss-source::after {
+  content: " →";
+}

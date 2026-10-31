@@ -1,0 +1,63 @@
+/* --- Tables in notes (phone) -----------------------------------------------
+   A card that scrolls sideways at the table's own width: short cells stay on
+   one line, long ones wrap at a readable measure, the first column stays put
+   while the rest slides under it, and a shadow on the edge says there is more. */
+@media (max-width: 639.98px) {
+  body:has(.na-chrome) main .article-body table {
+    display: block;
+    width: max-content;
+    max-width: 100%;
+    margin: 1.4rem 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    /* Separate, not collapsed: Chromium paints collapsed borders with the
+       table, and the sticky first column's background sometimes covers
+       them (one row in two lost its line, from one render to the next). */
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 0;
+    border-radius: 0.875rem;
+    font-size: 0.95rem;
+    line-height: 1.35;
+    background:
+      linear-gradient(90deg, var(--dash-card) 30%, transparent) left / 2rem 100% no-repeat local,
+      linear-gradient(270deg, var(--dash-card) 30%, transparent) right / 2rem 100% no-repeat local,
+      radial-gradient(farthest-side at 100% 50%, rgb(0 0 0 / 0.14), transparent) right / 0.8rem 100% no-repeat scroll,
+      var(--dash-card);
+    box-shadow: var(--dash-shadow);
+  }
+  body:has(.na-chrome) main .article-body table :is(th, td) {
+    min-width: 4.5rem;
+    max-width: 14rem;
+    padding: 0.6rem 0.75rem;
+    border: 0;
+    border-top: 0.5px solid var(--dash-edge);
+    vertical-align: top;
+    text-align: start;
+    hyphens: manual;
+  }
+  body:has(.na-chrome) main .article-body table tbody tr:first-child td {
+    padding-top: 0.6rem;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  body:has(.na-chrome) main .article-body table thead th {
+    border-top: 0;
+    padding-block: 0.65rem 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--muted);
+  }
+  /* The row's label stays in view. */
+  body:has(.na-chrome) main .article-body table :is(th, td):first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    background: var(--dash-card);
+    /* A border, painted with the cell: a hairline box-shadow on a sticky
+       cell was drawn on some renders and not others. */
+    border-inline-end: 0.5px solid var(--dash-edge);
+  }
+}

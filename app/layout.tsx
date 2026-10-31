@@ -24,7 +24,7 @@ import "../assets/css/global.css";
 import "../assets/css/palette.css";
 // Phone "app" layer: the glass tab bar, the sticky top bar, safe areas and
 // the shared phone components (large titles, tiles).
-import "../assets/css/app.css";
+import "../assets/css/phone";
 import "../assets/css/chat.css";
 
 // Message bundles are static files (/i18n/<locale>.<hash>.js, lib/i18n-assets.ts)
