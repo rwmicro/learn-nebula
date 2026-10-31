@@ -1,7 +1,7 @@
 // "Un graphique, trois paragraphes": short notes built around one figure,
 // Our World in Data's "Daily Data Insight" format. A note opts in with
 // `format: graphique` in its frontmatter; the home lists the latest ones
-// (components/Graphiques.tsx) and /graphiques.xml is their own RSS feed.
+// (components/explore/Graphiques.tsx) and /graphiques.xml is their own RSS feed.
 import { getAllPosts } from "./content";
 import { firstParagraph } from "./feed";
 

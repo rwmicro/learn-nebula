@@ -1,6 +1,6 @@
 // Stops every note from shipping its text twice.
 //
-// A note's <main> is one HTML string (components/SinglePage.tsx,
+// A note's <main> is one HTML string (components/note/SinglePage.tsx,
 // dangerouslySetInnerHTML), and Next inlines the page's whole React tree in
 // the HTML for hydration (`self.__next_f.push(…)` scripts) — that string
 // included. On a long note the copy was more than half the file: 260 KB of a
@@ -11,7 +11,7 @@
 // navigates between documents, never with the App Router). So the copy can be
 // emptied: this rewrites the flight row that holds it (`<id>:T<hex length>,…`)
 // to an empty one. The one way React could render <main> again is the error
-// boundary's "Réessayer", and components/ErrorView.tsx reloads the page there
+// boundary's "Réessayer", and components/layout/ErrorView.tsx reloads the page there
 // instead.
 //
 // Narrow on purpose: only the row the note's <main data-pagefind-body> points

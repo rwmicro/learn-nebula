@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Defis } from "@/components/Defis";
+import { Defis } from "@/components/progress/Defis";
 import { getReadingPaths } from "@/lib/content";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/defis.css";

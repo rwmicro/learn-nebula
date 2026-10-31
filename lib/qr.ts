@@ -1,7 +1,7 @@
 /**
  * A small QR Code encoder (ISO/IEC 18004) — byte mode, error correction L or
  * M, versions 1 to 10 (up to 213 bytes at M): enough for a /duel/ invitation
- * link, without a dependency. Pure; components/Duel.tsx draws the matrix as
+ * link, without a dependency. Pure; components/play/Duel.tsx draws the matrix as
  * one SVG path (qrPath).
  *
  * Follows the structure of Project Nayuki's reference encoder: data bits →

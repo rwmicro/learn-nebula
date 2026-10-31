@@ -91,7 +91,7 @@ image tag in `ci.yml` together with `@playwright/test`.
 ## Architecture map
 
 - **Pages**: `app/page.tsx` (home), `app/posts/[...slug]/page.tsx` (notes via
-  `components/SinglePage.tsx`), `app/graph/`, `app/cartes/` (Anki). Note `<main>`
+  `components/note/SinglePage.tsx`), `app/graph/`, `app/cartes/` (Anki). Note `<main>`
   is built as an HTML string (`dangerouslySetInnerHTML`). The dropcap goes to
   the `.dropcap` paragraph `rehypeOutline` (`lib/markdown.ts`) marks — the one
   the note opens on, never a bold-only `.lead-in` or past a list; the same
@@ -112,10 +112,13 @@ image tag in `ci.yml` together with `@playwright/test`.
   or the home's search field): note titles (`/notes-index.json`), disciplines,
   tags, PDFs and Anki decks (`/palette-extra.json`), and note bodies via
   Pagefind; "?" opens the keyboard shortcuts help.
-- **Client components**: `components/HomeContent.tsx` (browse tree, RAG
-  assistant, lazy graph preview; its search field opens the palette),
-  `components/Graph.tsx` (force-graph), `Header.tsx` (masthead + mobile hamburger),
-  `LangSwitcher.tsx`, etc.
+- **Components** are sorted by area: `components/layout/` (site chrome: `Header`,
+  `SiteBar`, `MobileTabBar`, `Footer`, `LangSwitcher`…), `home/`, `note/`,
+  `review/` (cards, SRS), `paths/` (parcours), `explore/` (notes browser, graph,
+  map, timeline, themes, stats), `progress/` (Moi, progression, défis),
+  `account/`, `admin/`, `chat/`, `play/` (duel, chess) and `ui/` (shared
+  pieces: `PageHeader`, `FamilyIcon`…). A new component goes in its area's
+  folder, never at the root of `components/`.
 - **Backend** (`server/`, Hono on Node, typecheck with `tsc -p server/tsconfig.json`):
   `index.ts` mounts `routes/ask.ts` (RAG: embed the question via an
   OpenAI-compatible endpoint → hybrid search over `data/rag-chunks.json`, in-memory
@@ -140,7 +143,7 @@ image tag in `ci.yml` together with `@playwright/test`.
   ledger. Mutating account routes require a same-site `Origin`
   (`session.ts`). `server/tsconfig.json` includes the DOM lib because
   `progress-transfer.ts` carries browser glue.
-- **`/admin/`** (`components/AdminPanel.tsx`, `robots: {index:false}`): owner-only
+- **`/admin/`** (`components/admin/AdminPanel.tsx`, `robots: {index:false}`): owner-only
   console, not linked from the public nav. Sections, cards and dashboard tiles
   are declared in `components/admin/config.tsx`; data is shared through
   `components/admin/store.ts`. Signed in by the owner's reader session
@@ -195,13 +198,17 @@ image tag in `ci.yml` together with `@playwright/test`.
   build-time output must already be correct for `fr` (e.g. `formatDateLong` uses
   `fr-FR`).
 - **CSS scoping**: `assets/css/global.css` (Tailwind `@theme` + everywhere; the
-  `--color-garden` CTA token lives here), `main.css` (note pages `/posts/*` and
-  the 404 only), `graph.css` (graph page). Fluid type via `clamp()` + `cqi`
+  `--color-garden` CTA token and the shared `--title-page`, `--measure-*`,
+  `--sheet-*`, `--chip-*`, `--btn-*` tokens live here), `note/` (note pages
+  `/posts/*` only, one file per area, imported in cascade order by
+  `note/index.ts`), `phone/` (the phone layer, site-wide, same pattern),
+  `graph.css` (graph page). Add a file to an `index.ts`, never through CSS
+  `@import`: that hands the files to Tailwind, which rewrites them. Fluid type via `clamp()` + `cqi`
   container units. `app/not-found.tsx` is a global boundary — must NOT import
   route-scoped CSS.
 - **Note-page scripts**: `public/js/*.js` are vanilla IIFEs bundled by **esbuild**
   (`scripts/bundle-js.mjs`) into `note.bundle.js`, loaded once via
-  `components/NoteScripts.tsx` (the `SCRIPTS` array lists them). Only
+  `components/note/NoteScripts.tsx` (the `SCRIPTS` array lists them). Only
   `i18n.js`/`lightbox.js`/`theme.js`/`palette.bundle.js`… load site-wide from
   `layout.tsx`, through `jsAsset()` (`lib/js-assets.ts`): hashed copies under
   `/js/h/`, immutable.
@@ -251,7 +258,7 @@ image tag in `ci.yml` together with `@playwright/test`.
   PUBLIC_URL/SITE_URL) beside the magic link; **Web Push reminders**
   (`server/push*.ts`, VAPID_*; Declarative Web Push payload, handled in
   `public/sw.js`); app badge = cards due (`lib/app-badge.ts`).
-- **Garden chat** (`components/GardenChat.tsx`, `assets/css/chat.css`,
+- **Garden chat** (`components/chat/GardenChat.tsx`, `assets/css/chat.css`,
   mounted site-wide in `layout.tsx`): the one assistant. Full screen on
   phones, a right panel from 640px. Opened by the note's "Demander sur cette
   note…" bar (`.gk-pinned-trigger.gc-trigger`, which note-dock/note-app click),
@@ -279,7 +286,7 @@ image tag in `ci.yml` together with `@playwright/test`.
   check in the pronunciation coach (`lib/speech-match.ts`, `processLocally`).
 - **`/api/search`**: embedding-only nearest notes for the palette's "Proches
   par le sens" group (`server/routes/search.ts`, needs RAG).
-- **Duel / tandem** (`/duel/`, `components/Duel.tsx`, `lib/duo-rtc.ts`):
+- **Duel / tandem** (`/duel/`, `components/play/Duel.tsx`, `lib/duo-rtc.ts`):
   WebSocket signaling at `/api/room/:code` (`server/rooms.ts`, @hono/node-ws,
   two peers, nothing stored), RTCDataChannel / audio, optional Cloudflare
   TURN via TURN_KEY_ID/TURN_KEY_API_TOKEN. The duel only appears on notes with
@@ -298,7 +305,7 @@ image tag in `ci.yml` together with `@playwright/test`.
   link preview and glossary, `scroll-state` sticky bar and scroll-driven
   progress (JS fallbacks kept), `@starting-style`, `field-sizing`; Wake Lock
   (`lib/wake-lock.ts`) in review and lesson mode; Document PiP review
-  (`components/ReviewPip.tsx`).
+  (`components/review/ReviewPip.tsx`).
 
 ## CI
 

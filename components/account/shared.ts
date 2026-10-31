@@ -1,5 +1,5 @@
 // Helpers shared by the account page's two layouts: the desktop page
-// (components/Account.tsx) and the phone screens (components/account/*).
+// (components/account/Account.tsx) and the phone screens (components/account/*).
 
 import { ITEMS, STREAK_FREEZE, STREAK_MILESTONES, type Look } from "@/lib/avatar";
 import type { Me } from "@/lib/account-client";

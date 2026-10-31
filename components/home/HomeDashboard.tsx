@@ -1,0 +1,617 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { t, disciplineKey } from "@/lib/i18n";
+import { useLocale } from "@/lib/use-locale";
+import { useHomeData, useReadingStore } from "@/components/home/HomeContent";
+import { useReviewDue } from "@/components/account/AccountChip";
+import { FamilyIcon, glyphStroke as s } from "@/components/ui/FamilyIcon";
+import { calendarDays, currentRun, loadActivity, localDay } from "@/lib/personal";
+import { loadStore, type ReadingStore } from "@/lib/reading-progress";
+import type { HomeData } from "@/lib/home-data";
+import type { PathFamily } from "@/lib/path-family";
+import { ERAGNY, paintingFor } from "@/lib/paintings";
+import { daysAgo, loadAllNoteDecks, NOTE_PREFIX, retentionBySlug, type Retention } from "@/lib/note-quiz";
+import { dayKey, daysBetween } from "@/lib/srs";
+
+// The home as an app dashboard, on phones only (app.css hides it from 640px,
+// and hides there the masthead it replaces). From the top: the date and a
+// greeting; "Aujourd'hui", the discipline's painting (lib/paintings.ts) over the next step of the reading
+// path in progress with today's cards and notes (or, with nothing under
+// way, three ways in); the week's reading days; the paths under way; paths
+// to discover, mixing the disciplines; the note of the day; the latest
+// notes. Everything personal is read from this browser after hydration, so
+// the first paint is the welcome card.
+
+export interface DashRecent {
+  title: string;
+  href: string;
+  discipline: string;
+  family: PathFamily | null;
+  minutes: number;
+  /** Written or tended in the two weeks before the build. */
+  fresh: boolean;
+}
+
+export interface DashPath {
+  slug: string;
+  name: string;
+  family: PathFamily | null;
+  /** Its notes' slugs, to count the ones read. */
+  slugs: string[];
+  /** What the path aims at (`cible:` of its `parcours:` block). */
+  cible?: string;
+  /** Its levels (lib/path-levels.ts), named as on its road: each covers
+   *  `slugs.slice(from, to)`. Positions, not the slugs again, because this
+   *  prop is serialised into the home page's HTML. */
+  levels: { n: number; name: string; from: number; to: number }[];
+}
+
+/** Answered questions, and those due again, by note slug (this browser). */
+function useRetention(): Map<string, Retention> {
+  const [m, setM] = useState<Map<string, Retention>>(new Map());
+  useEffect(() => {
+    const load = () => {
+      try {
+        setM(retentionBySlug(loadAllNoteDecks(localStorage), dayKey()));
+      } catch {
+        /* storage blocked: nothing to refresh */
+      }
+    };
+    load();
+    const onStorage = (e: StorageEvent) => e.key?.startsWith(NOTE_PREFIX) && load();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("gk:quiz-change", load);
+    return () => {
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("gk:quiz-change", load);
+    };
+  }, []);
+  return m;
+}
+
+/** A note the "note du jour" can show: one a day, picked by the date. */
+export interface DashDayNote {
+  title: string;
+  href: string;
+  discipline: string;
+  family: PathFamily | null;
+  minutes: number;
+  excerpt: string;
+}
+
+/** Notes read a day that fill the "notes lues aujourd'hui" count. */
+const DAILY_GOAL = 3;
+
+const Chevron = () => (
+  <svg className="dash-chev" viewBox="0 0 24 24" aria-hidden="true" {...s} strokeWidth={2.4}>
+    <path d="m9 5 7 7-7 7" />
+  </svg>
+);
+
+const Play = () => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M8 5.5v13l10.5-6.5z" />
+  </svg>
+);
+
+/** The path to pick up: among those started and not finished, the one whose
+ *  notes were last visited; its next step is its first unread note, with how
+ *  far into it the reader got and the minutes left. */
+function resumePath(data: HomeData | null, store: ReadingStore) {
+  if (!data) return null;
+  let best: { last: number; path: HomeData["paths"][number] } | null = null;
+  for (const p of data.paths) {
+    let read = 0;
+    let last = 0;
+    for (const [slug] of p.notes) {
+      const e = store[slug];
+      if (!e) continue;
+      if (e.r != null) read++;
+      last = Math.max(last, e.t ?? 0, e.r ?? 0);
+    }
+    if (last === 0 || read === p.notes.length) continue;
+    if (!best || last > best.last) best = { last, path: p };
+  }
+  if (!best) return null;
+  const { path } = best;
+  const i = path.notes.findIndex(([slug]) => store[slug]?.r == null);
+  const [slug, title, minutes] = path.notes[i];
+  const read = path.notes.filter(([x]) => store[x]?.r != null).length;
+  const pct = Math.min(99, Math.round((store[slug]?.p ?? 0) / 10));
+  const left = Math.max(1, Math.round(minutes * (1 - pct / 100)));
+  return { path, slug, title, pct, left, step: i + 1, total: path.notes.length, read };
+}
+
+/** "Arabe libanais : des premiers mots à la culture" → "Arabe libanais". */
+const shortName = (name: string) => name.split(/\s+:\s+/)[0];
+
+/** The share of a path read, the current note's progress counting as part
+ *  of its step, 0–100. */
+function pathShare(read: number, total: number, pct: number) {
+  return Math.min(100, (100 * (read + pct / 100)) / total);
+}
+
+/** Round robin over the colour families, so the row never shows the same
+ *  family twice in a row while others remain. */
+function mixFamilies<T extends { family: PathFamily | null }>(items: T[]): T[] {
+  const groups = new Map<string, T[]>();
+  for (const it of items) {
+    const k = it.family ?? "";
+    groups.set(k, [...(groups.get(k) ?? []), it]);
+  }
+  const out: T[] = [];
+  const queues = [...groups.values()];
+  while (out.length < items.length) {
+    for (const q of queues) {
+      const x = q.shift();
+      if (x) out.push(x);
+    }
+  }
+  return out;
+}
+
+const LOCALE_TAG: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES", zh: "zh-CN", ar: "ar" };
+
+/** Monday-first days of this week, as local "YYYY-MM-DD". */
+function thisWeek(now: Date): string[] {
+  const d = new Date(now);
+  d.setHours(12, 0, 0, 0);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+  return Array.from({ length: 7 }, (_, i) => {
+    const x = new Date(d);
+    x.setDate(d.getDate() + i);
+    return localDay(x);
+  });
+}
+
+interface Personal {
+  now: Date;
+  run: number;
+  days: Record<string, { r: number; c: number }>;
+  readToday: number;
+  fresh: boolean;
+}
+
+function usePersonal(store: ReadingStore): Personal | null {
+  const [p, setP] = useState<Personal | null>(null);
+  useEffect(() => {
+    const load = () => {
+      try {
+        const st = loadStore();
+        const reads = Object.values(st)
+          .map((e) => e.r)
+          .filter((r): r is number => typeof r === "number");
+        const activity = loadActivity();
+        const days = calendarDays(activity, reads);
+        const today = localDay();
+        setP({
+          now: new Date(),
+          run: currentRun(days),
+          days,
+          readToday: reads.filter((r) => localDay(new Date(r * 1000)) === today).length,
+          fresh: Object.keys(st).length === 0 && Object.keys(activity).length === 0,
+        });
+      } catch {
+        setP({ now: new Date(), run: 0, days: {}, readToday: 0, fresh: true });
+      }
+    };
+    load();
+    window.addEventListener("gk:activity", load);
+    window.addEventListener("gk:progress-synced", load);
+    return () => {
+      window.removeEventListener("gk:activity", load);
+      window.removeEventListener("gk:progress-synced", load);
+    };
+  }, [store]);
+  return p;
+}
+
+export function HomeDashboard({
+  dataVersion,
+  recent,
+  paths,
+  dayNotes,
+  noteCount,
+}: {
+  dataVersion: string;
+  recent: DashRecent[];
+  /** The reading paths, in the site's order. */
+  paths: DashPath[];
+  dayNotes: DashDayNote[];
+  noteCount: number;
+}) {
+  const locale = useLocale();
+  const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
+  const data = useHomeData(dataVersion);
+  const store = useReadingStore();
+  const due = useReviewDue();
+  const me = usePersonal(store);
+  const ret = useRetention();
+
+  const resume = useMemo(() => resumePath(data, store), [data, store]);
+  const rows = useMemo(
+    () =>
+      paths.map((p, i) => {
+        const read = p.slugs.filter((slug) => store[slug]?.r != null).length;
+        return { ...p, read, total: p.slugs.length, i };
+      }),
+    [paths, store],
+  );
+  // Under way, furthest along first.
+  const mine = rows
+    .filter((p) => p.read > 0 && p.read < p.total)
+    .sort((a, b) => b.read / b.total - a.read / a.total)
+    .slice(0, 3);
+  // "À rafraîchir": the levels whose answered questions are due again, the
+  // longest unreviewed first; each opens its path, where the chest sheet
+  // starts the level review.
+  const fading = rows
+    .flatMap((p) =>
+      p.levels.map((lv) => {
+        let due = 0;
+        let last: string | null = null;
+        for (const s of p.slugs.slice(lv.from, lv.to)) {
+          const r = ret.get(s);
+          if (!r) continue;
+          due += r.due;
+          if (r.last && (!last || r.last > last)) last = r.last;
+        }
+        return { path: p, lv, due, last };
+      }),
+    )
+    .filter((x) => x.due > 0)
+    .sort((a, b) => (a.last ?? "").localeCompare(b.last ?? ""));
+  const refresh = fading.slice(0, 4);
+  const fadingDue = fading.reduce((n, x) => n + x.due, 0);
+  const fadingPaths = new Set(fading.map((x) => x.path.slug)).size;
+  const todayKey = dayKey();
+  // Not started, largest first, then one family after another.
+  const discover = mixFamilies(rows.filter((p) => p.read === 0).sort((a, b) => b.total - a.total || a.i - b.i));
+  const nextTitle = (slug: string) => {
+    const p = data?.paths.find((x) => x.slug === slug);
+    return p?.notes.find(([x]) => store[x]?.r == null)?.[1];
+  };
+  const discName = (name: string) => {
+    const k = disciplineKey(name);
+    return k ? tr(k) : name;
+  };
+  const nf = new Intl.NumberFormat(LOCALE_TAG[locale] ?? "fr-FR");
+
+  const hour = me?.now.getHours() ?? 12;
+  const greeting = me?.fresh ? "dash.hiFirst" : hour >= 18 || hour < 5 ? "dash.hiEvening" : "dash.hiDay";
+  const date = me ? new Intl.DateTimeFormat(LOCALE_TAG[locale] ?? "fr-FR", { weekday: "long", day: "numeric", month: "long" }).format(me.now) : "";
+  const dayNote = me && dayNotes.length ? dayNotes[Math.floor(me.now.getTime() / 86_400_000 - me.now.getTimezoneOffset() / 1440) % dayNotes.length] : null;
+  const week = me ? thisWeek(me.now) : [];
+  const today = me ? localDay(me.now) : "";
+  const activeToday = !!me?.days[today] && (me.days[today].r > 0 || me.days[today].c > 0);
+  const weekLetters = tr("dash.weekLetters").split("|");
+  const art = paintingFor(resume?.path.family, resume?.slug);
+  const weekDays = (
+    <span className="dash-week-days" aria-hidden="true">
+      {week.map((d, i) => {
+        const on = !!me?.days[d] && (me.days[d].r > 0 || me.days[d].c > 0);
+        return (
+          <span key={d}>
+            <i className={on ? "is-on" : d === today ? "is-now" : undefined}>
+              {on && (
+                <svg viewBox="0 0 24 24" {...s} strokeWidth={3}>
+                  <path d="m5 12.5 4.5 4.5L19 7.5" />
+                </svg>
+              )}
+            </i>
+            {weekLetters[i]}
+          </span>
+        );
+      })}
+    </span>
+  );
+
+  return (
+    <section className="dash" data-pagefind-ignore>
+      <header className="dash-top">
+        <p className="dash-date">{date || " "}</p>
+        <h1 className="dash-hello" data-ready={me ? "" : undefined}>
+          {tr(greeting)} <em>{tr(`${greeting}Em`)}</em>
+        </h1>
+      </header>
+
+      {resume ? (
+        <section className="dash-today" data-family={resume.path.family ?? undefined} aria-label={tr("dash.today")}>
+          <a className="dash-art" href={`/posts/${resume.slug}/#reprendre`} tabIndex={-1} aria-hidden="true">
+            <picture className={art === ERAGNY ? undefined : "is-family"}>
+              <source type="image/avif" srcSet={`${art.src}.avif`} />
+              <img src={`${art.src}.webp`} alt="" title={art.credit} decoding="async" />
+            </picture>
+            <span className="dash-chip">
+              <span className="dash-chip-dot">
+                <FamilyIcon family={resume.path.family} />
+              </span>
+              {tr("dash.stepOf", { path: shortName(resume.path.name), n: resume.step, total: resume.total })}
+            </span>
+            <span className="dash-cap">
+              <b>{resume.title}</b>
+              <small>{tr("dash.min", { m: resume.left })}</small>
+            </span>
+          </a>
+          <div className="dash-progress" aria-hidden="true">
+            <span className="dash-line">
+              <i style={{ width: `${pathShare(resume.read, resume.total, resume.pct)}%` }} />
+            </span>
+            <span>
+              {resume.step} / {resume.total}
+            </span>
+          </div>
+          <a className="dash-go" href={`/posts/${resume.slug}/#reprendre`} aria-label={tr("dash.continueAria", { title: resume.title })}>
+            <Play />
+            {tr("dash.resumeCta")}
+          </a>
+          {/* The week and today's notes, in the card's foot (the cards due
+              have their own row below). */}
+          <a className="dash-week-in" href="/defis/">
+            {weekDays}
+            <span className={(me?.readToday ?? 0) >= DAILY_GOAL ? "dash-goal is-done" : "dash-goal"}>
+              <b>
+                {(me?.readToday ?? 0) >= DAILY_GOAL ? Math.min(me?.readToday ?? 0, 99) : `${me?.readToday ?? 0} / ${DAILY_GOAL}`}
+              </b>
+              {tr("dash.readToday")}
+            </span>
+          </a>
+        </section>
+      ) : null}
+
+      {resume && due && (
+        <>
+          <div className="dash-row-h">
+            <h2 className="dash-h">{tr("tabbar.review")}</h2>
+          </div>
+          <a className="dash-due" href={due.href}>
+            <span className="dash-due-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" {...s} strokeWidth={1.9}>
+                <rect x="3" y="7" width="13" height="14" rx="2" />
+                <path d="M8 3h11a2 2 0 0 1 2 2v12" />
+              </svg>
+            </span>
+            <span className="dash-due-text">
+              <b>
+                {due.n} {tr(due.n === 1 ? "dash.cardsDueOne" : "dash.cardsDue")}
+              </b>
+              <small>≈ {tr("dash.min", { m: Math.max(1, Math.round((due.n * 25) / 60)) })}</small>
+            </span>
+            <Chevron />
+          </a>
+        </>
+      )}
+
+      {!resume && (
+        <section className="dash-today dash-welcome" aria-label={tr("dash.today")}>
+          <div className="dash-art">
+            <picture>
+              <source type="image/avif" srcSet="/images/eragny.avif" />
+              <img src="/images/eragny.webp" alt="" width="1200" height="950" decoding="async" />
+            </picture>
+            <span className="dash-cap">
+              <b>{tr("dash.quote")}</b>
+              <small>{tr("dash.credit")}</small>
+            </span>
+          </div>
+          <p className="dash-welcome-text">{tr("dash.welcomeText", { n: nf.format(noteCount) })}</p>
+          <ul className="dash-ways">
+            <li>
+              <a className="is-main" href="/parcours/">
+                <span className="dash-way-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" {...s}>
+                    <circle cx="6" cy="19" r="2" />
+                    <circle cx="18" cy="5" r="2" />
+                    <path d="M8 19h8.5a3.5 3.5 0 0 0 0-7h-9a3.5 3.5 0 0 1 0-7H16" />
+                  </svg>
+                </span>
+                <span>
+                  <b>{tr("dash.wayPath")}</b>
+                  <small>{tr("dash.wayPathText", { n: paths.length })}</small>
+                </span>
+                <Chevron />
+              </a>
+            </li>
+            <li>
+              <a href="/graph/">
+                <span className="dash-way-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" {...s}>
+                    <circle cx="5" cy="6" r="2" />
+                    <circle cx="19" cy="7" r="2" />
+                    <circle cx="12" cy="18" r="2" />
+                    <circle cx="12" cy="10" r="1.6" />
+                    <path d="M6.8 6.8 10.6 9.3M17.2 7.6l-3.7 1.9M12 11.6V16" />
+                  </svg>
+                </span>
+                <span>
+                  <b>{tr("dash.wayGraph")}</b>
+                  <small>{tr("dash.wayGraphText")}</small>
+                </span>
+                <Chevron />
+              </a>
+            </li>
+            <li>
+              <a href="/hasard/">
+                <span className="dash-way-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" {...s}>
+                    <rect x="4" y="4" width="16" height="16" rx="4" />
+                    <circle cx="9" cy="9" r=".9" fill="currentColor" />
+                    <circle cx="15" cy="15" r=".9" fill="currentColor" />
+                    <circle cx="15" cy="9" r=".9" fill="currentColor" />
+                    <circle cx="9" cy="15" r=".9" fill="currentColor" />
+                  </svg>
+                </span>
+                <span>
+                  <b>{tr("dash.wayRandom")}</b>
+                  <small>{tr("dash.wayRandomText")}</small>
+                </span>
+                <Chevron />
+              </a>
+            </li>
+          </ul>
+        </section>
+      )}
+
+      {!resume && me && Object.keys(me.days).length > 0 && (
+        <a className="dash-week" href="/defis/">
+          {weekDays}
+          <span className="dash-week-text">
+            <b>
+              <svg className="dash-flame" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.7 2-4.5 0 2 1 3 2 3 0-4 1-6.5 1-8.5z" />
+              </svg>
+              {me.run === 0 ? tr("defis.noRun") : tr(me.run === 1 ? "dash.run1" : "dash.run", { n: me.run })}
+            </b>
+            <small>{tr(activeToday ? "dash.runKept" : me.run > 0 ? "dash.runKeep" : "dash.runStart")}</small>
+          </span>
+        </a>
+      )}
+
+      {refresh.length > 0 && (
+        <section className="dash-fade" aria-labelledby="dash-fade-h">
+          <p className="dash-fade-k">
+            <svg viewBox="0 0 24 24" aria-hidden="true" {...s}>
+              <path d="M20 12a8 8 0 1 1-2.3-5.6" />
+              <path d="M20 4v5h-5" />
+            </svg>
+            {tr("dash.refresh")}
+          </p>
+          <h2 id="dash-fade-h">{tr(fading.length === 1 ? "dash.fadeOne" : "dash.fadeN", { n: fading.length })}</h2>
+          <p className="dash-fade-sub">
+            {tr(fadingPaths === 1 ? "dash.fadeSubOne" : "dash.fadeSub", { n: fadingDue, p: fadingPaths })}
+            {fading.length > 1 && ` ${tr("dash.fadeOldest")}`}
+          </p>
+          <ul>
+            {refresh.map(({ path: p, lv, due: n, last }) => (
+              <li key={`${p.slug}:${lv.n}`} data-family={p.family ?? undefined}>
+                <a href={`/parcours/${encodeURIComponent(p.slug)}/`}>
+                  <span className="dash-fade-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" {...s}>
+                      <path d="M20 12a8 8 0 1 1-2.3-5.6" />
+                      <path d="M20 4v5h-5" />
+                    </svg>
+                  </span>
+                  <span className="dash-fade-text">
+                    <b>{lv.name}</b>
+                    <small>
+                      {shortName(p.name)} · {tr("parcours.level", { n: lv.n }).toLowerCase()}
+                      {last ? ` · ${daysAgo(daysBetween(last, todayKey), locale)}` : ""}
+                    </small>
+                  </span>
+                  <em>{tr("dash.refreshN", { n })}</em>
+                </a>
+              </li>
+            ))}
+          </ul>
+          <a className="dash-fade-go" href="/cartes/revision/">
+            {tr("dash.fadeGo", { n: Math.max(1, Math.round((fadingDue * 25) / 60)) })}
+          </a>
+        </section>
+      )}
+
+      {mine.length > 0 && (
+        <>
+          <div className="dash-row-h">
+            <h2 className="dash-h">{tr("dash.mine")}</h2>
+            <a href="/parcours/">{tr("dash.seeAll")}</a>
+          </div>
+          <ul className="dash-mine">
+            {mine.map((p) => {
+              const next = nextTitle(p.slug);
+              const pct = Math.round((100 * p.read) / p.total);
+              return (
+                <li key={p.slug} data-family={p.family ?? undefined}>
+                  <a href={`/parcours/${encodeURIComponent(p.slug)}/`}>
+                    <span className="dash-mine-icon" aria-hidden="true">
+                      <FamilyIcon family={p.family} />
+                    </span>
+                    <span className="dash-mine-text">
+                      <b>{shortName(p.name)}</b>
+                      <small>
+                        {tr("dash.pathRead", { read: p.read, total: p.total })}
+                        {next ? ` · ${tr("dash.next", { title: next })}` : p.cible ? ` · ${tr("parcours.cible", { c: p.cible })}` : ""}
+                      </small>
+                      <i className="dash-bar" aria-hidden="true">
+                        <i style={{ width: `${pct}%` }} />
+                      </i>
+                    </span>
+                    <span className="dash-mine-pct">{pct} %</span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </>
+      )}
+
+      {discover.length > 0 && (
+        <>
+          <div className="dash-row-h">
+            <h2 className="dash-h">{tr(mine.length > 0 ? "dash.discover" : "dash.startWith")}</h2>
+            <a href="/parcours/">{tr("dash.seeAll")}</a>
+          </div>
+          <ul className="dash-disc">
+            {discover.map((p) => (
+              <li key={p.slug} data-family={p.family ?? undefined}>
+                <a href={`/parcours/${encodeURIComponent(p.slug)}/`}>
+                  <span className="dash-disc-icon" aria-hidden="true">
+                    <FamilyIcon family={p.family} />
+                  </span>
+                  <span>
+                    <b>{shortName(p.name)}</b>
+                    <small>{tr("dash.notes", { n: p.total })}</small>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {dayNote && (
+        <>
+          <div className="dash-row-h">
+            <h2 className="dash-h">{tr("dash.dayNote")}</h2>
+            <a href="/hasard/">{tr("dash.random")}</a>
+          </div>
+          <article className="dash-day" data-family={dayNote.family ?? undefined}>
+            <a href={dayNote.href}>
+              <small className="dash-day-kicker">
+                <FamilyIcon family={dayNote.family} />
+                {discName(dayNote.discipline)} · {tr("dash.min", { m: dayNote.minutes })}
+              </small>
+              <b>{dayNote.title}</b>
+              <p>{dayNote.excerpt}</p>
+              <span className="dash-day-read">{tr("dash.read")}</span>
+            </a>
+          </article>
+        </>
+      )}
+
+      <div className="dash-row-h">
+        <h2 className="dash-h">{tr("dash.recent")}</h2>
+        <a href="/jardin/">{tr("dash.seeAll")}</a>
+      </div>
+      <ul className="dash-list">
+        {recent.slice(0, 3).map((n) => (
+          <li key={n.href} data-family={n.family ?? undefined}>
+            <a href={n.href}>
+              <span className="dash-list-icon" aria-hidden="true">
+                <FamilyIcon family={n.family} />
+              </span>
+              <span className="dash-list-text">
+                <b>{n.title}</b>
+                <small>
+                  {discName(n.discipline)} · {tr("dash.min", { m: n.minutes })}
+                  {n.fresh && <span className="dash-new">{tr("dash.new")}</span>}
+                </small>
+              </span>
+              <Chevron />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}

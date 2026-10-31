@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SITE_TITLE } from "@/lib/site";
 import { t } from "@/lib/i18n";
 import { SCENES } from "@/lib/deco-art";
-import { NotFoundSuggestions } from "@/components/NotFoundSuggestions";
+import { NotFoundSuggestions } from "@/components/layout/NotFoundSuggestions";
 
 export const metadata: Metadata = {
   title: `${t("notFound.title")} | ${SITE_TITLE}`,

@@ -3,8 +3,8 @@ import { getAllPosts, INDEX_NOTE } from "@/lib/content";
 import { getTopFolders } from "@/lib/notes-browse";
 import { t } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
-import { FolderRows, ResumeFolder } from "@/components/NotesBrowse";
-import { NotesViews } from "@/components/NotesViews";
+import { FolderRows, ResumeFolder } from "@/components/explore/NotesBrowse";
+import { NotesViews } from "@/components/explore/NotesViews";
 import "@/assets/css/notes-browse.css";
 
 export const metadata: Metadata = {
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   description: t("notesTab.metaDesc"),
 };
 
-// "Notes", the third tab of the phone tab bar (components/MobileTabBar.tsx):
+// "Notes", the third tab of the phone tab bar (components/layout/MobileTabBar.tsx):
 // the garden's other views in a row of tiles (what the Explorer tab held),
 // the last folder opened, then the disciplines of the two top groups. Each
 // row opens /notes/<folder>/ (app/notes/[...path]/page.tsx), and so on down

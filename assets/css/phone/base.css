@@ -1,0 +1,139 @@
+/* ---------------------------------------------------------------------------
+   Phone "app" layer. Loaded site-wide (app/layout.tsx), but nearly everything
+   here lives under 640px (Tailwind's `sm`), so the desktop site is untouched:
+   - "liquid glass" surfaces (.glass)
+   - the floating tab bar (components/layout/MobileTabBar.tsx)
+   - the sticky top bar (components/layout/SiteBar.tsx)
+   - safe areas for the site installed on the home screen
+   - shared phone pieces: large page titles, the Explorer tiles.
+   --------------------------------------------------------------------------- */
+
+:root {
+  /* Height the tab bar takes at the bottom of a phone screen, safe area
+     included; the other floating buttons sit above it (see the end). */
+  --gk-tabbar-h: 0px;
+  --gk-safe-b: env(safe-area-inset-bottom, 0px);
+  --glass-bg: rgb(255 255 255 / 0.34);
+  --glass-edge: rgb(255 255 255 / 0.75);
+  /* The glass's own light (inside the edge) and its drop shadow, apart: a
+     refracting glass (lib/liquid-glass.ts) keeps its drop shadow on another
+     element. */
+  --glass-inset:
+    inset 0 1.5px 0 rgb(255 255 255 / 0.9), inset 0 -1px 1px rgb(255 255 255 / 0.35),
+    inset 0 0 12px rgb(255 255 255 / 0.25);
+  --glass-drop: 0 10px 30px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.08);
+  --glass-shadow: var(--glass-inset), var(--glass-drop);
+  /* Specular light along the rim: brightest at the top left, again at the
+     bottom right, as on a lit drop of glass. */
+  --glass-rim: conic-gradient(
+    from 225deg,
+    rgb(255 255 255 / 0.95),
+    rgb(255 255 255 / 0.15) 22%,
+    rgb(255 255 255 / 0.08) 40%,
+    rgb(255 255 255 / 0.6) 52%,
+    rgb(255 255 255 / 0.1) 68%,
+    rgb(255 255 255 / 0.95)
+  );
+  --glass-rim-o: 0.9;
+  --glass-sheen: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.55),
+    transparent 38%,
+    transparent 62%,
+    rgb(255 255 255 / 0.22)
+  );
+  --glass-on: rgb(0 0 0 / 0.06);
+  --bar-bg: color-mix(in srgb, var(--paper) 80%, transparent);
+}
+:root[data-theme="dark"] {
+  --glass-bg: rgb(30 29 27 / 0.4);
+  --glass-edge: rgb(255 255 255 / 0.16);
+  --glass-inset:
+    inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 1px rgb(255 255 255 / 0.06),
+    inset 0 0 14px rgb(255 255 255 / 0.05);
+  --glass-drop: 0 10px 30px rgb(0 0 0 / 0.45);
+  --glass-shadow: var(--glass-inset), var(--glass-drop);
+  --glass-rim-o: 0.4;
+  --glass-sheen: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.18),
+    transparent 40%,
+    transparent 65%,
+    rgb(255 255 255 / 0.08)
+  );
+  --glass-on: rgb(255 255 255 / 0.1);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --glass-bg: rgb(30 29 27 / 0.4);
+    --glass-edge: rgb(255 255 255 / 0.16);
+    --glass-inset:
+      inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 1px rgb(255 255 255 / 0.06),
+      inset 0 0 14px rgb(255 255 255 / 0.05);
+    --glass-drop: 0 10px 30px rgb(0 0 0 / 0.45);
+    --glass-shadow: var(--glass-inset), var(--glass-drop);
+    --glass-rim-o: 0.4;
+    --glass-sheen: linear-gradient(
+      135deg,
+      rgb(255 255 255 / 0.18),
+      transparent 40%,
+      transparent 65%,
+      rgb(255 255 255 / 0.08)
+    );
+    --glass-on: rgb(255 255 255 / 0.1);
+  }
+}
+
+/* Liquid glass: what is behind shows through, blurred and saturated, with a
+   bright rim and a diagonal sheen. Safari (iOS) and Chrome both render it;
+   only the lens-like bending at the edges of iOS 26 is out of reach on the
+   web. Opaque when the reader asked for less transparency, or when the
+   browser can't blur. */
+.glass {
+  position: relative;
+  isolation: isolate;
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+  backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+  border: 0.5px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--glass-sheen);
+  mix-blend-mode: soft-light;
+  pointer-events: none;
+}
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--glass-rim);
+  opacity: var(--glass-rim-o);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--paper-raised);
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--paper-raised);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

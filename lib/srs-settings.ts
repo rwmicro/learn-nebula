@@ -1,7 +1,7 @@
 /**
  * Study settings for the decks and note questions — pure apart from the small
- * storage helpers, shared by the deck page (components/Flashcards.tsx), the
- * combined session (components/TodayReview.tsx) and /cartes/.
+ * storage helpers, shared by the deck page (components/review/Flashcards.tsx), the
+ * combined session (components/home/TodayReview.tsx) and /cartes/.
  *
  * One localStorage entry, `srsSettings`: the target retention every review
  * schedules with (lib/srs.ts), and per-deck choices. Preferences, not

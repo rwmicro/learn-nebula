@@ -2,8 +2,8 @@
 // and where they stopped in the others. One localStorage entry, a JSON object
 // keyed by note slug — no account, nothing leaves the browser. Pure helpers
 // here (unit-tested in lib/reading-progress.test.ts); the DOM side is
-// public/js/reading-state.js on note pages, components/HomeContent.tsx (the
-// "Reprendre" card and the per-folder counts) and components/ReadMarks.tsx
+// public/js/reading-state.js on note pages, components/home/HomeContent.tsx (the
+// "Reprendre" card and the per-folder counts) and components/note/ReadMarks.tsx
 // (checkmarks on /themes/, /disciplines/ and /parcours/).
 
 import type { HomeTreeNode } from "./content";

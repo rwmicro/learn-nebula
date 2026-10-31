@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTags } from "@/lib/content";
-import { TagPage } from "@/components/Themes";
+import { TagPage } from "@/components/explore/Themes";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/themes.css";
 

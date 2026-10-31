@@ -1,4 +1,4 @@
-// Zoom and pan of a reading path's graph (components/PathZoom.tsx) — the pure
+// Zoom and pan of a reading path's graph (components/paths/PathZoom.tsx) — the pure
 // geometry: a view is a scale and the offset of the content's top-left corner
 // in the viewport. Unit-tested in lib/zoom-pan.test.ts.
 

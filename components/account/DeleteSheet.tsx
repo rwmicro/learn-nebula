@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Avatar } from "@/components/Avatar";
+import { Avatar } from "@/components/account/Avatar";
 import type { Look } from "@/lib/avatar";
 import type { Tr } from "@/components/account/shared";
 import { IconCheck, IconTrash } from "@/components/account/icons";

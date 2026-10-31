@@ -75,7 +75,7 @@ test.describe("Accessibility (axe · WCAG 2.1 A/AA)", () => {
     // Everything the site itself draws on this page is audited. The one
     // exclusion is div.card, which holds a card's HTML verbatim from the .apkg
     // plus the deck's own stylesheet, injected as-is by
-    // components/Flashcards.tsx. Those colours are the deck author's, chosen
+    // components/review/Flashcards.tsx. Those colours are the deck author's, chosen
     // against Anki's rendering, and several fail AA here. They are fixed per
     // deck in scripts/anki-css-overrides/, and the next test audits the card
     // body of every deck that has one; the rest stay out of scope here.

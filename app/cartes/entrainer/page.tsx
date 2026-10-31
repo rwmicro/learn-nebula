@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getAnkiManifest } from "@/lib/anki";
-import { Entrainer } from "@/components/Entrainer";
+import { Entrainer } from "@/components/review/Entrainer";
 import { familyOfFolder } from "@/lib/path-family";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/defis.css";

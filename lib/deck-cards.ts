@@ -1,6 +1,6 @@
 /**
  * An Anki deck as the site studies it — pure, shared by the deck page
- * (components/Flashcards.tsx) and the combined session (TodayReview.tsx).
+ * (components/review/Flashcards.tsx) and the combined session (TodayReview.tsx).
  *
  * The JSON comes from scripts/build-anki.mjs. On top of it this file decides
  * which cards the reader's deck settings (lib/srs-settings.ts) put in play —

@@ -1,4 +1,4 @@
-/* /defis/ (components/Defis.tsx): the day run and today's goals. One narrow
+/* /defis/ (components/progress/Defis.tsx): the day run and today's goals. One narrow
    column, the same on a phone and on a desktop. */
 
 .defis {
@@ -216,7 +216,7 @@
   color: var(--muted);
 }
 
-/* /cartes/entrainer/ (components/Entrainer.tsx). */
+/* /cartes/entrainer/ (components/review/Entrainer.tsx). */
 .entrainer-back {
   display: inline-block;
   margin-bottom: 0.75rem;

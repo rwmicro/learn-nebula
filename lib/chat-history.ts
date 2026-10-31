@@ -1,4 +1,4 @@
-// The garden chat's conversations (components/GardenChat.tsx), kept in this
+// The garden chat's conversations (components/chat/GardenChat.tsx), kept in this
 // browser's localStorage only. Pure helpers over a Storage-like store, so the
 // tests run without a browser.
 //

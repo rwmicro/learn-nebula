@@ -516,45 +516,6 @@ body {
   fill: var(--ink);
 }
 
-/* Rich search excerpt (HomeContent): a small HTML snippet of a note — mainly so
-   tables and KaTeX render in the preview instead of flattening to text. */
-.rich-excerpt {
-  margin-top: 0.5rem;
-  padding: 0.6rem 0.8rem;
-  border-left: 2px solid var(--rule);
-  background: var(--wash);
-  font-family: var(--font-text);
-  font-size: 0.92rem;
-  color: var(--ink-soft);
-  max-height: 22rem;
-  overflow: auto;
-}
-.rich-excerpt > :first-child {
-  margin-top: 0;
-}
-.rich-excerpt > :last-child {
-  margin-bottom: 0;
-}
-.rich-excerpt table {
-  border-collapse: collapse;
-  font-size: 0.85rem;
-  margin: 0.3rem 0;
-}
-.rich-excerpt th,
-.rich-excerpt td {
-  border: 1px solid var(--rule);
-  padding: 0.2rem 0.5rem;
-  text-align: left;
-}
-.rich-excerpt th {
-  background: var(--wash-2);
-  font-weight: 600;
-}
-.rich-excerpt img {
-  max-width: 100%;
-  height: auto;
-}
-
 /* Floating trigger on note pages — the "AI" button that opens the assistant. */
 .gk-pinned-trigger {
   position: fixed;
@@ -961,7 +922,7 @@ footer {
 [data-family="jeux"] { --fam-h: 210; --fam-s: 12%; }
 
 /* ---------------------------------------------------------------------------
-   Site bar (components/SiteBar.tsx): the one menu, the same on every page.
+   Site bar (components/layout/SiteBar.tsx): the one menu, the same on every page.
    The home's masthead carries the same links, so the bar steps aside there. */
 .site-bar {
   /* Sized by its own width, not the viewport: in a narrow window the links
@@ -999,7 +960,7 @@ body:has(.home-masthead) .site-bar {
   background: transparent;
   color: var(--garden);
 }
-/* The linocut logo (components/SiteBar.tsx): one print per theme, following
+/* The linocut logo (components/layout/SiteBar.tsx): one print per theme, following
    the toggle and, unpinned, the OS — same rule as the palette above. */
 .site-bar-logo {
   flex: none;
@@ -1264,7 +1225,7 @@ body:has(.home-masthead) .site-bar {
   }
 }
 
-/* Account button (components/AccountChip.tsx) and the review reminder. */
+/* Account button (components/account/AccountChip.tsx) and the review reminder. */
 .account-login {
   display: inline-flex;
   align-items: center;
@@ -1393,7 +1354,7 @@ body:has(.home-masthead) .site-bar {
   }
 }
 
-/* The sprout avatar (components/Avatar.tsx). */
+/* The sprout avatar (components/account/Avatar.tsx). */
 .avatar {
   display: block;
   flex: none;
@@ -2199,7 +2160,7 @@ body:has(.home-masthead) .site-bar {
   }
 }
 
-/* "Réviser en flottant" (components/ReviewPip.tsx): the body of the Document
+/* "Réviser en flottant" (components/review/ReviewPip.tsx): the body of the Document
    Picture-in-Picture window, which receives copies of the page's sheets. */
 body.rs-pip {
   margin: 0 !important;

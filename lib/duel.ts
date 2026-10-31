@@ -1,5 +1,5 @@
 /**
- * Two-player sessions on /duel/ (components/Duel.tsx) — the pure part: the
+ * Two-player sessions on /duel/ (components/play/Duel.tsx) — the pure part: the
  * shared question order, who scores a round, the phrase of the day, and the
  * check of every message the other browser sends over the data channel.
  *

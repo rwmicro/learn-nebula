@@ -1,6 +1,6 @@
 // "Mes lectures" on /graph/: which note nodes this reader has finished (from
 // the reading store, lib/reading-progress.ts) and where to go next. Pure, so
-// it is unit-tested in lib/graph-reading.test.ts; components/CircularGraph.tsx
+// it is unit-tested in lib/graph-reading.test.ts; components/explore/CircularGraph.tsx
 // feeds it the graph data and the store.
 
 import type { GraphData } from "./graph-data";

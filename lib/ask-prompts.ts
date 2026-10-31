@@ -1,7 +1,7 @@
 // Prompt pieces for /api/ask's reply-language hint, its socratic mode and
 // /api/ask/explain ("Explique-le avec tes mots"). Pure, tested in
 // ask-prompts.test.ts; the same wording feeds the on-device Prompt API path
-// in the browser (components/GardenChat.tsx) so both answer alike.
+// in the browser (components/chat/GardenChat.tsx) so both answer alike.
 
 /** Languages the reader's question may be detected in (LanguageDetector in the
  *  browser, sent as `lang`), with their French name for the prompt. Anything
@@ -82,7 +82,7 @@ export function explainUser(passage: string, explanation: string, title: string)
     .join("\n\n");
 }
 
-// --- On-device variants (components/GardenChat.tsx) -------------------------
+// --- On-device variants (components/chat/GardenChat.tsx) -------------------------
 // A small model follows a fixed, line-based format better than free prose,
 // and the chat draws each part on its own (« Ce qui tient », « Ce qui
 // manque »). Parsing is lenient: when the format is not there, the caller

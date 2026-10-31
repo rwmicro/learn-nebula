@@ -1,5 +1,5 @@
 /**
- * Playing chess against Stockfish (/echecs/, components/ChessPlay.tsx): the
+ * Playing chess against Stockfish (/echecs/, components/play/ChessPlay.tsx): the
  * levels, the reader's own Elo, and the game review that links each mistake
  * to the vault note that teaches what was missed. Pure: the board rules come
  * from chess.js, the engine runs in a worker (public/engine/).

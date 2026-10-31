@@ -1,0 +1,621 @@
+/* ---------------------------------------------------------------------------
+   "Lue !" (public/js/note-end.js): on a phone, the full-screen card a note of
+   a reading path opens once it is read, in the path's colour. */
+dialog.ne {
+  --on-fam: #fff;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: calc(env(safe-area-inset-top, 0px) + 1rem) 1rem calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
+  border: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+  text-align: center;
+  overflow-y: auto;
+  animation: ne-in 0.28s ease-out;
+}
+dialog.ne:not([data-family]) {
+  --fam: var(--garden);
+  --fam-wash: color-mix(in srgb, var(--garden) 13%, transparent);
+}
+:root[data-theme="dark"] dialog.ne {
+  --on-fam: var(--paper);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) dialog.ne {
+    --on-fam: var(--paper);
+  }
+}
+dialog.ne::backdrop {
+  background: var(--paper);
+}
+html.ne-open {
+  overflow: hidden;
+}
+@keyframes ne-in {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+}
+.ne svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.ne-close {
+  align-self: flex-start;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: 0;
+  border-radius: 50%;
+  background: var(--dash-card, var(--paper));
+  box-shadow: 0 4px 16px rgb(0 0 0 / 0.12);
+  color: var(--ink);
+  cursor: pointer;
+}
+.ne-close svg {
+  width: 1.375rem;
+  height: 1.375rem;
+  stroke-width: 2.2;
+}
+.ne-body {
+  flex: 1 0 auto;
+}
+.ne-burst {
+  position: relative;
+  width: 11rem;
+  height: 11rem;
+  margin: 0.25rem auto 1.25rem;
+}
+.ne-disc {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--fam-wash);
+  color: var(--fam);
+  animation: ne-pop 0.5s 0.1s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.ne-disc svg {
+  width: 5.5rem;
+  height: 5.5rem;
+  stroke-width: 2.4;
+}
+.ne-burst i {
+  position: absolute;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 3px;
+  animation: ne-pop 0.5s 0.3s ease-out both;
+}
+.ne-burst i:nth-child(2) { top: -0.5rem; left: 52%; background: #2f63b3; transform: rotate(-12deg); }
+.ne-burst i:nth-child(3) { top: 2rem; left: -1.5rem; background: #f2c335; transform: rotate(8deg); }
+.ne-burst i:nth-child(4) { top: 4rem; right: -1.25rem; background: #e0672f; transform: rotate(20deg); }
+.ne-burst i:nth-child(5) { bottom: -0.25rem; left: 1.75rem; background: #3f6b4a; transform: rotate(-15deg); }
+.ne-burst i:nth-child(6) { bottom: 1rem; right: 0; background: #8a5cc4; transform: rotate(40deg); }
+@keyframes ne-pop {
+  from {
+    opacity: 0;
+    scale: 0.6;
+  }
+}
+.ne-kicker {
+  margin: 0;
+  font: 700 0.875rem var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fam);
+}
+.ne-title {
+  margin: 0.375rem 0 0.25rem;
+  font: 600 2rem/1.15 var(--font-text);
+  text-wrap: balance;
+  text-transform: none;
+  letter-spacing: normal;
+  outline: none;
+}
+.ne-sub {
+  margin: 0;
+  font: 400 1.0625rem/1.4 var(--font-text);
+  color: var(--muted);
+}
+.ne-tiles {
+  display: flex;
+  gap: 0.5rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.ne-tiles li {
+  flex: 1;
+  padding: 0.875rem 0.25rem;
+  border: 1px solid var(--rule);
+  border-radius: 1.125rem;
+  background: var(--dash-card, var(--paper));
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
+}
+.ne-tiles b {
+  display: block;
+  font: 600 1.5rem/1.2 var(--font-text);
+  font-variant-numeric: lining-nums;
+}
+.ne-tiles span {
+  font: 400 0.875rem var(--font-ui);
+  color: var(--ink-2);
+}
+.ne-tiles .ne-coin {
+  border-color: #f0c64a;
+  background: #fff8dd;
+}
+.ne-tiles .ne-coin :is(b, span) {
+  color: #a07400;
+}
+:root[data-theme="dark"] .ne-tiles .ne-coin {
+  border-color: #8a6d1d;
+  background: #2f2816;
+}
+:root[data-theme="dark"] .ne-tiles .ne-coin :is(b, span) {
+  color: #f0c64a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .ne-tiles .ne-coin {
+    border-color: #8a6d1d;
+    background: #2f2816;
+  }
+  :root:not([data-theme]) .ne-tiles .ne-coin :is(b, span) {
+    color: #f0c64a;
+  }
+}
+.ne-keep {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin-top: 1rem;
+  padding: 0.875rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 1.125rem;
+  background: var(--dash-card, var(--paper));
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.05);
+  text-align: start;
+  cursor: pointer;
+}
+.ne-keep-ico {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  background: var(--fam-wash);
+  color: var(--fam);
+}
+.ne-keep-ico svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  stroke-width: 1.9;
+}
+.ne-keep-tx {
+  flex: 1;
+  min-width: 0;
+}
+.ne-keep-tx b {
+  display: block;
+  font: 600 1.1875rem/1.25 var(--font-text);
+}
+.ne-keep-tx small {
+  font: 400 0.9375rem var(--font-ui);
+  color: var(--ink-2);
+}
+.ne-switch {
+  flex: none;
+  appearance: none;
+  position: relative;
+  width: 4.5rem;
+  height: 2.75rem;
+  margin: 0;
+  border-radius: 1.375rem;
+  background: color-mix(in srgb, var(--ink) 18%, transparent);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.ne-switch::after {
+  content: "";
+  position: absolute;
+  top: 0.25rem;
+  left: 0.25rem;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
+  transition: translate 0.2s;
+}
+.ne-switch:checked {
+  background: var(--garden);
+}
+.ne-switch:checked::after {
+  translate: 1.75rem 0;
+}
+.ne-switch:focus-visible {
+  outline: 2px solid var(--fam);
+  outline-offset: 2px;
+}
+.ne-next {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 0.75rem 0.75rem 0.75rem 2rem;
+  border-radius: 2.75rem;
+  background: var(--fam);
+  color: var(--on-fam) !important;
+  text-align: start;
+  text-decoration: none !important;
+}
+.ne-next-tx {
+  flex: 1;
+  min-width: 0;
+}
+.ne-next-tx small {
+  display: block;
+  font: 400 0.9375rem var(--font-ui);
+  opacity: 0.9;
+}
+.ne-next-tx b {
+  display: block;
+  overflow: hidden;
+  font: 700 1.25rem/1.3 var(--font-ui);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ne-next-go {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 3.375rem;
+  height: 3.375rem;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--on-fam) 20%, transparent);
+}
+.ne-next-go svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  stroke-width: 2.2;
+}
+.ne-next:focus-visible {
+  outline: 3px solid var(--fam);
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.ne,
+  .ne-disc,
+  .ne-burst i {
+    animation: none;
+  }
+}
+
+/* Phone: a table whose rows start with a pronounced word (the alphabets,
+   lib/markdown.ts's pron cells) reads as a list rather than a grid that
+   scrolls sideways: the word in a tinted square on the left, the listen
+   and practise buttons on the right, the other columns stacked between. */
+@media (max-width: 639.98px) {
+  main table:has(> tbody > tr > td:first-child > .pron) {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    max-width: none;
+    border: 0;
+    border-radius: 1rem;
+    background: var(--dash-card, var(--paper-raised));
+    box-shadow: var(--dash-shadow, none);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) thead {
+    display: none;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) tbody {
+    display: block;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) tr {
+    display: grid;
+    /* The word's square grows for a vocabulary word (up to 8.5rem, where it
+       wraps between words). */
+    grid-template-columns: fit-content(8.5rem) auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "l n t p"
+      "l h h p"
+      "x h h p";
+    column-gap: 0.6rem;
+    row-gap: 0.15rem;
+    align-items: start;
+    margin-left: 0.9rem;
+    padding: 0.75rem 0.9rem 0.75rem 0;
+    border-bottom: 0.5px solid var(--dash-edge, var(--rule));
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) tr:last-child {
+    border-bottom: 0;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td {
+    display: block;
+    padding: 0;
+    border: 0;
+    line-height: 1.35;
+    min-width: 0;
+    max-width: none;
+    position: static;
+    background: none;
+    box-shadow: none;
+    text-align: start;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) tbody tr:first-child td {
+    border-top: 0;
+    padding-top: 0;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child,
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron {
+    display: contents;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron::after {
+    content: none;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) .pron-label {
+    grid-area: l;
+    display: grid;
+    place-items: center;
+    min-height: 3.25rem;
+    padding: 0.2rem;
+    border-radius: 0.8rem;
+    background: color-mix(in srgb, var(--ink) 6%, transparent);
+    min-width: 3.25rem;
+    font-size: 1.15rem;
+    line-height: 1.2;
+    text-align: center;
+    overflow-wrap: break-word;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) .pron-label.is-rtl {
+    font-size: 1.6rem;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) .pron-tr {
+    grid-area: x;
+    justify-self: center;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) .pron-pill {
+    grid-area: p;
+    align-self: center;
+    margin: 0;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:nth-child(2) {
+    grid-area: n;
+    align-self: baseline;
+    font-weight: 600;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:nth-child(3) {
+    grid-area: t;
+    align-self: baseline;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--link);
+  }
+  /* A three-column vocabulary row (word | gloss | French): the gloss and the
+     French stack, so a long gloss no longer squeezes the French into a
+     one-word-per-line strip. The alphabets (four columns) keep their line. */
+  main table:has(> tbody > tr > td:first-child > .pron) tr:not(:has(> td:nth-child(4))) {
+    grid-template-columns: fit-content(8.5rem) minmax(0, 1fr) auto;
+    grid-template-areas:
+      "l n p"
+      "l t p"
+      "x . p";
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:nth-child(n + 4) {
+    grid-column: 2 / 4;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    color: var(--muted);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:nth-child(4) {
+    grid-area: h;
+  }
+  /* "Gantang / Segantang": the first variant takes the square and the
+     buttons; each other one gets its own line under the row (they all
+     landed on the same square and buttons, one over the other). The " / "
+     between them is a bare text node: shrunk to nothing. */
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child:has(> .pron ~ .pron) {
+    font-size: 0;
+    color: transparent;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child:has(> .pron ~ .pron) > .pron {
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron ~ .pron {
+    grid-row: 4;
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-top: 0.4rem;
+    padding-top: 0.4rem;
+    border-top: 0.5px dashed var(--dash-edge, var(--rule));
+    font-size: 1rem;
+    color: var(--ink);
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron ~ .pron ~ .pron {
+    grid-row: 5;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron ~ .pron .pron-label {
+    display: inline;
+    min-height: 0;
+    min-width: 0;
+    padding: 0;
+    background: none;
+    font-size: 1.05rem;
+    text-align: start;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron ~ .pron .pron-label::before {
+    content: "ou ";
+    color: var(--muted);
+    font-style: normal;
+  }
+  main table:has(> tbody > tr > td:first-child > .pron) td:first-child > .pron ~ .pron .pron-pill {
+    order: 1;
+    transform: scale(0.85);
+    transform-origin: right center;
+  }
+}
+
+/* End of a note on phones: one "Note lue" card, comments and "Citer" folded
+   into rows (lib/html.ts, lib/cite.ts), and the next note alone (the folder
+   list under the comments goes; "Et ensuite ?" already leads on). */
+.fold-toggle,
+.fold-row,
+.read-state-done,
+.cite-sub {
+  display: none;
+}
+@media (max-width: 639.98px) {
+  body:has(.na-chrome) .siblings {
+    display: none;
+  }
+  .read-state.is-read .read-state-label {
+    display: none;
+  }
+  .read-state.is-read {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 0.5px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--paper-raised);
+  }
+  .read-state-done {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+  .read-state-done i {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .read-state-done i svg {
+    width: 1rem;
+    height: 1rem;
+  }
+  .read-state-done > span {
+    display: grid;
+    min-width: 0;
+  }
+  .read-state-done b {
+    font: 600 1.02rem var(--font-ui);
+  }
+  .read-state-done small {
+    font: 0.8125rem var(--font-ui);
+    color: var(--muted);
+  }
+  .read-state.is-read .read-state-btn {
+    flex: none;
+    font-size: 0.8rem;
+  }
+  .read-state:not(.is-read) [data-act="resume"] {
+    display: none;
+  }
+  .read-state:not(.is-read) .read-state-btn--primary {
+    width: 100%;
+    min-height: 2.75rem;
+    border-radius: 1.375rem;
+  }
+
+  /* Comments and "Citer" as rows of one grouped card each. */
+  main .comments {
+    margin-top: 1.5rem;
+    padding: 0;
+    border: 0.5px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--paper-raised);
+  }
+  main .comments:has(.fold-toggle:checked) {
+    padding-bottom: 1rem;
+  }
+  main .comments > .comments-title,
+  main .comments:not(:has(.fold-toggle:checked)) > :not(.fold-toggle, .fold-row) {
+    display: none;
+  }
+  main .comments:has(.fold-toggle:checked) > :not(.fold-toggle, .fold-row) {
+    margin-inline: 1rem;
+  }
+  .fold-row,
+  main .cite-note > summary {
+    position: relative;
+    display: grid;
+    padding: 0.8rem 2.5rem 0.8rem 1rem;
+    cursor: pointer;
+    list-style: none;
+  }
+  main .cite-note > summary::-webkit-details-marker {
+    display: none;
+  }
+  .fold-row b,
+  main .cite-note > summary > span {
+    font: 600 1.02rem var(--font-ui);
+    text-transform: none;
+    color: var(--ink);
+  }
+  .fold-row small,
+  .cite-sub {
+    display: block;
+    text-transform: none;
+    font: 0.8125rem var(--font-ui);
+    color: var(--muted);
+  }
+  .fold-row::after,
+  main .cite-note > summary::after {
+    content: "";
+    position: absolute;
+    right: 1.1rem;
+    top: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-top: -0.35rem;
+    border-right: 2px solid var(--faint);
+    border-bottom: 2px solid var(--faint);
+    transform: rotate(45deg);
+  }
+  main .comments:has(.fold-toggle:checked) .fold-row::after,
+  main .cite-note[open] > summary::after {
+    margin-top: -0.1rem;
+    transform: rotate(-135deg);
+  }
+  main .cite-note {
+    margin: 0.75rem 0 0;
+    border: 0.5px solid var(--rule);
+    border-radius: 1rem;
+    background: var(--paper-raised);
+  }
+  main .cite-note[open] {
+    padding-bottom: 0.75rem;
+  }
+  main .cite-note[open] > :not(summary) {
+    margin-inline: 1rem;
+  }
+}

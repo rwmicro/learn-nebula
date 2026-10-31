@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getDisciplines, getTags } from "@/lib/content";
-import { ThemesIndex } from "@/components/Themes";
+import { ThemesIndex } from "@/components/explore/Themes";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/themes.css";
 

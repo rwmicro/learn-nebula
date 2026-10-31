@@ -1,6 +1,6 @@
 // Studying a reading path (/parcours/<slug>/) — the pure part, shared by the
-// path page (components/ParcoursStudy.tsx), the index cards
-// (components/ReadMarks.tsx) and unit-tested in lib/path-study.test.ts:
+// path page (components/paths/ParcoursStudy.tsx), the index cards
+// (components/note/ReadMarks.tsx) and unit-tested in lib/path-study.test.ts:
 //
 // - a note's state on a path: non lue / lue / connue / maîtrisée, from the
 //   reading store (lib/reading-progress.ts), the "Je connais déjà" store below

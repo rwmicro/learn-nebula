@@ -1,6 +1,6 @@
 // The installed site's icon badge (Badging API): the number of cards and
 // questions due, set wherever the client counts them (useReviewDue in
-// components/AccountChip.tsx). Silent where unsupported — most browsers
+// components/account/AccountChip.tsx). Silent where unsupported — most browsers
 // outside an installed web app — and when the call is refused.
 
 type BadgeNav = Navigator & {

@@ -1,5 +1,5 @@
 /**
- * Browser glue for /duel/ (components/Duel.tsx): joins a room over the
+ * Browser glue for /duel/ (components/play/Duel.tsx): joins a room over the
  * /api/room/<code> WebSocket (server/routes/room.ts), then sets up one
  * RTCPeerConnection with the other browser — a data channel, plus the
  * microphone for a tandem. Once the channel is open the socket is closed:

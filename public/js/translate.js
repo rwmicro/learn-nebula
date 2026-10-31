@@ -15,7 +15,7 @@
 // block of the rendered note at a time, in place: the card above the body
 // counts the sections, the block being translated is marked and the ones not
 // done yet stay greyed. With neither, the button opens the
-// download (or "not available here") sheet of components/GardenChat.tsx. The
+// download (or "not available here") sheet of components/chat/GardenChat.tsx. The
 // server's translation only runs while SERVER_LLM_OFFERED is on.
 // LanguageDetector (lib/browser-ai.ts) also checks, when its model is already
 // there, whether the note is in a language other than the reader's, and

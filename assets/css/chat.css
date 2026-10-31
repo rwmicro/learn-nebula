@@ -1,4 +1,4 @@
-/* "Demander au jardin" (components/GardenChat.tsx): a chat page in the
+/* "Demander au jardin" (components/chat/GardenChat.tsx): a chat page in the
    manner of the ChatGPT / Claude apps. Full screen on a phone, a tall panel
    on the right from 640px. Site-wide (imported by app/layout.tsx); every
    rule is under .gc / .gc-* so nothing else is touched. */

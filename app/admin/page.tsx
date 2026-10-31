@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AdminPanel } from "@/components/AdminPanel";
+import { AdminPanel } from "@/components/admin/AdminPanel";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/admin.css";
 

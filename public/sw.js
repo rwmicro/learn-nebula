@@ -49,7 +49,7 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
       // gk-saved: reading paths saved for offline reading
-      // (components/OfflinePath.tsx), kept until the reader removes them.
+      // (components/paths/OfflinePath.tsx), kept until the reader removes them.
       const keep = new Set([DOC_CACHE, ASSET_CACHE, SAVED_CACHE]);
       const keys = await caches.keys();
       await Promise.all(

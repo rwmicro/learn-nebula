@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAnkiManifest, getAnkiDeck } from "@/lib/anki";
-import { Flashcards } from "@/components/Flashcards";
+import { Flashcards } from "@/components/review/Flashcards";
 import { familyOfFolder } from "@/lib/path-family";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/cartes.css";

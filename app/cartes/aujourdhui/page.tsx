@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getAnkiManifest } from "@/lib/anki";
-import { TodayReview } from "@/components/TodayReview";
+import { TodayReview } from "@/components/home/TodayReview";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/cartes.css";
 

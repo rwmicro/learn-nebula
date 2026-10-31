@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { NoteReview } from "@/components/NoteReview";
+import { NoteReview } from "@/components/note/NoteReview";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/cartes.css";
 

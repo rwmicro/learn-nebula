@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getReadingPaths } from "@/lib/content";
-import { ParcoursIndex } from "@/components/Parcours";
+import { ParcoursIndex } from "@/components/paths/Parcours";
 import { pathExtras, type PathExtras } from "@/lib/path-extras";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/themes.css";

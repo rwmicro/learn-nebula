@@ -441,7 +441,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     else location.href = "/hasard/";
   }
 
-  // Opens the garden chat (components/GardenChat.tsx), asking `question`
+  // Opens the garden chat (components/chat/GardenChat.tsx), asking `question`
   // straight away when there is one (the phone's empty state hands it the
   // query).
   function openAssistant(question) {
@@ -614,7 +614,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
   // --- phone layout (under 640px) -------------------------------------------
   const svgOf = (p, w = 1.8) =>
     `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
-  // The colour families' drawings, as FamilyIcon in components/HomeDashboard.tsx.
+  // The colour families' drawings, as FamilyIcon in components/home/HomeDashboard.tsx.
   const FAM = {
     sciences: svgOf('<circle cx="12" cy="12" r="1.5" fill="currentColor"/><ellipse cx="12" cy="12" rx="9" ry="3.6"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.6" transform="rotate(120 12 12)"/>'),
     informatique: svgOf('<path d="m8 7-5 5 5 5M16 7l5 5-5 5"/>', 2.2),

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getAllPosts, getWikiLinkEdges, INDEX_NOTE } from "@/lib/content";
 import { gardenStats } from "@/lib/garden-stats";
-import { GardenStats } from "@/components/GardenStats";
+import { GardenStats } from "@/components/explore/GardenStats";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/jardin.css";
 

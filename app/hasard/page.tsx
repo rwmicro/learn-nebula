@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GrowLoader } from "@/components/GrowLoader";
+import { GrowLoader } from "@/components/ui/GrowLoader";
 import { SITE_TITLE } from "@/lib/site";
 import { t, i18nProps } from "@/lib/i18n";
 

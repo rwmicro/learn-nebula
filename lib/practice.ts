@@ -1,7 +1,7 @@
 /**
  * "S'entraîner" (/cartes/entrainer/): extra sessions once the day's reviews
  * are done. They pick cards the reader has already studied and never change
- * their schedule (components/TodayReview.tsx grades nothing in these modes):
+ * their schedule (components/home/TodayReview.tsx grades nothing in these modes):
  *
  * - errors: missed ("À revoir") in the last seven days;
  * - fragile: forgotten at least FRAGILE_LAPSES times after being learned;

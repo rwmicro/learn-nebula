@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Avatar } from "@/components/Avatar";
+import { Avatar } from "@/components/account/Avatar";
 import type { Me } from "@/lib/account-client";
 import { ITEMS, ITEM_BY_ID, MAX_FREEZES, STREAK_FREEZE, sanitizeLook, type Look, type Slot } from "@/lib/avatar";
 import { plural, type AccountData, type FreezeInfo, type Tr } from "@/components/account/shared";

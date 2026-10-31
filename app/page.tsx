@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
 import { getAllPosts, getDisciplines, getIndexDoc, getLanguageScopes, getPost, getReadingPaths, getRecentNotes, INDEX_NOTE } from "@/lib/content";
-import { HomeMore } from "@/components/HomeMore";
+import { HomeMore } from "@/components/home/HomeMore";
 import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
 import { t } from "@/lib/i18n";
 import { buildMetadata } from "@/lib/seo";
-import { JsonLd } from "@/components/JsonLd";
+import { JsonLd } from "@/components/layout/JsonLd";
 import { graph, personJsonLd, websiteJsonLd } from "@/lib/jsonld";
-import Header from "@/components/Header";
-import { HomeContent } from "@/components/HomeContent";
-import { RecentNotes } from "@/components/RecentNotes";
-import { Graphiques } from "@/components/Graphiques";
+import Header from "@/components/layout/Header";
+import { HomeContent } from "@/components/home/HomeContent";
+import { RecentNotes } from "@/components/home/RecentNotes";
+import { Graphiques } from "@/components/explore/Graphiques";
 import { getGraphiques } from "@/lib/graphiques";
-import { namedLevels } from "@/components/Parcours";
-import { HomeDashboard, type DashDayNote, type DashPath, type DashRecent } from "@/components/HomeDashboard";
+import { namedLevels } from "@/components/paths/Parcours";
+import { HomeDashboard, type DashDayNote, type DashPath, type DashRecent } from "@/components/home/HomeDashboard";
 import { extractPlain } from "@/lib/markdown";
 import { readingMinutes } from "@/lib/path-extras";
 import { familyOfPrefix, pathFamily } from "@/lib/path-family";
@@ -61,7 +61,7 @@ function slugHash(slug: string): number {
   return h >>> 0;
 }
 
-/** The phone dashboard's data (components/HomeDashboard.tsx): the reading
+/** The phone dashboard's data (components/home/HomeDashboard.tsx): the reading
  *  paths, the latest notes with their discipline and reading time, and the
  *  notes the "note du jour" turns through (one a day, chosen in the
  *  browser from the date). */

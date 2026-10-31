@@ -1,7 +1,7 @@
 // The account's profile picture: a small animated sprout ("le petit
 // jardinier") drawn in SVG, plus the catalogue of what can be bought for it
 // with coins. Shared by the server (prices, ownership checks, validation of a
-// saved look — server/accounts/) and the browser (components/Avatar.tsx draws
+// saved look — server/accounts/) and the browser (components/account/Avatar.tsx draws
 // it). Pure, so it is unit-tested (avatar.test.ts).
 
 export type Slot = "body" | "hat" | "accessory" | "background";

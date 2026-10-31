@@ -11,7 +11,7 @@ import { HASHED_SCRIPTS, hashedScriptName } from "../lib/hashed-scripts.js";
 
 const JS_DIR = join(process.cwd(), "public", "js");
 
-// Order mirrors components/NoteScripts.tsx. Turnstile stays a separate external
+// Order mirrors components/note/NoteScripts.tsx. Turnstile stays a separate external
 // <script>; i18n/lightbox stay global (loaded site-wide in layout).
 const SCRIPTS = [
   "toc",
@@ -62,11 +62,11 @@ const SCRIPTS = [
   "note-dock",
 ];
 // Not "quiz" nor "glossary": each is its own small bundle (quiz.bundle.js,
-// glossary.bundle.js, built below) that components/NoteScripts.tsx adds only
+// glossary.bundle.js, built below) that components/note/NoteScripts.tsx adds only
 // to the notes whose HTML has a `[!quiz]` card or a glossary mark — most
 // notes have neither, and quiz.js alone pulls lib/note-quiz.ts + lib/srs.ts.
 // Note: "ask" (the old floating note assistant) was removed — the note "AI"
-// button now opens the garden chat (components/GardenChat.tsx) mounted site-wide.
+// button now opens the garden chat (components/chat/GardenChat.tsx) mounted site-wide.
 // public/js/ask.js went with it; its .ask-* rules in main.css are now dead.
 
 await build({

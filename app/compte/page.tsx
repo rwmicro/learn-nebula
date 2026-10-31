@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { Account } from "@/components/Account";
+import { Account } from "@/components/account/Account";
 import { SITE_TITLE } from "@/lib/site";
 import { t } from "@/lib/i18n";
 import "@/assets/css/account.css";
-import { AppBack } from "@/components/AppBack";
+import { AppBack } from "@/components/layout/AppBack";
 
 // The reader's private page. Static shell only: who is signed in, the coins
 // and the avatar come from /api/* with the session cookie (components/

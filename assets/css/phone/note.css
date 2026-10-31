@@ -1,0 +1,916 @@
+/* --- Note page (phone): cover, section pill, toolbar, display sheet --------
+   Markup from lib/note-app.ts, behaviour in public/js/note-app.js. From 640px
+   up none of it shows and the note keeps its editorial layout. */
+.na-chrome,
+.na-crumbs,
+.na-cover-img,
+.na-min {
+  display: none;
+}
+.na-cover {
+  display: contents;
+}
+@media (max-width: 639.98px) {
+  /* The note's own chrome gives way to the app's. */
+  body:has(.na-chrome) .site-bar,
+  main .note-header,
+  main .note-header-condensed,
+  main .note-actions,
+  main .path-step-row,
+  main .subtitle-row .aside-toggle,
+  main .na-dup,
+  body:has(.na-chrome) .path-dock,
+  body:has(.na-chrome) .to-top,
+  body:has(.na-chrome) .gk-pinned-trigger,
+  body:has(.na-chrome) .reading-progress {
+    display: none !important;
+  }
+  /* The path step bar keeps only its prerequisites (and the list of steps,
+     opened from "étape 7" in the crumbs). */
+  main .path-step {
+    margin-top: 0.4rem;
+  }
+  /* "À lire avant": a grouped list like the rest of the app, one row per
+     note with a chevron, the heading in the family colour above it. */
+  main .path-step--with-prereq {
+    margin: 0 0 1.4rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  main .prereq,
+  main .path-step .prereq {
+    display: block;
+    margin: 0.4rem 0 1.4rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+  /* Doubled class: note-paths.css (route CSS, loaded after this file) sets
+     the old serif small caps with the same specificity. */
+  main .prereq-title.prereq-title {
+    margin: 0 0 0.45rem 0.2rem;
+    font: 700 0.75rem var(--font-ui);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    /* The family accent alone fails AA on paper (as in .na-crumbs .na-fam). */
+    color: color-mix(in srgb, var(--fam, var(--garden)) 60%, var(--ink));
+  }
+  main .prereq-list {
+    display: block;
+    border-radius: 1rem;
+    background: var(--dash-card);
+    box-shadow: var(--dash-shadow);
+    overflow: hidden;
+  }
+  main .prereq-list li {
+    position: relative;
+    margin: 0;
+    font-size: 1rem;
+  }
+  main .prereq-list li + li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3.35rem;
+    right: 0;
+    margin: 0;
+    border-top: 0.5px solid var(--dash-edge);
+  }
+  main .prereq-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.2rem;
+    padding: 0.5rem 0.9rem;
+    font: 500 1.03rem/1.25 var(--font-text);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  main .prereq-list a::before {
+    content: "";
+    flex: none;
+    width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 0.55rem;
+    background:
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='4' y='3' width='16' height='18' rx='2'/%3E%3Cpath d='M8 8h8M8 12h8M8 16h5'/%3E%3C/svg%3E")
+        center / 1.05rem no-repeat,
+      var(--fam-wash, var(--garden-wash));
+  }
+    main .prereq-list a::after {
+    content: "";
+    flex: none;
+    margin-left: auto;
+    width: 0.9rem;
+    height: 0.9rem;
+    background: var(--muted);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  main .prereq-path {
+    display: inline-block;
+    margin: 0.5rem 0 0 0.2rem;
+    font-size: 0.9rem;
+    color: var(--fam, var(--garden));
+  }
+  main .path-step:not(.path-step--with-prereq) {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+    min-height: 0;
+  }
+  body:has(.na-chrome) {
+    margin-top: 0;
+  }
+
+  body:has(.na-chrome) main {
+    margin-inline: 1.375rem;
+    padding-top: 4.9rem;
+  }
+  body:has(.na-has-cover) main {
+    padding-top: 0;
+  }
+  /* "Texte élargi": the text runs closer to the edges. main.css's narrow
+     wide-text rule pads the body by 1.2rem, which would leave the column
+     narrower than with the option off. */
+  body[data-wide-text]:not([data-wide-text="normal"]):has(.na-chrome) {
+    padding-inline: 0;
+  }
+  body[data-wide-text]:not([data-wide-text="normal"]):has(.na-chrome) main {
+    margin-inline: 0.75rem;
+  }
+  body[data-wide-text]:not([data-wide-text="normal"]):has(.na-chrome) main .na-cover {
+    margin-inline: -0.75rem;
+  }
+  body:has(.na-chrome) footer {
+    margin-inline: 1.375rem;
+  }
+
+  /* "Langues › Arabe libanais › étape 7" */
+  .na-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.4rem;
+    margin: 0.4rem 0 0;
+    font: 500 0.9rem/1.5 var(--font-caps);
+    letter-spacing: 0.04em;
+    color: var(--muted);
+  }
+  main .na-crumbs a,
+  main .na-crumbs span {
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-decoration: none;
+  }
+  .na-crumbs .na-fam {
+    font-weight: 700;
+    /* The family accent alone is too pale for text (informatique: 2.8:1);
+       mixed with the ink it stays its hue and clears AA in both themes. */
+    color: color-mix(in srgb, var(--fam, var(--garden)) 60%, var(--ink));
+  }
+  .na-crumbs .na-sep::before {
+    content: "›";
+    font-style: normal;
+  }
+  .na-crumbs .na-step {
+    cursor: pointer;
+  }
+  /* No date on a plain note: the crumbs, then the title. */
+  main > .subtitle-row {
+    display: none;
+  }
+  main > .title-note,
+  main .na-cover .title-note {
+    border-top: 0;
+    padding-top: 0;
+    margin: 0.5rem 0 0.9rem;
+    font-size: 1.875rem;
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  /* D: the lead picture as a cover, the title over its fade. */
+  main .na-cover {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: min(26.9rem, 58svh);
+    margin: 0 -1.375rem 0.6rem;
+    padding: 5rem 1.375rem 0.25rem;
+    isolation: isolate;
+  }
+  main .na-cover .na-cover-img {
+    display: block;
+    position: absolute;
+    max-width: none;
+    margin: 0;
+    border-radius: 0;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  main .na-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      180deg,
+      rgb(0 0 0 / 0.25),
+      transparent 30%,
+      transparent 45%,
+      var(--paper) 97%
+    );
+  }
+  main .na-cover .na-crumbs {
+    order: 1;
+    align-self: flex-start;
+    gap: 0 0.35rem;
+    height: 1.75rem;
+    align-items: center;
+    padding: 0 0.75rem;
+    margin: 0;
+    border-radius: 0.875rem;
+    font: 600 0.78rem var(--font-ui);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    border: 0.5px solid var(--glass-edge);
+    box-shadow: var(--glass-shadow);
+  }
+  main .na-cover .na-crumbs .na-fam,
+  main .na-cover .na-crumbs .na-fam + .na-sep {
+    display: none;
+  }
+  main .na-cover .na-sep::before {
+    content: "·";
+  }
+  main .na-cover .title-note {
+    order: 2;
+    margin: 0.625rem 0 0.375rem;
+    font-size: 2.25rem;
+    font-weight: 600;
+    line-height: 1.04;
+    color: var(--ink);
+  }
+  main .na-cover .subtitle-row {
+    order: 3;
+    display: block;
+    margin: 0;
+    font: italic 0.94rem var(--font-text);
+    color: var(--ink-2);
+  }
+  main .na-cover .subtitle-row .subtitle {
+    display: inline;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+  }
+  main .na-cover .na-min {
+    display: inline;
+  }
+  main .na-cover .subtitle:not(:empty) + .na-min::before {
+    content: " · ";
+  }
+
+  /* The floating chrome. */
+  .na-chrome {
+    display: block;
+    font-family: var(--font-ui);
+  }
+  .na-chrome button {
+    font: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    color: inherit;
+    cursor: pointer;
+  }
+  .na-chrome svg {
+    display: block;
+  }
+
+  /* Over the cover: round back button, Aa / bookmark / ⋯ pill. */
+  .na-top {
+    position: fixed;
+    top: calc(0.5rem + env(safe-area-inset-top, 0px));
+    left: 0.875rem;
+    right: 0.875rem;
+    z-index: 950;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    pointer-events: none;
+    transition:
+      opacity 0.25s,
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .na-top > * {
+    pointer-events: auto;
+  }
+  .na-gbtn {
+    display: grid;
+    place-items: center;
+    width: 2.875rem;
+    height: 2.875rem;
+    border-radius: 50%;
+    color: var(--ink);
+  }
+  .na-gbtn svg {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .na-gpill {
+    display: flex;
+    align-items: center;
+    height: 2.875rem;
+    padding: 0 0.375rem;
+    border-radius: 1.44rem;
+  }
+  .na-gpill button {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    color: var(--ink);
+  }
+  .na-gpill svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .na-gpill [aria-pressed="true"] svg path {
+    fill: currentColor;
+  }
+  .na-has-cover.na-past-cover .na-top,
+  .na-has-cover:not(.na-past-cover) .na-secnav {
+    opacity: 0;
+    transform: translateY(-0.5rem);
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .na-has-cover .na-secnav,
+  .na-has-cover .na-top {
+    transition:
+      opacity 0.25s,
+      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1),
+      visibility 0.3s;
+  }
+
+  /* F: the section being read, its number, and one dot per section. */
+  .na-secnav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 950;
+    padding: calc(0.5rem + env(safe-area-inset-top, 0px)) 0.875rem 0.7rem;
+    background: linear-gradient(var(--paper) 55%, transparent);
+  }
+  .na-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.75rem;
+    padding: 0 0.25rem 0 0.4rem;
+    border-radius: 1.375rem;
+    color: var(--ink);
+    font-size: 0.94rem;
+  }
+  .na-back {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2.5rem;
+    color: var(--fam, var(--garden));
+  }
+  .na-back svg {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  .na-sec {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    text-align: start;
+  }
+  .na-sec b {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .na-sec small {
+    flex: none;
+    font-size: 0.81rem;
+    color: var(--muted);
+  }
+  .na-toc {
+    display: grid;
+    place-items: center;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  .na-toc svg {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+  .na-dots {
+    display: flex;
+    justify-content: center;
+    gap: 0.3125rem;
+    margin: 0.5rem auto 0;
+    max-width: 80%;
+  }
+  .na-dots i {
+    flex: 0 1 1.375rem;
+    min-width: 0.4rem;
+    height: 0.25rem;
+    border-radius: 2px;
+    background: var(--rule-strong);
+    transition: background-color 0.25s;
+  }
+  .na-dots i.done {
+    background: var(--fam, var(--garden));
+  }
+  .na-dots {
+    transition: opacity 0.25s;
+  }
+  .na-dots.na-dots--wait {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .na-dots i.on {
+    background: var(--garden);
+  }
+  /* Anchors land under the pill, not behind it. */
+  body:has(.na-chrome) main :is(h2, h3) {
+    scroll-margin-top: 5.5rem;
+  }
+
+  /* The bottom toolbar, where the tab bar sits elsewhere. */
+  .na-toolbar {
+    position: fixed;
+    left: max(0.85rem, env(safe-area-inset-left, 0px));
+    right: max(0.85rem, env(safe-area-inset-right, 0px));
+    bottom: calc(0.9rem + var(--gk-safe-b) * 0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .na-bar {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    height: 3.85rem;
+    padding: 0.25rem;
+    border-radius: 2rem;
+  }
+  .na-tool {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.125rem;
+    min-width: 0;
+    border-radius: 1.7rem;
+    color: var(--ink);
+    font-size: 0.69rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform 0.15s;
+  }
+  .na-tool:hover {
+    background: transparent;
+    color: var(--ink);
+  }
+  .na-tool:active {
+    transform: scale(0.92);
+  }
+  .na-tool svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .na-chrome .na-tool span {
+    margin: 0;
+    font: 600 0.69rem/1.2 var(--font-ui);
+    letter-spacing: 0.01em;
+    text-transform: none;
+    color: inherit;
+  }
+  .na-chrome .na-tool-pri,
+  .na-chrome .na-tool-pri:hover {
+    color: var(--garden);
+  }
+  .na-tool[aria-disabled="true"],
+  .na-tool:disabled {
+    opacity: 0.38;
+    cursor: default;
+  }
+  .na-chrome .na-ic-pause,
+  .na-chrome .na-tool .na-listen-on,
+  .na-chrome [data-state="playing"] .na-ic-play,
+  .na-chrome .na-tool[data-state="playing"] .na-listen-idle {
+    display: none;
+  }
+  .na-chrome [data-state="playing"] .na-ic-pause {
+    display: block;
+  }
+  .na-chrome .na-tool[data-state="playing"] .na-listen-on {
+    display: inline;
+  }
+  [data-na-listen][data-state="playing"] {
+    color: var(--garden);
+  }
+  .na-next {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 3.85rem;
+    height: 3.85rem;
+    border-radius: 50%;
+    background: var(--garden);
+    color: var(--paper);
+    transition: transform 0.15s;
+  }
+  .na-next:hover {
+    background: var(--garden);
+    color: var(--paper);
+  }
+  .na-next:active {
+    transform: scale(0.92);
+  }
+  .na-next svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .na-chrome :is(a, button, input):focus-visible {
+    outline: 2px solid var(--link);
+    outline-offset: 2px;
+  }
+
+  /* "Affichage": a sheet from the bottom. */
+  .na-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-scrim);
+    background: var(--sheet-scrim);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+  .na-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: var(--z-sheet);
+    max-height: var(--sheet-max-h);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0.5rem 1.125rem calc(1.6rem + var(--gk-safe-b));
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
+    background: var(--dash-card);
+    box-shadow: var(--sheet-shadow);
+    color: var(--ink);
+    transform: translateY(100%);
+    transition: transform 0.3s var(--sheet-ease);
+  }
+  .na-chrome[data-sheet] .na-scrim {
+    opacity: 1;
+  }
+  .na-chrome[data-sheet] .na-sheet {
+    transform: none;
+  }
+  .na-sheet-h {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 0 0.875rem;
+    padding: 0;
+    border: 0;
+    font: 700 1.125rem var(--font-ui);
+    font-variant: normal;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--ink);
+  }
+  .na-sheet-h button {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--garden);
+  }
+  .na-grp {
+    margin-bottom: 0.75rem;
+    border-radius: 0.875rem;
+    background: var(--wash-2);
+    overflow: hidden;
+  }
+  :root[data-theme="dark"] .na-grp {
+    background: var(--wash-2);
+  }
+  .na-size {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding: 0.75rem 0.875rem;
+    font-family: var(--font-text);
+    font-weight: 500;
+  }
+  .na-a-sm {
+    font-size: 0.94rem;
+  }
+  .na-a-lg {
+    font-size: 1.5rem;
+  }
+  .na-size input {
+    --v: 0.5;
+    flex: 1;
+    height: 1.75rem;
+    margin: 0;
+    background: none;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .na-size input::-webkit-slider-runnable-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--garden) calc(var(--v) * 100%), var(--rule-strong) 0);
+  }
+  .na-size input::-moz-range-track {
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--garden) calc(var(--v) * 100%), var(--rule-strong) 0);
+  }
+  .na-size input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 1.625rem;
+    height: 1.625rem;
+    margin-top: calc(2px - 0.8125rem);
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.3);
+  }
+  .na-size input::-moz-range-thumb {
+    width: 1.625rem;
+    height: 1.625rem;
+    border: 0;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 5px rgb(0 0 0 / 0.3);
+  }
+  .na-seg {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 0.75rem;
+    padding: 3px;
+    border-radius: 0.6875rem;
+    background: var(--wash-2);
+  }
+  .na-chrome .na-seg button {
+    height: 2.125rem;
+    border-radius: 0.5625rem;
+    font-size: 0.94rem;
+    font-weight: 500;
+    color: var(--ink-2);
+  }
+  .na-chrome .na-seg [aria-checked="true"] {
+    background: var(--seg-on);
+    color: var(--ink);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.15);
+  }
+  .na-chrome .na-opt {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 3.125rem;
+    padding: 0 0.875rem;
+    font-size: 1.03rem;
+    text-align: start;
+    color: var(--ink);
+  }
+  .na-opt[hidden] {
+    display: none !important;
+  }
+  .na-opt + .na-opt::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 3rem;
+    right: 0;
+    border-top: 0.5px solid var(--rule-strong);
+  }
+  .na-opt > svg:first-child {
+    flex: none;
+    width: 1.375rem;
+    height: 1.375rem;
+    color: var(--ink-2);
+  }
+  .na-opt .na-chev {
+    margin-left: auto;
+    width: 1rem;
+    height: 1rem;
+    color: var(--muted);
+  }
+  .na-switch {
+    position: relative;
+    flex: none;
+    margin-left: auto;
+    width: 3.125rem;
+    height: 1.875rem;
+    border-radius: 0.9375rem;
+    background: var(--rule-strong);
+    transition: background-color 0.2s;
+  }
+  .na-switch::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 1.625rem;
+    height: 1.625rem;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+    transition: transform 0.2s;
+  }
+  [aria-checked="true"] > .na-switch {
+    background: var(--garden);
+  }
+  [aria-checked="true"] > .na-switch::after {
+    transform: translateX(1.25rem);
+  }
+  /* The note's own translate control, moved in here by note-app.js. */
+  .na-translate {
+    flex-wrap: wrap;
+  }
+  .na-translate-slot {
+    margin-left: auto;
+  }
+  .na-translate .translate-wrap {
+    position: static;
+  }
+  .na-translate .translate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0;
+    border: 0;
+    background: none;
+    font: 400 1.03rem var(--font-ui);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--muted);
+  }
+  .na-translate .translate-btn .translate-icon,
+  .na-translate .translate-btn[data-state="idle"] > :not(.translate-icon) {
+    display: none;
+  }
+  .na-translate .translate-btn[data-state="idle"]::after {
+    content: "";
+    width: 1rem;
+    height: 1rem;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 5 7 7-7 7'/%3E%3C/svg%3E") center / contain no-repeat;
+  }
+  /* The whole row opens the languages. */
+  .na-translate .translate-btn::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+  }
+  .na-translate:has(.translate-menu:not([hidden])) .translate-btn::before {
+    display: none;
+  }
+  .na-translate .translate-menu {
+    position: static;
+    width: auto;
+    max-height: 16rem;
+    margin: 0 0 0.75rem;
+    box-shadow: none;
+  }
+  .na-translate:has(.translate-menu:not([hidden])) .na-translate-slot {
+    flex-basis: 100%;
+    margin: 0;
+  }
+  .na-translate:has(.translate-menu:not([hidden])) .translate-btn {
+    display: none;
+  }
+  .na-translate:has(.translate-menu:not([hidden])) .translate-wrap {
+    display: block;
+    width: 100%;
+    padding-bottom: 0.75rem;
+  }
+  .na-translate .translate-menu:not([hidden]) {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+  .na-translate .translate-menu input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 2.4rem;
+    margin: 0 0 0.4rem;
+    padding: 0 0.75rem;
+    border: 0.5px solid var(--rule-strong);
+    border-radius: 0.6rem;
+    background: var(--dash-card);
+    font: 400 1rem var(--font-ui);
+  }
+  .na-translate .translate-menu-list {
+    max-height: 13rem;
+    overflow-y: auto;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+  .na-translate .translate-menu-item {
+    width: 100%;
+    min-height: 2.6rem;
+    padding: 0 0.25rem;
+    border: 0;
+    border-bottom: 0.5px solid var(--rule);
+    background: none;
+    text-align: start;
+    font: 400 1.03rem var(--font-ui);
+    text-transform: none;
+    color: var(--ink);
+  }
+
+  .na-toast {
+    position: fixed;
+    left: 50%;
+    bottom: calc(5.6rem + var(--gk-safe-b));
+    z-index: 1200;
+    padding: 0.5rem 1rem;
+    border-radius: 1.25rem;
+    font-size: 0.94rem;
+    color: var(--ink);
+    opacity: 0;
+    transform: translate(-50%, 0.5rem);
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
+    pointer-events: none;
+  }
+  .na-toast[data-on] {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+
+  /* "Concentration": the text alone here too. The section pill, the cover's
+     buttons, the crumbs and the toolbar go; "Quitter la concentration" (the
+     only way out without a keyboard) takes the pill's place. */
+  body[data-focus="true"] .na-secnav,
+  body[data-focus="true"] .na-top,
+  body[data-focus="true"] .na-toolbar,
+  body[data-focus="true"] .na-crumbs {
+    display: none !important;
+  }
+  body[data-focus="true"]:has(.na-chrome) .focus-exit {
+    top: max(0.8rem, env(safe-area-inset-top, 0px));
+    right: max(0.85rem, env(safe-area-inset-right, 0px));
+    z-index: 1100;
+    padding: 0.45rem 0.95rem;
+    opacity: 0.85;
+  }
+}
+@media (max-width: 639.98px) and (prefers-reduced-motion: reduce) {
+  .na-top,
+  .na-secnav,
+  .na-sheet,
+  .na-scrim {
+    transition: none !important;
+  }
+}
+@media print {
+  .na-chrome {
+    display: none !important;
+  }
+}

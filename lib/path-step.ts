@@ -3,7 +3,7 @@
 // (lib/prereq-graph.ts topoOrder) and, for a note in several paths, to the
 // others. "Étape 4/20" opens a panel listing every step of the path (from the
 // bottom on a phone; public/js/path-sheet.js ticks the ones read). It takes the place of the "Voir le parcours" link of the "À lire
-// avant" block: when both exist, components/SinglePage.tsx nests the
+// avant" block: when both exist, components/note/SinglePage.tsx nests the
 // prerequisites inside this bar, so the top of a note carries one compact
 // block. HTML string like the rest of the note page (lib/html.ts); styles in
 // assets/css/path-step.css.

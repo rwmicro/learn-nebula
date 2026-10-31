@@ -1,0 +1,1173 @@
+/* --- Home dashboard (components/home/HomeDashboard.tsx), phones only ---------- */
+.dash,
+.home-more,
+.home-ask-intro-m,
+.home-ask-chips,
+.home-ask-send-icon {
+  display: none;
+}
+/* The dashboard's own parts, at every width: the phone home shows all
+   of it, the desktop home its "Aujourd'hui" card (below). */
+:root {
+  --dash-card: #fff;
+  --seg-on: #fff;
+  --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 14px rgb(0 0 0 / 0.06);
+  --dash-edge: var(--rule);
+}
+
+:root[data-theme="dark"] {
+  --dash-card: #262522;
+  --seg-on: #403d38;
+  --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
+  --dash-edge: #34322e;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --dash-card: #262522;
+  --seg-on: #403d38;
+    --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
+    --dash-edge: #34322e;
+  }
+}
+
+.dash {
+  display: block;
+  color: var(--ink);
+  font-family: var(--font-text);
+}
+
+.dash a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.dash a:hover {
+  background-color: transparent;
+}
+
+.dash ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash li {
+  margin: 0;
+}
+
+.dash-top {
+  padding: calc(0.95rem + env(safe-area-inset-top, 0px)) 1.25rem 0;
+}
+
+.dash-date {
+  margin: 0;
+  padding-right: 3.5rem;
+  min-height: 1.1rem;
+  /* The site's kicker (Réviser's "AUJOURD'HUI", the section titles). */
+  font: 700 0.78125rem/1.2 var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.dash .dash-hello {
+  margin: 0.15rem 0 0;
+  padding: 0;
+  border: 0;
+  font-family: var(--font-text);
+  font-size: 1.875rem;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.dash-hello em {
+  color: var(--garden);
+}
+
+/* The greeting depends on the hour and on this browser's history: it
+   waits for them rather than changing under the reader's eyes. */
+.dash-hello:not([data-ready]) {
+  visibility: hidden;
+}
+
+/* "Aujourd'hui": the painting over the next step, its progress, the
+   button, and today's cards and notes. */
+.dash-today {
+  margin: 1.125rem 1rem 0;
+  overflow: hidden;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.625rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+}
+
+.dash .dash-art {
+  position: relative;
+  display: block;
+  height: 10.75rem;
+  background: #5b4a32;
+  color: #fff;
+}
+
+.dash-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 58%;
+}
+
+/* The disciplines' paintings are already cropped to the band. */
+.dash-art .is-family img {
+  object-position: 50% 50%;
+}
+
+.dash-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgb(0 0 0 / 0.05) 20%, rgb(0 0 0 / 0.72));
+}
+
+.dash-chip {
+  position: absolute;
+  top: 0.875rem;
+  left: 0.875rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  max-width: calc(100% - 1.75rem);
+  padding: 0.3rem 0.65rem 0.3rem 0.4rem;
+  overflow: hidden;
+  border-radius: 99px;
+  background: rgb(20 18 14 / 0.45);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  font: 500 0.8125rem/1.2 var(--font-ui);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dash-chip-dot {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 50%;
+  background: hsl(var(--fam-h, 135) var(--fam-s, 42%) 72%);
+  color: #1c1b19;
+}
+
+.dash-chip-dot svg {
+  width: 0.75rem;
+  height: 0.75rem;
+}
+
+.dash-cap {
+  position: absolute;
+  left: 1.125rem;
+  right: 1.125rem;
+  bottom: 0.875rem;
+  z-index: 1;
+}
+
+.dash-cap small {
+  display: block;
+  margin-top: 0.25rem;
+  font: 500 0.8125rem var(--font-ui);
+  opacity: 0.88;
+}
+
+.dash-cap b {
+  display: -webkit-box;
+  margin-top: 0.125rem;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 1.5625rem;
+  font-weight: 500;
+  line-height: 1.1;
+  text-shadow: 0 1px 8px rgb(0 0 0 / 0.35);
+}
+
+.dash-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem 0.25rem;
+  font: 500 0.8125rem var(--font-ui);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* One bar for the path, in its family's colour (12 empty dashes and
+   "0 % lu" read as nothing at the first step). */
+.dash-line {
+  flex: 1;
+  height: 5px;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--wash-2);
+}
+
+.dash-line i {
+  display: block;
+  min-width: 5px;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--fam, var(--garden));
+}
+
+/* The card's foot: the week, and today's notes against the goal. */
+.dash .dash-week-in {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-top: 0.875rem;
+  padding: 0.75rem 1rem 0.8rem;
+  border-top: 0.5px solid var(--dash-edge);
+}
+
+.dash-goal {
+  font: 400 0.8125rem/1.2 var(--font-ui);
+  color: var(--muted);
+  text-align: right;
+}
+
+.dash-goal b {
+  display: block;
+  font: 700 1.0625rem/1.2 var(--font-ui);
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--ink);
+}
+
+.dash-goal.is-done b {
+  color: var(--garden);
+}
+
+/* Cards due: one row, as on Réviser. */
+.dash .dash-due {
+  display: flex;
+  align-items: center;
+  gap: 0.8125rem;
+  margin: 0 1rem;
+  padding: 0.75rem 0.875rem;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.125rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+}
+
+.dash-due-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background: color-mix(in srgb, #c2410c 12%, transparent);
+  color: #c2410c;
+}
+
+:root[data-theme="dark"] .dash-due-icon {
+  color: #f0a46a;
+}
+
+.dash-due-icon svg {
+  width: 1.1875rem;
+  height: 1.1875rem;
+}
+
+.dash-due-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-due-text b {
+  display: block;
+  font: 600 1rem/1.2 var(--font-ui);
+}
+
+.dash-due-text small {
+  display: block;
+  margin-top: 0.125rem;
+  font: 400 0.8125rem var(--font-ui);
+  color: var(--muted);
+}
+
+.dash .dash-go {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: var(--btn-h);
+  margin: 0.625rem 1rem 0;
+  /* Square-ish, like the dashboard's cards around it. */
+  border-radius: 1rem;
+  background: var(--btn-bg);
+  color: var(--btn-ink);
+  font: var(--btn-font);
+  transition: transform 0.15s;
+}
+
+.dash-go:active,
+.dash-due:active,
+.dash-week-in:active,
+.dash-mine a:active,
+.dash-disc a:active,
+.dash-day a:active,
+.dash-ways a:active {
+  transform: scale(0.98);
+}
+
+.dash-go svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* Nothing under way: the quote on the painting, and three ways in. */
+.dash-welcome .dash-art {
+  height: 12.5rem;
+}
+
+.dash-welcome .dash-cap b {
+  font-size: 1.5rem;
+  font-style: italic;
+  -webkit-line-clamp: 3;
+}
+
+.dash-welcome .dash-cap small {
+  margin-top: 0.375rem;
+}
+
+.dash-welcome-text {
+  margin: 0;
+  padding: 1rem 1rem 0.875rem;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+.dash .dash-ways {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0 1rem 1rem;
+}
+
+.dash-ways a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 1rem;
+  background: var(--wash);
+  transition: transform 0.15s;
+}
+
+.dash-ways a > span:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-ways b {
+  display: block;
+  font: 700 0.9375rem/1.2 var(--font-ui);
+}
+
+.dash-ways small {
+  display: block;
+  font: 400 0.8125rem var(--font-ui);
+  color: var(--muted);
+}
+
+.dash-way-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 0.75rem;
+  background: var(--dash-card);
+  color: var(--garden);
+}
+
+.dash-way-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.dash .dash-ways .is-main {
+  background: var(--garden);
+  color: var(--paper);
+}
+
+.dash-ways .is-main .dash-way-icon {
+  border: 0;
+  background: rgb(255 255 255 / 0.16);
+  color: inherit;
+}
+
+.dash-ways .is-main small,
+.dash-ways .is-main .dash-chev {
+  color: inherit;
+  opacity: 0.85;
+}
+
+/* The week: one dot a day, Monday first, and the run of days. */
+.dash .dash-week {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  margin: 0.875rem 1rem 0;
+  padding: 0.875rem 1rem;
+  /* Raised like the other cards, not a cream band of its own. */
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.25rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+}
+
+.dash-week-days {
+  flex: none;
+  display: flex;
+  gap: 3px;
+}
+
+.dash-week-days > span {
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  width: 1.5625rem;
+  font: 500 0.6875rem var(--font-ui);
+  color: var(--muted);
+}
+
+.dash-week-days i {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 2px solid var(--wash-2);
+  border-radius: 50%;
+  background: var(--wash-2);
+}
+
+.dash-week-days i.is-on {
+  border: 0;
+  background: var(--garden);
+  color: var(--paper);
+}
+
+.dash-week-days i.is-now {
+  border: 2px solid var(--garden);
+  background: none;
+}
+
+.dash-week-days svg {
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.dash-week-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-week-text b {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font: 700 0.9375rem var(--font-ui);
+}
+
+.dash-week-text small {
+  display: block;
+  margin-top: 0.125rem;
+  font: 400 0.8125rem/1.25 var(--font-ui);
+  color: var(--muted);
+}
+
+.dash-flame {
+  width: 0.95rem;
+  height: 0.95rem;
+  fill: #e0782f;
+}
+
+.dash-row-h {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-right: 1.25rem;
+}
+
+.dash .dash-row-h > a {
+  font-family: var(--font-ui);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: var(--garden);
+}
+
+/* My paths: one wide row each, with the next note and the share read. */
+.dash .dash-mine {
+  display: grid;
+  /* minmax: a long "ensuite : …" ellipsizes instead of widening the page. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.625rem;
+  margin: 0 1rem;
+}
+
+.dash-mine a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.875rem;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.125rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+  transition: transform 0.15s;
+}
+
+.dash-mine-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.8rem;
+  background: var(--fam-wash, var(--wash-2));
+  color: var(--fam, var(--garden));
+}
+
+.dash-mine-icon svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+.dash-mine-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-mine-text b {
+  display: block;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.dash-mine-text small {
+  display: block;
+  margin-top: 0.125rem;
+  overflow: hidden;
+  font: 400 0.8125rem var(--font-ui);
+  color: var(--ink-2);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-bar {
+  display: block;
+  height: 0.25rem;
+  margin-top: 0.45rem;
+  overflow: hidden;
+  border-radius: 0.125rem;
+  background: var(--wash-2);
+}
+
+.dash-bar i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--fam, var(--garden));
+}
+
+.dash-mine-pct {
+  flex: none;
+  font: 700 0.875rem var(--font-ui);
+  font-variant-numeric: lining-nums;
+  color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
+}
+
+/* Paths to discover: a row that scrolls sideways, one family after
+   another. */
+.dash .dash-disc {
+  display: flex;
+  gap: 0.625rem;
+  padding: 0.125rem 1rem 0.25rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: 1rem;
+  scrollbar-width: none;
+}
+
+.dash-disc::-webkit-scrollbar {
+  display: none;
+}
+
+.dash-disc li {
+  flex: none;
+  scroll-snap-align: start;
+}
+
+.dash-disc a {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 8.875rem;
+  height: 7.5rem;
+  padding: 0.875rem;
+  border-radius: 1.25rem;
+  background: var(--fam-wash, var(--wash-2));
+  transition: transform 0.15s;
+}
+
+.dash-disc b {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.dash-disc small {
+  display: block;
+  margin-top: 0.125rem;
+  font: 400 0.8125rem var(--font-ui);
+  color: var(--ink-2); /* --muted falls under 4.5:1 on the family washes */
+}
+
+.dash-disc-icon {
+  display: grid;
+  place-items: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  border-radius: 0.625rem;
+  background: var(--fam, var(--garden));
+  color: var(--paper);
+}
+
+.dash-disc-icon svg {
+  width: 1.1875rem;
+  height: 1.1875rem;
+}
+
+/* The note of the day: an editorial card, its initial in the family's
+   colour. */
+.dash-day a {
+  display: block;
+  margin: 0 1rem;
+  padding: 1.125rem 1.125rem 1rem;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.375rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+  transition: transform 0.15s;
+}
+
+.dash-day-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font: 500 0.8125rem var(--font-ui);
+  /* Toward the ink: some family colours alone (informatique, vivant,
+     pensée) fall under 4.5:1 on the card. */
+  color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
+}
+
+.dash-day-kicker svg {
+  width: 0.9375rem;
+  height: 0.9375rem;
+}
+
+.dash-day b {
+  display: block;
+  margin: 0.375rem 0 0.5rem;
+  font-size: 1.375rem;
+  font-weight: 500;
+  line-height: 1.15;
+}
+
+.dash-day p {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+.dash-day p::first-letter {
+  float: left;
+  padding: 0.25rem 0.375rem 0 0;
+  font-size: 2.875rem;
+  font-weight: 500;
+  line-height: 0.86;
+  color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
+}
+
+.dash-day-read {
+  display: block;
+  margin-top: 0.75rem;
+  text-align: end;
+  font: 700 0.875rem var(--font-ui);
+  color: var(--garden);
+}
+
+/* The latest notes, as a grouped list. */
+.dash .dash-list {
+  margin: 0 1rem;
+  overflow: hidden;
+  border: 0.5px solid var(--dash-edge);
+  border-radius: 1.25rem;
+  background: var(--dash-card);
+  box-shadow: var(--dash-shadow);
+}
+
+.dash-list a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 3.75rem;
+  padding: 0.6875rem 0.875rem;
+}
+
+.dash-list a:active {
+  background: var(--wash-2);
+}
+
+.dash-list li + li a::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 3.875rem;
+  right: 0;
+  border-top: 0.5px solid var(--rule);
+}
+
+.dash-list-icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.625rem;
+  background: var(--fam-wash, var(--wash-2));
+  color: var(--fam, var(--ink-2));
+}
+
+.dash-list-icon svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.dash-list-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.dash-list-text b {
+  display: block;
+  overflow: hidden;
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-list-text small {
+  display: block;
+  margin-top: 0.125rem;
+  font: 400 0.8125rem var(--font-ui);
+  color: var(--muted);
+}
+
+.dash-new {
+  margin-inline-start: 0.375rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--garden);
+}
+
+.dash-chev {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  color: var(--rule-strong);
+}
+
+[dir="rtl"] .dash-chev {
+  transform: scaleX(-1);
+}
+
+/* Desktop: the home keeps its masthead, intro and painting; the dashboard
+   is the phone's home. The card tokens stay for the pages that share them
+   at every width (Réviser). */
+@media (min-width: 640px) {
+  :root {
+    --dash-card: var(--paper);
+    --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 4px 14px rgb(0 0 0 / 0.06);
+    --dash-edge: var(--rule);
+  }
+  .dash {
+    display: none;
+  }
+}
+
+@media (max-width: 639.98px) {
+
+  /* The masthead becomes an app bar: the wordmark on the left, "Moi" on the
+     right. Its intro and painting, the "dernières pousses" and the charts
+     give way to the dashboard. */
+  /* It scrolls away with the page: the site bar's glass avatar stays at the
+     top right, and its "Accueil" pill comes in once scrolled (as on the tab
+     pages). No theme or account button here: both live in "Moi". */
+  .home-masthead {
+    flex-direction: row;
+    align-items: center;
+    height: 3.625rem;
+    padding: 0.125rem 4.25rem 0 1rem;
+  }
+  html body:has(.home-masthead) .site-bar {
+    display: block;
+  }
+  .home-masthead > div:first-of-type > :not(.lang-switcher) {
+    display: none;
+  }
+  .home-masthead > div:has(> a > h1) {
+    flex: 1;
+    order: 0;
+    padding: 0;
+  }
+  .home-masthead > div:has(> a > h1) > a {
+    justify-self: start;
+  }
+  .home-masthead h1 {
+    font-size: 1.5625rem;
+    line-height: 1;
+    letter-spacing: 0.0125rem;
+  }
+  .home-masthead > div:first-of-type {
+    order: 1;
+    flex-wrap: nowrap;
+    padding: 0;
+    gap: 0.35rem;
+  }
+  .home-masthead .lang-switcher,
+  .home-masthead > div:first-of-type > span.relative {
+    display: none;
+  }
+  .home-masthead nav {
+    display: none;
+  }
+  .home-intro,
+  .home-main .recent-notes,
+  .home-main .graphiques {
+    display: none;
+  }
+
+
+  /* The masthead gives way to the dashboard's own top: date and greeting,
+     with the site bar's round "Moi" button at the top right. */
+  .home-masthead.home-masthead {
+    display: none;
+  }
+
+
+
+
+  /* Section headings: small sans capitals, as on Réviser and Notes
+     ("MES QUESTIONS"), "Tout voir" on the right. */
+  .dash-h,
+  .home-ask-head h2 {
+    margin: 0;
+    padding: 1.5rem 1.375rem 0.5rem;
+    border: 0;
+    font: 700 0.8125rem/1 var(--font-ui);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+
+
+
+
+  /* --- The rest of the home: the assistant as a card, then home-more --- */
+  .home-main.home-main {
+    width: auto;
+    max-width: none;
+    margin: 0;
+    padding: 0 0 1rem;
+  }
+  .home-content {
+    margin-top: 0;
+    font-family: var(--font-text);
+  }
+  .home-content > .home-resume,
+  .home-content > .home-bookmarks,
+  .home-content #notes,
+  .home-content .home-map,
+  .home-ask-pin,
+  .home-ask-intro,
+  .home-ask-send-text {
+    display: none;
+  }
+  .home-content .home-cols {
+    display: block;
+  }
+  .home-content .home-cols > div {
+    margin: 0;
+  }
+  .home-content .home-ask {
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+  }
+  .home-ask-head {
+    margin: 0;
+  }
+  /* The card: one panel drawn behind the intro, the field, the chips and,
+     once asked, the answer and its sources. */
+  .home-content .home-ask {
+    position: relative;
+    z-index: 0;
+    padding-bottom: 1rem;
+  }
+  .home-ask::before {
+    content: "";
+    position: absolute;
+    inset: 3.6875rem 1rem 0;
+    z-index: -1;
+    border-radius: 1.375rem;
+    background: var(--garden-wash);
+  }
+  .home-ask > :not(.home-ask-head) {
+    margin-left: 2rem;
+    margin-right: 2rem;
+  }
+  .home-ask-intro-m {
+    display: block;
+    padding-top: 1rem;
+    font-size: 1rem;
+    line-height: 1.35;
+    color: var(--ink-2);
+  }
+  .home-ask .home-ask-form {
+    margin-top: 0.75rem;
+    padding: 0;
+    border: 0;
+  }
+  .home-ask .home-ask-field {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 0.5rem;
+    height: 3rem;
+    padding: 0 0.375rem 0 1rem;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 1.5rem;
+    background: var(--dash-card);
+  }
+  .home-ask .home-ask-field input {
+    font-family: var(--font-text);
+    font-size: 1rem;
+  }
+  .home-ask .home-ask-field input::placeholder {
+    font-style: italic;
+    color: var(--muted);
+  }
+  .home-ask .home-ask-form {
+    display: flex;
+  }
+  .home-ask .home-ask-send {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .home-ask-send-icon {
+    display: block;
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+  .home-ask-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-top: 0.625rem;
+  }
+  .home-ask-chips button {
+    height: 1.875rem;
+    padding: 0 0.75rem;
+    border: 0.5px solid var(--dash-edge);
+    border-radius: 0.9375rem;
+    background: var(--dash-card);
+    color: var(--ink-2);
+    font: 500 0.84375rem var(--font-ui);
+    cursor: pointer;
+  }
+  .home-more {
+    display: block;
+    color: var(--ink);
+    font-family: var(--font-text);
+  }
+  .home-more a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .home-more a:hover {
+    background: transparent;
+  }
+  .home-more-tiles {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.625rem;
+    margin: 0 1rem;
+  }
+  .home-more-tiles a {
+    display: flex;
+    flex-direction: column;
+    gap: 0.875rem;
+    padding: 0.875rem;
+    border-radius: 1.125rem;
+    background: var(--fam-wash, var(--wash));
+    transition: transform 0.15s;
+  }
+  .home-more-tiles a:active {
+    transform: scale(0.98);
+  }
+  .home-more-art {
+    display: block;
+    height: 1.75rem;
+    color: var(--fam, var(--ink-2));
+  }
+  .home-more-art > svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .home-more-art > svg.home-more-dots {
+    width: 2.25rem;
+    height: 1.9rem;
+    margin: -0.15rem 0 0 -0.2rem;
+  }
+  .home-more-tx b {
+    display: block;
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1.15;
+  }
+  .home-more-tx small {
+    display: block;
+    margin-top: 0.125rem;
+    font: 400 0.8125rem/1.25 var(--font-ui);
+    color: var(--ink-2);
+  }
+
+  /* The footer: the wordmark, "À propos", the garden in numbers, the
+     licence. */
+  .home-more-foot {
+    padding: 2.25rem 1.5rem 0;
+    text-align: center;
+    font: 400 0.75rem/1.6 var(--font-ui);
+    color: var(--muted);
+  }
+  .home-more-foot p {
+    margin: 0.875rem 0 0;
+  }
+  .home-more-foot .home-more-mark {
+    margin: 0;
+    font-size: 1.625rem;
+    line-height: 1.1;
+    color: var(--ink);
+  }
+  .home-more-about {
+    margin-top: 0.375rem;
+  }
+  .home-more-about summary {
+    display: block;
+    list-style: none;
+    cursor: pointer;
+  }
+  .home-more-about summary::-webkit-details-marker {
+    display: none;
+  }
+  .home-more-quote {
+    display: block;
+    font: italic 400 1rem/1.4 var(--font-text);
+    color: var(--ink-2);
+  }
+  .home-more-more {
+    display: inline-block;
+    margin-top: 0.25rem;
+    font: 500 0.875rem var(--font-ui);
+    color: var(--garden);
+  }
+  .home-more-about[open] .home-more-more {
+    display: none;
+  }
+  .home-more-about p {
+    font: 400 0.9375rem/1.45 var(--font-text);
+    text-align: start;
+    color: var(--ink-2);
+  }
+  .home-more .home-more-stats {
+    display: flex;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 1rem;
+  }
+  .home-more-stats span {
+    display: block;
+  }
+  .home-more-stats b {
+    display: block;
+    font: 700 1.125rem/1.2 var(--font-ui);
+    font-variant-numeric: lining-nums;
+    color: var(--ink);
+  }
+  .home-more-stats small {
+    font-size: 0.8125rem;
+  }
+  .home-more .home-more-cc {
+    display: inline-flex;
+    align-items: center;
+    height: 1.25rem;
+    margin-inline-end: 0.25rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 0.625rem;
+    font-size: 0.625rem;
+    font-weight: 700;
+    color: var(--ink-2);
+  }
+  /* The home ends with its own short footer. */
+  body:has(.home-more) footer:not(.home-more-foot) {
+    display: none;
+  }
+}
+@media (max-width: 639.98px) {
+  /* The home's own search field: the tab bar's search button opens the
+     same palette. */
+  .home-main > section:has(#notes) > div:first-child:has(.palette-kbd) {
+    display: none;
+  }
+}

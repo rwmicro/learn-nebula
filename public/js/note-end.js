@@ -4,7 +4,7 @@
 // reader, the note's questions answered, the minutes), a switch that keeps
 // the note's questions in the reviews, and the next step in the path's
 // colour. Its own small bundle (scripts/bundle-js.mjs), added by
-// components/NoteScripts.tsx only to notes that sit in a path.
+// components/note/NoteScripts.tsx only to notes that sit in a path.
 import { readHint } from "../../lib/account-client";
 import {
   addQuestion,

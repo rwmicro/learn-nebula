@@ -6,7 +6,7 @@ import { useSyncExternalStore } from "react";
  * Is the site in dark mode right now: the reader's pick (`<html data-theme>`,
  * set by public/js/theme.js) or else the OS preference — the same rule as
  * global.css. For markup that has to switch on it, like the Anki card's
- * night-mode classes (components/DeckFace.tsx).
+ * night-mode classes (components/review/DeckFace.tsx).
  */
 export function useDarkTheme(): boolean {
   return useSyncExternalStore(subscribe, isDark, () => false);

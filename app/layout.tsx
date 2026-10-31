@@ -12,10 +12,10 @@ import { i18nAssetUrls } from "@/lib/i18n-assets";
 import { jsAsset } from "@/lib/js-assets";
 import { getLanguageScopes } from "@/lib/content";
 import { notesIndexVersion, paletteExtraVersion } from "@/lib/home-data";
-import { Footer } from "@/components/Footer";
-import { GardenChat } from "@/components/GardenChat";
-import { SiteBar } from "@/components/SiteBar";
-import { MobileTabBar } from "@/components/MobileTabBar";
+import { Footer } from "@/components/layout/Footer";
+import { GardenChat } from "@/components/chat/GardenChat";
+import { SiteBar } from "@/components/layout/SiteBar";
+import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import "../assets/css/fonts.css";
 // Global frame only (Tailwind + @theme + html/body/main margins). Article
 // typography lives in main.css, loaded per-route on note pages / 404.
@@ -24,7 +24,7 @@ import "../assets/css/global.css";
 import "../assets/css/palette.css";
 // Phone "app" layer: the glass tab bar, the sticky top bar, safe areas and
 // the shared phone components (large titles, tiles).
-import "../assets/css/app.css";
+import "../assets/css/phone";
 import "../assets/css/chat.css";
 
 // Message bundles are static files (/i18n/<locale>.<hash>.js, lib/i18n-assets.ts)

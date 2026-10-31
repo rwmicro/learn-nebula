@@ -2,7 +2,7 @@
  * Fetch several JSON files a few at a time, each retried once. The host
  * answers a burst of parallel requests with 429 (Too Many Requests): a
  * "Tout réviser" that fetched every deck at once lost one at random
- * (components/TodayReview.tsx). Same cure as the palette's Pagefind
+ * (components/home/TodayReview.tsx). Same cure as the palette's Pagefind
  * fragments (public/js/palette.js): a small pool, one retry after a pause.
  * Resolves with one entry per URL, null where it still failed.
  */
