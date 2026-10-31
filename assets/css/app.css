@@ -713,8 +713,6 @@
   /* Floating buttons and panels sit above the tab bar (or a note's
      toolbar, at the same height). */
   html .gk-pinned-trigger,
-  html .ask-bar,
-  html .ask-trigger,
   html .to-top {
     bottom: calc(1rem + var(--gk-tabbar-h));
     transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
