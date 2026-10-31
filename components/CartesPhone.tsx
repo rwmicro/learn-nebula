@@ -1,6 +1,6 @@
 "use client";
 
-import { drawer, levelArt } from "@/lib/road-art";
+import { ART, levelArt } from "@/lib/road-art";
 import type { PathFamily } from "@/lib/path-family";
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
@@ -8,24 +8,30 @@ import { useLocale } from "@/lib/use-locale";
 import { dayKey } from "@/lib/srs";
 import { deckSettings, loadSettings } from "@/lib/srs-settings";
 import { dueQuestions, loadAllNoteDecks } from "@/lib/note-quiz";
-import { isStarted, loadDeckProgress, quickCounts, storageOk } from "@/lib/review-item";
+import { deckMastery, isStarted, loadDeckProgress, quickCounts, storageOk } from "@/lib/review-item";
 import { calendarDays, currentRun, loadActivity } from "@/lib/personal";
 import { loadStore } from "@/lib/reading-progress";
 
 // "Réviser" on a phone (app.css shows it below 640px and hides the desktop
 // index it stands in for): today's load on one green card with "Tout
-// réviser", the note questions, then every deck as a row with what it has
-// due. Counts come from this browser's storage, after hydration.
+// réviser", the note questions, the decks under way, then every deck grouped
+// by subject (a language, a discipline) with how much of it is known. Counts
+// come from this browser's storage, after hydration.
 
 export interface PhoneDeck {
   slug: string;
   /** "Arabe libanais · Arabic for LS". */
   label: string;
+  /** The deck's own name, without the subject: "Arabic for LS". */
+  name: string;
+  /** The subject it is listed under: "Arabe libanais", "Géographie". */
+  group: string;
   count: number;
   family: string | null;
 }
 
-type Count = { due: number; fresh: number; paused: boolean; started: boolean };
+type Mastery = { known: number; learning: number; unseen: number };
+type Count = { due: number; fresh: number; paused: boolean; started: boolean; m: Mastery };
 
 /** Seconds a card takes on average, for the "environ N min" estimate. */
 const SECONDS_PER_CARD = 10;
@@ -41,6 +47,13 @@ const QUIZ = svg(
     <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.4M12 17h.01" />
   </>,
 );
+const sum = (ms: (Mastery | undefined)[]): Mastery | null =>
+  ms.some(Boolean)
+    ? ms.reduce<Mastery>(
+        (t, m) => (m ? { known: t.known + m.known, learning: t.learning + m.learning, unseen: t.unseen + m.unseen } : t),
+        { known: 0, learning: 0, unseen: 0 },
+      )
+    : null;
 const CHEV = (
   <svg className="rv-chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
     <path d="m9 5 7 7-7 7" />
@@ -63,7 +76,7 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
     for (const d of decks) {
       const cfg = deckSettings(s, d.slug);
       const p = loadDeckProgress(d.slug);
-      out[d.slug] = { ...quickCounts(p, d.count, cfg, today), paused: cfg.paused, started: isStarted(p) };
+      out[d.slug] = { ...quickCounts(p, d.count, cfg, today), paused: cfg.paused, started: isStarted(p), m: deckMastery(p, d.count, cfg) };
     }
     setCounts(out);
     const noteDecks = loadAllNoteDecks(localStorage);
@@ -91,6 +104,66 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
   // Before the counts load (or without storage) the regular card shows.
   const state = counts === null ? "counts" : !started && saved === 0 ? "new" : total === 0 ? "done" : "counts";
   const sorted = [...decks].sort((a, b) => load(b) - load(a) || a.label.localeCompare(b.label));
+
+  // Subjects with something due first, then by name; decks likewise inside.
+  const bySubject = new Map<string, PhoneDeck[]>();
+  for (const d of sorted) bySubject.set(d.group, [...(bySubject.get(d.group) ?? []), d]);
+  const groups = [...bySubject].sort(
+    ([a, x], [b, y]) => Math.max(...y.map(load)) - Math.max(...x.map(load)) || a.localeCompare(b),
+  );
+  // Consecutive lone decks run together into one card.
+  const blocks: PhoneDeck[][][] = [];
+  for (const [, list] of groups) {
+    const last = blocks[blocks.length - 1];
+    if (list.length === 1 && last && last[0].length === 1) last.push(list);
+    else blocks.push([list]);
+  }
+  const dueOf = (d: PhoneDeck) => {
+    const c = counts?.[d.slug];
+    return c && c.started && !c.paused ? c.due + c.fresh : 0;
+  };
+  // Known · being learned · never seen, as one bar; hidden until the first
+  // card of the deck (or the subject) is graded.
+  const bar = (m: Mastery) =>
+    m.known + m.learning > 0 && (
+      <span
+        className="rv-bar"
+        role="img"
+        aria-label={tr("rv.masteryAria", { known: m.known, learning: m.learning, unseen: m.unseen })}
+      >
+        <i style={{ flexGrow: m.known }} />
+        <i style={{ flexGrow: m.learning }} />
+        <i style={{ flexGrow: m.unseen }} />
+      </span>
+    );
+  const icon = (d: PhoneDeck) => {
+    const art = levelArt(d.label, "", (d.family as PathFamily | null) ?? null)[0];
+    return <span className="rv-ico rv-art deco" aria-hidden="true" dangerouslySetInnerHTML={{ __html: ART[art] }} />;
+  };
+  const deckRow = (d: PhoneDeck, title: string, inGroup = false) => {
+    const c = counts?.[d.slug];
+    const n = dueOf(d);
+    return (
+      <a href={`/cartes/${d.slug}/`}>
+        {!inGroup && icon(d)}
+        <span className="rv-tx">
+          <b>{title}</b>
+          <small>
+            {c?.paused
+              ? tr("cartesIndex.paused")
+              : c?.started
+                ? n
+                  ? tr("rv.due", { n })
+                  : tr("rv.nothingToday")
+                : tr("cartesIndex.count", { count: d.count.toLocaleString(locale) })}
+          </small>
+          {c && bar(c.m)}
+        </span>
+        {n > 0 && <span className="rv-pill">{n}</span>}
+        {CHEV}
+      </a>
+    );
+  };
 
   return (
     <div className="rv" data-pagefind-ignore>
@@ -170,36 +243,70 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
         </li>
       </ul>
 
-      <h2 className="rv-h" id="rv-decks">{tr("rv.decks")}</h2>
+      {started && (
+        <>
+          <h2 className="rv-h">{tr("rv.inProgress")}</h2>
+          <ul className="rv-list rv-rows">
+            {sorted
+              .filter((d) => counts?.[d.slug]?.started)
+              .map((d) => (
+                <li key={d.slug} data-family={d.family ?? undefined}>
+                  {deckRow(d, d.label)}
+                </li>
+              ))}
+          </ul>
+        </>
+      )}
+
+      <h2 className="rv-h" id="rv-decks">
+        {tr("rv.decks")}
+      </h2>
       {decks.length === 0 ? (
         <p className="rv-empty">{tr("cartesIndex.empty")}</p>
       ) : (
-        // Each deck as a seed drawer with its theme's drawing on the corner
-        // (lib/road-art.ts), two to a row.
-        <ul className="rv-decks">
-          {sorted.map((d) => {
-            const c = counts?.[d.slug];
-            const n = c && c.started && !c.paused ? c.due + c.fresh : 0;
-            const art = levelArt(d.label, "", (d.family as PathFamily | null) ?? null)[0];
+        // A subject of several decks is one card that folds them under the
+        // subject's line, with the subject's bar; lone decks share a card,
+        // one row each, so a vault of one-deck subjects stays short.
+        <div className="rv-groups">
+          {blocks.map((b) => {
+            if (b.length > 1 || b[0].length === 1)
+              return (
+                <ul key={b[0][0].slug} className="rv-list rv-rows">
+                  {b.map(([d]) => (
+                    <li key={d.slug} data-family={d.family ?? undefined}>
+                      {deckRow(d, d.label)}
+                    </li>
+                  ))}
+                </ul>
+              );
+            const list = b[0];
+            const group = list[0].group;
+            const due = list.reduce((n, d) => n + dueOf(d), 0);
+            const cards = list.reduce((n, d) => n + d.count, 0);
+            const m = sum(list.map((d) => counts?.[d.slug]?.m));
             return (
-              <li key={d.slug} data-family={d.family ?? undefined}>
-                <a href={`/cartes/${d.slug}/`}>
-                  <span className="rv-drawer deco" aria-hidden="true" dangerouslySetInnerHTML={{ __html: drawer(art) }} />
-                  <b>{d.label}</b>
-                  <small>
-                    {c?.paused
-                      ? tr("cartesIndex.paused")
-                      : c?.started
-                        ? n
-                          ? tr("rv.due", { n })
-                          : tr("rv.nothingToday")
-                        : tr("cartesIndex.count", { count: d.count.toLocaleString(locale) })}
-                  </small>
-                </a>
-              </li>
+              <details key={group} className="rv-list rv-grp" data-family={list[0].family ?? undefined}>
+                <summary>
+                  {icon(list[0])}
+                  <span className="rv-tx">
+                    <b>{group}</b>
+                    <small>
+                      {tr("rv.deckCount", { n: list.length })} ·{" "}
+                      {due ? tr("rv.due", { n: due }) : tr("cartesIndex.count", { count: cards.toLocaleString(locale) })}
+                    </small>
+                    {m && bar(m)}
+                  </span>
+                  {CHEV}
+                </summary>
+                <ul className="rv-rows">
+                  {list.map((d) => (
+                    <li key={d.slug}>{deckRow(d, d.name, true)}</li>
+                  ))}
+                </ul>
+              </details>
             );
           })}
-        </ul>
+        </div>
       )}
     </div>
   );

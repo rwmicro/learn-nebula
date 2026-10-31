@@ -1411,7 +1411,10 @@
     "doneTitle": "今天的复习已完成",
     "doneText": "没有到期的卡片。你可以练习不牢固的卡片，或打开新的卡组。",
     "doneGo": "练习",
-    "nothingToday": "今天没有"
+    "nothingToday": "今天没有",
+    "inProgress": "进行中",
+    "deckCount": "{n} 个卡组",
+    "masteryAria": "已掌握 {known}，学习中 {learning}，未学 {unseen}"
   },
   "road": {
     "levelOf": "第 {n} 级，共 {total} 级",

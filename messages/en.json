@@ -1411,7 +1411,10 @@
     "doneTitle": "All caught up for today",
     "doneText": "Nothing is due. You can practise your shaky cards, or open a new deck.",
     "doneGo": "Practise",
-    "nothingToday": "nothing today"
+    "nothingToday": "nothing today",
+    "inProgress": "In progress",
+    "deckCount": "{n} decks",
+    "masteryAria": "{known} known, {learning} learning, {unseen} not seen yet"
   },
   "road": {
     "levelOf": "Level {n} of {total}",
