@@ -883,6 +883,28 @@ body:has(.home-masthead) .site-bar {
   background: transparent;
   color: var(--garden);
 }
+/* The linocut logo (components/SiteBar.tsx): one print per theme, following
+   the toggle and, unpinned, the OS — same rule as the palette above. */
+.site-bar-logo {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.site-bar-logo--dark,
+:root[data-theme="dark"] .site-bar-logo--light {
+  display: none;
+}
+:root[data-theme="dark"] .site-bar-logo--dark {
+  display: block;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .site-bar-logo--light {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .site-bar-logo--dark {
+    display: block;
+  }
+}
 .site-bar-nav ul,
 .site-bar-menu-panel ul {
   list-style: none;
@@ -1051,7 +1073,7 @@ body:has(.home-masthead) .site-bar {
 /* "Garden of Knowledge" on one line plus search, theme, account and menu
    don't fit a phone's width: stack the name on two smaller lines ("Garden of"
    / "Knowledge") so every page still says whose site it is. Only on the
-   narrowest phones, or beside the review reminder, does the sprout alone
+   narrowest phones, or beside the review reminder, does the logo alone
    stay, the name left to screen readers. */
 @container (max-width: 480px) {
   .site-bar-brand span {

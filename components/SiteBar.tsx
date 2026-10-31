@@ -27,11 +27,12 @@ export function SiteBar() {
     <header className="site-bar" data-pagefind-ignore>
       <div className="site-bar-inner">
         <a className="site-bar-brand" href="/">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-            <path d="M12 21v-8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none" />
-            <path d="M12 14C7 14 4.5 11 4.5 6.5 9 6.5 12 9 12 14Z" fill="var(--garden)" />
-            <path d="M12 12c0-4.5 3-7.5 7.5-7.5 0 4.5-3 7.5-7.5 7.5Z" fill="var(--garden)" opacity=".7" />
-          </svg>
+          {/* The linocut logo: the paper print in light, the night print in
+              dark (global.css shows one per theme, toggle included). */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- static export, 4 KB PNGs */}
+          <img className="site-bar-logo site-bar-logo--light" src="/brand/logo-clair.png" width="24" height="24" alt="" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="site-bar-logo site-bar-logo--dark" src="/brand/logo-sombre.png" width="24" height="24" alt="" />
           <span data-i18n="siteBar.brand">{t("siteBar.brand")}</span>
           {/* Phones: the page's title, once scrolled past (TopBarScroll). */}
           <b className="site-bar-page" aria-hidden="true" />

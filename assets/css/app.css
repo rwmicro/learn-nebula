@@ -625,7 +625,7 @@
   body:not(:has(.na-chrome)) .site-bar .theme-toggle {
     display: none;
   }
-  /* The pill: leaf + page title, in glass, once scrolled, centred. */
+  /* The pill: logo + page title, in glass, once scrolled, centred. */
   body:not(:has(.na-chrome)) .site-bar-inner {
     position: relative;
     justify-content: flex-end;
@@ -662,10 +662,9 @@
     transform: translateX(-50%);
     pointer-events: auto;
   }
-  body:not(:has(.na-chrome)) .site-bar-brand svg {
-    flex: none;
-    width: 1.3rem;
-    height: 1.3rem;
+  body:not(:has(.na-chrome)) .site-bar-brand .site-bar-logo {
+    width: 1.6rem;
+    height: 1.6rem;
   }
   /* Out of sight, but still the link's name for screen readers (the page
      title beside it is aria-hidden). */
