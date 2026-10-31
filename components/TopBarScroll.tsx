@@ -22,7 +22,12 @@ export function TopBarScroll() {
     const tick = () => {
       queued = false;
       const h = title();
-      const past = h ? h.getBoundingClientRect().bottom < 56 : window.scrollY > 80;
+      // The tabs' large title sits on the avatar's line, already above 56px
+      // at the top of the page: there the pill waits for it to rise 24px.
+      const bottom = h ? h.getBoundingClientRect().bottom : 0;
+      const past = h
+        ? bottom < Math.min(56, bottom + window.scrollY - 24)
+        : window.scrollY > 80;
       if (past && pill && !pill.textContent) fill();
       // Only on a change: an attribute on <html>, written every scroll frame,
       // re-styles the whole page each time.

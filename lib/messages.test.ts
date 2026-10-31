@@ -50,3 +50,46 @@ describe("i18n message bundles stay in key-sync", () => {
     });
   }
 });
+
+// A placeholder t() isn't given is printed as is ("{count} notes"), so a
+// translation may drop one ("موضوع واحد" needs no {n}) but never use one the
+// French doesn't. EXTRA_VARS lists what a call site passes beyond the French
+// wording: the Frise hands centuries both as a Roman numeral {r} and as {n}.
+const EXTRA_VARS: Record<string, string[]> = {
+  "frise.century": ["n"],
+  "frise.centuryBce": ["n"],
+  "frise.millenniumBce": ["n"],
+};
+
+function messagesFor(locale: string): Map<string, string> {
+  const raw = JSON.parse(
+    fs.readFileSync(path.join(process.cwd(), "messages", `${locale}.json`), "utf8"),
+  );
+  const out = new Map<string, string>();
+  const walk = (value: unknown, prefix: string) => {
+    if (typeof value === "string") out.set(prefix, value);
+    else if (value && typeof value === "object" && !Array.isArray(value)) {
+      for (const [k, v] of Object.entries(value)) walk(v, prefix ? `${prefix}.${k}` : k);
+    }
+  };
+  walk(raw, "");
+  return out;
+}
+
+const placeholders = (s: string) => new Set(s.match(/\{[^{}\s]+\}/g) ?? []);
+
+describe("i18n placeholders match the French", () => {
+  const reference = messagesFor(DEFAULT_LOCALE);
+
+  for (const locale of LOCALES.filter((l) => l !== DEFAULT_LOCALE)) {
+    it(`${locale} uses no placeholder the French lacks`, () => {
+      const unknown: string[] = [];
+      for (const [key, text] of messagesFor(locale)) {
+        const allowed = placeholders(reference.get(key) ?? "");
+        for (const v of EXTRA_VARS[key] ?? []) allowed.add(`{${v}}`);
+        for (const p of placeholders(text)) if (!allowed.has(p)) unknown.push(`${key} ${p}`);
+      }
+      expect(unknown).toEqual([]);
+    });
+  }
+});
