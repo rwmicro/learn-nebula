@@ -11,7 +11,7 @@
 .frise-back {
   display: inline-block;
   margin-bottom: 1.5rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
@@ -25,7 +25,7 @@
 .frise-title {
   /* Page titles in normal case, like a note's H1; small caps stay for
      the small labels (kicker, back link, section headings). */
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -80,7 +80,7 @@
 }
 .frise-era-title {
   margin: 2rem 0 0.6rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.1rem;
@@ -126,7 +126,7 @@
 }
 
 .frise-year {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   color: var(--garden); /* the site's one accent */
   /* A span ("2000 av. J.-C.–1500 av. J.-C.") is wider than the column: it
@@ -205,7 +205,7 @@
   .frise-count {
     display: block;
     margin: 0 0 1.1rem;
-    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.9375rem var(--font-ui);
     color: var(--muted);
   }
   .frise-filter {
@@ -227,7 +227,7 @@
     padding: 0.45rem 0.95rem;
     border-radius: var(--radius-pill);
     background: color-mix(in srgb, var(--ink) 7%, transparent);
-    font: 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.95rem var(--font-ui);
     white-space: nowrap;
     cursor: pointer;
   }
@@ -282,7 +282,7 @@
     top: 0.68rem;
     width: 3rem;
     text-align: right;
-    font: 600 0.8125rem/1.15 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.8125rem/1.15 var(--font-ui);
     font-variant-numeric: tabular-nums;
     color: var(--muted);
   }
@@ -297,7 +297,7 @@
   .frise-meta {
     display: block;
     margin-top: 0.1rem;
-    font: 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.875rem var(--font-ui);
     color: var(--muted);
   }
   .frise-bar {
@@ -325,7 +325,7 @@
     margin: 0.9rem 0 0.25rem -4.6rem;
     padding: 0.2rem 0;
     background: var(--paper);
-    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.75rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);

@@ -563,7 +563,7 @@ button.prix[aria-expanded="true"] {
 .w-scroll-x {
   overflow-x: auto;
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .w-multiples,
   .w-multiples.is-two {
     grid-template-columns: minmax(0, 1fr);
@@ -642,7 +642,7 @@ button.prix[aria-expanded="true"] {
   color: var(--ink-soft);
   min-height: 3em;
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .l-partie-grid {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -800,7 +800,7 @@ button.prix[aria-expanded="true"] {
 }
 /* Buttons: small-caps pills; the active one filled with the garden green. */
 .widget.is-live .w-btn {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   font-size: 0.9rem;
   letter-spacing: 0.02em;
@@ -950,7 +950,7 @@ button.prix[aria-expanded="true"] {
 .w-board--stars .w-rank,
 .w-board--stars .w-file {
   position: absolute;
-  font: 600 0.6rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 600 0.6rem var(--font-ui);
   color: var(--muted);
   opacity: 0.85;
 }
@@ -983,7 +983,7 @@ button.prix[aria-expanded="true"] {
   box-shadow: 0 3px 0 var(--rule-strong);
   background: var(--paper-raised, var(--paper));
   color: var(--ink-2);
-  font: 700 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.85rem var(--font-ui);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
@@ -1008,7 +1008,7 @@ button.prix[aria-expanded="true"] {
   align-items: center;
   gap: 6px;
   margin: 0;
-  font: 600 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 600 0.95rem var(--font-ui);
   color: var(--ink-2);
   font-variant-numeric: lining-nums;
 }
@@ -1024,7 +1024,7 @@ button.prix[aria-expanded="true"] {
 .w-stars-note {
   margin: 0.9rem 0 0;
   text-align: center;
-  font: 500 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 500 0.85rem var(--font-ui);
   color: var(--muted);
 }
 .w-stars-keys {
@@ -1091,7 +1091,7 @@ button.prix[aria-expanded="true"] {
   font-size: 0.95rem;
 }
 .widget.is-live .l-ff-lang {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   font-size: 0.85rem;
   text-transform: none;
@@ -1160,7 +1160,7 @@ button.prix[aria-expanded="true"] {
 .lesson-stage .w-goal-action {
   display: block;
   margin: 0.15rem 0 0;
-  font: 600 clamp(1.55rem, 1.2rem + 1.2vw, 2.1rem) / 1.15 "Alegreya", "Alegreya Fallback", serif;
+  font: 600 clamp(1.55rem, 1.2rem + 1.2vw, 2.1rem) / 1.15 var(--font-text);
   color: var(--ink);
 }
 .lesson-stage .w-goal-text {
@@ -1170,7 +1170,7 @@ button.prix[aria-expanded="true"] {
   border: 1.5px solid var(--rule);
   border-radius: 18px;
   background: var(--paper-raised, var(--paper));
-  font: 400 clamp(1.06rem, 1rem + 0.3vw, 1.15rem) / 1.42 "Alegreya", "Alegreya Fallback", serif;
+  font: 400 clamp(1.06rem, 1rem + 0.3vw, 1.15rem) / 1.42 var(--font-text);
 }
 .lesson-stage .w-goal-text::before {
   content: "";
@@ -1204,7 +1204,7 @@ button.prix[aria-expanded="true"] {
   border: 0;
   border-radius: 0;
   padding: 0.85rem max(1.2rem, calc((100% - 42rem) / 2 + 1.2rem)) 0.2rem;
-  font: 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+  font: 400 1rem/1.4 var(--font-text);
 }
 .lesson-stage .w-goal-foot .w-goal-msg {
   color: var(--ink-2);
@@ -1214,7 +1214,7 @@ button.prix[aria-expanded="true"] {
   align-items: center;
   gap: 0.55rem;
   margin-bottom: 0.25rem;
-  font: 700 1.2rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 1.2rem var(--font-ui);
 }
 .lesson-stage .w-goal-foot .w-goal-msg > b::before {
   content: "";
@@ -1300,7 +1300,7 @@ button.prix[aria-expanded="true"] {
     margin: 1.4rem 0 0;
     padding-top: 1rem;
     border-top: 1px solid var(--rule);
-    font: 500 0.88rem/2.1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.88rem/2.1 var(--font-ui);
     color: var(--muted);
   }
   .lesson-stage .w-stars-keys kbd {
@@ -1313,7 +1313,7 @@ button.prix[aria-expanded="true"] {
     border: 1px solid var(--rule-strong);
     border-bottom-width: 2.5px;
     background: var(--paper-raised, var(--paper));
-    font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.72rem var(--font-ui);
     color: var(--ink-2);
   }
   .lesson-stage .w-goals > .w-goal-foot {

@@ -11,7 +11,7 @@
 .progression-back {
   display: inline-block;
   margin-bottom: 1.5rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
@@ -25,7 +25,7 @@
 .progression-title {
   /* Page titles in normal case, like a note's H1; small caps stay for
      the small labels (kicker, back link, section headings). */
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -48,7 +48,7 @@
 }
 .progression-welcome-title {
   margin: 0 0 0.4rem;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-weight: 500;
   font-size: 1.4rem;
 }
@@ -66,7 +66,7 @@
   text-decoration: none;
 }
 .progression-h2 {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.1rem;
@@ -114,7 +114,7 @@
 .progression-stat dd {
   order: -1; /* the number first, labels of any length below it */
   margin: 0;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   font-size: 2rem;
   line-height: 1.1;
@@ -248,7 +248,7 @@
 }
 .progression-dialog-title {
   margin: 0;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-size: 1.45rem;
 }
@@ -497,12 +497,12 @@
   }
   .moi-keep-tx b {
     display: block;
-    font: 600 1.28125rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.28125rem/1.15 var(--font-text);
   }
   .moi-keep-tx small {
     display: block;
     margin-top: 0.1875rem;
-    font: 400 0.90625rem/1.35 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.90625rem/1.35 var(--font-ui);
     color: var(--ink-2);
   }
   .moi-coins {
@@ -514,7 +514,7 @@
     border-radius: 99px;
     background: color-mix(in srgb, #c9952e 16%, var(--dash-card));
     color: color-mix(in srgb, #a7781f 80%, var(--ink));
-    font: 700 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8125rem var(--font-ui);
   }
   .moi-coins i {
     width: 1rem;
@@ -538,7 +538,7 @@
     border-radius: 1.5rem;
     background: var(--garden);
     color: var(--paper);
-    font: 600 1.03125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1.03125rem var(--font-ui);
   }
   .moi .moi-keep-go:hover {
     background: var(--garden);
@@ -552,7 +552,7 @@
     border: 0;
     background: none;
     color: var(--muted);
-    font: 600 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.9375rem var(--font-ui);
     cursor: pointer;
   }
   .moi-keep-note {
@@ -562,7 +562,7 @@
     margin: 0;
     padding: 0.6875rem 1rem;
     border-top: 0.5px solid var(--rule);
-    font: 500 0.8125rem/1.35 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.8125rem/1.35 var(--font-ui);
     color: var(--muted);
   }
   .moi-keep-note svg {
@@ -600,7 +600,7 @@
   .moi-set--btn > span small {
     display: block;
     margin-top: 0.125rem;
-    font: 400 0.84375rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.84375rem/1.3 var(--font-ui);
     color: var(--ink-2);
   }
 }

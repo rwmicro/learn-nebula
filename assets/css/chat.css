@@ -4,8 +4,8 @@
    rule is under .gc / .gc-* so nothing else is touched. */
 
 .gc {
-  --gc-sans: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
-  --gc-serif: "Alegreya", "Alegreya Fallback", serif;
+  --gc-sans: var(--font-ui);
+  --gc-serif: var(--font-text);
   --gc-card: var(--paper-raised, var(--paper));
   position: fixed;
   inset: 0;
@@ -1482,7 +1482,7 @@ li.translate-now::marker {
   padding: 12px 14px;
   border-radius: 16px;
   background: var(--garden-wash);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.9rem;
   color: var(--ink-2);
 }

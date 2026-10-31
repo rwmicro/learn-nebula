@@ -10,7 +10,7 @@
 .cite-note > summary {
   padding: 0.6rem 0;
   cursor: pointer;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1rem;

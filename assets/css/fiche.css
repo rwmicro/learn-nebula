@@ -7,7 +7,7 @@
   max-width: 44rem;
   margin: 0 auto;
   padding: 2rem 1.2rem 4rem;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
 }
 
 .fiche-bar {
@@ -18,7 +18,7 @@
   margin-bottom: 1.5rem;
 }
 .fiche-back {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
@@ -36,7 +36,7 @@
   color: var(--ink);
   padding: 0.3rem 0.9rem;
   font: inherit;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 600;
   font-size: 0.92rem;
   cursor: pointer;
@@ -54,7 +54,7 @@
 
 .fiche-kicker {
   margin: 0;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   font-size: 0.85rem;
   letter-spacing: 0.04em;
@@ -71,7 +71,7 @@
 }
 .fiche-meta {
   margin: 0 0 2rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   color: var(--muted);
 }
 .fiche-empty {
@@ -160,7 +160,7 @@
 }
 .fiche-questions li::marker,
 .fiche-answers li::marker {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-weight: 700;
   color: var(--link);
 }
@@ -176,7 +176,7 @@
 }
 .fiche-answers-title {
   margin: 0 0 1rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.3rem;
@@ -243,7 +243,7 @@
     transform: scale(0.97);
   }
   .fiche-kicker {
-    font: 600 0.78rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.78rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
@@ -306,12 +306,12 @@
   }
   .fiche-questions li::marker {
     content: "Q" counter(list-item) "  ";
-    font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8rem var(--font-ui);
   }
   .fiche-keys-label {
     display: block;
     margin-bottom: 0.2rem;
-    font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.72rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--garden);
@@ -332,7 +332,7 @@
     border-radius: 0.6rem;
     text-align: center;
     white-space: nowrap;
-    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.9375rem var(--font-ui);
     color: var(--ink-2);
     cursor: pointer;
   }

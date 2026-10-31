@@ -11,7 +11,7 @@ body:has(.acct-page) footer {
   max-width: 43rem;
   margin-inline: auto;
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   body:has(.acct-page) footer {
     margin-inline: 0.9rem;
   }
@@ -20,14 +20,14 @@ main.acct-page {
   max-width: 76rem;
   margin: 0 auto !important;
   padding: 0 clamp(1rem, 3vw, 2.5rem) 2rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   color: var(--ink);
 }
 /* Back link and title as on /progression/ and /cartes/. */
 .acct-back {
   display: inline-block;
   margin: 1rem 0 1.5rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
@@ -38,7 +38,7 @@ main.acct-page {
   text-decoration: underline;
 }
 .acct-title {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -51,7 +51,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   max-width: 45rem;
 }
 .acct-card--off {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.05rem;
 }
 .acct-card--off p {
@@ -102,7 +102,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 .acct-card h2,
 .acct-login h2 {
   margin: 0 0 0.5rem;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.35rem;
   font-weight: 600;
 }
@@ -123,7 +123,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 }
 .acct-hello {
   margin: 0;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.5rem;
   font-weight: 600;
 }
@@ -201,7 +201,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   width: 1.1rem;
   height: 1.1rem;
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .acct-hero {
     flex-direction: column;
     text-align: center;
@@ -594,7 +594,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   color: var(--danger);
   margin: 0;
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .acct-login {
     flex-direction: column;
     align-items: center;
@@ -617,7 +617,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   height: 8rem;
 }
 .cal-month {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 10px;
   fill: var(--muted);
 }
@@ -742,7 +742,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     display: block;
     padding-bottom: 1.5rem;
     color: var(--ink);
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
   }
   :root[data-theme="dark"] .ap {
     --ap-gold-ink: #f3c64a;
@@ -855,7 +855,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     white-space: nowrap;
     text-overflow: ellipsis;
     text-align: center;
-    font: 700 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 1.0625rem var(--font-ui);
   }
   .ap-top-right {
     display: flex;
@@ -874,19 +874,19 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     backdrop-filter: blur(14px) saturate(1.9);
     border: 0.5px solid var(--glass-edge);
     box-shadow: var(--glass-shadow);
-    font: 700 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 1rem var(--font-ui);
   }
 
   /* Type. */
   .ap-h1 {
-    font: 600 1.875rem/1.1 "Alegreya", "Alegreya Fallback", serif !important;
+    font: 600 1.875rem/1.1 var(--font-text) !important;
     letter-spacing: -0.0125rem;
     text-align: center;
   }
   .ap-lede {
     margin-top: 0.5rem !important;
     padding: 0 0.875rem !important;
-    font: 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+    font: 400 1rem/1.4 var(--font-text);
     color: var(--ink-2);
     text-align: center;
   }
@@ -899,7 +899,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     align-items: baseline;
     justify-content: space-between;
     padding: 1.25rem 0.375rem 0.5rem !important;
-    font: 700 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+    font: 700 0.8125rem/1 var(--font-ui) !important;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -913,7 +913,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   .ap-fine {
     margin-top: 0.875rem !important;
     padding: 0 0.875rem !important;
-    font: 400 0.8125rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.8125rem/1.4 var(--font-ui);
     color: var(--muted);
     text-align: center;
   }
@@ -928,7 +928,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   .ap-alert {
     margin-top: 0.625rem !important;
     color: var(--ap-red);
-    font: 500 0.9375rem/1.35 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.9375rem/1.35 var(--font-ui);
     text-align: center;
   }
   .ap-alert--box {
@@ -1031,13 +1031,13 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font: 500 1.0625rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+    font: 500 1.0625rem/1.2 var(--font-text);
     color: var(--ink);
   }
   .ap-tx small {
     display: block;
     margin-top: 0.125rem;
-    font: 400 0.84375rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.84375rem/1.3 var(--font-ui);
     color: var(--ink-2);
   }
   .ap-chev {
@@ -1055,7 +1055,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   }
   .ap-amount {
     flex: none;
-    font: 700 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.9375rem var(--font-ui);
     color: var(--garden);
   }
   .ap-amount.is-neg {
@@ -1073,7 +1073,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     border-radius: 1.625rem !important;
     background: var(--garden) !important;
     color: var(--paper) !important;
-    font: 700 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+    font: 700 1.0625rem var(--font-ui) !important;
     transition:
       transform 0.12s,
       opacity 0.2s;
@@ -1117,7 +1117,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     border-radius: 0.9375rem;
     background: var(--wash-2);
     color: var(--ink-2);
-    font: 700 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+    font: 700 0.84375rem var(--font-ui) !important;
     white-space: nowrap;
   }
   .ap-pill svg {
@@ -1253,7 +1253,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   .ap-field > span:first-child {
     display: block;
     margin: 0 0 0.5rem 0.25rem;
-    font: 700 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8125rem var(--font-ui);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--muted);
@@ -1290,7 +1290,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     outline: 0;
     background: transparent;
     color: var(--ink);
-    font: 500 1.125rem "Alegreya", "Alegreya Fallback", serif;
+    font: 500 1.125rem var(--font-text);
   }
   .ap-input input::placeholder {
     color: var(--muted);
@@ -1349,10 +1349,10 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     border-radius: 50%;
     background: var(--garden-wash);
     color: var(--garden);
-    font: 700 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8125rem var(--font-ui);
   }
   .ap-steps p {
-    font: 400 0.96875rem/1.3 "Alegreya", "Alegreya Fallback", serif;
+    font: 400 0.96875rem/1.3 var(--font-text);
     color: var(--ink-soft);
   }
   .ap-steps p b {
@@ -1399,7 +1399,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   }
   .ap-who {
     margin-top: 0.25rem !important;
-    font: 400 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.9375rem var(--font-ui);
     color: var(--muted);
   }
   .ap-stat3 {
@@ -1421,18 +1421,18 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     align-items: center;
     justify-content: center;
     gap: 0.375rem;
-    font: 600 1.5625rem/1 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.5625rem/1 var(--font-text);
   }
   .ap-st small {
     display: block;
     margin-top: 0.375rem;
-    font: 500 0.8125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.8125rem/1.2 var(--font-ui);
     color: var(--ink-2);
   }
   .ap-st em {
     display: block;
     margin-top: 0.1875rem;
-    font: 700 0.71875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.71875rem var(--font-ui);
     font-style: normal;
     color: var(--muted);
   }
@@ -1463,7 +1463,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     flex-direction: column;
     align-items: center;
     gap: 0.375rem;
-    font: 700 0.71875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.71875rem var(--font-ui);
     text-transform: uppercase;
     color: var(--muted);
   }
@@ -1489,7 +1489,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   }
   .ap-next {
     padding: 0 1rem 0.875rem !important;
-    font: 500 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.84375rem var(--font-ui);
     color: var(--ink-2);
   }
   .ap-next p {
@@ -1537,7 +1537,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   }
   .ap-preview .ap-kicker {
     margin: 0;
-    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.75rem var(--font-ui);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--garden);
@@ -1553,7 +1553,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     flex: 1;
     height: 2.125rem;
     border-radius: 0.5625rem;
-    font: 500 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.9375rem var(--font-ui);
     color: var(--ink-2);
   }
   .ap-seg [aria-selected="true"] {
@@ -1587,7 +1587,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     max-width: 100%;
     margin-top: 0.375rem;
     overflow: hidden;
-    font: 500 0.9375rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+    font: 500 0.9375rem/1.15 var(--font-text);
   }
   .ap-wi small {
     display: flex;
@@ -1596,7 +1596,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     gap: 0.25rem;
     height: 1rem;
     margin-top: 0.1875rem;
-    font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.78125rem var(--font-ui);
     color: var(--muted);
     white-space: nowrap;
   }
@@ -1657,7 +1657,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     padding: 0.5rem 0.75rem !important;
     border-style: dashed !important;
     color: var(--muted);
-    font: 500 0.8125rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.8125rem/1.3 var(--font-ui);
   }
   .ap-freeze {
     display: flex;
@@ -1677,7 +1677,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     border-radius: 0.6875rem;
     background: var(--wash-2);
     color: var(--ink-2);
-    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.75rem var(--font-ui);
     vertical-align: 0.125rem;
   }
   .ap-price {
@@ -1690,7 +1690,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     border-radius: 1.0625rem !important;
     background: var(--ap-gold-w) !important;
     color: var(--ap-gold-ink) !important;
-    font: 700 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+    font: 700 0.84375rem var(--font-ui) !important;
   }
   .ap-price:disabled {
     opacity: 0.5;
@@ -1698,7 +1698,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   .ap-toast {
     margin-top: 0.875rem !important;
     color: var(--garden);
-    font: 600 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.9375rem var(--font-ui);
     text-align: center;
   }
   .ap-bottom {
@@ -1714,7 +1714,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   }
   .ap-bottom p {
     margin-bottom: 0.625rem !important;
-    font: 500 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.84375rem var(--font-ui);
     color: var(--ink-2);
     text-align: center;
   }
@@ -1776,7 +1776,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   .ap-how {
     margin-top: 1.25rem;
     padding: 0 0.375rem;
-    font: 400 0.9375rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.9375rem/1.4 var(--font-ui);
     color: var(--ink-2);
   }
   .ap-how summary {
@@ -1861,12 +1861,12 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   }
   .ap-sheet h3 {
     margin-top: 0.75rem !important;
-    font: 600 1.5rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.5rem/1.15 var(--font-text);
   }
   .ap-sheet-text {
     margin-top: 0.5rem !important;
     padding: 0 0.125rem !important;
-    font: 400 0.96875rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+    font: 400 0.96875rem/1.4 var(--font-text);
     color: var(--ink-2);
   }
   .ap-sheet-text b {
@@ -1882,7 +1882,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     border-radius: 0.875rem;
     background: var(--wash);
     text-align: start;
-    font: 400 0.84375rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.84375rem/1.3 var(--font-ui);
     color: var(--ink-2);
   }
   :root[data-theme="dark"] .ap-keep {
@@ -1900,7 +1900,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   .ap-field--danger > span:first-child {
     text-transform: none;
     letter-spacing: 0;
-    font: 500 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.875rem var(--font-ui);
     color: var(--ink-2);
   }
   .ap-field--danger .ap-input:focus-within,
@@ -2028,7 +2028,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 .jalons-tx small {
   display: block;
   color: var(--muted);
-  font: 400 0.84rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.84rem/1.3 var(--font-ui);
   font-variant-numeric: lining-nums tabular-nums;
 }
 .jalons-bar {
@@ -2105,14 +2105,14 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 }
 .jalons-k {
   display: block;
-  font: 700 0.71875rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.71875rem/1 var(--font-ui);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--garden);
 }
 .jalons--moi .jalons-lead .jalons-tx b {
   margin-top: 0.25rem;
-  font: 600 1.21875rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+  font: 600 1.21875rem/1.15 var(--font-text);
 }
 .jalons--moi .jalons-lead .jalons-tx small {
   margin-top: 0.1875rem;
@@ -2142,11 +2142,11 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   height: 1.0625rem;
 }
 .jalons--moi .jalons-tx b {
-  font: 600 0.96875rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 600 0.96875rem/1.2 var(--font-ui);
 }
 .jalons-n {
   flex: none;
-  font: 600 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 600 0.84375rem var(--font-ui);
   font-variant-numeric: lining-nums tabular-nums;
   color: var(--muted);
 }
@@ -2162,7 +2162,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 }
 .acct-sent h3 {
   margin: 0 0 0.4rem;
-  font: 500 1.5rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+  font: 500 1.5rem/1.2 var(--font-text);
 }
 .acct-sent p {
   margin: 0 0 1rem;

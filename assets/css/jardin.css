@@ -10,7 +10,7 @@
 .jardin-back {
   display: inline-block;
   margin-bottom: 1.5rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
@@ -23,7 +23,7 @@
 
 .jardin-kicker {
   margin: 0;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   font-size: 0.85rem;
   letter-spacing: 0.04em;
@@ -32,7 +32,7 @@
 }
 
 .jardin-title {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -66,14 +66,14 @@
 }
 .jardin-figs dd {
   margin: 0;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-weight: 500;
   font-size: clamp(1.4rem, 1.1rem + 1.4vw, 2rem);
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
 }
 .jardin-figs dt {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.88rem;
   color: var(--muted);
 }
@@ -95,7 +95,7 @@
 }
 .jardin-h {
   margin: 0 0 0.6rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1rem;
@@ -110,7 +110,7 @@
   overflow: visible;
 }
 .jardin-chart text {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 11px;
   fill: var(--muted);
 }
@@ -142,7 +142,7 @@
 }
 .jardin-note {
   margin: 0.4rem 0 0;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.9rem;
   color: var(--muted);
 }
@@ -171,7 +171,7 @@
   padding: 0;
   display: grid;
   gap: 0.45rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.95rem;
 }
 .jardin-bars li {
@@ -229,7 +229,7 @@
 }
 .jardin-cited li > span:last-child {
   flex: none;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.88rem;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -264,7 +264,7 @@
   .jardin-kicker {
     order: -1;
     margin: 0 0 1.1rem;
-    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.9375rem var(--font-ui);
     text-transform: none;
     letter-spacing: 0;
   }
@@ -296,7 +296,7 @@
   }
   .jardin-h {
     margin: 0 0 0.5rem 0.25rem;
-    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.75rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -330,7 +330,7 @@
     border-bottom: 0;
   }
   .jardin-bar-label {
-    font: 1.02rem "Alegreya", "Alegreya Fallback", serif;
+    font: 1.02rem var(--font-text);
   }
   .jardin-bar-track {
     height: 6px;

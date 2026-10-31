@@ -24,7 +24,7 @@
   top: 1rem;
   left: 1.2rem;
   z-index: 2;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   letter-spacing: -0.01rem;
@@ -78,7 +78,7 @@
   right: 1rem;
   z-index: 2;
   width: min(16rem, 40vw);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
 }
 .cg-locate-input {
   width: 100%;
@@ -135,7 +135,7 @@
   bottom: 1rem;
   left: 1.2rem;
   z-index: 2;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.9rem;
   color: var(--muted);
   font-style: italic;
@@ -148,7 +148,7 @@
 /* force-graph injects its own .graph-tooltip on hover; we style the inner
    span so it picks up Alegreya rather than the browser default. */
 .graph-tip {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   text-transform: lowercase;
   letter-spacing: -0.01rem;
@@ -187,7 +187,7 @@
    overlapping text readable; folder names always show, file names only once the
    svg carries data-zoomed (set when the user has zoomed in enough to read). */
 .cg-labels text {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   paint-order: stroke;
   stroke: var(--paper);
   stroke-width: 2.5px;
@@ -211,7 +211,7 @@
   display: none;
 }
 .cg-label-root {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-size: 15px;
   font-weight: 700;
   text-transform: lowercase;
@@ -231,7 +231,7 @@
   background: color-mix(in srgb, var(--paper) 92%, transparent);
   border: 1px solid var(--rule);
   border-radius: var(--radius-md);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
 }
 .cg-roulette {
   display: flex;
@@ -242,7 +242,7 @@
   color: var(--ink-2);
 }
 .cg-rot-label {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   margin-right: auto;
@@ -273,7 +273,7 @@
   background: var(--paper);
   border-radius: var(--radius-sm);
   padding: 0.15rem 0.5rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 0.8rem;
@@ -334,7 +334,7 @@
   background: transparent;
   padding: 0.1rem 0;
   font: inherit;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 0.85rem;
@@ -359,7 +359,7 @@
    rotate/zoom/pan by touch, so the arrow buttons are redundant here — drop
    them, and fold the legend behind a tap toggle so the graph gets the space
    back by default. */
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   /* Stacked below .graph-back, full width, instead of squeezed to its right —
      avoids collision and gives the input a real tap target. */
   .cg-locate {
@@ -390,7 +390,7 @@
   pointer-events: none;
   background: color-mix(in srgb, var(--ink) 90%, transparent);
   color: var(--paper);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.85rem;
   padding: 0.2rem 0.5rem;
   border-radius: var(--radius-sm);
@@ -412,7 +412,7 @@
   color: var(--ink-2);
 }
 .cg-path-label {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
 }
@@ -452,7 +452,7 @@
 }
 /* On a phone the two-line touch hint sits at the bottom too: keep the
    (now taller) panel above it. */
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .cg-panel {
     bottom: 4.6rem;
   }
@@ -480,7 +480,7 @@
   background: var(--paper);
   padding: 0.2rem 0.7rem;
   font: inherit;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 0.85rem;
@@ -512,7 +512,7 @@
 }
 .cg-mine-count {
   margin-left: auto;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   text-transform: none;
   font-weight: 400;
   font-size: 0.8rem;
@@ -608,7 +608,7 @@
   background: var(--fam);
 }
 .cg-hub-labels text {
-  font: 700 13px "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 13px var(--font-ui);
   fill: var(--ink);
   paint-order: stroke;
   stroke: var(--paper);
@@ -689,7 +689,7 @@
     -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
     backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
     box-shadow: var(--glass-shadow);
-    font: 600 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.9375rem var(--font-ui);
     color: var(--ink);
     pointer-events: auto;
   }
@@ -753,19 +753,19 @@
   }
   .cg-sheet-head b {
     text-align: left;
-    font: 700 1.125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 1.125rem var(--font-ui);
   }
   .cg-sheet-head button {
     border: 0;
     background: none;
     padding: 0.4rem 0;
-    font: 500 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 1rem var(--font-ui);
     color: var(--garden);
     cursor: pointer;
   }
   /* In the sheet: plain sans labels, the disciplines as chips, always open. */
   .cg-panel[data-sheet] :is(.cg-reset, .cg-mine-toggle, .cg-path-label, .cg-legend-toggle) {
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
     text-transform: none;
     font-size: 1rem;
   }
@@ -865,10 +865,10 @@
     min-width: 0;
   }
   .cg-row-text b {
-    font: 500 1.0625rem "Alegreya", "Alegreya Fallback", serif;
+    font: 500 1.0625rem var(--font-text);
   }
   .cg-row-text small {
-    font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.8125rem var(--font-ui);
     color: var(--muted);
   }
   .cg-switch {
@@ -903,7 +903,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.9375rem var(--font-ui);
     color: var(--muted);
   }
   .cg-row-chev {
@@ -928,7 +928,7 @@
   }
   .cg-sheet-k {
     margin: 1.1rem 0 0.5rem;
-    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.75rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -950,7 +950,7 @@
     border: 0;
     border-radius: 1.125rem;
     background: var(--wash-2, var(--wash));
-    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.9375rem var(--font-ui);
     color: var(--ink);
     cursor: pointer;
   }
@@ -965,7 +965,7 @@
     border: 0;
     border-radius: 1.5rem;
     background: var(--wash-2, var(--wash));
-    font: 700 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 1rem var(--font-ui);
     color: var(--ink);
     cursor: pointer;
   }

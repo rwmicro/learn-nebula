@@ -10,7 +10,7 @@
 .themes-back {
   display: inline-block;
   margin-bottom: 1.5rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
@@ -23,7 +23,7 @@
 
 .themes-kicker {
   margin: 0;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   color: var(--garden); /* the site's one accent */
@@ -32,7 +32,7 @@
 .themes-title {
   /* Page titles in normal case, like a note's H1; small caps stay for
      the small labels (kicker, back link, section headings). */
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -48,7 +48,7 @@
 }
 
 .themes-h2 {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-size: 1.4rem;
   margin: 2.5rem 0 0.75rem;
@@ -57,7 +57,7 @@
 }
 
 .themes-h3 {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-size: 1.1rem;
   color: var(--muted-warm);
@@ -267,7 +267,7 @@
   border-radius: var(--radius-pill);
   background: var(--garden-wash);
   color: var(--garden);
-  font: 600 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 600 0.75rem var(--font-ui);
   vertical-align: 0.15em;
 }
 
@@ -381,7 +381,7 @@
   .themes-page--index .themes-phone-intro {
     display: block !important;
     margin: 0 0 1rem;
-    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.9375rem var(--font-ui);
     color: var(--muted);
   }
   .themes-page--index .themes-sort {
@@ -397,7 +397,7 @@
     padding: 0.45rem 0.25rem;
     border-radius: 0.6rem;
     text-align: center;
-    font: 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.9375rem var(--font-ui);
     color: var(--ink-2);
     cursor: pointer;
   }
@@ -475,7 +475,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.8125rem var(--font-ui);
     color: var(--muted);
   }
   .themes-row-chev {
@@ -499,7 +499,7 @@
     background: color-mix(in srgb, var(--ink) 7%, transparent);
   }
   .themes-page--index .themes-filter input {
-    font: 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 1rem var(--font-ui);
   }
   .themes-page--index .themes-filter input::placeholder {
     font-style: normal;
@@ -519,7 +519,7 @@
   .themes-note-min {
     display: block !important;
     flex-basis: 100%;
-    font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.8125rem var(--font-ui);
     color: var(--muted);
   }
   .themes-notes li.themes-note-index {

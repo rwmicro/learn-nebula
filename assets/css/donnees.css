@@ -8,7 +8,7 @@
 .donnees-back {
   display: inline-block;
   margin-bottom: 1.5rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
@@ -19,7 +19,7 @@
   text-decoration: underline;
 }
 .donnees-title {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-weight: 500;
   letter-spacing: -0.01em;
   line-height: 1.15;
@@ -32,7 +32,7 @@
   font-size: 1.1rem;
 }
 .donnees-h2 {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.15rem;
@@ -132,7 +132,7 @@
     border-radius: 0.4rem;
     background: var(--garden-wash);
     color: var(--garden);
-    font: 600 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.72rem var(--font-ui);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     white-space: nowrap;

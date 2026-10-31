@@ -163,7 +163,7 @@
     display: flex;
     align-items: center;
     gap: 0.6rem;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
     transition:
       transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
       opacity 0.25s;
@@ -508,7 +508,7 @@
   .tabbar-mini-text b {
     display: block;
     overflow: hidden;
-    font: 500 0.95rem "Alegreya", "Alegreya Fallback", serif;
+    font: 500 0.95rem var(--font-text);
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -685,7 +685,7 @@
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    font: 600 1.06rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1.06rem var(--font-ui);
     letter-spacing: 0;
     font-variant: normal;
     text-transform: none;
@@ -776,7 +776,7 @@
 }
 .app-large-title p {
   margin: 0.35rem 0 0;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1rem;
   color: var(--muted);
 }
@@ -853,7 +853,7 @@
 .explorer-text small {
   display: block;
   margin-top: 0.2rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.86rem;
   line-height: 1.25;
   color: var(--ink-2);
@@ -909,7 +909,7 @@
 .dash {
   display: block;
   color: var(--ink);
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
 }
 
 .dash a {
@@ -940,7 +940,7 @@
   padding-right: 3.5rem;
   min-height: 1.1rem;
   /* The site's kicker (Réviser's "AUJOURD'HUI", the section titles). */
-  font: 700 0.78125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.78125rem/1.2 var(--font-ui);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
@@ -950,7 +950,7 @@
   margin: 0.15rem 0 0;
   padding: 0;
   border: 0;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.875rem;
   font-weight: 500;
   line-height: 1.1;
@@ -1022,7 +1022,7 @@
   background: rgb(20 18 14 / 0.45);
   -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
-  font: 500 0.8125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 500 0.8125rem/1.2 var(--font-ui);
   white-space: nowrap;
   text-overflow: ellipsis;
 }
@@ -1054,7 +1054,7 @@
 .dash-cap small {
   display: block;
   margin-top: 0.25rem;
-  font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 500 0.8125rem var(--font-ui);
   opacity: 0.88;
 }
 
@@ -1075,7 +1075,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.875rem 1rem 0.25rem;
-  font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 500 0.8125rem var(--font-ui);
   color: var(--muted);
   white-space: nowrap;
 }
@@ -1110,14 +1110,14 @@
 }
 
 .dash-goal {
-  font: 400 0.8125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.8125rem/1.2 var(--font-ui);
   color: var(--muted);
   text-align: right;
 }
 
 .dash-goal b {
   display: block;
-  font: 700 1.0625rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 1.0625rem/1.2 var(--font-ui);
   font-variant-numeric: lining-nums tabular-nums;
   color: var(--ink);
 }
@@ -1166,13 +1166,13 @@
 
 .dash-due-text b {
   display: block;
-  font: 600 1rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 600 1rem/1.2 var(--font-ui);
 }
 
 .dash-due-text small {
   display: block;
   margin-top: 0.125rem;
-  font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.8125rem var(--font-ui);
   color: var(--muted);
 }
 
@@ -1186,7 +1186,7 @@
   border-radius: 1rem;
   background: var(--garden);
   color: var(--paper);
-  font: 700 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 1.0625rem var(--font-ui);
   transition: transform 0.15s;
 }
 
@@ -1251,12 +1251,12 @@
 
 .dash-ways b {
   display: block;
-  font: 700 0.9375rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.9375rem/1.2 var(--font-ui);
 }
 
 .dash-ways small {
   display: block;
-  font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.8125rem var(--font-ui);
   color: var(--muted);
 }
 
@@ -1319,7 +1319,7 @@
   justify-items: center;
   gap: 0.25rem;
   width: 1.5625rem;
-  font: 500 0.6875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 500 0.6875rem var(--font-ui);
   color: var(--muted);
 }
 
@@ -1358,13 +1358,13 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  font: 700 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.9375rem var(--font-ui);
 }
 
 .dash-week-text small {
   display: block;
   margin-top: 0.125rem;
-  font: 400 0.8125rem/1.25 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.8125rem/1.25 var(--font-ui);
   color: var(--muted);
 }
 
@@ -1382,7 +1382,7 @@
 }
 
 .dash .dash-row-h > a {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.9375rem;
   font-weight: 500;
   color: var(--garden);
@@ -1441,7 +1441,7 @@
   display: block;
   margin-top: 0.125rem;
   overflow: hidden;
-  font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.8125rem var(--font-ui);
   color: var(--ink-2);
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1465,7 +1465,7 @@
 
 .dash-mine-pct {
   flex: none;
-  font: 700 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.875rem var(--font-ui);
   font-variant-numeric: lining-nums;
   color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
 }
@@ -1516,7 +1516,7 @@
 .dash-disc small {
   display: block;
   margin-top: 0.125rem;
-  font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.8125rem var(--font-ui);
   color: var(--ink-2); /* --muted falls under 4.5:1 on the family washes */
 }
 
@@ -1552,7 +1552,7 @@
   display: flex;
   align-items: center;
   gap: 0.375rem;
-  font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 500 0.8125rem var(--font-ui);
   /* Toward the ink: some family colours alone (informatique, vivant,
      pensée) fall under 4.5:1 on the card. */
   color: color-mix(in srgb, var(--fam, var(--garden)) 62%, var(--ink));
@@ -1595,7 +1595,7 @@
   display: block;
   margin-top: 0.75rem;
   text-align: end;
-  font: 700 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.875rem var(--font-ui);
   color: var(--garden);
 }
 
@@ -1665,7 +1665,7 @@
 .dash-list-text small {
   display: block;
   margin-top: 0.125rem;
-  font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.8125rem var(--font-ui);
   color: var(--muted);
 }
 
@@ -1772,7 +1772,7 @@
     margin: 0;
     padding: 1.5rem 1.375rem 0.5rem;
     border: 0;
-    font: 700 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8125rem/1 var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -1791,7 +1791,7 @@
   }
   .home-content {
     margin-top: 0;
-    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-family: var(--font-text);
   }
   .home-content > .home-resume,
   .home-content > .home-bookmarks,
@@ -1860,7 +1860,7 @@
     background: var(--dash-card);
   }
   .home-ask .home-ask-field input {
-    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-family: var(--font-text);
     font-size: 1rem;
   }
   .home-ask .home-ask-field input::placeholder {
@@ -1896,13 +1896,13 @@
     border-radius: 0.9375rem;
     background: var(--dash-card);
     color: var(--ink-2);
-    font: 500 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.84375rem var(--font-ui);
     cursor: pointer;
   }
   .home-more {
     display: block;
     color: var(--ink);
-    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-family: var(--font-text);
   }
   .home-more a {
     color: inherit;
@@ -1952,7 +1952,7 @@
   .home-more-tx small {
     display: block;
     margin-top: 0.125rem;
-    font: 400 0.8125rem/1.25 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.8125rem/1.25 var(--font-ui);
     color: var(--ink-2);
   }
 
@@ -1961,7 +1961,7 @@
   .home-more-foot {
     padding: 2.25rem 1.5rem 0;
     text-align: center;
-    font: 400 0.75rem/1.6 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.75rem/1.6 var(--font-ui);
     color: var(--muted);
   }
   .home-more-foot p {
@@ -1986,20 +1986,20 @@
   }
   .home-more-quote {
     display: block;
-    font: italic 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+    font: italic 400 1rem/1.4 var(--font-text);
     color: var(--ink-2);
   }
   .home-more-more {
     display: inline-block;
     margin-top: 0.25rem;
-    font: 500 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.875rem var(--font-ui);
     color: var(--garden);
   }
   .home-more-about[open] .home-more-more {
     display: none;
   }
   .home-more-about p {
-    font: 400 0.9375rem/1.45 "Alegreya", "Alegreya Fallback", serif;
+    font: 400 0.9375rem/1.45 var(--font-text);
     text-align: start;
     color: var(--ink-2);
   }
@@ -2014,7 +2014,7 @@
   }
   .home-more-stats b {
     display: block;
-    font: 700 1.125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 1.125rem/1.2 var(--font-ui);
     font-variant-numeric: lining-nums;
     color: var(--ink);
   }
@@ -2100,7 +2100,7 @@
      the old serif small caps with the same specificity. */
   main .prereq-title.prereq-title {
     margin: 0 0 0.45rem 0.2rem;
-    font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.75rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     /* The family accent alone fails AA on paper (as in .na-crumbs .na-fam). */
@@ -2133,7 +2133,7 @@
     gap: 0.75rem;
     min-height: 3.2rem;
     padding: 0.5rem 0.9rem;
-    font: 500 1.03rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+    font: 500 1.03rem/1.25 var(--font-text);
     color: var(--ink);
     text-decoration: none;
   }
@@ -2206,7 +2206,7 @@
     align-items: baseline;
     gap: 0 0.4rem;
     margin: 0.4rem 0 0;
-    font: 500 0.9rem/1.5 "Alegreya SC", "Alegreya SC Fallback", serif;
+    font: 500 0.9rem/1.5 var(--font-caps);
     letter-spacing: 0.04em;
     color: var(--muted);
   }
@@ -2291,7 +2291,7 @@
     padding: 0 0.75rem;
     margin: 0;
     border-radius: 0.875rem;
-    font: 600 0.78rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.78rem var(--font-ui);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--ink);
@@ -2320,7 +2320,7 @@
     order: 3;
     display: block;
     margin: 0;
-    font: italic 0.94rem "Alegreya", "Alegreya Fallback", serif;
+    font: italic 0.94rem var(--font-text);
     color: var(--ink-2);
   }
   main .na-cover .subtitle-row .subtitle {
@@ -2339,7 +2339,7 @@
   /* The floating chrome. */
   .na-chrome {
     display: block;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
   }
   .na-chrome button {
     font: inherit;
@@ -2562,7 +2562,7 @@
   }
   .na-chrome .na-tool span {
     margin: 0;
-    font: 600 0.69rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.69rem/1.2 var(--font-ui);
     letter-spacing: 0.01em;
     text-transform: none;
     color: inherit;
@@ -2664,7 +2664,7 @@
     margin: 0 0 0.875rem;
     padding: 0;
     border: 0;
-    font: 700 1.125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 1.125rem var(--font-ui);
     font-variant: normal;
     letter-spacing: 0;
     text-transform: none;
@@ -2689,7 +2689,7 @@
     align-items: center;
     gap: 0.875rem;
     padding: 0.75rem 0.875rem;
-    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-family: var(--font-text);
     font-weight: 500;
   }
   .na-a-sm {
@@ -2835,7 +2835,7 @@
     padding: 0.4rem 0;
     border: 0;
     background: none;
-    font: 400 1.03rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 1.03rem var(--font-ui);
     letter-spacing: 0;
     text-transform: none;
     color: var(--muted);
@@ -2896,7 +2896,7 @@
     border: 0.5px solid var(--rule-strong);
     border-radius: 0.6rem;
     background: var(--dash-card);
-    font: 400 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 1rem var(--font-ui);
   }
   .na-translate .translate-menu-list {
     max-height: 13rem;
@@ -2913,7 +2913,7 @@
     border-bottom: 0.5px solid var(--rule);
     background: none;
     text-align: start;
-    font: 400 1.03rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 1.03rem var(--font-ui);
     text-transform: none;
     color: var(--ink);
   }
@@ -3007,7 +3007,7 @@
     background: var(--wash-2)
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E")
       0.8rem 50% / 1.1rem no-repeat;
-    font: 400 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 1rem var(--font-ui);
     color: var(--ink);
   }
   main.parcours-page .parcours-chips {
@@ -3030,7 +3030,7 @@
     border-radius: 1.125rem;
     background: var(--wash-2);
     color: var(--ink);
-    font: 500 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.95rem var(--font-ui);
     white-space: nowrap;
   }
   /* Spacing as in the mockup: the chips, then the first heading 18px below
@@ -3062,7 +3062,7 @@
     margin: 18px 0.25rem 8px;
     padding: 0;
     border: 0;
-    font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -3166,14 +3166,14 @@
   main.parcours-page :is(.parcours-card-title, .parcours-tile-name) {
     grid-column: 2;
     margin: 0;
-    font: 500 1.06rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+    font: 500 1.06rem/1.25 var(--font-text);
     color: var(--ink);
   }
   main.parcours-page .parcours-meta {
     grid-column: 2;
     display: block;
     margin-top: 0.1rem;
-    font: 400 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.8rem var(--font-ui);
     color: var(--muted);
   }
 
@@ -3193,11 +3193,11 @@
     border-top: 0.5px solid var(--dash-edge);
   }
   main.parcours-page .parcours-resume-path {
-    font: 500 1.06rem "Alegreya", "Alegreya Fallback", serif;
+    font: 500 1.06rem var(--font-text);
   }
   main.parcours-page .parcours-resume-meta,
   main.parcours-page .parcours-resume-next {
-    font: 400 0.82rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.82rem var(--font-ui);
     color: var(--muted);
   }
   main.parcours-page .parcours-resume-next {
@@ -3297,13 +3297,13 @@
   .app-settings {
     display: block;
     margin: 0.4rem 0 1.6rem;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
   }
   main .app-settings-h {
     margin: 0 0.25rem 0.6rem;
     padding: 0;
     border: 0;
-    font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -3326,7 +3326,7 @@
     border: 0;
     border-radius: 0.5625rem;
     background: none;
-    font: 500 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.95rem var(--font-ui);
     color: var(--ink-2);
     cursor: pointer;
   }
@@ -3364,7 +3364,7 @@
     padding: 0 0.95rem;
     border: 0;
     background: none;
-    font: 400 1.03rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 1.03rem var(--font-ui);
     text-align: start;
     color: var(--ink);
     cursor: pointer;
@@ -3419,7 +3419,7 @@
     display: block;
     margin-bottom: 2rem;
     color: var(--ink);
-    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-family: var(--font-text);
   }
   .moi a {
     color: inherit;
@@ -3438,7 +3438,7 @@
   }
   .moi-kick {
     margin: 0;
-    font: 700 0.78125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.78125rem/1 var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -3447,7 +3447,7 @@
     margin: 0.25rem 0 0;
     padding: 0;
     border: 0;
-    font: 600 2.3rem/1 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 2.3rem/1 var(--font-text);
     letter-spacing: -0.0125rem;
   }
   .moi .moi-gear {
@@ -3482,11 +3482,11 @@
     padding-right: 0.375rem;
   }
   .moi-row-h > span {
-    font: 600 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.875rem var(--font-ui);
     color: var(--muted);
   }
   main .moi-row-link {
-    font: 600 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.9375rem var(--font-ui);
     color: var(--garden);
     text-decoration: none;
   }
@@ -3494,7 +3494,7 @@
     margin: 0;
     padding: 1.5rem 0.375rem 0.5rem;
     border: 0;
-    font: 700 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8125rem/1 var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -3519,7 +3519,7 @@
     justify-items: center;
     gap: 0.25rem;
     margin: 0;
-    font: 600 0.6875rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.6875rem/1 var(--font-ui);
     text-transform: uppercase;
     color: var(--muted);
   }
@@ -3551,12 +3551,12 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    font: 600 1.375rem/1 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.375rem/1 var(--font-text);
   }
   .moi-run small {
     display: block;
     margin-top: 0.1875rem;
-    font: 500 0.78125rem/1.25 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.78125rem/1.25 var(--font-ui);
     color: var(--muted);
   }
   .moi-run small span {
@@ -3581,7 +3581,7 @@
   }
   .moi-stats b {
     display: block;
-    font: 600 1.625rem/1 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.625rem/1 var(--font-text);
   }
   .moi-stats b.zero {
     color: var(--rule-strong);
@@ -3589,7 +3589,7 @@
   .moi-stats small {
     display: block;
     margin-top: 0.25rem;
-    font: 500 0.8125rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.8125rem/1.2 var(--font-ui);
     color: var(--ink-2);
   }
   .moi a.moi-next {
@@ -3620,12 +3620,12 @@
   }
   .moi-next-tx b {
     display: block;
-    font: 600 0.9375rem/1.25 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.9375rem/1.25 var(--font-ui);
   }
   .moi-next-tx small {
     display: block;
     overflow: hidden;
-    font: 400 0.875rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.875rem/1.3 var(--font-ui);
     color: var(--ink-2);
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -3643,11 +3643,11 @@
   }
   .moi-fresh b {
     display: block;
-    font: 600 1.375rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.375rem/1.15 var(--font-text);
   }
   .moi-fresh p {
     margin: 0.375rem 0 0;
-    font: 400 0.9375rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.9375rem/1.4 var(--font-ui);
     color: var(--ink-2);
   }
   main .moi-fresh-go {
@@ -3659,7 +3659,7 @@
     border-radius: 1.5rem;
     background: var(--garden);
     color: var(--paper);
-    font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1rem var(--font-ui);
     text-decoration: none;
   }
   /* Twelve weeks as columns, the days of the week as rows, a month's
@@ -3674,7 +3674,7 @@
   }
   .moi-heat-m,
   .moi-heat-d {
-    font: 600 0.6875rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.6875rem/1 var(--font-ui);
     color: var(--muted);
     white-space: nowrap;
   }
@@ -3720,7 +3720,7 @@
     justify-content: space-between;
     gap: 0.5rem;
     margin-top: 0.75rem;
-    font: 500 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.84375rem var(--font-ui);
     color: var(--ink-2);
   }
   .moi-legend {
@@ -3743,7 +3743,7 @@
   }
   .moi-foot {
     margin: 1.125rem 0.375rem 0;
-    font: 400 0.84375rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.84375rem/1.4 var(--font-ui);
     color: var(--muted);
     text-align: center;
   }
@@ -3773,7 +3773,7 @@
     font-weight: 500;
   }
   .moi-set small {
-    font: 400 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.9375rem var(--font-ui);
     color: var(--muted);
   }
   .moi-chev {
@@ -3800,7 +3800,7 @@
   /* The rest of the page (marks, review charts, export and import) in the
      same cards and headings as Moi. */
   main.progression .progression-h2 {
-    font: 700 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8125rem/1 var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -3822,7 +3822,7 @@
   main.progression .progression-btn {
     height: 3rem;
     border-radius: 1.5rem;
-    font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1rem var(--font-ui);
   }
 }
 
@@ -3839,7 +3839,7 @@
     font-size: 1.1875rem;
   }
   .na-toc-meta {
-    font: 500 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.875rem var(--font-ui);
     color: var(--muted);
   }
   .na-toc-list {
@@ -3856,7 +3856,7 @@
     gap: 0.75rem;
     padding: 0.625rem;
     border-radius: 0.75rem;
-    font: 400 1.03125rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+    font: 400 1.03125rem/1.25 var(--font-text);
     color: var(--ink);
     text-decoration: none;
   }
@@ -3866,7 +3866,7 @@
   .na-toc-list a i {
     flex: none;
     width: 1.375rem;
-    font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.78125rem var(--font-ui);
     font-style: normal;
     text-align: right;
     color: var(--muted);
@@ -3927,12 +3927,12 @@
   }
   .na-near-tx b {
     display: block;
-    font: 500 0.96875rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+    font: 500 0.96875rem/1.2 var(--font-text);
   }
   .na-near-tx small {
     display: block;
     margin-top: 0.125rem;
-    font: 400 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.84375rem var(--font-ui);
     color: var(--ink-2);
   }
   .na-near .na-chev {
@@ -3992,7 +3992,7 @@
     overflow: hidden;
     background: var(--paper);
     color: var(--ink);
-    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-family: var(--font-text);
     overscroll-behavior: contain;
   }
   .rsm[data-family] {
@@ -4040,7 +4040,7 @@
   }
   .rsm-cnt {
     display: block;
-    font: 600 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.8125rem/1 var(--font-ui);
     font-variant-numeric: tabular-nums;
     color: var(--muted);
   }
@@ -4076,7 +4076,7 @@
     border-radius: 0.9375rem;
     background: var(--fam-wash);
     color: var(--fam);
-    font: 700 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8125rem var(--font-ui);
   }
   .rsm-chip > span {
     overflow: hidden;
@@ -4142,7 +4142,7 @@
     position: absolute;
     top: 1.125rem;
     left: 1.25rem;
-    font: 700 0.71875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.71875rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -4218,7 +4218,7 @@
   .rsm-open {
     display: inline-block;
     margin-top: 0.875rem;
-    font: 500 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.9375rem var(--font-ui);
     color: var(--garden);
   }
   .rsm-stamp {
@@ -4231,7 +4231,7 @@
     border-radius: 0.625rem;
     background: var(--dash-card);
     color: var(--garden);
-    font: 800 1.5rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 800 1.5rem var(--font-ui);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     white-space: nowrap;
@@ -4264,7 +4264,7 @@
     flex: none;
     margin: 1.625rem 1.25rem 0;
     text-align: center;
-    font: 400 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.84375rem var(--font-ui);
     color: var(--muted);
   }
   .rsm-foot {
@@ -4282,7 +4282,7 @@
     border-radius: 1.625rem;
     background: var(--garden);
     color: var(--paper) !important;
-    font: 600 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+    font: 600 1.0625rem var(--font-ui) !important;
     text-decoration: none;
   }
   .rsm-big {
@@ -4315,10 +4315,10 @@
     color: var(--gc) !important;
   }
   .rsm-g b {
-    font: 700 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.9375rem var(--font-ui);
   }
   .rsm-g small {
-    font: 600 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.78125rem var(--font-ui);
     opacity: 0.85;
   }
   .rsm-g.again {
@@ -4348,7 +4348,7 @@
     border-radius: 0.8125rem;
     background: #fdecd9;
     color: #c25a12;
-    font: 800 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 800 0.8125rem var(--font-ui);
   }
   .rsm-run svg {
     width: 0.875rem;
@@ -4368,7 +4368,7 @@
   }
   .rsm-kicker {
     margin: 0;
-    font: 700 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8125rem var(--font-ui);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--fam);
@@ -4406,7 +4406,7 @@
     border-radius: 1rem;
     background: var(--dash-card);
     color: var(--ink);
-    font: 500 1.25rem "Alegreya", "Alegreya Fallback", serif;
+    font: 500 1.25rem var(--font-text);
     outline: none;
   }
   .rsm-inp:focus {
@@ -4432,7 +4432,7 @@
     align-items: center;
     gap: 0.625rem;
     margin: 0;
-    font: 700 1.3125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 1.3125rem var(--font-ui);
     color: var(--garden);
   }
   .rsm-fb.ko h2 {
@@ -4457,7 +4457,7 @@
   .rsm-fb p,
   .rsm-fb-more {
     margin: 0.5rem 0 0.875rem;
-    font: 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+    font: 400 1rem/1.4 var(--font-text);
     color: var(--ink-2);
   }
   .rsm-fb-more * {
@@ -4470,7 +4470,7 @@
     font-weight: 600 !important;
   }
   .rsm-fb p b {
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
     color: var(--ink);
   }
   .rsm-fb ins {
@@ -4506,13 +4506,13 @@
   }
   .rsm-end h2 {
     margin: 1.375rem 1.25rem 0.375rem;
-    font: 600 1.875rem/1.1 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.875rem/1.1 var(--font-text);
     outline: none;
   }
   .rsm-end-note {
     margin: 0;
     padding: 0 2.5rem;
-    font: 400 1rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+    font: 400 1rem/1.4 var(--font-text);
     color: var(--muted);
   }
   .rsm-stats {
@@ -4526,10 +4526,10 @@
   }
   .rsm-stats b {
     display: block;
-    font: 600 1.5rem/1.1 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.5rem/1.1 var(--font-text);
   }
   .rsm-stats small {
-    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.8125rem var(--font-ui);
     color: var(--muted);
   }
 
@@ -4549,7 +4549,7 @@
     border-radius: 1.625rem;
     background: var(--garden);
     color: var(--paper);
-    font: 600 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1.0625rem var(--font-ui);
     cursor: pointer;
   }
   .rsm-resume span {
@@ -4584,7 +4584,7 @@
     display: block;
     color: var(--ink);
     font-variant-numeric: lining-nums;
-    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-family: var(--font-text);
   }
   .rv a {
     color: inherit;
@@ -4597,7 +4597,7 @@
     margin: 0.25rem 0.25rem 0.875rem;
     padding: 0;
     border: 0;
-    font: 600 2.125rem/1.06 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 2.125rem/1.06 var(--font-text);
     letter-spacing: -0.0125rem;
   }
   .rv-today {
@@ -4611,15 +4611,15 @@
   }
   .rv-today .rv-start-h {
     margin-top: 0.375rem;
-    font: 600 1.5rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.5rem/1.15 var(--font-text);
   }
   .rv-today .rv-start-p {
     margin-top: 0.375rem;
-    font: 500 0.9375rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.9375rem/1.4 var(--font-ui);
     opacity: 0.9;
   }
   .rv-kicker {
-    font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.78125rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     opacity: 0.8;
@@ -4631,17 +4631,17 @@
     margin-top: 0.375rem !important;
   }
   .rv-big b {
-    font: 600 2.75rem/1 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 2.75rem/1 var(--font-text);
   }
   .rv-big span {
-    font: 500 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 1rem var(--font-ui);
   }
   .rv-sub {
     display: flex;
     flex-wrap: wrap;
     gap: 0.875rem;
     margin-top: 0.5rem !important;
-    font: 500 0.84375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.84375rem var(--font-ui);
     opacity: 0.9;
   }
   .rv-run {
@@ -4664,7 +4664,7 @@
     border-radius: 1.625rem;
     background: var(--paper);
     color: var(--garden);
-    font: 600 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1.0625rem var(--font-ui);
   }
   .rv-go svg {
     width: 1.125rem;
@@ -4674,7 +4674,7 @@
     margin: 0;
     padding: 1.5rem 0.375rem 0.5rem;
     border: 0;
-    font: 700 0.8125rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8125rem/1 var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--muted);
@@ -4745,7 +4745,7 @@
   .rv-tx small {
     display: block;
     margin-top: 0.125rem;
-    font: 400 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.8125rem var(--font-ui);
     color: var(--ink-2);
   }
   .rv-pill {
@@ -4756,7 +4756,7 @@
     border-radius: 0.75rem;
     background: var(--garden);
     color: var(--paper);
-    font: 700 0.8125rem/1.5rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.8125rem/1.5rem var(--font-ui);
     text-align: center;
   }
   .rv-pill.soft {
@@ -4885,14 +4885,14 @@
   /* Header. */
   main.parcours-page--path .themes-kicker {
     margin: 0.75rem 0 0;
-    font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.78125rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--fam, var(--garden));
   }
   main.parcours-page--path .themes-title {
     margin: 0.25rem 0 0;
-    font: 600 2.125rem/1.08 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 2.125rem/1.08 var(--font-text);
     letter-spacing: -0.0125rem;
   }
   main.parcours-page--path .parcours-status {
@@ -4901,7 +4901,7 @@
     justify-content: space-between;
     gap: 0.75rem;
     margin: 0.875rem 0 0;
-    font: 500 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.875rem var(--font-ui);
     font-variant-numeric: lining-nums;
     color: var(--ink-2);
   }
@@ -4935,11 +4935,11 @@
     text-decoration: none;
   }
   main.parcours-page--path .parcours-cta-verb {
-    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.8125rem var(--font-ui);
     opacity: 0.85;
   }
   main.parcours-page--path .parcours-cta-title {
-    font: 600 1.0625rem/1.2 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1.0625rem/1.2 var(--font-ui);
   }
   main.parcours-page--path .parcours-cta > [aria-hidden] {
     position: absolute;
@@ -4952,7 +4952,7 @@
     border-radius: 50%;
     background: color-mix(in srgb, var(--paper) 20%, transparent);
     transform: translateY(-50%);
-    font: 600 1.25rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1.25rem/1 var(--font-ui);
   }
   /* Tinted tiles, icon over label, as Notes' "Autres vues"
      (notes-browse.css .nb-view). */
@@ -4972,7 +4972,7 @@
     background: var(--fam-wash, var(--wash-2));
     box-shadow: none;
     color: var(--ink);
-    font: 500 0.9375rem/1.1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.9375rem/1.1 var(--font-ui);
     text-align: start;
     text-decoration: none;
   }
@@ -5007,7 +5007,7 @@
   }
   main.parcours-page--path .parcours-tools-note {
     margin: 0.625rem 0.25rem 0;
-    font: 400 0.8125rem/1.35 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.8125rem/1.35 var(--font-ui);
     color: var(--muted);
   }
 
@@ -5016,7 +5016,7 @@
     display: block;
     position: relative;
     margin: 1.25rem -1rem 0;
-    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-family: var(--font-text);
     font-variant-numeric: lining-nums;
   }
   .road a {
@@ -5046,14 +5046,14 @@
   }
   .road-bar-tx small {
     display: block;
-    font: 700 0.71875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.71875rem var(--font-ui);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     opacity: 0.85;
   }
   .road-bar-tx b {
     display: block;
-    font: 600 1.09375rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.09375rem/1.15 var(--font-text);
   }
   .road-bar-p {
     display: block;
@@ -5181,7 +5181,7 @@
     align-items: center;
     gap: 0.75rem;
     margin: 0;
-    font: 700 0.78125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.78125rem var(--font-ui);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--muted);
@@ -5195,7 +5195,7 @@
   }
   .road-div-sub {
     margin: 0.5rem 0 0;
-    font: 400 0.90625rem/1.35 "Alegreya", "Alegreya Fallback", serif;
+    font: 400 0.90625rem/1.35 var(--font-text);
     color: var(--muted);
   }
   .road-list {
@@ -5346,7 +5346,7 @@
   .road-lb > a,
   .road-lb b {
     display: block;
-    font: 600 0.96875rem/1.18 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 0.96875rem/1.18 var(--font-text);
     color: var(--ink);
     text-wrap: balance;
   }
@@ -5358,7 +5358,7 @@
   .road-lb em {
     display: block;
     margin-bottom: 0.0625rem;
-    font: 700 0.6875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.6875rem var(--font-ui);
     font-style: normal;
     letter-spacing: 0.07em;
     text-transform: uppercase;
@@ -5369,7 +5369,7 @@
     align-items: center;
     gap: 0.375rem;
     margin-top: 0.1875rem;
-    font: 500 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.75rem var(--font-ui);
     color: var(--muted);
     white-space: nowrap;
   }
@@ -5432,20 +5432,20 @@
     margin: 0;
   }
   .road-card-k {
-    font: 700 0.71875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.71875rem var(--font-ui);
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: var(--fam, var(--garden));
   }
   .road-card-t {
     margin-top: 0.1875rem !important;
-    font: 600 1.1875rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.1875rem/1.15 var(--font-text);
   }
   .road-card-m {
     display: flex;
     gap: 0.875rem;
     margin-top: 0.375rem !important;
-    font: 500 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.8125rem var(--font-ui);
     color: var(--muted);
     white-space: nowrap;
   }
@@ -5469,7 +5469,7 @@
     background: var(--fam, var(--garden));
     box-shadow: 0 4px 0 color-mix(in srgb, var(--fam, var(--garden)) 65%, #000);
     color: var(--on-fam);
-    font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1rem var(--font-ui);
   }
   .road-go svg {
     width: 1.125rem;
@@ -5498,7 +5498,7 @@
     min-height: 2.75rem;
     margin: 0.4rem 0 -0.35rem -0.4rem;
     padding-right: 0.5rem;
-    font: 500 1.0625rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 1.0625rem var(--font-ui);
     letter-spacing: 0;
     text-transform: none;
     color: var(--garden);
@@ -5549,7 +5549,7 @@
     display: block;
     padding: 0.5rem 1rem 0;
     text-align: center;
-    font: 400 0.8125rem/1.6 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.8125rem/1.6 var(--font-ui);
     color: var(--muted);
   }
   .site-foot-phone p {
@@ -5598,7 +5598,7 @@
   border: 1px solid var(--rule-strong);
   background: transparent;
   color: var(--ink);
-  font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 600 1rem var(--font-ui);
   text-decoration: none;
 }
 .review-empty-btn--primary {
@@ -5653,7 +5653,7 @@
     gap: 0.75rem !important;
   }
   .review-empty-text {
-    font: 0.9375rem/1.45 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.9375rem/1.45 var(--font-ui);
     color: var(--muted);
   }
   .review-empty-actions {
@@ -5678,12 +5678,12 @@ main.nf-page {
 }
 main.nf-page .nf-title {
   margin: 0 0 0.6rem;
-  font: 500 clamp(1.6rem, 1.4rem + 1vw, 2rem) / 1.15 "Alegreya", "Alegreya Fallback", serif;
+  font: 500 clamp(1.6rem, 1.4rem + 1vw, 2rem) / 1.15 var(--font-text);
 }
 .nf-body {
   margin: 0 0 1.4rem;
   color: var(--ink-2);
-  font: 1rem/1.5 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 1rem/1.5 var(--font-ui);
 }
 .nf-actions {
   display: flex;
@@ -5696,7 +5696,7 @@ main.nf-page .nf-title {
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius-pill);
   color: var(--ink);
-  font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 600 1rem var(--font-ui);
   text-decoration: none;
 }
 .nf-btn--primary {
@@ -5727,7 +5727,7 @@ main.nf-page .nf-title {
   border-radius: 0.9rem;
   background: color-mix(in srgb, var(--ink) 7%, transparent);
   color: var(--ink-2);
-  font: 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 1rem var(--font-ui);
   text-decoration: none;
 }
 .nf-search a::before {
@@ -5741,7 +5741,7 @@ main.nf-page .nf-title {
 }
 .nf-suggest h2 {
   margin: 0 0 0.5rem 0.25rem !important;
-  font: 600 0.78rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif !important;
+  font: 600 0.78rem var(--font-ui) !important;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
@@ -5793,7 +5793,7 @@ main.nf-page .nf-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 0.8125rem var(--font-ui);
   color: var(--muted);
 }
 @media (max-width: 639.98px) {
@@ -5830,7 +5830,7 @@ main.nf-page .nf-title {
     position: absolute;
     top: 0.375rem;
     right: 0.5rem;
-    font: 600 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.72rem var(--font-ui);
     font-variant-numeric: tabular-nums;
     color: var(--muted);
   }
@@ -5911,7 +5911,7 @@ main.nf-page .nf-title {
   align-items: center;
   gap: 0.45rem;
   margin: 0 0 0.35rem;
-  font: 700 0.78rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.78rem var(--font-ui);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--warn);
@@ -5941,7 +5941,7 @@ main.nf-page .nf-title {
   justify-content: space-between;
   gap: 1rem;
   margin: 0 0 0.6rem;
-  font: 0.92rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 0.92rem var(--font-ui);
 }
 .road-sheet-box > p:first-child span {
   color: var(--muted);
@@ -5969,7 +5969,7 @@ main.nf-page .nf-title {
   display: flex;
   gap: 1.2rem;
   margin: 0.5rem 0 0;
-  font: 0.82rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 0.82rem var(--font-ui);
   color: var(--muted);
 }
 .road-sheet-legend span::before {
@@ -6015,7 +6015,7 @@ main.nf-page .nf-title {
   text-decoration: none;
 }
 .road-sheet-notes small {
-  font: 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 0.85rem var(--font-ui);
   color: var(--muted);
 }
 .road-sheet-notes .due small {
@@ -6029,7 +6029,7 @@ main.nf-page .nf-title {
   background: var(--garden);
   box-shadow: 0 4px 0 color-mix(in srgb, var(--garden) 70%, #000);
   color: #fff;
-  font: 700 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 1rem var(--font-ui);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
@@ -6044,7 +6044,7 @@ main.nf-page .nf-title {
   border: 0;
   background: none;
   color: var(--muted);
-  font: 700 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.95rem var(--font-ui);
   cursor: pointer;
 }
 
@@ -6063,7 +6063,7 @@ main.nf-page .nf-title {
   align-items: center;
   gap: 0.45rem;
   margin: 0 0 0.3rem;
-  font: 700 0.75rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.75rem var(--font-ui);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--warn);
@@ -6129,14 +6129,14 @@ main.nf-page .nf-title {
   display: block;
   overflow: hidden;
   color: var(--muted);
-  font: 0.82rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 0.82rem var(--font-ui);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 .dash-fade li em {
   flex: none;
   color: var(--warn);
-  font: normal 700 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: normal 700 0.85rem var(--font-ui);
 }
 .dash-fade-go {
   display: grid;
@@ -6146,7 +6146,7 @@ main.nf-page .nf-title {
   background: var(--garden);
   box-shadow: 0 4px 0 color-mix(in srgb, var(--garden) 70%, #000);
   color: #fff;
-  font: 700 0.95rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.95rem var(--font-ui);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -6175,18 +6175,18 @@ main.nf-page .nf-title {
     text-align: center;
   }
   .road-end-card small {
-    font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.72rem var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--fam, var(--garden));
   }
   .road-end-card h2 {
     margin: 0.25rem 0 0.5rem;
-    font: 500 1.8rem/1.1 "Alegreya", "Alegreya Fallback", serif;
+    font: 500 1.8rem/1.1 var(--font-text);
   }
   .road-end-card p {
     margin: 0 0 0.875rem;
-    font: 400 0.95rem/1.45 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.95rem/1.45 var(--font-ui);
     color: var(--ink-2);
   }
   .road-end-stats {
@@ -6196,10 +6196,10 @@ main.nf-page .nf-title {
   }
   .road-end-stats b {
     display: block;
-    font: 600 1.4rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.4rem/1.2 var(--font-text);
   }
   .road-end-stats span {
-    font: 400 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 400 0.85rem var(--font-ui);
     color: var(--muted);
   }
   main .road-end-go {
@@ -6208,7 +6208,7 @@ main.nf-page .nf-title {
     border-radius: var(--radius-pill);
     background: var(--garden);
     color: var(--paper);
-    font: 700 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 1rem var(--font-ui);
     text-decoration: none;
   }
 }
@@ -6375,7 +6375,7 @@ main.nf-page .nf-title {
   main.cartes-index .rv .rv-title,
   main .app-large-title h1,
   main.themes-page .themes-title {
-    font: 600 clamp(2.1rem, 1.6rem + 2.5vw, 3rem) / 1.05 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 clamp(2.1rem, 1.6rem + 2.5vw, 3rem) / 1.05 var(--font-text);
     letter-spacing: -0.01em;
   }
   main.cartes-index .rv .rv-title {

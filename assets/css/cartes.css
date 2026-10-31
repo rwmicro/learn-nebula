@@ -51,7 +51,7 @@ body:has(.flashcards-main) {
 }
 :where(.deck-scope) > :where(.card) {
   --deck-px: clamp(1.05px, 0.75px + 0.09cqi, 1.5px);
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: calc(20 * var(--deck-px));
   line-height: 1.45;
   color: var(--ink);
@@ -125,7 +125,7 @@ body:has(.flashcards-main) {
    Sans for the controls, a segmented mode switch, the counts and the folds
    on raised cards. */
 .flashcards-main {
-  --fc-sans: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  --fc-sans: var(--font-ui);
 }
 .fc-head {
   display: flex;
@@ -138,7 +138,7 @@ body:has(.flashcards-main) {
   margin: 0;
   padding: 0;
   border: 0;
-  font: 600 clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem) / 1.08 "Alegreya", "Alegreya Fallback", serif;
+  font: 600 clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem) / 1.08 var(--font-text);
   letter-spacing: -0.01em;
   text-wrap: balance;
 }
@@ -204,7 +204,7 @@ body:has(.flashcards-main) {
 }
 .fc-stat dd {
   margin: 0;
-  font: 600 1.5rem/1 "Alegreya", "Alegreya Fallback", serif;
+  font: 600 1.5rem/1 var(--font-text);
   font-variant-numeric: lining-nums tabular-nums;
 }
 @media (min-width: 640px) {
@@ -245,7 +245,7 @@ body:has(.flashcards-main) {
 .fc-sum-tx {
   flex: 1;
   min-width: 0;
-  font: 500 1.0625rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+  font: 500 1.0625rem/1.2 var(--font-text);
   color: var(--ink);
 }
 .fc-sum .rv-chev {

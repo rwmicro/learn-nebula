@@ -7,7 +7,7 @@
   --nb-card: var(--dash-card, var(--paper));
   --nb-edge: var(--dash-edge, var(--rule));
   --nb-shadow: var(--dash-shadow, none);
-  --nb-sans: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  --nb-sans: var(--font-ui);
   max-width: 44rem;
 }
 
@@ -383,7 +383,7 @@
 .nb-path-tx b {
   display: block;
   margin: 0.1rem 0;
-  font-family: "Alegreya", serif;
+  font-family: var(--font-text);
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.2;

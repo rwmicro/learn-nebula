@@ -16,7 +16,7 @@ html {
 body {
 
   margin: 4rem auto;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-weight: 440;
   background-color: var(--paper);
   color: var(--ink);
@@ -62,7 +62,7 @@ h1 {
 }
 
 h2 {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   /* Fluid, clearly above the ~21px body: ~23px @ 320 → ~37px @ ≥1080. */
   font-size: clamp(1.45rem, 1.2rem + 1.3vw, 2.3rem);
   font-weight: 700;
@@ -74,7 +74,7 @@ h2 {
 }
 
 h3 {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   /* Tailwind Preflight resets h3 to body size, so set it explicitly — clearly
      above the body, a step below h2. Fluid: ~21px @ 320 → ~30px @ ≥1080. */
   font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.9rem);
@@ -96,7 +96,7 @@ h3 {
      still unmistakably above the body.
    Hierarchy comes from size and case, not from weight. */
 .article-body h2 {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: clamp(1.4rem, 1.2rem + 0.75vw, 1.85rem);
   font-weight: 560;
   letter-spacing: 0;
@@ -107,7 +107,7 @@ h3 {
   margin-bottom: 0.7rem;
 }
 .article-body h3 {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-size: clamp(1.2rem, 1.1rem + 0.45vw, 1.5rem);
   /* Alegreya SC ships 500 and 700 only (fonts.css); 600 would resolve to 700. */
   font-weight: 500;
@@ -119,14 +119,14 @@ h3 {
   margin-bottom: 0.45rem;
 }
 .article-body h4 {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: clamp(1.15rem, 1.05rem + 0.4vw, 1.4rem);
   font-weight: 600;
   font-style: italic;
   text-transform: none;
 }
 .article-body h5 {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: clamp(1.15rem, 1rem + 0.3vw, 1.3rem);
   font-weight: 500;
   font-style: italic;
@@ -138,7 +138,7 @@ h3 {
    introduce*. Continue the scale instead: each level steps down but none ever
    falls below the body. */
 h4 {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   /* ~19px @ 320 → ~26px @ ≥1080: above the body, a step below h3. */
   font-size: clamp(1.2rem, 1.05rem + 0.6vw, 1.6rem);
   font-weight: 700;
@@ -149,7 +149,7 @@ h4 {
 }
 
 h5 {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   /* ~18px @ 320 → ~23px @ ≥1080 — still at or above the body. */
   font-size: clamp(1.15rem, 1.05rem + 0.4vw, 1.45rem);
   font-weight: 700;
@@ -162,7 +162,7 @@ h5 {
 /* Deepest level: a tracked label rather than another size step, so it stays
    legible as a heading without competing with h5. */
 h6 {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: clamp(1.05rem, 1rem + 0.25vw, 1.2rem);
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -197,7 +197,7 @@ h6 {
 .signature {
   display: block;
   text-align: right;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem);
 }
@@ -365,7 +365,7 @@ main dd {
 
 .site-nav li a {
   color: var(--ink);
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.2rem;
   text-transform: uppercase;
   font-weight: 500;
@@ -384,7 +384,7 @@ figure {
 }
 
 table {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   border: none;
   border-collapse: collapse;
   font-size: 1.2rem;
@@ -482,7 +482,7 @@ a:hover {
   border-top: 1px solid var(--rule-strong);
   padding: 0.5rem 0 0;
   text-align: center;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-style: italic;
   font-size: 1.05rem;
   line-height: 1.4;
@@ -592,7 +592,7 @@ code:not(.chroma code) {
   position: relative;
   transition: opacity 0.2s;
   opacity: 0;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.8em;
   font-weight: 400;
   color: var(--muted);
@@ -698,7 +698,7 @@ h4:focus-within .anchor,
   position: absolute;
   top: 0.4rem;
   inset-inline-end: 0.4rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.85rem;
   line-height: 1;
   padding: 0.35rem 0.6rem;
@@ -781,7 +781,7 @@ h4:focus-within .anchor,
 .diagram-dlg-btn {
   width: 2.6rem;
   height: 2.6rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1.4rem;
   line-height: 1;
   color: var(--ink);
@@ -922,7 +922,7 @@ h4:focus-within .anchor,
 .text-size-btn,
 .wide-text-btn,
 .translate-btn {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   text-transform: lowercase;
   letter-spacing: -0.01rem;
@@ -940,7 +940,7 @@ h4:focus-within .anchor,
 
 /* "Texte large" has little meaning on a phone and only crowds the (already
    wrapping) action bar — hide it on small screens. */
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   .wide-text-btn {
     display: none;
   }
@@ -1000,7 +1000,7 @@ h4:focus-within .anchor,
   flex: none;
   margin: 0;
   padding: 0.45rem 0.9rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1rem;
   color: var(--ink);
   background: transparent;
@@ -1034,7 +1034,7 @@ h4:focus-within .anchor,
 /* "No match" hint when the filter empties the list. */
 .translate-menu-empty {
   padding: 0.5rem 0.9rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.95rem;
   font-style: italic;
   color: var(--muted-warm);
@@ -1047,7 +1047,7 @@ h4:focus-within .anchor,
   display: block;
   width: 100%;
   text-align: left;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1rem;
   font-weight: 400;
   text-transform: none;
@@ -1109,7 +1109,7 @@ h4:focus-within .anchor,
    (italic serif instead of bold small caps) so the eye registers it as
    information, not as something to click. */
 .reading-time {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-style: italic;
   font-weight: 400;
   font-size: 1rem;
@@ -1205,7 +1205,7 @@ body[data-wide-text="widest"] footer {
    thin underline. Letters use the serif body face, not small caps. */
 .text-size-small,
 .text-size-large {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
@@ -1253,7 +1253,7 @@ body[data-text-size="lg"] main ol li {
   align-items: center;
   gap: 0.45rem;
   margin: -0.2rem 0 0.9rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1.02rem;
   color: var(--muted);
 }
@@ -1293,7 +1293,7 @@ body[data-text-size="lg"] main ol li {
 }
 
 .note-header a {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   color: var(--ink);
@@ -1339,7 +1339,7 @@ body .site-bar {
   margin-top: -2.2rem;
   margin-bottom: 2.4rem;
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   body .site-bar {
     margin-top: -1.4rem;
     margin-bottom: 1.4rem;
@@ -1380,7 +1380,7 @@ body .site-bar {
    (set inline by themePillsHtml). Saturation/lightness stay fixed so every
    pill reads as a sober pastel; the text is a darker tone of the same hue. */
 .theme-pill {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.9rem;
   letter-spacing: 0.01rem;
   padding: 0.1rem 0.6rem;
@@ -1416,7 +1416,7 @@ a.theme-pill:focus-visible {
 }
 
 .toc-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   margin: 0 0 0.3rem 0;
@@ -1531,7 +1531,7 @@ a.theme-pill:focus-visible {
   position: absolute;
   top: 0.35rem;
   inset-inline-end: 0.35rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.85rem;
   line-height: 1;
   padding: 0.3rem 0.55rem;
@@ -1589,7 +1589,7 @@ a.theme-pill:focus-visible {
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 0.6rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1.15rem;
 }
 
@@ -1599,7 +1599,7 @@ a.theme-pill:focus-visible {
 }
 
 .sib-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.3rem;
@@ -1613,7 +1613,7 @@ a.theme-pill:focus-visible {
   padding-top: 0.8rem;
 }
 .backlinks-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: clamp(1.15rem, 1rem + 0.5vw, 1.3rem);
@@ -1648,7 +1648,7 @@ a.theme-pill:focus-visible {
   display: none;
 }
 .note-popover-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.15rem;
@@ -1657,7 +1657,7 @@ a.theme-pill:focus-visible {
   color: var(--ink);
 }
 .note-popover-excerpt {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.02rem;
   line-height: 1.4;
   margin: 0;
@@ -1677,7 +1677,7 @@ a.theme-pill:focus-visible {
   border-left: 1px solid var(--rule-strong);
 }
 .local-graph-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   margin: 0 0 0.3rem 0;
@@ -1702,7 +1702,7 @@ a.theme-pill:focus-visible {
   stroke-width: 2;
 }
 .lg-label {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 15px;
   fill: var(--ink);
 }
@@ -1716,7 +1716,7 @@ a.theme-pill:focus-visible {
 }
 .lg-head,
 .lg-more {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-size: 12px;
   fill: var(--muted);
@@ -1730,7 +1730,7 @@ a.theme-pill:focus-visible {
   padding-top: 0.8rem;
 }
 .related-notes-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: clamp(1.15rem, 1rem + 0.5vw, 1.3rem);
@@ -1840,7 +1840,7 @@ a.theme-pill:focus-visible {
 .yt-embed-link {
   display: inline-block;
   margin-top: 0.4rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.95rem;
   color: var(--muted);
 }
@@ -1857,7 +1857,7 @@ a.theme-pill:focus-visible {
 }
 
 .comments-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-size: 1.4rem;
   font-weight: 700;
   text-transform: lowercase;
@@ -1904,7 +1904,7 @@ a.theme-pill:focus-visible {
 }
 
 .comment-author {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   letter-spacing: -0.01rem;
@@ -1920,7 +1920,7 @@ a.theme-pill:focus-visible {
   border-radius: var(--radius-pill);
   background: var(--garden-wash, var(--wash-2));
   color: var(--garden);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -1937,7 +1937,7 @@ a.theme-pill:focus-visible {
 }
 
 .comment-date {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.95rem;
   color: var(--muted);
   font-style: italic;
@@ -1966,7 +1966,7 @@ a.theme-pill:focus-visible {
 }
 
 .comments-label {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   letter-spacing: -0.01rem;
@@ -1976,7 +1976,7 @@ a.theme-pill:focus-visible {
 
 .comments-name,
 .comments-body {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.15rem;
   padding: 0.4rem 0.6rem;
   background: var(--paper);
@@ -2005,7 +2005,7 @@ a.theme-pill:focus-visible {
 }
 
 .comments-submit {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   letter-spacing: -0.01rem;
@@ -2038,7 +2038,7 @@ a.theme-pill:focus-visible {
 }
 
 .comments-status {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1rem;
   color: var(--ink-2);
   min-height: 1.1em;
@@ -2210,7 +2210,7 @@ a.theme-pill:focus-visible {
   }
 
   .note-header-title {
-    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-family: var(--font-text);
     font-weight: 500;
     color: var(--ink);
     font-size: 1.05rem;
@@ -2222,7 +2222,7 @@ a.theme-pill:focus-visible {
   }
 
   .note-header-date {
-    font-family: "Alegreya", "Alegreya Fallback", serif;
+    font-family: var(--font-text);
     font-style: italic;
     font-size: 0.8rem;
     color: var(--muted);
@@ -2235,7 +2235,7 @@ a.theme-pill:focus-visible {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+    font-family: var(--font-caps);
     text-transform: lowercase;
     font-weight: 700;
     letter-spacing: -0.01rem;
@@ -2331,7 +2331,7 @@ a.theme-pill:focus-visible {
   border-bottom: 1px solid var(--rule-strong);
 }
 .ask-answer-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.1rem;
@@ -2382,7 +2382,7 @@ a.theme-pill:focus-visible {
   padding: 0 0.7rem 0.6rem;
 }
 .ask-sources-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1rem;
@@ -2453,7 +2453,7 @@ a.theme-pill:focus-visible {
   display: flex;
   align-items: center;
   gap: 0.35rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1rem;
@@ -2490,7 +2490,7 @@ a.theme-pill:focus-visible {
 .ask-input {
   flex: 1;
   min-width: 0;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1.2rem;
   padding: 0.35rem 0.3rem;
   border: none;
@@ -2502,7 +2502,7 @@ a.theme-pill:focus-visible {
 }
 .ask-submit {
   flex: none;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
@@ -2543,7 +2543,7 @@ a.theme-pill:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   letter-spacing: -0.01rem;
@@ -2605,7 +2605,7 @@ a.theme-pill:focus-visible {
   }
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (max-width: 639.98px) {
   .ask-bar {
     right: 0.8rem;
     bottom: 0.8rem;
@@ -2688,7 +2688,7 @@ a.theme-pill:focus-visible {
   gap: 0.45rem;
   margin: 0;
   color: var(--c);
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.25rem;
@@ -2980,7 +2980,7 @@ main video {
   background: var(--link);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .w-table th {
     width: auto;
     white-space: normal;
@@ -3205,7 +3205,7 @@ main video {
   color: var(--paper);
 }
 
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .w-hashbits {
     grid-template-columns: repeat(32, 1fr);
   }
@@ -3483,7 +3483,7 @@ button.w-sq:focus-visible {
 }
 .quiz-reveal,
 .quiz-btn {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.92rem;
   line-height: 1.1;
   padding: 0.42rem 1rem;
@@ -3651,7 +3651,7 @@ button.w-sq:focus-visible {
   height: 1.6rem;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--rule-strong);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.8rem;
   color: var(--muted);
 }
@@ -3776,7 +3776,7 @@ button.w-sq:focus-visible {
   font-size: 0.98rem;
 }
 .quiz-hint-label {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.82rem;
   color: var(--link);
 }
@@ -3784,7 +3784,7 @@ button.w-sq:focus-visible {
 .quiz-hint-btn {
   margin-inline-start: auto;
   padding: 0.2rem 0;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.88rem;
   font-weight: 500;
   letter-spacing: 0;
@@ -3819,7 +3819,7 @@ button.w-sq:focus-visible {
 }
 .predict-skip {
   margin-inline-start: auto;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.85rem;
   color: var(--muted-warm);
   background: none;
@@ -3838,7 +3838,7 @@ button.w-sq:focus-visible {
   margin: 0.8rem 0 0;
   padding: 0.4rem;
   text-align: center;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.86rem;
   color: var(--muted-warm);
   border: 1px dashed var(--rule-strong);
@@ -3904,7 +3904,7 @@ button.w-sq:focus-visible {
 .gloss-kicker {
   margin: 0 0 0.1rem;
   color: var(--garden);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -3917,7 +3917,7 @@ button.w-sq:focus-visible {
   display: inline-block;
   margin-top: 0.45rem;
   color: var(--link);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.88rem;
   text-decoration: underline;
   text-decoration-color: var(--link-soft);
@@ -3957,7 +3957,7 @@ button.w-sq:focus-visible {
   align-items: center;
   gap: 6px;
   flex: none;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.95rem;
   font-weight: 600;
   line-height: 1;
@@ -4051,7 +4051,7 @@ button.w-sq:focus-visible {
   display: grid;
   gap: 0.6rem;
   padding: 1.1rem 1.2rem 1rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
 }
 .report-title {
   margin: 0;
@@ -4062,7 +4062,7 @@ button.w-sq:focus-visible {
   margin: 0;
   padding-inline-start: 0.7rem;
   border-inline-start: 2px solid var(--garden);
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-style: italic;
   max-height: 8rem;
   overflow: auto;
@@ -4187,7 +4187,7 @@ button.w-sq:focus-visible {
   flex: none;
 }
 .note-header-disc {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -4201,7 +4201,7 @@ button.w-sq:focus-visible {
   display: flex;
   gap: 0.5rem;
   min-width: 0;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-style: italic;
   font-size: 0.8rem;
   color: var(--muted);
@@ -4280,7 +4280,7 @@ body:has(.gc) .to-top {
 /* Phones: beside the round "Demander" button, same row, rather than above
    it — and gone while "Étape suivante" shows, whose ring already says how
    much is read (path-step.css). */
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .to-top,
   body:has(.gk-pinned-trigger) .to-top {
     width: 3rem;
@@ -4305,11 +4305,11 @@ body:has(.gc) .to-top {
 /* "Et ensuite ?" right after the text. */
 .next-up {
   margin: 2.4rem 0 1.6rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
 }
 .next-up-heading {
   margin: 0 0 0.6rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   font-size: 1.1rem;
   text-transform: lowercase;
@@ -4355,7 +4355,7 @@ body:has(.gc) .to-top {
 }
 .next-up-title {
   grid-column: 1;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.15rem;
   font-weight: 600;
   line-height: 1.25;
@@ -4391,7 +4391,7 @@ body:has(.gc) .to-top {
 .bookmark-btn,
 .focus-btn,
 .voice-btn {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   text-transform: lowercase;
   letter-spacing: -0.01rem;
@@ -4436,7 +4436,7 @@ body:has(.gc) .to-top {
   color: var(--garden);
   --bm-fill: currentColor;
 }
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   .focus-btn span,
   .bookmark-btn .bookmark-label {
     display: none;
@@ -4449,7 +4449,7 @@ body:has(.gc) .to-top {
   position: relative;
 }
 .note-more-btn {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   text-transform: lowercase;
   letter-spacing: -0.01rem;
@@ -4507,7 +4507,7 @@ body:has(.gc) .to-top {
 .note-more-panel .wide-text-btn {
   display: inline-flex;
 }
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   .note-more-panel .wide-text-btn {
     display: none;
   }
@@ -4516,7 +4516,7 @@ body:has(.gc) .to-top {
 /* "Lire en leçon" (public/js/lesson.js): the one action of the row that
  * starts something, so it reads as a button — garden green, pressable edge. */
 .lesson-btn {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   text-transform: lowercase;
   font-size: 1.1rem;
@@ -4566,7 +4566,7 @@ html.lesson-open {
   gap: 0.8rem;
   padding: calc(0.6rem + env(safe-area-inset-top, 0px)) 1rem 0.6rem;
   border-bottom: 1px solid var(--rule);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.85rem;
   color: var(--muted);
 }
@@ -4633,7 +4633,7 @@ html.lesson-open {
 }
 /* Above a question: "Discipline · Note", with the family's dot. */
 .lesson-check {
-  font: 700 0.74rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.74rem var(--font-ui);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--muted);
@@ -4700,7 +4700,7 @@ html.lesson-open {
 .lesson-back,
 .lesson-skip,
 .lesson-to-note {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.95rem;
   color: var(--muted-warm);
   background: none;
@@ -4723,12 +4723,12 @@ html.lesson-open {
   flex-basis: 100%;
   order: -1;
   text-align: end;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.85rem;
   color: var(--muted);
 }
 .lesson-next {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.08rem;
   font-weight: 700;
   color: var(--paper);
@@ -4752,7 +4752,7 @@ html.lesson-open {
   outline: 2px solid var(--link);
   outline-offset: 3px;
 }
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   .lesson-next {
     flex: 1;
   }
@@ -4778,7 +4778,7 @@ html.lesson-open {
 .lesson-medal span {
   transform: rotate(-45deg);
   color: var(--paper);
-  font: 700 1.5rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 1.5rem/1 var(--font-ui);
 }
 @keyframes gk-medal {
   0% {
@@ -4858,7 +4858,7 @@ body[data-focus="true"] .title-note {
   border-radius: var(--radius-pill);
   background: var(--paper-raised);
   color: var(--ink-soft);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.85rem;
   cursor: pointer;
   opacity: 0.55;
@@ -4904,7 +4904,7 @@ mark.hl--new {
   border: 1px solid var(--rule-strong);
   border-radius: var(--radius-md);
   box-shadow: 0 10px 30px rgb(0 0 0 / 0.16);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
 }
 .hl-card[hidden] {
   display: none;
@@ -4995,7 +4995,7 @@ mark.hl--new {
   gap: 0.6rem;
 }
 .w-goal-k {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: var(--text-meta);
@@ -5039,7 +5039,7 @@ mark.hl--new {
   padding: 0.6rem 0.9rem;
   border-top: 1px solid var(--rule);
   background: var(--wash);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: var(--text-small);
 }
 .w-goal-foot[data-state="ok"] {
@@ -5244,14 +5244,14 @@ html.ne-open {
 }
 .ne-kicker {
   margin: 0;
-  font: 700 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.875rem var(--font-ui);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--fam);
 }
 .ne-title {
   margin: 0.375rem 0 0.25rem;
-  font: 600 2rem/1.15 "Alegreya", "Alegreya Fallback", serif;
+  font: 600 2rem/1.15 var(--font-text);
   text-wrap: balance;
   text-transform: none;
   letter-spacing: normal;
@@ -5259,7 +5259,7 @@ html.ne-open {
 }
 .ne-sub {
   margin: 0;
-  font: 400 1.0625rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+  font: 400 1.0625rem/1.4 var(--font-text);
   color: var(--muted);
 }
 .ne-tiles {
@@ -5279,11 +5279,11 @@ html.ne-open {
 }
 .ne-tiles b {
   display: block;
-  font: 600 1.5rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+  font: 600 1.5rem/1.2 var(--font-text);
   font-variant-numeric: lining-nums;
 }
 .ne-tiles span {
-  font: 400 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.875rem var(--font-ui);
   color: var(--ink-2);
 }
 .ne-tiles .ne-coin {
@@ -5343,10 +5343,10 @@ html.ne-open {
 }
 .ne-keep-tx b {
   display: block;
-  font: 600 1.1875rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+  font: 600 1.1875rem/1.25 var(--font-text);
 }
 .ne-keep-tx small {
-  font: 400 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.9375rem var(--font-ui);
   color: var(--ink-2);
 }
 .ne-switch {
@@ -5401,13 +5401,13 @@ html.ne-open {
 }
 .ne-next-tx small {
   display: block;
-  font: 400 0.9375rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 400 0.9375rem var(--font-ui);
   opacity: 0.9;
 }
 .ne-next-tx b {
   display: block;
   overflow: hidden;
-  font: 700 1.25rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 1.25rem/1.3 var(--font-ui);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -5659,10 +5659,10 @@ html.ne-open {
     min-width: 0;
   }
   .read-state-done b {
-    font: 600 1.02rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1.02rem var(--font-ui);
   }
   .read-state-done small {
-    font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.8125rem var(--font-ui);
     color: var(--muted);
   }
   .read-state.is-read .read-state-btn {
@@ -5709,7 +5709,7 @@ html.ne-open {
   }
   .fold-row b,
   main .cite-note > summary > span {
-    font: 600 1.02rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 1.02rem var(--font-ui);
     text-transform: none;
     color: var(--ink);
   }
@@ -5717,7 +5717,7 @@ html.ne-open {
   .cite-sub {
     display: block;
     text-transform: none;
-    font: 0.8125rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 0.8125rem var(--font-ui);
     color: var(--muted);
   }
   .fold-row::after,
@@ -5997,7 +5997,7 @@ h4,
   font-size: var(--text-small);
 }
 .duo-invite-btn {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-weight: 700;
   text-transform: lowercase;
   font-size: 1.1rem;
@@ -6054,7 +6054,7 @@ main[data-family],
 /* "**Évolution**" then bullets: a label over its list, not a paragraph. */
 .article-body > p.lead-in {
   margin: 1.8rem 0 0.55rem;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: clamp(0.82rem, 0.78rem + 0.2vw, 0.92rem);
   font-weight: 700;
   line-height: 1.3;
@@ -6093,7 +6093,7 @@ main[data-family],
   display: inline-block;
   min-width: 1.6em;
   margin-inline-end: 0.35em;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   font-size: 0.68em;
   font-weight: 500;
   letter-spacing: 0.02em;
@@ -6116,7 +6116,7 @@ main[data-family],
      pure hue doesn't reach on its own tint: darkened (lightened in dark
      mode) towards the ink. */
   color: color-mix(in srgb, var(--c) 62%, var(--ink));
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.86rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -6140,7 +6140,7 @@ main[data-family],
     flex-wrap: wrap;
     align-items: center;
     margin: -0.2rem 0 0.9rem;
-    font: 500 0.9rem/1.5 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 0.9rem/1.5 var(--font-ui);
     color: var(--muted);
   }
   .note-meta > .subtitle:empty {
@@ -6202,7 +6202,7 @@ main[data-family],
   }
   .note-header-crumb {
     gap: 0.5rem;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
     color: var(--muted);
   }
   .note-header .crumbs {
@@ -6246,7 +6246,7 @@ main[data-family],
     flex-wrap: wrap;
     align-items: center;
     margin: 0.75rem 0 1.6rem;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
     font-size: 1rem;
     line-height: 1.5;
     color: var(--muted);
@@ -6281,7 +6281,7 @@ main[data-family],
     margin: 0;
     padding: 0;
     border: 0;
-    font: 500 1rem/1.5 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 1rem/1.5 var(--font-ui);
     text-transform: none;
   }
   .note-meta .growth-tended time {
@@ -6324,7 +6324,7 @@ main[data-family],
     padding: 0.3rem;
     border-radius: inherit;
     box-shadow: var(--glass-inset);
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
     color: var(--ink);
   }
   .note-dock .dock-tools {
@@ -6341,7 +6341,7 @@ main[data-family],
     border-radius: var(--radius-pill);
     background: transparent;
     color: var(--ink);
-    font: 500 1.02rem/1 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 500 1.02rem/1 var(--font-ui);
     letter-spacing: 0;
     text-transform: none;
     text-decoration: none;
@@ -6418,7 +6418,7 @@ main[data-family],
     background: var(--paper-raised);
   }
   .note-dock-bar .note-more-panel :is(button, .translate-btn) {
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
     font-size: 1rem;
     font-weight: 500;
     text-transform: none;
@@ -6526,7 +6526,7 @@ main[data-family],
   }
   .note-dock-bar .note-more-aa {
     display: block;
-    font: 600 1.08rem/1 "Alegreya", "Alegreya Fallback", serif;
+    font: 600 1.08rem/1 var(--font-text);
     letter-spacing: -0.01em;
   }
   /* Where no rail shows the contents, the bar names the section being read
@@ -6658,7 +6658,7 @@ body[data-focus="true"] .note-meta {
     display: block;
     right: calc(50% + var(--col) / 2 + 1.75rem);
     padding: 0 0.4rem 0 0.75rem;
-    font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font-family: var(--font-ui);
   }
   body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .note-side {
     display: flex;
@@ -6690,7 +6690,7 @@ body[data-focus="true"] .note-meta {
 .note-side-h {
   display: block;
   margin: 0 0 0.7rem;
-  font: 700 0.75rem/1.3 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.75rem/1.3 var(--font-ui);
   letter-spacing: 0.09em;
   text-transform: uppercase;
   color: var(--muted);
@@ -6758,7 +6758,7 @@ body[data-focus="true"] .note-meta {
 
 /* The right column, under the path card. */
 .note-side-extra {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
 }
 .note-side-extra ul {
   margin: 0;
@@ -6907,7 +6907,7 @@ body[data-focus="true"] .note-meta {
 .next-up .next-up-side > .next-up-unread {
   flex: 1 1 18rem;
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .next-up-pager {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -6940,7 +6940,7 @@ body[data-focus="true"] .note-meta {
   gap: 0.45rem;
   padding: 0.9rem 1.25rem 0;
   color: var(--c);
-  font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.72rem var(--font-ui);
   letter-spacing: 0.09em;
   text-transform: uppercase;
 }
@@ -6962,7 +6962,7 @@ body[data-focus="true"] .note-meta {
 }
 .callout-ex > .ex-prompt {
   margin: 0.2rem 1.25rem 0;
-  font: 600 1.3rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+  font: 600 1.3rem/1.25 var(--font-text);
   color: var(--ink);
 }
 .callout-ex > .ex-prompt.ex-src {
@@ -7010,7 +7010,7 @@ body[data-focus="true"] .note-meta {
   align-items: center;
   gap: 0.5rem;
   min-height: 44px;
-  font: 500 1.05rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+  font: 500 1.05rem/1.25 var(--font-text);
   text-align: start;
   color: var(--ink);
   background: var(--tile, var(--paper));
@@ -7030,7 +7030,7 @@ body[data-focus="true"] .note-meta {
   border-radius: 6px;
   background: var(--wash-2);
   color: var(--muted);
-  font: 700 0.7rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.7rem var(--font-ui);
 }
 @media (hover: hover) and (pointer: fine) {
   .ex-k {
@@ -7103,7 +7103,7 @@ body[data-focus="true"] .note-meta {
   margin-top: 0.6rem;
 }
 .ex-type {
-  font: 500 1.15rem "Alegreya", "Alegreya Fallback", serif;
+  font: 500 1.15rem var(--font-text);
   color: var(--ink);
   background: var(--tile, var(--paper));
   border: 1.5px solid var(--c);
@@ -7145,7 +7145,7 @@ body[data-focus="true"] .note-meta {
   border-radius: 8px;
   background: color-mix(in srgb, var(--c) 13%, transparent);
   color: var(--c);
-  font: 700 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.85rem var(--font-ui);
 }
 .ex-slot {
   display: grid;
@@ -7154,7 +7154,7 @@ body[data-focus="true"] .note-meta {
   border: 1.5px dashed var(--rule-strong);
   border-radius: 12px;
   color: var(--muted);
-  font: 500 0.88rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 500 0.88rem var(--font-ui);
 }
 .ex-stage--list .ex-bank {
   flex-direction: column;
@@ -7171,7 +7171,7 @@ body[data-focus="true"] .note-meta {
   gap: 0.6rem;
   margin: 0 0 0.5rem;
   color: var(--muted);
-  font: 700 0.7rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.7rem var(--font-ui);
   letter-spacing: 0.09em;
   text-transform: uppercase;
 }
@@ -7235,7 +7235,7 @@ body[data-focus="true"] .note-meta {
   min-width: 12rem;
   margin: 0;
   color: var(--muted);
-  font: 500 0.82rem/1.4 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 500 0.82rem/1.4 var(--font-ui);
 }
 .ex-keys-kbd {
   display: none;
@@ -7258,7 +7258,7 @@ body[data-focus="true"] .note-meta {
   padding: 0 1.1rem;
   border: 0;
   border-radius: 12px;
-  font: 700 0.85rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.85rem var(--font-ui);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--paper);
@@ -7362,7 +7362,7 @@ body[data-focus="true"] .note-meta {
 .lesson-stage .ex-action {
   display: block;
   margin: 0.15rem 0 0;
-  font: 600 clamp(1.55rem, 1.2rem + 1.2vw, 2.1rem) / 1.15 "Alegreya", "Alegreya Fallback", serif;
+  font: 600 clamp(1.55rem, 1.2rem + 1.2vw, 2.1rem) / 1.15 var(--font-text);
   color: var(--ink);
 }
 .lesson-stage .callout-ex > .ex-prompt:not(.ex-src) {
@@ -7372,7 +7372,7 @@ body[data-focus="true"] .note-meta {
   border: 1.5px solid var(--rule);
   border-radius: 18px;
   background: var(--tile);
-  font: 400 clamp(1.06rem, 1rem + 0.3vw, 1.15rem) / 1.42 "Alegreya", "Alegreya Fallback", serif;
+  font: 400 clamp(1.06rem, 1rem + 0.3vw, 1.15rem) / 1.42 var(--font-text);
 }
 .lesson-stage .callout-ex > .ex-prompt:not(.ex-src)::before {
   content: "";
@@ -7430,7 +7430,7 @@ body[data-focus="true"] .note-meta {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  font: 700 1.2rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 1.2rem var(--font-ui);
 }
 .lesson-stage .callout-ex .quiz-feedback--ok .quiz-feedback-title {
   color: var(--garden);
@@ -7489,7 +7489,7 @@ body[data-focus="true"] .note-meta {
 .ex-tick {
   position: absolute;
   transform: translate(calc(-100% - 14px), -50%);
-  font: 700 0.8rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.8rem var(--font-ui);
   font-variant-numeric: lining-nums;
   color: var(--muted);
   white-space: nowrap;
@@ -7588,7 +7588,7 @@ body[data-focus="true"] .note-meta {
 }
 .ex-when {
   display: block;
-  font: 700 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 700 0.72rem var(--font-ui);
   color: var(--garden);
 }
 .ex-chip.is-wrong .ex-when {
@@ -7640,7 +7640,7 @@ body[data-focus="true"] .note-meta {
   margin: 0 auto 0.25rem;
 }
 .note-colophon small {
-  font: italic 400 0.9rem "Alegreya", "Alegreya Fallback", serif;
+  font: italic 400 0.9rem var(--font-text);
   color: var(--muted);
 }
 
