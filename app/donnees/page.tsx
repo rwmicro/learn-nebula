@@ -3,7 +3,6 @@ import { t, i18nProps } from "@/lib/i18n";
 import { DATA_FILES, DATA_SOURCES, getFigures } from "@/lib/donnees";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/donnees.css";
-import { AppBack } from "@/components/layout/AppBack";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = {

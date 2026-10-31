@@ -235,6 +235,6 @@ export function isTifinagh(text: string): boolean {
 
 export function kabLettersUsed(text: string): { latin: string; tif: string }[] {
   const latin = isTifinagh(text) ? kabToLatin(text) : kabNorm(text);
-  const used = new Set([...latin]);
+  const used = new Set(latin);
   return KAB_LETTERS.filter(([l]) => used.has(l)).map(([l, t]) => ({ latin: l, tif: t }));
 }
