@@ -28,7 +28,10 @@
 /public/js/mermaid-render.bundle.js
 /public/js/translate-device.bundle.js
 /public/js/local-llm.worker.js
+/public/js/piper-voice.bundle.js
+/public/js/piper.worker.js
 /public/ort/
+/public/piper/
 
 # mermaid UMD bundle copied in by scripts/copy-mermaid.mjs (client-render fallback)
 /public/js/mermaid.min.js

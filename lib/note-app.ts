@@ -53,6 +53,7 @@ export const NOTE_APP_ICONS = {
   toc: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h11M4 18h14"/></svg>`,
   width: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg>`,
   focus: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/></svg>`,
+  voice: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg>`,
   globe: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/></svg>`,
   later: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>`,
   share: `<svg viewBox="0 0 24 24" ${s} stroke-width="1.8" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-7"/></svg>`,
@@ -171,6 +172,7 @@ export function noteAppChromeHtml(input: NoteAppInput, cover: boolean): string {
     `<div class="na-grp">` +
     toggle("data-na-wide", I.width, "noteApp.wide") +
     toggle("data-na-focus", I.focus, "noteApp.focus") +
+    toggle("data-na-voice hidden", I.voice, "noteApp.voice") +
     `</div>` +
     `<div class="na-grp na-grp-links">` +
     `<div class="na-opt na-translate">${I.globe}${tx("noteApp.translate")}<span class="na-translate-slot"></span></div>` +

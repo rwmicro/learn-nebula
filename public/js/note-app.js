@@ -202,7 +202,8 @@
   function paintAudio() {
     if (!listen) return;
     listen.disabled = !audio || audio.hidden;
-    const on = !!audio && audio.dataset.state === "playing";
+    // "loading": the natural voice is downloading; a tap cancels it, like a pause.
+    const on = !!audio && (audio.dataset.state === "playing" || audio.dataset.state === "loading");
     listen.dataset.state = on ? "playing" : "idle";
     listen.setAttribute("aria-pressed", on ? "true" : "false");
   }
@@ -210,6 +211,20 @@
     listen.addEventListener("click", (e) => proxy(audio, e));
     if (audio) new MutationObserver(paintAudio).observe(audio, { attributes: true, attributeFilter: ["data-state", "hidden"] });
     paintAudio();
+  }
+
+  // "Voix naturelle": mirrors .voice-btn (shown once audio.js reveals it).
+  const voiceBtn = $(".voice-btn");
+  const voiceSw = $("[data-na-voice]", root);
+  function paintVoice() {
+    if (!voiceSw) return;
+    voiceSw.hidden = !voiceBtn || voiceBtn.hidden;
+    voiceSw.setAttribute("aria-checked", voiceBtn?.getAttribute("aria-checked") === "true" ? "true" : "false");
+  }
+  if (voiceSw && voiceBtn) {
+    voiceSw.addEventListener("click", (e) => proxy(voiceBtn, e));
+    new MutationObserver(paintVoice).observe(voiceBtn, { attributes: true, attributeFilter: ["aria-checked", "hidden"] });
+    paintVoice();
   }
 
   // --- bookmark: mirrors .bookmark-btn -----------------------------------------

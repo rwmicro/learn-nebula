@@ -43,6 +43,7 @@ import {
   folderI18n,
   bookmarkButtonHtml,
   focusButtonHtml,
+  voiceButtonHtml,
   lessonButtonHtml,
   noteMoreHtml,
   nextUpHtml,
@@ -324,7 +325,7 @@ export async function SinglePage({
             bookmarkButtonHtml() +
             // Then the display settings (set once, rarely touched) and the
             // translation, folded under "Affichage ▾".
-            noteMoreHtml(fontSizeButtonHtml() + wideTextButtonHtml() + focusButtonHtml() + translateButtonHtml(detectedLang)),
+            noteMoreHtml(fontSizeButtonHtml() + wideTextButtonHtml() + focusButtonHtml() + voiceButtonHtml() + translateButtonHtml(detectedLang)),
           step?.next ?? sibNav?.next ?? null,
         )
       : "") +
