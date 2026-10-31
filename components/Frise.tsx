@@ -1,4 +1,4 @@
-import { t, i18nAttrs, folderKey } from "@/lib/i18n";
+import { t, folderKey, i18nProps } from "@/lib/i18n";
 import { familyOfFolder } from "@/lib/path-family";
 import { Fragment, type ReactNode } from "react";
 import type { TimelineEntry } from "@/lib/content";
@@ -36,13 +36,13 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
       <a href="/" className="old-back frise-back">
         ← {t("nav.home")}
       </a>
-      <h1 className="frise-title" {...attrs(i18nAttrs("frise.title"))}>
+      <h1 className="frise-title" {...i18nProps("frise.title")}>
         {t("frise.title")}
       </h1>
-      <p className="frise-intro" {...attrs(i18nAttrs("frise.intro"))}>
+      <p className="frise-intro" {...i18nProps("frise.intro")}>
         {t("frise.intro")}
       </p>
-      <p className="frise-count" {...attrs(i18nAttrs("frise.count", { n: entries.length }))}>
+      <p className="frise-count" {...i18nProps("frise.count", { n: entries.length })}>
         {t("frise.count", { n: entries.length })}
       </p>
       {/* The population curve with the notes on it (FriseCourbe), when
@@ -50,7 +50,7 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
       {before && <div className="frise-curve-slot">{before}</div>}
 
       {entries.length === 0 ? (
-        <p className="frise-empty" {...attrs(i18nAttrs("frise.empty"))}>
+        <p className="frise-empty" {...i18nProps("frise.empty")}>
           {t("frise.empty")}
         </p>
       ) : (
@@ -62,7 +62,7 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
           >
             {eras.map((era) => (
               <a key={era.id} href={`#${era.id}`} className="frise-era-chip">
-                <span {...attrs(i18nAttrs(era.key))}>{t(era.key)}</span>
+                <span {...i18nProps(era.key)}>{t(era.key)}</span>
                 <span className="frise-era-n">{era.entries.length}</span>
               </a>
             ))}
@@ -75,12 +75,12 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
           ))}
           <div className="frise-filter" role="group" aria-label={t("frise.erasAria")} data-i18n-aria-label="frise.erasAria">
             <label htmlFor="frise-f-all">
-              <span {...attrs(i18nAttrs("frise.all"))}>{t("frise.all")}</span>
+              <span {...i18nProps("frise.all")}>{t("frise.all")}</span>
               <span className="frise-era-n">{entries.length}</span>
             </label>
             {eras.map((era) => (
               <label key={era.id} htmlFor={`frise-f-${era.id}`}>
-                <span {...attrs(i18nAttrs(era.short))}>{t(era.short)}</span>
+                <span {...i18nProps(era.short)}>{t(era.short)}</span>
                 <span className="frise-era-n">{era.entries.length}</span>
               </label>
             ))}
@@ -95,7 +95,7 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
               <h2
                 id={`${era.id}-h`}
                 className="frise-era-title"
-                {...attrs(i18nAttrs(era.key))}
+                {...i18nProps(era.key)}
               >
                 {t(era.key)}
               </h2>
@@ -111,14 +111,14 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
                     <Fragment key={e.href}>
                     {/* Phones: a heading per century (hidden from 640px). */}
                     {newCentury && (
-                      <li className="frise-century" aria-hidden="true" {...attrs(i18nAttrs(c.key, c.vars))}>
+                      <li className="frise-century" aria-hidden="true" {...i18nProps(c.key, c.vars)}>
                         {t(c.key, c.vars)}
                       </li>
                     )}
                     <li className="frise-entry" data-family={fam ?? undefined}>
                       <span className="frise-start" aria-hidden="true">
                         {Math.abs(e.year)}
-                        {e.year < 0 && <small {...attrs(i18nAttrs("frise.bceShort"))}>{t("frise.bceShort")}</small>}
+                        {e.year < 0 && <small {...i18nProps("frise.bceShort")}>{t("frise.bceShort")}</small>}
                       </span>
                       <span className="frise-year">
                         {formatYear(e.year)}
@@ -148,7 +148,7 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
                         <span className="frise-meta">
                           {dk && (
                             <>
-                              <span {...attrs(i18nAttrs(dk))}>{t(dk)}</span>
+                              <span {...i18nProps(dk)}>{t(dk)}</span>
                               {" · "}
                             </>
                           )}
@@ -211,11 +211,3 @@ export function bareTitle(title: string): string {
   return title.replace(/\s*\((?:[^()]*\d{3,4}[^()]*|[^()]*\bsi[eè]cles?\b[^()]*)\)\s*$/i, "") || title;
 }
 
-// lib/i18n's helpers emit attribute *strings* for the HTML-string builders in
-// lib/html.ts; in JSX they have to come back as a props object (see
-// components/RecentNotes.tsx, same pattern).
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) out[m[1]] = m[2];
-  return out;
-}

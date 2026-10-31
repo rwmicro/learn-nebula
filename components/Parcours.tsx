@@ -1,4 +1,4 @@
-import { t, i18nAttrs, disciplineKey, folderKey } from "@/lib/i18n";
+import { t, disciplineKey, folderKey, i18nProps } from "@/lib/i18n";
 import { ART, FAMILY_ART, artStrip, levelArt } from "@/lib/road-art";
 import { splitRank } from "@/lib/folder-label";
 import { OfflinePath } from "@/components/OfflinePath";
@@ -78,14 +78,14 @@ export function ParcoursIndex({
   return (
     <main id="main" className="themes-page parcours-page tab-root">
       <Back href="/" labelKey="nav.home" />
-      <h1 className="themes-title" {...attrs(i18nAttrs("parcours.title"))}>
+      <h1 className="themes-title" {...i18nProps("parcours.title")}>
         {t("parcours.title")}
       </h1>
-      <p className="themes-intro" {...attrs(i18nAttrs("parcours.intro"))}>
+      <p className="themes-intro" {...i18nProps("parcours.intro")}>
         {t("parcours.intro")}
       </p>
       {paths.length === 0 && (
-        <p className="themes-intro" {...attrs(i18nAttrs("parcours.empty"))}>
+        <p className="themes-intro" {...i18nProps("parcours.empty")}>
           {t("parcours.empty")}
         </p>
       )}
@@ -122,10 +122,10 @@ export function ParcoursIndex({
                 />
               )}
               <h2 className="themes-h2">
-                <span {...attrs(i18nAttrs(label))}>{t(label)}</span>
+                <span {...i18nProps(label)}>{t(label)}</span>
                 <span
                   className="parcours-family-count"
-                  {...attrs(i18nAttrs(countKey(list.length), { n: list.length }))}
+                  {...i18nProps(countKey(list.length), { n: list.length })}
                 >
                   {t(countKey(list.length), { n: list.length })}
                 </span>
@@ -134,7 +134,7 @@ export function ParcoursIndex({
             </div>
             {tiles.length > 0 && (
               <div className="parcours-tiles-block" data-path-block>
-                <p className="parcours-tiles-intro" {...attrs(i18nAttrs("parcours.langIntro"))}>
+                <p className="parcours-tiles-intro" {...i18nProps("parcours.langIntro")}>
                   {t("parcours.langIntro")}
                 </p>
                 <ul className="parcours-tiles">
@@ -170,7 +170,7 @@ export function ParcoursIndex({
             {cards.length > 0 && (
               <div className="parcours-cards-block" data-path-block>
                 {tiles.length > 0 && (
-                  <p className="parcours-cards-label" {...attrs(i18nAttrs("parcours.langAround"))}>
+                  <p className="parcours-cards-label" {...i18nProps("parcours.langAround")}>
                     {t("parcours.langAround")}
                   </p>
                 )}
@@ -207,13 +207,13 @@ export function ParcoursIndex({
                           {(p.prev || p.next) && (
                             <span className="parcours-card-chain">
                               {p.prev && (
-                                <span {...attrs(i18nAttrs("parcours.followsFrom", { name: splitName(p.prev.name)[0] }))}>
+                                <span {...i18nProps("parcours.followsFrom", { name: splitName(p.prev.name)[0] })}>
                                   {t("parcours.followsFrom", { name: splitName(p.prev.name)[0] })}
                                 </span>
                               )}
                               {p.prev && p.next && " · "}
                               {p.next && (
-                                <span {...attrs(i18nAttrs("parcours.followedBy", { name: splitName(p.next.name)[0] }))}>
+                                <span {...i18nProps("parcours.followedBy", { name: splitName(p.next.name)[0] })}>
                                   {t("parcours.followedBy", { name: splitName(p.next.name)[0] })}
                                 </span>
                               )}
@@ -235,7 +235,7 @@ export function ParcoursIndex({
           </section>
         );
       })}
-      <p className="parcours-privacy" {...attrs(i18nAttrs("reading.privacy"))}>
+      <p className="parcours-privacy" {...i18nProps("reading.privacy")}>
         {t("reading.privacy")}
       </p>
       <ReadMarks />
@@ -319,19 +319,19 @@ export function ParcoursPage({
         ).map(([k, key]) => (
           <span key={k} className="parcours-legend-item">
             <span className={`parcours-swatch parcours-swatch--${k}`} />
-            <span {...attrs(i18nAttrs(key))}>{t(key)}</span>
+            <span {...i18nProps(key)}>{t(key)}</span>
           </span>
         ))}
         {hasQuiz.size > 0 && (
           <span className="parcours-legend-item">
             <span className="parcours-swatch parcours-swatch--quiz">?</span>
-            <span {...attrs(i18nAttrs("parcours.quizMark"))}>{t("parcours.quizMark")}</span>
+            <span {...i18nProps("parcours.quizMark")}>{t("parcours.quizMark")}</span>
           </span>
         )}
       </figcaption>
       <p className="parcours-tip">
         <TargetIcon />
-        <span {...attrs(i18nAttrs("parcours.targetTip"))}>{t("parcours.targetTip")}</span>
+        <span {...i18nProps("parcours.targetTip")}>{t("parcours.targetTip")}</span>
       </p>
     </figure>
   );
@@ -366,7 +366,7 @@ export function ParcoursPage({
       )}
       <div className="parcours-status" data-read-group>
         <span>
-          <span {...attrs(i18nAttrs("parcours.count", { n: path.notes.length }))}>
+          <span {...i18nProps("parcours.count", { n: path.notes.length })}>
             {t("parcours.count", { n: path.notes.length })}
           </span>
           {" · "}
@@ -374,7 +374,7 @@ export function ParcoursPage({
           {levels.length > 1 && (
             <>
               {" · "}
-              <span {...attrs(i18nAttrs("parcours.levels", { n: levels.length }))}>
+              <span {...i18nProps("parcours.levels", { n: levels.length })}>
                 {t("parcours.levels", { n: levels.length })}
               </span>
             </>
@@ -382,7 +382,7 @@ export function ParcoursPage({
           {path.cible && (
             <>
               {" · "}
-              <span {...attrs(i18nAttrs("parcours.cible", { c: path.cible }))}>
+              <span {...i18nProps("parcours.cible", { c: path.cible })}>
                 {t("parcours.cible", { c: path.cible })}
               </span>
             </>
@@ -432,7 +432,7 @@ export function ParcoursPage({
       {/* Level heads name the list on a long path; a short one keeps its title. */}
       <h2
         className={levels.length > 1 ? "visually-hidden" : "themes-h2"}
-        {...attrs(i18nAttrs("parcours.order"))}
+        {...i18nProps("parcours.order")}
       >
         {t("parcours.order")}
       </h2>
@@ -464,7 +464,7 @@ export function ParcoursPage({
                   <button type="button" className="parcours-review-btn" data-level-review-btn={lv.n} disabled>
                     <span
                       className="parcours-review-name"
-                      {...attrs(i18nAttrs(levels.length > 1 ? "parcours.levelReview" : "parcours.review", { n: lv.n }))}
+                      {...i18nProps(levels.length > 1 ? "parcours.levelReview" : "parcours.review", { n: lv.n })}
                     >
                       {t(levels.length > 1 ? "parcours.levelReview" : "parcours.review", { n: lv.n })}
                     </span>
@@ -486,17 +486,15 @@ export function ParcoursPage({
               open
             >
               <summary className="parcours-level-head">
-                <span className="parcours-level-name" {...attrs(i18nAttrs("parcours.level", { n: lv.n }))}>
+                <span className="parcours-level-name" {...i18nProps("parcours.level", { n: lv.n })}>
                   {t("parcours.level", { n: lv.n })}
                 </span>
                 <span
                   className="parcours-level-span"
-                  {...attrs(
-                    i18nAttrs("parcours.levelSpan", {
+                  {...i18nProps("parcours.levelSpan", {
                       from: titleOf(notes[0].slug),
                       to: titleOf(notes[notes.length - 1].slug),
-                    }),
-                  )}
+                    })}
                 >
                   {t("parcours.levelSpan", {
                     from: titleOf(notes[0].slug),
@@ -506,7 +504,7 @@ export function ParcoursPage({
                 <span className="parcours-level-meta">
                   {levelCible(notes) && (
                     <>
-                      <span className="parcours-level-cible" {...attrs(i18nAttrs("parcours.cible", { c: levelCible(notes)! }))}>
+                      <span className="parcours-level-cible" {...i18nProps("parcours.cible", { c: levelCible(notes)! })}>
                         {t("parcours.cible", { c: levelCible(notes)! })}
                       </span>
                       {" · "}
@@ -526,12 +524,12 @@ export function ParcoursPage({
       </div>
       {path.next && (
         <a className="parcours-next-path" href={`/parcours/${path.next.slug}/`}>
-          <span className="parcours-next-path-k" {...attrs(i18nAttrs("parcours.nextPath"))}>
+          <span className="parcours-next-path-k" {...i18nProps("parcours.nextPath")}>
             {t("parcours.nextPath")}
           </span>
           <span className="parcours-next-path-name">{path.next.name}</span>
           <span className="parcours-next-path-meta">
-            <span {...attrs(i18nAttrs("parcours.count", { n: path.next.count }))}>
+            <span {...i18nProps("parcours.count", { n: path.next.count })}>
               {t("parcours.count", { n: path.next.count })}
             </span>{" "}
             →
@@ -542,11 +540,11 @@ export function ParcoursPage({
           levels are the way in, the graph the map (and for aiming at a note,
           ◎); its summary folds it away for who doesn't want it. */}
       <details className="parcours-graph-fold" open>
-        <summary {...attrs(i18nAttrs("parcours.graphAll"))}>{t("parcours.graphAll")}</summary>
+        <summary {...i18nProps("parcours.graphAll")}>{t("parcours.graphAll")}</summary>
         {figure}
       </details>
 
-      <p className="parcours-privacy" {...attrs(i18nAttrs("reading.privacy"))}>
+      <p className="parcours-privacy" {...i18nProps("reading.privacy")}>
         {t("reading.privacy")}
       </p>
       <ReadMarks />
@@ -635,7 +633,7 @@ function OrderItem({
         <span className="parcours-state" data-state-label hidden />
         {after.length > 0 && (
           <span className="parcours-after">
-            <span {...attrs(i18nAttrs("parcours.after"))}>{t("parcours.after")}</span> {after.join(", ")}
+            <span {...i18nProps("parcours.after")}>{t("parcours.after")}</span> {after.join(", ")}
           </span>
         )}
       </span>
@@ -671,7 +669,7 @@ function PathMeta({ path, extras }: { path: ReadingPathView; extras?: PathExtras
   const n = path.notes.length;
   return (
     <span className="parcours-meta">
-      <span {...attrs(i18nAttrs("dash.notes", { n }))}>{t("dash.notes", { n })}</span>
+      <span {...i18nProps("dash.notes", { n })}>{t("dash.notes", { n })}</span>
       {" · "}
       <Duration minutes={minutes} />
     </span>
@@ -688,7 +686,7 @@ function Duration({ minutes, approx = false }: { minutes: number; approx?: boole
   return (
     <>
       {approx && "≈ "}
-      <span {...attrs(i18nAttrs(key, vars))}>{t(key, vars)}</span>
+      <span {...i18nProps(key, vars)}>{t(key, vars)}</span>
     </>
   );
 }
@@ -925,23 +923,14 @@ function Progress({
 function DisciplineName({ name }: { name: string }) {
   const key = disciplineKey(name);
   if (!key) return <>{name}</>;
-  return <span {...attrs(i18nAttrs(key))}>{t(key)}</span>;
+  return <span {...i18nProps(key)}>{t(key)}</span>;
 }
 
 function Back({ href, labelKey }: { href: string; labelKey: string }) {
   return (
     <a href={href} className="themes-back">
-      ← <span {...attrs(i18nAttrs(labelKey))}>{t(labelKey)}</span>
+      ← <span {...i18nProps(labelKey)}>{t(labelKey)}</span>
     </a>
   );
 }
 
-// lib/i18n's helpers emit attribute *strings*; in JSX they come back as props
-// (same helper as components/Themes.tsx).
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) {
-    out[m[1]] = m[2].replace(/&quot;/g, '"');
-  }
-  return out;
-}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { t as buildT, i18nAttr } from "@/lib/i18n";
+import { t as buildT, i18nAttrProps } from "@/lib/i18n";
 import { fold } from "@/lib/palette-match";
 
 /**
@@ -78,7 +78,8 @@ export function ThemesFilter({ total }: { total: number }) {
         spellCheck={false}
         placeholder={buildT("themes.filterPlaceholder")}
         aria-label={buildT("themes.filterPlaceholder")}
-        {...attrs(i18nAttr("placeholder", "themes.filterPlaceholder") + i18nAttr("aria-label", "themes.filterPlaceholder"))}
+        {...i18nAttrProps("placeholder", "themes.filterPlaceholder")}
+        {...i18nAttrProps("aria-label", "themes.filterPlaceholder")}
       />
       <span className="themes-filter-count" aria-live="polite">
         {q.trim() ? tr(shown === 1 ? "themes.filterCountOne" : "themes.filterCount", { n: shown }) : ""}
@@ -91,10 +92,3 @@ type I18nWindow = Window & {
   __i18n?: { t?: (k: string, v?: Record<string, string | number>) => string };
 };
 
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) {
-    out[m[1]] = m[2].replace(/&quot;/g, '"');
-  }
-  return out;
-}

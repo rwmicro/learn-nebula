@@ -1,4 +1,4 @@
-import { t, i18nAttrs, disciplineKey } from "@/lib/i18n";
+import { t, disciplineKey, i18nProps } from "@/lib/i18n";
 import type { Discipline, TagGroup, ThemeNote } from "@/lib/content";
 import { ReadMarks } from "@/components/ReadMarks";
 import { ThemesFilter } from "@/components/ThemesFilter";
@@ -68,22 +68,22 @@ export function ThemesIndex({
   return (
     <main className="themes-page themes-page--index">
       <Back href="/" labelKey="nav.home" phone={["/notes/", "tabbar.notes"]} />
-      <h1 className="themes-title" {...attrs(i18nAttrs("themes.title"))}>
+      <h1 className="themes-title" {...i18nProps("themes.title")}>
         {t("themes.title")}
       </h1>
-      <p className="themes-intro" {...attrs(i18nAttrs("themes.intro"))}>
+      <p className="themes-intro" {...i18nProps("themes.intro")}>
         {t("themes.intro")}
       </p>
-      <p className="themes-phone-intro" {...attrs(i18nAttrs("themes.phoneIntro"))}>
+      <p className="themes-phone-intro" {...i18nProps("themes.phoneIntro")}>
         {t("themes.phoneIntro")}
       </p>
 
-      <h2 className="themes-h2" {...attrs(i18nAttrs("themes.disciplines"))}>
+      <h2 className="themes-h2" {...i18nProps("themes.disciplines")}>
         {t("themes.disciplines")}
       </h2>
       {TOPS.map((top) => (
         <section key={top.folder} className="themes-top">
-          <h3 className="themes-h3" {...attrs(i18nAttrs(top.key))}>
+          <h3 className="themes-h3" {...i18nProps(top.key)}>
             {t(top.key)}
           </h3>
           <ul className="themes-cloud themes-cloud--compact">
@@ -102,20 +102,20 @@ export function ThemesIndex({
         </section>
       ))}
 
-      <h2 className="themes-h2" id="themes-tags-h" {...attrs(i18nAttrs("themes.tags"))}>
+      <h2 className="themes-h2" id="themes-tags-h" {...i18nProps("themes.tags")}>
         {t("themes.tags")}
       </h2>
-      <p className="themes-intro" {...attrs(i18nAttrs("themes.tagsIntro"))}>
+      <p className="themes-intro" {...i18nProps("themes.tagsIntro")}>
         {t("themes.tagsIntro")}
       </p>
       <ThemesFilter total={shownTags} />
       <input type="radio" name="themes-sort" id="themes-s-freq" className="themes-radio" defaultChecked />
       <input type="radio" name="themes-sort" id="themes-s-alpha" className="themes-radio" />
       <div className="themes-sort" role="group" aria-label={t("themes.sortAria")} data-i18n-aria-label="themes.sortAria">
-        <label htmlFor="themes-s-freq" {...attrs(i18nAttrs("themes.sortFreq"))}>
+        <label htmlFor="themes-s-freq" {...i18nProps("themes.sortFreq")}>
           {t("themes.sortFreq")}
         </label>
-        <label htmlFor="themes-s-alpha" {...attrs(i18nAttrs("themes.sortAlpha"))}>
+        <label htmlFor="themes-s-alpha" {...i18nProps("themes.sortAlpha")}>
           {t("themes.sortAlpha")}
         </label>
       </div>
@@ -136,13 +136,13 @@ export function ThemesIndex({
                 {discipline ? (
                   <DisciplineName name={discipline} />
                 ) : (
-                  <span {...attrs(i18nAttrs("themes.root"))}>{t("themes.root")}</span>
+                  <span {...i18nProps("themes.root")}>{t("themes.root")}</span>
                 )}
               </h3>
               <TagCloud tags={common} />
               {rare.length > 0 && (
                 <details className="themes-rare" data-themes-rare>
-                  <summary {...attrs(i18nAttrs("themes.more", { n: rare.length }))}>
+                  <summary {...i18nProps("themes.more", { n: rare.length })}>
                     {t("themes.more", { n: rare.length })}
                   </summary>
                   <TagCloud tags={rare} />
@@ -152,7 +152,7 @@ export function ThemesIndex({
           );
         })}
       </div>
-      <p className="themes-filter-empty" data-themes-empty hidden {...attrs(i18nAttrs("themes.filterEmpty"))}>
+      <p className="themes-filter-empty" data-themes-empty hidden {...i18nProps("themes.filterEmpty")}>
         {t("themes.filterEmpty")}
       </p>
       <ReadMarks />
@@ -176,10 +176,10 @@ function ThemeRow({ tag, order }: { tag: TagGroup; order: number }) {
       <span className="themes-row-text">
         <a href={`/themes/${tag.slug}/`}>{tag.name}</a>
         <small>
-          <span {...attrs(i18nAttrs(countKey, { n: tag.notes.length }))}>{t(countKey, { n: tag.notes.length })}</span>
+          <span {...i18nProps(countKey, { n: tag.notes.length })}>{t(countKey, { n: tag.notes.length })}</span>
           {ranked.length > 0 && " · "}
           {ranked.length > 3 ? (
-            <span {...attrs(i18nAttrs("themes.nDisciplines", { n: ranked.length }))}>
+            <span {...i18nProps("themes.nDisciplines", { n: ranked.length })}>
               {t("themes.nDisciplines", { n: ranked.length })}
             </span>
           ) : (
@@ -241,14 +241,14 @@ function TagCloud({ tags }: { tags: TagGroup[] }) {
 function DisciplineName({ name }: { name: string }) {
   const key = disciplineKey(name);
   if (!key) return <>{name}</>;
-  return <span {...attrs(i18nAttrs(key))}>{t(key)}</span>;
+  return <span {...i18nProps(key)}>{t(key)}</span>;
 }
 
 /** "1 note" / "12 notes". */
 function NoteCount({ n, className }: { n: number; className?: string }) {
   const key = n === 1 ? "themes.countOne" : "themes.count";
   return (
-    <span className={className} {...attrs(i18nAttrs(key, { n }))}>
+    <span className={className} {...i18nProps(key, { n })}>
       {t(key, { n })}
     </span>
   );
@@ -273,7 +273,7 @@ export function TagPage({ tag }: { tag: TagGroup }) {
   return (
     <main className="themes-page">
       <Back href="/themes/" labelKey="themes.all" phone={["/themes/", "themes.title"]} />
-      <p className="themes-kicker" {...attrs(i18nAttrs("themes.tagKicker"))}>
+      <p className="themes-kicker" {...i18nProps("themes.tagKicker")}>
         {t("themes.tagKicker")}
       </p>
       <h1 className="themes-title">{tag.name}</h1>
@@ -297,7 +297,7 @@ export function DisciplinePage({ discipline }: { discipline: Discipline }) {
       <Back href="/themes/" labelKey="themes.all" phone={["/notes/", "tabbar.notes"]} />
       <p
         className="themes-kicker"
-        {...attrs(i18nAttrs("themes.disciplineKicker"))}
+        {...i18nProps("themes.disciplineKicker")}
       >
         {t("themes.disciplineKicker")}
       </p>
@@ -320,13 +320,13 @@ export function DisciplinePage({ discipline }: { discipline: Discipline }) {
       </p>
       {discipline.tags.length > 0 && (
         <>
-          <h2 className="themes-h3" {...attrs(i18nAttrs("themes.topTags"))}>
+          <h2 className="themes-h3" {...i18nProps("themes.topTags")}>
             {t("themes.topTags")}
           </h2>
           <ul className="themes-cloud themes-cloud--compact">
             {/* Phones: the chip row starts with the page itself, selected. */}
             <li className="themes-chip-all" aria-current="page">
-              <span {...attrs(i18nAttrs("frise.all"))}>{t("frise.all")}</span>
+              <span {...i18nProps("frise.all")}>{t("frise.all")}</span>
             </li>
             {discipline.tags.map((g) => (
               <li key={g.slug}>
@@ -365,7 +365,7 @@ function NoteSection({
         {name ? (
           <DisciplineName name={name} />
         ) : (
-          <span {...attrs(i18nAttrs("themes.root"))}>{t("themes.root")}</span>
+          <span {...i18nProps("themes.root")}>{t("themes.root")}</span>
         )}
         {showCount && <span className="themes-count">{notes.length}</span>}
       </h2>
@@ -374,12 +374,12 @@ function NoteSection({
           <li key={n.href} className={n.index ? "themes-note-index" : undefined}>
             <a href={n.href}>{n.title}</a>
             {n.minutes && (
-              <small className="themes-note-min" {...attrs(i18nAttrs("themes.minutes", { n: n.minutes }))}>
+              <small className="themes-note-min" {...i18nProps("themes.minutes", { n: n.minutes })}>
                 {t("themes.minutes", { n: n.minutes })}
               </small>
             )}
             {n.index && (
-              <span className="themes-index-badge" {...attrs(i18nAttrs("themes.indexBadge"))}>
+              <span className="themes-index-badge" {...i18nProps("themes.indexBadge")}>
                 {t("themes.indexBadge")}
               </span>
             )}
@@ -395,7 +395,7 @@ function Back({ href, labelKey, phone }: { href: string; labelKey: string; phone
     <>
       <AppBack href={phone[0]} labelKey={phone[1]} />
       <a href={href} className="old-back themes-back">
-        ← <span {...attrs(i18nAttrs(labelKey))}>{t(labelKey)}</span>
+        ← <span {...i18nProps(labelKey)}>{t(labelKey)}</span>
       </a>
     </>
   );
@@ -409,13 +409,3 @@ function Count({ n }: { n: number }) {
   );
 }
 
-// lib/i18n's helpers emit attribute *strings* for the HTML-string builders in
-// lib/html.ts; in JSX they have to come back as a props object (same as
-// components/Frise.tsx).
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) {
-    out[m[1]] = m[2].replace(/&quot;/g, '"');
-  }
-  return out;
-}

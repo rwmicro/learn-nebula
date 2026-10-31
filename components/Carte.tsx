@@ -1,4 +1,4 @@
-import { t, i18nAttrs } from "@/lib/i18n";
+import { t, i18nProps } from "@/lib/i18n";
 import { CARTE_BINS, carteClass, WORLD, type CarteCountry } from "@/lib/carte";
 import { CarteHover } from "@/components/CarteHover";
 import { AppBack } from "@/components/AppBack";
@@ -34,10 +34,10 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
       <a href="/" className="old-back carte-back">
         ← {t("nav.home")}
       </a>
-      <h1 className="carte-title" {...attrs(i18nAttrs("carte.title"))}>
+      <h1 className="carte-title" {...i18nProps("carte.title")}>
         {t("carte.title")}
       </h1>
-      <p className="carte-intro" {...attrs(i18nAttrs("carte.intro", { n: countries.length, notes: total }))}>
+      <p className="carte-intro" {...i18nProps("carte.intro", { n: countries.length, notes: total })}>
         {t("carte.intro", { n: countries.length, notes: total })}
       </p>
 
@@ -74,17 +74,17 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
                 {i < CARTE_BINS.length - 1 ? `${b}–${CARTE_BINS[i + 1] - 1}` : `${b}+`}
               </span>
             ))}
-            <span className="carte-legend-unit" {...attrs(i18nAttrs("carte.legendUnit"))}>
+            <span className="carte-legend-unit" {...i18nProps("carte.legendUnit")}>
               {t("carte.legendUnit")}
             </span>
           </span>
-          <span className="carte-source" {...attrs(i18nAttrs("carte.source"))}>
+          <span className="carte-source" {...i18nProps("carte.source")}>
             {t("carte.source")}
           </span>
         </figcaption>
       </figure>
 
-      <h2 className="carte-list-title" {...attrs(i18nAttrs("carte.listTitle"))}>
+      <h2 className="carte-list-title" {...i18nProps("carte.listTitle")}>
         {t("carte.listTitle")}
       </h2>
       <input type="radio" name="carte-sort" id="carte-s-notes" className="carte-radio" defaultChecked />
@@ -92,7 +92,7 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
       <input type="radio" name="carte-sort" id="carte-s-region" className="carte-radio" />
       <div className="carte-sort" role="group" aria-label={t("carte.sortAria")} data-i18n-aria-label="carte.sortAria">
         {(["notes", "name", "region"] as const).map((k) => (
-          <label key={k} htmlFor={`carte-s-${k}`} {...attrs(i18nAttrs(`carte.sort_${k}`))}>
+          <label key={k} htmlFor={`carte-s-${k}`} {...i18nProps(`carte.sort_${k}`)}>
             {t(`carte.sort_${k}`)}
           </label>
         ))}
@@ -104,7 +104,7 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
             className="carte-region"
             aria-hidden="true"
             style={{ "--o-region": regionRank(r) * 1000 } as CSSProperties}
-            {...attrs(i18nAttrs(`carte.region_${r ?? "other"}`))}
+            {...i18nProps(`carte.region_${r ?? "other"}`)}
           >
             {t(`carte.region_${r ?? "other"}`)}
           </li>
@@ -131,7 +131,7 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
                 {c.notes.map((n) => (
                   <li key={n.href}>
                     <a href={n.href}>{n.title}</a>
-                    <span className="carte-kind" {...attrs(i18nAttrs(`carte.kind_${n.kind}`))}>
+                    <span className="carte-kind" {...i18nProps(`carte.kind_${n.kind}`)}>
                       {t(`carte.kind_${n.kind}`)}
                     </span>
                   </li>
@@ -141,7 +141,7 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
           </li>
         ))}
       </ul>
-      <p className="carte-how" {...attrs(i18nAttrs("carte.how"))}>
+      <p className="carte-how" {...i18nProps("carte.how")}>
         {t("carte.how")}
       </p>
       <CarteHover />
@@ -149,10 +149,3 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
   );
 }
 
-// lib/i18n's helpers emit attribute strings for the HTML-string builders; in
-// JSX they come back as a props object (same as components/Frise.tsx).
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) out[m[1]] = m[2].replace(/&quot;/g, '"');
-  return out;
-}
