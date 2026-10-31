@@ -1398,7 +1398,10 @@
     "doneTitle": "أنهيت مراجعة اليوم",
     "doneText": "لا شيء مستحق. يمكنك التدرّب على بطاقاتك الضعيفة أو فتح رزمة جديدة.",
     "doneGo": "تدرّب",
-    "nothingToday": "لا شيء اليوم"
+    "nothingToday": "لا شيء اليوم",
+    "inProgress": "قيد المراجعة",
+    "deckCount": "{n} مجموعات",
+    "masteryAria": "{known} محفوظة، {learning} قيد التعلّم، {unseen} لم تُرَ بعد"
   },
   "road": {
     "levelOf": "المستوى {n} من {total}",

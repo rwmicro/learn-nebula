@@ -33,9 +33,9 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
     const place = family === "langues" ? [parts[0], ...parts.slice(1).map((p) => p.toLowerCase())].join(" ") : parts[parts.length - 1];
     // "Anglais · Anglais Vocabulaire TOEIC" says the language twice: the
     // deck's own name loses a leading copy of the place.
-    const name = place && fold(d.name).startsWith(fold(place) + " ") ? d.name.slice(place.length).trim() : d.name;
+    const name = place && fold(d.name).startsWith(fold(place) + " ") ? d.name.slice(place.length).replace(/^[\s·:–-]+/, "") : d.name;
     const label = place && place !== "—" && fold(name) !== fold(place) ? `${place} · ${name}` : name;
-    return { slug: d.slug, label, count: d.count, family };
+    return { slug: d.slug, label, name, group: place && place !== "—" ? place : name, count: d.count, family };
   });
 
   return (

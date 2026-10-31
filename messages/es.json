@@ -1398,7 +1398,10 @@
     "doneTitle": "Al día por hoy",
     "doneText": "No hay nada pendiente. Puedes practicar tus tarjetas frágiles o abrir un mazo nuevo.",
     "doneGo": "Practicar",
-    "nothingToday": "nada hoy"
+    "nothingToday": "nada hoy",
+    "inProgress": "En curso",
+    "deckCount": "{n} mazos",
+    "masteryAria": "{known} dominadas, {learning} en aprendizaje, {unseen} sin ver"
   },
   "road": {
     "levelOf": "Nivel {n} de {total}",
