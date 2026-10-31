@@ -64,8 +64,8 @@ function loadDevice() {
   const sourceLang = btn.dataset.sourceLang;
   const label = btn.querySelector(".translate-label");
 
-  function tt(k) {
-    return window.__i18n && window.__i18n.t ? window.__i18n.t(k) : k;
+  function tt(k, vars) {
+    return window.__i18n && window.__i18n.t ? window.__i18n.t(k, vars) : k;
   }
 
   // Resolve display names from the active UI locale and re-sort the menu
