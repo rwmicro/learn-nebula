@@ -36,6 +36,7 @@ const PAGES = [
   { url: "/frise/", name: "frise" },
   { url: "/compte/", name: "compte" },
   { url: "/404/", name: "404" },
+  { url: "/admin/design/", name: "design" },
 ];
 
 // Right-to-left: the Arabic interface on a few pages that carry the shared
