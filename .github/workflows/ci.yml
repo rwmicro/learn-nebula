@@ -155,10 +155,8 @@ jobs:
         run: pnpm build
 
       # Browser checks against the export this job just produced. Only the specs
-      # that assert behaviour: tests/style.spec.js compares screenshots, and its
-      # baselines aren't tracked, so in CI it would either write them fresh and
-      # compare a run to itself or fail on a Chromium revision bump. It stays a
-      # local tool until those baselines are pinned to a container image.
+      # that assert behaviour: the screenshots (tests/style.spec.js) need the
+      # fixed vault and the pinned image, so they have their own job, "visual".
       #
       # This is where the WCAG contrast failure in .callout-warning would have
       # been caught — axe covers the whole page, not just what changed.
@@ -171,4 +169,35 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report/
+          retention-days: 7
+
+  visual:
+    name: Visual regression (screenshots)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # The same image scripts/visual.sh runs locally: same Chromium, same fonts,
+    # so the tracked baselines in tests/style.spec.js-snapshots/ compare pixel
+    # for pixel. Its tag must follow @playwright/test in pnpm-lock.yaml (a
+    # mismatch fails at launch: "Executable doesn't exist").
+    container:
+      image: mcr.microsoft.com/playwright:v1.61.1-noble
+      options: --ipc=host
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      # Builds from tests/fixtures/vault (not pensine, which changes daily),
+      # then compares. To accept a change: scripts/visual.sh --update-snapshots,
+      # look at the PNGs, commit them.
+      - name: Build the fixture site and compare screenshots
+        env:
+          VISUAL_IN_CONTAINER: "1"
+          CI: "1"
+        run: scripts/visual.sh
+
+      - name: Upload the diffs on failure
+        if: failure()
+        uses: actions/upload-artifact@v6
+        with:
+          name: visual-diffs
+          path: test-results/
           retention-days: 7

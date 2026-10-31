@@ -1,101 +1,100 @@
-import fs from "node:fs";
-import path from "node:path";
 import { test, expect } from "@playwright/test";
-import { PAGES } from "./config.js";
 
-// Visual regression — LOCAL ONLY, and deliberately not part of CI.
+// Visual regression against reviewed baselines.
 //
-// tests/style.spec.js-snapshots/ is not tracked by git. Playwright writes a
-// missing baseline on the first run and reports that run as failed, so the
-// second run compares against what the first one produced and passes. Green
-// here means "this run matched the previous run", not "this run matched a
-// reviewed reference" — which is how a whole suite can look healthy while
-// asserting nothing. The guard below refuses to run rather than let that
-// happen quietly.
+// The baselines (tests/style.spec.js-snapshots/) are tracked, and only mean
+// something when both sides are pinned:
+//   - the notes: the site is built from the fixed vault in tests/fixtures/vault
+//     (NOTES_LOCAL_DIR), not from pensine, which changes every day;
+//   - the browser: screenshots are taken inside the Playwright image whose
+//     version matches @playwright/test (scripts/visual.sh, ci.yml "visual").
+// Taken anywhere else (another Chromium, the real vault), they will differ.
 //
-// Pinning the baselines needs them generated on the same Chromium the checker
-// will use, i.e. inside a fixed Playwright container image, and the vault-
-// dependent post screenshots below need a fixed set of notes. Until both are
-// arranged, tests/functional.spec.js and tests/a11y.spec.js are what CI runs —
-// they assert behaviour and need no reference image.
-test.beforeAll(({}, testInfo) => {
-  // Playwright's default is "missing" — it writes what it can't find and moves
-  // on, which is the trap. Only an explicit --update-snapshots gets past here.
-  const mode = testInfo.config.updateSnapshots;
-  if (mode === "all" || mode === "changed") return;
-  const dir = path.join(
-    testInfo.project.testDir,
-    "style.spec.js-snapshots",
-  );
-  const empty = !fs.existsSync(dir) || fs.readdirSync(dir).length === 0;
-  if (empty) {
-    throw new Error(
-      "No visual baselines in tests/style.spec.js-snapshots/ — they are not tracked " +
-        "by git, so a plain run would write them and then compare this run against " +
-        "itself.\nRun `pnpm exec playwright test tests/style.spec.js " +
-        "--update-snapshots` once, eyeball the PNGs, and keep them for the session.",
-    );
-  }
-});
+//   scripts/visual.sh                      # build the fixture site + compare
+//   scripts/visual.sh --update-snapshots   # rewrite the baselines, then review the PNGs
 
-async function discoverBlogPosts(page) {
-  await page.goto("/posts/");
+// The service worker would serve a page from its cache between runs.
+test.use({ serviceWorkers: "block" });
+
+// A fixed clock: the home's greeting, "today" cards and streaks depend on it.
+const NOW = new Date("2026-10-15T10:00:00Z");
+
+const PAGES = [
+  { url: "/", name: "accueil" },
+  { url: "/notes/", name: "notes" },
+  { url: "/notes/social-sciences/", name: "dossier" },
+  { url: "/parcours/", name: "parcours" },
+  { url: "/parcours/physique-du-lycee-a-la-prepa/", name: "parcours-detail" },
+  { url: "/posts/applied-sciences/mathematics/lycee/algebre/second-degre/", name: "note-maths" },
+  { url: "/posts/social-sciences/history/japon/histoire-du-japon/", name: "note-histoire" },
+  { url: "/themes/", name: "themes" },
+  { url: "/cartes/", name: "cartes" },
+  { url: "/progression/", name: "progression" },
+  { url: "/defis/", name: "defis" },
+  { url: "/jardin/", name: "jardin" },
+  { url: "/frise/", name: "frise" },
+  { url: "/compte/", name: "compte" },
+  { url: "/404/", name: "404" },
+];
+
+// Right-to-left: the Arabic interface on a few pages that carry the shared
+// pieces (title, list, note column).
+const RTL = ["accueil", "parcours", "note-histoire"];
+
+async function settle(page) {
   await page.waitForLoadState("networkidle");
-  const blogPostUrls = await page.evaluate(() => {
-    const links = Array.from(document.querySelectorAll('a[href*="/posts/"]'));
-    return links
-      .map((link) => link.href)
-      .filter((href) => href !== window.location.href)
-      .filter((href, index, self) => self.indexOf(href) === index);
-  });
-  return blogPostUrls;
-}
-
-function getSafeFilename(url) {
-  const urlObj = new URL(url, "http://localhost");
-  const filename =
-    urlObj.pathname.replace(/^\//, "").replace(/\/$/, "").replace(/\//g, "-") || "homepage";
-  return `${filename}.png`;
-}
-
-for (const page of PAGES) {
-  test(`${page.name} visual regression`, async ({ page: playwright }) => {
-    await playwright.goto(page.url);
-    await playwright.waitForLoadState("networkidle");
-    await playwright.waitForLoadState("load");
-    // Wait for fonts to load to ensure consistent rendering
-    await playwright.evaluate(() => document.fonts.ready);
-    await expect(playwright).toHaveScreenshot(`${page.name}.png`, {
-      fullPage: true,
-      animations: "disabled",
-    });
-  });
-}
-
-test.describe("Blog Posts", () => {
-  let blogPostUrls = [];
-
-  test.beforeAll(async ({ browser }) => {
-    const page = await browser.newPage();
-    blogPostUrls = await discoverBlogPosts(page);
-    await page.close();
-  });
-
-  test("recent blog posts visual regression", async ({ page }) => {
-    // Sorted, not "whatever /posts/ listed first": the discovery order shifts as
-    // the vault changes, and a screenshot test whose subject moves can't be a
-    // regression test. Sorting at least keeps the same three notes while they
-    // exist.
-    const postsToTest = [...blogPostUrls].sort().slice(0, 3);
-    for (const url of postsToTest) {
-      await page.goto(url);
-      await page.waitForLoadState("networkidle");
-      await page.waitForLoadState("load");
-      await page.evaluate(() => document.fonts.ready);
-      await expect(page).toHaveScreenshot(getSafeFilename(url), {
-        fullPage: true,
-        animations: "disabled",
-      });
+  await page.evaluate(() => document.fonts.ready);
+  // Lazy images and IntersectionObserver reveals: walk the page once.
+  await page.evaluate(async () => {
+    for (let y = 0; y < document.body.scrollHeight; y += window.innerHeight) {
+      window.scrollTo(0, y);
+      await new Promise((r) => requestAnimationFrame(() => r()));
     }
+    window.scrollTo(0, 0);
   });
-});
+  await page.waitForTimeout(300);
+}
+
+async function shoot(page, url, file, { scheme = "light", locale } = {}) {
+  await page.clock.setFixedTime(NOW);
+  // Exercises shuffle their choices: same seed, same order on every run.
+  await page.addInitScript(() => {
+    let x = 42;
+    Math.random = () => ((x = (x * 1103515245 + 12345) % 2147483648) / 2147483648);
+  });
+  await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+  if (locale) {
+    await page.addInitScript((l) => localStorage.setItem("locale", l), locale);
+  }
+  await page.goto(url);
+  await settle(page);
+  await expect(page).toHaveScreenshot(file, {
+    fullPage: true,
+    // Not "disabled": that jumps scroll-driven animations (the large titles
+    // that fade into the top bar) to their end, as if the page were scrolled.
+    animations: "allow",
+    caret: "hide",
+    timeout: 30_000,
+    // Same image, same Chromium: a real change is never a few pixels. (The
+    // 2% ratio in playwright.config.js lets a whole title vanish on a long page.)
+    maxDiffPixels: 100,
+    // The force graph's layout is random from run to run.
+    mask: [page.locator("canvas")],
+  });
+}
+
+for (const { url, name } of PAGES) {
+  test(`${name} clair`, async ({ page }) => {
+    await shoot(page, url, `${name}-clair.png`);
+  });
+  test(`${name} sombre`, async ({ page }) => {
+    await shoot(page, url, `${name}-sombre.png`, { scheme: "dark" });
+  });
+}
+
+for (const name of RTL) {
+  const { url } = PAGES.find((p) => p.name === name);
+  test(`${name} arabe`, async ({ page }) => {
+    await shoot(page, url, `${name}-arabe.png`, { locale: "ar" });
+  });
+}

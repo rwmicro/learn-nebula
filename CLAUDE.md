@@ -38,6 +38,17 @@ npx pnpm@10.28.0 build:server           # esbuild bundle → build/server/index.
 Also: `pnpm format` (prettier), `pnpm test` (build + Playwright), `pnpm
 build:docker` (site + RAG chunks, what the Docker CI runs).
 
+```bash
+scripts/visual.sh                       # screenshots vs tracked baselines (Docker, ~3 min)
+scripts/visual.sh --update-snapshots    # accept a visual change: rewrite, LOOK at the PNGs, commit
+```
+Visual regression (`tests/style.spec.js`, CI job `visual`): 15 pages × desktop/phone
+× light/dark, plus 3 in Arabic, built from the **fixed vault in `tests/fixtures/vault`**
+(a frozen copy of a few pensine folders, via `NOTES_LOCAL_DIR`), with a fixed clock
+and seeded `Math.random`, inside `mcr.microsoft.com/playwright:v<@playwright/test>-noble`.
+Baselines only match in that image: never regenerate them on the host. Bump the
+image tag in `ci.yml` together with `@playwright/test`.
+
 ### Big gotchas
 - **Bare `pnpm server` / `pnpm run server` silently does nothing** — pnpm
   10.28.0's default (non-streamed) reporter exits in ~1.3s with zero output,
@@ -292,8 +303,8 @@ build:docker` (site + RAG chunks, what the Docker CI runs).
 ## CI
 
 `.github/workflows/ci.yml` (typecheck app **and** `server/`, compile + boot
-the server, oxlint + ESLint, unit tests, and a full static-export build on
-push/PR) and `docker.yml` (image build/push, above; its actions are pinned by
+the server, oxlint + ESLint, unit tests, a full static-export build on
+push/PR, and the screenshot comparison on the fixture vault) and `docker.yml` (image build/push, above; its actions are pinned by
 SHA since it holds the GHCR write token). `uptime.yml` probes
 `https://4d52.net/healthz` (503 when `out/index.html` can't be read,
 `server/static-health.ts`, so the image healthcheck and the Pi's rollback
