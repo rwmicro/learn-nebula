@@ -85,6 +85,17 @@
   --chip-on-ink: var(--paper);
 }
 
+/* Primary buttons on phones (start a review, sign in, keep the streak…):
+   one height, a pill, the garden green. --btn-h-sm inside cards and the chat. */
+:root {
+  --btn-h: 3.25rem;
+  --btn-h-sm: 2.875rem;
+  --btn-radius: 999px;
+  --btn-font: 600 1.0625rem var(--font-ui);
+  --btn-bg: var(--garden);
+  --btn-ink: var(--paper);
+}
+
 /* components/ui/PageHeader.tsx */
 .page-title {
   margin: 0 0 0.5rem;

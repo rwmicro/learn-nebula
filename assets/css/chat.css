@@ -793,16 +793,15 @@ button.gc-ib:hover {
 }
 .gc .gc-btn {
   flex: 1;
-  height: 44px;
-  border-radius: 22px;
+  height: var(--btn-h-sm);
+  border-radius: var(--btn-radius);
   display: grid;
   place-items: center;
-  font-weight: 700;
-  font-size: 0.98rem;
+  font: var(--btn-font);
 }
 .gc .gc-btn.pri {
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--btn-bg);
+  color: var(--btn-ink);
 }
 .gc .gc-btn.pri:disabled {
   opacity: 0.45;

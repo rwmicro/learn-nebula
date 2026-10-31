@@ -1066,11 +1066,11 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     justify-content: center;
     gap: 0.5rem;
     width: 100%;
-    height: 3.25rem;
-    border-radius: 1.625rem !important;
-    background: var(--garden) !important;
-    color: var(--paper) !important;
-    font: 700 1.0625rem var(--font-ui) !important;
+    height: var(--btn-h);
+    border-radius: var(--btn-radius) !important;
+    background: var(--btn-bg) !important;
+    color: var(--btn-ink) !important;
+    font: var(--btn-font) !important;
     transition:
       transform 0.12s,
       opacity 0.2s;

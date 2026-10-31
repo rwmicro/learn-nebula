@@ -507,14 +507,14 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    height: 3rem;
-    border-radius: 1.5rem;
-    background: var(--garden);
-    color: var(--paper);
-    font: 600 1.03125rem var(--font-ui);
+    height: var(--btn-h);
+    border-radius: var(--btn-radius);
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+    font: var(--btn-font);
   }
   .moi .moi-keep-go:hover {
-    background: var(--garden);
+    background: var(--btn-bg);
   }
   .moi-keep-go svg {
     width: 1.0625rem;

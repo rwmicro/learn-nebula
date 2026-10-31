@@ -1177,12 +1177,13 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  height: 3.125rem;
+  height: var(--btn-h);
   margin: 0.625rem 1rem 0;
+  /* Square-ish, like the dashboard's cards around it. */
   border-radius: 1rem;
-  background: var(--garden);
-  color: var(--paper);
-  font: 700 1.0625rem var(--font-ui);
+  background: var(--btn-bg);
+  color: var(--btn-ink);
+  font: var(--btn-font);
   transition: transform 0.15s;
 }
 
@@ -3640,12 +3641,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 3rem;
+    height: var(--btn-h);
     margin-top: 0.875rem;
-    border-radius: 1.5rem;
-    background: var(--garden);
-    color: var(--paper);
-    font: 600 1rem var(--font-ui);
+    border-radius: var(--btn-radius);
+    background: var(--btn-bg);
+    color: var(--btn-ink);
+    font: var(--btn-font);
     text-decoration: none;
   }
   /* Twelve weeks as columns, the days of the week as rows, a month's
@@ -3806,9 +3807,9 @@
     line-height: 1.35;
   }
   main.progression .progression-btn {
-    height: 3rem;
-    border-radius: 1.5rem;
-    font: 600 1rem var(--font-ui);
+    height: var(--btn-h);
+    border-radius: var(--btn-radius);
+    font: var(--btn-font);
   }
 }
 
@@ -4263,12 +4264,12 @@
     justify-content: center;
     gap: 0.5rem;
     width: 100%;
-    height: 3.25rem;
+    height: var(--btn-h);
     border: 0;
-    border-radius: 1.625rem;
-    background: var(--garden);
-    color: var(--paper) !important;
-    font: 600 1.0625rem var(--font-ui) !important;
+    border-radius: var(--btn-radius);
+    background: var(--btn-bg);
+    color: var(--btn-ink) !important;
+    font: var(--btn-font) !important;
     text-decoration: none;
   }
   .rsm-big {
@@ -4645,12 +4646,13 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    height: 3.25rem;
+    height: var(--btn-h);
     margin-top: 0.875rem;
-    border-radius: 1.625rem;
-    background: var(--paper);
-    color: var(--garden);
-    font: 600 1.0625rem var(--font-ui);
+    border-radius: var(--btn-radius);
+    /* Inverted: it sits on the green review card. */
+    background: var(--btn-ink);
+    color: var(--btn-bg);
+    font: var(--btn-font);
   }
   .rv-go svg {
     width: 1.125rem;
@@ -5444,9 +5446,9 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    height: 2.875rem;
+    height: var(--btn-h-sm);
     margin-top: 0.75rem;
-    border-radius: 1.4375rem;
+    border-radius: var(--btn-radius);
     background: var(--fam, var(--garden));
     box-shadow: 0 4px 0 color-mix(in srgb, var(--fam, var(--garden)) 65%, #000);
     color: var(--on-fam);
