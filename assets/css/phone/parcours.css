@@ -202,10 +202,18 @@
     color: var(--muted);
   }
 
-  /* "En cours": the card's own gap above the filter field (the rule
-     above zeroes the margins it shares with the path cards). */
+  /* "Reprendre": each started path is its own tinted card (radius-md, a
+     block in the page flow), stacked with the same 0.7rem gap as the desktop
+     grid. The shared rule above draws one card around the list, which made
+     the tinted rows touch; the list goes back to a plain stack here. */
   main.parcours-page .parcours-resume-list {
+    display: grid;
+    gap: 0.7rem;
     margin-bottom: 1rem;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    overflow: visible;
   }
   main.parcours-page .parcours-resume-list li {
     display: grid;
@@ -213,9 +221,8 @@
     margin: 0;
     padding: 0.8rem 0.95rem;
     border: 0;
-  }
-  main.parcours-page .parcours-resume-list li + li {
-    border-top: 0.5px solid var(--dash-edge);
+    border-radius: var(--radius-md);
+    box-shadow: var(--dash-shadow);
   }
   main.parcours-page .parcours-resume-path {
     font: 500 1.06rem var(--font-text);
