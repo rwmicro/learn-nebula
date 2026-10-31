@@ -52,7 +52,9 @@ export function HomeMore({ notes, paths, languages }: { notes: number; paths: nu
         {t("dash.explore")}
       </h2>
       <div className="home-more-tiles">
-        <a href="/graph/">
+        {/* A family tint like the three others: on --wash alone the tile
+            vanished into the page. */}
+        <a href="/graph/" data-family="informatique">
           <span className="home-more-art">
             <GraphDots />
           </span>
