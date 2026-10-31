@@ -950,10 +950,14 @@
     z-index: 0;
     padding-bottom: 1rem;
   }
+  /* The card starts right under the heading, as the tiles of "Explorer
+     autrement" do: the heading's own height (padding 1.5rem + 0.5rem, one
+     0.8125rem line, .dash-h above). It used to start 0.875rem lower, so the
+     intro's 1rem top padding left it ~2px from the card's top edge. */
   .home-ask::before {
     content: "";
     position: absolute;
-    inset: 3.6875rem 1rem 0;
+    inset: calc(1.5rem + 0.8125rem + 0.5rem) 1rem 0;
     z-index: -1;
     border-radius: 1.375rem;
     background: var(--garden-wash);

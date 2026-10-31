@@ -934,6 +934,12 @@ footer {
   margin: 0 2rem 1.4rem;
   font-family: var(--font-ui);
   border-bottom: 1px solid var(--rule);
+  /* container-type (and the transform from 640px) makes the bar a stacking
+     context of its own: without a z-index the page below it (a parcours
+     cover, isolated) painted over its dropdowns, the language menu cut off
+     at the cover's top. Above the page, under sheets and the phone bars. */
+  position: relative;
+  z-index: 50;
 }
 body:has(.home-masthead) .site-bar {
   display: none;
