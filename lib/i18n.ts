@@ -60,10 +60,23 @@ export function i18nAttrs(key: string, vars?: Record<string, string | number>): 
   return s;
 }
 
+/** i18nAttrs() for JSX: the same pair as props. Parsing the string form back
+ * by hand (a local attrs() in eleven components) left three of them emitting
+ * `data-i18n-vars="{&amp;quot;n&amp;quot;…"`, which the runtime swap can't
+ * parse, so their counts stayed in French after a language switch. */
+export function i18nProps(key: string, vars?: Record<string, string | number>): Record<string, string> {
+  return vars ? { "data-i18n": key, "data-i18n-vars": JSON.stringify(vars) } : { "data-i18n": key };
+}
+
 /** For element attributes (aria-label, placeholder, alt, title). Emits a
  * data-i18n-<attr> marker; the runtime swap maps it back to setAttribute. */
 export function i18nAttr(attr: string, key: string): string {
   return ` data-i18n-${attr}="${key}"`;
+}
+
+/** i18nAttr() for JSX. */
+export function i18nAttrProps(attr: string, key: string): Record<string, string> {
+  return { [`data-i18n-${attr}`]: key };
 }
 
 export function getMessages(locale: Locale): Messages {

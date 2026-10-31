@@ -20,7 +20,7 @@
 }
 
 .admin-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   letter-spacing: -0.01rem;
 }

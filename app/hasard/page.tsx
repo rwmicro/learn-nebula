@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { GrowLoader } from "@/components/GrowLoader";
 import { SITE_TITLE } from "@/lib/site";
-import { t, i18nAttrs } from "@/lib/i18n";
+import { t, i18nProps } from "@/lib/i18n";
 
 export const metadata: Metadata = {
   title: `Une note au hasard · ${SITE_TITLE}`,
@@ -45,17 +45,17 @@ export default function RandomNotePage() {
     >
       <h1
         className="m-0 mb-5 text-balance text-[clamp(1.5rem,1.1rem+2.5vw,3rem)] font-medium leading-tight"
-        {...attrs(i18nAttrs("random.title"))}
+        {...i18nProps("random.title")}
       >
         {t("random.title")}
       </h1>
       <div id="hasard-status" hidden>
         <GrowLoader>
-          <span {...attrs(i18nAttrs("random.loading"))}>{t("random.loading")}</span>
+          <span {...i18nProps("random.loading")}>{t("random.loading")}</span>
         </GrowLoader>
       </div>
       <p id="hasard-error" hidden className="text-body">
-        <a href="/" className={link} {...attrs(i18nAttrs("random.error"))}>
+        <a href="/" className={link} {...i18nProps("random.error")}>
           {t("random.error")}
         </a>
       </p>
@@ -71,11 +71,3 @@ export default function RandomNotePage() {
   );
 }
 
-// lib/i18n's helpers emit attribute *strings* for the HTML-string builders in
-// lib/html.ts; in JSX they have to come back as a props object (see
-// components/RecentNotes.tsx, same pattern).
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) out[m[1]] = m[2];
-  return out;
-}

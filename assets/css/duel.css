@@ -5,11 +5,11 @@
   --duo-card: #fff;
   --duo-ok: var(--garden);
   --duo-bad: var(--danger);
-  max-width: 34rem;
+  max-width: var(--measure-narrow);
   margin: 0 auto;
   padding: 2.5rem 1rem 3rem;
   color: var(--ink);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-variant-numeric: lining-nums tabular-nums;
 }
 :root[data-theme="dark"] .duo {
@@ -30,16 +30,16 @@
 }
 .duo h2 {
   margin: 0 0 0.5rem;
-  font: 600 1.25rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+  font: 600 1.25rem/1.2 var(--font-text);
 }
 .duo-title {
   margin: 0.25rem 0.25rem 0.875rem;
-  font: 600 2.125rem/1.06 "Alegreya", "Alegreya Fallback", serif;
-  letter-spacing: -0.0125rem;
+  font: var(--title-page);
+  letter-spacing: var(--title-page-tracking);
 }
 .duo-lede {
   margin: 0 0.25rem 1rem !important;
-  font: 400 1.0625rem/1.45 "Alegreya", "Alegreya Fallback", serif;
+  font: 400 1.0625rem/1.45 var(--font-text);
   color: var(--ink-soft);
 }
 .duo-card {
@@ -83,7 +83,7 @@
   border-radius: var(--radius-md);
   background: transparent;
   color: var(--ink);
-  font: 600 1rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 600 1rem var(--font-ui);
   text-decoration: none;
   cursor: pointer;
 }
@@ -187,7 +187,7 @@
   color: var(--ink-2);
 }
 .duo-score b {
-  font: 700 1.5rem/1 "Alegreya", "Alegreya Fallback", serif;
+  font: 700 1.5rem/1 var(--font-text);
   color: var(--ink);
 }
 .duo-qn {
@@ -213,7 +213,7 @@
   }
 }
 .duo-q {
-  font: 500 1.25rem/1.4 "Alegreya", "Alegreya Fallback", serif;
+  font: 500 1.25rem/1.4 var(--font-text);
   overflow-wrap: anywhere;
 }
 .duo-q p,
@@ -244,7 +244,7 @@
   border-radius: var(--radius-md);
   background: var(--duo-card);
   color: var(--ink);
-  font: 1.0625rem/1.35 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 1.0625rem/1.35 var(--font-ui);
   text-align: left;
   cursor: pointer;
   overflow-wrap: anywhere;
@@ -307,7 +307,7 @@
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  font: 700 2.75rem/1 "Alegreya", "Alegreya Fallback", serif;
+  font: 700 2.75rem/1 var(--font-text);
 }
 .duo-final > span:not([aria-hidden]) {
   display: flex;
@@ -316,11 +316,11 @@
   gap: 0.25rem;
 }
 .duo-final small {
-  font: 500 0.875rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 500 0.875rem var(--font-ui);
   color: var(--muted);
 }
 .duo-verdict {
-  font: 600 1.25rem "Alegreya", "Alegreya Fallback", serif;
+  font: 600 1.25rem var(--font-text);
 }
 
 /* Tandem call */
@@ -354,7 +354,7 @@
   }
 }
 .duo-phrase-tx {
-  font: 500 1.5rem/1.35 "Alegreya", "Alegreya Fallback", serif;
+  font: 500 1.5rem/1.35 var(--font-text);
   overflow-wrap: anywhere;
 }
 .duo-controls {
@@ -375,5 +375,5 @@
 }
 .duo-share-h {
   margin: 0 0 0.4rem;
-  font: 500 1.4rem/1.2 "Alegreya", "Alegreya Fallback", serif;
+  font: 500 1.4rem/1.2 var(--font-text);
 }

@@ -1,5 +1,5 @@
 import { formatDateLong, type RecentNote } from "@/lib/content";
-import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
+import { t, i18nProps, i18nAttrProps } from "@/lib/i18n";
 
 /**
  * "Latest growth" on the home page: the handful of notes most recently planted
@@ -27,7 +27,7 @@ export function RecentNotes({ notes }: { notes: RecentNote[] }) {
                 {n.stage && (
                   <span
                     className={`growth-stage growth-${n.stage}`}
-                    {...attrs(i18nAttr("title", "growth.stageAria"))}
+                    {...i18nAttrProps("title", "growth.stageAria")}
                     title={t("growth.stageAria")}
                   >
                     <span className="growth-dot" aria-hidden="true" />
@@ -52,14 +52,7 @@ export function RecentNotes({ notes }: { notes: RecentNote[] }) {
   );
 }
 
-// lib/i18n's helpers emit attribute *strings* for the HTML-string builders in
-// lib/html.ts; in JSX they have to come back as a props object.
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) out[m[1]] = m[2];
-  return out;
-}
 
 function i18nDataAttrs(key: string): Record<string, string> {
-  return attrs(i18nAttrs(key));
+  return i18nProps(key);
 }

@@ -11,7 +11,7 @@
   border-inline-start: 3px solid var(--garden);
   border-radius: var(--radius-md);
   background: var(--wash);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1rem;
   line-height: 1.4;
 }
@@ -31,7 +31,7 @@ main .path-step-where {
   color: var(--ink-2);
 }
 .path-step-label {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
@@ -221,7 +221,7 @@ main .path-step a:focus-visible,
   background: var(--paper-raised);
   color: var(--ink);
   box-shadow: 0 18px 50px -12px rgb(0 0 0 / 0.4);
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   overflow: hidden;
 }
 .path-sheet[open] {
@@ -244,7 +244,7 @@ html.path-sheet-open {
 }
 main .path-sheet-k {
   margin: 0;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1rem;
@@ -253,7 +253,7 @@ main .path-sheet-k {
 }
 main .path-sheet-name {
   margin: 0.1rem 2rem 0.6rem 0;
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.2rem;
   line-height: 1.25;
   color: var(--ink);
@@ -412,7 +412,7 @@ main .path-sheet-btn:focus-visible {
   outline: 2px solid var(--link);
   outline-offset: 2px;
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .path-sheet {
     width: 100vw;
     max-width: none;
@@ -496,7 +496,7 @@ main .path-sheet-btn:focus-visible {
     animation: path-dock-in 0.2s ease-out;
   }
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   /* Phones: the pill is a round button there (global.css). */
   .path-dock:not([hidden]) {
     right: 4.5rem;
@@ -531,7 +531,7 @@ main .path-sheet-btn:focus-visible {
 }
 .path-dock-ring text {
   fill: var(--ink);
-  font: 600 8.5px "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font: 600 8.5px var(--font-ui);
 }
 .path-dock-text {
   flex: 1;
@@ -540,7 +540,7 @@ main .path-sheet-btn:focus-visible {
   line-height: 1.2;
 }
 .path-dock-k {
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.74rem;
   color: var(--muted-warm);
 }
@@ -585,7 +585,7 @@ html.lesson-open .path-dock {
 /* Steps panel on a computer: fades in and out with its backdrop in CSS alone
    (@starting-style; `overlay`/`display` stay rendered through the exit with
    allow-discrete). Phones keep the slide-up above. */
-@media (prefers-reduced-motion: no-preference) and (min-width: 641px) {
+@media (prefers-reduced-motion: no-preference) and (min-width: 640px) {
   .path-sheet,
   .path-sheet::backdrop {
     opacity: 0;
@@ -660,7 +660,7 @@ html.lesson-open .path-dock {
   }
   .path-step-label {
     grid-row: 2;
-    font: 700 0.75rem/1.6 "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 700 0.75rem/1.6 var(--font-ui);
     letter-spacing: 0.08em;
     text-transform: uppercase;
     color: var(--fam-ink, var(--garden));
@@ -786,7 +786,7 @@ html.lesson-open .path-dock {
   body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) main .path-step-path {
     grid-row: 2;
     white-space: normal;
-    font: 500 1.15rem/1.25 "Alegreya", "Alegreya Fallback", serif;
+    font: 500 1.15rem/1.25 var(--font-text);
   }
   body:not([data-wide-text="wide"]):not([data-wide-text="widest"]) .path-step-open {
     grid-row: 4;

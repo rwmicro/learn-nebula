@@ -7,7 +7,7 @@
   text-align: start;
 }
 .graphiques-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: clamp(1.15rem, 1rem + 0.5vw, 1.35rem);
@@ -24,7 +24,7 @@
   border-bottom: 1px solid var(--rule-soft, var(--rule));
 }
 .graphiques-link {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
+  font-family: var(--font-text);
   font-size: 1.15rem;
   color: var(--ink);
 }

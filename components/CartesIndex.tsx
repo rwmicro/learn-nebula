@@ -1,4 +1,4 @@
-import { t, i18nAttrs } from "@/lib/i18n";
+import { t, i18nProps } from "@/lib/i18n";
 import type { AnkiDeck } from "@/lib/anki";
 import { NoteQuestionsEntry } from "@/components/NoteQuestionsEntry";
 import { CartesToday, DeckDue, StartedDecks } from "@/components/CartesToday";
@@ -6,6 +6,7 @@ import { homeFolderLabel } from "@/lib/content";
 import { CartesPhone } from "@/components/CartesPhone";
 import { familyOfFolder } from "@/lib/path-family";
 import { fold } from "@/lib/palette-match";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
  * /cartes/ — every Anki deck (lib/anki.ts's manifest), grouped under the vault
@@ -41,15 +42,13 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
   return (
     <main className="cartes-index tab-root">
       <CartesPhone decks={phoneDecks} />
-      <a href="/" className="cartes-index-back">
-        ← {t("nav.home")}
-      </a>
-      <h1 className="cartes-index-title" {...attrs(i18nAttrs("cartesIndex.title"))}>
-        {t("cartesIndex.title")}
-      </h1>
-      <p className="cartes-index-intro" {...attrs(i18nAttrs("cartesIndex.intro"))}>
-        {t("cartesIndex.intro")}
-      </p>
+      <PageHeader
+        name="cartes-index"
+        title={t("cartesIndex.title")}
+        titleProps={i18nProps("cartesIndex.title")}
+        intro={t("cartesIndex.intro")}
+        introProps={i18nProps("cartesIndex.intro")}
+      />
 
       {/* Everything due today, all decks and note questions together. */}
       <CartesToday decks={decks} />
@@ -58,13 +57,13 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
       {/* Questions saved from the notes' [!quiz] cards (public/js/quiz.js). */}
       <NoteQuestionsEntry />
       <p className="cartes-index-progress">
-        <a href="/progression/" {...attrs(i18nAttrs("cartesIndex.progression"))}>
+        <a href="/progression/" {...i18nProps("cartesIndex.progression")}>
           {t("cartesIndex.progression")}
         </a>
       </p>
 
       {folders.length === 0 ? (
-        <p className="cartes-index-empty" {...attrs(i18nAttrs("cartesIndex.empty"))}>
+        <p className="cartes-index-empty" {...i18nProps("cartesIndex.empty")}>
           {t("cartesIndex.empty")}
         </p>
       ) : (
@@ -83,7 +82,7 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
                       {d.count > 0 && (
                         <span
                           className="cartes-index-count"
-                          {...attrs(i18nAttrs("cartesIndex.count", { count: d.count }))}
+                          {...i18nProps("cartesIndex.count", { count: d.count })}
                         >
                           {t("cartesIndex.count", { count: d.count })}
                         </span>
@@ -112,12 +111,3 @@ function folderLabel(folder: string): string {
   return last ?? "—";
 }
 
-// lib/i18n's helpers emit attribute *strings* for the HTML-string builders in
-// lib/html.ts; in JSX they have to come back as a props object (see
-// components/RecentNotes.tsx, same pattern).
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g))
-    out[m[1]] = m[2].replace(/&quot;/g, '"');
-  return out;
-}

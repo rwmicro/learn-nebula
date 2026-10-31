@@ -1,5 +1,5 @@
 import { formatDateLong } from "@/lib/content";
-import { t, i18nAttrs } from "@/lib/i18n";
+import { t, i18nProps } from "@/lib/i18n";
 import type { Graphique } from "@/lib/graphiques";
 
 /**
@@ -11,7 +11,7 @@ export function Graphiques({ items }: { items: Graphique[] }) {
   if (!items.length) return null;
   return (
     <section className="graphiques" data-pagefind-ignore>
-      <h2 className="graphiques-title" {...attrs(i18nAttrs("graphiques.title"))}>
+      <h2 className="graphiques-title" {...i18nProps("graphiques.title")}>
         {t("graphiques.title")}
       </h2>
       <ul className="graphiques-list">
@@ -27,15 +27,10 @@ export function Graphiques({ items }: { items: Graphique[] }) {
           </li>
         ))}
       </ul>
-      <a href="/graphiques.xml" className="graphiques-rss" {...attrs(i18nAttrs("graphiques.rss"))}>
+      <a href="/graphiques.xml" className="graphiques-rss" {...i18nProps("graphiques.rss")}>
         {t("graphiques.rss")}
       </a>
     </section>
   );
 }
 
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) out[m[1]] = m[2];
-  return out;
-}

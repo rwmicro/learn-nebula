@@ -251,7 +251,7 @@
   height: 0.8rem;
   border: 1px solid var(--rule-strong);
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .sci-rc-top {
     grid-template-columns: minmax(0, 1fr);
   }

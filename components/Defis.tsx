@@ -10,6 +10,7 @@ import { loadLog } from "@/lib/srs-log";
 import { dayKey } from "@/lib/srs";
 import { authConfig, fetchMe, readHint } from "@/lib/account-client";
 import { AppBack } from "@/components/AppBack";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 // /defis/ — the day run and three small goals for today, from this browser's
 // own records (lib/personal.ts's activity, the reading store, the review
@@ -186,8 +187,7 @@ export function Defis({ paths }: { paths: DefisPath[] }) {
 
   return (
     <main className="defis" data-pagefind-ignore>
-      <AppBack href="/progression/" labelKey="moi.title" />
-      <h1 className="defis-title">{tr("defis.title")}</h1>
+      <PageHeader name="defis" back={{ href: "/progression/", labelKey: "moi.title" }} title={tr("defis.title")} />
 
       {/* The week as seven pots (lib/deco-art.ts): a day read sprouts, taller
           as the run goes on; today waits as a seed. */}

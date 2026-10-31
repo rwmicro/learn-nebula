@@ -1,7 +1,8 @@
-import { t, i18nAttrs, folderKey } from "@/lib/i18n";
+import { t, folderKey, i18nProps } from "@/lib/i18n";
 import { formatDateLong } from "@/lib/content";
 import type { GardenStats as Stats, MonthCount } from "@/lib/garden-stats";
 import { AppBack } from "@/components/AppBack";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
  * /jardin/: the vault in numbers (lib/garden-stats.ts), rendered on the
@@ -11,27 +12,27 @@ import { AppBack } from "@/components/AppBack";
 export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date }) {
   const disc = (name: string) => {
     const k = folderKey(name);
-    return k ? <span {...attrs(i18nAttrs(k))}>{t(k)}</span> : <>{name}</>;
+    return k ? <span {...i18nProps(k)}>{t(k)}</span> : <>{name}</>;
   };
   const maxDisc = Math.max(1, ...stats.byDiscipline.map((d) => d.notes));
   return (
     <main className="jardin-page">
-      <AppBack href="/notes/" labelKey="tabbar.notes" />
-      <a href="/" className="old-back jardin-back">
-        ← <span {...attrs(i18nAttrs("nav.home"))}>{t("nav.home")}</span>
-      </a>
-      <p className="jardin-kicker">
-        <span {...attrs(i18nAttrs("jardin.updated"))}>{t("jardin.updated")}</span>{" "}
-        <time dateTime={builtAt.toISOString()} data-i18n-date>
-          {formatDateLong(builtAt)}
-        </time>
-      </p>
-      <h1 className="jardin-title" {...attrs(i18nAttrs("jardin.title"))}>
-        {t("jardin.title")}
-      </h1>
-      <p className="jardin-intro" {...attrs(i18nAttrs("jardin.intro"))}>
-        {t("jardin.intro")}
-      </p>
+      <PageHeader
+        name="jardin"
+        back={{ href: "/notes/", labelKey: "tabbar.notes" }}
+        kicker={
+          <p className="jardin-kicker">
+            <span {...i18nProps("jardin.updated")}>{t("jardin.updated")}</span>{" "}
+            <time dateTime={builtAt.toISOString()} data-i18n-date>
+              {formatDateLong(builtAt)}
+            </time>
+          </p>
+        }
+        title={t("jardin.title")}
+        titleProps={i18nProps("jardin.title")}
+        intro={t("jardin.intro")}
+        introProps={i18nProps("jardin.intro")}
+      />
 
       <dl className="jardin-figs">
         <Fig n={fmtInt(stats.notes)} k="jardin.statNotes" />
@@ -42,7 +43,7 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
 
       {stats.months.length > 1 && (
         <section className="jardin-section" aria-labelledby="jardin-growth">
-          <h2 id="jardin-growth" className="jardin-h" {...attrs(i18nAttrs("jardin.growthTitle"))}>
+          <h2 id="jardin-growth" className="jardin-h" {...i18nProps("jardin.growthTitle")}>
             {t("jardin.growthTitle")}
           </h2>
           <GrowthChart months={stats.months} />
@@ -50,7 +51,7 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
           {stats.peak && (
             <p
               className="jardin-note"
-              {...attrs(i18nAttrs("jardin.peak", { n: stats.peak.planted, month: monthLabel(stats.peak.month) }))}
+              {...i18nProps("jardin.peak", { n: stats.peak.planted, month: monthLabel(stats.peak.month) })}
             >
               {t("jardin.peak", { n: stats.peak.planted, month: monthLabel(stats.peak.month) })}
             </p>
@@ -60,7 +61,7 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
 
       <div className="jardin-cols">
         <section className="jardin-section" aria-labelledby="jardin-disc">
-          <h2 id="jardin-disc" className="jardin-h" {...attrs(i18nAttrs("jardin.disciplinesTitle"))}>
+          <h2 id="jardin-disc" className="jardin-h" {...i18nProps("jardin.disciplinesTitle")}>
             {t("jardin.disciplinesTitle")}
           </h2>
           <ul className="jardin-bars">
@@ -70,7 +71,7 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
                   {d.name ? (
                     disc(d.name)
                   ) : (
-                    <span {...attrs(i18nAttrs("jardin.others"))}>{t("jardin.others")}</span>
+                    <span {...i18nProps("jardin.others")}>{t("jardin.others")}</span>
                   )}
                 </span>
                 <span className="jardin-bar-track" aria-hidden="true">
@@ -85,14 +86,14 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
         <div className="jardin-side">
           {stats.cited.length > 0 && (
             <section className="jardin-section" aria-labelledby="jardin-cited">
-              <h2 id="jardin-cited" className="jardin-h" {...attrs(i18nAttrs("jardin.citedTitle"))}>
+              <h2 id="jardin-cited" className="jardin-h" {...i18nProps("jardin.citedTitle")}>
                 {t("jardin.citedTitle")}
               </h2>
               <ol className="jardin-cited">
                 {stats.cited.map((c) => (
                   <li key={c.slug}>
                     <a href={`/posts/${c.slug}/`}>{c.title}</a>
-                    <span {...attrs(i18nAttrs("jardin.links", { n: c.links }))}>
+                    <span {...i18nProps("jardin.links", { n: c.links })}>
                       {t("jardin.links", { n: c.links })}
                     </span>
                   </li>
@@ -102,14 +103,14 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
           )}
           {stats.growing.length > 0 && (
             <section className="jardin-section" aria-labelledby="jardin-growing">
-              <h2 id="jardin-growing" className="jardin-h" {...attrs(i18nAttrs("jardin.growingTitle"))}>
+              <h2 id="jardin-growing" className="jardin-h" {...i18nProps("jardin.growingTitle")}>
                 {t("jardin.growingTitle")}
               </h2>
               <ul className="jardin-cited">
                 {stats.growing.map((g) => (
                   <li key={g.name}>
                     <span>{disc(g.name)}</span>
-                    <span {...attrs(i18nAttrs("jardin.newNotes", { n: g.notes }))}>
+                    <span {...i18nProps("jardin.newNotes", { n: g.notes })}>
                       {t("jardin.newNotes", { n: g.notes })}
                     </span>
                   </li>
@@ -126,7 +127,7 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
 function Fig({ n, k }: { n: string; k: string }) {
   return (
     <div>
-      <dt {...attrs(i18nAttrs(k))}>{t(k)}</dt>
+      <dt {...i18nProps(k)}>{t(k)}</dt>
       <dd>{n}</dd>
     </div>
   );
@@ -180,7 +181,7 @@ function GrowthChart({ months, narrow = false }: { months: MonthCount[]; narrow?
         <text x={x(n - 1) + 8} y={yC(last.total) + 4} className="jardin-ann">
           {fmtInt(last.total)}
         </text>
-        <text x={x(0)} y={T + 10} className="jardin-ann" {...attrs(i18nAttrs("jardin.cumul"))}>
+        <text x={x(0)} y={T + 10} className="jardin-ann" {...i18nProps("jardin.cumul")}>
           {t("jardin.cumul")}
         </text>
         <line x1={L} x2={W - R} y1={base} y2={base} className="jardin-axis" />
@@ -195,7 +196,7 @@ function GrowthChart({ months, narrow = false }: { months: MonthCount[]; narrow?
         <text x={x(peakI)} y={yB(months[peakI].planted) - 4} textAnchor="middle" className="jardin-ann">
           {months[peakI].planted}
         </text>
-        <text x={L - 6} y={base - BH / 2 + 4} textAnchor="end" {...attrs(i18nAttrs("jardin.perMonth"))}>
+        <text x={L - 6} y={base - BH / 2 + 4} textAnchor="end" {...i18nProps("jardin.perMonth")}>
           {t("jardin.perMonth")}
         </text>
         {months.map((m, i) =>
@@ -234,8 +235,3 @@ function fmtWords(n: number): string {
   return fmtInt(n);
 }
 
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) out[m[1]] = m[2].replace(/&quot;/g, '"');
-  return out;
-}

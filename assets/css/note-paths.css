@@ -19,7 +19,7 @@
 }
 main .prereq-title {
   margin: 0;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.05rem;
@@ -47,7 +47,7 @@ main .prereq-list li {
 }
 .prereq-path {
   margin-inline-start: auto;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 0.9rem;
   color: var(--muted-warm);
 }
@@ -62,7 +62,7 @@ main .prereq-list li {
   padding-top: 0.8rem;
 }
 main .further-title {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: clamp(1.15rem, 1rem + 0.5vw, 1.3rem);
@@ -104,7 +104,7 @@ main .further li::before {
   border: 1px solid var(--garden);
   border-radius: var(--radius-pill);
   color: var(--garden);
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 0.9rem;
@@ -120,7 +120,7 @@ main .further li::before {
   align-items: center;
   gap: 0.4rem 1rem;
   margin: 2rem 0 0;
-  font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+  font-family: var(--font-ui);
   font-size: 1rem;
   color: var(--muted-warm);
 }

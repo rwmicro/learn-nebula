@@ -1,4 +1,4 @@
-import { t, i18nAttrs } from "@/lib/i18n";
+import { t, i18nProps } from "@/lib/i18n";
 import type { FriseCurve } from "@/lib/frise-data";
 import { bareTitle } from "@/components/Frise";
 
@@ -29,10 +29,10 @@ export function FriseCourbe({ curve }: { curve: FriseCurve }) {
   const fmtBn = (v: number) => (v === 0 ? "0" : `${v / 1e9} Md`);
   return (
     <figure className="fc">
-      <p className="fc-title" {...attrs(i18nAttrs("friseCourbe.title"))}>
+      <p className="fc-title" {...i18nProps("friseCourbe.title")}>
         {t("friseCourbe.title")}
       </p>
-      <p className="fc-sub" {...attrs(i18nAttrs("friseCourbe.sub", { n: curve.dots.length }))}>
+      <p className="fc-sub" {...i18nProps("friseCourbe.sub", { n: curve.dots.length })}>
         {t("friseCourbe.sub", { n: curve.dots.length })}
       </p>
       <div className="fc-plot">
@@ -64,12 +64,12 @@ export function FriseCourbe({ curve }: { curve: FriseCurve }) {
         ))}
       </div>
       <p className="fc-source">
-        <span {...attrs(i18nAttrs("friseCourbe.source"))}>{t("friseCourbe.source")}</span>{" "}
+        <span {...i18nProps("friseCourbe.source")}>{t("friseCourbe.source")}</span>{" "}
         <a href={curve.url}>Our World in Data</a>, {curve.source}. CC BY 4.0.
         {curve.before > 0 && (
           <>
             {" "}
-            <span {...attrs(i18nAttrs("friseCourbe.before", { n: curve.before, from: curve.from }))}>
+            <span {...i18nProps("friseCourbe.before", { n: curve.before, from: curve.from })}>
               {t("friseCourbe.before", { n: curve.before, from: curve.from })}
             </span>
           </>
@@ -79,8 +79,3 @@ export function FriseCourbe({ curve }: { curve: FriseCurve }) {
   );
 }
 
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) out[m[1]] = m[2].replace(/&quot;/g, '"');
-  return out;
-}

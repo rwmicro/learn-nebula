@@ -1,4 +1,4 @@
-import { t, i18nAttrs } from "@/lib/i18n";
+import { t, i18nProps } from "@/lib/i18n";
 import type { KeyPoint } from "@/lib/path-sheet";
 import { PrintButton } from "@/components/PrintButton";
 import { AppBack } from "@/components/AppBack";
@@ -51,15 +51,15 @@ export function PathSheet({
       <div className="fiche-bar">
         <AppBack href={`/parcours/${slug}/`} labelKey="tabbar.parcours" />
         <a href={`/parcours/${slug}/`} className="old-back fiche-back">
-          ← <span {...attrs(i18nAttrs("fiche.back"))}>{t("fiche.back")}</span>
+          ← <span {...i18nProps("fiche.back")}>{t("fiche.back")}</span>
         </a>
         <PrintButton />
       </div>
-      <p className="fiche-kicker" {...attrs(i18nAttrs("fiche.kicker"))}>
+      <p className="fiche-kicker" {...i18nProps("fiche.kicker")}>
         {t("fiche.kicker")}
       </p>
       <h1 className="fiche-title">{name}</h1>
-      <p className="fiche-meta" {...attrs(i18nAttrs(metaKey, metaVars))}>
+      <p className="fiche-meta" {...i18nProps(metaKey, metaVars)}>
         {t(metaKey, metaVars)}
       </p>
 
@@ -78,7 +78,7 @@ export function PathSheet({
           ))}
           <div className="fiche-levels" role="group" aria-label={t("fiche.levelsAria")} data-i18n-aria-label="fiche.levelsAria">
             {levels.map((l) => (
-              <label key={l.n} htmlFor={`fiche-l-${l.n}`} {...attrs(i18nAttrs("fiche.level", { n: l.n }))}>
+              <label key={l.n} htmlFor={`fiche-l-${l.n}`} {...i18nProps("fiche.level", { n: l.n })}>
                 {t("fiche.level", { n: l.n })}
               </label>
             ))}
@@ -87,7 +87,7 @@ export function PathSheet({
       )}
 
       {filled.length === 0 && (
-        <p className="fiche-empty" {...attrs(i18nAttrs("fiche.empty"))}>
+        <p className="fiche-empty" {...i18nProps("fiche.empty")}>
           {t("fiche.empty")}
         </p>
       )}
@@ -115,7 +115,7 @@ export function PathSheet({
                   {/* Phones: a label on the card when the first point has no
                       title of its own (hidden on desktop and paper). */}
                   {!n.keys[0].title && (
-                    <li className="fiche-keys-label" aria-hidden="true" {...attrs(i18nAttrs("fiche.keyIdea"))}>
+                    <li className="fiche-keys-label" aria-hidden="true" {...i18nProps("fiche.keyIdea")}>
                       {t("fiche.keyIdea")}
                     </li>
                   )}
@@ -141,7 +141,7 @@ export function PathSheet({
 
       {answers.length > 0 && (
         <section className="fiche-answers" aria-labelledby="fiche-answers-h">
-          <h2 id="fiche-answers-h" className="fiche-answers-title" {...attrs(i18nAttrs("fiche.answers"))}>
+          <h2 id="fiche-answers-h" className="fiche-answers-title" {...i18nProps("fiche.answers")}>
             {t("fiche.answers")}
           </h2>
           <ol>
@@ -155,8 +155,3 @@ export function PathSheet({
   );
 }
 
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) out[m[1]] = m[2].replace(/&quot;/g, '"');
-  return out;
-}

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { t, getMessages, LOCALES, DEFAULT_LOCALE, disciplineKey, folderKey } from "./i18n";
+import { i18nProps, i18nAttrProps, t, getMessages, LOCALES, DEFAULT_LOCALE, disciplineKey, folderKey } from "./i18n";
 
 describe("t (translator)", () => {
   it("resolves a nested key in the default locale", () => {
@@ -69,5 +69,16 @@ describe("message bundles", () => {
 
   it("defaults to French", () => {
     expect(DEFAULT_LOCALE).toBe("fr");
+  });
+});
+
+describe("i18nProps", () => {
+  it("gives JSX the vars as plain JSON, for React to escape once", () => {
+    expect(i18nProps("frise.count", { n: 3 })).toEqual({
+      "data-i18n": "frise.count",
+      "data-i18n-vars": '{"n":3}',
+    });
+    expect(i18nProps("frise.title")).toEqual({ "data-i18n": "frise.title" });
+    expect(i18nAttrProps("aria-label", "nav.home")).toEqual({ "data-i18n-aria-label": "nav.home" });
   });
 });

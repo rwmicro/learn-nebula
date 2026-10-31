@@ -1,38 +1,13 @@
 /* Scoped to /donnees — same per-route pattern as frise.css. */
 
 .donnees-page {
-  max-width: 46rem;
+  max-width: var(--measure-text);
   margin: 0 auto;
   padding: 2.5rem 1.2rem 4rem;
 }
-.donnees-back {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
-  text-transform: lowercase;
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--ink);
-  text-decoration: none;
-}
-.donnees-back:hover {
-  text-decoration: underline;
-}
-.donnees-title {
-  font-family: "Alegreya", "Alegreya Fallback", serif;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.15;
-  font-size: clamp(1.9rem, 1.5rem + 1.4vw, 2.5rem);
-  margin: 0 0 0.5rem;
-}
-.donnees-intro {
-  color: var(--ink-2);
-  margin: 0 0 2rem;
-  font-size: 1.1rem;
-}
+
 .donnees-h2 {
-  font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
+  font-family: var(--font-caps);
   text-transform: lowercase;
   font-weight: 700;
   font-size: 1.15rem;
@@ -132,7 +107,7 @@
     border-radius: 0.4rem;
     background: var(--garden-wash);
     color: var(--garden);
-    font: 600 0.72rem "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
+    font: 600 0.72rem var(--font-ui);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     white-space: nowrap;

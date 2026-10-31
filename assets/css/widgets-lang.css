@@ -207,7 +207,7 @@ mark.l-diff {
   box-shadow: inset 0 -2px 0 var(--link);
   padding: 0 0.05em;
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .l-three {
     grid-template-columns: minmax(0, 1fr);
   }
@@ -688,7 +688,7 @@ mark.l-diff {
 .l-aggl .w-step em {
   flex: 1 1 14rem;
 }
-@media (max-width: 640px) {
+@media (max-width: 639.98px) {
   .l-decl th,
   .l-decl td {
     padding: 0.25rem 0.25rem;
