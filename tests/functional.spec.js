@@ -288,8 +288,9 @@ test.describe("Widgets", () => {
     // in-place device translation, the model code itself being fetched on
     // demand as translate-device.bundle.js; ≈ 86 KB with the empty
     // comments' bench drawing, lib/deco-bench.ts, and the reading paths'
-    // hand-named levels).
-    expect(bundle.length).toBeLessThan(88_000);
+    // hand-named levels; ≈ 88 KB with lib/speech-text.ts, which keeps
+    // "Écouter" to the note's prose).
+    expect(bundle.length).toBeLessThan(90_000);
     // Those two load only where they are used (see below).
     expect(bundle).not.toContain("quiz-self-btn");
     expect(bundle).not.toContain("gloss-popover");

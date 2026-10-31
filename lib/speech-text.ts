@@ -15,14 +15,11 @@ export const SPEECH_SKIP =
   "pre, annotation, button, input, select, textarea, " +
   "[hidden], [aria-hidden='true'], .deco, .anchor, " +
   ".callout-quiz, .widget, .manim-source, .manim-output, " +
-  ".side, .mermaid, .yt-embed";
+  ".side, .yt-embed";
 
 /** Elements after which a listener needs a pause, not run-on words. */
-const BLOCKS = new Set([
-  "P", "LI", "DT", "DD", "H1", "H2", "H3", "H4", "H5", "H6", "BLOCKQUOTE",
-  "TR", "TH", "TD", "FIGCAPTION", "CAPTION", "DIV", "SECTION", "ASIDE",
-  "DETAILS", "SUMMARY", "BR", "HR", "TABLE", "UL", "OL", "DL", "FIGURE",
-]);
+const BLOCKS =
+  /^(P|LI|D[TDL]|H[1-6R]|BLOCKQUOTE|T[RHD]|TABLE|FIGCAPTION|CAPTION|DIV|SECTION|ASIDE|DETAILS|SUMMARY|BR|[OU]L|FIGURE)$/;
 
 /** A piece of text, or the end of a block. */
 export type SpeechPart = string | null;
@@ -60,7 +57,7 @@ export function speechParts(root: Element, parts: SpeechPart[] = []): SpeechPart
       // The margin note's number in the text (not `sup:has(+ .side)`: a
       // browser without :has() would throw on the whole selector).
       if (el.tagName === "SUP" && el.nextElementSibling?.classList.contains("side")) continue;
-      const block = BLOCKS.has(el.tagName);
+      const block = BLOCKS.test(el.tagName);
       if (block) parts.push(null);
       speechParts(el, parts);
       if (block) parts.push(null);
