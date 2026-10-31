@@ -10,7 +10,7 @@
 
 import { escapeHtml } from "./escape";
 import { encodeSlug } from "./html";
-import { i18nAttr, i18nAttrs, t } from "./i18n";
+import { i18nAttr, i18nAttrs, pathName, pathNameAttrs, pathNameKeys, t } from "./i18n";
 import { shortNoteTitles } from "./path-titles";
 
 export interface PathStepNote {
@@ -103,7 +103,7 @@ export function pathSheetHtml(step: PathStep): string {
     `<div class="path-sheet-head">` +
     `<span class="path-sheet-grab" aria-hidden="true"></span>` +
     `<p class="path-sheet-k"${i18nAttrs("pathStep.label")}>${escapeHtml(t("pathStep.label"))}</p>` +
-    `<p class="path-sheet-name" id="path-sheet-title">${escapeHtml(path.name)}</p>` +
+    `<p class="path-sheet-name" id="path-sheet-title"${pathNameAttrs(path)}>${escapeHtml(pathName(path))}</p>` +
     `<button type="button" class="path-sheet-close" aria-label="${escapeHtml(t("pathStep.close"))}"${i18nAttr("aria-label", "pathStep.close")}>×</button>` +
     `<div class="path-sheet-bar" aria-hidden="true"><i></i></div>` +
     `<p class="path-sheet-meta"><span class="path-sheet-read"${i18nAttrs("pathStep.read", read)}>${escapeHtml(t("pathStep.read", read))}</span><span class="path-sheet-pct"></span></p>` +
@@ -140,11 +140,12 @@ export function pathStepHtml(step: PathStep, inner = ""): string {
   let othersHtml = "";
   if (others.length === 1) {
     othersHtml =
-      `<a class="path-step-others" href="${pathHref(others[0].slug)}" title="${escapeHtml(others[0].name)}"${i18nAttrs("pathStep.othersOne")}>` +
+      `<a class="path-step-others" href="${pathHref(others[0].slug)}" title="${escapeHtml(pathName(others[0], "title"))}"` +
+      `${pathNameKeys(others[0].slug) ? i18nAttr("title", pathNameKeys(others[0].slug)!.title) : ""}${i18nAttrs("pathStep.othersOne")}>` +
       `${escapeHtml(t("pathStep.othersOne"))}</a>`;
   } else if (others.length > 1) {
     const items = others
-      .map((o) => `<li><a href="${pathHref(o.slug)}">${escapeHtml(o.name)}</a></li>`)
+      .map((o) => `<li><a href="${pathHref(o.slug)}"${pathNameAttrs(o)}>${escapeHtml(pathName(o))}</a></li>`)
       .join("");
     othersHtml =
       `<details class="path-step-others">` +
@@ -158,7 +159,7 @@ export function pathStepHtml(step: PathStep, inner = ""): string {
     `<p class="path-step-where" id="path-step-label">` +
     `<span class="path-step-label"${i18nAttrs("pathStep.label")}>${escapeHtml(t("pathStep.label"))}</span>` +
     `<span class="path-step-colon" aria-hidden="true"> : </span>` +
-    `<a class="path-step-path" href="${pathHref(path.slug)}">${escapeHtml(path.name)}</a>` +
+    `<a class="path-step-path" href="${pathHref(path.slug)}"${pathNameAttrs(path)}>${escapeHtml(pathName(path))}</a>` +
     `<span class="path-step-sep" aria-hidden="true"> · </span>` +
     `<button type="button" class="path-step-open" aria-haspopup="dialog" aria-controls="path-sheet">` +
     `<span class="path-step-count"${i18nAttrs("pathStep.step", vars)}>${escapeHtml(t("pathStep.step", vars))}</span>` +

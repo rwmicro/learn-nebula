@@ -692,7 +692,8 @@
     "followsFrom": "بعد «{name}»",
     "graphAll": "مخطط المتطلبات",
     "sheet": "ورقة مراجعة",
-    "cible": "الهدف {c}"
+    "cible": "الهدف {c}",
+    "fullName": "{title}: {sub}"
   },
   "reading": {
     "read": "مقروءة",
@@ -2021,5 +2022,295 @@
     "errDevice": "السبب الذي أعطاه الجهاز: {why}",
     "errContext": "الحديقة لا تستجيب. سؤالك لم يضع: حاول بعد لحظة.",
     "errRate": "أسئلة كثيرة دفعة واحدة: حاول بعد لحظة."
+  },
+  "pathName": {
+    "active-directory-de-l-attaque-a-la-persistance": {
+      "title": "Active Directory",
+      "sub": "من الهجوم إلى الاستمرار"
+    },
+    "algorithmique-complexite-structures-et-graphes": {
+      "title": "الخوارزميات",
+      "sub": "التعقيد وبنى المعطيات والمخططات"
+    },
+    "allemand-des-premiers-mots-a-la-culture": {
+      "title": "الألمانية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "analyse-au-lycee": {
+      "title": "التحليل في الثانوية"
+    },
+    "anglais-des-premiers-mots-a-la-culture": {
+      "title": "الإنجليزية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "anthropologie-de-la-discipline-au-terrain": {
+      "title": "الأنثروبولوجيا",
+      "sub": "من التخصص إلى الميدان"
+    },
+    "apprendre-les-langues-la-boite-a-outils": {
+      "title": "تعلّم اللغات",
+      "sub": "صندوق الأدوات"
+    },
+    "arabe-libanais-des-premiers-mots-a-la-culture": {
+      "title": "العربية اللبنانية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "arabe-standard-de-l-alphabet-aux-medias": {
+      "title": "العربية الفصحى",
+      "sub": "من الأبجدية إلى وسائل الإعلام"
+    },
+    "architecture-logicielle-des-principes-aux-microservices": {
+      "title": "هندسة البرمجيات",
+      "sub": "من المبادئ إلى الخدمات المصغّرة"
+    },
+    "arts-de-la-renaissance-au-surrealisme": {
+      "title": "الفنون",
+      "sub": "من عصر النهضة إلى السريالية"
+    },
+    "aws-fondations-reseau-calcul-et-serverless": {
+      "title": "AWS",
+      "sub": "الأساسيات والشبكات والحوسبة والخدمات بلا خوادم"
+    },
+    "azeri-des-premiers-mots-a-la-culture": {
+      "title": "الأذربيجانية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "bases-de-donnees-du-relationnel-a-l-optimisation": {
+      "title": "قواعد البيانات",
+      "sub": "من النموذج العلائقي إلى التحسين"
+    },
+    "biologie-de-la-molecule-a-l-evolution": {
+      "title": "علم الأحياء",
+      "sub": "من الجزيء إلى التطور"
+    },
+    "chimie-premiers-pas-et-histoire": {
+      "title": "الكيمياء",
+      "sub": "خطوات أولى وتاريخ"
+    },
+    "cinema-de-l-invention-au-contemporain": {
+      "title": "السينما",
+      "sub": "من الاختراع إلى المعاصر"
+    },
+    "cloud-securiser-aws-azure-et-gcp": {
+      "title": "السحابة",
+      "sub": "تأمين AWS وAzure وGCP"
+    },
+    "communication-des-modeles-a-la-rhetorique": {
+      "title": "التواصل",
+      "sub": "من النماذج إلى البلاغة"
+    },
+    "cryptographie-appliquee": {
+      "title": "التشفير التطبيقي"
+    },
+    "devsecops-conteneurs-ci-cd-et-securite": {
+      "title": "DevSecOps",
+      "sub": "الحاويات وCI/CD والأمن"
+    },
+    "dfir-reponse-a-incident-et-forensique": {
+      "title": "DFIR",
+      "sub": "الاستجابة للحوادث والتحليل الجنائي الرقمي"
+    },
+    "droit-des-bases-aux-grands-systemes-juridiques": {
+      "title": "القانون",
+      "sub": "من الأساسيات إلى الأنظمة القانونية الكبرى"
+    },
+    "echecs-des-regles-aux-finales": {
+      "title": "الشطرنج",
+      "sub": "من القواعد إلى النهايات"
+    },
+    "ecologie-des-ecosystemes-au-climat": {
+      "title": "علم البيئة",
+      "sub": "من النظم البيئية إلى المناخ"
+    },
+    "economie-de-la-monnaie-aux-comportements": {
+      "title": "الاقتصاد",
+      "sub": "من النقود إلى السلوك"
+    },
+    "espagnol-des-premiers-mots-a-la-culture": {
+      "title": "الإسبانية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "geometrie-au-lycee": {
+      "title": "الهندسة في الثانوية"
+    },
+    "gouvernance-conformite-risques-et-menaces": {
+      "title": "الحوكمة",
+      "sub": "الامتثال والمخاطر والتهديدات"
+    },
+    "hakka-des-premiers-mots-a-la-culture": {
+      "title": "الهاكا",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "hindi-des-premiers-mots-a-la-culture": {
+      "title": "الهندية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "histoire-de-l-antiquite-au-xxe-siecle": {
+      "title": "التاريخ",
+      "sub": "من العصور القديمة إلى القرن العشرين"
+    },
+    "histoire-du-monde-empires-et-nations": {
+      "title": "تاريخ العالم",
+      "sub": "الإمبراطوريات والأمم"
+    },
+    "indonesien-de-l-alphabet-a-la-culture": {
+      "title": "الإندونيسية",
+      "sub": "من الأبجدية إلى الثقافة"
+    },
+    "informatique-de-la-machine-au-systeme": {
+      "title": "علوم الحاسوب",
+      "sub": "من الآلة إلى النظام"
+    },
+    "java-du-langage-a-spring-boot": {
+      "title": "جافا",
+      "sub": "من اللغة إلى Spring Boot"
+    },
+    "kabyle-des-premiers-mots-a-la-culture": {
+      "title": "القبائلية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "linguistique-des-sons-au-sens": {
+      "title": "اللسانيات",
+      "sub": "من الأصوات إلى المعنى"
+    },
+    "litterature-les-grandes-periodes": {
+      "title": "الأدب",
+      "sub": "الحقب الكبرى"
+    },
+    "machine-learning-des-bases-aux-llm": {
+      "title": "تعلّم الآلة",
+      "sub": "من الأساسيات إلى النماذج اللغوية الكبيرة"
+    },
+    "malais-des-premiers-mots-a-la-culture": {
+      "title": "الملايوية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "malware-development-des-fondations-windows-a-l-evasion": {
+      "title": "تطوير البرمجيات الخبيثة",
+      "sub": "من أساسيات ويندوز إلى التخفي"
+    },
+    "mandarin-des-premiers-mots-a-la-culture": {
+      "title": "الماندرين",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "mathematiques-en-prepa-de-sup-a-spe": {
+      "title": "الرياضيات في الأقسام التحضيرية",
+      "sub": "من السنة الأولى إلى الثانية"
+    },
+    "medecine-du-corps-humain-a-la-recherche": {
+      "title": "الطب",
+      "sub": "من جسم الإنسان إلى البحث العلمي"
+    },
+    "musique-de-la-theorie-aux-grandes-periodes": {
+      "title": "الموسيقى",
+      "sub": "من النظرية إلى الحقب الكبرى"
+    },
+    "mythologies-du-monde": {
+      "title": "أساطير العالم"
+    },
+    "osint-de-la-methode-au-rapport": {
+      "title": "OSINT",
+      "sub": "من المنهج إلى التقرير"
+    },
+    "ouighour-des-premiers-mots-a-la-culture": {
+      "title": "الأويغورية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "pentest-de-la-methodologie-a-l-execution": {
+      "title": "اختبار الاختراق",
+      "sub": "من المنهجية إلى التنفيذ"
+    },
+    "philosophie-contemporaine-de-bergson-a-habermas": {
+      "title": "الفلسفة المعاصرة",
+      "sub": "من برغسون إلى هابرماس"
+    },
+    "philosophie-courants-et-ecoles": {
+      "title": "الفلسفة",
+      "sub": "التيارات والمدارس"
+    },
+    "philosophie-de-l-antiquite-aux-modernes": {
+      "title": "الفلسفة",
+      "sub": "من العصور القديمة إلى المحدثين"
+    },
+    "philosophie-en-culture-generale": {
+      "title": "الفلسفة في الثقافة العامة"
+    },
+    "philosophie-les-grandes-branches": {
+      "title": "الفلسفة",
+      "sub": "الفروع الكبرى"
+    },
+    "physique-du-lycee-a-la-prepa": {
+      "title": "الفيزياء",
+      "sub": "من الثانوية إلى الأقسام التحضيرية"
+    },
+    "probabilites-et-statistiques-au-lycee": {
+      "title": "الاحتمالات والإحصاء في الثانوية"
+    },
+    "psychologie-biais-emotions-et-personnalite": {
+      "title": "علم النفس",
+      "sub": "التحيزات والعواطف والشخصية"
+    },
+    "religions-du-monde": {
+      "title": "أديان العالم"
+    },
+    "reseau-des-modeles-osi-aux-attaques": {
+      "title": "الشبكات",
+      "sub": "من نموذج OSI إلى الهجمات"
+    },
+    "roumain-des-premiers-mots-a-la-culture": {
+      "title": "الرومانية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "sambas-des-premiers-mots-a-la-culture": {
+      "title": "ملايو سامباس",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "savoir-demontrer-en-mathematiques": {
+      "title": "فن البرهان في الرياضيات"
+    },
+    "securite-des-plateformes-ot-embarque-et-mobile": {
+      "title": "أمن المنصات",
+      "sub": "التقنيات التشغيلية والأنظمة المدمجة والهواتف"
+    },
+    "securite-web-des-vecteurs-d-attaque-aux-failles-avancees": {
+      "title": "أمن الويب",
+      "sub": "من نواقل الهجوم إلى الثغرات المتقدمة"
+    },
+    "securite-wifi-de-la-reconnaissance-au-wpa3": {
+      "title": "أمن الواي فاي",
+      "sub": "من الاستطلاع إلى WPA3"
+    },
+    "soc-des-logs-a-la-detection": {
+      "title": "مركز العمليات الأمنية",
+      "sub": "من السجلات إلى الكشف"
+    },
+    "sociologie-des-fondateurs-aux-grandes-thematiques": {
+      "title": "علم الاجتماع",
+      "sub": "من المؤسسين إلى الموضوعات الكبرى"
+    },
+    "sport-de-la-physiologie-a-la-musculation": {
+      "title": "الرياضة",
+      "sub": "من علم وظائف الأعضاء إلى تمارين القوة"
+    },
+    "tamoul-des-premiers-mots-a-la-culture": {
+      "title": "التاميلية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "theatre-de-l-histoire-a-la-scene": {
+      "title": "المسرح",
+      "sub": "من التاريخ إلى الخشبة"
+    },
+    "tok-pisin-des-premiers-mots-a-la-culture": {
+      "title": "توك بيسين",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "turc-des-premiers-mots-a-la-culture": {
+      "title": "التركية",
+      "sub": "من الكلمات الأولى إلى الثقافة"
+    },
+    "web-http-api-et-front-end": {
+      "title": "الويب",
+      "sub": "HTTP وواجهات API والواجهة الأمامية"
+    }
   }
 }

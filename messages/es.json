@@ -692,7 +692,8 @@
     "followsFrom": "Después de «{name}»",
     "graphAll": "Grafo de prerrequisitos",
     "sheet": "Ficha de repaso",
-    "cible": "objetivo {c}"
+    "cible": "objetivo {c}",
+    "fullName": "{title}: {sub}"
   },
   "reading": {
     "read": "Leída",
@@ -2021,5 +2022,295 @@
     "errDevice": "Motivo indicado por el dispositivo: {why}",
     "errContext": "El jardín no responde. Tu pregunta no se ha perdido: reinténtalo en un momento.",
     "errRate": "Demasiadas preguntas a la vez: reinténtalo en un momento."
+  },
+  "pathName": {
+    "active-directory-de-l-attaque-a-la-persistance": {
+      "title": "Active Directory",
+      "sub": "del ataque a la persistencia"
+    },
+    "algorithmique-complexite-structures-et-graphes": {
+      "title": "Algoritmia",
+      "sub": "complejidad, estructuras y grafos"
+    },
+    "allemand-des-premiers-mots-a-la-culture": {
+      "title": "Alemán",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "analyse-au-lycee": {
+      "title": "Análisis en bachillerato"
+    },
+    "anglais-des-premiers-mots-a-la-culture": {
+      "title": "Inglés",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "anthropologie-de-la-discipline-au-terrain": {
+      "title": "Antropología",
+      "sub": "de la disciplina al terreno"
+    },
+    "apprendre-les-langues-la-boite-a-outils": {
+      "title": "Aprender idiomas",
+      "sub": "la caja de herramientas"
+    },
+    "arabe-libanais-des-premiers-mots-a-la-culture": {
+      "title": "Árabe libanés",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "arabe-standard-de-l-alphabet-aux-medias": {
+      "title": "Árabe estándar",
+      "sub": "del alfabeto a los medios"
+    },
+    "architecture-logicielle-des-principes-aux-microservices": {
+      "title": "Arquitectura de software",
+      "sub": "de los principios a los microservicios"
+    },
+    "arts-de-la-renaissance-au-surrealisme": {
+      "title": "Artes",
+      "sub": "del Renacimiento al surrealismo"
+    },
+    "aws-fondations-reseau-calcul-et-serverless": {
+      "title": "AWS",
+      "sub": "fundamentos, red, cómputo y serverless"
+    },
+    "azeri-des-premiers-mots-a-la-culture": {
+      "title": "Azerí",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "bases-de-donnees-du-relationnel-a-l-optimisation": {
+      "title": "Bases de datos",
+      "sub": "de lo relacional a la optimización"
+    },
+    "biologie-de-la-molecule-a-l-evolution": {
+      "title": "Biología",
+      "sub": "de la molécula a la evolución"
+    },
+    "chimie-premiers-pas-et-histoire": {
+      "title": "Química",
+      "sub": "primeros pasos e historia"
+    },
+    "cinema-de-l-invention-au-contemporain": {
+      "title": "Cine",
+      "sub": "de su invención a la actualidad"
+    },
+    "cloud-securiser-aws-azure-et-gcp": {
+      "title": "Nube",
+      "sub": "proteger AWS, Azure y GCP"
+    },
+    "communication-des-modeles-a-la-rhetorique": {
+      "title": "Comunicación",
+      "sub": "de los modelos a la retórica"
+    },
+    "cryptographie-appliquee": {
+      "title": "Criptografía aplicada"
+    },
+    "devsecops-conteneurs-ci-cd-et-securite": {
+      "title": "DevSecOps",
+      "sub": "contenedores, CI/CD y seguridad"
+    },
+    "dfir-reponse-a-incident-et-forensique": {
+      "title": "DFIR",
+      "sub": "respuesta a incidentes y análisis forense"
+    },
+    "droit-des-bases-aux-grands-systemes-juridiques": {
+      "title": "Derecho",
+      "sub": "de las bases a los grandes sistemas jurídicos"
+    },
+    "echecs-des-regles-aux-finales": {
+      "title": "Ajedrez",
+      "sub": "de las reglas a los finales"
+    },
+    "ecologie-des-ecosystemes-au-climat": {
+      "title": "Ecología",
+      "sub": "de los ecosistemas al clima"
+    },
+    "economie-de-la-monnaie-aux-comportements": {
+      "title": "Economía",
+      "sub": "del dinero a los comportamientos"
+    },
+    "espagnol-des-premiers-mots-a-la-culture": {
+      "title": "Español",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "geometrie-au-lycee": {
+      "title": "Geometría en bachillerato"
+    },
+    "gouvernance-conformite-risques-et-menaces": {
+      "title": "Gobernanza",
+      "sub": "cumplimiento, riesgos y amenazas"
+    },
+    "hakka-des-premiers-mots-a-la-culture": {
+      "title": "Hakka",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "hindi-des-premiers-mots-a-la-culture": {
+      "title": "Hindi",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "histoire-de-l-antiquite-au-xxe-siecle": {
+      "title": "Historia",
+      "sub": "de la Antigüedad al siglo XX"
+    },
+    "histoire-du-monde-empires-et-nations": {
+      "title": "Historia del mundo",
+      "sub": "imperios y naciones"
+    },
+    "indonesien-de-l-alphabet-a-la-culture": {
+      "title": "Indonesio",
+      "sub": "del alfabeto a la cultura"
+    },
+    "informatique-de-la-machine-au-systeme": {
+      "title": "Informática",
+      "sub": "de la máquina al sistema"
+    },
+    "java-du-langage-a-spring-boot": {
+      "title": "Java",
+      "sub": "del lenguaje a Spring Boot"
+    },
+    "kabyle-des-premiers-mots-a-la-culture": {
+      "title": "Cabilio",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "linguistique-des-sons-au-sens": {
+      "title": "Lingüística",
+      "sub": "de los sonidos al sentido"
+    },
+    "litterature-les-grandes-periodes": {
+      "title": "Literatura",
+      "sub": "los grandes periodos"
+    },
+    "machine-learning-des-bases-aux-llm": {
+      "title": "Aprendizaje automático",
+      "sub": "de lo básico a los LLM"
+    },
+    "malais-des-premiers-mots-a-la-culture": {
+      "title": "Malayo",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "malware-development-des-fondations-windows-a-l-evasion": {
+      "title": "Desarrollo de malware",
+      "sub": "de los fundamentos de Windows a la evasión"
+    },
+    "mandarin-des-premiers-mots-a-la-culture": {
+      "title": "Mandarín",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "mathematiques-en-prepa-de-sup-a-spe": {
+      "title": "Matemáticas en prépa",
+      "sub": "de primer a segundo año"
+    },
+    "medecine-du-corps-humain-a-la-recherche": {
+      "title": "Medicina",
+      "sub": "del cuerpo humano a la investigación"
+    },
+    "musique-de-la-theorie-aux-grandes-periodes": {
+      "title": "Música",
+      "sub": "de la teoría a los grandes periodos"
+    },
+    "mythologies-du-monde": {
+      "title": "Mitologías del mundo"
+    },
+    "osint-de-la-methode-au-rapport": {
+      "title": "OSINT",
+      "sub": "del método al informe"
+    },
+    "ouighour-des-premiers-mots-a-la-culture": {
+      "title": "Uigur",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "pentest-de-la-methodologie-a-l-execution": {
+      "title": "Pentesting",
+      "sub": "de la metodología a la ejecución"
+    },
+    "philosophie-contemporaine-de-bergson-a-habermas": {
+      "title": "Filosofía contemporánea",
+      "sub": "de Bergson a Habermas"
+    },
+    "philosophie-courants-et-ecoles": {
+      "title": "Filosofía",
+      "sub": "corrientes y escuelas"
+    },
+    "philosophie-de-l-antiquite-aux-modernes": {
+      "title": "Filosofía",
+      "sub": "de la Antigüedad a los modernos"
+    },
+    "philosophie-en-culture-generale": {
+      "title": "Filosofía para la cultura general"
+    },
+    "philosophie-les-grandes-branches": {
+      "title": "Filosofía",
+      "sub": "las grandes ramas"
+    },
+    "physique-du-lycee-a-la-prepa": {
+      "title": "Física",
+      "sub": "del bachillerato a la prépa"
+    },
+    "probabilites-et-statistiques-au-lycee": {
+      "title": "Probabilidad y estadística en bachillerato"
+    },
+    "psychologie-biais-emotions-et-personnalite": {
+      "title": "Psicología",
+      "sub": "sesgos, emociones y personalidad"
+    },
+    "religions-du-monde": {
+      "title": "Religiones del mundo"
+    },
+    "reseau-des-modeles-osi-aux-attaques": {
+      "title": "Redes",
+      "sub": "del modelo OSI a los ataques"
+    },
+    "roumain-des-premiers-mots-a-la-culture": {
+      "title": "Rumano",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "sambas-des-premiers-mots-a-la-culture": {
+      "title": "Malayo de Sambas",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "savoir-demontrer-en-mathematiques": {
+      "title": "Saber demostrar en matemáticas"
+    },
+    "securite-des-plateformes-ot-embarque-et-mobile": {
+      "title": "Seguridad de plataformas",
+      "sub": "OT, sistemas embebidos y móviles"
+    },
+    "securite-web-des-vecteurs-d-attaque-aux-failles-avancees": {
+      "title": "Seguridad web",
+      "sub": "de los vectores de ataque a las fallas avanzadas"
+    },
+    "securite-wifi-de-la-reconnaissance-au-wpa3": {
+      "title": "Seguridad WiFi",
+      "sub": "del reconocimiento a WPA3"
+    },
+    "soc-des-logs-a-la-detection": {
+      "title": "SOC",
+      "sub": "de los registros a la detección"
+    },
+    "sociologie-des-fondateurs-aux-grandes-thematiques": {
+      "title": "Sociología",
+      "sub": "de los fundadores a los grandes temas"
+    },
+    "sport-de-la-physiologie-a-la-musculation": {
+      "title": "Deporte",
+      "sub": "de la fisiología a la musculación"
+    },
+    "tamoul-des-premiers-mots-a-la-culture": {
+      "title": "Tamil",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "theatre-de-l-histoire-a-la-scene": {
+      "title": "Teatro",
+      "sub": "de la historia al escenario"
+    },
+    "tok-pisin-des-premiers-mots-a-la-culture": {
+      "title": "Tok pisin",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "turc-des-premiers-mots-a-la-culture": {
+      "title": "Turco",
+      "sub": "de las primeras palabras a la cultura"
+    },
+    "web-http-api-et-front-end": {
+      "title": "Web",
+      "sub": "HTTP, API y front-end"
+    }
   }
 }

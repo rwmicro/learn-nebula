@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { stratify, cluster, type HierarchyNode } from "d3-hierarchy";
 import type { GraphData, GraphNode } from "@/lib/graph-data";
-import { folderKey, t } from "@/lib/i18n";
+import { folderKey, t, pathName as localPathName } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT, loadStore, type ReadingStore } from "@/lib/reading-progress";
 import { readingView } from "@/lib/graph-reading";
@@ -707,7 +707,8 @@ export function CircularGraph({
     </div>
   );
 
-  const pathName = pathSel ? data.paths?.find((p) => p.slug === pathSel)?.name : undefined;
+  const selPath = pathSel ? data.paths?.find((p) => p.slug === pathSel) : undefined;
+  const pathName = selPath ? localPathName(selPath, "full", locale) : undefined;
   const resetView = () => {
     setRot(0);
     setZoom(fitZoom);
@@ -754,7 +755,7 @@ export function CircularGraph({
               <option value="">{tr("graph.pathNone")}</option>
               {data.paths.map((p) => (
                 <option key={p.slug} value={p.slug}>
-                  {p.name} ({p.notes.length})
+                  {localPathName(p, "full", locale)} ({p.notes.length})
                 </option>
               ))}
             </select>
@@ -1019,7 +1020,7 @@ export function CircularGraph({
               <option value="">{tr("graph.pathNone")}</option>
               {data.paths.map((p) => (
                 <option key={p.slug} value={p.slug}>
-                  {p.name} ({p.notes.length})
+                  {localPathName(p, "full", locale)} ({p.notes.length})
                 </option>
               ))}
             </select>

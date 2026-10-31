@@ -56,7 +56,10 @@
   function interpolate(s, vars) {
     if (!vars) return s;
     return s.replace(/\{(\w+)\}/g, function (_, k) {
-      return vars[k] != null ? String(vars[k]) : "";
+      const v = vars[k];
+      // { $t: key }: another message, such as a reading path's name.
+      if (v && typeof v === "object") return t(v.$t, v.vars);
+      return v != null ? String(v) : "";
     });
   }
 

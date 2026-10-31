@@ -1,4 +1,16 @@
-import { t, disciplineKey, folderKey, i18nProps } from "@/lib/i18n";
+import {
+  t,
+  disciplineKey,
+  folderKey,
+  i18nProps,
+  i18nAttrProps,
+  LOCALES,
+  pathName,
+  pathNameKeys,
+  pathNameProps,
+  pathNameRef,
+  splitPathName,
+} from "@/lib/i18n";
 import { ART, FAMILY_ART, artStrip, levelArt } from "@/lib/road-art";
 import { splitRank } from "@/lib/folder-label";
 import { OfflinePath } from "@/components/paths/OfflinePath";
@@ -71,7 +83,7 @@ export function ParcoursIndex({
     .filter(([, list]) => list.length > 0);
   const browse: BrowsePath[] = paths.map((p) => ({
     slug: p.slug,
-    name: splitName(p.name)[0],
+    name: pathName(p, "title"),
     family: pathFamily(p.discipline),
     notes: p.notes.map((n) => [n.slug, n.title]),
   }));
@@ -139,7 +151,7 @@ export function ParcoursIndex({
                 </p>
                 <ul className="parcours-tiles">
                   {[...tiles]
-                    .sort((a, b) => splitName(a.name)[0].localeCompare(splitName(b.name)[0], "fr"))
+                    .sort((a, b) => splitPathName(a.name)[0].localeCompare(splitPathName(b.name)[0], "fr"))
                     .map((p) => (
                       <li
                         key={p.slug}
@@ -148,13 +160,22 @@ export function ParcoursIndex({
                         data-path-card
                         data-search={searchText(p)}
                       >
-                        <a href={`/parcours/${p.slug}/`} className="parcours-tile-link" title={p.name}>
+                        <a
+                          href={`/parcours/${p.slug}/`}
+                          className="parcours-tile-link"
+                          title={pathName(p, "sub") || pathName(p, "title")}
+                          {...(pathNameKeys(p.slug)
+                            ? i18nAttrProps("title", pathNameKeys(p.slug)!.sub ?? pathNameKeys(p.slug)!.title)
+                            : {})}
+                        >
                           <span
                             className="parcours-ic deco"
                             aria-hidden="true"
                             dangerouslySetInnerHTML={{ __html: ART[levelArt(p.name, "", family, p.discipline)[0]] }}
                           />
-                          <span className="parcours-tile-name">{splitName(p.name)[0]}</span>
+                          <span className="parcours-tile-name" {...pathNameProps(p, "title")}>
+                            {pathName(p, "title")}
+                          </span>
                           <PathMeta path={p} extras={extras[p.slug]} />
                           <Progress
                             slugs={p.notes.map((n) => n.slug)}
@@ -176,7 +197,8 @@ export function ParcoursIndex({
                 )}
                 <ul className="parcours-cards">
                   {cards.map((p) => {
-                    const [title, sub] = splitName(p.name);
+                    const title = pathName(p, "title");
+                    const sub = pathName(p, "sub");
                     return (
                       <li
                         key={p.slug}
@@ -196,9 +218,15 @@ export function ParcoursIndex({
                             aria-hidden="true"
                             dangerouslySetInnerHTML={{ __html: ART[levelArt(p.name, "", family, p.discipline)[0]] }}
                           />
-                          <span className="parcours-card-title">{title}</span>
+                          <span className="parcours-card-title" {...pathNameProps(p, "title")}>
+                            {title}
+                          </span>
                           <PathMeta path={p} extras={extras[p.slug]} />
-                          {sub && <span className="parcours-card-sub">{sub}</span>}
+                          {sub && (
+                            <span className="parcours-card-sub" {...pathNameProps(p, "sub")}>
+                              {sub}
+                            </span>
+                          )}
                           {p.description && (
                             <span className="parcours-card-desc">{p.description}</span>
                           )}
@@ -207,14 +235,14 @@ export function ParcoursIndex({
                           {(p.prev || p.next) && (
                             <span className="parcours-card-chain">
                               {p.prev && (
-                                <span {...i18nProps("parcours.followsFrom", { name: splitName(p.prev.name)[0] })}>
-                                  {t("parcours.followsFrom", { name: splitName(p.prev.name)[0] })}
+                                <span {...i18nProps("parcours.followsFrom", { name: pathNameRef(p.prev, "title") })}>
+                                  {t("parcours.followsFrom", { name: pathNameRef(p.prev, "title") })}
                                 </span>
                               )}
                               {p.prev && p.next && " · "}
                               {p.next && (
-                                <span {...i18nProps("parcours.followedBy", { name: splitName(p.next.name)[0] })}>
-                                  {t("parcours.followedBy", { name: splitName(p.next.name)[0] })}
+                                <span {...i18nProps("parcours.followedBy", { name: pathNameRef(p.next, "title") })}>
+                                  {t("parcours.followedBy", { name: pathNameRef(p.next, "title") })}
                                 </span>
                               )}
                               {p.next && <span aria-hidden="true"> →</span>}
@@ -249,18 +277,14 @@ const TILE_DISCIPLINES = new Set(["Languages & Dialects"]);
 
 const countKey = (n: number) => (n === 1 ? "parcours.familyCountOne" : "parcours.familyCount");
 
-/** "Physique : du lycée à la prépa" → ["Physique", "du lycée à la prépa"]. */
-function splitName(name: string): [string, string] {
-  const i = name.indexOf(" : ");
-  return i > 0 ? [name.slice(0, i), name.slice(i + 3)] : [name, ""];
-}
-
-/** What the index filter matches against: the path's name, its discipline
- *  (folder and French name) and its notes' titles, folded like the query. */
+/** What the index filter matches against: the path's name (in every locale,
+ *  so "German" finds "Allemand"), its discipline (folder and French name)
+ *  and its notes' titles, folded like the query. */
 function searchText(p: ReadingPathView): string {
   const key = disciplineKey(p.discipline);
+  const names = [...new Set(LOCALES.map((l) => pathName(p, "full", l)))];
   return fold(
-    [p.name, p.discipline, key ? t(key) : "", ...p.notes.map((n) => n.title)].join(" "),
+    [...names, p.discipline, key ? t(key) : "", ...p.notes.map((n) => n.title)].join(" "),
   );
 }
 
@@ -358,7 +382,9 @@ export function ParcoursPage({
             <DisciplineName name={path.discipline} />
           </p>
         )}
-        <h1 className="themes-title">{path.name}</h1>
+        <h1 className="themes-title" {...pathNameProps(path)}>
+          {pathName(path)}
+        </h1>
         <small className="parcours-art-credit">{art.credit}</small>
       </header>
       {path.description && (
@@ -527,7 +553,9 @@ export function ParcoursPage({
           <span className="parcours-next-path-k" {...i18nProps("parcours.nextPath")}>
             {t("parcours.nextPath")}
           </span>
-          <span className="parcours-next-path-name">{path.next.name}</span>
+          <span className="parcours-next-path-name" {...pathNameProps(path.next)}>
+            {pathName(path.next)}
+          </span>
           <span className="parcours-next-path-meta">
             <span {...i18nProps("parcours.count", { n: path.next.count })}>
               {t("parcours.count", { n: path.next.count })}

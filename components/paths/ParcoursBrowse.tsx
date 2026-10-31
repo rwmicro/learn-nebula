@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { t } from "@/lib/i18n";
+import { t, pathName } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
 import {
@@ -121,7 +121,7 @@ export function ParcoursBrowse({
             {started.map(({ path, done, next }) => (
               <li key={path.slug} data-family={path.family ?? undefined}>
                 <a href={`/parcours/${path.slug}/`} className="parcours-resume-path">
-                  {path.name}
+                  {pathName(path, "title", locale)}
                 </a>
                 <span className="parcours-resume-meta">
                   {tr("reading.count", { read: done, total: path.notes.length })}

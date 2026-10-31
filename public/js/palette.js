@@ -51,6 +51,17 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     (navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || navigator.userAgent,
   );
 
+  // A reading path's name in the active locale (pathName.<slug> in the
+  // bundles, lib/i18n.ts pathName()), else the vault's French one.
+  function pathTitle(slug, name, short) {
+    const k = "pathName." + slug;
+    const title = tt(k + ".title");
+    if (title === k + ".title") return short ? name.split(/\s+:\s+/)[0] : name;
+    if (short) return title;
+    const sub = tt(k + ".sub");
+    return sub === k + ".sub" ? title : tt("parcours.fullName", { title, sub });
+  }
+
   function tt(k, vars) {
     const i18n = window.__i18n;
     let s;
@@ -177,7 +188,8 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
         }
         paths = (data.paths || []).map(([title, slug, family, idx]) => ({
           kind: "path",
-          title: String(title),
+          title: pathTitle(String(slug), String(title)),
+          short: pathTitle(String(slug), String(title), true),
           slug: String(slug),
           href: `/parcours/${slug}/`,
           family: family ? String(family) : "",
@@ -736,7 +748,6 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
   const discLabel = (d) => (d ? folderHint(d) : "");
   const contextLine = (c) =>
     (c.lang ? [c.lang, c.topic] : [discLabel(c.discipline), c.topic]).filter(Boolean).join(" · ");
-  const shortPath = (name) => name.split(/\s+:\s+/)[0];
   const notesVersion = () => {
     const m = doc.querySelector('meta[name="gk-notes-index"]');
     return m ? m.content : "";
@@ -804,7 +815,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     const st = pathStats(p);
     return opt(
       p,
-      `<i>${FAM[p.family] || FAM.none}</i><span>${esc(shortPath(p.title))}</span>` +
+      `<i>${FAM[p.family] || FAM.none}</i><span>${esc(p.short)}</span>` +
         (st.read ? `<small>${st.read}/${st.n}</small>` : ""),
       "pp-pchip",
       p.family,

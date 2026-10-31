@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { t } from "@/lib/i18n";
+import { t, pathName as localPathName } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
 import {
@@ -375,7 +375,7 @@ export function PathRoad({
           <div className="road-end-scene deco" dangerouslySetInnerHTML={{ __html: SCENES.done }} />
           <div className="road-end-card">
             <small>{tr("road.endKicker")}</small>
-            <h2>{pathName}</h2>
+            <h2>{localPathName({ slug: pathSlug, name: pathName }, "full", locale)}</h2>
             <p>{tr("road.endText", { n: all.length, q: all.reduce((m, n) => m + n.quiz.length, 0) })}</p>
             <div className="road-end-stats">
               <div>

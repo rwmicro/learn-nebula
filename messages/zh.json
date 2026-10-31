@@ -692,7 +692,8 @@
     "followsFrom": "在「{name}」之后",
     "graphAll": "先修关系图",
     "sheet": "复习卡",
-    "cible": "目标 {c}"
+    "cible": "目标 {c}",
+    "fullName": "{title}：{sub}"
   },
   "reading": {
     "read": "已读",
@@ -2021,5 +2022,295 @@
     "errDevice": "设备给出的原因：{why}",
     "errContext": "花园没有响应。你的问题没有丢失：请稍后重试。",
     "errRate": "提问太频繁：请稍后再试。"
+  },
+  "pathName": {
+    "active-directory-de-l-attaque-a-la-persistance": {
+      "title": "Active Directory",
+      "sub": "从攻击到持久化"
+    },
+    "algorithmique-complexite-structures-et-graphes": {
+      "title": "算法",
+      "sub": "复杂度、数据结构与图"
+    },
+    "allemand-des-premiers-mots-a-la-culture": {
+      "title": "德语",
+      "sub": "从入门词汇到文化"
+    },
+    "analyse-au-lycee": {
+      "title": "高中数学分析"
+    },
+    "anglais-des-premiers-mots-a-la-culture": {
+      "title": "英语",
+      "sub": "从入门词汇到文化"
+    },
+    "anthropologie-de-la-discipline-au-terrain": {
+      "title": "人类学",
+      "sub": "从学科到田野"
+    },
+    "apprendre-les-langues-la-boite-a-outils": {
+      "title": "学习语言",
+      "sub": "工具箱"
+    },
+    "arabe-libanais-des-premiers-mots-a-la-culture": {
+      "title": "黎巴嫩阿拉伯语",
+      "sub": "从入门词汇到文化"
+    },
+    "arabe-standard-de-l-alphabet-aux-medias": {
+      "title": "标准阿拉伯语",
+      "sub": "从字母到媒体"
+    },
+    "architecture-logicielle-des-principes-aux-microservices": {
+      "title": "软件架构",
+      "sub": "从原则到微服务"
+    },
+    "arts-de-la-renaissance-au-surrealisme": {
+      "title": "艺术",
+      "sub": "从文艺复兴到超现实主义"
+    },
+    "aws-fondations-reseau-calcul-et-serverless": {
+      "title": "AWS",
+      "sub": "基础、网络、计算与无服务器"
+    },
+    "azeri-des-premiers-mots-a-la-culture": {
+      "title": "阿塞拜疆语",
+      "sub": "从入门词汇到文化"
+    },
+    "bases-de-donnees-du-relationnel-a-l-optimisation": {
+      "title": "数据库",
+      "sub": "从关系模型到优化"
+    },
+    "biologie-de-la-molecule-a-l-evolution": {
+      "title": "生物学",
+      "sub": "从分子到进化"
+    },
+    "chimie-premiers-pas-et-histoire": {
+      "title": "化学",
+      "sub": "入门与历史"
+    },
+    "cinema-de-l-invention-au-contemporain": {
+      "title": "电影",
+      "sub": "从发明到当代"
+    },
+    "cloud-securiser-aws-azure-et-gcp": {
+      "title": "云",
+      "sub": "保护 AWS、Azure 与 GCP"
+    },
+    "communication-des-modeles-a-la-rhetorique": {
+      "title": "传播学",
+      "sub": "从模型到修辞"
+    },
+    "cryptographie-appliquee": {
+      "title": "应用密码学"
+    },
+    "devsecops-conteneurs-ci-cd-et-securite": {
+      "title": "DevSecOps",
+      "sub": "容器、CI/CD 与安全"
+    },
+    "dfir-reponse-a-incident-et-forensique": {
+      "title": "DFIR",
+      "sub": "事件响应与取证"
+    },
+    "droit-des-bases-aux-grands-systemes-juridiques": {
+      "title": "法学",
+      "sub": "从基础到主要法系"
+    },
+    "echecs-des-regles-aux-finales": {
+      "title": "国际象棋",
+      "sub": "从规则到残局"
+    },
+    "ecologie-des-ecosystemes-au-climat": {
+      "title": "生态学",
+      "sub": "从生态系统到气候"
+    },
+    "economie-de-la-monnaie-aux-comportements": {
+      "title": "经济学",
+      "sub": "从货币到行为"
+    },
+    "espagnol-des-premiers-mots-a-la-culture": {
+      "title": "西班牙语",
+      "sub": "从入门词汇到文化"
+    },
+    "geometrie-au-lycee": {
+      "title": "高中几何"
+    },
+    "gouvernance-conformite-risques-et-menaces": {
+      "title": "治理",
+      "sub": "合规、风险与威胁"
+    },
+    "hakka-des-premiers-mots-a-la-culture": {
+      "title": "客家话",
+      "sub": "从入门词汇到文化"
+    },
+    "hindi-des-premiers-mots-a-la-culture": {
+      "title": "印地语",
+      "sub": "从入门词汇到文化"
+    },
+    "histoire-de-l-antiquite-au-xxe-siecle": {
+      "title": "历史",
+      "sub": "从古代到二十世纪"
+    },
+    "histoire-du-monde-empires-et-nations": {
+      "title": "世界史",
+      "sub": "帝国与民族"
+    },
+    "indonesien-de-l-alphabet-a-la-culture": {
+      "title": "印尼语",
+      "sub": "从字母到文化"
+    },
+    "informatique-de-la-machine-au-systeme": {
+      "title": "计算机科学",
+      "sub": "从机器到系统"
+    },
+    "java-du-langage-a-spring-boot": {
+      "title": "Java",
+      "sub": "从语言到 Spring Boot"
+    },
+    "kabyle-des-premiers-mots-a-la-culture": {
+      "title": "卡拜尔语",
+      "sub": "从入门词汇到文化"
+    },
+    "linguistique-des-sons-au-sens": {
+      "title": "语言学",
+      "sub": "从语音到语义"
+    },
+    "litterature-les-grandes-periodes": {
+      "title": "文学",
+      "sub": "重要时期"
+    },
+    "machine-learning-des-bases-aux-llm": {
+      "title": "机器学习",
+      "sub": "从基础到大语言模型"
+    },
+    "malais-des-premiers-mots-a-la-culture": {
+      "title": "马来语",
+      "sub": "从入门词汇到文化"
+    },
+    "malware-development-des-fondations-windows-a-l-evasion": {
+      "title": "恶意软件开发",
+      "sub": "从 Windows 基础到规避"
+    },
+    "mandarin-des-premiers-mots-a-la-culture": {
+      "title": "普通话",
+      "sub": "从入门词汇到文化"
+    },
+    "mathematiques-en-prepa-de-sup-a-spe": {
+      "title": "预科数学",
+      "sub": "从一年级到二年级"
+    },
+    "medecine-du-corps-humain-a-la-recherche": {
+      "title": "医学",
+      "sub": "从人体到研究"
+    },
+    "musique-de-la-theorie-aux-grandes-periodes": {
+      "title": "音乐",
+      "sub": "从乐理到重要时期"
+    },
+    "mythologies-du-monde": {
+      "title": "世界神话"
+    },
+    "osint-de-la-methode-au-rapport": {
+      "title": "OSINT",
+      "sub": "从方法到报告"
+    },
+    "ouighour-des-premiers-mots-a-la-culture": {
+      "title": "维吾尔语",
+      "sub": "从入门词汇到文化"
+    },
+    "pentest-de-la-methodologie-a-l-execution": {
+      "title": "渗透测试",
+      "sub": "从方法论到实施"
+    },
+    "philosophie-contemporaine-de-bergson-a-habermas": {
+      "title": "当代哲学",
+      "sub": "从柏格森到哈贝马斯"
+    },
+    "philosophie-courants-et-ecoles": {
+      "title": "哲学",
+      "sub": "思潮与学派"
+    },
+    "philosophie-de-l-antiquite-aux-modernes": {
+      "title": "哲学",
+      "sub": "从古代到近代"
+    },
+    "philosophie-en-culture-generale": {
+      "title": "通识哲学"
+    },
+    "philosophie-les-grandes-branches": {
+      "title": "哲学",
+      "sub": "主要分支"
+    },
+    "physique-du-lycee-a-la-prepa": {
+      "title": "物理",
+      "sub": "从高中到预科"
+    },
+    "probabilites-et-statistiques-au-lycee": {
+      "title": "高中概率与统计"
+    },
+    "psychologie-biais-emotions-et-personnalite": {
+      "title": "心理学",
+      "sub": "偏差、情绪与人格"
+    },
+    "religions-du-monde": {
+      "title": "世界宗教"
+    },
+    "reseau-des-modeles-osi-aux-attaques": {
+      "title": "网络",
+      "sub": "从 OSI 模型到攻击"
+    },
+    "roumain-des-premiers-mots-a-la-culture": {
+      "title": "罗马尼亚语",
+      "sub": "从入门词汇到文化"
+    },
+    "sambas-des-premiers-mots-a-la-culture": {
+      "title": "三发马来语",
+      "sub": "从入门词汇到文化"
+    },
+    "savoir-demontrer-en-mathematiques": {
+      "title": "学会数学证明"
+    },
+    "securite-des-plateformes-ot-embarque-et-mobile": {
+      "title": "平台安全",
+      "sub": "OT、嵌入式与移动"
+    },
+    "securite-web-des-vecteurs-d-attaque-aux-failles-avancees": {
+      "title": "Web 安全",
+      "sub": "从攻击向量到高级漏洞"
+    },
+    "securite-wifi-de-la-reconnaissance-au-wpa3": {
+      "title": "WiFi 安全",
+      "sub": "从侦察到 WPA3"
+    },
+    "soc-des-logs-a-la-detection": {
+      "title": "SOC",
+      "sub": "从日志到检测"
+    },
+    "sociologie-des-fondateurs-aux-grandes-thematiques": {
+      "title": "社会学",
+      "sub": "从奠基者到重要主题"
+    },
+    "sport-de-la-physiologie-a-la-musculation": {
+      "title": "运动",
+      "sub": "从生理学到力量训练"
+    },
+    "tamoul-des-premiers-mots-a-la-culture": {
+      "title": "泰米尔语",
+      "sub": "从入门词汇到文化"
+    },
+    "theatre-de-l-histoire-a-la-scene": {
+      "title": "戏剧",
+      "sub": "从历史到舞台"
+    },
+    "tok-pisin-des-premiers-mots-a-la-culture": {
+      "title": "托克皮辛语",
+      "sub": "从入门词汇到文化"
+    },
+    "turc-des-premiers-mots-a-la-culture": {
+      "title": "土耳其语",
+      "sub": "从入门词汇到文化"
+    },
+    "web-http-api-et-front-end": {
+      "title": "Web",
+      "sub": "HTTP、API 与前端"
+    }
   }
 }

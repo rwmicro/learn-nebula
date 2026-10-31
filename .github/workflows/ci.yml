@@ -154,6 +154,15 @@ jobs:
           PRECOMPRESS_BROTLI_QUALITY: "4"
         run: pnpm build
 
+      # The unit job has no vault, so it checks path names on the fixture one
+      # only. Here the real one is fetched: every reading path must have its
+      # name translated in messages/*.json (pathName.<slug>), or its title
+      # stays French in every language.
+      - name: Reading path names translated (fetched vault)
+        env:
+          REQUIRE_VAULT: "1"
+        run: pnpm exec vitest run lib/path-names.test.ts
+
       # Browser checks against the export this job just produced. Only the specs
       # that assert behaviour: the screenshots (tests/style.spec.js) need the
       # fixed vault and the pinned image, so they have their own job, "visual".
