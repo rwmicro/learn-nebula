@@ -1791,30 +1791,22 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   .ap-scrim {
     position: fixed;
     inset: 0;
-    z-index: 1100;
-    background: rgb(0 0 0 / 0.28);
+    z-index: var(--z-scrim);
+    background: var(--sheet-scrim);
     animation: ap-fade 0.2s ease-out;
-  }
-  :root[data-theme="dark"] .ap-scrim {
-    background: rgb(0 0 0 / 0.55);
-  }
-  @media (prefers-color-scheme: dark) {
-    :root:not([data-theme="light"]) .ap-scrim {
-      background: rgb(0 0 0 / 0.55);
-    }
   }
   .ap-sheet {
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 1101;
-    max-height: 92dvh;
+    z-index: var(--z-sheet);
+    max-height: var(--sheet-max-h);
     overflow-y: auto;
     padding: 0.5rem 1.25rem calc(1.25rem + var(--gk-safe-b, 0px));
-    border-radius: 1.625rem 1.625rem 0 0;
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
     background: var(--dash-card);
-    box-shadow: 0 -10px 40px rgb(0 0 0 / 0.18);
+    box-shadow: var(--sheet-shadow);
     text-align: center;
     animation: ap-rise 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
   }
@@ -1833,14 +1825,6 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     .ap-scrim {
       animation: none;
     }
-  }
-  .ap-grab {
-    display: block;
-    width: 2.375rem;
-    height: 0.3125rem;
-    margin: 0 auto 1rem;
-    border-radius: 3px;
-    background: var(--rule-strong);
   }
   .ap-sheet-ico {
     display: grid;

@@ -323,15 +323,13 @@
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  height: 2.1rem;
-  padding: 0 0.8rem;
+  height: var(--chip-h);
+  padding: var(--chip-pad);
   border: 0;
-  border-radius: 1.05rem;
-  background: var(--wash-2);
+  border-radius: var(--radius-pill);
+  background: var(--chip-bg);
   color: var(--ink);
-  font-family: var(--nb-sans);
-  font-size: 0.9375rem;
-  font-weight: 500;
+  font: var(--chip-font);
   cursor: pointer;
 }
 .nb-chip small {
@@ -339,8 +337,8 @@
   opacity: 0.65;
 }
 .nb-chip[aria-pressed="true"] {
-  background: var(--ink);
-  color: var(--paper);
+  background: var(--chip-on-bg);
+  color: var(--chip-on-ink);
 }
 
 /* Reading paths that live in the folder. */

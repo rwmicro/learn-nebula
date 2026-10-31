@@ -945,18 +945,18 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    height: 2.25rem;
-    padding: 0 0.9rem;
+    height: var(--chip-h);
+    padding: var(--chip-pad);
     border: 0;
-    border-radius: 1.125rem;
-    background: var(--wash-2, var(--wash));
-    font: 0.9375rem var(--font-ui);
+    border-radius: var(--radius-pill);
+    background: var(--chip-bg);
+    font: var(--chip-font);
     color: var(--ink);
     cursor: pointer;
   }
   .cg-chips button[aria-pressed="true"] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--chip-on-bg);
+    color: var(--chip-on-ink);
   }
   .cg-reset-wide {
     width: 100%;

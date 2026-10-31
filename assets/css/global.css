@@ -43,6 +43,48 @@
     --title-page-size: 2.125rem;
   }
 }
+/* Bottom sheets — Affichage and Sommaire (note-app), the chat's sheets,
+   the account's, the parcours chest: one corner, one shadow, one veil, one
+   grip, one height, above everything else on the page. */
+:root {
+  --sheet-radius: 1.5rem;
+  --sheet-shadow: 0 -10px 40px rgb(0 0 0 / 0.18);
+  --sheet-scrim: rgb(0 0 0 / 0.32);
+  --sheet-max-h: 90dvh;
+  --sheet-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --z-scrim: 1100;
+  --z-sheet: 1101;
+}
+:root[data-theme="dark"] {
+  --sheet-scrim: rgb(0 0 0 / 0.55);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sheet-scrim: rgb(0 0 0 / 0.55);
+  }
+}
+:is(.na-grab, .gc-grab, .ap-grab, .road-sheet-grip) {
+  display: block;
+  flex: none;
+  align-self: center;
+  width: 2.375rem;
+  height: 0.3125rem;
+  margin: 0 auto 0.875rem;
+  border-radius: 3px;
+  background: var(--rule-strong);
+}
+
+/* Filter chips on phones (Notes, Parcours, the graph): one height, one
+   pill, filled, ink when pressed. */
+:root {
+  --chip-h: 2.125rem;
+  --chip-pad: 0 0.875rem;
+  --chip-font: 500 0.9375rem var(--font-ui);
+  --chip-bg: var(--wash-2);
+  --chip-on-bg: var(--ink);
+  --chip-on-ink: var(--paper);
+}
+
 /* components/ui/PageHeader.tsx */
 .page-title {
   margin: 0 0 0.5rem;

@@ -2618,8 +2618,8 @@
   .na-scrim {
     position: fixed;
     inset: 0;
-    z-index: 1100;
-    background: rgb(0 0 0 / 0.32);
+    z-index: var(--z-scrim);
+    background: var(--sheet-scrim);
     opacity: 0;
     transition: opacity 0.25s;
   }
@@ -2628,30 +2628,23 @@
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 1101;
-    max-height: 88svh;
+    z-index: var(--z-sheet);
+    max-height: var(--sheet-max-h);
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 0.5rem 1.125rem calc(1.6rem + var(--gk-safe-b));
-    border-radius: 1.375rem 1.375rem 0 0;
+    border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
     background: var(--dash-card);
-    box-shadow: 0 -10px 40px rgb(0 0 0 / 0.2);
+    box-shadow: var(--sheet-shadow);
     color: var(--ink);
     transform: translateY(100%);
-    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: transform 0.3s var(--sheet-ease);
   }
   .na-chrome[data-sheet] .na-scrim {
     opacity: 1;
   }
   .na-chrome[data-sheet] .na-sheet {
     transform: none;
-  }
-  .na-grab {
-    width: 2.375rem;
-    height: 0.3125rem;
-    margin: 0 auto 0.75rem;
-    border-radius: 3px;
-    background: var(--rule-strong);
   }
   .na-sheet-h {
     display: flex;
@@ -3017,13 +3010,13 @@
   main.parcours-page .parcours-chip {
     flex: none;
     gap: 7px;
-    height: 34px;
-    padding: 0 14px;
+    height: var(--chip-h);
+    padding: var(--chip-pad);
     border: 0;
-    border-radius: 1.125rem;
-    background: var(--wash-2);
+    border-radius: var(--radius-pill);
+    background: var(--chip-bg);
     color: var(--ink);
-    font: 500 0.95rem var(--font-ui);
+    font: var(--chip-font);
     white-space: nowrap;
   }
   /* Spacing as in the mockup: the chips, then the first heading 18px below
@@ -3039,8 +3032,8 @@
     overflow: hidden;
   }
   main.parcours-page .parcours-chip[aria-pressed="true"] {
-    background: var(--ink);
-    color: var(--paper);
+    background: var(--chip-on-bg);
+    color: var(--chip-on-ink);
   }
   main.parcours-page .parcours-chip[aria-pressed="true"] > span {
     color: inherit;
@@ -3215,6 +3208,11 @@
     margin: 1.4rem 0;
     overflow-x: auto;
     overscroll-behavior-x: contain;
+    /* Separate, not collapsed: Chromium paints collapsed borders with the
+       table, and the sticky first column's background sometimes covers
+       them (one row in two lost its line, from one render to the next). */
+    border-collapse: separate;
+    border-spacing: 0;
     border: 0;
     border-radius: 0.875rem;
     font-size: 0.95rem;
@@ -3253,10 +3251,12 @@
   /* The row's label stays in view. */
   body:has(.na-chrome) main .article-body table :is(th, td):first-child {
     position: sticky;
-    left: 0;
+    inset-inline-start: 0;
     z-index: 1;
     background: var(--dash-card);
-    box-shadow: 0.5px 0 0 var(--dash-edge);
+    /* A border, painted with the cell: a hairline box-shadow on a sticky
+       cell was drawn on some renders and not others. */
+    border-inline-end: 0.5px solid var(--dash-edge);
   }
 }
 
@@ -5838,17 +5838,17 @@ main.nf-page .nf-title {
   inset: auto 0 0;
   width: 100%;
   max-width: 34rem;
-  max-height: 92dvh;
+  max-height: var(--sheet-max-h);
   margin: auto auto 0;
   padding: 0;
   border: 0;
-  border-radius: 1.5rem 1.5rem 0 0;
+  border-radius: var(--sheet-radius) var(--sheet-radius) 0 0;
   background: var(--paper-raised);
   color: var(--ink);
-  box-shadow: 0 -12px 40px rgb(0 0 0 / 0.18);
+  box-shadow: var(--sheet-shadow);
 }
 .road-sheet::backdrop {
-  background: rgb(20 18 16 / 0.42);
+  background: var(--sheet-scrim);
 }
 .road-sheet[open] {
   animation: road-sheet-up 0.28s cubic-bezier(0.2, 0.8, 0.3, 1);
@@ -5867,21 +5867,13 @@ main.nf-page .nf-title {
 @media (min-width: 640px) {
   .road-sheet {
     margin: auto;
-    border-radius: 1.5rem;
+    border-radius: var(--sheet-radius);
   }
 }
 .road-sheet-in {
   display: flex;
   flex-direction: column;
   padding: 0.6rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom));
-}
-.road-sheet-grip {
-  align-self: center;
-  width: 2.5rem;
-  height: 0.3rem;
-  margin-bottom: 1rem;
-  border-radius: 1rem;
-  background: var(--rule-strong);
 }
 .road-sheet-k {
   display: flex;

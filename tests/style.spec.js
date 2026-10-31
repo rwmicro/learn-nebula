@@ -54,7 +54,19 @@ async function settle(page) {
     }
     window.scrollTo(0, 0);
   });
-  await page.waitForTimeout(300);
+  // What the walk woke up (lazy images, late fonts, widgets) has to land
+  // before the shot, or the page's height changes from one run to the next.
+  await page.waitForLoadState("networkidle");
+  await page.evaluate(async () => {
+    await document.fonts.ready;
+    // Only images that loaded: decode() on a lazy image left off-screen never settles.
+    const loaded = [...document.images].filter((img) => img.complete && img.naturalWidth);
+    await Promise.race([
+      Promise.all(loaded.map((img) => img.decode().catch(() => {}))),
+      new Promise((r) => setTimeout(r, 3000)),
+    ]);
+  });
+  await page.waitForTimeout(500);
 }
 
 async function shoot(page, url, file, { scheme = "light", locale, open } = {}) {
@@ -74,9 +86,24 @@ async function shoot(page, url, file, { scheme = "light", locale, open } = {}) {
     await open(page);
     await page.waitForTimeout(500);
   }
+  // On the phone, a full-page capture briefly drops touch emulation, and the
+  // page switches to (hover: hover) for good halfway through: the exercises
+  // show their keyboard hints and the height changes between two shots.
+  // Growing the viewport to the page ourselves keeps the phone a phone.
+  const tall = !open && test.info().project.use.isMobile;
+  if (tall) {
+    // A sticky table column gets its own layer, whose hairlines rasterise
+    // a pixel apart from one run to the next. Not scrolled sideways, a
+    // static cell sits exactly where the sticky one would.
+    await page.addStyleTag({ content: ".article-body table :is(th, td) { position: static !important; }" });
+    const { width } = page.viewportSize();
+    const height = await page.evaluate(() => document.documentElement.scrollHeight);
+    await page.setViewportSize({ width, height });
+    await page.waitForTimeout(300);
+  }
   await expect(page).toHaveScreenshot(file, {
     // A sheet is drawn over the viewport: that is what to compare.
-    fullPage: !open,
+    fullPage: !open && !tall,
     // Not "disabled": that jumps scroll-driven animations (the large titles
     // that fade into the top bar) to their end, as if the page were scrolled.
     animations: "allow",
