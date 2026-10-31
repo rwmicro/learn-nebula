@@ -32,5 +32,8 @@ git config --global --add safe.directory "$ROOT" 2>/dev/null || true
 # the image's Node.
 npx -y pnpm@10.28.0 install --frozen-lockfile --ignore-scripts --store-dir /tmp/pnpm-store \
   --config.confirmModulesPurge=false
-NOTES_LOCAL_DIR=tests/fixtures/vault PRECOMPRESS_BROTLI_QUALITY=1 npx pnpm@10.28.0 run build
+# The same "today" as the clock tests/style.spec.js gives the browser.
+NOTES_LOCAL_DIR=tests/fixtures/vault PRECOMPRESS_BROTLI_QUALITY=1 \
+  VISUAL_NOW=2026-10-15T10:00:00Z NODE_OPTIONS="--import $ROOT/tests/fixed-date.mjs" \
+  npx pnpm@10.28.0 run build
 exec npx playwright test tests/style.spec.js "$@"

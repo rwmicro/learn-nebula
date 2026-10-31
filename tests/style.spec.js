@@ -17,6 +17,7 @@ import { test, expect } from "@playwright/test";
 test.use({ serviceWorkers: "block" });
 
 // A fixed clock: the home's greeting, "today" cards and streaks depend on it.
+// The build gets the same one (tests/fixed-date.mjs, VISUAL_NOW in visual.sh).
 const NOW = new Date("2026-10-15T10:00:00Z");
 
 const PAGES = [
@@ -56,7 +57,7 @@ async function settle(page) {
   await page.waitForTimeout(300);
 }
 
-async function shoot(page, url, file, { scheme = "light", locale } = {}) {
+async function shoot(page, url, file, { scheme = "light", locale, open } = {}) {
   await page.clock.setFixedTime(NOW);
   // Exercises shuffle their choices: same seed, same order on every run.
   await page.addInitScript(() => {
@@ -69,8 +70,13 @@ async function shoot(page, url, file, { scheme = "light", locale } = {}) {
   }
   await page.goto(url);
   await settle(page);
+  if (open) {
+    await open(page);
+    await page.waitForTimeout(500);
+  }
   await expect(page).toHaveScreenshot(file, {
-    fullPage: true,
+    // A sheet is drawn over the viewport: that is what to compare.
+    fullPage: !open,
     // Not "disabled": that jumps scroll-driven animations (the large titles
     // that fade into the top bar) to their end, as if the page were scrolled.
     animations: "allow",
@@ -98,4 +104,31 @@ for (const name of RTL) {
   test(`${name} arabe`, async ({ page }) => {
     await shoot(page, url, `${name}-arabe.png`, { locale: "ar" });
   });
+}
+
+// The bottom sheets, open: they share one look (global.css, --sheet-*).
+const NOTE = PAGES.find((p) => p.name === "note-maths").url;
+const SHEETS = [
+  {
+    name: "feuille-affichage",
+    url: NOTE,
+    phoneOnly: true, // from 640px the note's tools are the dock, without this sheet
+    open: (page) => page.locator(".na-tool[data-na-sheet]").click(),
+  },
+  {
+    name: "feuille-sommaire",
+    url: NOTE,
+    phoneOnly: true,
+    open: (page) => page.locator("[data-na-toc]").first().click(),
+  },
+];
+
+for (const { name, url, open, phoneOnly } of SHEETS) {
+  for (const scheme of ["light", "dark"]) {
+    const label = scheme === "light" ? "clair" : "sombre";
+    test(`${name} ${label}`, async ({ page }, info) => {
+      test.skip(phoneOnly && !info.project.name.includes("Mobile"), "phones only");
+      await shoot(page, url, `${name}-${label}.png`, { scheme, open });
+    });
+  }
 }
