@@ -22,7 +22,7 @@ export default function NotesPage() {
   const notes = getAllPosts().filter((d) => d.rawPath !== INDEX_NOTE).length;
   const nf = new Intl.NumberFormat("fr-FR");
   return (
-    <main id="main" className="app-page nb">
+    <main id="main" className="app-page nb tab-root">
       <header className="app-large-title">
         <h1 data-i18n="notesTab.title">{t("notesTab.title")}</h1>
         <p

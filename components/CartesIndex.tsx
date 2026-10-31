@@ -39,7 +39,7 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
   });
 
   return (
-    <main className="cartes-index">
+    <main className="cartes-index tab-root">
       <CartesPhone decks={phoneDecks} />
       <a href="/" className="cartes-index-back">
         ← {t("nav.home")}

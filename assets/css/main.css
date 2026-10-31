@@ -1330,20 +1330,25 @@ body[data-text-size="lg"] main ol li {
   display: none;
 }
 
-/* The site bar tucks up into body's 4rem top margin here (global.css keeps
-   it at 0 for the other pages, whose body has no top margin). */
+/* The site bar tucks up into body's top margin here (global.css keeps it at
+   0 for the other pages, whose body has no top margin): all of it, so the
+   bar sits at the top of the screen as on every other page. It took only
+   1.2rem of body's 2.2rem, which left it 1rem lower on the notes; that rem
+   goes under the bar instead, so the note itself stays where it was. */
 body .site-bar {
-  margin-top: -1.2rem;
+  margin-top: -2.2rem;
+  margin-bottom: 2.4rem;
 }
 @media (max-width: 640px) {
   body .site-bar {
     margin-top: -1.4rem;
+    margin-bottom: 1.4rem;
   }
 }
 
 /* Top lines up with the article's breadcrumb, i.e. just under the site bar
-   (global.css `.site-bar`: body's 4rem top margin − 1.2rem, ~2.7rem of bar,
-   1.4rem below it). At 4rem the themes landed on the bar's search and theme
+   (global.css `.site-bar`: at the top of the screen, ~2.7rem of bar,
+   2.4rem below it). At 4rem the themes landed on the bar's search and theme
    buttons, which reach past the text column into this one. */
 .note-aside {
   position: fixed;

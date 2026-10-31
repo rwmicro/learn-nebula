@@ -76,7 +76,7 @@ export function ParcoursIndex({
     notes: p.notes.map((n) => [n.slug, n.title]),
   }));
   return (
-    <main id="main" className="themes-page parcours-page">
+    <main id="main" className="themes-page parcours-page tab-root">
       <Back href="/" labelKey="nav.home" />
       <h1 className="themes-title" {...attrs(i18nAttrs("parcours.title"))}>
         {t("parcours.title")}
