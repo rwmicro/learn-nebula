@@ -75,3 +75,31 @@ export function noteSpeechText(main: Element): string {
   if (body) speechParts(body, parts);
   return joinSpeech(parts);
 }
+
+/**
+ * Splits `text` into pieces of at most `max` characters on sentence ends
+ * (a sentence longer than that on word ends, a word longer than that
+ * anywhere). The system voice takes 2000 at a time (Chrome cuts one
+ * utterance off past ~32k); the natural voice short ones, so the first
+ * plays a moment after the click.
+ */
+export function speechChunks(text: string, max: number): string[] {
+  const out: string[] = [];
+  let buf = "";
+  const push = (piece: string) => {
+    if (buf && buf.length + 1 + piece.length > max) {
+      out.push(buf);
+      buf = "";
+    }
+    buf = buf ? `${buf} ${piece}` : piece;
+  };
+  for (const sentence of text.split(/(?<=[.!?…])\s+/)) {
+    if (!sentence) continue;
+    if (sentence.length <= max) push(sentence);
+    else
+      for (const word of sentence.split(/\s+/))
+        for (let i = 0; i < word.length; i += max) push(word.slice(i, i + max));
+  }
+  if (buf) out.push(buf);
+  return out;
+}

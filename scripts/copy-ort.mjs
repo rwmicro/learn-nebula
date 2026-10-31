@@ -2,12 +2,19 @@
 // what ort.webgpu loads) into public/ort/ so the on-device assistant model
 // (public/js/local-llm-worker.js) loads it from our own origin: Transformers.js
 // would otherwise fetch it from a CDN, which the CSP doesn't allow for
-// scripts. Git-ignored; regenerated on predev/build.
+// scripts. And its plain WebAssembly runtime (14 MB instead of 27), what the
+// natural reading voice runs on (public/js/piper-worker.js): that model is
+// small enough for the CPU. Git-ignored; regenerated on predev/build.
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 
-const FILES = ["ort-wasm-simd-threaded.asyncify.mjs", "ort-wasm-simd-threaded.asyncify.wasm"];
+const FILES = [
+  "ort-wasm-simd-threaded.asyncify.mjs",
+  "ort-wasm-simd-threaded.asyncify.wasm",
+  "ort-wasm-simd-threaded.mjs",
+  "ort-wasm-simd-threaded.wasm",
+];
 const DEST = path.join(process.cwd(), "public", "ort");
 
 let dist;

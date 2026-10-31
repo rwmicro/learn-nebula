@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { joinSpeech } from "./speech-text";
+import { joinSpeech, speechChunks } from "./speech-text";
 
 describe("joinSpeech", () => {
   it("glues inline pieces as the HTML has them", () => {
@@ -20,5 +20,21 @@ describe("joinSpeech", () => {
 
   it("collapses whitespace and drops empty blocks", () => {
     expect(joinSpeech([null, "  \n ", null, "a\n\n  b", null, null])).toBe("a b.");
+  });
+});
+
+describe("speechChunks", () => {
+  it("packs whole sentences up to the limit", () => {
+    expect(speechChunks("Un. Deux trois. Quatre.", 16)).toEqual(["Un. Deux trois.", "Quatre."]);
+  });
+
+  it("splits a long sentence on words, and a long word anywhere", () => {
+    expect(speechChunks("aaa bbb ccc", 7)).toEqual(["aaa bbb", "ccc"]);
+    expect(speechChunks("abcdefghij", 4)).toEqual(["abcd", "efgh", "ij"]);
+  });
+
+  it("never returns an empty piece", () => {
+    expect(speechChunks("", 10)).toEqual([]);
+    expect(speechChunks("Fin.", 10)).toEqual(["Fin."]);
   });
 });

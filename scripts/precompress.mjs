@@ -62,6 +62,8 @@ const EXTS = new Set([
   // (public/engine/, 7.3 MB) comes down 25 % smaller in brotli, an ONNX
   // runtime far more.
   ".wasm",
+  // The reading voice's eSpeak dictionaries (public/piper/, scripts/copy-piper.mjs).
+  ".data",
 ]);
 
 // Below this, the HTTP round trip dominates and the variants are mostly

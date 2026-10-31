@@ -902,6 +902,19 @@ export function focusButtonHtml(): string {
   );
 }
 
+/** "Voix naturelle", in "Affichage": switches "Écouter" to the voice that
+ *  runs on the device (lib/piper-voice.ts); its label says what turning it
+ *  on downloads. Hidden until /js/audio.js finds the browser can run it. */
+export function voiceButtonHtml(): string {
+  return (
+    `<button class="voice-btn" type="button" role="switch" aria-checked="false" hidden data-pagefind-ignore` +
+    ` title="${escapeHtml(t("noteActions.voiceNaturalTitle"))}"${i18nAttr("title", "noteActions.voiceNaturalTitle")}>` +
+    `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg>` +
+    `<span class="voice-label"${i18nAttrs("noteActions.voiceNatural")}>${escapeHtml(t("noteActions.voiceNatural"))}</span>` +
+    `</button>`
+  );
+}
+
 /** "Lire en leçon" (public/js/lesson.js): only on notes with two questions
  *  or more; hidden until the script (in quiz.bundle.js) is there to run it. */
 export function lessonButtonHtml(): string {

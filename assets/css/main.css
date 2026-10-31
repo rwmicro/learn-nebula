@@ -4390,7 +4390,8 @@ body:has(.gc) .to-top {
 
 /* "À lire plus tard" and "Concentration" in the note-actions row. */
 .bookmark-btn,
-.focus-btn {
+.focus-btn,
+.voice-btn {
   font-family: "Alegreya SC", "Alegreya SC Fallback", serif;
   font-weight: 700;
   text-transform: lowercase;
@@ -4407,19 +4408,30 @@ body:has(.gc) .to-top {
   line-height: 1.3;
 }
 .bookmark-btn[hidden],
-.focus-btn[hidden] {
+.focus-btn[hidden],
+.voice-btn[hidden] {
   display: none;
 }
 .bookmark-btn:hover,
-.focus-btn:hover {
+.focus-btn:hover,
+.voice-btn:hover {
   background: var(--link-wash);
   border-radius: var(--radius-sm);
 }
 .bookmark-btn:focus-visible,
-.focus-btn:focus-visible {
+.focus-btn:focus-visible,
+.voice-btn:focus-visible {
   outline: 1px solid var(--link);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
+}
+/* "Voix naturelle" on: in the garden's colour, ticked. */
+.voice-btn[aria-checked="true"] {
+  color: var(--garden);
+}
+.voice-btn[aria-checked="true"]::after {
+  content: "✓";
+  margin-inline-start: auto;
 }
 .bookmark-btn[aria-pressed="true"] {
   color: var(--garden);
