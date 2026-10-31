@@ -79,7 +79,20 @@
     "translateSuggest": "يبدو أن هذه الملاحظة مكتوبة بـ{lang} — هل تترجمها؟",
     "endOfNote": "نهاية الملاحظة · {min} دقيقة",
     "translateViaPhone": "تُرجم على هاتفك",
-    "translateSections": "جارٍ الترجمة… {n} من {total} أقسام",
+    "translateSection": "القسم {n} من {total}",
+    "translateRunning": "جارٍ الترجمة إلى {lang}…",
+    "translatePrivatePhone": "على هاتفك، لا يغادر شيء الجهاز",
+    "translatePrivateDevice": "على جهازك، لا يغادره شيء",
+    "translateStop": "إيقاف",
+    "translateCurrent": "جارٍ",
+    "translateDone": "تُرجمت إلى {lang}",
+    "translateKeptPhone": "على هاتفك · محفوظة للمرة القادمة",
+    "translateKeptDevice": "على جهازك · محفوظة للمرة القادمة",
+    "translateOriginal": "الأصل",
+    "translateBlockFailed": "تعذّرت ترجمة هذا المقطع",
+    "translateRetry": "إعادة المحاولة",
+    "translateFinished": "تُرجمت الملاحظة · {total} أقسام",
+    "translateUndo": "تراجع",
     "translateLocalFailed": "تعذّر على النموذج ترجمة هذه الملاحظة."
   },
   "growth": {
@@ -1402,7 +1415,10 @@
     "doneTitle": "أنهيت مراجعة اليوم",
     "doneText": "لا شيء مستحق. يمكنك التدرّب على بطاقاتك الضعيفة أو فتح رزمة جديدة.",
     "doneGo": "تدرّب",
-    "nothingToday": "لا شيء اليوم"
+    "nothingToday": "لا شيء اليوم",
+    "inProgress": "قيد المراجعة",
+    "deckCount": "{n} مجموعات",
+    "masteryAria": "{known} محفوظة، {learning} قيد التعلّم، {unseen} لم تُرَ بعد"
   },
   "road": {
     "levelOf": "المستوى {n} من {total}",

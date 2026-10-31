@@ -79,7 +79,20 @@
     "translateSuggest": "Cette note semble être en {lang} — la traduire ?",
     "endOfNote": "Fin de la note · {min} min",
     "translateViaPhone": "Traduit sur ton téléphone",
-    "translateSections": "Traduction… {n} sections sur {total}",
+    "translateSection": "Section {n} sur {total}",
+    "translateRunning": "Traduction en {lang}…",
+    "translatePrivatePhone": "Sur ton téléphone, rien ne sort de l'appareil",
+    "translatePrivateDevice": "Sur ton appareil, rien n'en sort",
+    "translateStop": "Arrêter",
+    "translateCurrent": "En cours",
+    "translateDone": "Traduit en {lang}",
+    "translateKeptPhone": "Sur ton téléphone · gardé pour la prochaine fois",
+    "translateKeptDevice": "Sur ton appareil · gardé pour la prochaine fois",
+    "translateOriginal": "Original",
+    "translateBlockFailed": "Ce passage n'a pas pu être traduit",
+    "translateRetry": "Réessayer",
+    "translateFinished": "Note traduite · {total} sections",
+    "translateUndo": "Annuler",
     "translateLocalFailed": "Le modèle n'a pas pu traduire cette note."
   },
   "growth": {
@@ -1402,7 +1415,10 @@
     "doneTitle": "À jour pour aujourd’hui",
     "doneText": "Rien n’est dû. Tu peux t’entraîner sur tes cartes fragiles, ou ouvrir un nouveau paquet.",
     "doneGo": "S’entraîner",
-    "nothingToday": "rien aujourd’hui"
+    "nothingToday": "rien aujourd’hui",
+    "inProgress": "En cours",
+    "deckCount": "{n} paquets",
+    "masteryAria": "{known} acquises, {learning} en cours, {unseen} jamais vues"
   },
   "road": {
     "levelOf": "Niveau {n} sur {total}",

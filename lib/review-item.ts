@@ -123,3 +123,27 @@ export function quickCounts(
   const room = Math.max(0, cfg.newPerDay - (p.newDay === today ? p.newCount : 0));
   return { due, fresh: Math.min(unseen, room) };
 }
+
+/** Interval, in days, from which a card counts as known (Anki's "mature"). */
+export const KNOWN_DAYS = 21;
+
+/**
+ * Where a deck stands, for Réviser's bars: cards known (an interval of
+ * KNOWN_DAYS or more), being learned (seen, shorter interval), and never
+ * seen. `count` is the deck's notes; both directions double it, as in
+ * quickCounts. Suspended cards count where their interval puts them.
+ */
+export function deckMastery(
+  p: Progress,
+  count: number,
+  cfg: Pick<DeckSettings, "dir">,
+): { known: number; learning: number; unseen: number } {
+  let known = 0;
+  let learning = 0;
+  for (const c of Object.values(p.cards)) {
+    if (c.iv >= KNOWN_DAYS) known++;
+    else learning++;
+  }
+  const total = count * (cfg.dir === "both" ? 2 : 1);
+  return { known, learning, unseen: Math.max(0, total - known - learning) };
+}

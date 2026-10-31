@@ -288,11 +288,12 @@ test.describe("Widgets", () => {
     // in-place device translation, the model code itself being fetched on
     // demand as translate-device.bundle.js; ≈ 86 KB with the empty
     // comments' bench drawing, lib/deco-bench.ts, and the reading paths'
-    // hand-named levels; ≈ 88 KB with lib/speech-text.ts, which keeps
-    // "Écouter" to the note's prose; ≈ 90 KB with the natural voice's switch
-    // and loader, the voice itself being fetched on demand as
+    // hand-named levels; ≈ 91 KB with the device translation's progress
+    // card, pill and done card; ≈ 96 KB with lib/speech-text.ts, which keeps
+    // "Écouter" to the note's prose, and the natural voice's switch and
+    // loader, the voice itself being fetched on demand as
     // piper-voice.bundle.js and piper.worker.js).
-    expect(bundle.length).toBeLessThan(92_000);
+    expect(bundle.length).toBeLessThan(98_000);
     // Those two load only where they are used (see below).
     expect(bundle).not.toContain("quiz-self-btn");
     expect(bundle).not.toContain("gloss-popover");

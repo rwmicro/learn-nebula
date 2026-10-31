@@ -79,7 +79,20 @@
     "translateSuggest": "This note seems to be in {lang} — translate it?",
     "endOfNote": "End of the note · {min} min",
     "translateViaPhone": "Translated on your phone",
-    "translateSections": "Translating… {n} of {total} sections",
+    "translateSection": "Section {n} of {total}",
+    "translateRunning": "Translating into {lang}…",
+    "translatePrivatePhone": "On your phone, nothing leaves it",
+    "translatePrivateDevice": "On your device, nothing leaves it",
+    "translateStop": "Stop",
+    "translateCurrent": "In progress",
+    "translateDone": "Translated into {lang}",
+    "translateKeptPhone": "On your phone · kept for next time",
+    "translateKeptDevice": "On your device · kept for next time",
+    "translateOriginal": "Original",
+    "translateBlockFailed": "This passage couldn't be translated",
+    "translateRetry": "Retry",
+    "translateFinished": "Note translated · {total} sections",
+    "translateUndo": "Undo",
     "translateLocalFailed": "The model couldn't translate this note."
   },
   "growth": {
@@ -1402,7 +1415,10 @@
     "doneTitle": "All caught up for today",
     "doneText": "Nothing is due. You can practise your shaky cards, or open a new deck.",
     "doneGo": "Practise",
-    "nothingToday": "nothing today"
+    "nothingToday": "nothing today",
+    "inProgress": "In progress",
+    "deckCount": "{n} decks",
+    "masteryAria": "{known} known, {learning} learning, {unseen} not seen yet"
   },
   "road": {
     "levelOf": "Level {n} of {total}",
