@@ -1,7 +1,10 @@
-// Browser-native text-to-speech for note bodies. Reads the article (skipping
-// the header, sidebar, signature and footer nav) via SpeechSynthesis. A single
-// toggle cycles idle → playing → paused → playing. Hidden if the browser
-// has no SpeechSynthesis support (e.g. Firefox without a voice installed).
+// Browser-native text-to-speech for note bodies. Reads the title and the
+// prose of the article (lib/speech-text.ts says what is skipped) via
+// SpeechSynthesis. A single toggle cycles idle → playing → paused → playing.
+// Hidden if the browser has no SpeechSynthesis support (e.g. Firefox without
+// a voice installed).
+import { noteSpeechText } from "../../lib/speech-text";
+
 (function () {
   const btn = document.querySelector(".audio-btn");
   if (!btn) return;
@@ -17,22 +20,7 @@
 
   function articleText() {
     const main = document.getElementById("main");
-    if (!main) return "";
-    const skipSel =
-      ".note-aside, .note-header, .signature, .siblings, .site-nav, " +
-      ".subtitle, .audio-btn, .toc, .anchor, [data-pagefind-ignore]";
-    const skip = new Set(main.querySelectorAll(skipSel));
-    const out = [];
-    (function walk(node) {
-      if (skip.has(node)) return;
-      if (node.nodeType === Node.TEXT_NODE) {
-        out.push(node.textContent);
-        return;
-      }
-      if (node.nodeType !== Node.ELEMENT_NODE) return;
-      for (const child of node.childNodes) walk(child);
-    })(main);
-    return out.join(" ").replace(/\s+/g, " ").trim();
+    return main ? noteSpeechText(main) : "";
   }
 
   function tt(k) {
