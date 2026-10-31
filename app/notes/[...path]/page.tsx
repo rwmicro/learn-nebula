@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getFolderPages, type FolderRef } from "@/lib/notes-browse";
 import { splitRank } from "@/lib/folder-label";
-import { t } from "@/lib/i18n";
+import { t, pathName, pathNameProps } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
 import { FolderRows, NoteRows, RememberFolder } from "@/components/explore/NotesBrowse";
 import "@/assets/css/notes-browse.css";
@@ -102,7 +102,7 @@ export default async function FolderPage({ params }: Params) {
               <a href={`/parcours/${p.slug}/`} className="nb-path">
                 <span className="nb-path-tx">
                   <small data-i18n="notesTab.path">{t("notesTab.path")}</small>
-                  <b>{p.name}</b>
+                  <b {...pathNameProps(p)}>{pathName(p)}</b>
                   <Count n={p.count} />
                 </span>
                 <span className="nb-play" aria-hidden="true">

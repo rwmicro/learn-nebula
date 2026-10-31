@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { t, disciplineKey } from "@/lib/i18n";
+import { t, disciplineKey, pathName } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { useHomeData, useReadingStore } from "@/components/home/HomeContent";
 import { useReviewDue } from "@/components/account/AccountChip";
@@ -124,7 +124,6 @@ function resumePath(data: HomeData | null, store: ReadingStore) {
 }
 
 /** "Arabe libanais : des premiers mots à la culture" → "Arabe libanais". */
-const shortName = (name: string) => name.split(/\s+:\s+/)[0];
 
 /** The share of a path read, the current note's progress counting as part
  *  of its step, 0–100. */
@@ -222,6 +221,7 @@ export function HomeDashboard({
   noteCount: number;
 }) {
   const locale = useLocale();
+  const shortName = (p: { slug: string; name: string }) => pathName(p, "title", locale);
   const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
   const data = useHomeData(dataVersion);
   const store = useReadingStore();
@@ -327,7 +327,7 @@ export function HomeDashboard({
               <span className="dash-chip-dot">
                 <FamilyIcon family={resume.path.family} />
               </span>
-              {tr("dash.stepOf", { path: shortName(resume.path.name), n: resume.step, total: resume.total })}
+              {tr("dash.stepOf", { path: shortName(resume.path), n: resume.step, total: resume.total })}
             </span>
             <span className="dash-cap">
               <b>{resume.title}</b>
@@ -495,7 +495,7 @@ export function HomeDashboard({
                   <span className="dash-fade-text">
                     <b>{lv.name}</b>
                     <small>
-                      {shortName(p.name)} · {tr("parcours.level", { n: lv.n }).toLowerCase()}
+                      {shortName(p)} · {tr("parcours.level", { n: lv.n }).toLowerCase()}
                       {last ? ` · ${daysAgo(daysBetween(last, todayKey), locale)}` : ""}
                     </small>
                   </span>
@@ -527,7 +527,7 @@ export function HomeDashboard({
                       <FamilyIcon family={p.family} />
                     </span>
                     <span className="dash-mine-text">
-                      <b>{shortName(p.name)}</b>
+                      <b>{shortName(p)}</b>
                       <small>
                         {tr("dash.pathRead", { read: p.read, total: p.total })}
                         {next ? ` · ${tr("dash.next", { title: next })}` : p.cible ? ` · ${tr("parcours.cible", { c: p.cible })}` : ""}
@@ -559,7 +559,7 @@ export function HomeDashboard({
                     <FamilyIcon family={p.family} />
                   </span>
                   <span>
-                    <b>{shortName(p.name)}</b>
+                    <b>{shortName(p)}</b>
                     <small>{tr("dash.notes", { n: p.total })}</small>
                   </span>
                 </a>

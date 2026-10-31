@@ -10,7 +10,7 @@ import {
 } from "./content";
 import { folderAnchor } from "./slug";
 import { escapeHtml } from "./escape";
-import { t, i18nAttrs, i18nAttr, folderKey } from "./i18n";
+import { t, i18nAttrs, i18nAttr, folderKey, type I18nVar, type I18nVars } from "./i18n";
 import type { PathFamily } from "./path-family";
 
 // Re-exported for the many modules (SinglePage, tests) that import it from here.
@@ -985,7 +985,7 @@ export function noteMoreHtml(inner: string): string {
 export interface NextUp {
   /** The logical next note: the next step of the reading path, else the next
    *  note of the folder. */
-  next: { slug: string; title: string; path?: string } | null;
+  next: { slug: string; title: string; path?: I18nVar } | null;
   /** The one before it, in the same order: the pager's left card. */
   prev?: { slug: string; title: string } | null;
   /** In a reading path, the next note's place in it (1-based). */
@@ -1000,7 +1000,7 @@ export interface NextUp {
  *  (reading state lives in the browser); without JS that half stays hidden. */
 export function nextUpHtml(n: NextUp): string {
   if (!n.next && !n.prev && !n.discipline) return "";
-  const kicker = (key: string, vars?: Record<string, string | number>) =>
+  const kicker = (key: string, vars?: I18nVars) =>
     `<span class="next-up-kicker"${i18nAttrs(key, vars)}>${escapeHtml(t(key, vars))}</span>`;
   const main = n.next
     ? `<a class="next-up-main" href="/posts/${encodeSlug(n.next.slug)}/" rel="next">` +

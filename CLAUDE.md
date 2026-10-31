@@ -197,6 +197,11 @@ image tag in `ci.yml` together with `@playwright/test`.
   attributes; it only re-runs on load when a **non-default** locale is stored, so
   build-time output must already be correct for `fr` (e.g. `formatDateLong` uses
   `fr-FR`).
+  Reading path names come from the vault in French; their translations are
+  `pathName.<slug>` (`title` / `sub`, the parts around " : ") in the bundles,
+  read through `pathName()` / `pathNameProps()` / `pathNameRef()` (a `{ $t }`
+  placeholder value, resolved by both `t()`s). `lib/path-names.test.ts` fails
+  on a path without one (CI reruns it on the fetched vault after the build).
 - **CSS scoping**: `assets/css/global.css` (Tailwind `@theme` + everywhere; the
   `--color-garden` CTA token and the shared `--title-page`, `--measure-*`,
   `--sheet-*`, `--chip-*`, `--btn-*` tokens live here), `note/` (note pages

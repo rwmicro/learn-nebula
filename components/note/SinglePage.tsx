@@ -51,7 +51,7 @@ import {
   prerenderNextHtml,
   type NextUp,
 } from "@/lib/html";
-import { t, i18nAttrs, i18nAttr } from "@/lib/i18n";
+import { t, i18nAttrs, i18nAttr, pathName, pathNameAttrs, pathNameKeys, pathNameRef } from "@/lib/i18n";
 import { citeHtml } from "@/lib/cite";
 import { JsonLd } from "@/components/layout/JsonLd";
 import { NoteFeatureScripts } from "@/components/note/NoteScripts";
@@ -225,7 +225,7 @@ export async function SinglePage({
   const here = discNotes.findIndex((n) => n.slug === doc.slug);
   const nextUp: NextUp = {
     next: step?.next
-      ? { slug: step.next.slug, title: step.next.title, path: step.path.name }
+      ? { slug: step.next.slug, title: step.next.title, path: pathNameRef(step.path) }
       : sibNav?.next
         ? { slug: sibNav.next.slug, title: sibNav.next.title }
         : null,
@@ -248,7 +248,11 @@ export async function SinglePage({
   const folders = doc.rawPath.split("/").slice(0, -1);
   const appCrumbs: NoteAppInput["crumbs"] = step
     ? [
-        { label: step.path.name.split(/\s+[:—–-]\s+/)[0], href: `/parcours/${encodeURIComponent(step.path.slug)}/` },
+        {
+          label: pathNameKeys(step.path.slug) ? pathName(step.path, "title") : step.path.name.split(/\s+[:—–-]\s+/)[0],
+          attrs: pathNameAttrs(step.path, "title"),
+          href: `/parcours/${encodeURIComponent(step.path.slug)}/`,
+        },
         {
           label: t("noteApp.step", { n: step.index + 1 }),
           attrs: i18nAttrs("noteApp.step", { n: step.index + 1 }),

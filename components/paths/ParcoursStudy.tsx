@@ -2,7 +2,7 @@
 
 import { recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { t } from "@/lib/i18n";
+import { t, pathName } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
 import { dayKey, type Grade } from "@/lib/srs";
@@ -627,6 +627,7 @@ function LevelDone({
     }
   }
   const minutes = notes.reduce((sum, n) => sum + n.minutes, 0);
+  const locale = useLocale();
   // A card on its own, centred over the page (a modal <dialog>: Escape and
   // a click outside close it, like its × ).
   const ref = useRef<HTMLDialogElement>(null);
@@ -687,7 +688,7 @@ function LevelDone({
       ) : nextPath ? (
         <a className="parcours-cta" href={`/parcours/${nextPath.slug}/`} onClick={onClose}>
           <span className="parcours-cta-verb">{tr("parcours.nextPath")} :</span>
-          <span className="parcours-cta-title">{nextPath.name}</span>
+          <span className="parcours-cta-title">{pathName(nextPath, "full", locale)}</span>
           <span aria-hidden="true">→</span>
         </a>
       ) : null}

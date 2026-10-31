@@ -1,4 +1,4 @@
-import { t, i18nProps } from "@/lib/i18n";
+import { t, i18nProps, pathName, pathNameProps } from "@/lib/i18n";
 import type { KeyPoint } from "@/lib/path-sheet";
 import { PrintButton } from "@/components/ui/PrintButton";
 import { AppBack } from "@/components/layout/AppBack";
@@ -58,7 +58,9 @@ export function PathSheet({
       <p className="fiche-kicker" {...i18nProps("fiche.kicker")}>
         {t("fiche.kicker")}
       </p>
-      <h1 className="fiche-title">{name}</h1>
+      <h1 className="fiche-title" {...pathNameProps({ slug, name })}>
+          {pathName({ slug, name })}
+        </h1>
       <p className="fiche-meta" {...i18nProps(metaKey, metaVars)}>
         {t(metaKey, metaVars)}
       </p>
