@@ -202,10 +202,6 @@ h6 {
   font-size: clamp(1.15rem, 1rem + 0.6vw, 1.4rem);
 }
 
-.figure-number {
-  display: none;
-}
-
 main p,
 main dd,
 main ul li,
@@ -903,19 +899,6 @@ h4:focus-within .anchor,
      own 0.4rem horizontal padding it still gives ~1rem of breathing space
      between visible text edges, which is enough air for typographic UI. */
   gap: 0.25rem;
-}
-
-/* Visual divider between the display-preference group (size, width) and the
-   content-action group (audio, translate). The extra horizontal margin gives
-   the divider more breathing room than a regular gap would, so it reads as
-   a group separator and not just another button. */
-.note-actions-sep {
-  color: var(--faint);
-  font-weight: 400;
-  font-size: 1.1rem;
-  line-height: 1;
-  margin: 0 0.5rem;
-  user-select: none;
 }
 
 .audio-btn,
@@ -2321,13 +2304,9 @@ a.theme-pill:focus-visible {
   }
 
   /* Note action row wraps under the title; tighten the gap so the buttons
-     fit comfortably on a 320 px screen. The visual divider is hidden
-     because a lone "·" floating on a wrapped line looks orphaned. */
+     fit comfortably on a 320 px screen. */
   .note-actions {
     gap: 0.7rem 0.9rem;
-  }
-  .note-actions-sep {
-    display: none;
   }
 
   /* Reading-time pushes to a new line on phones rather than fighting the

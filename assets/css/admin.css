@@ -187,24 +187,6 @@ body:has(.admin-panel.is-console) footer {
   order: 2;
 }
 
-/* Grouped questions: the count in a fixed gutter, so the questions align. */
-.admin-groups li {
-  display: grid;
-  grid-template-columns: 2rem 1fr;
-  gap: 0.6rem;
-  padding: 0.45rem 0;
-  border-bottom: 1px solid var(--rule-soft);
-}
-.admin-groups li:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-.admin-group-count {
-  font-weight: 700;
-  color: var(--ink-2);
-  text-align: right;
-}
-
 /* Vault health: one disclosure per problem kind. */
 .admin-details + .admin-details {
   border-top: 1px solid var(--rule-soft);

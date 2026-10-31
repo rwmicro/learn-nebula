@@ -516,45 +516,6 @@ body {
   fill: var(--ink);
 }
 
-/* Rich search excerpt (HomeContent): a small HTML snippet of a note — mainly so
-   tables and KaTeX render in the preview instead of flattening to text. */
-.rich-excerpt {
-  margin-top: 0.5rem;
-  padding: 0.6rem 0.8rem;
-  border-left: 2px solid var(--rule);
-  background: var(--wash);
-  font-family: var(--font-text);
-  font-size: 0.92rem;
-  color: var(--ink-soft);
-  max-height: 22rem;
-  overflow: auto;
-}
-.rich-excerpt > :first-child {
-  margin-top: 0;
-}
-.rich-excerpt > :last-child {
-  margin-bottom: 0;
-}
-.rich-excerpt table {
-  border-collapse: collapse;
-  font-size: 0.85rem;
-  margin: 0.3rem 0;
-}
-.rich-excerpt th,
-.rich-excerpt td {
-  border: 1px solid var(--rule);
-  padding: 0.2rem 0.5rem;
-  text-align: left;
-}
-.rich-excerpt th {
-  background: var(--wash-2);
-  font-weight: 600;
-}
-.rich-excerpt img {
-  max-width: 100%;
-  height: auto;
-}
-
 /* Floating trigger on note pages — the "AI" button that opens the assistant. */
 .gk-pinned-trigger {
   position: fixed;
