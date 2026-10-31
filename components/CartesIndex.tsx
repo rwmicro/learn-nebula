@@ -6,6 +6,7 @@ import { homeFolderLabel } from "@/lib/content";
 import { CartesPhone } from "@/components/CartesPhone";
 import { familyOfFolder } from "@/lib/path-family";
 import { fold } from "@/lib/palette-match";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
  * /cartes/ — every Anki deck (lib/anki.ts's manifest), grouped under the vault
@@ -41,15 +42,13 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
   return (
     <main className="cartes-index tab-root">
       <CartesPhone decks={phoneDecks} />
-      <a href="/" className="cartes-index-back">
-        ← {t("nav.home")}
-      </a>
-      <h1 className="cartes-index-title" {...i18nProps("cartesIndex.title")}>
-        {t("cartesIndex.title")}
-      </h1>
-      <p className="cartes-index-intro" {...i18nProps("cartesIndex.intro")}>
-        {t("cartesIndex.intro")}
-      </p>
+      <PageHeader
+        name="cartes-index"
+        title={t("cartesIndex.title")}
+        titleProps={i18nProps("cartesIndex.title")}
+        intro={t("cartesIndex.intro")}
+        introProps={i18nProps("cartesIndex.intro")}
+      />
 
       {/* Everything due today, all decks and note questions together. */}
       <CartesToday decks={decks} />

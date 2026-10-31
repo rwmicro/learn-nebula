@@ -6,6 +6,7 @@ import { CHESS_NOTES, type ChessTopic } from "@/lib/chess-play";
 import { t } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/echecs.css";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 // A game against Stockfish, the reader's Elo and a review that points each
 // mistake to a chess note of the vault. Only the notes that exist at build
@@ -24,10 +25,12 @@ export default function EchecsPage() {
   }
   return (
     <main id="main" className="echecs">
-      <AppBack href="/notes/" labelKey="tabbar.notes" />
-      <h1 className="echecs-title" data-i18n="chess.title">
-        {t("chess.title")}
-      </h1>
+      <PageHeader
+        name="echecs"
+        back={{ href: "/notes/", labelKey: "tabbar.notes" }}
+        title={t("chess.title")}
+        titleProps={{ "data-i18n": "chess.title" }}
+      />
       <ChessPlay notes={notes} />
     </main>
   );

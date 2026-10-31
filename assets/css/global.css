@@ -43,6 +43,18 @@
     --title-page-size: 2.125rem;
   }
 }
+/* components/ui/PageHeader.tsx */
+.page-title {
+  margin: 0 0 0.5rem;
+  font: var(--title-page);
+  letter-spacing: var(--title-page-tracking);
+  text-wrap: balance;
+}
+.page-intro {
+  margin: 0 0 2rem;
+  font-size: 1.1rem;
+  color: var(--ink-2);
+}
 
 /* Page widths — four columns, picked by what the page holds, so a page keeps
    its left edge when the reader moves to the next one:

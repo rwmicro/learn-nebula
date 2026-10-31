@@ -5,6 +5,7 @@ import { AppBack } from "@/components/AppBack";
 import { COUNTRIES } from "@/lib/countries";
 import { REGION_ORDER, regionOf, type Region } from "@/lib/regions";
 import type { CSSProperties } from "react";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 const ISO2 = new Map(COUNTRIES.map(([iso3, iso2]) => [iso3, iso2]));
 
@@ -30,16 +31,14 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
   const regions = [...new Set(countries.map(regionOfC))].sort((a, b) => regionRank(a) - regionRank(b));
   return (
     <main className="carte-page">
-      <AppBack href="/notes/" labelKey="tabbar.notes" />
-      <a href="/" className="old-back carte-back">
-        ← {t("nav.home")}
-      </a>
-      <h1 className="carte-title" {...i18nProps("carte.title")}>
-        {t("carte.title")}
-      </h1>
-      <p className="carte-intro" {...i18nProps("carte.intro", { n: countries.length, notes: total })}>
-        {t("carte.intro", { n: countries.length, notes: total })}
-      </p>
+      <PageHeader
+        name="carte"
+        back={{ href: "/notes/", labelKey: "tabbar.notes" }}
+        title={t("carte.title")}
+        titleProps={i18nProps("carte.title")}
+        intro={t("carte.intro", { n: countries.length, notes: total })}
+        introProps={i18nProps("carte.intro", { n: countries.length, notes: total })}
+      />
 
       <figure className="carte-figure">
         <div className="carte-map-wrap">

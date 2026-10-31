@@ -5,29 +5,7 @@
   margin: 0 auto;
   padding: 2.5rem 1.2rem 4rem;
 }
-.donnees-back {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  font-family: var(--font-caps);
-  text-transform: lowercase;
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--ink);
-  text-decoration: none;
-}
-.donnees-back:hover {
-  text-decoration: underline;
-}
-.donnees-title {
-  font: var(--title-page);
-  letter-spacing: var(--title-page-tracking);
-  margin: 0 0 0.5rem;
-}
-.donnees-intro {
-  color: var(--ink-2);
-  margin: 0 0 2rem;
-  font-size: 1.1rem;
-}
+
 .donnees-h2 {
   font-family: var(--font-caps);
   text-transform: lowercase;

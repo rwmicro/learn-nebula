@@ -3,6 +3,7 @@ import { familyOfFolder } from "@/lib/path-family";
 import { Fragment, type ReactNode } from "react";
 import type { TimelineEntry } from "@/lib/content";
 import { AppBack } from "@/components/AppBack";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
  * Every note that declares a historical `year` in its frontmatter (see
@@ -32,16 +33,14 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
   })).filter((era) => era.entries.length > 0);
   return (
     <main className="frise-page">
-      <AppBack href="/notes/" labelKey="tabbar.notes" />
-      <a href="/" className="old-back frise-back">
-        ← {t("nav.home")}
-      </a>
-      <h1 className="frise-title" {...i18nProps("frise.title")}>
-        {t("frise.title")}
-      </h1>
-      <p className="frise-intro" {...i18nProps("frise.intro")}>
-        {t("frise.intro")}
-      </p>
+      <PageHeader
+        name="frise"
+        back={{ href: "/notes/", labelKey: "tabbar.notes" }}
+        title={t("frise.title")}
+        titleProps={i18nProps("frise.title")}
+        intro={t("frise.intro")}
+        introProps={i18nProps("frise.intro")}
+      />
       <p className="frise-count" {...i18nProps("frise.count", { n: entries.length })}>
         {t("frise.count", { n: entries.length })}
       </p>

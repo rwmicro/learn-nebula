@@ -28,8 +28,6 @@
 }
 .defis-title {
   margin: 0.25rem 0.25rem 0.875rem;
-  font: var(--title-page);
-  letter-spacing: var(--title-page-tracking);
 }
 .defis-card,
 .defis-list {

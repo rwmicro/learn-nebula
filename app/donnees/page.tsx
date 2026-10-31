@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { t, i18nAttrs } from "@/lib/i18n";
+import { t, i18nProps } from "@/lib/i18n";
 import { DATA_FILES, DATA_SOURCES, getFigures } from "@/lib/donnees";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/donnees.css";
 import { AppBack } from "@/components/AppBack";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = {
   title: `Données ouvertes · ${SITE_TITLE}`,
@@ -20,28 +21,29 @@ export default function DonneesPage() {
   const figures = getFigures();
   return (
     <main className="donnees-page">
-      <AppBack href="/notes/" labelKey="tabbar.notes" />
-      <a href="/" className="old-back donnees-back">
-        ← {t("nav.home")}
-      </a>
-      <h1 className="donnees-title" {...attrs(i18nAttrs("donnees.title"))}>
-        {t("donnees.title")}
-      </h1>
-      <p className="donnees-intro">
-        <span {...attrs(i18nAttrs("donnees.intro"))}>{t("donnees.intro")}</span>{" "}
-        <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr">CC BY-NC-SA 4.0</a>.
-      </p>
+      <PageHeader
+        name="donnees"
+        back={{ href: "/notes/", labelKey: "tabbar.notes" }}
+        title={t("donnees.title")}
+        titleProps={i18nProps("donnees.title")}
+        intro={
+          <>
+            <span {...i18nProps("donnees.intro")}>{t("donnees.intro")}</span>{" "}
+            <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.fr">CC BY-NC-SA 4.0</a>.
+          </>
+        }
+      />
 
-      <h2 className="donnees-h2" {...attrs(i18nAttrs("donnees.filesTitle"))}>
+      <h2 className="donnees-h2" {...i18nProps("donnees.filesTitle")}>
         {t("donnees.filesTitle")}
       </h2>
       <div className="donnees-scroll">
         <table className="donnees-table">
           <thead>
             <tr>
-              <th {...attrs(i18nAttrs("donnees.colFile"))}>{t("donnees.colFile")}</th>
-              <th {...attrs(i18nAttrs("donnees.colContent"))}>{t("donnees.colContent")}</th>
-              <th {...attrs(i18nAttrs("donnees.colFormat"))}>{t("donnees.colFormat")}</th>
+              <th {...i18nProps("donnees.colFile")}>{t("donnees.colFile")}</th>
+              <th {...i18nProps("donnees.colContent")}>{t("donnees.colContent")}</th>
+              <th {...i18nProps("donnees.colFormat")}>{t("donnees.colFormat")}</th>
             </tr>
           </thead>
           <tbody>
@@ -52,7 +54,7 @@ export default function DonneesPage() {
                     <code>{f.href}</code>
                   </a>
                 </td>
-                <td {...attrs(i18nAttrs(`donnees.file_${f.key}`))}>{t(`donnees.file_${f.key}`)}</td>
+                <td {...i18nProps(`donnees.file_${f.key}`)}>{t(`donnees.file_${f.key}`)}</td>
                 <td>{f.format}</td>
               </tr>
             ))}
@@ -60,19 +62,19 @@ export default function DonneesPage() {
         </table>
       </div>
 
-      <h2 className="donnees-h2" {...attrs(i18nAttrs("donnees.sourcesTitle"))}>
+      <h2 className="donnees-h2" {...i18nProps("donnees.sourcesTitle")}>
         {t("donnees.sourcesTitle")}
       </h2>
-      <p className="donnees-text" {...attrs(i18nAttrs("donnees.sourcesIntro", { n: figures.length }))}>
+      <p className="donnees-text" {...i18nProps("donnees.sourcesIntro", { n: figures.length })}>
         {t("donnees.sourcesIntro", { n: figures.length })}
       </p>
       <div className="donnees-scroll">
         <table className="donnees-table">
           <thead>
             <tr>
-              <th {...attrs(i18nAttrs("donnees.colSource"))}>{t("donnees.colSource")}</th>
-              <th {...attrs(i18nAttrs("donnees.colUse"))}>{t("donnees.colUse")}</th>
-              <th {...attrs(i18nAttrs("donnees.colLicence"))}>{t("donnees.colLicence")}</th>
+              <th {...i18nProps("donnees.colSource")}>{t("donnees.colSource")}</th>
+              <th {...i18nProps("donnees.colUse")}>{t("donnees.colUse")}</th>
+              <th {...i18nProps("donnees.colLicence")}>{t("donnees.colLicence")}</th>
             </tr>
           </thead>
           <tbody>
@@ -81,7 +83,7 @@ export default function DonneesPage() {
                 <td>
                   <a href={s.href}>{s.name}</a>
                 </td>
-                <td {...attrs(i18nAttrs(`donnees.use_${s.key}`))}>{t(`donnees.use_${s.key}`)}</td>
+                <td {...i18nProps(`donnees.use_${s.key}`)}>{t(`donnees.use_${s.key}`)}</td>
                 <td>{s.licence}</td>
               </tr>
             ))}
@@ -89,18 +91,18 @@ export default function DonneesPage() {
         </table>
       </div>
 
-      <h2 className="donnees-h2" {...attrs(i18nAttrs("donnees.reuseTitle"))}>
+      <h2 className="donnees-h2" {...i18nProps("donnees.reuseTitle")}>
         {t("donnees.reuseTitle")}
       </h2>
-      <p className="donnees-text" {...attrs(i18nAttrs("donnees.reuse"))}>
+      <p className="donnees-text" {...i18nProps("donnees.reuse")}>
         {t("donnees.reuse")}
       </p>
       <p className="donnees-text">
-        <a href="/carte/" {...attrs(i18nAttrs("donnees.seeCarte"))}>
+        <a href="/carte/" {...i18nProps("donnees.seeCarte")}>
           {t("donnees.seeCarte")}
         </a>
         {" · "}
-        <a href="/frise/" {...attrs(i18nAttrs("donnees.seeFrise"))}>
+        <a href="/frise/" {...i18nProps("donnees.seeFrise")}>
           {t("donnees.seeFrise")}
         </a>
       </p>
@@ -108,8 +110,3 @@ export default function DonneesPage() {
   );
 }
 
-function attrs(s: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of s.matchAll(/ ([\w-]+)="([^"]*)"/g)) out[m[1]] = m[2].replace(/&quot;/g, '"');
-  return out;
-}

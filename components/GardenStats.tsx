@@ -2,6 +2,7 @@ import { t, folderKey, i18nProps } from "@/lib/i18n";
 import { formatDateLong } from "@/lib/content";
 import type { GardenStats as Stats, MonthCount } from "@/lib/garden-stats";
 import { AppBack } from "@/components/AppBack";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
  * /jardin/: the vault in numbers (lib/garden-stats.ts), rendered on the
@@ -16,22 +17,22 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
   const maxDisc = Math.max(1, ...stats.byDiscipline.map((d) => d.notes));
   return (
     <main className="jardin-page">
-      <AppBack href="/notes/" labelKey="tabbar.notes" />
-      <a href="/" className="old-back jardin-back">
-        ← <span {...i18nProps("nav.home")}>{t("nav.home")}</span>
-      </a>
-      <p className="jardin-kicker">
-        <span {...i18nProps("jardin.updated")}>{t("jardin.updated")}</span>{" "}
-        <time dateTime={builtAt.toISOString()} data-i18n-date>
-          {formatDateLong(builtAt)}
-        </time>
-      </p>
-      <h1 className="jardin-title" {...i18nProps("jardin.title")}>
-        {t("jardin.title")}
-      </h1>
-      <p className="jardin-intro" {...i18nProps("jardin.intro")}>
-        {t("jardin.intro")}
-      </p>
+      <PageHeader
+        name="jardin"
+        back={{ href: "/notes/", labelKey: "tabbar.notes" }}
+        kicker={
+          <p className="jardin-kicker">
+            <span {...i18nProps("jardin.updated")}>{t("jardin.updated")}</span>{" "}
+            <time dateTime={builtAt.toISOString()} data-i18n-date>
+              {formatDateLong(builtAt)}
+            </time>
+          </p>
+        }
+        title={t("jardin.title")}
+        titleProps={i18nProps("jardin.title")}
+        intro={t("jardin.intro")}
+        introProps={i18nProps("jardin.intro")}
+      />
 
       <dl className="jardin-figs">
         <Fig n={fmtInt(stats.notes)} k="jardin.statNotes" />

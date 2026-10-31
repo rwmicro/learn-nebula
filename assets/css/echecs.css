@@ -14,8 +14,6 @@
   margin: 0.25rem 0 1.25rem;
   padding: 0;
   border: 0;
-  font: var(--title-page);
-  letter-spacing: var(--title-page-tracking);
 }
 .chess {
   display: grid;

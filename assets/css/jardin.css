@@ -7,19 +7,7 @@
   padding: 2.5rem 1.2rem 4rem;
 }
 
-.jardin-back {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  font-family: var(--font-caps);
-  text-transform: lowercase;
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--ink);
-  text-decoration: none;
-}
-.jardin-back:hover {
-  text-decoration: underline;
-}
+
 
 .jardin-kicker {
   margin: 0;
@@ -32,15 +20,11 @@
 }
 
 .jardin-title {
-  font: var(--title-page);
-  letter-spacing: var(--title-page-tracking);
   margin: 0.1rem 0 0.5rem;
 }
 
 .jardin-intro {
-  color: var(--ink-2);
   margin: 0 0 1.5rem;
-  font-size: 1.1rem;
   max-width: 38rem;
 }
 

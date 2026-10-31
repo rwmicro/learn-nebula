@@ -8,32 +8,8 @@
   padding: 2.5rem 1rem 4rem;
 }
 
-.progression-back {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  font-family: var(--font-caps);
-  text-transform: lowercase;
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--ink);
-  text-decoration: none;
-}
-.progression-back:hover {
-  text-decoration: underline;
-}
 
-.progression-title {
-  /* Page titles in normal case, like a note's H1; small caps stay for
-     the small labels (kicker, back link, section headings). */
-  font: var(--title-page);
-  letter-spacing: var(--title-page-tracking);
-  margin: 0 0 0.5rem;
-}
-.progression-intro {
-  color: var(--ink-2);
-  margin: 0 0 2rem;
-  font-size: 1.1rem;
-}
+
 
 /* A new visitor: one card and two ways in, instead of a wall of zeros. */
 .progression-welcome {

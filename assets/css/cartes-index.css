@@ -7,32 +7,11 @@
   padding: 2.5rem 1.2rem 4rem;
 }
 
-.cartes-index-back {
-  display: inline-block;
-  margin-bottom: 1.5rem;
-  font-family: var(--font-caps);
-  text-transform: lowercase;
-  font-weight: 700;
-  font-size: 1.05rem;
-  color: var(--ink);
-  text-decoration: none;
-}
-.cartes-index-back:hover {
-  text-decoration: underline;
-}
 
-.cartes-index-title {
-  /* Page titles in normal case, like a note's H1; small caps stay for
-     the small labels (kicker, back link, section headings). */
-  font: var(--title-page);
-  letter-spacing: var(--title-page-tracking);
-  margin: 0 0 0.5rem;
-}
+
 
 .cartes-index-intro {
-  color: var(--ink-2);
   margin: 0 0 2.5rem;
-  font-size: 1.1rem;
 }
 
 .cartes-index-empty {

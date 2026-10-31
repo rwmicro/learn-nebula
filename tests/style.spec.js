@@ -38,8 +38,9 @@ const PAGES = [
 ];
 
 // Right-to-left: the Arabic interface on a few pages that carry the shared
-// pieces (title, list, note column).
-const RTL = ["accueil", "parcours", "note-histoire"];
+// pieces (title, list, note column), and the Frise, whose counts once stayed
+// in French (lib/i18n.ts, i18nProps).
+const RTL = ["accueil", "parcours", "note-histoire", "frise"];
 
 async function settle(page) {
   await page.waitForLoadState("networkidle");

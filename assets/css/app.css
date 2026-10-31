@@ -3267,10 +3267,6 @@
   display: none;
 }
 @media (max-width: 639.98px) {
-  main.progression > .progression-back,
-  main.cartes-index > .cartes-index-back {
-    display: none;
-  }
   main.progression,
   main.cartes-index {
     padding-top: 1.1rem;

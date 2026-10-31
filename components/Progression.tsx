@@ -40,6 +40,7 @@ import type { AnkiDeck } from "@/lib/anki";
 import { ReviewStats } from "@/components/ReviewStats";
 import { AppSettings } from "@/components/AppSettings";
 import { MoiPhone } from "@/components/MoiPhone";
+import { PageHeader } from "@/components/ui/PageHeader";
 
 interface Pending {
   file: ProgressFile;
@@ -265,12 +266,7 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
   return (
     <main className="progression" data-pagefind-ignore>
       <MoiPhone />
-      {/* A plain link: next/link would make scripts/prune-rsc.mjs keep every RSC payload. */}
-      <a href="/" className="progression-back">
-        ← {t("nav.home", undefined, locale)}
-      </a>
-      <h1 className="progression-title">{tr("title")}</h1>
-      <p className="progression-intro">{tr("intro")}</p>
+      <PageHeader name="progression" title={tr("title")} intro={tr("intro")} />
       <AppSettings />
 
       <section
