@@ -1404,64 +1404,277 @@ button.gc-ib:hover {
   }
 }
 
-/* A note being translated on the device (public/js/translate.js). */
+/* A note being translated on the device (public/js/translate.js): the card
+   above the body, the pill that takes over once it has scrolled away, the
+   block being translated and the ones still waiting. */
 .translate-pending {
-  opacity: 0.45;
-  transition: opacity 0.3s;
+  color: var(--muted);
+  transition: color 0.3s;
+}
+.translate-now {
+  position: relative;
+  color: var(--ink);
+  border-radius: 6px;
+  background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--garden) 14%, transparent) 50%,
+      transparent
+    )
+    0 0 / 200% 100%;
+  animation: translate-sweep 1.6s linear infinite;
+}
+.translate-now::before {
+  content: attr(data-tr-label);
+  display: block;
+  font:
+    700 0.7rem "Alegreya Sans",
+    "Alegreya Sans Fallback",
+    sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--garden);
+}
+.translate-now::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: -0.7rem;
+  top: 0.25em;
+  bottom: 0.25em;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--garden);
+}
+li.translate-now::marker {
+  content: none;
+}
+@keyframes translate-sweep {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -100% 0;
+  }
+}
+.translate-failed-note {
+  margin: -0.4rem 0 1rem;
+  font:
+    500 0.85rem "Alegreya Sans",
+    "Alegreya Sans Fallback",
+    sans-serif;
+  color: var(--muted);
+}
+.translate-failed-note::before {
+  content: "⚠ ";
+}
+.translate-retry {
+  font: inherit;
+  font-weight: 700;
+  color: var(--garden);
+  background: none;
+  border: 0;
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
 }
 .translate-local {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 1rem;
-  padding: 9px 12px;
-  border-radius: 14px;
+  margin: 0 0 1.4rem;
+  padding: 12px 14px;
+  border-radius: 16px;
   background: var(--garden-wash);
   font-family: "Alegreya Sans", "Alegreya Sans Fallback", sans-serif;
   font-size: 0.9rem;
   color: var(--ink-2);
 }
-.translate-local svg {
-  width: 18px;
-  height: 18px;
+.tl-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tl-row svg {
+  width: 22px;
+  height: 22px;
   color: var(--garden);
   flex: none;
 }
-.translate-local span {
+.tl-text {
   flex: 1;
+  line-height: 1.25;
 }
-.translate-local b {
+.tl-text b {
+  display: block;
+  font-size: 1rem;
+  color: var(--ink);
+}
+.tl-stop,
+.tl-switch button,
+.translate-pill button,
+.translate-toast button {
+  font: inherit;
+  cursor: pointer;
+}
+.tl-stop {
+  flex: none;
+  font-weight: 600;
+  padding: 5px 13px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--garden) 45%, transparent);
+  background: var(--paper);
   color: var(--garden);
 }
-.translate-local button {
-  font: inherit;
-  font-weight: 600;
-  background: none;
-  border: 0;
-  padding: 0;
-  color: var(--ink-2);
-  text-decoration: underline;
-  cursor: pointer;
-  white-space: nowrap;
+.tl-bar {
+  display: flex;
+  gap: 4px;
+  margin: 12px 0 6px;
 }
-.translate-progress {
+.tl-bar i {
+  flex: 1;
+  height: 5px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--garden) 18%, transparent);
+  transition: background-color 0.3s;
+}
+.tl-bar i.is-done {
+  background: var(--garden);
+}
+.tl-bar i.is-now {
+  background: linear-gradient(
+    90deg,
+    var(--garden) 40%,
+    color-mix(in srgb, var(--garden) 18%, transparent) 40%
+  );
+}
+.tl-count {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.tl-switch {
+  display: flex;
+  margin-top: 10px;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--paper);
+}
+.tl-switch button {
+  flex: 1;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.tl-switch button::first-letter {
+  text-transform: uppercase;
+}
+.tl-switch button[aria-pressed="true"] {
+  background: var(--garden);
+  color: var(--paper);
+}
+.translate-pill {
+  position: fixed;
+  z-index: 951;
+  top: calc(env(safe-area-inset-top, 0px) + 1rem);
+  left: 50%;
+  translate: -50% 0;
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 0.4rem 0 1rem;
+  gap: 9px;
+  max-width: calc(100vw - 2rem);
+  padding: 5px 5px 5px 12px;
+  border-radius: 999px;
+  background: var(--paper-raised);
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.12);
+  font:
+    500 0.85rem "Alegreya Sans",
+    "Alegreya Sans Fallback",
+    sans-serif;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.translate-pill[hidden] {
+  display: none;
+}
+.translate-pill b {
+  display: inline-block;
+  color: var(--ink);
+}
+.translate-pill b::first-letter {
+  text-transform: uppercase;
+}
+.tl-ring {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--garden) var(--p, 0%),
+    color-mix(in srgb, var(--garden) 18%, transparent) 0
+  );
+  mask: radial-gradient(circle, transparent 4.5px, #000 5px);
+}
+.translate-pill button {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--garden-wash);
+  color: var(--ink-2);
+}
+.translate-pill svg {
+  width: 13px;
+  height: 13px;
+}
+.translate-toast {
+  position: fixed;
+  z-index: 951;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 6.5rem);
+  translate: -50% 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 9px 9px 16px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper);
   font:
     500 0.9rem "Alegreya Sans",
     "Alegreya Sans Fallback",
     sans-serif;
-  color: var(--muted);
+  white-space: nowrap;
+  animation: translate-toast-in 0.3s ease-out;
 }
-.translate-progress .gc-typing {
-  height: 18px;
+.translate-toast button {
+  border: 0;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: none;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--garden) 55%, var(--paper));
 }
-.translate-progress .gc-typing i {
-  width: 6px;
-  height: 6px;
+@keyframes translate-toast-in {
+  from {
+    opacity: 0;
+    translate: -50% 8px;
+  }
 }
-.translate-local button::first-letter {
-  text-transform: uppercase;
+/* Phones: under the note's top pill, above its two bottom bars. */
+@media (max-width: 639.98px) {
+  .translate-pill {
+    top: calc(env(safe-area-inset-top, 0px) + 4rem);
+  }
+  .translate-toast {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 9.5rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .translate-now,
+  .translate-toast {
+    animation: none;
+  }
 }

@@ -12,6 +12,8 @@
 // Every function feature-detects and never throws, except promptLocal() on
 // an abort (AbortError, like fetch).
 
+import { onIos } from "./garden-ai-flags";
+
 const OPT_IN_KEY = "gk-local-llm";
 /** Day the download finished, "YYYY-MM-DD" (shown in the settings). */
 const DONE_KEY = "gk-local-llm-done";
@@ -27,14 +29,6 @@ export interface LocalModel {
 }
 const BIG: LocalModel = { id: "onnx-community/LFM3-1.7B-ONNX", name: "LFM3", gb: 1.1, bytes: 1_100_000_000 };
 const SMALL: LocalModel = { id: "onnx-community/LFM2-700M-ONNX", name: "LFM2", gb: 0.5, bytes: 500_000_000 };
-
-/** iOS and iPadOS (every browser there is WebKit, with the same memory cap);
- *  an iPad asking for the desktop site reports a Mac with a touch screen. */
-function onIos(): boolean {
-  const nav = globalThis.navigator;
-  if (!nav) return false;
-  return /iPhone|iPad|iPod/.test(nav.userAgent) || (nav.platform === "MacIntel" && nav.maxTouchPoints > 1);
-}
 
 export function localModel(): LocalModel {
   return onIos() ? SMALL : BIG;
