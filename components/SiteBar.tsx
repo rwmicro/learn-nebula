@@ -1,4 +1,4 @@
-import { NAV } from "@/lib/site";
+import { MENU } from "@/lib/site";
 import { t, i18nAttrs } from "@/lib/i18n";
 import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
 import { SiteNavLinks } from "@/components/SiteNavLinks";
@@ -13,12 +13,12 @@ import { LangSwitcher } from "@/components/LangSwitcher";
 // menu had no Parcours / Frise / Cartes, and a note page had its menu only at
 // the very bottom, after the comments.
 //
-// Desktop: links inline, with Progression as on the home's masthead. Phone: a
+// Desktop: links inline, as on the home's masthead (lib/site.ts MENU). Phone: a
 // <details> "Menu" (no JS needed). On the right: the review reminder, the
 // language (the home's inline list folded into a dropdown), search,
 // light/dark, and the account button.
 export function SiteBar() {
-  const links = [...NAV, { name: "moi.title", href: "/progression/" }].map((n) => ({
+  const links = MENU.map((n) => ({
     href: n.href,
     key: n.name,
     label: t(n.name),

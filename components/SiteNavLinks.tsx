@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 
 /** The menu's links, with the current section marked (aria-current). A note
- *  page counts as no section; /parcours/x/ counts as Parcours. */
+ *  page counts as its discipline; /parcours/x/ counts as Parcours. */
 export function SiteNavLinks({
   links,
 }: {
@@ -11,12 +11,10 @@ export function SiteNavLinks({
 }) {
   const norm = (p: string) => (p.endsWith("/") ? p : `${p}/`);
   const path = norm(usePathname() ?? "/");
-  // A tab stays lit on the pages it leads to, as on the phone's tab bar:
-  // a note, the graph and the timeline are under Notes; Défis and the
-  // account under Moi.
+  // A discipline stays lit on its notes too.
   const ALSO: Record<string, string[]> = {
-    "/notes/": ["/posts/", "/graph/", "/frise/", "/themes/", "/jardin/"],
-    "/progression/": ["/defis/", "/compte/"],
+    "/notes/social-sciences/": ["/posts/social-sciences/"],
+    "/notes/applied-sciences/": ["/posts/applied-sciences/"],
   };
   const here = (href: string) =>
     href === "/" ? path === "/" : [href, ...(ALSO[href] ?? [])].some((h) => path.startsWith(norm(h)));

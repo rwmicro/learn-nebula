@@ -985,7 +985,15 @@ body:has(.home-masthead) .site-bar {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.25rem 1.75rem;
+    gap: 0.25rem 0;
+  }
+  /* A dot between the masthead's links, as between the language editions;
+     the slim bar (.site-bar-nav) has none. */
+  .home-nav li + li::before {
+    content: "·";
+    margin-inline: 1.1rem;
+    color: var(--ink-soft);
+    font-weight: 700;
   }
   .home-nav a {
     font-size: var(--text-small);
