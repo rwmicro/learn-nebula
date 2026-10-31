@@ -20,8 +20,8 @@
 // LanguageDetector (lib/browser-ai.ts) also checks, when its model is already
 // there, whether the note is in a language other than the reader's, and
 // highlights the button if so.
-import { detectLanguage } from "../../lib/browser-ai.ts";
-import { SERVER_LLM_OFFERED, deviceWord } from "../../lib/garden-ai-flags.ts";
+import { detectLanguage, promptAvailable } from "../../lib/browser-ai.ts";
+import { SERVER_LLM_OFFERED, deviceWord, localModelLangs } from "../../lib/garden-ai-flags.ts";
 
 // The model side (lib/garden-ai.ts, lib/local-llm.ts) is its own bundle,
 // translate-device.bundle.js, fetched on the first translation that needs it:
@@ -743,11 +743,51 @@ function loadDevice() {
     let visible = 0;
     list.querySelectorAll("li").forEach((li) => {
       const name = foldText(li.dataset.sortKey || li.textContent || "");
-      const hit = !q || name.includes(q);
+      const hit = !li.dataset.unsupported && (!q || name.includes(q));
       li.hidden = !hit;
       if (hit) visible++;
     });
     noMatch.hidden = visible > 0;
+  }
+
+  // Only the languages something on this device can translate into: the
+  // downloaded model's own (lib/garden-ai-flags.ts), then, once the menu is
+  // first opened, the ones Chrome's Translator or Gemini Nano say they cover.
+  function markSupport(li, ok) {
+    if (ok) delete li.dataset.unsupported;
+    else li.dataset.unsupported = "1";
+    li.hidden = !ok;
+  }
+  if (!SERVER_LLM_OFFERED) {
+    const model = new Set(localModelLangs());
+    list.querySelectorAll("li").forEach((li) => {
+      const it = li.querySelector(".translate-menu-item");
+      markSupport(li, !!it && model.has(it.dataset.targetLang));
+    });
+  }
+  let supportChecked = false;
+  function checkSupport() {
+    if (supportChecked || SERVER_LLM_OFFERED) return;
+    supportChecked = true;
+    const hasNano = "LanguageModel" in self;
+    if (!hasTranslator && !hasNano) return;
+    list.querySelectorAll("li[data-unsupported]").forEach(async (li) => {
+      const lang = li.querySelector(".translate-menu-item").dataset.targetLang;
+      let ok = false;
+      if (hasTranslator && sourceLang) {
+        try {
+          const a = await self.Translator.availability({ sourceLanguage: sourceLang, targetLanguage: lang });
+          ok = a !== "unavailable";
+        } catch {
+          /* not this pair */
+        }
+      }
+      if (!ok && hasNano) ok = await promptAvailable(lang);
+      if (ok) {
+        markSupport(li, true);
+        if (!menu.hidden) applyFilter();
+      }
+    });
   }
 
   function menuItems() {
@@ -762,6 +802,7 @@ function loadDevice() {
     items[((i % items.length) + items.length) % items.length].focus();
   }
   function openMenu() {
+    checkSupport();
     menu.hidden = false;
     btn.setAttribute("aria-expanded", "true");
     if (filter) {
