@@ -4,7 +4,7 @@ import { t } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/LangSwitcher";
 import { EditionDate } from "@/components/EditionDate";
 import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
-import { NAV } from "@/lib/site";
+import { MENU } from "@/lib/site";
 import { SiteNavLinks } from "@/components/SiteNavLinks";
 import { AccountChip, ReviewPill } from "@/components/AccountChip";
 import { MeButton } from "@/components/MeButton";
@@ -111,13 +111,10 @@ export default function Header({ doc }: { doc: Doc }) {
         className="max-sm:order-2 relative hidden peer-checked:block sm:block"
       >
         {/* The same links as the site bar on every other page
-            (components/SiteBar.tsx), from lib/site.ts NAV. */}
+            (components/SiteBar.tsx), from lib/site.ts MENU. */}
         <div className="home-nav absolute right-2 top-1 z-30 w-max rounded-md border border-rule-strong bg-paper px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:border-0 sm:border-b sm:border-rule sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none">
           <SiteNavLinks
-            links={[
-              ...NAV.filter((n) => n.href !== "/"),
-              { name: "moi.title", href: "/progression/" },
-            ].map((n) => ({ href: n.href, key: n.name, label: t(n.name) }))}
+            links={MENU.map((n) => ({ href: n.href, key: n.name, label: t(n.name) }))}
           />
         </div>
       </nav>

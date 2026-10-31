@@ -914,7 +914,15 @@ body:has(.home-masthead) .site-bar {
 .site-bar-nav ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.15rem 1rem;
+  align-items: center;
+  gap: 0.15rem 0;
+}
+/* The same dots as on the home's masthead. */
+.site-bar-nav li + li::before {
+  content: "·";
+  margin-inline: 0.7rem;
+  color: var(--ink-soft);
+  font-weight: 700;
 }
 .site-bar-nav li,
 .site-bar-menu-panel li {
@@ -985,7 +993,14 @@ body:has(.home-masthead) .site-bar {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.25rem 1.75rem;
+    gap: 0.25rem 0;
+  }
+  /* A dot between the masthead's links, as between the language editions. */
+  .home-nav li + li::before {
+    content: "·";
+    margin-inline: 1.1rem;
+    color: var(--ink-soft);
+    font-weight: 700;
   }
   .home-nav a {
     font-size: var(--text-small);

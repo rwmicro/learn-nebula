@@ -27,6 +27,18 @@ export const NAV = [
   { name: "tabbar.review", href: "/cartes/" },
 ];
 
+/** The site menu, on the home's masthead (components/Header.tsx) and the bar
+ *  of every other page (components/SiteBar.tsx): the two top disciplines,
+ *  then Parcours and the flashcards. Home is the brand, Notes the palette and
+ *  the disciplines' folders, Moi the avatar button. The phone keeps its tabs
+ *  (NAV, components/MobileTabBar.tsx). */
+export const MENU = [
+  { name: "nav.socialsciences", href: "/notes/social-sciences/" },
+  { name: "nav.appliedsciences", href: "/notes/applied-sciences/" },
+  { name: "nav.parcours", href: "/parcours/" },
+  { name: "nav.flashcards", href: "/cartes/" },
+];
+
 /** RSS autodiscovery (app/feed.xml) for `metadata.alternates.types`. Shared
  *  by the root layout and lib/seo.ts: Next merges metadata shallowly, so a
  *  page that sets its own `alternates` (the canonical URL) would otherwise
