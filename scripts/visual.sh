@@ -30,6 +30,7 @@ git config --global --add safe.directory "$ROOT" 2>/dev/null || true
 # --ignore-scripts: the only build script is better-sqlite3's, which the static
 # build never loads (it's the server's) and which has no prebuilt binary for
 # the image's Node.
-npx -y pnpm@10.28.0 install --frozen-lockfile --ignore-scripts --store-dir /tmp/pnpm-store
+npx -y pnpm@10.28.0 install --frozen-lockfile --ignore-scripts --store-dir /tmp/pnpm-store \
+  --config.confirmModulesPurge=false
 NOTES_LOCAL_DIR=tests/fixtures/vault PRECOMPRESS_BROTLI_QUALITY=1 npx pnpm@10.28.0 run build
 exec npx playwright test tests/style.spec.js "$@"
