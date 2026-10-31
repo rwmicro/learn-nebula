@@ -31,7 +31,7 @@ export function keyPoints(body: string, max = KEYS_PER_NOTE): KeyPoint[] {
     const title = m[1].replace(/[*_`]/g, "").trim();
     if (isDefinitionTitle("important", title) || definitionTerm("important", title)) continue;
     const bodyLines: string[] = [];
-    for (let j = i + 1; j < lines.length && /^>/.test(lines[j]); j++) bodyLines.push(lines[j].replace(/^>\s?/, ""));
+    for (let j = i + 1; j < lines.length && lines[j].startsWith(">"); j++) bodyLines.push(lines[j].replace(/^>\s?/, ""));
     const text = definitionText(bodyLines.join("\n"), KEY_MAX_CHARS);
     if ((text.match(/\p{L}{2,}/gu) ?? []).length >= 4) out.push({ title, text });
   }

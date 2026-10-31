@@ -55,7 +55,7 @@ import { BENCH } from "../../lib/deco-bench";
     const loadTurnstile = () => {
       if (asked) return;
       asked = true;
-      io && io.disconnect();
+      io?.disconnect();
       const render = () => {
         if (!window.turnstile || turnstileWidget != null) return;
         const d = turnstileEl.dataset;

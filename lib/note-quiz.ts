@@ -157,7 +157,7 @@ export const isCorrect = (g: Grade) => g === "good" || g === "easy";
 /** Remember that question `id` was answered correctly on `today` — saved in
  *  the reviews or not. */
 export function recordCorrect(deck: NoteDeck, id: string, today: string = dayKey()): NoteDeck {
-  return { ...deck, ok: { ...(deck.ok ?? {}), [id]: today } };
+  return { ...deck, ok: { ...deck.ok, [id]: today } };
 }
 
 /** Has question `id` ever been answered correctly? Entries from before `ok`
