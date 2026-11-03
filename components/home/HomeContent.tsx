@@ -486,7 +486,7 @@ export function HomeContent({
 
         {/* right — map + assistant (nudged in from the right edge on wide screens) */}
         <div className="flex flex-col gap-9 min-[1081px]:mr-12">
-          <section className="home-map">
+          <section className="home-map gk-wide-only">
             <h2 className={labelCls}>{tr("home.mapLabel")}</h2>
             <a
               href="/graph/"

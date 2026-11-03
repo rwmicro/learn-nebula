@@ -8,7 +8,7 @@ import { calendarDays, currentRun, loadActivity, localDay } from "@/lib/personal
 import { loadStore, nowPlaying, NOW_KEY, parseNow } from "@/lib/reading-progress";
 import { authConfig, readHint } from "@/lib/account-client";
 import { LANG_OPTIONS } from "@/components/layout/LangSwitcher";
-import { themePref } from "@/components/layout/AppSettings";
+import { themePref, THEMES, type ThemeChoice } from "@/components/layout/AppSettings";
 import { Avatar } from "@/components/account/Avatar";
 import type { Look } from "@/lib/avatar";
 import { Milestones } from "@/components/progress/Milestones";
@@ -26,8 +26,7 @@ const KEEP_HIDDEN_KEY = "gkKeepHidden";
 // rows whose native picker opens on tap. Read from this browser, after
 // hydration.
 
-const THEMES = ["auto", "light", "dark"] as const;
-type Theme = (typeof THEMES)[number];
+type Theme = ThemeChoice;
 type Days = Record<string, { r: number; c: number }>;
 
 /** Monday of this week, as a local "YYYY-MM-DD". */
@@ -358,6 +357,23 @@ export function MoiPhone() {
         {tr("settings.title")}
       </h2>
       <div className="moi-card moi-list">
+        {/* "Plus tard" folds the invitation away for good: signing in stays
+            one row away here. */}
+        {account === "out" && keepHidden && (
+          <a className="moi-set moi-set--btn" href="/compte/">
+            <i className="moi-set-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" />
+              </svg>
+            </i>
+            <span>
+              {tr("moi.signIn")}
+              <small>{tr("moi.signInSub")}</small>
+            </span>
+            <Chevron />
+          </a>
+        )}
         <label className="moi-set">
           <i className="moi-set-ico" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">

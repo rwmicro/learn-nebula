@@ -149,7 +149,7 @@ function base() {
   // plaque signalétique, à l'avant gauche
   const label = { x: -100, y: 40, w: 40, d: 12, r: 1 };
   out.push(S(k.slabOf(label, 0, 0.6, P, 3), { tone: "lo", crease: "none" }));
-  for (const [i, len] of [[0, 30], [1, 22], [2, 26]]) out.push(L(k.lineOnTop([label.x + 5 + i * 0, label.y + 3.5 + i * 2.6], [label.x + 5 + len, label.y + 3.5 + i * 2.6], 0.6, P), { tone: "faint", free: true }));
+  for (const [i, len] of [[0, 30], [1, 22], [2, 26]]) out.push(L(k.lineOnTop([label.x + 5, label.y + 3.5 + i * 2.6], [label.x + 5 + len, label.y + 3.5 + i * 2.6], 0.6, P), { tone: "faint", free: true }));
   out.push(D([at([label.x + 2, label.y + 2, 0.6]), at([label.x + label.w - 2, label.y + label.d - 2, 0.6])], { size: 0.4 }));
   return out.join("");
 }
@@ -163,7 +163,6 @@ function post(x, y, z, scale = 1) {
   out.push(L(k.knurl(x, y, 2.3 * scale, z + 1.2 + 2.4 * scale, z + 1.2 + 5 * scale, 14, P, 0.35), { tone: "faint" }));
   return out.join("");
 }
-const postTop = (x, y, z, scale = 1) => z + 1.2 + 5 * scale;
 
 function wires() {
   const W = (points) => {
@@ -209,7 +208,7 @@ function stand(sign) {
   const foot = FOOT(sign);
   const up = UPRIGHT(sign);
   out.push(S(k.slabOf(foot, 0, 4, P, 3, 0.5), { tone: "mid" }));
-  out.push(D([[-14, foot.y + 3], [-14, foot.y + foot.d - 3], [14, foot.y + 3], [14, foot.y + foot.d - 3]].filter(([x]) => true).map(([x, y]) => at([x, y, 4])), { size: 0.45 }));
+  out.push(D([[-14, foot.y + 3], [-14, foot.y + foot.d - 3], [14, foot.y + 3], [14, foot.y + foot.d - 3]].map(([x, y]) => at([x, y, 4])), { size: 0.45 }));
   const t = TERM(sign);
   const posts = byDepth([t.a, t.b]).map(([x, y]) => post(x, y, 4, 0.8)).join("");
   const body = S(k.slabOf(up, 4, UPRIGHT_TOP - 4, P, 2, 0.5), { tone: "mid", inner: L(k.sideSeam(up, 12, P, 2), { tone: "faint" }) });

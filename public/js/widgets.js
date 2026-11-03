@@ -658,7 +658,6 @@
 
   function encodage(props) {
     const enc = new TextEncoder();
-    const dec = new TextDecoder();
     const input = el("textarea", { class: "w-area", rows: "2" });
     input.value = String(props.value ?? "Bonjour <monde>");
     const out = el("div", { class: "w-out" });
@@ -1118,7 +1117,7 @@
 
   // ----------------------------------------------------- stack frame widget
 
-  function cadrePile(props) {
+  function cadrePile() {
     // A call with more arguments than registers carry, so the stack actually
     // gets used for arguments — the case the note describes.
     const BASE = 0x7ffd000;
@@ -1567,7 +1566,7 @@
     const total = stars0.length;
 
     function report() {
-      ctx && ctx.report && ctx.report({ etoiles: stars.size, coups: moves, fini: stars.size ? 0 : 1 });
+      ctx?.report?.({ etoiles: stars.size, coups: moves, fini: stars.size ? 0 : 1 });
       // All the stars: no need to press « Vérifier ».
       if (!stars.size && ctx && ctx.autoCheck) ctx.autoCheck();
     }
@@ -1696,7 +1695,6 @@
     function draw(sel) {
       const kids = [];
       // Trapezoid outline: the mouth narrows towards the back at close height.
-      const x = (b, h) => P + b * (W - 2 * P) * (1 - 0.28 * (1 - h)) + 0.28 * (1 - h) * (W - 2 * P) * 0;
       const pts = [[P, P], [W - P, P], [W - P * 1.6, H - P], [P * 1.6, H - P]];
       kids.push(svg("polygon", {
         points: pts.map((p) => p.join(",")).join(" "),
@@ -1848,7 +1846,6 @@
     function draw() {
       const [a, b, c, d] = m;
       const det = a * d - b * c;
-      const tr = a + c === 0 ? a + d : a + d;
       ctx.report({ a, b, c, d, det, trace: a + d });
       const kids = [];
       // Original grid, faint.
@@ -2270,13 +2267,13 @@
         changed.length ? contour(after, "Tons réellement prononcés") : el("span", {}, []),
       );
       out.replaceChildren(
-        el("table", { class: "w-table" }, [
-          ...base.map((t, i) => el("tr", {}, [
+        el("table", { class: "w-table" },
+          base.map((t, i) => el("tr", {}, [
             el("th", {}, [t.syl + (t.tone || "")]),
             el("td", {}, [(TONES[t.tone] || TONES[0]).nom +
               (after[i].changed ? "  →  prononcé " + after[i].tone + " : " + after[i].why : "")]),
           ])),
-        ]),
+        ),
         changed.length
           ? el("p", { class: "w-note" }, ["Le ton écrit n'est pas le ton prononcé : c'est le sandhi, et il ne s'entend que dans la chaîne."])
           : el("p", { class: "w-note" }, ["Aucun sandhi ici. Essayer « ni3 hao3 » ou « bu4 shi4 »."]),
@@ -2374,7 +2371,7 @@
    * replaces it. A table lists the resulting forms, which hides that they are
    * assembled — so here the two pieces are picked and the glyph is composed.
    */
-  function abugida(props) {
+  function abugida() {
     const CONS = [
       ["क", "ka"], ["ख", "kha"], ["ग", "ga"], ["च", "ca"], ["छ", "cha"],
       ["ज", "ja"], ["ट", "ṭa"], ["त", "ta"], ["थ", "tha"], ["द", "da"],
@@ -2406,7 +2403,7 @@
       gridC.replaceChildren(...CONS.map(([g], i) =>
         el("button", { type: "button", class: "w-char" + (i === ci ? " is-active" : ""),
           onclick: () => { ci = i; draw(); } }, [g])));
-      gridM.replaceChildren(...MATRA.map(([g, t], i) =>
+      gridM.replaceChildren(...MATRA.map(([g], i) =>
         el("button", { type: "button", class: "w-char" + (i === mi ? " is-active" : ""),
           onclick: () => { mi = i; draw(); } }, [g ? "◌" + g : "◌"])));
       out.replaceChildren(
@@ -2429,7 +2426,7 @@
 
   // ------------------------------------------------------- word order widget
 
-  function ordreDesMots(props) {
+  function ordreDesMots() {
     const LANGS = [
       { l: "Français", o: "SVO", S: "Marie", V: "mange", O: "la pomme" },
       { l: "Anglais", o: "SVO", S: "Mary", V: "eats", O: "the apple" },
@@ -2681,7 +2678,7 @@
    * are numerically identical and usually answers them differently — which a
    * description of the framing effect cannot make anyone feel.
    */
-  function cadrage(props) {
+  function cadrage() {
     const total = 600;
     const Q = [
       {

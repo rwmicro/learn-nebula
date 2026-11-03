@@ -157,7 +157,8 @@
     "networkError": "خطأ في الشبكة؛ يرجى المحاولة مرة أخرى.",
     "authorBadge": "الكاتب",
     "replyTo": "ردًّا على {name}",
-    "rowSub": "اقرأ الرسائل أو اكتب رسالة"
+    "rowSub": "اقرأ الرسائل أو اكتب رسالة",
+    "likeAria": "أعجبني هذا التعليق ({n})"
   },
   "siblings": {
     "moreIn": "المزيد في {folder}",
@@ -277,7 +278,10 @@
     "pathHint": "إظهار طريق مسار",
     "pathNoneShort": "لا شيء",
     "allFamilies": "الكل",
-    "resetView": "إعادة ضبط العرض"
+    "resetView": "إعادة ضبط العرض",
+    "phoneTitle": "يُعرض المخطط على شاشة أكبر",
+    "phoneText": "على الهاتف، تصفّح الملاحظات حسب التخصص.",
+    "phoneLink": "عرض الملاحظات"
   },
   "lightbox": {
     "close": "إغلاق",
@@ -298,7 +302,6 @@
     "next": "التالي",
     "prev": "السابق",
     "shuffle": "خلط",
-    "size": "تكبير",
     "loading": "جارٍ تحميل المجموعة…",
     "empty": "المجموعة فارغة.",
     "err": "تعذر تحميل المجموعة.",
@@ -352,7 +355,11 @@
     "suspend": "تعليق",
     "unsuspend": "إعادة التفعيل",
     "progress": "تقدّم الجلسة",
-    "sessionTally": "{count} بطاقة رُوجعت · {pct}٪ تذكّرتها"
+    "sessionTally": "{count} بطاقة رُوجعت · {pct}٪ تذكّرتها",
+    "sizeLabel": "حجم البطاقة",
+    "smaller": "تصغير البطاقة",
+    "larger": "تكبير البطاقة",
+    "sizeReset": "العودة إلى الحجم العادي"
   },
   "youtube": {
     "play": "تشغيل فيديو يوتيوب",
@@ -777,7 +784,9 @@
     "missNote": "يُبلَّغ البستاني بهذا البحث ليعرف ما الذي ينقص.",
     "near": "نتائج قريبة",
     "passageOne": "مقطع واحد",
-    "bySense": "قريبة في المعنى"
+    "bySense": "قريبة في المعنى",
+    "themePaper": "السمة: ورقية",
+    "themeBlack": "السمة: سوداء"
   },
   "progression": {
     "title": "تقدّمي",
@@ -1319,7 +1328,9 @@
     "inboundOne": "ملاحظة واحدة تقود إلى هنا",
     "neighbourhood": "الجوار في المخطط",
     "tocMeta": "{n} من {total} · {m} د",
-    "tocMetaTotal": "{total} أقسام · {m} د"
+    "tocMetaTotal": "{total} أقسام · {m} د",
+    "theme_paper": "ورقي",
+    "theme_black": "أسود"
   },
   "settings": {
     "title": "الإعدادات",
@@ -1355,7 +1366,9 @@
     "minutes": "{n} د",
     "activeDays": "أيام النشاط: {n}",
     "less": "أقل",
-    "more": "أكثر"
+    "more": "أكثر",
+    "signIn": "تسجيل الدخول",
+    "signInSub": "ملاحظاتك وبطاقاتك على كل أجهزتك"
   },
   "rs": {
     "close": "إغلاق الجلسة",

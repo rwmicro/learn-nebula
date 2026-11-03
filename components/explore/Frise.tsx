@@ -2,7 +2,6 @@ import { t, folderKey, i18nProps } from "@/lib/i18n";
 import { familyOfFolder } from "@/lib/path-family";
 import { Fragment, type ReactNode } from "react";
 import type { TimelineEntry } from "@/lib/content";
-import { AppBack } from "@/components/layout/AppBack";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 /**

@@ -2,7 +2,14 @@ import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { staticEntry, isFresh, cacheControlFor, IMMUTABLE, REVALIDATE } from "./static-cache";
+import {
+  staticEntry,
+  isFresh,
+  cacheControlFor,
+  trailingSlashTarget,
+  IMMUTABLE,
+  REVALIDATE,
+} from "./static-cache";
 
 let root: string;
 
@@ -19,6 +26,29 @@ beforeAll(() => {
 afterAll(() => fs.rmSync(root, { recursive: true, force: true }));
 
 const entry = (p: string, enc = "") => staticEntry(root, p, enc);
+
+describe("trailingSlashTarget", () => {
+  const target = (p: string) => trailingSlashTarget(root, p);
+
+  it("adds the slash to a page asked for without it", () => {
+    expect(target("/posts/note")).toBe("/posts/note/");
+  });
+
+  it("leaves the canonical spelling, files and misses alone", () => {
+    expect(target("/posts/note/")).toBeNull();
+    expect(target("/posts/note/index.html")).toBeNull();
+    expect(target("/vault/dessin%20%C3%A9t%C3%A9.png")).toBeNull();
+    expect(target("/vault")).toBeNull(); // a directory without an index.html
+    expect(target("/does/not/exist")).toBeNull();
+    expect(target("/api/ask")).toBeNull();
+  });
+
+  it("refuses traversal and undecodable paths", () => {
+    expect(target("/posts/../posts/note")).toBeNull();
+    expect(target("//posts/note")).toBeNull();
+    expect(target("/%E0%A4%A")).toBeNull();
+  });
+});
 
 describe("staticEntry", () => {
   it("resolves a trailing-slash URL to its index.html", () => {

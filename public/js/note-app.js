@@ -58,7 +58,7 @@
     d.addEventListener("click", () => h.scrollIntoView({ behavior: "smooth", block: "start" }));
     d.dataset.i = String(i);
     d.title = headText(h);
-    dotsEl && dotsEl.appendChild(d);
+    dotsEl?.appendChild(d);
     return d;
   });
   if (dotsEl && heads.length < 2) dotsEl.hidden = true;

@@ -244,7 +244,6 @@ export function safeNext(raw: unknown): string | null {
   if (!raw.startsWith("/") || raw.startsWith("//")) return null;
   // Backslashes are read as slashes by browsers ("/\evil.com"); no control
   // characters either (header splitting).
-  // eslint-disable-next-line no-control-regex
   if (/[\\\u0000-\u001f\u007f]/.test(raw)) return null;
   return raw;
 }

@@ -88,6 +88,30 @@ export function staticEntry(
 }
 
 /**
+ * The canonical address of a page asked for without its trailing slash
+ * ("/posts/note" → "/posts/note/"), or null when there is nothing to fix.
+ * serveStatic answers both spellings with the same page and a 200, which hands
+ * a search engine two URLs for every note; a 301 folds them into the one the
+ * canonical link, the sitemap and every internal link use. Only for a
+ * directory that holds an index.html: files (/feed.xml, /favicon.ico) and
+ * misses are left alone.
+ */
+export function trailingSlashTarget(root: string, urlPath: string): string | null {
+  if (urlPath.endsWith("/")) return null;
+  let filename: string;
+  try {
+    filename = decodeURI(urlPath);
+  } catch {
+    return null;
+  }
+  if (UNSAFE.test(filename)) return null;
+  const dir = path.join(root, filename);
+  if (!statOrNull(dir)?.isDirectory()) return null;
+  if (!statOrNull(path.join(dir, "index.html"))?.isFile()) return null;
+  return `${urlPath}/`;
+}
+
+/**
  * Whether the client's stored copy is still good. `If-None-Match` wins when
  * present (RFC 9110 §13.1.3); `If-Modified-Since` only has second granularity,
  * so the file's mtime is truncated before comparing or a file rewritten later

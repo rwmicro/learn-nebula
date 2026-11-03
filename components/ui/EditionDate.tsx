@@ -9,6 +9,7 @@ const BCP47: Record<string, string> = {
   en: "en-US",
   es: "es-ES",
   zh: "zh-CN",
+  id: "id-ID",
 };
 
 /** Masthead "edition date", localized to the active UI language. Takes the

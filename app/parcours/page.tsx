@@ -3,13 +3,15 @@ import { getReadingPaths } from "@/lib/content";
 import { ParcoursIndex } from "@/components/paths/Parcours";
 import { pathExtras, type PathExtras } from "@/lib/path-extras";
 import { SITE_TITLE } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 import "@/assets/css/themes.css";
 import "@/assets/css/parcours.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: `Parcours de lecture · ${SITE_TITLE}`,
   description: "Des suites de notes du jardin à lire dans l’ordre de leurs prérequis.",
-};
+  path: "/parcours/",
+});
 
 export default async function ParcoursIndexPage() {
   const paths = getReadingPaths();

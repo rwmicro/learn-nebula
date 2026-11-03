@@ -4,7 +4,8 @@ import { getAllPosts, getDisciplines, getIndexDoc, getLanguageScopes, getPost, g
 import { HomeMore } from "@/components/home/HomeMore";
 import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
 import { t } from "@/lib/i18n";
-import { buildMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/seo";
+import { SITE_TITLE } from "@/lib/site";
 import { JsonLd } from "@/components/layout/JsonLd";
 import { graph, personJsonLd, websiteJsonLd } from "@/lib/jsonld";
 import Header from "@/components/layout/Header";
@@ -36,13 +37,15 @@ const newsreader = Newsreader({
   preload: false,
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const doc = getIndexDoc();
-  return buildMetadata({
-    fm: doc.frontmatter,
-    body: doc.body,
+// The home's own words rather than the index note's: that note is a short
+// personal preface (in English), a poor search snippet for a French site.
+export function generateMetadata(): Metadata {
+  const notes = getAllPosts().filter((d) => d.rawPath !== INDEX_NOTE).length;
+  const n = new Intl.NumberFormat("fr-FR").format(notes);
+  return pageMetadata({
+    title: `${SITE_TITLE} — notes, parcours et cartes de révision`,
+    description: `Jardin de connaissances en français : ${n} notes reliées en sciences appliquées et sociales, des parcours de lecture et des cartes de révision.`,
     path: "/",
-    isArticle: false,
   });
 }
 

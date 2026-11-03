@@ -157,7 +157,8 @@
     "networkError": "Error de red; inténtalo de nuevo.",
     "authorBadge": "autor",
     "replyTo": "en respuesta a {name}",
-    "rowSub": "Leer los mensajes o escribir uno"
+    "rowSub": "Leer los mensajes o escribir uno",
+    "likeAria": "Me gusta este comentario ({n})"
   },
   "siblings": {
     "moreIn": "Más en {folder}",
@@ -277,7 +278,10 @@
     "pathHint": "Mostrar el camino de un recorrido",
     "pathNoneShort": "Ninguno",
     "allFamilies": "Todas",
-    "resetView": "Restablecer la vista"
+    "resetView": "Restablecer la vista",
+    "phoneTitle": "El grafo se ve en una pantalla más grande",
+    "phoneText": "En el teléfono, recorre las notas por disciplina.",
+    "phoneLink": "Ver las notas"
   },
   "lightbox": {
     "close": "Cerrar",
@@ -298,7 +302,6 @@
     "next": "Siguiente",
     "prev": "Anterior",
     "shuffle": "Mezclar",
-    "size": "Agrandar",
     "loading": "Cargando el mazo…",
     "empty": "Mazo vacío.",
     "err": "No se pudo cargar el mazo.",
@@ -352,7 +355,11 @@
     "suspend": "Suspender",
     "unsuspend": "Reactivar",
     "progress": "Avance de la sesión",
-    "sessionTally": "{count} tarjetas repasadas · {pct} % recordadas"
+    "sessionTally": "{count} tarjetas repasadas · {pct} % recordadas",
+    "sizeLabel": "Tamaño de la tarjeta",
+    "smaller": "Reducir la tarjeta",
+    "larger": "Ampliar la tarjeta",
+    "sizeReset": "Volver al tamaño normal"
   },
   "youtube": {
     "play": "Reproducir el vídeo de YouTube",
@@ -777,7 +784,9 @@
     "missNote": "Esta búsqueda se comunica al jardinero, para saber qué falta.",
     "near": "Parecidos",
     "passageOne": "1 pasaje",
-    "bySense": "Cercanas por el sentido"
+    "bySense": "Cercanas por el sentido",
+    "themePaper": "Tema: papel",
+    "themeBlack": "Tema: negro"
   },
   "progression": {
     "title": "Mi progreso",
@@ -1319,7 +1328,9 @@
     "inboundOne": "1 nota lleva aquí",
     "neighbourhood": "Vecindario en el grafo",
     "tocMeta": "{n} de {total} · {m} min",
-    "tocMetaTotal": "{total} partes · {m} min"
+    "tocMetaTotal": "{total} partes · {m} min",
+    "theme_paper": "Papel",
+    "theme_black": "Negro"
   },
   "settings": {
     "title": "Ajustes",
@@ -1355,7 +1366,9 @@
     "minutes": "{n} min",
     "activeDays": "Días activos: {n}",
     "less": "menos",
-    "more": "más"
+    "more": "más",
+    "signIn": "Iniciar sesión",
+    "signInSub": "Tus notas y tarjetas en todos tus dispositivos"
   },
   "rs": {
     "close": "Cerrar la sesión",

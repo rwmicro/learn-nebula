@@ -150,7 +150,7 @@ function mixFamilies<T extends { family: PathFamily | null }>(items: T[]): T[] {
   return out;
 }
 
-const LOCALE_TAG: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES", zh: "zh-CN", ar: "ar" };
+const LOCALE_TAG: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES", zh: "zh-CN", ar: "ar", id: "id-ID" };
 
 /** Monday-first days of this week, as local "YYYY-MM-DD". */
 function thisWeek(now: Date): string[] {
@@ -413,7 +413,7 @@ export function HomeDashboard({
                 <Chevron />
               </a>
             </li>
-            <li>
+            <li className="gk-wide-only">
               <a href="/graph/">
                 <span className="dash-way-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" {...s}>

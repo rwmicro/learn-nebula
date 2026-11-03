@@ -157,7 +157,8 @@
     "networkError": "Network error; please try again.",
     "authorBadge": "author",
     "replyTo": "replying to {name}",
-    "rowSub": "Read the messages or write one"
+    "rowSub": "Read the messages or write one",
+    "likeAria": "Like this comment ({n})"
   },
   "siblings": {
     "moreIn": "More in {folder}",
@@ -277,7 +278,10 @@
     "pathHint": "Show a path's route",
     "pathNoneShort": "None",
     "allFamilies": "All",
-    "resetView": "Reset the view"
+    "resetView": "Reset the view",
+    "phoneTitle": "The graph needs a bigger screen",
+    "phoneText": "On a phone, browse the notes by discipline.",
+    "phoneLink": "See the notes"
   },
   "lightbox": {
     "close": "Close",
@@ -298,7 +302,6 @@
     "next": "Next",
     "prev": "Previous",
     "shuffle": "Shuffle",
-    "size": "Enlarge",
     "loading": "Loading deck…",
     "empty": "Empty deck.",
     "err": "Couldn’t load the deck.",
@@ -352,7 +355,11 @@
     "suspend": "Suspend",
     "unsuspend": "Reactivate",
     "progress": "Session progress",
-    "sessionTally": "{count} cards reviewed · {pct}% remembered"
+    "sessionTally": "{count} cards reviewed · {pct}% remembered",
+    "sizeLabel": "Card size",
+    "smaller": "Make the card smaller",
+    "larger": "Make the card larger",
+    "sizeReset": "Back to the normal size"
   },
   "youtube": {
     "play": "Play the YouTube video",
@@ -777,7 +784,9 @@
     "missNote": "This search is passed on to the gardener, to see what is missing.",
     "near": "Close matches",
     "passageOne": "1 passage",
-    "bySense": "Close in meaning"
+    "bySense": "Close in meaning",
+    "themePaper": "Theme: paper",
+    "themeBlack": "Theme: black"
   },
   "progression": {
     "title": "My progress",
@@ -1319,7 +1328,9 @@
     "inboundOne": "1 note leads here",
     "neighbourhood": "Neighbourhood in the graph",
     "tocMeta": "{n} of {total} · {m} min",
-    "tocMetaTotal": "{total} parts · {m} min"
+    "tocMetaTotal": "{total} parts · {m} min",
+    "theme_paper": "Paper",
+    "theme_black": "Black"
   },
   "settings": {
     "title": "Settings",
@@ -1355,7 +1366,9 @@
     "minutes": "{n} min",
     "activeDays": "Active days: {n}",
     "less": "less",
-    "more": "more"
+    "more": "more",
+    "signIn": "Sign in",
+    "signInSub": "Your notes and cards on all your devices"
   },
   "rs": {
     "close": "Close the session",
