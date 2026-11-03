@@ -96,11 +96,57 @@ const lmOptions = (lang: string): LmOptions => ({
 export async function promptAvailable(lang: string, allowDownload = true): Promise<boolean> {
   const LM = g().LanguageModel as LmCtor | undefined;
   if (!LM || typeof LM.availability !== "function") return false;
+  if (nanoBroken()) return false;
   try {
     const a = await LM.availability(lmOptions(baseLang(lang)));
     return a === "available" || (allowDownload && (a === "downloadable" || a === "downloading"));
   } catch {
     return false;
+  }
+}
+
+// Some Chrome builds (seen on desktop Linux, Gemini Nano on the CPU
+// backend) don't answer: they print a debug banner ("CPU backend", "Fastest
+// inference", "TopK: 64, Temp: 1") and then the whole prompt as the model
+// was fed it ("System: … End.User: … End.Model:"). That is the system
+// prompt and the retrieved passages, not an answer. Such output is
+// discarded, and Nano is set aside on this browser build (the key holds the
+// user agent, so a Chrome update tries it again) for the next route: the
+// downloadable model, or the "not available here" sheet.
+
+const BROKEN_KEY = "gk-nano-broken";
+const HOLD_BACK = 120;
+
+const squash = (t: string) => t.replace(/\s+/g, " ").trim().toLowerCase();
+
+/** Whether `out` is Chrome echoing the prompt (or its debug banner) instead
+ *  of answering it. */
+export function echoesPrompt(out: string, system = ""): boolean {
+  const head = out.slice(0, 400);
+  if (/^\s*(?:cpu|gpu|npu) backend/i.test(head)) return true;
+  if (/TopK:\s*\d+\s*,\s*Temp(?:erature)?:/i.test(head)) return true;
+  if (/^\s*Fastest inference/i.test(head)) return true;
+  if (/\bEnd\.\s*(?:User|Model|System)\s*:/.test(out)) return true;
+  if (/^\s*System\s*:/.test(out)) return true;
+  // The system prompt itself, copied back: a 60-character stretch of its
+  // opening is far longer than any answer quotes by chance.
+  const sys = squash(system).slice(0, 60);
+  return sys.length >= 40 && squash(out).includes(sys);
+}
+
+function nanoBroken(): boolean {
+  try {
+    return localStorage.getItem(BROKEN_KEY) === String(navigator.userAgent);
+  } catch {
+    return false;
+  }
+}
+
+function markNanoBroken(): void {
+  try {
+    localStorage.setItem(BROKEN_KEY, String(navigator.userAgent));
+  } catch {
+    /* private mode: the check runs again next time */
   }
 }
 
@@ -129,15 +175,31 @@ export async function promptOnDevice(opts: {
         if (opts.onDownload) m.addEventListener("downloadprogress", (e) => opts.onDownload!(e.loaded));
       },
     });
+    // Nothing is shown before HOLD_BACK characters: a leak starts with the
+    // backend banner or "System:", and must never reach the reader.
+    let shown = false;
     for await (const chunk of session.promptStreaming(opts.prompt, { signal: opts.signal })) {
       // Chrome streams deltas; early builds streamed the whole text so far.
       out = out.length > 20 && chunk.startsWith(out) ? chunk : out + chunk;
-      opts.onText?.(out);
+      if (echoesPrompt(out, opts.system)) {
+        markNanoBroken();
+        if (shown) opts.onText?.("");
+        return null;
+      }
+      if (shown || out.length >= HOLD_BACK) {
+        shown = true;
+        opts.onText?.(out);
+      }
     }
+    if (echoesPrompt(out, opts.system)) {
+      markNanoBroken();
+      return null;
+    }
+    if (!shown && out.trim()) opts.onText?.(out);
     return out.trim() ? out : null;
   } catch (e) {
     if ((e as Error)?.name === "AbortError") throw e;
-    return out.trim() ? out : null;
+    return out.trim() && !echoesPrompt(out, opts.system) ? out : null;
   } finally {
     try {
       session?.destroy();

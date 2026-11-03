@@ -9,7 +9,7 @@
 // Claude or an OpenAI-compatible backend) is still there but not offered:
 // SERVER_LLM_OFFERED turns it back on as the last fallback.
 
-import { promptAvailable, promptOnDevice } from "./browser-ai";
+import { echoesPrompt, promptAvailable, promptOnDevice } from "./browser-ai";
 import {
   localModelEnabled,
   localModelSupported,
@@ -47,26 +47,34 @@ export async function generateOnDevice(opts: {
   signal?: AbortSignal;
   onText?: (text: string) => void;
 }): Promise<string | null> {
+  // An answer saved before echoes were caught is the old prompt, not a turn.
+  const history = (opts.history ?? []).filter(
+    (t) => t.role === "user" || !echoesPrompt(t.content),
+  );
   if (opts.route === "nano") {
     // The Prompt API session takes one prompt here: earlier turns go in front.
-    const past = (opts.history ?? [])
+    const past = history
       .map(
         (t) =>
           `${t.role === "user" ? "Utilisateur" : "Assistant"} : ${t.content}`,
       )
       .join("\n\n");
-    return promptOnDevice({
+    const out = await promptOnDevice({
       system: opts.system,
       prompt: past ? `${past}\n\nUtilisateur : ${opts.prompt}` : opts.prompt,
       lang: opts.lang,
       signal: opts.signal,
       onText: opts.onText,
     });
+    // Nano failed (or echoed its prompt and is now set aside): the
+    // downloaded model, when the reader agreed to it, answers instead.
+    if (out !== null || !localModelEnabled() || !(await localModelSupported()))
+      return out;
   }
   return promptLocal({
     system: opts.system,
     prompt: opts.prompt,
-    history: opts.history,
+    history,
     maxTokens: opts.maxTokens,
     signal: opts.signal,
     onText: opts.onText,
