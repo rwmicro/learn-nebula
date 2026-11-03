@@ -682,7 +682,9 @@
   }
   .na-seg {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    /* One column per choice (Auto, Clair, Papier, Sombre, Noir). */
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
     margin-bottom: 0.75rem;
     padding: 3px;
     border-radius: 0.6875rem;
@@ -691,7 +693,7 @@
   .na-chrome .na-seg button {
     height: 2.125rem;
     border-radius: 0.5625rem;
-    font-size: 0.94rem;
+    font-size: 0.875rem;
     font-weight: 500;
     color: var(--ink-2);
   }

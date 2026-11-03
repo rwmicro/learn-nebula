@@ -192,7 +192,7 @@ image tag in `ci.yml` together with `@playwright/test`.
 ## Conventions that bite
 
 - **i18n**: custom. `lib/i18n.ts` `t()` resolves at build against the **default
-  locale `fr`**; `messages/{fr,en,es,zh,ar}.json` — keep all **five in key sync**
+  locale `fr`**; `messages/{fr,en,es,zh,ar,id}.json` — keep all **six in key sync**
   when adding a key. Runtime swap is `public/js/i18n.js` via `data-i18n*`
   attributes; it only re-runs on load when a **non-default** locale is stored, so
   build-time output must already be correct for `fr` (e.g. `formatDateLong` uses

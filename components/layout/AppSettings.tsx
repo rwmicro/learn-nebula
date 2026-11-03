@@ -14,19 +14,23 @@ import { LANG_OPTIONS } from "@/components/layout/LangSwitcher";
 declare global {
   interface Window {
     __theme?: {
-      set: (p: "auto" | "light" | "dark") => void;
-      pref: () => "auto" | "light" | "dark";
+      set: (p: ThemeChoice) => void;
+      pref: () => ThemeChoice;
     };
   }
 }
 
-const THEMES = ["auto", "light", "dark"] as const;
+/** "paper" and "black": the light and dark themes on another paper (/js/theme.js). */
+export const THEMES = ["auto", "light", "paper", "dark", "black"] as const;
+export type ThemeChoice = (typeof THEMES)[number];
 
 /** The reader's theme choice. Read from <html data-theme>, which the layout's
  *  inline script sets before first paint: /js/theme.js (window.__theme) loads
  *  after hydration, so asking it alone showed "Auto" for a stored choice. */
 export function themePref(): (typeof THEMES)[number] {
   if (window.__theme) return window.__theme.pref();
+  const paper = document.documentElement.getAttribute("data-paper");
+  if (paper === "paper" || paper === "black") return paper;
   const v = document.documentElement.getAttribute("data-theme");
   return v === "light" || v === "dark" ? v : "auto";
 }

@@ -101,10 +101,14 @@ function loadPiper() {
     );
   }
 
-  // Chrome silently stops SpeechSynthesis after ~15 seconds; a periodic
-  // pause/resume keeps it alive without audible artefacts.
+  // Chrome on a computer silently stops SpeechSynthesis after ~15 seconds; a
+  // periodic pause/resume keeps it alive there. Only there: Safari (iOS too)
+  // and Android Chrome can stall for good on that pause/resume.
+  const ua = navigator.userAgent;
+  const needsKeepAlive = /Chrome\//.test(ua) && !/Android|Mobile|Edg\//.test(ua);
   function startKeepAlive() {
     stopKeepAlive();
+    if (!needsKeepAlive) return;
     keepAliveId = setInterval(() => {
       if (btn.dataset.state !== "playing") return stopKeepAlive();
       synth.pause();
@@ -119,17 +123,33 @@ function loadPiper() {
   // The system voice. Chrome silently truncates a single utterance past ~32k
   // characters: the text goes in chunks, which SpeechSynthesis queues
   // seamlessly.
-  function speakSystem(text, lang) {
+  //
+  // Why it could never start, now handled:
+  // - a cancel() just before speak() makes Safari drop the new utterance:
+  //   cancel only what is actually queued;
+  // - Chrome keeps speechSynthesis paused across pages (a reading paused,
+  //   then the note left) and queues every new utterance behind that pause:
+  //   resume() right after speak();
+  // - long utterances fail silently on some engines (Android, iOS): shorter
+  //   chunks;
+  // - and if nothing has started after a moment, one retry, then the button
+  //   goes back to "écouter" instead of claiming to read.
+  function speakSystem(text, lang, retried) {
     if (!synth) return setState("idle");
     const v = pickVoice(lang);
-    const chunks = speechChunks(text, 2000);
-    synth.cancel();
+    const chunks = speechChunks(text, 900);
+    if (synth.speaking || synth.pending) synth.cancel();
+    let started = false;
+    const run = (reading = {});
     chunks.forEach((part, i) => {
       const u = new SpeechSynthesisUtterance(part);
       if (v) u.voice = v;
       u.lang = (v && v.lang) || lang;
       u.rate = 1;
       u.pitch = 1;
+      u.onstart = () => {
+        started = true;
+      };
       // Only the last chunk returns the button to idle; any error stops all.
       if (i === chunks.length - 1) {
         u.onend = () => {
@@ -137,13 +157,28 @@ function loadPiper() {
           setState("idle");
         };
       }
-      u.onerror = () => {
+      u.onerror = (e) => {
+        // "interrupted"/"canceled": our own stop or a new reading.
+        if (e && (e.error === "interrupted" || e.error === "canceled")) return;
         stopKeepAlive();
         setState("idle");
       };
       synth.speak(u);
     });
-    reading = {
+    synth.resume();
+    setTimeout(() => {
+      if (started || reading !== run || btn.dataset.state !== "playing") return;
+      if (synth.speaking && !synth.paused) return;
+      synth.cancel();
+      synth.resume();
+      if (!retried) speakSystem(text, lang, true);
+      else {
+        stopKeepAlive();
+        reading = null;
+        setState("idle");
+      }
+    }, 2500);
+    Object.assign(run, {
       pause() {
         synth.pause();
         stopKeepAlive();
@@ -154,9 +189,12 @@ function loadPiper() {
       },
       stop() {
         synth.cancel();
+        // A paused engine stays paused after cancel() (Chrome): the next
+        // reading would wait behind it.
+        synth.resume();
         stopKeepAlive();
       },
-    };
+    });
     setState("playing");
     startKeepAlive();
   }
@@ -165,8 +203,10 @@ function loadPiper() {
   // to the system voice when it can't load (no network for the first
   // download, no room, a language it has no voice for).
   async function speakNatural(text, lang) {
-    // Made in the click: iOS only lets a page start audio from a gesture.
+    // Made in the click, and resumed there: iOS only lets a page start audio
+    // from a gesture, and a context it creates starts suspended.
     const ctx = new AudioContext();
+    void ctx.resume().catch(() => {});
     let cancelled = false;
     reading = {
       pause() {},

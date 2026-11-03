@@ -24,6 +24,7 @@ import { BENCH } from "../../lib/deco-bench";
           name: "Alice",
           body: "Très belle note — j'aime particulièrement le passage sur la mémoire.",
           created_at: Date.now() - 5 * DAY,
+          likes: 3,
         },
         {
           id: 2,
@@ -119,6 +120,92 @@ import { BENCH } from "../../lib/deco-bench";
     }
   }
 
+  // Likes, no account needed: this browser's made-up voter id (sent, stored
+  // hashed server-side) and the comments it liked, so the heart stays filled.
+  const VOTER_KEY = "gkVoter";
+  const LIKED_KEY = "gkCommentLikes";
+  function voterId() {
+    try {
+      let v = localStorage.getItem(VOTER_KEY);
+      if (!v || !/^[A-Za-z0-9_-]{16,64}$/.test(v)) {
+        v = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + Date.now()).replace(/[^A-Za-z0-9_-]/g, "");
+        localStorage.setItem(VOTER_KEY, v);
+      }
+      return v;
+    } catch {
+      return null;
+    }
+  }
+  function likedSet() {
+    try {
+      const a = JSON.parse(localStorage.getItem(LIKED_KEY) || "[]");
+      return new Set(Array.isArray(a) ? a.filter((n) => Number.isInteger(n)) : []);
+    } catch {
+      return new Set();
+    }
+  }
+  function saveLiked(set) {
+    try {
+      localStorage.setItem(LIKED_KEY, JSON.stringify([...set].slice(-500)));
+    } catch {
+      /* storage blocked: the heart forgets on reload */
+    }
+  }
+  const HEART =
+    '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.2-9.4C1.7 7.9 3.8 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.8 1.2-1.7 2.8-2.8 4.8-2.8 3.4 0 5.5 3.4 4.4 6.6-1.7 4.8-9.2 9.4-9.2 9.4Z"/></svg>';
+  function likeButton(c, liked) {
+    const n = c.likes || 0;
+    return (
+      '<button type="button" class="comment-like" data-like="' +
+      c.id +
+      '" aria-pressed="' +
+      (liked ? "true" : "false") +
+      '" aria-label="' +
+      esc(tt("comments.likeAria", { n })) +
+      '">' +
+      HEART +
+      '<span class="comment-like-n">' +
+      (n > 0 ? n : "") +
+      "</span></button>"
+    );
+  }
+
+  list.addEventListener("click", async (e) => {
+    const btn = e.target instanceof Element && e.target.closest(".comment-like");
+    if (!btn || btn.disabled) return;
+    const id = Number(btn.dataset.like);
+    const c = lastComments && lastComments.find((x) => x.id === id);
+    const voter = voterId();
+    if (!c || !voter) return;
+    const liked = likedSet();
+    const on = !liked.has(id);
+    // Optimistic: the heart answers at once, the server's count follows.
+    const before = c.likes || 0;
+    c.likes = Math.max(0, before + (on ? 1 : -1));
+    if (on) liked.add(id);
+    else liked.delete(id);
+    saveLiked(liked);
+    btn.outerHTML = likeButton(c, on);
+    if (DEV && lastComments === devComments) return;
+    try {
+      const r = await fetch("/api/comments/like", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ id, voter, on }),
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok || typeof data.likes !== "number") throw new Error("HTTP " + r.status);
+      c.likes = data.likes;
+    } catch {
+      c.likes = before;
+      if (on) liked.delete(id);
+      else liked.add(id);
+      saveLiked(liked);
+    }
+    const now = list.querySelector('.comment-like[data-like="' + id + '"]');
+    if (now) now.outerHTML = likeButton(c, likedSet().has(id));
+  });
+
   let lastComments = null;
   function renderList(comments) {
     lastComments = comments;
@@ -129,6 +216,7 @@ import { BENCH } from "../../lib/deco-bench";
         '<p class="comments-empty">' + esc(tt("comments.empty")) + "</p>";
       return;
     }
+    const liked = likedSet();
     list.innerHTML = comments
       .map((c) => {
         const name = esc(c.name || tt("comments.anonymous"));
@@ -161,6 +249,7 @@ import { BENCH } from "../../lib/deco-bench";
           '<div class="comment-body">' +
           body +
           "</div>" +
+          (c.id ? '<div class="comment-foot">' + likeButton(c, liked.has(c.id)) + "</div>" : "") +
           "</article>"
         );
       })
@@ -169,7 +258,7 @@ import { BENCH } from "../../lib/deco-bench";
 
   // Match the rest of the site: format comment dates in the active UI locale
   // (mirrors the BCP-47 map in components/ui/EditionDate.tsx), not a fixed fr-FR.
-  const BCP47 = { fr: "fr-FR", en: "en-US", es: "es-ES", zh: "zh-CN" };
+  const BCP47 = { fr: "fr-FR", en: "en-US", es: "es-ES", zh: "zh-CN", id: "id-ID" };
   function currentLocale() {
     const g = window.__i18n || {};
     const loc =

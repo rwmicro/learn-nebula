@@ -40,7 +40,8 @@
   }
   .app-seg {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
     padding: 3px;
     border-radius: 0.6875rem;
     background: var(--wash-2);
@@ -50,7 +51,7 @@
     border: 0;
     border-radius: 0.5625rem;
     background: none;
-    font: 500 0.95rem var(--font-ui);
+    font: 500 0.875rem var(--font-ui);
     color: var(--ink-2);
     cursor: pointer;
   }

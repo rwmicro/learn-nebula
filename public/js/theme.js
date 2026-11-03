@@ -21,10 +21,28 @@
     return typeof v === "string" ? v : k;
   }
 
+  // Two of the choices are a light or dark theme on another paper:
+  // "paper" (warm, like a book) and "black" (pure black, for OLED screens).
+  // <html data-theme> keeps saying light/dark for everything that only asks
+  // that; <html data-paper> picks the paper (global.css).
+  const PAPERS = { paper: "light", black: "dark" };
+  const CHOICES = ["light", "dark", "paper", "black"];
+
   /** The reader's explicit choice, or "auto" when the OS decides. */
   function pref() {
+    const paper = root.getAttribute("data-paper");
+    if (paper && PAPERS[paper]) return paper;
     const v = root.getAttribute("data-theme");
     return v === "light" || v === "dark" ? v : "auto";
+  }
+
+  /** Puts a choice on <html>. */
+  function apply(p) {
+    const base = PAPERS[p] || p;
+    if (base === "light" || base === "dark") root.setAttribute("data-theme", base);
+    else root.removeAttribute("data-theme");
+    if (PAPERS[p]) root.setAttribute("data-paper", p);
+    else root.removeAttribute("data-paper");
   }
 
   const osTheme = () => (media.matches ? "dark" : "light");
@@ -32,6 +50,7 @@
   // Every click changes what the reader sees, except the last one that hands
   // control back to the OS: auto → opposite of the OS → the OS's own → auto.
   function next(p) {
+    p = PAPERS[p] || p;
     const os = osTheme();
     if (p === "auto") return os === "dark" ? "light" : "dark";
     return p === os ? "auto" : os;
@@ -39,7 +58,7 @@
 
   function sync() {
     const p = pref();
-    const label = "theme." + p;
+    const label = "theme." + (PAPERS[p] || p);
     document.querySelectorAll("[data-theme-toggle]").forEach(function (btn) {
       btn.setAttribute("aria-label", tt(label));
       btn.setAttribute("title", tt(label));
@@ -55,8 +74,8 @@
   }
 
   function set(p) {
-    if (p === "auto") root.removeAttribute("data-theme");
-    else root.setAttribute("data-theme", p);
+    if (CHOICES.indexOf(p) < 0) p = "auto";
+    apply(p);
     try {
       if (p === "auto") localStorage.removeItem(KEY);
       else localStorage.setItem(KEY, p);
@@ -78,8 +97,7 @@
   // Another tab changed the theme.
   window.addEventListener("storage", function (e) {
     if (e.key !== KEY) return;
-    if (e.newValue === "light" || e.newValue === "dark") root.setAttribute("data-theme", e.newValue);
-    else root.removeAttribute("data-theme");
+    apply(CHOICES.indexOf(e.newValue) >= 0 ? e.newValue : "auto");
     announce();
   });
 

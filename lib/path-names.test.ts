@@ -46,6 +46,7 @@ describe("path name translations", () => {
     expect(pathName(p, "full", "en")).toBe("German: from first words to culture");
     expect(pathName(p, "title", "zh")).toBe("德语");
     expect(pathName(p, "sub", "es")).toBe("de las primeras palabras a la cultura");
+    expect(pathName(p, "full", "id")).toBe("Bahasa Jerman: dari kata pertama hingga budaya");
     // Inside a sentence, through a { $t } placeholder.
     expect(t("parcours.followedBy", { name: pathNameRef(p, "title") }, "en")).toContain("German");
     expect(t("nextUp.pathNext", { path: pathNameRef(p) }, "en")).toContain("German: from first words to culture");

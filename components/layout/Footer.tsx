@@ -26,13 +26,6 @@ export function Footer() {
           <a href="https://www.gnu.org/licenses/gpl-3.0.html" data-i18n="dash.footerCode">
             {t("dash.footerCode")}
           </a>
-          <br />
-          <span
-            data-i18n="dash.footerOrigin"
-            data-i18n-vars={JSON.stringify({ author: ORIGINAL_AUTHOR })}
-          >
-            {t("dash.footerOrigin", { author: ORIGINAL_AUTHOR })}
-          </span>
         </p>
       </div>
       <div className="site-foot-wide flex flex-col gap-3 min-[480px]:flex-row min-[480px]:items-start min-[480px]:gap-5">
