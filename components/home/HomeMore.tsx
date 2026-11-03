@@ -1,6 +1,5 @@
 import { t } from "@/lib/i18n";
-import { AUTHOR, ORIGINAL_AUTHOR } from "@/lib/site";
-import { blackletter } from "@/components/layout/Header";
+import { AUTHOR } from "@/lib/site";
 
 // The end of the phone home (app.css shows it below 640px only): four ways to
 // wander (the graph, the timeline, the map, the themes), then a footer with
@@ -54,7 +53,7 @@ export function HomeMore({ notes, paths, languages }: { notes: number; paths: nu
       <div className="home-more-tiles">
         {/* A family tint like the three others: on --wash alone the tile
             vanished into the page. */}
-        <a href="/graph/" data-family="informatique">
+        <a href="/graph/" data-family="informatique" className="gk-wide-only">
           <span className="home-more-art">
             <GraphDots />
           </span>
@@ -99,9 +98,6 @@ export function HomeMore({ notes, paths, languages }: { notes: number; paths: nu
       </div>
 
       <footer className="home-more-foot">
-        <p className={`home-more-mark ${blackletter.className}`} lang="en" dir="ltr">
-          Garden of Knowledge
-        </p>
         <details className="home-more-about">
           <summary>
             <span className="home-more-quote" {...L("dash.aboutQuote")}>
@@ -142,10 +138,6 @@ export function HomeMore({ notes, paths, languages }: { notes: number; paths: nu
           <a href="https://www.gnu.org/licenses/gpl-3.0.html" {...L("dash.footerCode")}>
             {t("dash.footerCode")}
           </a>
-          <br />
-          <span {...L("dash.footerOrigin", { author: ORIGINAL_AUTHOR })}>
-            {t("dash.footerOrigin", { author: ORIGINAL_AUTHOR })}
-          </span>
         </p>
       </footer>
     </section>

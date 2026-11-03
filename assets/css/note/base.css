@@ -1659,6 +1659,12 @@ a.theme-pill:focus-visible {
   padding-left: 0.6rem;
   border-left: 1px solid var(--rule-strong);
 }
+/* Phones: no graph, not even the note's own slice of it. */
+@media (max-width: 639.98px) {
+  .local-graph {
+    display: none;
+  }
+}
 .local-graph-title {
   font-family: var(--font-caps);
   text-transform: lowercase;
@@ -1931,6 +1937,56 @@ a.theme-pill:focus-visible {
   line-height: 1.7rem;
   color: var(--ink);
   hyphens: auto;
+}
+
+/* A reader's like (public/js/comments.js): a heart and its count. */
+.comment-foot {
+  display: flex;
+  margin-top: 0.35rem;
+}
+.comment-like {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 2rem;
+  margin-inline-start: -0.5rem;
+  padding: 0 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  font: 500 0.9rem var(--font-ui);
+  color: var(--muted);
+  cursor: pointer;
+}
+.comment-like svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linejoin: round;
+}
+.comment-like:hover {
+  background: var(--wash-2);
+  color: var(--ink-2);
+}
+.comment-like:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 1px;
+}
+.comment-like[aria-pressed="true"] {
+  color: var(--danger);
+}
+.comment-like[aria-pressed="true"] svg {
+  fill: currentColor;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .comment-like[aria-pressed="true"] svg {
+    animation: comment-like-pop 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+  }
+}
+@keyframes comment-like-pop {
+  from {
+    transform: scale(0.6);
+  }
 }
 
 .comments-form {

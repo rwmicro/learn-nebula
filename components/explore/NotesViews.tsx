@@ -120,7 +120,7 @@ export function NotesViews() {
       </h2>
       <ul className="nb-views">
         {VIEWS.map((v) => (
-          <li key={v.key} data-family={v.family}>
+          <li key={v.key} data-family={v.family} className={v.href === "/graph/" ? "gk-wide-only" : undefined}>
             <a href={v.href} className="nb-view">
               <span className="nb-view-ic" aria-hidden="true">
                 {v.icon}

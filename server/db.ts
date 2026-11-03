@@ -22,6 +22,8 @@ export interface CommentRow {
   /** The comment this one answers, and its author's name (public list). */
   reply_to?: number | null;
   reply_to_name?: string | null;
+  /** Readers' likes (public list). */
+  likes?: number;
 }
 
 let db: Database.Database | null = null;
@@ -114,6 +116,15 @@ export function initDb(): Database.Database {
       done_at INTEGER
     );
     CREATE INDEX IF NOT EXISTS idx_error_reports_open ON error_reports(done_at, created_at DESC);
+    -- A like on a published comment, no account needed: voter is the
+    -- SHA-256 of a random id the reader's browser made up (public/js/comments.js),
+    -- one like per comment and browser. No IP. Goes with its comment.
+    CREATE TABLE IF NOT EXISTS comment_likes (
+      comment_id INTEGER NOT NULL REFERENCES comments(id) ON DELETE CASCADE,
+      voter TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      PRIMARY KEY (comment_id, voter)
+    );
   `);
   // Reader accounts, progress sync, coins, streaks, avatar items
   // (server/account-store.ts).
@@ -160,7 +171,8 @@ const PAGE_LIMIT = 100;
 export function approvedForSlug(slug: string): CommentRow[] {
   return get()
     .prepare(
-      "SELECT c.id, c.name, c.body, c.created_at, c.author, c.reply_to, p.name AS reply_to_name " +
+      "SELECT c.id, c.name, c.body, c.created_at, c.author, c.reply_to, p.name AS reply_to_name, " +
+        "(SELECT COUNT(*) FROM comment_likes l WHERE l.comment_id = c.id) AS likes " +
         "FROM comments c LEFT JOIN comments p ON p.id = c.reply_to " +
         "WHERE c.slug = ? AND c.status = 'approved' ORDER BY c.created_at ASC LIMIT ?",
     )
@@ -234,6 +246,20 @@ export function insertAuthorReply(parentId: number, name: string, body: string):
 
 export function setStatus(id: number, status: "approved"): void {
   get().prepare("UPDATE comments SET status = ? WHERE id = ?").run(status, id);
+}
+
+/** Like (or take back the like on) a published comment, once per voter.
+ *  Returns its like count, or null when there is no such published comment. */
+export function setCommentLike(id: number, voter: string, on: boolean, now = Date.now()): number | null {
+  const d = get();
+  const ok = d.prepare("SELECT 1 FROM comments WHERE id = ? AND status = 'approved'").get(id);
+  if (!ok) return null;
+  if (on) {
+    d.prepare("INSERT OR IGNORE INTO comment_likes (comment_id, voter, created_at) VALUES (?, ?, ?)").run(id, voter, now);
+  } else {
+    d.prepare("DELETE FROM comment_likes WHERE comment_id = ? AND voter = ?").run(id, voter);
+  }
+  return (d.prepare("SELECT COUNT(*) AS n FROM comment_likes WHERE comment_id = ?").get(id) as { n: number }).n;
 }
 
 export function deleteComment(id: number): void {

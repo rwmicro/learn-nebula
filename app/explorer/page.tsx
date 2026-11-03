@@ -103,7 +103,7 @@ export default function ExplorerPage() {
         <p data-i18n="explorer.lede">{t("explorer.lede")}</p>
       </header>
       <ul className="explorer-grid">
-        <li className="explorer-wide" data-family="vivant">
+        <li className="explorer-wide gk-wide-only" data-family="vivant">
           <a href="/graph/" className="explorer-tile">
             <svg className="explorer-art" viewBox="0 0 190 160" aria-hidden="true">
               <path d="M95 80C60 60 40 30 10 20M95 80c40-20 60-50 90-55M95 80c-30 25-50 50-60 75M95 80c25 20 45 50 70 70M95 80c0-30 5-55 20-78" />

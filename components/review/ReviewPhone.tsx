@@ -127,7 +127,11 @@ export function PhoneSession({
   const expected = head.kind === "deck" ? head.expected : null;
   const typedMode = expected != null;
   const html = head.kind === "deck" ? (revealed && !typedMode ? head.back : head.front) : "";
-  const sound = head.kind === "deck" && /pron-btn/.test(html);
+  // One clip: played from the round button. Several (a word, then the
+  // sentence, a man's and a woman's voice…): each keeps its own button on the
+  // card, where the deck labels it, and the round button is not drawn.
+  const clips = head.kind === "deck" ? (html.match(/class="pron-btn"/g) ?? []).length : 0;
+  const sound = clips === 1;
   const iv = (g: Grade) => (next ? formatInterval(next[g].iv, locale, tr) : "");
   const swipeGrade: Grade | null = dx > 20 ? "good" : dx < -20 ? "again" : null;
   const armed = Math.abs(dx) >= SWIPE;
@@ -215,7 +219,7 @@ export function PhoneSession({
               </button>
             )}
             {/* Focusable: a long card scrolls inside it, and the keyboard must reach it. */}
-            <div className="rsm-face" tabIndex={0}>
+            <div className={`rsm-face${clips > 1 ? " has-clips" : ""}`} tabIndex={0}>
               <DeckFace slug={head.slug} css={head.css} html={head.front} zoom={zoom} faceRef={faceRef} />
             </div>
           </div>
@@ -329,7 +333,7 @@ export function PhoneSession({
             </span>
           )}
           {/* Focusable: a long card scrolls inside it, and the keyboard must reach it. */}
-          <div className="rsm-face" tabIndex={0}>
+          <div className={`rsm-face${clips > 1 ? " has-clips" : ""}`} tabIndex={0}>
             {head.kind === "deck" ? (
               <DeckFace slug={head.slug} css={head.css} html={html} zoom={zoom} faceRef={faceRef} />
             ) : (

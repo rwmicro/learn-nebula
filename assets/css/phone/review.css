@@ -238,8 +238,9 @@
     color: inherit;
     background: none;
   }
-  /* The card's own clip buttons are played from the round button. */
-  .rsm-face .pron-btn {
+  /* The card's own clip button is played from the round button (when it has
+     several, ReviewPhone leaves them all on the card: .has-clips). */
+  .rsm-face:not(.has-clips) .pron-btn {
     position: absolute;
     width: 1px;
     height: 1px;

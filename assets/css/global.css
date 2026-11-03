@@ -43,6 +43,12 @@
     --title-page-size: 2.125rem;
   }
 }
+/* Wider screens only: what the phone layer does not offer (the graph). */
+@media (max-width: 639.98px) {
+  .gk-wide-only {
+    display: none !important;
+  }
+}
 /* Bottom sheets — Affichage and Sommaire (note-app), the chat's sheets,
    the account's, the parcours chest: one corner, one shadow, one veil, one
    grip, one height, above everything else on the page. */
@@ -62,6 +68,32 @@
   :root:not([data-theme="light"]) {
     --sheet-scrim: rgb(0 0 0 / 0.55);
   }
+}
+/* Two more papers (settings "Papier" / "Noir", /js/theme.js): the light
+   theme on a warm book paper, the dark one on pure black. <html data-paper>
+   only ever comes with the matching data-theme, so the ink tokens above stay
+   right and only the surfaces change. After the dark blocks, same weight. */
+:root[data-paper="paper"] {
+  --paper: #f6f0e3;
+  --paper-raised: #faf6ec;
+  --wash: #f0e9da;
+  --wash-2: #e8dfcc;
+  --rule-soft: #ebe3d2;
+  --rule: #e0d6c2;
+  --rule-strong: #c9bea8;
+  --link-wash: #ebeef0;
+  --garden-wash: #e7ebdc;
+}
+:root[data-paper="black"] {
+  --paper: #000;
+  --paper-raised: #121212;
+  --wash: #0c0c0c;
+  --wash-2: #1a1a1a;
+  --rule-soft: #1a1a1a;
+  --rule: #262626;
+  --rule-strong: #3a3a3a;
+  --link-wash: #0f1823;
+  --garden-wash: #101a13;
 }
 :is(.na-grab, .gc-grab, .ap-grab, .road-sheet-grip) {
   display: block;

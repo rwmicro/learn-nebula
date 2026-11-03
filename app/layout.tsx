@@ -61,7 +61,8 @@ window.__i18n.getActiveLocale = function () {
 // Applies the reader's stored theme (/js/theme.js) before first paint, so a
 // pinned dark theme never flashes light (or the reverse). No stored choice =
 // no attribute, and global.css follows prefers-color-scheme.
-const THEME_BOOTSTRAP = `try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}`;
+// "paper" and "black" are the light and dark themes on another paper (/js/theme.js).
+const THEME_BOOTSTRAP = `try{var t=localStorage.getItem("theme"),r=document.documentElement,b={paper:"light",black:"dark"}[t];if(b)r.setAttribute("data-paper",t);if(b||t==="light"||t==="dark")r.setAttribute("data-theme",b||t)}catch(e){}`;
 
 // Cross-document view transitions (palette.css opts in with @view-transition):
 // a note title clicked in a list (home, /themes/, /parcours/) morphs into the

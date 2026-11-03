@@ -208,12 +208,16 @@ export function MobileTabBar() {
 
   const PAD = 4; // .tabbar-bar padding, in px
   const cell = width ? (width - 2 * PAD) / TABS.length : 0;
-  const tabAt = (x: number) => Math.max(0, Math.min(TABS.length - 1, Math.floor((x - PAD) / (cell || 1))));
+  // In Arabic the grid runs right to left: tab i sits in the mirrored slot,
+  // while the pill is still placed from the bar's left edge.
+  const rtl = locale === "ar";
+  const slot = (i: number) => (rtl ? TABS.length - 1 - i : i);
+  const tabAt = (x: number) => slot(Math.max(0, Math.min(TABS.length - 1, Math.floor((x - PAD) / (cell || 1)))));
   const localX = (e: React.PointerEvent) => e.clientX - (barRef.current?.getBoundingClientRect().left ?? 0);
   const hover = drag != null ? tabAt(drag) : null;
   const shown = hover ?? (picked?.from === path ? picked.i : current);
   // The pill's left edge: under the finger while sliding, else on its tab.
-  const pillX = drag != null ? Math.max(PAD, Math.min(width - PAD - cell, drag - cell / 2)) : PAD + shown * cell;
+  const pillX = drag != null ? Math.max(PAD, Math.min(width - PAD - cell, drag - cell / 2)) : PAD + slot(shown) * cell;
 
   const onDown = (e: React.PointerEvent<HTMLUListElement>) => {
     if (compact) return;
@@ -288,7 +292,7 @@ export function MobileTabBar() {
                   // frame of a page): the same place in CSS, so the pill is
                   // there when a view transition captures the new page and
                   // can glide to it from the old one (palette.css).
-                  { width: `calc((100% - ${2 * PAD}px) / ${TABS.length})`, transform: `translateX(calc(${PAD}px + ${shown * 100}%))` }
+                  { width: `calc((100% - ${2 * PAD}px) / ${TABS.length})`, transform: `translateX(calc(${PAD}px + ${slot(shown) * 100}%))` }
             }
           >
             {/* The lens magnifies the tabs under it: a copy of the row, lined

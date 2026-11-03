@@ -413,7 +413,7 @@ export function HomeDashboard({
                 <Chevron />
               </a>
             </li>
-            <li>
+            <li className="gk-wide-only">
               <a href="/graph/">
                 <span className="dash-way-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" {...s}>

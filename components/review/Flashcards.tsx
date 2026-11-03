@@ -50,8 +50,12 @@ import { btn, quiet } from "@/components/review/srs-ui";
 import { DeckFace } from "@/components/review/DeckFace";
 import { AppBack } from "@/components/layout/AppBack";
 
-// Card zoom levels (whole card content scales: text + images).
-const SIZES = [1, 1.3, 1.6, 2];
+// Card zoom levels (whole card content scales: text + images), smaller and
+// larger than the deck's own size (1).
+const SIZES = [0.7, 0.85, 1, 1.15, 1.3, 1.6, 2];
+const DEFAULT_SIZE = SIZES.indexOf(1);
+/** The chosen zoom itself (the older "flashcardSize" held an index into [1, 1.3, 1.6, 2]). */
+const SIZE_KEY = "flashcardZoom";
 
 type Mode = "review" | "browse";
 
@@ -72,7 +76,7 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
   const [order, setOrder] = useState<number[]>([]);
   const [pos, setPos] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [sizeIdx, setSizeIdx] = useState(0);
+  const [sizeIdx, setSizeIdx] = useState(DEFAULT_SIZE);
   // null = no storage → browse mode only, exactly the pre-SRS behaviour.
   const [progress, setProgressState] = useState<Progress | null>(null);
   // Mirror for the grade/undo callbacks, which must see the latest progress
@@ -88,20 +92,22 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
   const [today, setToday] = useState(() => dayKey());
   const cardRef = useRef<HTMLButtonElement>(null);
 
-  // Restore + cycle the card size, persisted across cards/sessions.
+  // Restore + step the card size, persisted across cards/sessions.
   useEffect(() => {
     try {
-      const s = Number(localStorage.getItem("flashcardSize"));
-      if (Number.isInteger(s) && s >= 0 && s < SIZES.length) setSizeIdx(s);
+      const z = Number(localStorage.getItem(SIZE_KEY));
+      const legacy = Number(localStorage.getItem("flashcardSize"));
+      const i = SIZES.indexOf(z || ([1, 1.3, 1.6, 2][legacy] ?? 1));
+      if (i >= 0) setSizeIdx(i);
     } catch {
       /* localStorage unavailable */
     }
   }, []);
-  const cycleSize = useCallback(() => {
+  const stepSize = useCallback((d: -1 | 1) => {
     setSizeIdx((i) => {
-      const n = (i + 1) % SIZES.length;
+      const n = Math.max(0, Math.min(SIZES.length - 1, i + d));
       try {
-        localStorage.setItem("flashcardSize", String(n));
+        localStorage.setItem(SIZE_KEY, String(SIZES[n]));
       } catch {
         /* localStorage unavailable */
       }
@@ -312,7 +318,7 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
     <main
       id="main"
       className="flashcards-main mx-auto px-5 py-12 text-ink transition-[max-width] duration-200"
-      style={{ maxWidth: `${60 * zoom}rem` }}
+      style={{ maxWidth: `${60 * Math.max(1, zoom)}rem` }}
     >
       {/* A plain link, like the rest of /cartes/: next/link would make scripts/prune-rsc.mjs keep RSC payloads. */}
       <AppBack href="/cartes/" labelKey="tabbar.review" />
@@ -425,13 +431,30 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
       )}
 
       {deck && cardCount > 0 && (
-        // No room to enlarge on a phone.
-        <p className="mt-4 hidden text-center sm:block">
-          <button type="button" className={quiet} onClick={cycleSize} aria-label={tr("size")}>
-            {tr("size")}
-            {zoom !== 1 ? ` ×${zoom}` : ""}
+        <div className="fc-size" role="group" aria-label={tr("sizeLabel")}>
+          <button type="button" onClick={() => stepSize(-1)} disabled={sizeIdx === 0} aria-label={tr("smaller")}>
+            <span aria-hidden="true">A−</span>
           </button>
-        </p>
+          <button
+            type="button"
+            className="fc-size-value"
+            onClick={() => {
+              setSizeIdx(DEFAULT_SIZE);
+              try {
+                localStorage.removeItem(SIZE_KEY);
+              } catch {
+                /* localStorage unavailable */
+              }
+            }}
+            disabled={zoom === 1}
+            aria-label={tr("sizeReset")}
+          >
+            {Math.round(zoom * 100)} %
+          </button>
+          <button type="button" onClick={() => stepSize(1)} disabled={sizeIdx === SIZES.length - 1} aria-label={tr("larger")}>
+            <span aria-hidden="true">A+</span>
+          </button>
+        </div>
       )}
 
       {deck && progress && settings && (
