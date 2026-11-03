@@ -854,6 +854,20 @@ h4:focus-within .anchor,
   height: auto;
 }
 
+/* A sankey is a chart, not a box diagram: it fills the reading column (its
+   720px inline cap is wider than the column between the two rails), and only
+   scrolls below the width where its labels would get too small to read.
+   mermaid blends its links with `multiply`, which turns them black on the
+   dark paper; plain half-transparent bands read in both themes. */
+.mermaid-diagram svg[aria-roledescription="sankey"] {
+  max-width: 100% !important;
+  min-width: 34rem;
+}
+.mermaid-diagram svg[aria-roledescription="sankey"] .link {
+  /* !important: the shared mermaid stylesheet is linked after this one. */
+  mix-blend-mode: normal !important;
+}
+
 /* Mermaid draws its node labels as HTML inside <foreignObject>, and sizes each
    box from measuring them at its own 16px/24px. But that HTML is a descendant
    of <main>, so the article body-type rule up top (`main p …`, 21px/32.55px)
