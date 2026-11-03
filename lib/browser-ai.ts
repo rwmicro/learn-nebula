@@ -96,7 +96,6 @@ const lmOptions = (lang: string): LmOptions => ({
 export async function promptAvailable(lang: string, allowDownload = true): Promise<boolean> {
   const LM = g().LanguageModel as LmCtor | undefined;
   if (!LM || typeof LM.availability !== "function") return false;
-  if (nanoBroken()) return false;
   try {
     const a = await LM.availability(lmOptions(baseLang(lang)));
     return a === "available" || (allowDownload && (a === "downloadable" || a === "downloading"));
@@ -134,7 +133,9 @@ export function echoesPrompt(out: string, system = ""): boolean {
   return sys.length >= 40 && squash(out).includes(sys);
 }
 
-function nanoBroken(): boolean {
+/** Whether Nano echoed its prompt on this browser build (see above). Read by
+ *  aiRoute(), not promptAvailable(): the note bundle has a size budget. */
+export function nanoBroken(): boolean {
   try {
     return localStorage.getItem(BROKEN_KEY) === String(navigator.userAgent);
   } catch {

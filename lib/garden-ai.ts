@@ -9,7 +9,12 @@
 // Claude or an OpenAI-compatible backend) is still there but not offered:
 // SERVER_LLM_OFFERED turns it back on as the last fallback.
 
-import { echoesPrompt, promptAvailable, promptOnDevice } from "./browser-ai";
+import {
+  echoesPrompt,
+  nanoBroken,
+  promptAvailable,
+  promptOnDevice,
+} from "./browser-ai";
 import {
   localModelEnabled,
   localModelSupported,
@@ -29,7 +34,7 @@ export { SERVER_LLM_OFFERED, deviceWord } from "./garden-ai-flags";
 export type AiRoute = "nano" | "local" | "download" | "server" | "none";
 
 export async function aiRoute(lang: string): Promise<AiRoute> {
-  if (await promptAvailable(lang)) return "nano";
+  if (!nanoBroken() && (await promptAvailable(lang))) return "nano";
   if (await localModelSupported())
     return localModelEnabled() ? "local" : "download";
   return SERVER_LLM_OFFERED ? "server" : "none";
