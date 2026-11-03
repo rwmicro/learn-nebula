@@ -7,6 +7,7 @@ import { useLocale } from "@/lib/use-locale";
 import { recordActivity } from "@/lib/personal";
 import { addQuestion, loadNoteDeck, saveNoteDeck } from "@/lib/note-quiz";
 import {
+  CHESS_NOTES,
   ELO_KEY,
   GAME_KEY,
   LEVELS,
