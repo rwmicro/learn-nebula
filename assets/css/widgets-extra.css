@@ -231,11 +231,15 @@ main .w-legend li {
   border: 1px solid var(--rule-strong);
   background: var(--paper);
   padding: 0.7rem 0.9rem;
-  opacity: 0.55;
-  transition: opacity 0.2s;
+  /* Steps not yet reached are dimmed by colour, not opacity: an opacity
+     drops both the text and its muted label under WCAG AA contrast. */
+  color: var(--muted);
+  transition:
+    color 0.2s,
+    border-color 0.2s;
 }
 .w-recit-step.is-current {
-  opacity: 1;
+  color: var(--ink);
   border-color: var(--link);
 }
 .w-recit-step b {

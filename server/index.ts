@@ -29,7 +29,7 @@ import { startPushSender } from "./push-sender.ts";
 import { createNodeWebSocket } from "@hono/node-ws";
 import { roomRoute } from "./routes/room.ts";
 import { buildCSP, SITE_URL } from "../lib/site.ts";
-import { staticEntry, isFresh, cacheControlFor } from "./static-cache.ts";
+import { staticEntry, isFresh, cacheControlFor, trailingSlashTarget } from "./static-cache.ts";
 import { loadLinkHeader } from "./early-hints.ts";
 
 const app = new Hono();
@@ -128,6 +128,17 @@ app.use("*", async (c, next) => {
   if (c.res.status !== 200 && c.res.status !== 404) return;
   if (!c.res.headers.get("Content-Type")?.startsWith("text/html")) return;
   c.header("Link", linkHeader);
+});
+
+// One URL per page: "/posts/note" (no slash) gets a 301 to "/posts/note/",
+// the address the canonical link and the sitemap give, instead of the same
+// page served twice (server/static-cache.ts). The query string goes along.
+app.use("*", async (c, next) => {
+  if (c.req.method !== "GET" && c.req.method !== "HEAD") return next();
+  const target = trailingSlashTarget(env.staticDir, c.req.path);
+  if (!target) return next();
+  const q = new URL(c.req.url).search;
+  return c.redirect(target + q, 301);
 });
 
 // Conditional requests. serveStatic sends Last-Modified but never reads the
