@@ -75,7 +75,6 @@ const L = (d, style) => k.lineSvg(d, style);
 const D = (points, style) => k.dotsSvg(points, style);
 const byDepth = (points) => [...points].sort((a, b) => k.depthOf([a[0], a[1], 0], P) - k.depthOf([b[0], b[1], 0], P));
 const box = (x0, x1, y0, y1, z0, z1, steps = 2, bevel = 0) => k.slabOf({ x: x0, y: y0, w: x1 - x0, d: y1 - y0, r: 0.5 }, z0, z1 - z0, P, steps, bevel);
-const FZ = (x, y, z) => G.frameOf([x, y, z], [0, 0, 1], [1, 0, 0], [0, 1, 0]);
 const FX = (x, y, z) => G.frameOf([x, y, z], [1, 0, 0], [0, 1, 0], [0, 0, 1]);
 const FY0 = Q.frameY(0);
 const FYC = G.frameOf([0, 0, ZC], [0, 1, 0], [1, 0, 0], [0, 0, 1]);
@@ -323,7 +322,6 @@ function crankParts(t) {
     D([Q.pointOnFace(FY0, 6.4, pin, P)], { size: 0.5 }),
   ].join("");
 }
-const valveLiftOf = (t, v) => M.valveLift(t, v.name) * LIFT;
 function camParts(t) {
   return VALVES.map((v) => {
     const peak = v.name === "in" ? Math.PI / 2 : 3.5 * Math.PI;

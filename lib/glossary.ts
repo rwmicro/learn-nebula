@@ -218,7 +218,7 @@ export function extractDefinitions(
     const term = definitionTerm(m[1], m[2]);
     if (!term) continue;
     const bodyLines: string[] = [];
-    for (let j = i + 1; j < lines.length && /^>/.test(lines[j]); j++)
+    for (let j = i + 1; j < lines.length && lines[j].startsWith(">"); j++)
       bodyLines.push(lines[j].replace(/^>\s?/, ""));
     const def = definitionText(bodyLines.join("\n"));
     // A definition that is all formula has nothing to show in a card.

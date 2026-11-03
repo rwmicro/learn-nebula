@@ -23,7 +23,7 @@ function tabbed(props, drawChart, extraTools) {
   const bar = el("div", { class: "w-tabs" });
   const list = el("div", { class: "w-tablist", role: "tablist" });
   bar.appendChild(list);
-  const buttons = tabs.map(([label, pane], i) =>
+  const buttons = tabs.map(([label], i) =>
     el(
       "button",
       {
@@ -230,7 +230,7 @@ function redrawOnResize(root, fig, draw) {
   });
   const prev = root.onMount;
   root.onMount = () => {
-    prev && prev();
+    prev?.();
     w = fig.clientWidth;
     ro.observe(fig);
   };
@@ -516,7 +516,7 @@ const fmtValueK = (v) => (v >= 1e6 ? fmt(v / 1e6, v % 1e6 ? 1 : 0) + " M" : v >=
 
 // ------------------------------------------------------------- recit
 
-function recit(props, fig) {
+function recit(props) {
   const series = props.series || [];
   const steps = props.steps || [];
   if (!series.length || !steps.length) throw new Error("récit vide");
@@ -577,7 +577,7 @@ export function owid(props, fig) {
   if (props.alt) return withAlt(props, fig);
   if (props.type === "devine") return devine(props, fig);
   if (props.type === "pyramide") return pyramide(props, fig);
-  if (props.type === "recit") return recit(props, fig);
+  if (props.type === "recit") return recit(props);
   return courbe(props, fig);
 }
 

@@ -7,7 +7,8 @@ export const SITE_URL = (
 ).replace(/\/$/, "");
 
 export const SITE_TITLE = "Garden of Knowledge";
-export const SITE_DESCRIPTION = "Garden of knowledge";
+export const SITE_DESCRIPTION =
+  "Jardin de connaissances en français : des notes reliées en sciences appliquées et sociales, des parcours de lecture et des cartes de révision.";
 export const AUTHOR = "The Gardener";
 
 // Original author of the site and its source code (credited in the footer).

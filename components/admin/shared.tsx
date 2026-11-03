@@ -40,7 +40,7 @@ export function authHeader(token: string): Record<string, string> {
 export async function adminFetch<T>(url: string, token: string, init: RequestInit = {}): Promise<T> {
   const r = await fetch(url, {
     ...init,
-    headers: { ...(init.headers ?? {}), ...authHeader(token) },
+    headers: { ...init.headers, ...authHeader(token) },
   });
   if (r.status === 401) throw new Unauthorized();
   if (!r.ok) throw new Error(`HTTP ${r.status}`);

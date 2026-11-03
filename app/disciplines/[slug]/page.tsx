@@ -4,6 +4,7 @@ import { getDisciplines } from "@/lib/content";
 import { DisciplinePage } from "@/components/explore/Themes";
 import { disciplineKey, t } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 import "@/assets/css/themes.css";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -20,10 +21,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const d = getDisciplines().find((x) => x.slug === slug);
   const key = d ? disciplineKey(d.name) : null;
   const name = key ? t(key) : d?.name;
-  return {
+  return pageMetadata({
     title: `${name ?? "Discipline"} · ${SITE_TITLE}`,
     description: d ? `Les ${d.count} notes du jardin en ${name}.` : undefined,
-  };
+    path: `/disciplines/${slug}/`,
+  });
 }
 
 export default async function Page({ params }: Params) {

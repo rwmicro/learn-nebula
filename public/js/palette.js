@@ -563,8 +563,14 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     let html = "";
     let open = false;
     for (let i = 0; i < text.length; i++) {
-      if (marks[i] && !open) (html += "<mark>"), (open = true);
-      if (!marks[i] && open) (html += "</mark>"), (open = false);
+      if (marks[i] && !open) {
+        html += "<mark>";
+        open = true;
+      }
+      if (!marks[i] && open) {
+        html += "</mark>";
+        open = false;
+      }
       html += esc(text[i]);
     }
     return html + (open ? "</mark>" : "");

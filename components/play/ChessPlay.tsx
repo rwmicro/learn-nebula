@@ -6,7 +6,6 @@ import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { recordActivity } from "@/lib/personal";
 import {
-  CHESS_NOTES,
   ELO_KEY,
   LEVELS,
   levelFor,
