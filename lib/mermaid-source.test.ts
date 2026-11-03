@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 // Plain JS on purpose — scripts/render-mermaid.mjs imports it with bare node.
 import fs from "node:fs";
-import { normaliseMermaid as n, diagramType, MERMAID_CONFIG } from "./mermaid-source.js";
+import { normaliseMermaid as n, diagramType, polishSvg, MERMAID_CONFIG } from "./mermaid-source.js";
 
 describe("normaliseMermaid", () => {
   it("turns Obsidian's literal \\n into a line break", () => {
@@ -140,5 +140,28 @@ describe("MERMAID_CONFIG", () => {
         "MERMAID_CONFIG",
       );
     }
+  });
+});
+
+describe("sankey", () => {
+  const src = "sankey-beta\n\nSénégambie,Traversée,0.76\nTraversée,Brésil,4.86\n";
+
+  it("swaps non-ASCII characters for ASCII tokens mermaid can lex", () => {
+    const out = n(src);
+    expect(out).toMatch(/^[\x00-\x7f]*$/);
+    expect(out).toContain("S~ue9~n~ue9~gambie,Travers~ue9~e,0.76");
+  });
+
+  it("leaves an all-ASCII sankey alone", () => {
+    expect(n("sankey-beta\n\nA,B,1\n")).toBe("sankey-beta\n\nA,B,1\n");
+  });
+
+  it("puts the accents back and writes the decimal comma in the SVG", () => {
+    const svg =
+      '<svg aria-roledescription="sankey"><text x="1">S~ue9~n~ue9~gambie\n0.76 M</text>' +
+      '<linearGradient id="linearGradient-1"><stop offset="0%" stop-color="#4e79a7"></stop></linearGradient></svg>';
+    const out = polishSvg(svg, n(src));
+    expect(out).toContain(">Sénégambie\n0,76 M</text>");
+    expect(out).toContain('stop-color="#4e79a7"');
   });
 });
