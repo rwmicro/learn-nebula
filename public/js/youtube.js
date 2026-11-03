@@ -26,7 +26,7 @@
     requestAnimationFrame(function () {
       try {
         focusable.focus();
-      } catch (e) {
+      } catch {
         /* ignore */
       }
     });

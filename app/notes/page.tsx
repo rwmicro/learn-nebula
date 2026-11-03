@@ -3,14 +3,16 @@ import { getAllPosts, INDEX_NOTE } from "@/lib/content";
 import { getTopFolders } from "@/lib/notes-browse";
 import { t } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 import { FolderRows, ResumeFolder } from "@/components/explore/NotesBrowse";
 import { NotesViews } from "@/components/explore/NotesViews";
 import "@/assets/css/notes-browse.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: `${t("notesTab.title")} · ${SITE_TITLE}`,
   description: t("notesTab.metaDesc"),
-};
+  path: "/notes/",
+});
 
 // "Notes", the third tab of the phone tab bar (components/layout/MobileTabBar.tsx):
 // the garden's other views in a row of tiles (what the Explorer tab held),

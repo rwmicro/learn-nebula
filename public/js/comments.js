@@ -258,7 +258,7 @@ import { BENCH } from "../../lib/deco-bench";
 
   // Match the rest of the site: format comment dates in the active UI locale
   // (mirrors the BCP-47 map in components/ui/EditionDate.tsx), not a fixed fr-FR.
-  const BCP47 = { fr: "fr-FR", en: "en-US", es: "es-ES", zh: "zh-CN" };
+  const BCP47 = { fr: "fr-FR", en: "en-US", es: "es-ES", zh: "zh-CN", id: "id-ID" };
   function currentLocale() {
     const g = window.__i18n || {};
     const loc =

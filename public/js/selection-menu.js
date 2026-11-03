@@ -258,7 +258,8 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
         ok = false;
       }
       ta.remove();
-      ok ? resolve() : reject(new Error("copy failed"));
+      if (ok) resolve();
+      else reject(new Error("copy failed"));
     });
   }
 

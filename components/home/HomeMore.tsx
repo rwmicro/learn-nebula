@@ -12,14 +12,6 @@ const L = (k: string, v?: Record<string, string | number>) => ({
   ...(v ? { "data-i18n-vars": JSON.stringify(v) } : {}),
 });
 
-const sprout = (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M12 21v-7" />
-    <path d="M12 14C7 14 4.5 11 4.5 6.5 9 6.5 12 9 12 14Z" />
-    <path d="M12 12c0-4.5 3-7.5 7.5-7.5 0 4.5-3 7.5-7.5 7.5Z" />
-  </svg>
-);
-
 /** A ring of coloured dots around a black one: the circular graph, drawn. */
 function GraphDots() {
   const n = 22;

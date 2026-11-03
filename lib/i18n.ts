@@ -3,8 +3,9 @@ import enMessages from "../messages/en.json";
 import esMessages from "../messages/es.json";
 import zhMessages from "../messages/zh.json";
 import arMessages from "../messages/ar.json";
+import idMessages from "../messages/id.json";
 
-export const LOCALES = ["fr", "en", "es", "zh", "ar"] as const;
+export const LOCALES = ["fr", "en", "es", "zh", "ar", "id"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "fr";
 
@@ -19,7 +20,8 @@ const BUNDLES: Record<Locale, Messages> = {
   en: enMessages,
   es: esMessages,
   zh: zhMessages,
-  ar: arMessages
+  ar: arMessages,
+  id: idMessages,
 };
 
 function lookup(bundle: unknown, key: string): string | null {

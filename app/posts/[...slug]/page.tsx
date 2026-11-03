@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { getAllPosts, getPost, INDEX_NOTE } from "@/lib/content";
-import { buildMetadata, firstImage } from "@/lib/seo";
-import { extractPlain, truncate } from "@/lib/markdown";
+import { buildMetadata, metaDescription, noteImage } from "@/lib/seo";
 import { SITE_URL, AUTHOR, absoluteURL } from "@/lib/site";
 import { graph, breadcrumbJsonLd } from "@/lib/jsonld";
 import { SinglePage } from "@/components/note/SinglePage";
@@ -53,16 +52,17 @@ export default async function PostPage({ params }: Params) {
   const article = {
     "@type": "Article",
     headline: fm.title,
-    description: truncate(extractPlain(doc.body), 160),
+    description: fm.description || metaDescription(doc.body),
     url,
     mainEntityOfPage: url,
-    image: firstImage(doc.body),
+    // The same picture as og:image (the share card when the note has none).
+    image: noteImage(doc.body, ogImagePath(ogCardFor(doc))),
     inLanguage: fm.lang || "fr",
     isPartOf: { "@type": "WebSite", url: `${SITE_URL}/` },
     ...(fm.tags?.length ? { keywords: fm.tags.join(", ") } : {}),
     ...(published ? { datePublished: published } : {}),
     ...(modified ? { dateModified: modified } : {}),
-    author: { "@type": "Person", name: AUTHOR },
+    author: { "@type": "Person", name: AUTHOR, url: `${SITE_URL}/` },
     publisher: { "@type": "Person", name: AUTHOR, url: `${SITE_URL}/` },
   };
   const breadcrumb = breadcrumbJsonLd(fm.title, url, INDEX_NOTE);

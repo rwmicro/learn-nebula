@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 
-// Guards the documented footgun in CLAUDE.md: messages/{fr,en,es,zh,ar}.json
+// Guards the documented footgun in CLAUDE.md: messages/{fr,en,es,zh,ar,id}.json
 // must stay in key-sync. t() resolves at build against the default locale (fr),
 // so a key present in fr but missing in another locale silently falls back and
 // never gets translated. This test fails loudly if the bundles ever drift.
@@ -10,7 +10,7 @@ import path from "node:path";
 // LOCALES in lib/i18n.ts and in the language switcher), so it was the one
 // bundle that could drift silently.
 
-const LOCALES = ["fr", "en", "es", "zh", "ar"] as const;
+const LOCALES = ["fr", "en", "es", "zh", "ar", "id"] as const;
 const DEFAULT_LOCALE = "fr";
 
 function flattenKeys(value: unknown, prefix = ""): string[] {
