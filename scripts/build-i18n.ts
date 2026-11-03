@@ -1,6 +1,6 @@
 // Writes the UI message bundles to public/i18n/<locale>.<hash>.js (see
 // lib/i18n-assets.ts). Stale bundles from earlier builds are removed, so the
-// export ships exactly the five the pages reference.
+// export ships exactly the six the pages reference.
 
 import fs from "node:fs";
 import path from "node:path";
