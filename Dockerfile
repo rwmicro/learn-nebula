@@ -49,7 +49,8 @@ ENV NODE_ENV=production \
     BUILD_INFO=/app/data/build-info.json \
     VAULT_HEALTH=/app/data/vault-health.json \
     PREREQ_SUGGESTIONS=/app/data/prereq-suggestions.json \
-    FACTS_TO_CHECK=/app/data/facts-to-check.json
+    FACTS_TO_CHECK=/app/data/facts-to-check.json \
+    CONTENT_MANIFEST=/app/data/content-manifest.json
 RUN corepack enable && corepack prepare pnpm@10.28.0 --activate
 
 # The static export in layers, steadiest first. A note edit used to change the
@@ -75,9 +76,11 @@ COPY schema ./schema
 COPY data/rag-chunks.json ./data/rag-chunks.json
 # Build-time reports read by the admin-only /api/admin/* endpoints
 # (scripts/build-info.mjs, scripts/vault-health.ts, scripts/prereq-suggestions.ts,
-# scripts/facts-to-check.ts)
-# — kept out of out/ so the static server never exposes them.
-COPY data/build-info.json data/vault-health.json data/prereq-suggestions.json data/facts-to-check.json ./data/
+# scripts/facts-to-check.ts), and the content manifest the progress-sync coins
+# are checked against (scripts/build-content-manifest.ts; without it the server
+# pays for any slug a client sends) — kept out of out/ so the static server
+# never exposes them.
+COPY data/build-info.json data/vault-health.json data/prereq-suggestions.json data/facts-to-check.json data/content-manifest.json ./data/
 # --exclude needs dockerfile syntax 1.19+ (first line).
 COPY --exclude=engine --exclude=ort --exclude=katex --exclude=anki --exclude=vault out ./out
 

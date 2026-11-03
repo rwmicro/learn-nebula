@@ -1,5 +1,5 @@
 # Keep the build context small. The image only needs: out/, server/, lib/,
-# schema/, data/{rag-chunks,build-info,vault-health,prereq-suggestions,facts-to-check}.json, package.json, pnpm-lock.yaml.
+# schema/, data/{rag-chunks,build-info,vault-health,prereq-suggestions,facts-to-check,content-manifest}.json, package.json, pnpm-lock.yaml.
 node_modules
 .next
 .git
@@ -32,3 +32,4 @@ data/*
 !data/vault-health.json
 !data/prereq-suggestions.json
 !data/facts-to-check.json
+!data/content-manifest.json
