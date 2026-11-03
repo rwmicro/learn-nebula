@@ -104,7 +104,10 @@
   width: 2.5rem;
   height: 2.5rem;
   border-radius: 0.75rem;
-  background: var(--bot-tile);
+  /* A light square of the board: the cburnett pieces (black, or white with
+     a black outline) both read on it, in either theme. */
+  background: var(--sq-l);
+  box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.08);
 }
 .chess-avatar svg {
   width: 2rem;
