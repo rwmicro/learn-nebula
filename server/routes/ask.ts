@@ -28,12 +28,13 @@ const MAX_QUESTION = 1000;
 const MAX_SELECTION = 4000;
 const MAX_TOKENS = 1024;
 
-const REPLY_LANGS = new Set(["fr", "en", "es", "zh"]);
+const REPLY_LANGS = new Set(["fr", "en", "es", "zh", "id"]);
 const DEFAULT_Q: Record<string, string> = {
   fr: "Explique ce passage.",
   en: "Explain this passage.",
   es: "Explica este pasaje.",
   zh: "解释这段内容。",
+  id: "Jelaskan bagian ini.",
 };
 
 /** Human label for a scope slug, for the prompt. The slug charset is validated

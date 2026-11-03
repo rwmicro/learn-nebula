@@ -22,12 +22,13 @@ export const LANG_OPTIONS = [
   { code: "es", label: "Español" },
   { code: "ar", label: "العربية" },
   { code: "zh", label: "中文" },
+  { code: "id", label: "Indonesia" },
 ] as const;
 
 /** Language switcher driven by /js/i18n.js. The script applies the stored
  * locale on load; this component renders the toggle and persists the choice
  * via window.__i18n.setLocale, which fires the swap. Inline list
- * (FR · EN · ES · العربية · 中文) from `sm` up; on phones it folds into a small
+ * (FR · EN · ES · العربية · 中文 · Indonesia) from `sm` up; on phones it folds into a small
  * dropdown showing the current language, so the masthead's utility bar fits
  * on one line next to the theme toggle and the search. `compact` keeps the
  * dropdown at every width (the site bar has no room for the inline list),
