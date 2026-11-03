@@ -17,7 +17,7 @@ export async function adminJson<T>(url: string, token: string, init: RequestInit
     ...init,
     headers: {
       ...(init.body ? { "content-type": "application/json" } : {}),
-      ...(init.headers ?? {}),
+      ...init.headers,
       ...authHeader(token),
     },
   });

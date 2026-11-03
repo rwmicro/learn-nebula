@@ -37,7 +37,6 @@ const L = (d, style) => k.lineSvg(d, style);
 const D = (points, style) => k.dotsSvg(points, style);
 const byDepth = (points) => [...points].sort((a, b) => k.depthOf([a[0], a[1], 0], P) - k.depthOf([b[0], b[1], 0], P));
 const slab = (x0, x1, y0, y1, z0, z1, steps = 2, bevel = 0) => k.slabOf({ x: x0, y: y0, w: x1 - x0, d: y1 - y0, r: 0.6 }, z0, z1 - z0, P, steps, bevel);
-const along = (o, a) => G.frameOf(o, a, Math.abs(a[2]) > 0.9 ? [1, 0, 0] : [0, 0, 1], Math.abs(a[2]) > 0.9 ? [0, 1, 0] : G.cross3(a, [0, 0, 1]));
 const pipe = (a, b, r, style = { tone: "mid" }) => {
   const d = G.sub3(b, a);
   const len = G.len3(d);

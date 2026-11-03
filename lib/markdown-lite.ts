@@ -22,7 +22,7 @@ export function markdownToHtml(text: string): string {
   return blocks
     .map((block) => {
       const lines = block.split("\n");
-      if (lines.every((l) => /^- /.test(l))) {
+      if (lines.every((l) => l.startsWith("- "))) {
         return "<ul>" + lines.map((l) => "<li>" + l.slice(2) + "</li>").join("") + "</ul>";
       }
       if (lines.every((l) => /^\d+\. /.test(l))) {

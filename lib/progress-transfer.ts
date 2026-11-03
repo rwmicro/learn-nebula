@@ -399,7 +399,7 @@ function mergeQuestions(a: NoteDeckLike, b: NoteDeckLike): NoteDeckLike {
     if (!cur || (it.added ?? "") > (cur.added ?? "")) items[id] = it;
   }
   // `ok` marks: union, the latest date per question.
-  const ok = { ...(a.ok ?? {}) };
+  const ok = { ...a.ok };
   for (const [id, day] of Object.entries(b.ok ?? {})) {
     if (!ok[id] || day > ok[id]) ok[id] = day;
   }
