@@ -34,22 +34,50 @@ jobs:
       - name: Probe
         id: probe
         run: |
-          ok=false
+          # One GET, printing "<http code> <cf-mitigated header>" (code 000 when
+          # nothing answered). The body lands in /tmp/body for the checks below.
+          get() {
+            curl -sS -m 20 -o /tmp/body -D /tmp/headers -w '%{http_code}' "$1" 2>/tmp/err \
+              || { [ -s /tmp/err ] && cat /tmp/err >&2; }
+            printf ' %s\n' "$(grep -i '^cf-mitigated:' /tmp/headers 2>/dev/null | cut -d: -f2 | tr -d ' \r')"
+          }
+          # Cloudflare's bot protection (Bot Fight Mode) answers GitHub's
+          # datacenter IPs with a 403 challenge before the request ever reaches
+          # the tunnel: from 1/11/2026 every run got that 403 and kept a
+          # "site down" issue open while the site was up. Such an answer says
+          # nothing about the site, so it is "blocked", never "down".
+          blocked() {
+            [ "${1%% *}" = 403 ] && { [ -n "${1#* }" ] \
+              || grep -qiE 'just a moment|attention required|cf-chl|challenge-platform' /tmp/body; }
+          }
+          state=down
           for i in 1 2; do
             # The home page too: on 20/10/2026 every page was a 404 for hours
             # while the API alone kept /healthz green.
-            if out=$(curl -fsS -m 20 "$URL") && echo "$out" | grep -q '"ok":true' \
-              && curl -fsS -m 20 -o /dev/null "${URL%/healthz}/"; then ok=true; break; fi
-            sleep 30
+            h=$(get "$URL"); echo "healthz: $h"
+            if blocked "$h"; then state=blocked
+            elif [ "${h%% *}" = 200 ] && grep -q '"ok":true' /tmp/body; then
+              r=$(get "${URL%/healthz}/"); echo "home: $r"
+              if blocked "$r"; then state=blocked
+              elif [ "${r%% *}" = 200 ]; then state=up; break
+              else state=down; fi
+            else state=down; fi
+            [ "$i" = 2 ] || sleep 30
           done
-          echo "ok=$ok" >> "$GITHUB_OUTPUT"
+          if [ "$state" = blocked ]; then
+            echo "::warning title=Uptime probe blocked::Cloudflare answered this runner with a 403 challenge, so the site's state is unknown. The incident issue is left as it is."
+          fi
+          echo "state=$state" >> "$GITHUB_OUTPUT"
 
       - name: Open or close the incident
         run: |
           gh label create site-down --color B60205 --description "Opened by the uptime probe" 2>/dev/null || true
           open=$(gh issue list --label site-down --state open --json number --jq '.[0].number // empty')
           notify() { [ -n "$NTFY" ] && curl -fsS -m 10 -H "Title: 4d52.net" -d "$1" "$NTFY" >/dev/null || true; }
-          if [ "${{ steps.probe.outputs.ok }}" = "true" ]; then
+          state="${{ steps.probe.outputs.state }}"
+          if [ "$state" = blocked ]; then
+            exit 0
+          elif [ "$state" = up ]; then
             if [ -n "$open" ]; then
               gh issue close "$open" --comment "Back up at $(date -u +%FT%TZ)."
               notify "site back up"
