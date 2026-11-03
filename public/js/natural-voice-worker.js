@@ -1,6 +1,6 @@
 // The natural reading voice (Piper, a VITS model per language, ~63 MB), run
 // in a Web Worker so the page stays responsive while it speaks. Bundled as an
-// ES module by scripts/bundle-js.mjs into piper.worker.js (git-ignored) and
+// ES module by scripts/bundle-js.mjs into natural-voice.worker.js (git-ignored) and
 // driven by lib/piper-voice.ts.
 //
 // Text → phoneme ids with piper_phonemize (eSpeak NG in WebAssembly, from

@@ -78,6 +78,13 @@ image tag in `ci.yml` together with `@playwright/test`.
   never edit it; edit the source `public/js/*.js` and re-run bundle-js.
 - Verify UI changes **visually** (Playwright screenshots, desktop+mobile) — much
   of this codebase is layout/canvas that tsc can't validate.
+- **The prod proxy's WAF refuses file names that start with a Unix command**
+  (ModSecurity CRS 932236/932239 at PL2, on the last path segment outside
+  `/posts/`): `/js/piper.worker.js` or `/js/pip.js` answer 403 there while
+  working everywhere else. That is why the natural voice ships as
+  `natural-voice.*`. Before adding a served file, try
+  `curl -so /dev/null -w '%{http_code}' https://4d52.net/js/<name>`: 404 is
+  fine, 403 means rename it.
 - **`scripts/fetch-notes.mjs` keeps a persistent clone at `.cache/pensine`**
   (gitignored; CI restores/saves it via `actions/cache`, key `pensine-vault-*`),
   updated in place rather than re-cloned. The ~700MB of Anki `.apkg` decks are

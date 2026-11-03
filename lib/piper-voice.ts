@@ -1,9 +1,9 @@
 // The natural reading voice of "Écouter": a Piper voice (VITS, ~63 MB per
-// language) run in public/js/piper-worker.js. Off until the reader turns it
+// language) run in public/js/natural-voice-worker.js. Off until the reader turns it
 // on (the "Voix naturelle" switch, public/js/audio.js), which is remembered
 // in localStorage; the voice of a language downloads the first time a note in
 // it is read, from Hugging Face, and stays in Cache Storage until the switch
-// is turned off. Loaded on demand as piper-voice.bundle.js, so a reader who
+// is turned off. Loaded on demand as natural-voice.bundle.js, so a reader who
 // never turns it on never fetches it. Anything that fails falls back to the
 // system voice (audio.js).
 
@@ -44,7 +44,7 @@ let worker: Worker | null = null;
 let nextId = 1;
 
 function getWorker(): Worker {
-  worker ??= new Worker("/js/piper.worker.js", { type: "module" });
+  worker ??= new Worker("/js/natural-voice.worker.js", { type: "module" });
   return worker;
 }
 
