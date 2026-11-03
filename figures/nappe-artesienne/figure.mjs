@@ -576,7 +576,6 @@ function tree(x, y, size) {
 const start = M.state(M.RECHARGE.start);
 const water0 = tankWater(M.RECHARGE.start);
 const jet0 = fountain(M.RECHARGE.start);
-const piezo0 = piezoColumns(M.RECHARGE.start);
 const slideBy = (recharge) => [0, 0, Z(recharge) - SLIDE_HIGH];
 
 const STYLE = `<style>

@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  // Vendored code, copied as-is and never edited here: Stockfish (minified
+  // build) and Anatomy's drawing kit (figures/README.md, "Provenance").
+  "ignorePatterns": ["public/engine/**", "figures/kit/**"],
+  "rules": {
+    // Every control-character regex in the code is a sanitiser on purpose
+    // (comments, feedback, search misses, RSS, GitHub paths, redirects).
+    "no-control-regex": "off",
+    // `new Array(n).fill(x)` is the idiom used throughout for fixed-size
+    // buffers (bins, marks, forecasts): always a length, never an element.
+    "unicorn/no-new-array": "off"
+  }
+}

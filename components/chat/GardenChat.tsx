@@ -899,7 +899,8 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   async function makeCard(i: number) {
     const c = convRef.current;
     const answer = c.messages[i]?.text ?? "";
-    const question = [...c.messages.slice(0, i)]
+    const question = c.messages
+      .slice(0, i)
       .reverse()
       .find((m) => m.role === "user");
     const target =

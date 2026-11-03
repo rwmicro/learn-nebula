@@ -16,7 +16,6 @@ export const ROD = { y: -33, z: 79.6, from: -215, to: 136 };
 export const VALVE = { x: -215, z: 87.6, arm: 8 };
 export const FLYY = -24;
 
-const DEG = Math.PI / 180;
 const Y = (o, y0) => G.frameOf([o[0], y0, o[1]], [0, 1, 0], [1, 0, 0], [0, 0, 1]);
 const S = (paths, style) => k.solidSvg(paths, style);
 

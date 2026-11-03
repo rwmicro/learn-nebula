@@ -1,7 +1,6 @@
 import { t, i18nProps } from "@/lib/i18n";
 import { CARTE_BINS, carteClass, WORLD, type CarteCountry } from "@/lib/carte";
 import { CarteHover } from "@/components/explore/CarteHover";
-import { AppBack } from "@/components/layout/AppBack";
 import { COUNTRIES } from "@/lib/countries";
 import { REGION_ORDER, regionOf, type Region } from "@/lib/regions";
 import type { CSSProperties } from "react";
