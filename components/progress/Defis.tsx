@@ -9,7 +9,6 @@ import { loadStore } from "@/lib/reading-progress";
 import { loadLog } from "@/lib/srs-log";
 import { dayKey } from "@/lib/srs";
 import { authConfig, fetchMe, readHint } from "@/lib/account-client";
-import { AppBack } from "@/components/layout/AppBack";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 // /defis/ — the day run and three small goals for today, from this browser's

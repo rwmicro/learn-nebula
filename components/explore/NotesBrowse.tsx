@@ -252,7 +252,6 @@ export function ResumeFolder() {
   useEffect(() => {
     try {
       const v = JSON.parse(localStorage.getItem(LAST_KEY) ?? "null");
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- client-only state
       if (v && typeof v.slug === "string" && typeof v.name === "string")
         setLast(v);
     } catch {

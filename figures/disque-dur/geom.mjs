@@ -55,7 +55,7 @@ export function armSvg(psi, P) {
   return out.join("");
 }
 
-function arc(r, from, to, z, P) {
+function arc(r, from, to) {
   const n = Math.max(3, Math.ceil(Math.abs(to - from) / 0.06));
   const pts = [];
   for (let i = 0; i <= n; i++) {
@@ -67,7 +67,7 @@ function arc(r, from, to, z, P) {
 
 export function sectorSvg(r, lead, span, read, P) {
   const z = HD.PT;
-  const band = (a0, a1) => [...arc(r + 2.2, a0, a1, z, P), ...arc(r - 2.2, a1, a0, z, P)];
+  const band = (a0, a1) => [...arc(r + 2.2, a0, a1), ...arc(r - 2.2, a1, a0)];
   const out = [`<path style="fill:var(--anatomy-mid);fill-opacity:.38" d="${onTop(band(lead - span, lead), z, P, true)}"/>`];
   if (read > 0.002) out.push(`<path style="fill:var(--anatomy-hi);fill-opacity:.5" d="${onTop(band(lead - read, lead), z, P, true)}"/>`);
   out.push(lineSvg(onTop(band(lead - span, lead), z, P, true), { tone: "mid" }));

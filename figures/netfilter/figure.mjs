@@ -143,7 +143,7 @@ function post(x, y, top = POST_TOP) {
 }
 
 // A portal across a belt running along x (posts at y = ±15) or along y (posts at x = cx ± 15).
-function portal(cx, cy, along, kind) {
+function portal(cx, cy, along, _kind) {
   const posts = along === "x" ? [[cx, cy - 15], [cx, cy + 15]] : [[cx - 15, cy], [cx + 15, cy]];
   const [back, front] = posts;
   put(dk(...back), post(...back), "", along === "x" || cy < -10);

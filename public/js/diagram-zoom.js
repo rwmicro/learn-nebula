@@ -71,11 +71,19 @@
       if (k === "+" || k === "=") zoomAt(1.25, r.width / 2, r.height / 2);
       else if (k === "-" || k === "_") zoomAt(0.8, r.width / 2, r.height / 2);
       else if (k === "0") fit();
-      else if (k === "ArrowLeft") (tx += step), apply();
-      else if (k === "ArrowRight") (tx -= step), apply();
-      else if (k === "ArrowUp") (ty += step), apply();
-      else if (k === "ArrowDown") (ty -= step), apply();
-      else return;
+      else if (k === "ArrowLeft") {
+        tx += step;
+        apply();
+      } else if (k === "ArrowRight") {
+        tx -= step;
+        apply();
+      } else if (k === "ArrowUp") {
+        ty += step;
+        apply();
+      } else if (k === "ArrowDown") {
+        ty -= step;
+        apply();
+      } else return;
       e.preventDefault();
     });
 
