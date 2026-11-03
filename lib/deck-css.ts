@@ -21,7 +21,10 @@
  *   1.5px on a wide screen) and `vw` ones follow the card width (`cqi`);
  * - neutral greys become theme tokens (near-black → the ink, mid-greys →
  *   muted, white backgrounds → none), so a card follows light and dark mode.
- *   Coloured text, and anything on a background the deck keeps, is left alone.
+ * - coloured text keeps its hue, darkened (light theme) or lightened (dark
+ *   theme) only as far as it takes to be read on the site's paper: yellow
+ *   names written for Anki's black night window. Anything on a background
+ *   the deck keeps is left alone.
  *
  * Pure (string in, string out), so it is unit-tested (deck-css.test.ts).
  */
@@ -105,16 +108,106 @@ function blocks(css: string): Block[] {
   return out;
 }
 
-/** "#abc", "#aabbcc", black, white → [r, g, b]; anything else → null. */
+/** CSS named colours that shared decks actually use (the rest stay as written). */
+const NAMED: Record<string, string> = {
+  black: "#000000",
+  white: "#ffffff",
+  yellow: "#ffff00",
+  gold: "#ffd700",
+  orange: "#ffa500",
+  red: "#ff0000",
+  crimson: "#dc143c",
+  tomato: "#ff6347",
+  coral: "#ff7f50",
+  salmon: "#fa8072",
+  pink: "#ffc0cb",
+  hotpink: "#ff69b4",
+  magenta: "#ff00ff",
+  fuchsia: "#ff00ff",
+  violet: "#ee82ee",
+  orchid: "#da70d6",
+  purple: "#800080",
+  indigo: "#4b0082",
+  blue: "#0000ff",
+  navy: "#000080",
+  darkblue: "#00008b",
+  royalblue: "#4169e1",
+  dodgerblue: "#1e90ff",
+  deepskyblue: "#00bfff",
+  skyblue: "#87ceeb",
+  lightblue: "#add8e6",
+  cyan: "#00ffff",
+  aqua: "#00ffff",
+  turquoise: "#40e0d0",
+  teal: "#008080",
+  green: "#008000",
+  darkgreen: "#006400",
+  lime: "#00ff00",
+  limegreen: "#32cd32",
+  lightgreen: "#90ee90",
+  olive: "#808000",
+  khaki: "#f0e68c",
+  brown: "#a52a2a",
+  maroon: "#800000",
+  darkred: "#8b0000",
+  silver: "#c0c0c0",
+  gray: "#808080",
+  grey: "#808080",
+  darkgray: "#a9a9a9",
+  darkgrey: "#a9a9a9",
+  lightgray: "#d3d3d3",
+  lightgrey: "#d3d3d3",
+};
+
+/** "#abc", "#aabbcc", "rgb(…)", a common named colour → [r, g, b]; anything else → null. */
 function rgb(v: string): [number, number, number] | null {
-  const s = v.trim().toLowerCase();
-  if (s === "black") return [0, 0, 0];
-  if (s === "white") return [255, 255, 255];
+  const s = (NAMED[v.trim().toLowerCase()] ?? v).trim().toLowerCase();
   let m = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/.exec(s);
   if (m) return [m[1], m[2], m[3]].map((h) => parseInt(h + h, 16)) as [number, number, number];
   m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/.exec(s);
   if (m) return [m[1], m[2], m[3]].map((h) => parseInt(h, 16)) as [number, number, number];
+  m = /^rgba?\(\s*(\d{1,3})[\s,]+(\d{1,3})[\s,]+(\d{1,3})\s*(?:[,/]\s*[\d.]+%?\s*)?\)$/.exec(s);
+  if (m) return [m[1], m[2], m[3]].map((n) => Math.min(255, Number(n))) as [number, number, number];
   return null;
+}
+
+/** WCAG relative luminance. */
+function luminance([r, g, b]: [number, number, number]): number {
+  const lin = (c: number) => {
+    const x = c / 255;
+    return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+
+function contrast(a: [number, number, number], b: [number, number, number]): number {
+  const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+const hex = (c: [number, number, number]) => `#${c.map((n) => Math.round(n).toString(16).padStart(2, "0")).join("")}`;
+
+/** The site's paper in each theme (global.css --paper), what card text sits on. */
+const PAPER_LIGHT: [number, number, number] = [0xfc, 0xfc, 0xfc];
+const PAPER_DARK: [number, number, number] = [0x1c, 0x1b, 0x19];
+/** Large card text: WCAG's 3:1 for large type is enough, and keeps most hues as the deck chose them. */
+const MIN_CONTRAST = 3;
+
+/** A coloured text that can be read on the site's paper: the deck's hue as
+ *  is when it already can, else darkened (light theme) or lightened (dark
+ *  theme) until it can. Decks written for Anki's black night window put
+ *  yellow and pale blue on what is white paper here. */
+function readableColor(v: string, dark: boolean): string | null {
+  const c = rgb(v);
+  if (!c) return null;
+  const paper = dark ? PAPER_DARK : PAPER_LIGHT;
+  if (contrast(c, paper) >= MIN_CONTRAST) return null;
+  const toward = dark ? 255 : 0;
+  for (let t = 0.05; t <= 1; t += 0.05) {
+    const mixed = c.map((n) => n + (toward - n) * t) as [number, number, number];
+    if (contrast(mixed, paper) >= MIN_CONTRAST) return hex(mixed);
+  }
+  return dark ? "#ffffff" : "#000000";
 }
 
 /** The grey level (0–255) of a neutral colour, or null for a hue / unknown. */
@@ -145,7 +238,7 @@ function splitValue(value: string): [string, string] {
   return [m[1].trim(), m[2] ?? ""];
 }
 
-function rewriteDeclarations(body: string, root: boolean): string {
+function rewriteDeclarations(body: string, root: boolean, dark: boolean): string {
   const decls = body
     .split(";")
     .map((d) => d.trim())
@@ -190,7 +283,9 @@ function rewriteDeclarations(body: string, root: boolean): string {
       if (!m) return d;
       const [v, imp] = splitValue(m[1]);
       const level = grey(v);
-      return level == null ? d : `color: ${textToken(level)}${imp}`;
+      if (level != null) return `color: ${textToken(level)}${imp}`;
+      const fixed = readableColor(v, dark);
+      return fixed ? `color: ${fixed}${imp}` : d;
     })
     .join("; ");
 }
@@ -204,7 +299,7 @@ function rewriteSelector(sel: string): string {
     .join(", ");
 }
 
-function rewriteRules(css: string, hoisted: string[]): string {
+function rewriteRules(css: string, hoisted: string[], dark: boolean): string {
   const out: string[] = [];
   for (const b of blocks(css)) {
     if (HOISTED.test(b.prelude)) {
@@ -212,7 +307,7 @@ function rewriteRules(css: string, hoisted: string[]): string {
     } else if (b.body == null) {
       // A stray statement (or a truncated rule): nothing to scope.
     } else if (b.prelude.startsWith("@")) {
-      if (GROUPING.test(b.prelude)) out.push(`${b.prelude} {\n${rewriteRules(b.body, hoisted)}\n}`);
+      if (GROUPING.test(b.prelude)) out.push(`${b.prelude} {\n${rewriteRules(b.body, hoisted, dark)}\n}`);
       // Other at-rules (@page…) mean nothing on a card.
     } else if (b.body.includes("{")) {
       // Native nesting: left as written, only scoped.
@@ -220,16 +315,18 @@ function rewriteRules(css: string, hoisted: string[]): string {
     } else {
       const sels = rewriteSelector(b.prelude);
       const root = sels.split(",").every((s) => ROOT_SELECTOR.test(s.trim()));
-      out.push(`${sels} { ${rewriteDeclarations(b.body, root)} }`);
+      // A night-mode rule only ever applies on the dark paper.
+      const night = dark || /night_?mode|nightMode/i.test(b.prelude);
+      out.push(`${sels} { ${rewriteDeclarations(b.body, root, night)} }`);
     }
   }
   return out.join("\n");
 }
 
 /** The deck's CSS, scoped to `scope` (a selector for the card's wrapper). */
-export function adaptDeckCss(css: string, scope: string): string {
+export function adaptDeckCss(css: string, scope: string, dark = false): string {
   const hoisted: string[] = [];
-  const body = rewriteRules(css.replace(/\/\*[\s\S]*?\*\//g, ""), hoisted);
+  const body = rewriteRules(css.replace(/\/\*[\s\S]*?\*\//g, ""), hoisted, dark);
   // @import must come first; the rest of the hoisted at-rules after it.
   hoisted.sort((a, b) => Number(!/^@import/i.test(a)) - Number(!/^@import/i.test(b)));
   return `${hoisted.join("\n")}${hoisted.length ? "\n" : ""}@scope (${scope}) {\n${body}\n}`;
@@ -238,9 +335,9 @@ export function adaptDeckCss(css: string, scope: string): string {
 /** The same treatment for a card's inline styles (`<div style='font-family:
  *  Arial; font-size: 16px'>`, common in shared decks): plain fonts dropped,
  *  sizes scaled with the card, neutral greys made theme tokens. */
-export function adaptInlineStyles(html: string): string {
+export function adaptInlineStyles(html: string, dark = false): string {
   return html.replace(/(\sstyle\s*=\s*)(["'])([^"']*)\2/gi, (_m, pre: string, q: string, css: string) => {
-    const out = rewriteDeclarations(css.replace(/&quot;/g, '"'), false).replace(/"/g, "&quot;");
+    const out = rewriteDeclarations(css.replace(/&quot;/g, '"'), false, dark).replace(/"/g, "&quot;");
     return `${pre}${q}${out}${q}`;
   });
 }

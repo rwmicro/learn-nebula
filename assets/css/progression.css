@@ -568,6 +568,7 @@
     color: inherit;
     font: inherit;
     text-align: start;
+    text-decoration: none;
     cursor: pointer;
   }
   .moi-set--btn > span small {

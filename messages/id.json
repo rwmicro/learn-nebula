@@ -157,7 +157,8 @@
     "networkError": "Galat jaringan; silakan coba lagi.",
     "authorBadge": "penulis",
     "replyTo": "membalas {name}",
-    "rowSub": "Baca pesan atau tulis satu"
+    "rowSub": "Baca pesan atau tulis satu",
+    "likeAria": "Sukai komentar ini ({n})"
   },
   "siblings": {
     "moreIn": "Lainnya di {folder}",
@@ -277,7 +278,10 @@
     "pathHint": "Tampilkan rute sebuah jalur",
     "pathNoneShort": "Tidak ada",
     "allFamilies": "Semua",
-    "resetView": "Atur ulang tampilan"
+    "resetView": "Atur ulang tampilan",
+    "phoneTitle": "Graf perlu layar yang lebih besar",
+    "phoneText": "Di ponsel, jelajahi catatan per disiplin.",
+    "phoneLink": "Lihat catatan"
   },
   "lightbox": {
     "close": "Tutup",
@@ -298,7 +302,6 @@
     "next": "Berikutnya",
     "prev": "Sebelumnya",
     "shuffle": "Acak",
-    "size": "Perbesar",
     "loading": "Memuat dek…",
     "empty": "Dek kosong.",
     "err": "Dek tidak dapat dimuat.",
@@ -352,7 +355,11 @@
     "suspend": "Tangguhkan",
     "unsuspend": "Aktifkan lagi",
     "progress": "Kemajuan sesi",
-    "sessionTally": "{count} kartu diulas · {pct}% diingat"
+    "sessionTally": "{count} kartu diulas · {pct}% diingat",
+    "sizeLabel": "Ukuran kartu",
+    "smaller": "Perkecil kartu",
+    "larger": "Perbesar kartu",
+    "sizeReset": "Kembali ke ukuran normal"
   },
   "youtube": {
     "play": "Putar video YouTube",
@@ -777,7 +784,9 @@
     "missNote": "Pencarian ini diteruskan ke tukang kebun, untuk melihat apa yang belum ada.",
     "near": "Hasil yang mirip",
     "passageOne": "1 kutipan",
-    "bySense": "Dekat maknanya"
+    "bySense": "Dekat maknanya",
+    "themePaper": "Tema: kertas",
+    "themeBlack": "Tema: hitam"
   },
   "progression": {
     "title": "Kemajuanku",
@@ -1319,7 +1328,9 @@
     "inboundOne": "1 catatan mengarah ke sini",
     "neighbourhood": "Sekitarnya di graf",
     "tocMeta": "{n} dari {total} · {m} menit",
-    "tocMetaTotal": "{total} bagian · {m} menit"
+    "tocMetaTotal": "{total} bagian · {m} menit",
+    "theme_paper": "Kertas",
+    "theme_black": "Hitam"
   },
   "settings": {
     "title": "Pengaturan",
@@ -1355,7 +1366,9 @@
     "minutes": "{n} menit",
     "activeDays": "Hari aktif: {n}",
     "less": "sedikit",
-    "more": "banyak"
+    "more": "banyak",
+    "signIn": "Masuk",
+    "signInSub": "Catatan dan kartu Anda di semua perangkat"
   },
   "rs": {
     "close": "Tutup sesi",

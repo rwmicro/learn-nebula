@@ -85,3 +85,20 @@ describe("adaptInlineStyles", () => {
     );
   });
 });
+
+describe("readable colours", () => {
+  it("darkens text written for a black card on the light paper, keeps it in dark mode", () => {
+    const html = `<div style='color: yellow'>Max Ernst</div><div style="color: #99CCFF">(German)</div>`;
+    const light = adaptInlineStyles(html);
+    expect(light).not.toContain("color: yellow");
+    expect(light).not.toContain("#99CCFF");
+    expect(light).toMatch(/style='color: #[0-9a-f]{6}'/);
+    expect(adaptInlineStyles(html, true)).toBe(html);
+  });
+
+  it("lightens dark hues in dark mode only", () => {
+    const css = ".x { color: navy }";
+    expect(squash(adaptDeckCss(css, S))).toContain(".x { color: navy }");
+    expect(squash(adaptDeckCss(css, S, true))).toMatch(/\.x \{ color: #[0-9a-f]{6} \}/);
+  });
+});

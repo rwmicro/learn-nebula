@@ -157,7 +157,8 @@
     "networkError": "Erreur réseau ; veuillez réessayer.",
     "authorBadge": "auteur",
     "replyTo": "en réponse à {name}",
-    "rowSub": "Lire les messages ou en écrire un"
+    "rowSub": "Lire les messages ou en écrire un",
+    "likeAria": "J’aime ce commentaire ({n})"
   },
   "siblings": {
     "moreIn": "Plus dans {folder}",
@@ -277,7 +278,10 @@
     "pathHint": "Montrer le chemin d'un parcours",
     "pathNoneShort": "Aucun",
     "allFamilies": "Toutes",
-    "resetView": "Réinitialiser la vue"
+    "resetView": "Réinitialiser la vue",
+    "phoneTitle": "Le graphe se lit sur un plus grand écran",
+    "phoneText": "Sur téléphone, parcourez les notes par discipline.",
+    "phoneLink": "Voir les notes"
   },
   "lightbox": {
     "close": "Fermer",
@@ -298,7 +302,6 @@
     "next": "Suivant",
     "prev": "Précédent",
     "shuffle": "Mélanger",
-    "size": "Agrandir",
     "loading": "Chargement du deck…",
     "empty": "Deck vide.",
     "err": "Impossible de charger le deck.",
@@ -352,7 +355,11 @@
     "suspend": "Suspendre",
     "unsuspend": "Réactiver",
     "progress": "Avancement de la séance",
-    "sessionTally": "{count} cartes revues · {pct} % retenues"
+    "sessionTally": "{count} cartes revues · {pct} % retenues",
+    "sizeLabel": "Taille de la carte",
+    "smaller": "Réduire la carte",
+    "larger": "Agrandir la carte",
+    "sizeReset": "Revenir à la taille normale"
   },
   "youtube": {
     "play": "Lire la vidéo YouTube",
@@ -777,7 +784,9 @@
     "missNote": "Cette recherche est signalée au jardinier, pour savoir ce qui manque.",
     "near": "Approchant",
     "passageOne": "1 passage",
-    "bySense": "Proches par le sens"
+    "bySense": "Proches par le sens",
+    "themePaper": "Thème : papier",
+    "themeBlack": "Thème : noir"
   },
   "progression": {
     "title": "Ma progression",
@@ -1319,7 +1328,9 @@
     "inboundOne": "1 note mène ici",
     "neighbourhood": "Voisinage dans le graphe",
     "tocMeta": "{n} sur {total} · {m} min",
-    "tocMetaTotal": "{total} parties · {m} min"
+    "tocMetaTotal": "{total} parties · {m} min",
+    "theme_paper": "Papier",
+    "theme_black": "Noir"
   },
   "settings": {
     "title": "Réglages",
@@ -1355,7 +1366,9 @@
     "minutes": "{n} min",
     "activeDays": "Jours actifs : {n}",
     "less": "moins",
-    "more": "plus"
+    "more": "plus",
+    "signIn": "Se connecter",
+    "signInSub": "Vos notes et cartes sur tous vos appareils"
   },
   "rs": {
     "close": "Fermer la séance",

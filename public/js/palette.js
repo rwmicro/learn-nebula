@@ -425,6 +425,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
   }
 
   function themePref() {
+    if (window.__theme && window.__theme.pref) return window.__theme.pref();
     const v = root.getAttribute("data-theme");
     return v === "light" || v === "dark" ? v : "auto";
   }
@@ -473,7 +474,9 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     const mark = (p) => (cur === p ? tt("palette.current") : "");
     return [
       { kind: "action", title: tt("palette.themeLight"), hint: mark("light"), keywords: "theme light clair jour", run: () => setTheme("light") },
+      { kind: "action", title: tt("palette.themePaper"), hint: mark("paper"), keywords: "theme papier paper sepia creme fond background", run: () => setTheme("paper") },
       { kind: "action", title: tt("palette.themeDark"), hint: mark("dark"), keywords: "theme dark sombre nuit", run: () => setTheme("dark") },
+      { kind: "action", title: tt("palette.themeBlack"), hint: mark("black"), keywords: "theme noir black oled fond background", run: () => setTheme("black") },
       { kind: "action", title: tt("palette.themeAuto"), hint: mark("auto"), keywords: "theme auto systeme system", run: () => setTheme("auto") },
       { kind: "action", title: tt("palette.random"), hint: "", keywords: "hasard random aleatoire", run: randomNote },
       { kind: "action", title: tt("palette.assistant"), hint: "", keywords: "assistant ia ai question chat demander", run: openAssistant },
@@ -486,7 +489,8 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
   function navItems() {
     return [
       ["nav.home", "/", "accueil home"],
-      ["nav.graph", "/graph/", "graphe graph carte"],
+      // The graph is not offered on phones (GraphLoader, .gk-wide-only).
+      ...(matchMedia("(max-width: 639.98px)").matches ? [] : [["nav.graph", "/graph/", "graphe graph carte"]]),
       ["nav.frise", "/frise/", "frise chronologie timeline"],
       ["carte.nav", "/carte/", "carte monde pays map world countries"],
       ["nav.themes", "/themes/", "themes tags disciplines"],
@@ -1321,6 +1325,9 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     lastFocus = doc.activeElement;
     setPhone(!!(phoneMq && phoneMq.matches));
     el.hidden = false;
+    // setPhone ran while the palette was still hidden, so it could not start
+    // following the keyboard: without this the field stayed under it on iOS.
+    watchViewport(phone);
     root.classList.add("palette-open");
     input.value = initial || "";
     active = 0;

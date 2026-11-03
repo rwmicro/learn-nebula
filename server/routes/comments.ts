@@ -8,6 +8,9 @@
 //                                       newest first, { comments, total }
 //   POST /api/comments                → submit { slug, name?, body, turnstileToken? }
 //   PATCH /api/comments               → admin { id | ids, action: "approve"|"delete" }
+//   POST /api/comments/like           → { id, voter, on } → { likes }: a reader's
+//                                       like, no account (voter: a random id
+//                                       kept in their browser, stored hashed)
 //
 // Pending comments come back with `flagged`: the blocked words (edited at
 // /api/admin/blocked-words) they contain. With the "hold" setting on, a
@@ -17,7 +20,9 @@ import { Hono } from "hono";
 import { env } from "../env.ts";
 import { getIp } from "../http.ts";
 import { audit, isAdminRequest } from "../auth.ts";
-import { Cooldown } from "../ratelimit.ts";
+import { createHash } from "node:crypto";
+import { Cooldown, Quota } from "../ratelimit.ts";
+import { sameOrigin } from "../session.ts";
 import {
   approvedForSlug,
   pending,
@@ -28,6 +33,7 @@ import {
   moderateMany,
   blockedWords,
   holdBlocked,
+  setCommentLike,
 } from "../db.ts";
 import { matchBlocked } from "../blocked-words.ts";
 import { verifyTurnstile } from "../turnstile.ts";
@@ -70,6 +76,9 @@ function notifyWebhook(slug: string, name: string | null, body: string): void {
 }
 
 const cooldown = new Cooldown(5);
+/** Likes are cheap but countable: a generous cap per IP. */
+const likeQuota = new Quota(60, 60_000);
+const VOTER_RE = /^[A-Za-z0-9_-]{16,64}$/;
 
 export const commentsRoute = new Hono();
 
@@ -191,4 +200,31 @@ commentsRoute.patch("/", async (c) => {
     return c.json({ error: "Base de commentaires indisponible." }, 503);
   }
   return c.json({ ok: true });
+});
+
+commentsRoute.post("/like", sameOrigin, async (c) => {
+  let payload: { id?: unknown; voter?: unknown; on?: unknown };
+  try {
+    payload = await c.req.json();
+  } catch {
+    return c.json({ error: "Requête invalide." }, 400);
+  }
+  const id = Number(payload.id);
+  const voter = typeof payload.voter === "string" ? payload.voter : "";
+  if (!Number.isInteger(id) || id <= 0 || !VOTER_RE.test(voter)) {
+    return c.json({ error: "Requête invalide." }, 400);
+  }
+  const ip = getIp(c);
+  if (ip !== "anon" && likeQuota.exceeded(`likes:${ip}`)) {
+    return c.json({ error: "Trop de requêtes — réessaie dans un instant." }, 429);
+  }
+  try {
+    const hashed = createHash("sha256").update(voter).digest("hex");
+    const likes = setCommentLike(id, hashed, payload.on !== false);
+    if (likes == null) return c.json({ error: "Commentaire introuvable." }, 404);
+    return c.json({ ok: true, likes });
+  } catch (e) {
+    console.error("comments: like failed", e);
+    return c.json({ error: "Base de commentaires indisponible." }, 503);
+  }
 });

@@ -28,8 +28,8 @@ export function DeckFace({
   faceRef?: React.Ref<HTMLDivElement>;
 }) {
   const dark = useDarkTheme();
-  const scoped = useMemo(() => (css ? adaptDeckCss(css, `[data-deck-scope="${cssString(slug)}"]`) : ""), [css, slug]);
-  const face = useMemo(() => adaptInlineStyles(html), [html]);
+  const scoped = useMemo(() => (css ? adaptDeckCss(css, `[data-deck-scope="${cssString(slug)}"]`, dark) : ""), [css, slug, dark]);
+  const face = useMemo(() => adaptInlineStyles(html, dark), [html, dark]);
   const night = dark ? " night_mode nightMode" : "";
   return (
     <div className={`deck-scope${night}`} data-deck-scope={slug}>

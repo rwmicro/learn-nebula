@@ -162,7 +162,7 @@ export function noteAppChromeHtml(input: NoteAppInput, cover: boolean): string {
     `<input type="range" min="0" max="2" step="1" value="1" data-na-size${aria("noteApp.textSize")}>` +
     `<span class="na-a-lg" aria-hidden="true">A</span></div>` +
     `<div class="na-seg" role="radiogroup"${aria("noteApp.theme")}>` +
-    (["auto", "light", "dark"] as const)
+    (["auto", "light", "paper", "dark", "black"] as const)
       .map(
         (m) =>
           `<button type="button" role="radio" aria-checked="false" data-na-theme="${m}"${i18nAttrs(`noteApp.theme_${m}`)}>${escapeHtml(t(`noteApp.theme_${m}`))}</button>`,

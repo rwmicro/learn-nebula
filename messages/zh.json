@@ -157,7 +157,8 @@
     "networkError": "网络错误，请重试。",
     "authorBadge": "作者",
     "replyTo": "回复 {name}",
-    "rowSub": "阅读留言或写一条"
+    "rowSub": "阅读留言或写一条",
+    "likeAria": "赞这条评论（{n}）"
   },
   "siblings": {
     "moreIn": "{folder} 中的更多内容",
@@ -277,7 +278,10 @@
     "pathHint": "显示一条学习路径",
     "pathNoneShort": "无",
     "allFamilies": "全部",
-    "resetView": "重置视图"
+    "resetView": "重置视图",
+    "phoneTitle": "关系图需要更大的屏幕",
+    "phoneText": "在手机上，请按学科浏览笔记。",
+    "phoneLink": "查看笔记"
   },
   "lightbox": {
     "close": "关闭",
@@ -298,7 +302,6 @@
     "next": "下一张",
     "prev": "上一张",
     "shuffle": "打乱",
-    "size": "放大",
     "loading": "正在加载卡组…",
     "empty": "空卡组。",
     "err": "无法加载卡组。",
@@ -352,7 +355,11 @@
     "suspend": "暂停",
     "unsuspend": "恢复",
     "progress": "本次复习进度",
-    "sessionTally": "已复习 {count} 张 · 记住 {pct}%"
+    "sessionTally": "已复习 {count} 张 · 记住 {pct}%",
+    "sizeLabel": "卡片大小",
+    "smaller": "缩小卡片",
+    "larger": "放大卡片",
+    "sizeReset": "恢复默认大小"
   },
   "youtube": {
     "play": "播放 YouTube 视频",
@@ -777,7 +784,9 @@
     "missNote": "这次搜索会告知园丁，以便了解缺少什么。",
     "near": "相近结果",
     "passageOne": "1 处",
-    "bySense": "意思相近"
+    "bySense": "意思相近",
+    "themePaper": "主题：纸张",
+    "themeBlack": "主题：纯黑"
   },
   "progression": {
     "title": "我的进度",
@@ -1319,7 +1328,9 @@
     "inboundOne": "1 篇笔记链接到这里",
     "neighbourhood": "在关系图中的邻近笔记",
     "tocMeta": "第 {n}/{total} 节 · {m} 分钟",
-    "tocMetaTotal": "{total} 节 · {m} 分钟"
+    "tocMetaTotal": "{total} 节 · {m} 分钟",
+    "theme_paper": "纸张",
+    "theme_black": "纯黑"
   },
   "settings": {
     "title": "设置",
@@ -1355,7 +1366,9 @@
     "minutes": "{n} 分钟",
     "activeDays": "活跃天数：{n}",
     "less": "少",
-    "more": "多"
+    "more": "多",
+    "signIn": "登录",
+    "signInSub": "在所有设备上同步笔记和卡片"
   },
   "rs": {
     "close": "关闭复习",

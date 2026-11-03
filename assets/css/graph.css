@@ -970,3 +970,29 @@
     cursor: pointer;
   }
 }
+
+/* Phones: no graph (GraphLoader), a short way on to the notes instead. */
+.graph-phone {
+  padding: 4.5rem 1rem 8rem;
+}
+.graph-phone h1 {
+  margin: 0 0 0.75rem;
+  font: var(--title-page);
+  letter-spacing: var(--title-page-tracking);
+  color: var(--ink);
+}
+.graph-phone p {
+  margin: 0 0 1.5rem;
+  color: var(--ink-2);
+}
+.graph-phone-link {
+  display: inline-flex;
+  align-items: center;
+  height: var(--btn-h-sm);
+  padding: 0 1.5rem;
+  border-radius: var(--btn-radius);
+  font: var(--btn-font);
+  background: var(--btn-bg);
+  color: var(--btn-ink);
+  text-decoration: none;
+}

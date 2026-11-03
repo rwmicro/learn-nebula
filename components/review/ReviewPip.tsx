@@ -45,7 +45,7 @@ function copyLook(win: Window) {
     }
   }
   const root = document.documentElement;
-  for (const a of ["class", "data-theme", "lang", "dir", "style"]) {
+  for (const a of ["class", "data-theme", "data-paper", "lang", "dir", "style"]) {
     const v = root.getAttribute(a);
     if (v != null) doc.documentElement.setAttribute(a, v);
   }

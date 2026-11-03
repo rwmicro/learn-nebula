@@ -55,3 +55,21 @@
     padding-inline-end: 3.5rem;
   }
 }
+
+/* One level down (a Notes folder like « Sciences appliquées », Frise, a deck…):
+   the page used to start under the band kept clear for the "Moi" button, then
+   "‹ Notes", then the title, which ended a third of the way down the screen.
+   Now "‹ Notes" sits on the button's row, as the large title does on the tabs,
+   and the title comes right under it. */
+@media (max-width: 639.98px) {
+  body:not(:has(.na-chrome)):has(main > :is(.nb-back, .app-back):first-child) {
+    padding-top: 0;
+  }
+  main:has(> :is(.nb-back, .app-back):first-child) {
+    margin-top: 0 !important;
+    padding-top: calc(0.35rem + env(safe-area-inset-top, 0px)) !important;
+  }
+  main > :is(.nb-back, .app-back):first-child {
+    margin-inline-end: 4rem;
+  }
+}
