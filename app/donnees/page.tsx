@@ -2,13 +2,15 @@ import type { Metadata } from "next";
 import { t, i18nProps } from "@/lib/i18n";
 import { DATA_FILES, DATA_SOURCES, getFigures } from "@/lib/donnees";
 import { SITE_TITLE } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 import "@/assets/css/donnees.css";
 import { PageHeader } from "@/components/ui/PageHeader";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: `Données ouvertes · ${SITE_TITLE}`,
   description: "Les fichiers ouverts du jardin (notes, graphe, carte, frise, figures), leur licence et les sources des graphiques.",
-};
+  path: "/donnees/",
+});
 
 /**
  * /donnees/: every machine-readable file the site publishes, what is in it

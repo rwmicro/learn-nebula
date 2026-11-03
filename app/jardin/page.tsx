@@ -3,12 +3,14 @@ import { getAllPosts, getWikiLinkEdges, INDEX_NOTE } from "@/lib/content";
 import { gardenStats } from "@/lib/garden-stats";
 import { GardenStats } from "@/components/explore/GardenStats";
 import { SITE_TITLE } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 import "@/assets/css/jardin.css";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: `Le jardin en chiffres · ${SITE_TITLE}`,
   description: "Combien de notes, de mots et de disciplines, comment le jardin a poussé et les notes les plus citées.",
-};
+  path: "/jardin/",
+});
 
 export default function JardinPage() {
   const builtAt = new Date();

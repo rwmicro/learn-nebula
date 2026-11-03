@@ -40,6 +40,9 @@ export interface Frontmatter {
   draft?: boolean;
   subtitle?: string;
   seotitle?: string;
+  /** The search snippet (meta description), when the note's opening lines
+   *  don't make a good one; otherwise the first ~160 characters of the body. */
+  description?: string;
   noindex?: boolean;
   latex?: boolean;
   dropcap?: boolean;
@@ -330,6 +333,8 @@ function parse(file: string, slug: string, rawPath: string): Doc {
       year: toNumber(fm.year),
       yearEnd: toNumber(fm.yearEnd ?? fm["year-end"]),
       period: typeof fm.period === "string" ? fm.period.trim() || undefined : undefined,
+      description:
+        typeof fm.description === "string" ? fm.description.trim() || undefined : undefined,
     },
   };
 }

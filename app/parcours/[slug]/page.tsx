@@ -4,6 +4,7 @@ import { getReadingPaths } from "@/lib/content";
 import { ParcoursPage } from "@/components/paths/Parcours";
 import { pathExtras } from "@/lib/path-extras";
 import { SITE_TITLE } from "@/lib/site";
+import { pageMetadata } from "@/lib/seo";
 import "@/assets/css/themes.css";
 import "@/assets/css/parcours.css";
 
@@ -19,14 +20,15 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const p = getReadingPaths().find((x) => x.slug === slug);
-  return {
+  return pageMetadata({
     title: `${p?.name ?? "Parcours"} · ${SITE_TITLE}`,
     description:
       p?.description ??
       (p
         ? `Parcours de lecture en ${p.notes.length} notes : ${p.notes.map((n) => n.title).join(", ")}.`
         : undefined),
-  };
+    path: `/parcours/${slug}/`,
+  });
 }
 
 export default async function Page({ params }: Params) {
