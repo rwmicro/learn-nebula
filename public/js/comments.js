@@ -249,7 +249,7 @@ import { BENCH } from "../../lib/deco-bench";
           '<div class="comment-body">' +
           body +
           "</div>" +
-          (c.id ? '<footer class="comment-foot">' + likeButton(c, liked.has(c.id)) + "</footer>" : "") +
+          (c.id ? '<div class="comment-foot">' + likeButton(c, liked.has(c.id)) + "</div>" : "") +
           "</article>"
         );
       })
