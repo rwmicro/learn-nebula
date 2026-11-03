@@ -32,7 +32,7 @@ export function navHtml(): string {
   return `<nav class="site-nav" data-pagefind-ignore><ul>${items}<li class="site-nav-theme">${themeToggleHtml()}</li></ul></nav>`;
 }
 
-/** Light / dark / auto toggle, shared by the note nav above and the home
+/** Theme button (opens the five-choice menu of /js/theme.js), shared by the note nav above and the home
  * masthead (components/layout/Header.tsx). Wired by /js/theme.js; CSS (global.css)
  * shows the icon matching <html data-theme> — no JS needed for the first
  * paint to be right. The label is the "auto" one at build time and is synced

@@ -88,7 +88,7 @@ export function LangSwitcher({ compact = false }: { compact?: boolean } = {}) {
   border-0
   px-1
   py-0.5
-  rounded
+  rounded-none
   text-micro
   font-semibold
   uppercase
