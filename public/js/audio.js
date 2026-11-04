@@ -2,7 +2,7 @@
 // article (lib/speech-text.ts says what is skipped) with the system voice
 // (SpeechSynthesis), or with the natural voice once the reader turns it on
 // (the "Voix naturelle" switch; lib/piper-voice.ts, fetched on demand as
-// piper-voice.bundle.js). A single toggle cycles idle → playing → paused →
+// natural-voice.bundle.js). A single toggle cycles idle → playing → paused →
 // playing, through "loading" while the natural voice downloads. Hidden when
 // the browser has neither.
 import { noteSpeechText, speechChunks } from "../../lib/speech-text";
@@ -15,7 +15,7 @@ function loadPiper() {
   piperPromise ??= new Promise((resolve) => {
     if (window.__gkPiper) return resolve(window.__gkPiper);
     const s = document.createElement("script");
-    s.src = "/js/piper-voice.bundle.js";
+    s.src = "/js/natural-voice.bundle.js";
     s.onload = () => resolve(window.__gkPiper || null);
     s.onerror = () => {
       piperPromise = null;
@@ -303,11 +303,28 @@ function loadPiper() {
       }
       paintSwitch();
       const piper = await loadPiper();
-      if (!piper) return;
       if (on) {
-        await piper.loadPiperVoice(currentLang(), (pct) => naturalOn() && paintSwitch(pct));
+        const lang = currentLang();
+        const rate = piper
+          ? await piper.loadPiperVoice(lang, (pct) => naturalOn() && paintSwitch(pct))
+          : null;
+        // The voice's script or its download failed (network, room, a file
+        // the server refused): say so and turn the switch back off, rather
+        // than leaving it on over a voice that isn't there. A language with
+        // no voice at all isn't a failure: it reads with the system voice.
+        if (!rate && naturalOn() && (!piper || piper.piperVoiceFor(lang))) {
+          try {
+            localStorage.removeItem(NATURAL_KEY);
+          } catch {
+            /* stays on; "Écouter" falls back to the system voice */
+          }
+          paintSwitch();
+          // Until the next tap on the switch.
+          if (swLabel) swLabel.textContent = tt("noteActions.voiceNaturalFailed");
+          return;
+        }
         paintSwitch();
-      } else {
+      } else if (piper) {
         await piper.deletePiperVoices();
       }
     });

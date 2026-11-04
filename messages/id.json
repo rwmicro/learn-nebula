@@ -33,6 +33,7 @@
     "audioAriaPaused": "Lanjutkan pemutaran",
     "audioLoading": "suara… {n}%",
     "voiceNatural": "suara alami (65 MB)",
+    "voiceNaturalFailed": "suara alami tidak tersedia",
     "voiceNaturalTitle": "Dibacakan dengan suara yang lebih alami, dibuat di perangkat ini: sekitar 65 MB diunduh sekali per bahasa. Mematikannya akan menghapus suara yang sudah diunduh.",
     "wideExpand": "lebarkan",
     "wideExtend": "perlebar",

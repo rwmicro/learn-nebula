@@ -33,6 +33,7 @@
     "audioAriaPaused": "Reanudar la reproducción",
     "audioLoading": "voz… {n} %",
     "voiceNatural": "voz natural (65 MB)",
+    "voiceNaturalFailed": "voz natural no disponible",
     "voiceNaturalTitle": "Leer con una voz más natural, generada en el dispositivo: unos 65 MB que se descargan una vez por idioma. Al desactivarla se borran las voces descargadas.",
     "wideExpand": "ensanchar",
     "wideExtend": "extender",

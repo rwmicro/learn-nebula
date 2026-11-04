@@ -3,7 +3,7 @@
 // (public/js/local-llm-worker.js) loads it from our own origin: Transformers.js
 // would otherwise fetch it from a CDN, which the CSP doesn't allow for
 // scripts. And its plain WebAssembly runtime (14 MB instead of 27), what the
-// natural reading voice runs on (public/js/piper-worker.js): that model is
+// natural reading voice runs on (public/js/natural-voice-worker.js): that model is
 // small enough for the CPU. Git-ignored; regenerated on predev/build.
 import fs from "node:fs";
 import path from "node:path";

@@ -1,4 +1,4 @@
-// The phonemizer of the natural reading voice (public/js/piper-worker.js):
+// The phonemizer of the natural reading voice (public/js/natural-voice-worker.js):
 // piper_phonemize, eSpeak NG compiled to WebAssembly, served from our own
 // origin into public/piper/. Its data package holds every eSpeak dictionary
 // (18 MB, 8.5 of them Russian); the voices only need the site's languages,

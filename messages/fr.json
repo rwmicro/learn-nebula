@@ -33,6 +33,7 @@
     "audioAriaPaused": "Reprendre la lecture",
     "audioLoading": "voix… {n} %",
     "voiceNatural": "voix naturelle (65 Mo)",
+    "voiceNaturalFailed": "voix naturelle indisponible",
     "voiceNaturalTitle": "Lire avec une voix plus naturelle, calculée sur l’appareil : environ 65 Mo à télécharger une fois par langue. La désactiver supprime les voix téléchargées.",
     "wideExpand": "élargir",
     "wideExtend": "étendre",

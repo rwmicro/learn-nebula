@@ -292,8 +292,9 @@ test.describe("Widgets", () => {
     // card, pill and done card; ≈ 96 KB with lib/speech-text.ts, which keeps
     // "Écouter" to the note's prose, and the natural voice's switch and
     // loader, the voice itself being fetched on demand as
-    // piper-voice.bundle.js and piper.worker.js).
-    expect(bundle.length).toBeLessThan(98_000);
+    // natural-voice.bundle.js and natural-voice.worker.js; ≈ 98 KB once
+    // the switch said when the voice failed to load).
+    expect(bundle.length).toBeLessThan(99_000);
     // Those two load only where they are used (see below).
     expect(bundle).not.toContain("quiz-self-btn");
     expect(bundle).not.toContain("gloss-popover");
