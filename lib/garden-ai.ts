@@ -3,7 +3,7 @@
 // (public/js/translate.js).
 //
 // Everything runs on the reader's device: Chrome's Gemini Nano when it covers
-// the language (lib/browser-ai.ts), else the downloadable LFM3-1.7B
+// the language (lib/browser-ai.ts), else the downloadable Qwen3.5-2B
 // (lib/local-llm.ts). The server only retrieves passages (/api/ask/context).
 // Its own generation (/api/ask, /api/ask/explain, /api/translate through
 // Claude or an OpenAI-compatible backend) is still there but not offered:

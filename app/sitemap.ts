@@ -40,6 +40,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absoluteURL("/carte/") },
     { url: absoluteURL("/donnees/") },
     { url: absoluteURL("/echecs/") },
+    { url: absoluteURL("/parler/") },
     ...disciplines,
   ];
   const paths = getReadingPaths();

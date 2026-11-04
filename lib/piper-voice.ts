@@ -17,6 +17,11 @@ export const PIPER_VOICES: Record<string, string> = {
   es: "es/es_ES/davefx/medium/es_ES-davefx-medium",
   ar: "ar/ar_JO/kareem/medium/ar_JO-kareem-medium",
   zh: "zh/zh_CN/huayan/medium/zh_CN-huayan-medium",
+  // For /parler/'s partners (thorsten: public domain; pratham, dfki: see
+  // their MODEL_CARD).
+  de: "de/de_DE/thorsten/medium/de_DE-thorsten-medium",
+  hi: "hi/hi_IN/pratham/medium/hi_IN-pratham-medium",
+  tr: "tr/tr_TR/dfki/medium/tr_TR-dfki-medium",
 };
 
 /** The voice for a BCP 47 tag ("fr", "fr-CA", "zh-Hans"…), or null. */

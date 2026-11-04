@@ -1,5 +1,8 @@
-// The assistant's downloaded model: LFM3-1.7B (Liquid AI, ~1.1 GB in q4f16)
+// The assistant's downloaded model: Qwen3.5-2B (Alibaba, ~1.4 GB in q4f16)
 // run with Transformers.js on WebGPU, in a worker (public/js/local-llm-worker.js).
+// It replaced LFM3-1.7B after the tests of 2026-11-04 (/parler/'s partner:
+// it kept the answer format and wrote correct Spanish and Turkish where LFM3
+// mixed in French and English).
 // On iPhone and iPad, LFM2-700M (~0.5 GB): iOS ends a tab well before the
 // big one has loaded and answered, so it never got to write a word there.
 // It is the second on-device option after Chrome's Gemini Nano
@@ -27,12 +30,17 @@ export interface LocalModel {
   gb: number;
   bytes: number;
 }
-const BIG: LocalModel = { id: "onnx-community/LFM3-1.7B-ONNX", name: "LFM3", gb: 1.1, bytes: 1_100_000_000 };
+const BIG: LocalModel = { id: "onnx-community/Qwen3.5-2B-ONNX", name: "Qwen3.5", gb: 1.4, bytes: 1_380_000_000 };
 const SMALL: LocalModel = { id: "onnx-community/LFM2-700M-ONNX", name: "LFM2", gb: 0.5, bytes: 500_000_000 };
 
 export function localModel(): LocalModel {
   return onIos() ? SMALL : BIG;
 }
+
+/** /parler/'s optional corrector: Qwen3.5-4B (~2.8 GB), the only model of
+ *  the tests that found the learner's mistakes. Desktop only. */
+export const CORRECTOR: LocalModel = { id: "onnx-community/Qwen3.5-4B-ONNX", name: "Qwen3.5-4B", gb: 2.8, bytes: 2_800_000_000 };
+const CORRECTOR_KEY = "gk-corrector";
 
 type GpuAdapter = { features: { has(f: string): boolean } };
 type Gpu = { requestAdapter(): Promise<GpuAdapter | null> };
@@ -90,8 +98,8 @@ export function setLocalModelEnabled(on: boolean): void {
   if (!on) {
     worker?.terminate();
     worker = null;
-    loading = null;
-    loaded = false;
+    loading.clear();
+    loaded.clear();
   }
 }
 
@@ -126,14 +134,16 @@ export async function deleteLocalModel(): Promise<void> {
 
 /** Whether the model's weights are already in Cache Storage, so a load reads
  *  them from the device instead of downloading them. */
-export async function localModelCached(): Promise<boolean> {
+export async function localModelCached(model: LocalModel = localModel()): Promise<boolean> {
   const dtype = await variant();
   if (!dtype) return false;
   try {
     const cache = await caches.open(CACHE_NAME);
     const keys = await cache.keys();
-    const { id } = localModel();
-    return keys.some((r) => r.url.includes(`/${id}/`) && r.url.endsWith(`/onnx/model_${dtype}.onnx_data`));
+    const { id } = model;
+    // "model_q4f16.onnx_data" (LFM) or "decoder_model_merged_q4f16.onnx_data" (Qwen).
+    const weights = new RegExp(`/onnx/(?:decoder_model_merged|model)_${dtype}\\.onnx_data$`);
+    return keys.some((r) => r.url.includes(`/${id}/`) && weights.test(r.url));
   } catch {
     return false;
   }
@@ -165,8 +175,9 @@ type Out =
 
 let worker: Worker | null = null;
 let nextId = 1;
-let loading: Promise<boolean> | null = null;
-let loaded = false;
+/** Loads in progress and models loaded in this page, by model id. */
+const loading = new Map<string, Promise<boolean>>();
+const loaded = new Set<string>();
 let lastProgress: LoadProgress | null = null;
 const progressListeners = new Set<(p: LoadProgress) => void>();
 
@@ -187,8 +198,8 @@ function getWorker(): Worker | null {
 }
 
 /** Whether the model is loaded in this page (no wait before the first word). */
-export function localModelLoaded(): boolean {
-  return loaded;
+export function localModelLoaded(model: LocalModel = localModel()): boolean {
+  return loaded.has(model.id);
 }
 
 /** Follow the download (or the loading from cache). Returns an unsubscribe. */
@@ -200,9 +211,11 @@ export function onLoadProgress(cb: (p: LoadProgress) => void): () => void {
 
 /** Download (the first time) and load the model; resolves true once it can
  *  answer. Several callers share one load. */
-export function loadLocalModel(): Promise<boolean> {
-  if (loaded) return Promise.resolve(true);
-  loading ??= (async () => {
+export function loadLocalModel(model: LocalModel = localModel()): Promise<boolean> {
+  if (loaded.has(model.id)) return Promise.resolve(true);
+  const pending = loading.get(model.id);
+  if (pending) return pending;
+  const p = (async () => {
     const dtype = await variant();
     const w = dtype ? getWorker() : null;
     if (!w) return false;
@@ -213,16 +226,16 @@ export function loadLocalModel(): Promise<boolean> {
           w.removeEventListener("error", onErr);
           const ok = e.data.type === "ready";
           if (ok) {
-            loaded = true;
+            loaded.add(model.id);
             lastError = "";
             try {
-              if (!localStorage.getItem(DONE_KEY))
+              if (model.id === localModel().id && !localStorage.getItem(DONE_KEY))
                 localStorage.setItem(DONE_KEY, new Date().toISOString().slice(0, 10));
             } catch {
               /* localStorage unavailable */
             }
           } else {
-            loading = null;
+            loading.delete(model.id);
             if (e.data.type === "load-error") lastError = e.data.message;
           }
           resolve(ok);
@@ -234,15 +247,17 @@ export function loadLocalModel(): Promise<boolean> {
         lastError = ev.message || "worker stopped while loading";
         if (worker === w) worker = null;
         w.terminate();
-        loading = null;
+        loading.clear();
+        loaded.clear();
         resolve(false);
       };
       w.addEventListener("message", onMsg);
       w.addEventListener("error", onErr);
-      w.postMessage({ type: "load", dtype, model: localModel().id });
+      w.postMessage({ type: "load", dtype, model: model.id });
     });
   })();
-  return loading;
+  loading.set(model.id, p);
+  return p;
 }
 
 export interface ChatTurn {
@@ -261,11 +276,14 @@ export async function promptLocal(opts: {
   maxTokens?: number;
   signal?: AbortSignal;
   onText?: (text: string) => void;
+  /** Another model than the assistant's (the corrector). */
+  model?: LocalModel;
 }): Promise<string | null> {
+  const model = opts.model ?? localModel();
   const dtype = await variant();
   if (!dtype) return null;
   if (opts.signal?.aborted) throw new DOMException("Aborted", "AbortError");
-  if (!(await loadLocalModel())) return null;
+  if (!(await loadLocalModel(model))) return null;
   if (opts.signal?.aborted) throw new DOMException("Aborted", "AbortError");
   const w = getWorker();
   if (!w) return null;
@@ -297,8 +315,8 @@ export async function promptLocal(opts: {
       // drop it so the next try starts a fresh one.
       if (worker === w) worker = null;
       w.terminate();
-      loading = null;
-      loaded = false;
+      loading.clear();
+      loaded.clear();
       resolve(out.trim() ? out : null);
     };
     const onAbort = () => {
@@ -316,7 +334,46 @@ export async function promptLocal(opts: {
       messages: [...(opts.history ?? []), { role: "user", content: opts.prompt }],
       maxTokens: opts.maxTokens,
       dtype,
-      model: localModel().id,
+      model: model.id,
     });
   });
+}
+
+// --- the corrector of /parler/ ---------------------------------------------
+
+/** A computer that may run the 2.8 GB corrector: not a phone or tablet, and
+ *  (when the browser says) at least 8 GB of memory. */
+export async function correctorSupported(): Promise<boolean> {
+  const nav = globalThis.navigator as (Navigator & { deviceMemory?: number }) | undefined;
+  if (!nav || onIos() || /Android|Mobile/i.test(nav.userAgent)) return false;
+  if (typeof nav.deviceMemory === "number" && nav.deviceMemory < 8) return false;
+  return (await variant()) !== null;
+}
+
+export function correctorEnabled(): boolean {
+  try {
+    return localStorage.getItem(CORRECTOR_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+export function setCorrectorEnabled(on: boolean): void {
+  try {
+    if (on) localStorage.setItem(CORRECTOR_KEY, "1");
+    else localStorage.removeItem(CORRECTOR_KEY);
+  } catch {
+    /* localStorage unavailable */
+  }
+}
+
+/** Delete the corrector's files (the assistant's stay). */
+export async function deleteCorrector(): Promise<void> {
+  setCorrectorEnabled(false);
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    for (const r of await cache.keys()) if (r.url.includes(`/${CORRECTOR.id}/`)) await cache.delete(r);
+  } catch {
+    /* no Cache Storage */
+  }
 }
