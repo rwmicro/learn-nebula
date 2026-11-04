@@ -12,6 +12,7 @@ import {
   deleteCorrector,
   loadLocalModel,
   localModel,
+  localModelError,
   localModelCached,
   onLoadProgress,
   promptLocal,
@@ -58,6 +59,7 @@ import {
 } from "@/lib/partner-scenes";
 import {
   canListen,
+  hasSystemVoice,
   listen,
   listenMode,
   naturalVoiceFor,
@@ -264,6 +266,14 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
   const [history, setHistory] = useState<SceneRecord[]>([]);
   const [natural, setNatural] = useState(false);
   const [canNatural, setCanNatural] = useState(false);
+  /** The natural voice downloading (0–100), while a line waits for it. */
+  const [voicePct, setVoicePct] = useState<number | null>(null);
+  /** No system voice for the language (Arabic, Hindi on many phones). */
+  const [noVoice, setNoVoice] = useState(false);
+  /** Why the partner last failed to answer (the model's own message). */
+  const [failWhy, setFailWhy] = useState("");
+  /** The microphone stopped on an error (refused, no audio). */
+  const [micError, setMicError] = useState<string | null>(null);
 
   const listening = useRef<Listening | null>(null);
   const speaking = useRef<Speaking | null>(null);
@@ -304,6 +314,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
     void aiRoute(lang).then((r) => live && setRoute(r));
     void listenMode(tag).then((m) => live && setMode(m));
     void Promise.resolve().then(() => live && setCanNatural(naturalVoiceFor(tag)));
+    void hasSystemVoice(tag).then((has) => live && setNoVoice(!has));
     return () => {
       live = false;
     };
@@ -329,6 +340,19 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
       write(PREFS_KEY, next);
       return next;
     });
+  };
+
+  /** Say a line aloud, showing the natural voice's download when it has to
+   *  fetch it first (the first line of a language: about 60 MB). */
+  const hear = (text: string, rate: number): Speaking => {
+    const s = speak(text, tag, rate, (p) => setVoicePct(p < 100 ? p : null));
+    void s.done.then(() => setVoicePct(null));
+    return s;
+  };
+  /** The same from a click: the audio is unlocked inside it (iOS). */
+  const hearNow = (text: string, rate: number) => {
+    unlockAudio();
+    hear(text, rate);
   };
 
   // --- the model --------------------------------------------------------------
@@ -363,6 +387,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
   const partnerAnswers = async (list: Turn[]) => {
     const r = await ensureModel();
     if (!r) {
+      setFailWhy(localModelError());
       setFailed(true);
       setState("idle");
       return;
@@ -395,6 +420,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
     const reply = raw ? parseReply(raw) : null;
     if (!reply?.line) {
       setTurns(list);
+      setFailWhy(r === "local" ? localModelError() : "");
       setFailed(true);
       setState("idle");
       return;
@@ -402,7 +428,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
     const done: Turn = { who: "partner", text: reply.line, translation: reply.translation, raw: `REPLIQUE: ${reply.line}\nTRADUCTION: ${reply.translation}` };
     setTurns([...list, done]);
     setState("speaking");
-    speaking.current = speak(reply.line, tag, LEVEL_RATE[level]);
+    speaking.current = hear(reply.line, LEVEL_RATE[level]);
     await speaking.current.done;
     speaking.current = null;
     setState("idle");
@@ -494,7 +520,22 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
     if (state === "thinking" || listening.current) return;
     speaking.current?.stop();
     setWord(null);
-    const l = listen(tag, mode === "none" ? "cloud" : mode, setInterim);
+    setMicError(null);
+    // The recogniser may stop by itself (Safari after a silence, or on an
+    // error): what was heard is sent as if the button had been released.
+    const l = listen(tag, mode === "none" ? "cloud" : mode, setInterim, (error) => {
+      if (listening.current !== l) return;
+      if (error) {
+        listening.current = null;
+        l?.cancel();
+        setState("idle");
+        setInterim("");
+        setMicError(error);
+        if (error === "not-allowed" || error === "service-not-allowed" || error === "audio-capture") setTyping(true);
+        return;
+      }
+      void stopListening(true);
+    });
     if (!l) {
       setTyping(true);
       return;
@@ -590,7 +631,12 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
     unlockAudio();
     if (listening.current) return;
     const m = await prepareListening(tag);
-    const l = listen(tag, m === "none" ? "cloud" : m);
+    const l = listen(tag, m === "none" ? "cloud" : m, undefined, (error) => {
+      if (listening.current !== l || !error) return;
+      listening.current = null;
+      setWarm((w) => ({ ...w, [i]: "close" }));
+      setMicError(error);
+    });
     if (!l) return;
     listening.current = l;
     setWarm((w) => ({ ...w, [i]: "listening" }));
@@ -638,6 +684,40 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
       )
       .reduce<ReactNode[]>((acc, el, i) => (i ? [...acc, " ", el] : [el]), []);
 
+  const langName = tr(`parler.lang_${lang}`);
+  const voiceNotice = (
+    <>
+      {voicePct !== null && (
+        <p className="pt-device" role="status">
+          {tr("parler.voiceLoading", { p: voicePct })}
+        </p>
+      )}
+      {noVoice && !natural && (
+        <p className="pt-notice" role="note">
+          {tr("parler.noVoice", { lang: locale === "fr" || locale === "es" ? langName.toLocaleLowerCase(locale) : langName })}
+          {canNatural && (
+            <button
+              type="button"
+              className="pt-link"
+              onClick={() => {
+                setNaturalVoice(true);
+                setNatural(true);
+                unlockAudio();
+              }}
+            >
+              {tr("parler.turnOnVoice")}
+            </button>
+          )}
+        </p>
+      )}
+      {micError && (
+        <p className="pt-notice" role="alert">
+          {tr("parler.micError", { e: micError })}
+        </p>
+      )}
+    </>
+  );
+
   const goalsBar = scene !== "libre" && (
     <div className="pt-goals" role="status">
       <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" {...ic}>
@@ -682,12 +762,9 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
               {tr(`parler.lang_${l}`)}
             </button>
           ))}
-          {SOON_LANGS.map((name) => (
-            <span key={name} className="pt-chip is-soon" aria-disabled="true">
-              {name} · {tr("parler.soon")}
-            </span>
-          ))}
         </div>
+        {lang === "ar" && <p className="pt-variety">{tr("parler.variety_ar")}</p>}
+        <p className="pt-soon">{tr("parler.soonList", { list: SOON_LANGS.join(", ") })}</p>
 
         <h2 className="pt-h">{tr("parler.partner")}</h2>
         <ul className="pt-partners" role="radiogroup" aria-label={tr("parler.partner")}>
@@ -709,7 +786,9 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
                   {partnerName(lang, lv)[0]}
                 </span>
                 <span className="pt-partner-txt">
-                  <b>{partnerName(lang, lv)}</b> <span>{tr(`parler.lv_${lv}`)}</span>
+                  <span className="pt-partner-name">
+                    <b>{partnerName(lang, lv)}</b> <span className="pt-lv">{tr(`parler.lv_${lv}`)}</span>
+                  </span>
                   <small>{tr(`parler.lvd_${lv}`)}</small>
                 </span>
                 {myLevel === lv && <span className="pt-mine">{tr("parler.yourLevel")}</span>}
@@ -734,6 +813,11 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
             </button>
           ))}
         </div>
+        {scene !== "libre" && (
+          <p className="pt-goals-preview">
+            <b>{tr("parler.goalsPreview")}</b> {tr(`parler.goal_${scene}_0`)} · {tr(`parler.goal_${scene}_1`)}
+          </p>
+        )}
         {scene !== "libre" && (
           <label className="pt-swap">
             <input type="checkbox" checked={swapped} onChange={(e) => update({ swapped: e.target.checked })} />
@@ -814,8 +898,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
           </>
         )}
 
-        <div className="pt-start">
-          <p className="pt-device">
+        <p className="pt-device pt-device-setup">
             {unavailable
               ? tr("parler.noModel")
               : route === "download"
@@ -823,7 +906,8 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
                 : mode === "cloud"
                   ? tr("parler.cloudListen")
                   : tr("parler.onDevice")}
-          </p>
+        </p>
+        <div className="pt-start pt-start-sticky">
           <button
             type="button"
             className="pt-go"
@@ -836,6 +920,9 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
           >
             <MicIcon /> {tr("parler.start", { name: who })}
           </button>
+          <p className="pt-summary" aria-hidden="true">
+            {langName} · {tr(`parler.lv_${level}`)} · {tr(`parler.scene_${scene}`)}
+          </p>
         </div>
       </div>
     );
@@ -850,6 +937,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
         </button>
         <h2 className="pt-title">{tr("parler.warmTitle")}</h2>
         <p className="pt-intro">{tr("parler.warmIntro", { name: who })}</p>
+        {voiceNotice}
         <ul className="pt-exprs">
           {exprs.map((e, i) => (
             <li key={i} className={warm[i] === "ok" ? "is-ok" : undefined}>
@@ -858,7 +946,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
                 {e.r && <i>{e.r}</i>}
                 <small>{gloss(e)}</small>
               </span>
-              <button type="button" className="pt-round" aria-label={tr("parler.listen")} onClick={() => (unlockAudio(), speak(e.t, tag, LEVEL_RATE[level]))}>
+              <button type="button" className="pt-round" aria-label={tr("parler.listen")} onClick={() => hearNow(e.t, LEVEL_RATE[level])}>
                 <SpeakerIcon />
               </button>
               {canListen() && (
@@ -965,7 +1053,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
                   {f.why && <small>{f.why}</small>}
                   {f.via === "scene" && <small>{tr("parler.fromScene")}</small>}
                   <span className="pt-actions">
-                    <button type="button" className="pt-pill" onClick={() => (unlockAudio(), speak(f.fixed!, tag, LEVEL_RATE[level]))}>
+                    <button type="button" className="pt-pill" onClick={() => hearNow(f.fixed!, LEVEL_RATE[level])}>
                       {tr("parler.listen")}
                     </button>
                     {note && (
@@ -1100,10 +1188,10 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
               )}
               {!tu.streaming && (
                 <div className="pt-under">
-                  <button type="button" className="pt-mini" aria-label={tr("parler.replayLine")} onClick={() => (unlockAudio(), speak(tu.text, tag, LEVEL_RATE[level]))}>
+                  <button type="button" className="pt-mini" aria-label={tr("parler.replayLine")} onClick={() => hearNow(tu.text, LEVEL_RATE[level])}>
                     <SpeakerIcon />
                   </button>
-                  <button type="button" className="pt-mini pt-slow" onClick={() => (unlockAudio(), speak(tu.text, tag, 0.7))}>
+                  <button type="button" className="pt-mini pt-slow" onClick={() => hearNow(tu.text, 0.7)}>
                     {tr("parler.slower")}
                   </button>
                   {tu.translation && subs !== "hide" && (
@@ -1148,9 +1236,11 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
           <button type="button" className="pt-link" onClick={() => (setFailed(false), void partnerAnswers(turnsRef.current))}>
             {tr("parler.retry")}
           </button>
+          {failWhy && <small className="pt-error-why">{tr("parler.failedWhy", { why: failWhy })}</small>}
         </p>
       )}
       {dl && <p className="pt-device">{tr("parler.downloading", { p: dl.pct })}</p>}
+      {voiceNotice}
 
       {passed && state === "idle" && (
         <div className="pt-passed">

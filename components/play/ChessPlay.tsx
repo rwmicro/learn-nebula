@@ -142,6 +142,91 @@ function Sparkline({ values }: { values: number[] }) {
   );
 }
 
+/** Twenty-four bits of confetti, placed by their index (the same on every
+ *  render, so React never redraws them mid-fall). */
+const CONFETTI = Array.from({ length: 24 }, (_, i) => ({
+  x: (i * 37) % 100,
+  delay: ((i * 7) % 10) / 20,
+  turn: (i % 2 ? 1 : -1) * (180 + ((i * 53) % 360)),
+  hue: ["var(--garden)", "#d6b23e", "#c8462a", "#2d6cc0", "#8a5bd6"][i % 5],
+}));
+
+/**
+ * The end of a game, over the board: a win throws confetti and lifts the
+ * reader's king, a loss tips it over, a draw sets two kings side by side.
+ * The result and the rating change, then "review" or "play again"; closing
+ * it leaves the final position and the panel (with the same buttons) as
+ * they were. Without motion (prefers-reduced-motion) it simply appears.
+ */
+function EndOfGame(props: {
+  score: 0 | 0.5 | 1;
+  title: string;
+  detail: string;
+  elo: string;
+  king: string;
+  closeLabel: string;
+  reviewLabel: string | null;
+  againLabel: string;
+  onClose: () => void;
+  onReview: () => void;
+  onAgain: () => void;
+}) {
+  const tone = props.score === 1 ? "win" : props.score === 0 ? "loss" : "draw";
+  const ref = useRef<HTMLDivElement>(null);
+  const { onClose } = props;
+  useEffect(() => {
+    ref.current?.focus({ preventScroll: true });
+  }, []);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <div className={`chess-end is-${tone}`} role="dialog" aria-modal="false" aria-labelledby="chess-end-title" tabIndex={-1} ref={ref}>
+      {tone === "win" && (
+        <div className="chess-confetti" aria-hidden="true">
+          {CONFETTI.map((c, i) => (
+            <i
+              key={i}
+              style={
+                {
+                  "--x": `${c.x}%`,
+                  "--d": `${c.delay}s`,
+                  "--r": `${c.turn}deg`,
+                  "--c": c.hue,
+                } as CSSProperties
+              }
+            />
+          ))}
+        </div>
+      )}
+      <div className="chess-end-card">
+        <button type="button" className="chess-end-x" aria-label={props.closeLabel} onClick={props.onClose}>
+          ×
+        </button>
+        <span className="chess-end-kings" aria-hidden="true">
+          <PieceIcon piece={props.king} className="chess-end-king" />
+          {tone === "draw" && <PieceIcon piece={(props.king[0] === "w" ? "b" : "w") + "k"} className="chess-end-king is-other" />}
+        </span>
+        <h2 id="chess-end-title">{props.title}</h2>
+        <p className="chess-end-detail">{props.detail}</p>
+        <p className="chess-end-elo">{props.elo}</p>
+        <div className="chess-end-btns">
+          {props.reviewLabel && (
+            <button type="button" className="chess-btn chess-btn--pri" onClick={props.onReview}>
+              {props.reviewLabel}
+            </button>
+          )}
+          <button type="button" className="chess-btn" onClick={props.onAgain}>
+            {props.againLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ChessPlay({ notes }: { notes: Notes }) {
   const locale = useLocale();
   const tr = useCallback((k: string, v?: Record<string, string | number>) => t(k, v, locale), [locale]);
@@ -186,6 +271,8 @@ export function ChessPlay({ notes }: { notes: Notes }) {
   const [moment, setMoment] = useState<number | null>(null);
   const [cards, setCards] = useState<Set<number>>(new Set());
   const [copied, setCopied] = useState(false);
+  /** The end of the game, shown over the board until closed. */
+  const [endShown, setEndShown] = useState(false);
 
   useEffect(() => {
     const r = read(ELO_KEY, parseElo);
@@ -241,6 +328,7 @@ export function ChessPlay({ notes }: { notes: Notes }) {
     setSaved(null);
     setRec(after);
     setResult({ score, key, delta, elo: after.elo });
+    setEndShown(true);
     setThinking(false);
     setSel(null);
     setHint(null);
@@ -334,6 +422,7 @@ export function ChessPlay({ notes }: { notes: Notes }) {
     setUnrated(opts.unrated);
     setHint(null);
     setResult(null);
+    setEndShown(false);
     setReview(null);
     setMoment(null);
     setCards(new Set());
@@ -928,6 +1017,29 @@ export function ChessPlay({ notes }: { notes: Notes }) {
                 : null
             }
           />
+          {phase === "over" && result && endShown && (
+            <EndOfGame
+              score={result.score}
+              title={tr(result.score === 1 ? "chess.endWin" : result.score === 0 ? "chess.endLoss" : "chess.endDraw")}
+              detail={tr(result.key)}
+              elo={
+                result.delta !== null
+                  ? tr("chess.eloAfter", { d: result.delta >= 0 ? `+${result.delta}` : `−${-result.delta}`, e: result.elo })
+                  : tr("chess.unrated")
+              }
+              king={color + "k"}
+              closeLabel={tr("chess.endClose")}
+              reviewLabel={sans.length ? tr("chess.review") : null}
+              againLabel={tr("chess.again")}
+              onClose={() => setEndShown(false)}
+              onReview={() => {
+                setEndShown(false);
+                void runReview();
+                requestAnimationFrame(() => document.querySelector(".chess-result")?.scrollIntoView({ block: "center", behavior: "smooth" }));
+              }}
+              onAgain={() => begin({ level, color, start: START, sans: [], unrated: false })}
+            />
+          )}
         </div>
         {strip(bottom)}
         {!live && phase === "play" && (

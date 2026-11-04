@@ -1,11 +1,12 @@
-// Two history widgets of the data pack:
-//   partie  a chess game replayed move by move, with the note's comments
-//   durees  how long empires (or any periods) lasted, on one time axis
+// History and chess widgets of the data pack:
+//   partie     a chess game replayed move by move, with the note's comments
+//   echiquier  a chess position and the moves that follow it
+//   durees     how long empires (or any periods) lasted, on one time axis
 import { el, svg, fmt, drawWidth, tooltip, esc } from "../widget-kit.js";
+import { arrowKeys, chessGrid, drawBoard, moveNav } from "./chessboard.js";
 
 // ------------------------------------------------------------- partie
 
-const GLYPH = { k: "♚", q: "♛", r: "♜", b: "♝", n: "♞", p: "♟︎" };
 const START = ["rnbqkbnr", "pppppppp", "8", "8", "8", "8", "PPPPPPPP", "RNBQKBNR"];
 
 function fenBoard(fen) {
@@ -48,7 +49,7 @@ export function partie(props) {
     if (m) comments[Number(m[1])] = props[k];
   }
   let step = 0;
-  const grid = el("div", { class: "w-board l-board", tabindex: "0", "aria-label": "Échiquier ; flèches gauche et droite pour rejouer" });
+  const grid = chessGrid("Échiquier ; flèches gauche et droite pour rejouer");
   const list = el("div", { class: "l-moves" });
   const note = el("p", { class: "l-move-note", "aria-live": "polite" });
   const btns = moves.map((_, i) =>
@@ -56,50 +57,63 @@ export function partie(props) {
   );
   // One unit per full move, so a move number never wraps away from its moves.
   for (let i = 0; i < btns.length; i += 2) list.appendChild(el("span", { class: "l-mv" }, [el("b", {}, [`${i / 2 + 1}.`]), btns[i], btns[i + 1]]));
+  const nav = moveNav(moves.length, (n) => go(n));
   function draw() {
     const b = boardAt(moves, step, props.fen);
     const last = step ? [sq(moves[step - 1].slice(0, 2)), sq(moves[step - 1].slice(2, 4))] : [];
-    const cells = [];
-    for (let r = 0; r < 8; r++)
-      for (let c = 0; c < 8; c++) {
-        const p = b[r][c];
-        const hit = last.some(([lr, lc]) => lr === r && lc === c);
-        cells.push(
-          el("i", { class: "w-sq" + ((r + c) % 2 ? " is-dark" : "") + (hit ? " is-last" : "") }, [
-            p ? el("span", { class: p === p.toUpperCase() ? "l-pc-w" : "l-pc-b" }, [GLYPH[p.toLowerCase()]]) : null,
-          ]),
-        );
-      }
-    grid.replaceChildren(...cells);
+    drawBoard(grid, b, last);
+    nav.update(step);
     btns.forEach((x, i) => x.classList.toggle("is-current", i === step - 1));
+    // The current move stays in view in the scrolling list.
+    if (step) btns[step - 1].scrollIntoView?.({ block: "nearest", inline: "nearest" });
     note.textContent = comments[step] || (step === 0 ? "Position de départ." : step === moves.length && props.fin ? props.fin : "");
   }
   const go = (n) => {
     step = Math.max(0, Math.min(moves.length, n));
     draw();
   };
-  grid.addEventListener("keydown", (e) => {
-    const d = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
-    if (!d) return;
-    e.preventDefault();
-    go(step + d);
-  });
+  arrowKeys(grid, () => step, go, moves.length);
   draw();
   return el("div", { class: "w-root l-partie" }, [
     props.titre && el("p", { class: "w-chart-title" }, [props.titre]),
     el("div", { class: "l-partie-grid" }, [
-      el("div", {}, [
-        grid,
-        el("div", { class: "w-controls" }, [
-          el("button", { type: "button", class: "w-btn", "aria-label": "Début", onclick: () => go(0) }, ["⏮"]),
-          el("button", { type: "button", class: "w-btn", "aria-label": "Coup précédent", onclick: () => go(step - 1) }, ["◀"]),
-          el("button", { type: "button", class: "w-btn is-active", "aria-label": "Coup suivant", onclick: () => go(step + 1) }, ["▶"]),
-          el("button", { type: "button", class: "w-btn", "aria-label": "Fin", onclick: () => go(moves.length) }, ["⏭"]),
-        ]),
-      ]),
+      el("div", { class: "wc-side" }, [grid, nav.node]),
       el("div", {}, [list, note]),
     ]),
   ]);
+}
+
+/**
+ * ```widget:echiquier``` (`fen`, `moves` in coordinates): a position, and the
+ * moves that follow it one by one. Moved here from public/js/widgets.js for
+ * the board of /echecs/; a block with `etoiles:` (the star hunt) stays there.
+ */
+export function echiquier(props) {
+  const fen = String(props.fen ?? "8/8/8/4k3/8/4K3/4P3/8 w - - 0 1");
+  const moves = String(props.moves ?? "").trim().split(/\s+/).filter((m) => /^[a-h][1-8][a-h][1-8][qrbn]?$/.test(m));
+  let step = 0;
+  const grid = chessGrid(moves.length ? "Échiquier ; flèches gauche et droite pour rejouer" : "Échiquier");
+  const out = el("p", { class: "wc-move", "aria-live": "polite" });
+  const nav = moves.length ? moveNav(moves.length, (n) => go(n)) : null;
+  const side = fen.split(" ")[1] === "b" ? "Trait aux Noirs" : "Trait aux Blancs";
+  function draw() {
+    const last = step ? [sq(moves[step - 1].slice(0, 2)), sq(moves[step - 1].slice(2, 4))] : [];
+    drawBoard(grid, boardAt(moves, step, fen), last);
+    nav?.update(step);
+    out.textContent = !moves.length
+      ? `Position d'étude · ${side}.`
+      : step
+        ? `Coup ${step} : ${moves[step - 1].slice(0, 2)} → ${moves[step - 1].slice(2, 4)}`
+        : `Position de départ · ${side}.`;
+  }
+  const go = (n) => {
+    step = Math.max(0, Math.min(moves.length, n));
+    draw();
+  };
+  if (moves.length) arrowKeys(grid, () => step, go, moves.length);
+  else grid.removeAttribute("tabindex");
+  draw();
+  return el("div", { class: "w-root wc-echiquier" }, [el("div", { class: "wc-side" }, [grid, nav?.node, out])]);
 }
 
 // ------------------------------------------------------------- durees

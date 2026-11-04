@@ -700,6 +700,7 @@
   }
 }
 .chess-boardwrap {
+  position: relative;
   display: flex;
   gap: 0.6rem;
 }
@@ -1061,4 +1062,202 @@
 .chess-link:disabled {
   color: var(--muted);
   cursor: default;
+}
+
+/* ------------------------------------------------------- end of the game */
+
+/* Over the board (ChessPlay.tsx EndOfGame): the paper veils the final
+   position, a card rises with the result. A win throws confetti and lifts
+   the reader's king, a loss tips it over, a draw sets the two kings side by
+   side. Closing it shows the position again; the panel keeps the result. */
+.chess-end {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--paper) 55%, transparent);
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  animation: chess-end-veil 0.35s ease-out both;
+}
+.chess-end:focus {
+  outline: none;
+}
+.chess-end-card {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 0.25rem;
+  width: min(20rem, 100%);
+  padding: 1.25rem 1.25rem 1.1rem;
+  border: 1px solid var(--rule);
+  border-radius: 1.25rem;
+  background: var(--paper-raised, var(--paper));
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.22);
+  text-align: center;
+  animation: chess-end-rise 0.5s cubic-bezier(0.2, 0.9, 0.25, 1.2) 0.1s both;
+}
+.chess-end-x {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  font: 1.5rem / 1 var(--font-ui);
+  cursor: pointer;
+}
+.chess-end-x:hover {
+  background: var(--wash);
+}
+.chess-end-kings {
+  display: flex;
+  gap: 0.25rem;
+  height: 4.5rem;
+}
+.chess-end-king {
+  width: 4.5rem;
+  height: 4.5rem;
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.25));
+}
+.chess-end.is-win .chess-end-king {
+  animation: chess-end-jump 0.9s ease-out 0.45s both;
+}
+.chess-end.is-loss .chess-end-king {
+  transform-origin: 100% 100%;
+  animation: chess-end-topple 0.9s cubic-bezier(0.5, 0, 0.75, 0) 0.4s both;
+}
+.chess-end.is-draw .chess-end-king {
+  animation: chess-end-meet-l 0.6s ease-out 0.35s both;
+}
+.chess-end.is-draw .chess-end-king.is-other {
+  animation-name: chess-end-meet-r;
+}
+.chess-end-card h2 {
+  margin: 0.35rem 0 0;
+  padding: 0;
+  border: 0;
+  font: 700 1.75rem / 1.1 var(--font-text);
+}
+.chess-end.is-win h2 {
+  color: var(--garden);
+}
+.chess-end-detail,
+.chess-end-elo {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.chess-end-elo {
+  font-weight: 600;
+  color: var(--ink-2);
+}
+.chess-end-btns {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+.chess-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.chess-confetti i {
+  position: absolute;
+  top: -1rem;
+  left: var(--x);
+  width: 0.5rem;
+  height: 0.8rem;
+  border-radius: 2px;
+  background: var(--c);
+  opacity: 0;
+  animation: chess-end-fall 2.2s cubic-bezier(0.25, 0.6, 0.5, 1) var(--d) both;
+}
+.chess-confetti i:nth-child(3n) {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 50%;
+}
+@keyframes chess-end-veil {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes chess-end-rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem) scale(0.92);
+  }
+}
+@keyframes chess-end-jump {
+  0%,
+  100% {
+    transform: none;
+  }
+  30% {
+    transform: translateY(-0.9rem) rotate(-6deg);
+  }
+  55% {
+    transform: translateY(0) rotate(4deg);
+  }
+  75% {
+    transform: translateY(-0.35rem);
+  }
+}
+@keyframes chess-end-topple {
+  from {
+    transform: none;
+  }
+  to {
+    transform: translateX(-2.25rem) rotate(80deg);
+    opacity: 0.75;
+  }
+}
+@keyframes chess-end-meet-l {
+  from {
+    transform: translateX(-1.5rem);
+    opacity: 0;
+  }
+}
+@keyframes chess-end-meet-r {
+  from {
+    transform: translateX(1.5rem);
+    opacity: 0;
+  }
+}
+@keyframes chess-end-fall {
+  0% {
+    opacity: 1;
+    transform: translateY(0) rotate(0);
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(26rem) rotate(var(--r));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chess-end,
+  .chess-end-card,
+  .chess-end .chess-end-king {
+    animation: none;
+  }
+  .chess-end.is-loss .chess-end-king {
+    transform: translateX(-2.25rem) rotate(80deg);
+  }
+  .chess-confetti {
+    display: none;
+  }
 }

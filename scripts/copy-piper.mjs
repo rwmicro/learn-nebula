@@ -10,8 +10,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 
-// eSpeak's dictionaries for the languages lib/piper-voice.ts has a voice for.
-const DICTS = new Set(["fr", "en", "es", "ar", "cmn"]);
+// eSpeak's dictionaries for the languages lib/piper-voice.ts has a voice for
+// (the voices of /parler/'s German, Hindi and Turkish partners included:
+// without their dictionary eSpeak read a whole line as a fraction of a
+// second of noise). lib/piper-voice.test.ts keeps the two lists together.
+const DICTS = new Set(["fr", "en", "es", "ar", "cmn", "de", "hi", "tr"]);
 const DEST = path.join(process.cwd(), "public", "piper");
 
 let dir;

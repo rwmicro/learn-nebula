@@ -131,6 +131,12 @@ export async function readWithPiper(opts: {
   onPlaying?: () => void;
   onEnd?: () => void;
   onError?: () => void;
+  /** Speed (1 = the voice's own): stretches the phonemes, so a slower line
+   *  keeps the natural voice instead of falling back to the system one. */
+  rate?: number;
+  /** Leave `ctx` open on stop (a caller that reads many short lines through
+   *  one context, like /parler/): only this reading's sounds stop. */
+  keepContext?: boolean;
 }): Promise<PiperReading | null> {
   const { ctx, chunks } = opts;
   const rate = await loadPiperVoice(opts.lang, opts.onProgress);
@@ -141,7 +147,9 @@ export async function readWithPiper(opts: {
   let pending = 0; // sent, not back yet
   let playAt = 0;
   let last: AudioBufferSourceNode | null = null;
+  const playing = new Set<AudioBufferSourceNode>();
   const ids = new Map<number, number>(); // message id → chunk index
+  const rateOf = Math.min(2, Math.max(0.5, opts.rate ?? 1));
 
   const finish = () => {
     w.removeEventListener("message", onMsg);
@@ -157,7 +165,12 @@ export async function readWithPiper(opts: {
       const id = nextId++;
       ids.set(id, asked++);
       pending++;
-      w.postMessage({ type: "speak", id, text: chunks[ids.get(id)!] });
+      w.postMessage({
+        type: "speak",
+        id,
+        text: chunks[ids.get(id)!],
+        rate: rateOf,
+      });
     }
   };
   const onMsg = (e: MessageEvent<Out>) => {
@@ -184,6 +197,8 @@ export async function readWithPiper(opts: {
     src.start(playAt);
     playAt += buf.duration;
     last = src;
+    playing.add(src);
+    src.addEventListener("ended", () => playing.delete(src));
     if (index === chunks.length - 1) {
       src.onended = () => {
         if (stopped || last !== src) return;
@@ -205,7 +220,18 @@ export async function readWithPiper(opts: {
     stop: () => {
       stopped = true;
       finish();
-      void ctx.close().catch(() => {});
+      if (!opts.keepContext) {
+        void ctx.close().catch(() => {});
+        return;
+      }
+      for (const src of playing) {
+        try {
+          src.stop();
+        } catch {
+          /* not started yet, or already over */
+        }
+      }
+      playing.clear();
     },
   };
 }

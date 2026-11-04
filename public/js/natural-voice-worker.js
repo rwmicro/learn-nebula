@@ -157,7 +157,7 @@ function load(path) {
   return promise;
 }
 
-async function speak(text) {
+async function speak(text, rate = 1) {
   const v = voice ?? (await loading?.promise);
   if (!v) throw new Error("no voice loaded");
   const ids = await phonemeIds(text, v.config.espeak.voice);
@@ -174,7 +174,8 @@ async function speak(text) {
     ),
     scales: new ort.Tensor(
       "float32",
-      Float32Array.of(inf.noise_scale, inf.length_scale, inf.noise_w),
+      // A slower line (/parler/'s beginner partners) stretches the phonemes.
+      Float32Array.of(inf.noise_scale, inf.length_scale / rate, inf.noise_w),
       [3],
     ),
   };
@@ -204,7 +205,7 @@ self.addEventListener("message", (e) => {
     );
   } else if (msg.type === "speak") {
     queue = queue.then(() =>
-      speak(String(msg.text)).then(
+      speak(String(msg.text), Math.min(2, Math.max(0.5, Number(msg.rate) || 1))).then(
         (pcm) =>
           self.postMessage({ type: "audio", id: msg.id, pcm }, [pcm.buffer]),
         (err) =>

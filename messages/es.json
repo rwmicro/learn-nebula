@@ -1988,7 +1988,11 @@
     "whiteToPlay": "Juegan las blancas.",
     "blackToPlay": "Juegan las negras.",
     "cardQ": "¿Cuál es la mejor jugada?",
-    "cardA": "en tu partida jugaste {m}"
+    "cardA": "en tu partida jugaste {m}",
+    "endWin": "¡Victoria!",
+    "endLoss": "Derrota",
+    "endDraw": "Tablas",
+    "endClose": "Cerrar"
   },
   "chat": {
     "title": "Jardín",
@@ -2426,7 +2430,7 @@
     "lang_de": "Alemán",
     "lang_fr": "Francés",
     "lang_zh": "Mandarín",
-    "lang_ar": "Árabe",
+    "lang_ar": "Árabe estándar",
     "lang_hi": "Hindi",
     "lang_id": "Indonesio",
     "lang_tr": "Turco",
@@ -2458,7 +2462,7 @@
     "downloading": "Descargando el modelo… {p} %",
     "noModel": "Este navegador no puede ejecutar el compañero. Prueba Chrome o Edge en un ordenador, o un móvil Android reciente.",
     "needsDownload": "El compañero necesita un modelo de {n} GB, descargado una vez y guardado en el dispositivo.",
-    "cloudListen": "Este navegador envía tu voz a su servicio de reconocimiento. Lo demás se queda en el dispositivo.",
+    "cloudListen": "Este navegador envía tu voz a su servicio de reconocimiento. Todo lo demás ocurre en el dispositivo.",
     "onDevice": "Nada sale de tu dispositivo.",
     "start": "Hablar con {name}",
     "back": "Volver",
@@ -2564,6 +2568,14 @@
     "inviteTitle": "{lang}: pasa a la práctica oral",
     "inviteText": "Una escena con un compañero, en voz alta, en tu dispositivo.",
     "inviteGo": "Hablar",
-    "inviteTextTandem": "Una escena con un compañero en tu dispositivo, o una llamada con un amigo."
+    "inviteTextTandem": "Una escena con un compañero en tu dispositivo, o una llamada con un amigo.",
+    "variety_ar": "El árabe estándar moderno (fuṣḥā): el de la escritura, los medios y los discursos, entendido de Rabat a Bagdad. No es un dialecto hablado a diario como el levantino (libanés, sirio, jordano) o el darija marroquí.",
+    "soonList": "Pronto: {list}",
+    "goalsPreview": "Objetivos:",
+    "voiceLoading": "Descargando la voz… {p} %",
+    "noVoice": "No hay ninguna voz en {lang} instalada en este dispositivo: activa la voz natural para oír las frases.",
+    "turnOnVoice": "Activar la voz natural",
+    "failedWhy": "Detalle: {why}",
+    "micError": "El micrófono se detuvo ({e}). Comprueba que el sitio puede usar el micrófono, o escribe tu respuesta."
   }
 }

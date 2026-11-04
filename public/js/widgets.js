@@ -3091,7 +3091,9 @@
     const name = fig.getAttribute("data-widget");
     const build = BUILDERS[name];
     index++;
-    if (!build) continue;
+    // A figure of a pack (data-pack, lib/widgets-extra.ts) is the pack's to
+    // mount: `echiquier` without stars now lives in the data pack.
+    if (!build || fig.hasAttribute("data-pack")) continue;
     let props = {};
     try {
       props = JSON.parse(fig.getAttribute("data-props") || "{}");

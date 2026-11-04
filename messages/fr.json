@@ -1988,7 +1988,11 @@
     "whiteToPlay": "Les blancs jouent.",
     "blackToPlay": "Les noirs jouent.",
     "cardQ": "Quel est le meilleur coup ?",
-    "cardA": "dans ta partie, tu avais joué {m}"
+    "cardA": "dans ta partie, tu avais joué {m}",
+    "endWin": "Victoire !",
+    "endLoss": "Défaite",
+    "endDraw": "Partie nulle",
+    "endClose": "Fermer"
   },
   "chat": {
     "title": "Jardin",
@@ -2426,7 +2430,7 @@
     "lang_de": "Allemand",
     "lang_fr": "Français",
     "lang_zh": "Mandarin",
-    "lang_ar": "Arabe",
+    "lang_ar": "Arabe standard",
     "lang_hi": "Hindi",
     "lang_id": "Indonésien",
     "lang_tr": "Turc",
@@ -2458,7 +2462,7 @@
     "downloading": "Téléchargement du modèle… {p} %",
     "noModel": "Ce navigateur ne peut pas faire tourner le partenaire. Essaie Chrome ou Edge sur ordinateur, ou un téléphone Android récent.",
     "needsDownload": "Le partenaire a besoin d'un modèle de {n} Go, téléchargé une fois puis gardé sur l'appareil.",
-    "cloudListen": "Ce navigateur envoie ta voix à son service de reconnaissance. Le reste reste sur l'appareil.",
+    "cloudListen": "Ce navigateur envoie ta voix à son service de reconnaissance. Tout le reste se passe sur l'appareil.",
     "onDevice": "Rien ne quitte ton appareil.",
     "start": "Parler avec {name}",
     "back": "Retour",
@@ -2564,6 +2568,14 @@
     "inviteTitle": "{lang} : passe à l'oral",
     "inviteText": "Une scène avec un partenaire, à voix haute, sur ton appareil.",
     "inviteGo": "Parler",
-    "inviteTextTandem": "Une scène avec un partenaire sur ton appareil, ou un appel avec un ami."
+    "inviteTextTandem": "Une scène avec un partenaire sur ton appareil, ou un appel avec un ami.",
+    "variety_ar": "L'arabe standard moderne (fuṣḥā) : celui de l'écrit, des médias et des discours, compris de Rabat à Bagdad. Ce n'est pas un dialecte parlé au quotidien comme le levantin (libanais, syrien, jordanien) ou la darija marocaine.",
+    "soonList": "Bientôt : {list}",
+    "goalsPreview": "Objectifs :",
+    "voiceLoading": "Téléchargement de la voix… {p} %",
+    "noVoice": "Aucune voix en {lang} n'est installée sur cet appareil : active la voix naturelle pour entendre les phrases.",
+    "turnOnVoice": "Activer la voix naturelle",
+    "failedWhy": "Détail : {why}",
+    "micError": "Le micro s'est arrêté ({e}). Vérifie que le site a le droit d'utiliser le micro, ou écris ta réponse."
   }
 }
