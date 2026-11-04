@@ -184,7 +184,7 @@
   background: transparent;
   color: var(--ink);
   font: 0.82rem var(--font-ui);
-  text-align: left;
+  text-align: start;
   cursor: pointer;
 }
 .dash-chess-lv small {
