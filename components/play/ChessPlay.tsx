@@ -391,20 +391,30 @@ export function ChessPlay({ notes }: { notes: Notes }) {
     [start, sans, shownPly, locale],
   );
 
+  /** A move of the player's from `from` to `to`, if legal; a pawn reaching
+   *  the last rank opens the promotion picker first. */
+  const moveTo = (from: Square, to: Square): boolean => {
+    const g = game.current;
+    if (!g.moves({ square: from, verbose: true }).some((m) => m.to === to)) return false;
+    const p = g.get(from);
+    if (p?.type === "p" && (to[1] === "8" || to[1] === "1")) {
+      setSel(from);
+      setPromo({ from, to });
+      return true;
+    }
+    play(from, to);
+    return true;
+  };
+
+  const mine = (sq: Square): boolean => {
+    const p = view.get(sq);
+    return !!p && p.color === color;
+  };
+
   const tap = (sq: Square) => {
     if (!myTurn) return;
-    const g = game.current;
-    const piece = g.get(sq);
-    if (sel && targets.has(sq)) {
-      const p = g.get(sel);
-      if (p?.type === "p" && (sq[1] === "8" || sq[1] === "1")) {
-        setPromo({ from: sel, to: sq });
-        return;
-      }
-      play(sel, sq);
-      return;
-    }
-    setSel(piece && piece.color === color && sel !== sq ? sq : null);
+    if (sel && targets.has(sq) && moveTo(sel, sq)) return;
+    setSel(mine(sq) && sel !== sq ? sq : null);
   };
 
   const play = (from: Square, to: Square, promotion: "q" | "r" | "b" | "n" = "q") => {
@@ -885,6 +895,11 @@ export function ChessPlay({ notes }: { notes: Notes }) {
                   : null
             }
             onTap={phase === "play" ? tap : undefined}
+            canDrag={myTurn && !promo ? mine : undefined}
+            onDragStart={(sq) => setSel(sq)}
+            onDrop={(from, to) => {
+              if (!moveTo(from, to)) setSel(from);
+            }}
             promo={
               promo
                 ? {
