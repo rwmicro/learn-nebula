@@ -78,6 +78,10 @@
   .pcd-k { margin: 22px 0 4px; font: 500 14px var(--font-caps); letter-spacing: .18em; text-transform: uppercase; color: rgb(255 255 255 / .82); }
   .pcd-k span { color: #e9c77a; }
   .pcd-h { margin: 0; font: 400 92px/1 var(--serif); letter-spacing: -.025em; text-shadow: 0 3px 30px rgb(0 0 0 / .4); text-wrap: balance; }
+  /* Arabic's hamza and tall alef rise above a line-height of 1, into the kicker. */
+  [dir="rtl"] .pcd-h { line-height: 1.3; letter-spacing: 0; }
+  /* Spaced capitals break Arabic's joined letters apart. */
+  [dir="rtl"] .pcd :is(small, .pcd-k, .pcd-sec h2) { letter-spacing: 0 !important; }
   .pcd-h em { font-style: italic; color: #f3dfb3; }
   .pcd-ex { margin: 18px 0 26px; min-height: 1.45em; max-width: 33em; font: italic 400 21px/1.45 var(--serif); color: rgb(255 255 255 / .9); }
   .pcd-cta { display: flex; align-items: center; gap: 12px; }
@@ -128,6 +132,9 @@
   .pcd-rail ol:has(> :nth-child(31)) span { display: none; }
 
   /* ---- first visit ---- */
+  /* The picks, the suggestion and the rooms need this much, whatever the
+     window's height: below it the panel climbed into the site bar. */
+  .pcd-hero.fv { height: clamp(880px, 100svh, 980px); }
   .pcd-hero.fv .pcd-bg img { object-position: 50% 60%; }
   .pcd-hero.fv .pcd-veil { background: linear-gradient(180deg, rgb(12 9 6 / .7) 0%, rgb(12 9 6 / .15) 22%, transparent 35%, rgb(12 9 6 / .45) 58%, rgb(12 9 6 / .92) 100%), linear-gradient(90deg, rgb(12 9 6 / .7) 0%, rgb(12 9 6 / .2) 50%, transparent 62%, rgb(12 9 6 / .4) 100%); }
   .pcd-hero.fv .pcd-cartel { right: auto; left: 48px; top: 124px; }
@@ -318,16 +325,19 @@
   .pcd-colo div b { font: 500 30px var(--serif); color: var(--ink); margin-left: 18px; }
 }
 
-@media (min-width: 1024px) and (max-width: 1279px) {
-  body:has(.pcd):not(:has(.na-chrome)) .site-bar { padding-left: 274px; }
-  .pcd-logo { font-size: 24px; top: 24px; }
-  /* The bar's own container query folds the links under 900px: here they
-     stay, smaller, and the search keeps only its icon. */
+/* The bar's own container query folds the links under 900px, which it is
+   up to a 1440px window here: they stay, smaller, and the search keeps only
+   its icon. */
+@media (min-width: 1024px) and (max-width: 1439px) {
   body:has(.pcd) .site-bar-nav { display: block !important; }
   body:has(.pcd) .site-bar-menu { display: none !important; }
   body:has(.pcd) .site-bar-nav ul { gap: 14px; }
   body:has(.pcd) .site-bar-nav a { font-size: 11px; letter-spacing: .12em; }
   body:has(.pcd) .site-bar .palette-kbd { display: none; }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  body:has(.pcd):not(:has(.na-chrome)) .site-bar { padding-left: 274px; }
+  .pcd-logo { font-size: 24px; top: 24px; }
   .pcd-hero.fv .pcd-cartel { display: none; }
   .pcd-hero.fv .pcd-ex { font-size: 18px; margin: 12px 0 16px; }
   .pcd-pick small { width: 120px; }
