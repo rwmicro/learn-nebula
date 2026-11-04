@@ -1,4 +1,4 @@
-// The natural reading voice of "Écouter": a Piper voice (VITS, ~63 MB per
+// The natural reading voice of "Écouter": a Piper voice (VITS, 63 to 77 MB per
 // language) run in public/js/natural-voice-worker.js. Off until the reader turns it
 // on (the "Voix naturelle" switch, public/js/audio.js), which is remembered
 // in localStorage; the voice of a language downloads the first time a note in
@@ -8,10 +8,11 @@
 // system voice (audio.js).
 
 /** One voice per language of the site, pinned to the voices' v1.0.0 tag.
- *  Datasets: SIWIS (CC BY 4.0), LJSpeech (public domain), davefx (CC0),
+ *  Datasets: MLS (CC BY 4.0, 125 speakers: the worker reads with the
+ *  first, sid 0), LJSpeech (public domain), davefx (CC0),
  *  kareem and huayan (see their MODEL_CARD). */
 export const PIPER_VOICES: Record<string, string> = {
-  fr: "fr/fr_FR/siwis/medium/fr_FR-siwis-medium",
+  fr: "fr/fr_FR/mls/medium/fr_FR-mls-medium",
   en: "en/en_US/ljspeech/medium/en_US-ljspeech-medium",
   es: "es/es_ES/davefx/medium/es_ES-davefx-medium",
   ar: "ar/ar_JO/kareem/medium/ar_JO-kareem-medium",
