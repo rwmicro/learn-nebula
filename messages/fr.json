@@ -1322,7 +1322,15 @@
     "wayChess": "Jouer aux échecs",
     "wayChessText": "Contre le bot, à ton niveau",
     "chessTile": "Les échecs",
-    "chessTileText": "Contre le bot ou un ami"
+    "chessTileText": "Contre le bot ou un ami",
+    "talk": "Parler",
+    "talkAll": "Toutes les langues",
+    "talkText": "Une scène de la vie courante, à voix haute, avec un partenaire qui t'attend. Tout se passe sur ton appareil.",
+    "talkGo": "Parler avec {name}",
+    "wayTalk": "Parler une langue",
+    "wayTalkText": "Une conversation à voix haute",
+    "talkTile": "Parler",
+    "talkTileText": "Converser à voix haute dans neuf langues"
   },
   "noteApp": {
     "back": "Retour",
@@ -2552,6 +2560,10 @@
     "history": "Tes dernières scènes",
     "historyAgain": "Reprendre ces réglages",
     "historyLines": "{n} répliques, {f} à revoir",
-    "hideHint": "Replier le coup de pouce"
+    "hideHint": "Replier le coup de pouce",
+    "inviteTitle": "{lang} : passe à l'oral",
+    "inviteText": "Une scène avec un partenaire, à voix haute, sur ton appareil.",
+    "inviteGo": "Parler",
+    "inviteTextTandem": "Une scène avec un partenaire sur ton appareil, ou un appel avec un ami."
   }
 }

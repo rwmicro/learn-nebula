@@ -1,0 +1,89 @@
+/* The way into /parler/ under a language's notes (lib/partner-invite.ts). */
+.partner-invite {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 0.9rem;
+  margin: 2rem 0 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-md);
+  background: var(--garden-wash);
+  font-family: var(--font-ui);
+}
+.partner-invite-ic {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  background: var(--garden);
+  color: var(--paper);
+}
+.partner-invite-txt {
+  display: grid;
+  flex: 1 1 14rem;
+  min-width: 0;
+  line-height: 1.3;
+}
+.partner-invite-txt b {
+  font-size: 1.02rem;
+}
+.partner-invite-txt small {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.prose .partner-invite-go,
+.partner-invite-go {
+  flex: none;
+  padding: 0.6rem 1.1rem;
+  border-radius: var(--radius-pill);
+  background: var(--garden);
+  color: var(--paper);
+  font: 600 0.95rem var(--font-ui);
+  text-decoration: none;
+}
+.partner-invite-go:hover {
+  background: color-mix(in srgb, var(--garden) 88%, var(--ink));
+  color: var(--paper);
+}
+.partner-invite-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+/* "Lancer un tandem", moved here by duo-invite.js: the second, quieter
+   button of the card. */
+.partner-invite .duo-invite-btn {
+  min-height: 0;
+  padding: 0.6rem 1.1rem;
+  border: 1.5px solid var(--garden);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--garden);
+  font: 600 0.95rem var(--font-ui);
+  text-transform: none;
+  cursor: pointer;
+}
+.partner-invite .duo-invite-btn:hover {
+  background: color-mix(in srgb, var(--garden) 10%, transparent);
+}
+.partner-invite .duo-invite-status {
+  flex-basis: 100%;
+  margin: 0;
+}
+@media (max-width: 639px) {
+  .partner-invite-actions {
+    flex-basis: 100%;
+  }
+  .partner-invite-actions > * {
+    flex: 1;
+    text-align: center;
+  }
+}
+@media print {
+  .partner-invite {
+    display: none;
+  }
+}

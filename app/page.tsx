@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
 import { getAllPosts, getDisciplines, getIndexDoc, getLanguageScopes, getPost, getReadingPaths, getRecentNotes, INDEX_NOTE } from "@/lib/content";
 import { HomeMore } from "@/components/home/HomeMore";
+import { PARTNER_DATA, PARTNER_LANGS } from "@/lib/partner-scenes";
 import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
 import { t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
@@ -125,6 +126,11 @@ export default async function HomePage() {
   const dash = dashboardData();
   const noteCount = getAllPosts().filter((d) => d.rawPath !== INDEX_NOTE).length;
   const openings = getAllPosts().some((d) => d.slug === CHESS_NOTES.openings) ? `/posts/${CHESS_NOTES.openings}/` : null;
+  const talk = PARTNER_LANGS.map((id) => {
+    const d = PARTNER_DATA[id];
+    const e = d.scenes.cafe.exprs[0];
+    return { id, partners: [...d.partners], line: e.t, gloss: { fr: e.fr, en: e.en } };
+  });
   const chess = { startBoard: boardSvg(START), levels: LEVELS.map((l) => ({ id: l.id, elo: l.elo })), openings };
   return (
     <>
@@ -136,6 +142,7 @@ export default async function HomePage() {
         dayNotes={dash.dayNotes}
         noteCount={noteCount}
         chess={chess}
+        talk={talk}
       />
       {/* Intro and painting: the phone dashboard shows the painting as its
           banner and moves the intro to "À propos du jardin" (app.css). */}

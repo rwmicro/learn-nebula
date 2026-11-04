@@ -15,6 +15,7 @@ import { daysAgo, loadAllNoteDecks, NOTE_PREFIX, retentionBySlug, type Retention
 import { dayKey, daysBetween } from "@/lib/srs";
 import { PIECE_SVG } from "@/lib/chess-pieces";
 import { HomeChess, type HomeChessData } from "@/components/home/HomeChess";
+import { HomeTalk, type HomeTalkLang } from "@/components/home/HomeTalk";
 
 // The home as an app dashboard, on phones only (app.css hides it from 640px,
 // and hides there the masthead it replaces). From the top: the date and a
@@ -215,6 +216,7 @@ export function HomeDashboard({
   dayNotes,
   noteCount,
   chess,
+  talk,
 }: {
   dataVersion: string;
   recent: DashRecent[];
@@ -223,6 +225,7 @@ export function HomeDashboard({
   dayNotes: DashDayNote[];
   noteCount: number;
   chess: HomeChessData;
+  talk: HomeTalkLang[];
 }) {
   const locale = useLocale();
   const shortName = (p: { slug: string; name: string }) => pathName(p, "title", locale);
@@ -448,6 +451,21 @@ export function HomeDashboard({
               </a>
             </li>
             <li>
+              <a href="/parler/">
+                <span className="dash-way-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" {...s}>
+                    <rect x="9" y="3" width="6" height="11" rx="3" />
+                    <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+                  </svg>
+                </span>
+                <span>
+                  <b>{tr("dash.wayTalk")}</b>
+                  <small>{tr("dash.wayTalkText")}</small>
+                </span>
+                <Chevron />
+              </a>
+            </li>
+            <li>
               <a href="/hasard/">
                 <span className="dash-way-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" {...s}>
@@ -470,6 +488,7 @@ export function HomeDashboard({
       )}
 
       <HomeChess data={chess} />
+      <HomeTalk langs={talk} />
 
       {!resume && me && Object.keys(me.days).length > 0 && (
         <a className="dash-week" href="/defis/">

@@ -233,6 +233,14 @@
   width: 1rem;
   height: 1rem;
 }
+@media (hover: hover) {
+  .dash .dash-chess-go:hover {
+    background: color-mix(in srgb, var(--garden) 88%, var(--ink));
+  }
+  .dash .dash-chess-row a:hover {
+    background: var(--rule);
+  }
+}
 .dash .dash-chess-go:active,
 .dash .dash-chess-row a:active {
   transform: scale(0.98);
