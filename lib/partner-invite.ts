@@ -30,7 +30,11 @@ export function partnerInviteHtml(lang: PartnerLang): string {
     `<b${i18nAttrs("parler.inviteTitle", vars)}>${escapeHtml(t("parler.inviteTitle", vars))}</b>` +
     `<small${i18nAttrs("parler.inviteText")}>${escapeHtml(t("parler.inviteText"))}</small>` +
     `</span>` +
+    // public/js/duo-invite.js adds "Lancer un tandem" here when the browser
+    // can call (and then moves the card under the note's text).
+    `<span class="partner-invite-actions">` +
     `<a class="partner-invite-go" href="/parler/#lang=${lang}"${i18nAttrs("parler.inviteGo")}>${escapeHtml(t("parler.inviteGo"))}</a>` +
+    `</span>` +
     `</aside>`
   );
 }

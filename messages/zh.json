@@ -2563,6 +2563,7 @@
     "hideHint": "收起提示",
     "inviteTitle": "{lang}：开口练习",
     "inviteText": "和伙伴在场景中语音对话，在您的设备上运行。",
-    "inviteGo": "开口说"
+    "inviteGo": "开口说",
+    "inviteTextTandem": "在您的设备上与伙伴进行场景对话，或与朋友通话。"
   }
 }

@@ -48,3 +48,42 @@
   background: color-mix(in srgb, var(--garden) 88%, var(--ink));
   color: var(--paper);
 }
+.partner-invite-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+/* "Lancer un tandem", moved here by duo-invite.js: the second, quieter
+   button of the card. */
+.partner-invite .duo-invite-btn {
+  min-height: 0;
+  padding: 0.6rem 1.1rem;
+  border: 1.5px solid var(--garden);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--garden);
+  font: 600 0.95rem var(--font-ui);
+  text-transform: none;
+  cursor: pointer;
+}
+.partner-invite .duo-invite-btn:hover {
+  background: color-mix(in srgb, var(--garden) 10%, transparent);
+}
+.partner-invite .duo-invite-status {
+  flex-basis: 100%;
+  margin: 0;
+}
+@media (max-width: 639px) {
+  .partner-invite-actions {
+    flex-basis: 100%;
+  }
+  .partner-invite-actions > * {
+    flex: 1;
+    text-align: center;
+  }
+}
+@media print {
+  .partner-invite {
+    display: none;
+  }
+}

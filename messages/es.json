@@ -2563,6 +2563,7 @@
     "hideHint": "Plegar la ayuda",
     "inviteTitle": "{lang}: pasa a la práctica oral",
     "inviteText": "Una escena con un compañero, en voz alta, en tu dispositivo.",
-    "inviteGo": "Hablar"
+    "inviteGo": "Hablar",
+    "inviteTextTandem": "Una escena con un compañero en tu dispositivo, o una llamada con un amigo."
   }
 }

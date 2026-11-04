@@ -2563,6 +2563,7 @@
     "hideHint": "Fold the hint away",
     "inviteTitle": "{lang}: say it out loud",
     "inviteText": "A scene with a partner, spoken, on your device.",
-    "inviteGo": "Speak"
+    "inviteGo": "Speak",
+    "inviteTextTandem": "A scene with a partner on your device, or a call with a friend."
   }
 }

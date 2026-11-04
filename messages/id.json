@@ -2563,6 +2563,7 @@
     "hideHint": "Lipat bantuan",
     "inviteTitle": "{lang}: saatnya berbicara",
     "inviteText": "Adegan dengan mitra, diucapkan, di perangkat Anda.",
-    "inviteGo": "Bicara"
+    "inviteGo": "Bicara",
+    "inviteTextTandem": "Adegan dengan mitra di perangkat Anda, atau panggilan dengan teman."
   }
 }

@@ -189,7 +189,6 @@ export async function SinglePage({
       })
     : "";
   const prereqs = side + (step ? "" : prereqBlock);
-  const further = note ? furtherHtml(dependents) : "";
   const dependentSlugs = new Set(dependents.map((d) => d.slug));
   const backlinks = note
     ? backlinksHtml(getBacklinks(doc.slug).filter((b) => !dependentSlugs.has(b.slug)))
@@ -241,6 +240,10 @@ export async function SinglePage({
       : null,
   };
   const nextBlock = note ? nextUpHtml(nextUp) : "";
+  // "Pour aller plus loin" without the notes "Et ensuite ?" already offers
+  // (the next step was listed three times at the end of a path's note).
+  const offered = new Set([nextUp.next?.slug, nextUp.prev?.slug].filter(Boolean));
+  const further = note ? furtherHtml(dependents.filter((d) => !offered.has(d.slug))) : "";
   const partnerLang = note ? partnerLangOfPath(doc.rawPath) : null;
   const partnerInvite = partnerLang ? partnerInviteHtml(partnerLang) : "";
 

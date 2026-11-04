@@ -2563,6 +2563,7 @@
     "hideHint": "Replier le coup de pouce",
     "inviteTitle": "{lang} : passe à l'oral",
     "inviteText": "Une scène avec un partenaire, à voix haute, sur ton appareil.",
-    "inviteGo": "Parler"
+    "inviteGo": "Parler",
+    "inviteTextTandem": "Une scène avec un partenaire sur ton appareil, ou un appel avec un ami."
   }
 }

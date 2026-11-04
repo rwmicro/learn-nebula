@@ -75,7 +75,23 @@
     return r;
   }
 
+  // A language note's "À l'oral" card (lib/partner-invite.ts) takes the
+  // tandem as its second button: one card for speaking, not two.
+  const oral = tandem ? document.querySelector(".partner-invite") : null;
+  if (oral) {
+    const r = row("tandem");
+    const btn = r.querySelector(".duo-invite-btn");
+    const status = r.querySelector(".duo-invite-status");
+    oral.querySelector(".partner-invite-actions").append(btn);
+    oral.append(status);
+    const small = oral.querySelector(".partner-invite-txt small");
+    if (small) {
+      small.textContent = tt("parler.inviteTextTandem");
+      small.setAttribute("data-i18n", "parler.inviteTextTandem");
+    }
+  }
   if (duel) box.append(row("duel"));
-  if (tandem) box.append(row("tandem"));
-  body.after(box);
+  if (tandem && !oral) box.append(row("tandem"));
+  if (oral) body.after(oral);
+  if (box.childElementCount) (oral || body).after(box);
 })();
