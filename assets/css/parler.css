@@ -887,3 +887,112 @@
     animation: none;
   }
 }
+
+/* ---------------------------------------------------- the last scenes played */
+
+.pt-history {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.pt-history button {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.pt-history button:hover {
+  background: var(--wash);
+}
+.pt-hist-mark {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  background: var(--wash);
+  color: var(--muted);
+  font-weight: 700;
+}
+.pt-hist-mark.is-good {
+  background: var(--pt-good-wash);
+  color: var(--pt-good);
+}
+.pt-hist-txt {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.25;
+}
+.pt-hist-txt small,
+.pt-history time {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.pt-history time {
+  flex: none;
+}
+
+.pt-hint-head {
+  align-items: center;
+  gap: 0.5rem;
+}
+.pt-hint-head span {
+  margin-left: auto;
+}
+.pt-hint-x {
+  display: inline-grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  margin: -0.35rem -0.4rem -0.35rem 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  font: 1.25rem/1 var(--font-ui);
+  cursor: pointer;
+}
+
+/* On a phone the bottom keeps room for the talk: a compact coach, and a
+   smaller mic while the keyboard is open. */
+@media (max-width: 639px) {
+  .pt-hint {
+    gap: 0.3rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+  }
+  .pt-hint .pt-pill {
+    min-height: 1.9rem;
+  }
+  .pt-composer {
+    gap: 0.4rem;
+    padding-top: 0.5rem;
+  }
+  .pt-composer.is-typing .pt-mic {
+    width: 56px;
+    height: 56px;
+  }
+  .pt-composer.is-typing .pt-mic svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+  .pt-composer.is-typing .pt-controls {
+    gap: 1.25rem;
+  }
+  .pt-composer.is-typing .pt-mic-label {
+    display: none;
+  }
+}

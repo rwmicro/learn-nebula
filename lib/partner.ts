@@ -14,6 +14,8 @@ import { editDistance, normaliseSpoken } from "./speech-match";
 import {
   LEVEL_IDS,
   PARTNER_DATA,
+  PARTNER_LANGS,
+  SCENE_IDS,
   type LevelId,
   type PartnerLang,
   type SceneExpr,
@@ -68,6 +70,18 @@ const SCENE_TEXT: Record<SceneChoice, [string, string]> = {
   chemin: [
     "Dans la rue : tu es un passant ; l'apprenant cherche la gare. Explique-lui le chemin simplement.",
     "Dans la rue, rôles inversés : tu es un touriste perdu qui cherche la gare ; l'apprenant t'explique le chemin.",
+  ],
+  restaurant: [
+    "Au restaurant : tu es serveur ou serveuse ; l'apprenant demande une table, commande un plat, puis demande l'addition.",
+    "Au restaurant, rôles inversés : tu es le client, l'apprenant est le serveur. Demande une table, commande, puis demande l'addition.",
+  ],
+  hotel: [
+    "À l'hôtel : tu es à la réception ; l'apprenant arrive avec une réservation ou cherche une chambre, puis pose des questions (petit-déjeuner, wifi, départ).",
+    "À l'hôtel, rôles inversés : tu es le client qui arrive ; l'apprenant est à la réception. Donne ta réservation, puis pose des questions sur le séjour.",
+  ],
+  telephone: [
+    "Au téléphone : tu es la secrétaire d'un cabinet ; l'apprenant appelle, se présente et veut prendre rendez-vous. Propose un jour.",
+    "Au téléphone, rôles inversés : c'est toi qui appelles le cabinet de l'apprenant pour prendre rendez-vous.",
   ],
   libre: [
     "Conversation libre : discute de ce que l'apprenant veut, comme un ami curieux.",
@@ -320,6 +334,50 @@ export function hintFor(
 }
 
 // --- progress -----------------------------------------------------------------
+
+/** The last scenes played, newest first (localStorage). */
+export const HISTORY_KEY = "gk-partner-history";
+export const HISTORY_MAX = 12;
+
+export interface SceneRecord {
+  lang: PartnerLang;
+  level: LevelId;
+  scene: SceneChoice;
+  passed: boolean;
+  /** Lines of the reader's that were corrected. */
+  fixes: number;
+  /** Lines the reader said. */
+  lines: number;
+  /** ISO date. */
+  at: string;
+}
+
+export function parseHistory(raw: string | null): SceneRecord[] {
+  try {
+    const v = JSON.parse(raw ?? "[]") as unknown;
+    if (!Array.isArray(v)) return [];
+    return v
+      .filter(
+        (r): r is SceneRecord =>
+          !!r &&
+          typeof r === "object" &&
+          PARTNER_LANGS.includes((r as SceneRecord).lang) &&
+          LEVEL_IDS.includes((r as SceneRecord).level) &&
+          ([...SCENE_IDS, "libre"] as string[]).includes((r as SceneRecord).scene) &&
+          typeof (r as SceneRecord).at === "string",
+      )
+      .map((r) => ({ ...r, passed: !!r.passed, fixes: Number(r.fixes) || 0, lines: Number(r.lines) || 0 }))
+      .slice(0, HISTORY_MAX);
+  } catch {
+    return [];
+  }
+}
+
+/** A scene with nothing said is not kept. */
+export function addToHistory(list: readonly SceneRecord[], rec: SceneRecord): SceneRecord[] {
+  if (rec.lines === 0) return [...list];
+  return [rec, ...list].slice(0, HISTORY_MAX);
+}
 
 /** localStorage key: {lang: {level, wins: {level: count}}}. */
 export const PARTNER_KEY = "gk-partner";

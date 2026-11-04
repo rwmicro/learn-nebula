@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
+  addToHistory,
   closestExpr,
   goalsReached,
   hintFor,
   levelProgress,
   parseCorrection,
+  parseHistory,
   parseProgress,
   parseReply,
   partnerSystem,
@@ -93,7 +95,7 @@ describe("goalsReached", () => {
 });
 
 describe("scene data", () => {
-  it("gives every language three scenes of six expressions, both goals", () => {
+  it("gives every language six scenes of six expressions, both goals", () => {
     for (const lang of PARTNER_LANGS)
       for (const s of SCENE_IDS) {
         const d = PARTNER_DATA[lang].scenes[s];
@@ -133,5 +135,20 @@ describe("progress", () => {
     expect(parseProgress('{"xx":{},"es":{"level":"z9","wins":{"a1":-2,"b1":3}}}')).toEqual({
       es: { level: "a1", wins: { b1: 3 } },
     });
+  });
+});
+
+describe("history", () => {
+  const rec = { lang: "es", level: "a2", scene: "cafe", passed: true, fixes: 1, lines: 4, at: "2026-11-04T10:00:00Z" } as const;
+  it("keeps the newest first, at most twelve, and drops silent scenes", () => {
+    let h = parseHistory(null);
+    for (let i = 0; i < 14; i++) h = addToHistory(h, { ...rec, lines: i });
+    expect(h).toHaveLength(12);
+    expect(h[0].lines).toBe(13);
+    expect(h.some((r) => r.lines === 0)).toBe(false);
+  });
+  it("drops what it can't read", () => {
+    expect(parseHistory("{")).toEqual([]);
+    expect(parseHistory(JSON.stringify([rec, { ...rec, lang: "xx" }, null]))).toHaveLength(1);
   });
 });

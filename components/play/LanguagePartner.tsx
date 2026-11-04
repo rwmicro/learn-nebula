@@ -20,6 +20,7 @@ import {
   type ChatTurn,
 } from "@/lib/local-llm";
 import {
+  addToHistory,
   closestExpr,
   correctorSystem,
   goalsReached,
@@ -27,7 +28,9 @@ import {
   LEVEL_RATE,
   levelProgress,
   OPENING_TURN,
+  HISTORY_KEY,
   parseCorrection,
+  parseHistory,
   parseProgress,
   parseReply,
   similarity,
@@ -40,6 +43,7 @@ import {
   wordDiff,
   type DiffPart,
   type PartnerProgress,
+  type SceneRecord,
   type SceneChoice,
 } from "@/lib/partner";
 import {
@@ -56,7 +60,10 @@ import {
   canListen,
   listen,
   listenMode,
+  naturalVoiceFor,
+  naturalVoiceOn,
   prepareListening,
+  setNaturalVoice,
   speak,
   unlockAudio,
   type Listening,
@@ -236,6 +243,9 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
   const [cards, setCards] = useState<Set<string>>(new Set());
   const [warm, setWarm] = useState<Record<number, "ok" | "close" | "listening">>({});
   const [failed, setFailed] = useState(false);
+  const [history, setHistory] = useState<SceneRecord[]>([]);
+  const [natural, setNatural] = useState(false);
+  const [canNatural, setCanNatural] = useState(false);
 
   const listening = useRef<Listening | null>(null);
   const speaking = useRef<Speaking | null>(null);
@@ -256,6 +266,8 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
     setPrefs(readPrefs());
     try {
       setProgress(parseProgress(localStorage.getItem(PARTNER_KEY)));
+      setHistory(parseHistory(localStorage.getItem(HISTORY_KEY)));
+      setNatural(naturalVoiceOn());
     } catch {
       /* storage blocked */
     }
@@ -267,6 +279,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
     setRoute(null);
     void aiRoute(lang).then((r) => live && setRoute(r));
     void listenMode(tag).then((m) => live && setMode(m));
+    void Promise.resolve().then(() => live && setCanNatural(naturalVoiceFor(tag)));
     return () => {
       live = false;
     };
@@ -428,6 +441,20 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
     abort.current?.abort();
     setState("idle");
     setInterim("");
+    if (to === "review") {
+      const lines = turnsRef.current.filter((x) => x.who === "me");
+      const h = addToHistory(history, {
+        lang,
+        level,
+        scene,
+        passed: scene !== "libre" && reached[0] && reached[1],
+        fixes: lines.filter((x) => x.fixed).length,
+        lines: lines.length,
+        at: new Date().toISOString(),
+      });
+      setHistory(h);
+      write(HISTORY_KEY, h);
+    }
     if (to === "review" && scene !== "libre") {
       const passed = reached[0] && reached[1];
       const p = recordScene(progress, lang, level, passed);
@@ -690,6 +717,23 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
           </label>
         )}
 
+        {canNatural && (
+          <label className="pt-swap">
+            <input
+              type="checkbox"
+              checked={natural}
+              onChange={(e) => {
+                setNaturalVoice(e.target.checked);
+                setNatural(e.target.checked);
+              }}
+            />
+            <span>
+              {tr("parler.naturalVoice")}
+              <small>{tr("parler.naturalVoiceHint")}</small>
+            </span>
+          </label>
+        )}
+
         {corrector.supported && (
           <div className="pt-corrector">
             <label className="pt-swap">
@@ -715,6 +759,35 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
               </span>
             </label>
           </div>
+        )}
+
+        {history.length > 0 && (
+          <>
+            <h2 className="pt-h">{tr("parler.history")}</h2>
+            <ul className="pt-history">
+              {history.slice(0, 5).map((r, i) => (
+                <li key={i}>
+                  <button
+                    type="button"
+                    onClick={() => update({ lang: r.lang, level: r.level, scene: r.scene })}
+                    title={tr("parler.historyAgain")}
+                  >
+                    <span className={r.passed ? "pt-hist-mark is-good" : "pt-hist-mark"} aria-hidden="true">
+                      {r.passed ? "✓" : r.scene === "libre" ? "·" : "…"}
+                    </span>
+                    <span className="pt-hist-txt">
+                      <b>{tr(`parler.scene_${r.scene}`)}</b>
+                      <small>
+                        {tr(`parler.lang_${r.lang}`)} · {partnerName(r.lang, r.level)} ({tr(`parler.lv_${r.level}`)}) ·{" "}
+                        {tr("parler.historyLines", { n: r.lines, f: r.fixes })}
+                      </small>
+                    </span>
+                    <time dateTime={r.at}>{new Date(r.at).toLocaleDateString(locale, { day: "numeric", month: "short" })}</time>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
 
         <div className="pt-start">
@@ -1069,6 +1142,9 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
           <div className="pt-hint-head">
             <b>{tr("parler.hintTitle")}</b>
             <span>{tr("parler.hintStep", { n: hint })}</span>
+            <button type="button" className="pt-hint-x" aria-label={tr("parler.hideHint")} onClick={() => setHint(0)}>
+              ×
+            </button>
           </div>
           <div className="pt-hint-steps" aria-hidden="true">
             {[1, 2, 3].map((n) => (
@@ -1102,7 +1178,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
         </div>
       )}
 
-      <div className="pt-composer">
+      <div className={typing ? "pt-composer is-typing" : "pt-composer"}>
         {typing ? (
           <form
             className="pt-type"

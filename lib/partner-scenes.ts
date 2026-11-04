@@ -8,8 +8,11 @@
 // English one. `r` is a romanisation for the scripts a beginner can't read
 // yet (Chinese, Arabic, Hindi).
 
+import { MORE_SCENES, type MoreSceneId } from "./partner-scenes-more";
+
 export type PartnerLang = "es" | "en" | "de" | "fr" | "zh" | "ar" | "hi" | "id" | "tr";
-export type SceneId = "cafe" | "presenter" | "chemin";
+export type SceneId = BaseSceneId | MoreSceneId;
+type BaseSceneId = "cafe" | "presenter" | "chemin";
 export type LevelId = "a1" | "a2" | "b1" | "b2";
 
 export interface SceneExpr {
@@ -37,13 +40,13 @@ export interface LangData {
 }
 
 export const LEVEL_IDS: LevelId[] = ["a1", "a2", "b1", "b2"];
-export const SCENE_IDS: SceneId[] = ["cafe", "presenter", "chemin"];
+export const SCENE_IDS: SceneId[] = ["cafe", "presenter", "chemin", "restaurant", "hotel", "telephone"];
 
 /** Languages of the vault the partner can't speak well enough yet (shown
  *  greyed, "bientôt"), by their French name. */
 export const SOON_LANGS = ["Roumain", "Malais", "Azéri", "Tamoul", "Kabyle", "Ouïghour", "Hakka", "Tok Pisin"];
 
-export const PARTNER_DATA: Record<PartnerLang, LangData> = {
+const BASE: Record<PartnerLang, Omit<LangData, "scenes"> & { scenes: Record<BaseSceneId, SceneData> }> = {
   es: {
     tag: "es-ES",
     city: "Madrid",
@@ -305,7 +308,7 @@ export const PARTNER_DATA: Record<PartnerLang, LangData> = {
         ],
         keys: [
           ["أريد", "قهوة", "شاي", "هنا", "معي"],
-          ["كم", "الحساب", "الدفع", "البطاقة", "الباقي"],
+          ["كم", "الحساب", "الدفع", "البطاقة", "الباقي", "بالباقي", "احتفظ"],
         ],
       },
       presenter: {
@@ -486,6 +489,10 @@ export const PARTNER_DATA: Record<PartnerLang, LangData> = {
     },
   },
 };
+
+export const PARTNER_DATA = Object.fromEntries(
+  (Object.keys(BASE) as PartnerLang[]).map((l) => [l, { ...BASE[l], scenes: { ...BASE[l].scenes, ...MORE_SCENES[l] } }]),
+) as Record<PartnerLang, LangData>;
 
 export const PARTNER_LANGS = Object.keys(PARTNER_DATA) as PartnerLang[];
 
