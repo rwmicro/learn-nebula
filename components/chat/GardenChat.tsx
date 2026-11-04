@@ -769,6 +769,9 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       if (r === "local") setDl(localModelLoaded() ? "ready" : "failed");
       setLast(out ? { text: out } : { text: noAnswer(r) });
       finish(ctrl, !!out);
+      // Nano may have just been set aside (it echoed its prompt): the
+      // next question takes the next route, or offers the download.
+      if (r === "nano") void refreshRoute();
     } catch (e) {
       if ((e as Error)?.name === "AbortError") {
         setWaitingModel(false);
