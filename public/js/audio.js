@@ -319,10 +319,8 @@ function loadPiper() {
             /* stays on; "Écouter" falls back to the system voice */
           }
           paintSwitch();
-          if (swLabel) {
-            swLabel.textContent = tt("noteActions.voiceNaturalFailed");
-            setTimeout(() => !naturalOn() && paintSwitch(), 4000);
-          }
+          // Until the next tap on the switch.
+          if (swLabel) swLabel.textContent = tt("noteActions.voiceNaturalFailed");
           return;
         }
         paintSwitch();
