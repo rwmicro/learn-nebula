@@ -8,6 +8,7 @@ import "./tabbar.css";
 import "./titles.css";
 import "./home.css";
 import "./home-chess.css";
+import "./home-talk.css";
 import "./note.css";
 import "./parcours.css";
 import "./tables.css";

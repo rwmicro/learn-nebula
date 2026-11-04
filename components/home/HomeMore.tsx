@@ -97,6 +97,18 @@ export function HomeMore({ notes, paths, languages }: { notes: number; paths: nu
             <small {...L("dash.chessTileText")}>{t("dash.chessTileText")}</small>
           </span>
         </a>
+        <a href="/parler/" data-family="jeux">
+          <span className="home-more-art">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="9" y="3" width="6" height="11" rx="3" />
+              <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
+            </svg>
+          </span>
+          <span className="home-more-tx">
+            <b {...L("dash.talkTile")}>{t("dash.talkTile")}</b>
+            <small {...L("dash.talkTileText")}>{t("dash.talkTileText")}</small>
+          </span>
+        </a>
       </div>
 
       <footer className="home-more-foot">

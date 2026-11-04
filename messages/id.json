@@ -1322,7 +1322,15 @@
     "wayChess": "Main catur",
     "wayChessText": "Lawan bot, sesuai levelmu",
     "chessTile": "Catur",
-    "chessTileText": "Lawan bot atau teman"
+    "chessTileText": "Lawan bot atau teman",
+    "talk": "Berbicara",
+    "talkAll": "Semua bahasa",
+    "talkText": "Adegan sehari-hari, diucapkan, dengan mitra yang menunggu Anda. Semuanya berjalan di perangkat Anda.",
+    "talkGo": "Bicara dengan {name}",
+    "wayTalk": "Berbicara bahasa",
+    "wayTalkText": "Percakapan lisan",
+    "talkTile": "Berbicara",
+    "talkTileText": "Bercakap lisan dalam sembilan bahasa"
   },
   "noteApp": {
     "back": "Kembali",
@@ -2552,6 +2560,9 @@
     "history": "Adegan terakhir Anda",
     "historyAgain": "Pakai pengaturan ini lagi",
     "historyLines": "{n} ucapan, {f} untuk diulang",
-    "hideHint": "Lipat bantuan"
+    "hideHint": "Lipat bantuan",
+    "inviteTitle": "{lang}: saatnya berbicara",
+    "inviteText": "Adegan dengan mitra, diucapkan, di perangkat Anda.",
+    "inviteGo": "Bicara"
   }
 }

@@ -1322,7 +1322,15 @@
     "wayChess": "下国际象棋",
     "wayChessText": "和机器人对弈，按你的水平",
     "chessTile": "国际象棋",
-    "chessTileText": "和机器人或朋友对弈"
+    "chessTileText": "和机器人或朋友对弈",
+    "talk": "口语",
+    "talkAll": "所有语言",
+    "talkText": "日常场景，开口说，伙伴正在等您。全部在您的设备上运行。",
+    "talkGo": "与 {name} 对话",
+    "wayTalk": "说一门语言",
+    "wayTalkText": "语音对话",
+    "talkTile": "口语",
+    "talkTileText": "用九种语言开口对话"
   },
   "noteApp": {
     "back": "返回",
@@ -2552,6 +2560,9 @@
     "history": "最近的场景",
     "historyAgain": "使用这些设置",
     "historyLines": "{n} 句，{f} 句待复习",
-    "hideHint": "收起提示"
+    "hideHint": "收起提示",
+    "inviteTitle": "{lang}：开口练习",
+    "inviteText": "和伙伴在场景中语音对话，在您的设备上运行。",
+    "inviteGo": "开口说"
   }
 }

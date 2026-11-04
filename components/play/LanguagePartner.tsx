@@ -214,6 +214,24 @@ function browserTranslator(from: string, to: string): Promise<Translator | null>
   return translators.get(key)!;
 }
 
+/** "#lang=es" (a language note's card, the home): that language, at the
+ *  level the reader reached in it. The hash is then dropped, so a reload
+ *  keeps the reader's own later choice. */
+function withHashLang(prefs: Prefs): Prefs {
+  const wanted = /(?:^#|&)lang=([a-z]{2})\b/.exec(location.hash)?.[1] as PartnerLang | undefined;
+  if (!wanted || !PARTNER_LANGS.includes(wanted)) return prefs;
+  window.history.replaceState(null, "", location.pathname + location.search);
+  let level: LevelId | undefined;
+  try {
+    level = parseProgress(localStorage.getItem(PARTNER_KEY))[wanted]?.level;
+  } catch {
+    /* storage blocked */
+  }
+  const next = { ...prefs, lang: wanted, ...(level ? { level } : {}) };
+  write(PREFS_KEY, next);
+  return next;
+}
+
 export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, Note>> }) {
   const locale = useLocale();
   const tr = useCallback((k: string, v?: Record<string, string | number>) => t(k, v, locale), [locale]);
@@ -263,7 +281,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
   const gloss = (e: SceneExpr) => (locale === "fr" ? e.fr : e.en);
 
   useEffect(() => {
-    setPrefs(readPrefs());
+    setPrefs(withHashLang(readPrefs()));
     try {
       setProgress(parseProgress(localStorage.getItem(PARTNER_KEY)));
       setHistory(parseHistory(localStorage.getItem(HISTORY_KEY)));
@@ -272,6 +290,12 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
       /* storage blocked */
     }
     void correctorSupported().then((supported) => setCorrector((c) => ({ ...c, supported, on: supported && correctorEnabled() })));
+  }, []);
+
+  useEffect(() => {
+    const onHash = () => setPrefs((cur) => withHashLang(cur));
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
   }, []);
 
   useEffect(() => {

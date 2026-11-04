@@ -1,3 +1,4 @@
+import { partnerInviteHtml, partnerLangOfPath } from "@/lib/partner-invite";
 import type { Doc, SiblingRef } from "@/lib/content";
 import { CUL_DE_LAMPE } from "@/lib/deco-art";
 import {
@@ -240,6 +241,8 @@ export async function SinglePage({
       : null,
   };
   const nextBlock = note ? nextUpHtml(nextUp) : "";
+  const partnerLang = note ? partnerLangOfPath(doc.rawPath) : null;
+  const partnerInvite = partnerLang ? partnerInviteHtml(partnerLang) : "";
 
   const lessonSteps = (html.match(/class="callout callout-(?:quiz|predict|ex)\b/g) ?? []).length;
 
@@ -353,6 +356,7 @@ export async function SinglePage({
           { title: fm.title, family },
         )
       : "") +
+    partnerInvite +
     nextBlock +
     (note ? prerenderNextHtml(nextUp.next?.slug) : "") +
     further +

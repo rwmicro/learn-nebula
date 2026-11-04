@@ -11,3 +11,4 @@ import "./note-end.css";
 import "./native.css";
 import "./layout.css";
 import "./exercises.css";
+import "./partner-invite.css";

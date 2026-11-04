@@ -1322,7 +1322,15 @@
     "wayChess": "Play chess",
     "wayChessText": "Against the bot, at your level",
     "chessTile": "Chess",
-    "chessTileText": "Against the bot or a friend"
+    "chessTileText": "Against the bot or a friend",
+    "talk": "Speak",
+    "talkAll": "All languages",
+    "talkText": "An everyday scene, out loud, with a partner waiting for you. It all runs on your device.",
+    "talkGo": "Talk with {name}",
+    "wayTalk": "Speak a language",
+    "wayTalkText": "A spoken conversation",
+    "talkTile": "Speak",
+    "talkTileText": "Talk out loud in nine languages"
   },
   "noteApp": {
     "back": "Back",
@@ -2552,6 +2560,9 @@
     "history": "Your last scenes",
     "historyAgain": "Use these settings again",
     "historyLines": "{n} lines, {f} to review",
-    "hideHint": "Fold the hint away"
+    "hideHint": "Fold the hint away",
+    "inviteTitle": "{lang}: say it out loud",
+    "inviteText": "A scene with a partner, spoken, on your device.",
+    "inviteGo": "Speak"
   }
 }

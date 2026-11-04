@@ -42,7 +42,10 @@
   text-decoration: none;
 }
 
-.dash a:hover {
+/* No hover wash on the dashboard's plain links. Zero specificity: a link
+   that is a button (.dash-go, .dash-chess-go…) keeps its own background,
+   which this reset used to wipe (a white "Jouer une partie" on hover). */
+:where(.dash a):hover {
   background-color: transparent;
 }
 

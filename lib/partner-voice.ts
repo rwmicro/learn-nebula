@@ -244,7 +244,13 @@ export function unlockAudio(): void {
 /** Say `text` in `tag` at `rate` (1 = normal). The natural voice when it is
  *  on and the language has one; it reads at its own pace, so a slower rate
  *  ("plus lentement") goes to the system voice. */
+let current: Speaking | null = null;
+
 export function speak(text: string, tag: string, rate = 1, onProgress?: (pct: number) => void): Speaking {
+  // One voice at a time: a second tap on "Écouter" restarts the line
+  // instead of reading it twice over itself (the natural voice is not
+  // stopped by speechSynthesis.cancel()).
+  current?.stop();
   let stopped = false;
   let piper: PiperReading | null = null;
   let finish: () => void = () => {};
@@ -280,7 +286,7 @@ export function speak(text: string, tag: string, rate = 1, onProgress?: (pct: nu
       if (stopped) r.stop();
     });
   } else system();
-  return {
+  const speaking: Speaking = {
     stop() {
       stopped = true;
       piper?.stop();
@@ -293,4 +299,9 @@ export function speak(text: string, tag: string, rate = 1, onProgress?: (pct: nu
     },
     done,
   };
+  current = speaking;
+  void done.then(() => {
+    if (current === speaking) current = null;
+  });
+  return speaking;
 }
