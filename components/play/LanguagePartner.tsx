@@ -95,6 +95,51 @@ type Phase = "setup" | "warmup" | "talk" | "review";
 type Subs = "show" | "blur" | "hide";
 type Note = { href: string; title: string; slug: string };
 
+/** "Hello" in each partner's language: the setup page's decoration, the
+ *  chosen one lit. */
+const HELLO: Record<PartnerLang, string> = {
+  es: "¡Hola!",
+  en: "Hello!",
+  de: "Hallo!",
+  fr: "Bonjour !",
+  zh: "你好！",
+  ar: "مرحبا!",
+  hi: "नमस्ते!",
+  id: "Halo!",
+  tr: "Merhaba!",
+};
+
+/** A line icon per scene (24 × 24, stroked in currentColor). */
+const SCENE_ICON: Record<SceneChoice, string> = {
+  cafe: "M4 9h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M7 3.5c-.6.9.6 1.6 0 2.5M11 3.5c-.6.9.6 1.6 0 2.5",
+  presenter: "M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 6.5M18.5 14.5a6.5 6.5 0 0 1 3 5.5",
+  chemin: "M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11zM12 12.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
+  restaurant: "M6 3v7a2 2 0 0 0 2 2v9M10 3v7a2 2 0 0 1-2 2M8 3v6M16.5 21V3c-2 1.5-3 4-3 7v3h3",
+  hotel: "M3 19V6M3 15h18v4M21 15v-3a3 3 0 0 0-3-3h-7v6M7 12.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z",
+  telephone: "M5 3.5h3.5l1.8 4.5-2.3 1.5a11 11 0 0 0 6.5 6.5l1.5-2.3 4.5 1.8V19a2 2 0 0 1-2 2A17 17 0 0 1 3 5.5a2 2 0 0 1 2-2z",
+  libre: "M4 5h16v11H9l-5 4zM8 9.5h8M8 12.5h5",
+};
+
+function SceneIcon({ s }: { s: SceneChoice }) {
+  return (
+    <svg className="pt-scene-ico" viewBox="0 0 24 24" aria-hidden="true">
+      <path d={SCENE_ICON[s]} />
+    </svg>
+  );
+}
+
+function HelloBubbles({ lang }: { lang: PartnerLang }) {
+  return (
+    <div className="pt-hello" aria-hidden="true">
+      {PARTNER_LANGS.map((l, i) => (
+        <span key={l} lang={l} dir={l === "ar" ? "rtl" : undefined} className={l === lang ? "is-on" : undefined} style={{ "--i": i } as React.CSSProperties}>
+          {HELLO[l]}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 interface Turn {
   who: "partner" | "me";
   text: string;
@@ -744,6 +789,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
     return (
       <div className="pt pt-setup">
         <p className="pt-intro">{tr("parler.intro")}</p>
+        <HelloBubbles lang={lang} />
 
         <label className="pt-h" htmlFor="pt-lang">
           {tr("parler.language")}
@@ -816,6 +862,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
               className={s === scene ? "pt-scene is-on" : "pt-scene"}
               onClick={() => update({ scene: s })}
             >
+              <SceneIcon s={s} />
               <b>{tr(`parler.scene_${s}`)}</b>
               <small>{tr(`parler.scened_${s}`)}</small>
             </button>

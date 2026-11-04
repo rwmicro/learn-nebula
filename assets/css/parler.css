@@ -184,6 +184,94 @@
 
 /* ------------------------------------------------------------------ setup */
 
+/* "Hello" in the nine languages, the chosen one lit: decoration only. */
+.pt-hello {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem 0.5rem;
+  margin: -0.25rem 0 0.5rem;
+  padding: 0.4rem 0 0.6rem;
+}
+.pt-hello span {
+  position: relative;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: 1rem;
+  background: var(--paper-raised);
+  color: var(--muted);
+  font: 500 0.9rem/1.3 var(--font-text);
+  rotate: calc((var(--i) - 4) * 0.6deg);
+  animation: pt-hello-float 5s ease-in-out calc(var(--i) * -0.6s) infinite;
+  transition:
+    background 0.25s,
+    color 0.25s,
+    border-color 0.25s,
+    scale 0.25s;
+}
+/* The tail, on alternate sides. */
+.pt-hello span::after {
+  content: "";
+  position: absolute;
+  bottom: -0.32rem;
+  left: 0.9rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: inherit;
+  border-top: 0;
+  border-left: 0;
+  background: inherit;
+  transform: rotate(45deg) skew(10deg, 10deg);
+}
+.pt-hello span:nth-child(even)::after {
+  left: auto;
+  right: 0.9rem;
+}
+.pt-hello span.is-on {
+  border-color: var(--garden);
+  background: var(--garden);
+  color: var(--paper);
+  font-weight: 600;
+  scale: 1.12;
+  z-index: 1;
+}
+@media (max-width: 639px) {
+  .pt-hello {
+    gap: 0.45rem 0.3rem;
+    margin: -0.4rem 0 0;
+  }
+  .pt-hello span {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  .pt-hello span::after {
+    left: 0.6rem;
+  }
+  .pt-hello span:nth-child(even)::after {
+    right: 0.6rem;
+  }
+}
+@keyframes pt-hello-float {
+  50% {
+    translate: 0 -3px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pt-hello span {
+    animation: none;
+  }
+}
+.pt-scene-ico {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-bottom: 0.2rem;
+  fill: none;
+  stroke: var(--garden);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 label.pt-h {
   display: block;
 }
