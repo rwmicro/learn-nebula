@@ -18,11 +18,12 @@ import { LangSwitcher } from "@/components/layout/LangSwitcher";
 // language (the home's inline list folded into a dropdown), search,
 // light/dark, and the account button.
 export function SiteBar() {
-  const links = MENU.map((n) => ({
-    href: n.href,
-    key: n.name,
-    label: t(n.name),
-  }));
+  const links = [
+    ...MENU.map((n) => ({ href: n.href, key: n.name, label: t(n.name) })),
+    // Chess and the spoken partner, as on the home's masthead.
+    { href: "/echecs/", key: "desk.jouer", label: t("desk.jouer") },
+    { href: "/parler/", key: "desk.parler", label: t("desk.parler") },
+  ];
   return (
     <header className="site-bar" data-pagefind-ignore>
       <div className="site-bar-inner">
