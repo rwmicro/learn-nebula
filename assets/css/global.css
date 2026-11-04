@@ -903,7 +903,7 @@ footer {
   text-decoration-color: currentColor;
 }
 
-/* Light / dark / auto toggle (themeToggleHtml in lib/html.ts, /js/theme.js):
+/* Theme button (themeToggleHtml in lib/html.ts, /js/theme.js), opens .theme-menu:
    an icon-only button in the masthead utility bar and the note nav. The icon
    shown is picked from <html data-theme> here, so it is right on first paint. */
 .theme-toggle {
@@ -935,6 +935,85 @@ footer {
 :root[data-theme="light"] .theme-icon-light,
 :root[data-theme="dark"] .theme-icon-dark {
   display: block;
+}
+
+/* The menu the toggle opens (/js/theme.js): the five themes, each with a
+   swatch of its paper (fixed colours: they show the choice, not the page). */
+.theme-menu {
+  position: fixed;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  min-width: 10.5rem;
+  padding: 0.3rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  background: var(--paper-raised);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.14);
+  font-family: var(--font-ui);
+}
+.theme-menu[hidden] {
+  display: none;
+}
+.theme-menu button {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.42rem 0.55rem;
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--ink-soft);
+  font: inherit;
+  font-size: 0.92rem;
+  line-height: 1.2;
+  text-align: start;
+  cursor: pointer;
+}
+.theme-menu button:hover,
+.theme-menu button:focus-visible {
+  background: var(--wash-2);
+  color: var(--ink);
+  outline: none;
+}
+.theme-menu button[aria-checked="true"] {
+  color: var(--ink);
+  font-weight: 600;
+}
+.theme-swatch {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 1px solid rgb(127 127 127 / 0.45);
+}
+.theme-swatch-auto {
+  background: linear-gradient(135deg, #fcfcfc 50%, #1c1b19 50%);
+}
+.theme-swatch-light {
+  background: #fcfcfc;
+}
+.theme-swatch-paper {
+  background: #f6f0e3;
+}
+.theme-swatch-dark {
+  background: #1c1b19;
+}
+.theme-swatch-black {
+  background: #000;
+}
+.theme-check {
+  margin-inline-start: auto;
+  width: 0.45rem;
+  height: 0.8rem;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: translateY(-2px) rotate(45deg);
+  visibility: hidden;
+}
+[aria-checked="true"] > .theme-check {
+  visibility: visible;
 }
 
 /* Reading-path colour families (lib/path-family.ts): an element with
