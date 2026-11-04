@@ -23,12 +23,14 @@ export function onIos(): boolean {
   return /iPhone|iPad|iPod/.test(nav.userAgent) || (nav.platform === "MacIntel" && nav.maxTouchPoints > 1);
 }
 
-/** The languages the downloaded model is trained on, from its model card:
- *  LFM3-1.7B everywhere, LFM2-700M on iPhone and iPad (lib/local-llm.ts).
+/** The languages the downloaded model writes well enough to offer: Qwen3.5-2B
+ *  everywhere (trained on about 200 languages; these are the ones the tests
+ *  of 2026-11-04 and its model card back), LFM2-700M on iPhone and iPad
+ *  (lib/local-llm.ts).
  *  The translate menu offers only these, plus what Chrome's own Translator
  *  and Gemini Nano cover (public/js/translate.js). */
-const LFM3_LANGS = ["en", "ar", "zh", "fr", "de", "it", "ja", "ko", "pt", "es", "vi", "th", "id", "hi", "ru", "pl"];
+const QWEN_LANGS = ["en", "ar", "zh", "fr", "de", "it", "ja", "ko", "pt", "es", "vi", "th", "id", "hi", "ru", "pl", "tr", "nl", "ms"];
 const LFM2_LANGS = ["en", "ar", "zh", "fr", "de", "ja", "ko", "es"];
 export function localModelLangs(): readonly string[] {
-  return onIos() ? LFM2_LANGS : LFM3_LANGS;
+  return onIos() ? LFM2_LANGS : QWEN_LANGS;
 }

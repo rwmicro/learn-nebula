@@ -11,7 +11,7 @@
 // button says so and offers the server's (better) translation. Anywhere else,
 // or on any failure, the server path below runs as before.
 // Where the Translator API can't help, the device's own model writes the
-// translation (lib/garden-ai.ts: Gemini Nano, or the downloaded LFM3), one
+// translation (lib/garden-ai.ts: Gemini Nano, or the downloaded Qwen3.5), one
 // block of the rendered note at a time, in place: the card above the body
 // counts the sections, the block being translated is marked and the ones not
 // done yet stay greyed. With neither, the button opens the

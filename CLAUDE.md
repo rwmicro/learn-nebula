@@ -283,7 +283,7 @@ image tag in `ci.yml` together with `@playwright/test`.
   on the chat home, "Mes questions" grouped by note).
 - **Everything is generated on the device** (`lib/garden-ai.ts` `aiRoute()`):
   Chrome's Gemini Nano (`lib/browser-ai.ts`) when it covers the language, else
-  the opt-in downloaded LFM3-1.7B (`lib/local-llm.ts`: Transformers.js on
+  the opt-in downloaded Qwen3.5-2B (`lib/local-llm.ts`: Transformers.js on
   WebGPU in a module worker, `public/js/local-llm-worker.js` →
   `local-llm.worker.js`, ort runtime self-hosted in `public/ort/` by
   `scripts/copy-ort.mjs`, weights from Hugging Face, hence `https://*.hf.co` in
@@ -298,6 +298,17 @@ image tag in `ci.yml` together with `@playwright/test`.
   check in the pronunciation coach (`lib/speech-match.ts`, `processLocally`).
 - **`/api/search`**: embedding-only nearest notes for the palette's "Proches
   par le sens" group (`server/routes/search.ts`, needs RAG).
+- **Parler** (`/parler/`, `components/play/LanguagePartner.tsx`, CSS
+  `assets/css/parler.css`): a spoken partner per language, like /echecs/'s
+  bot. Scenes, partners and expressions are data (`lib/partner-scenes.ts`);
+  prompts, reply parsing, the word diff and progress are pure and tested
+  (`lib/partner.ts`); recognition and voices in `lib/partner-voice.ts`.
+  The reader's line is never corrected by the partner's prompt (small models
+  don't, measured 0/45): it is diffed against the scene's closest expression
+  (`closestExpr`/`wordDiff`), and on a desktop with WebGPU and ≥ 8 GB an
+  opt-in second model (`CORRECTOR`, Qwen3.5-4B, in the same worker beside
+  the main one) rewrites it in its own prompt (`CORRIGE/POURQUOI`). Cards
+  go to the language's "Situations" note deck.
 - **Duel / tandem** (`/duel/`, `components/play/Duel.tsx`, `lib/duo-rtc.ts`):
   WebSocket signaling at `/api/room/:code` (`server/rooms.ts`, @hono/node-ws,
   two peers, nothing stored), RTCDataChannel / audio, optional Cloudflare

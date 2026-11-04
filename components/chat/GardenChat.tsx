@@ -5,7 +5,7 @@
 // panel on the right from 640px. Mounted site-wide in the root layout.
 //
 // Every answer is written on the reader's device (lib/garden-ai.ts): Chrome's
-// Gemini Nano when it covers the language, else LFM3-1.7B downloaded once
+// Gemini Nano when it covers the language, else Qwen3.5-2B downloaded once
 // after the reader agrees (lib/local-llm.ts). The server only retrieves the
 // passages and builds the prompt (/api/ask/context). Its own LLM is not
 // offered (SERVER_LLM_OFFERED); without a model the chat says so.

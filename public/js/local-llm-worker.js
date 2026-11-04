@@ -1,4 +1,4 @@
-// The garden assistant's downloaded model (LFM3-1.7B, ~1.1 GB, WebGPU), run
+// The garden assistant's downloaded model (Qwen3.5-2B, ~1.4 GB, WebGPU), run
 // in a Web Worker so the page stays responsive while it loads and writes.
 // Bundled as an ES module by scripts/bundle-js.mjs into local-llm.worker.js
 // (git-ignored) and driven by lib/local-llm.ts. The server still retrieves
@@ -18,9 +18,14 @@ import {
   InterruptableStoppingCriteria,
 } from "@huggingface/transformers";
 
-// The models lib/local-llm.ts may ask for (the big one, or the iOS one).
-const MODELS = new Set(["onnx-community/LFM3-1.7B-ONNX", "onnx-community/LFM2-700M-ONNX"]);
-const DEFAULT_MODEL = "onnx-community/LFM3-1.7B-ONNX";
+// The models lib/local-llm.ts may ask for: the assistant's (Qwen3.5-2B, or
+// LFM2-700M on iOS) and the optional corrector of /parler/ (Qwen3.5-4B).
+const MODELS = new Set([
+  "onnx-community/Qwen3.5-2B-ONNX",
+  "onnx-community/LFM2-700M-ONNX",
+  "onnx-community/Qwen3.5-4B-ONNX",
+]);
+const DEFAULT_MODEL = "onnx-community/Qwen3.5-2B-ONNX";
 
 // The ONNX runtime from our own origin (scripts/copy-ort.mjs), not a CDN.
 env.backends.onnx.wasm.wasmPaths = {
@@ -32,9 +37,10 @@ env.backends.onnx.wasm.wasmPaths = {
 env.useWasmCache = false;
 env.allowLocalModels = false;
 
-let generator = null;
+// One pipeline per model asked for (the corrector loads beside the assistant).
+const generators = new Map();
 
-// LFM3 reasons before answering by default; the chat template's
+// Qwen3.5 (and LFM3 before it) reasons before answering by default; the chat template's
 // enable_thinking=false turns that off. If a trace slips through anyway, only
 // what follows </think> is the answer.
 function visible(raw) {
@@ -50,7 +56,9 @@ const cancelled = new Set();
 const stopping = new InterruptableStoppingCriteria();
 
 function load(dtype, model) {
-  generator ??= pipeline("text-generation", MODELS.has(model) ? model : DEFAULT_MODEL, {
+  const id = MODELS.has(model) ? model : DEFAULT_MODEL;
+  if (generators.has(id)) return generators.get(id);
+  const generator = pipeline("text-generation", id, {
     dtype,
     device: "webgpu",
     progress_callback(p) {
@@ -59,9 +67,10 @@ function load(dtype, model) {
       }
     },
   }).catch((e) => {
-    generator = null;
+    generators.delete(id);
     throw e;
   });
+  generators.set(id, generator);
   return generator;
 }
 
