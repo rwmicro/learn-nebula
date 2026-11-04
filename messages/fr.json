@@ -2570,7 +2570,6 @@
     "inviteGo": "Parler",
     "inviteTextTandem": "Une scène avec un partenaire sur ton appareil, ou un appel avec un ami.",
     "variety_ar": "L'arabe standard moderne (fuṣḥā) : celui de l'écrit, des médias et des discours, compris de Rabat à Bagdad. Ce n'est pas un dialecte parlé au quotidien comme le levantin (libanais, syrien, jordanien) ou la darija marocaine.",
-    "soonList": "Bientôt : {list}",
     "goalsPreview": "Objectifs :",
     "voiceLoading": "Téléchargement de la voix… {p} %",
     "noVoice": "Aucune voix en {lang} n'est installée sur cet appareil : active la voix naturelle pour entendre les phrases.",

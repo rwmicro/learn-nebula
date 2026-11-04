@@ -412,9 +412,9 @@ test.describe("Parler in Arabic", () => {
 
   test("says which Arabic it is", async ({ page }) => {
     await page.goto("/parler/");
-    await expect(
-      page.getByRole("radio", { name: "Arabe standard" }),
-    ).toHaveAttribute("aria-checked", "true");
+    const list = page.locator("#pt-lang");
+    await expect(list).toHaveValue("ar");
+    await expect(list.locator("option:checked")).toHaveText("Arabe standard");
     await expect(page.locator(".pt-variety")).toContainText("fuṣḥā");
     await expect(page.locator(".pt-variety")).toContainText("levantin");
     await expect(page.locator(".pt-variety")).toContainText("darija");
@@ -454,4 +454,21 @@ test.describe("Parler in Arabic", () => {
       .poll(() => page.evaluate(() => window.__said.at(-1)))
       .toMatchObject({ text: expr, lang: "ar-SA", voice: "Majed", rate: 0.8 });
   });
+});
+
+test("the language is picked from a list, the coming ones greyed", async ({
+  page,
+}) => {
+  await page.goto("/parler/");
+  const list = page.locator("#pt-lang");
+  await expect(list.locator("option:not([disabled])")).toHaveCount(9);
+  await expect(
+    list.locator("optgroup option[disabled]").first(),
+  ).toBeAttached();
+  await list.selectOption("de");
+  await expect(page.locator(".pt-summary")).toContainText("Allemand");
+  const saved = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("gk-partner-prefs") || "{}"),
+  );
+  expect(saved.lang).toBe("de");
 });

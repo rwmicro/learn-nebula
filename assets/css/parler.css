@@ -184,33 +184,42 @@
 
 /* ------------------------------------------------------------------ setup */
 
-.pt-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
+label.pt-h {
+  display: block;
 }
-.pt-chip {
-  display: inline-flex;
-  align-items: center;
-  height: var(--chip-h);
-  padding: var(--chip-pad);
-  border: 0;
-  border-radius: var(--radius-pill);
-  background: var(--chip-bg);
+/* The language: one native list (the phone's own picker), not a wall of
+   chips; the languages to come sit greyed in its last group. */
+.pt-select {
+  position: relative;
+  max-width: 22rem;
+}
+.pt-select select {
+  appearance: none;
+  width: 100%;
+  height: 2.75rem;
+  padding: 0 2.5rem 0 1rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0.75rem;
+  background: var(--paper-raised);
   color: var(--ink);
-  font: var(--chip-font);
+  font: 500 1rem var(--font-ui);
   cursor: pointer;
 }
-.pt-chip.is-on {
-  background: var(--chip-on-bg);
-  color: var(--chip-on-ink);
+.pt-select select:focus-visible {
+  outline: 2px solid var(--color-garden);
+  outline-offset: 2px;
 }
-.pt-chip.is-soon {
-  background: transparent;
-  border: 1px dashed var(--rule-strong);
-  color: var(--faint);
-  cursor: default;
-  font-size: 0.85rem;
+.pt-select::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
 }
 
 .pt-partners {
@@ -1009,12 +1018,6 @@
   color: var(--ink-2);
   font-size: 0.88rem;
   line-height: 1.45;
-}
-/* The languages to come: one quiet line, not eight greyed chips. */
-.pt-soon {
-  margin: 0.6rem 0 0;
-  color: var(--muted);
-  font-size: 0.82rem;
 }
 .pt-partner-name {
   display: flex;

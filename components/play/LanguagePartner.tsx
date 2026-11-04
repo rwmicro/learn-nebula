@@ -745,26 +745,34 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
       <div className="pt pt-setup">
         <p className="pt-intro">{tr("parler.intro")}</p>
 
-        <h2 className="pt-h">{tr("parler.language")}</h2>
-        <div className="pt-chips" role="radiogroup" aria-label={tr("parler.language")}>
-          {PARTNER_LANGS.map((l) => (
-            <button
-              key={l}
-              type="button"
-              role="radio"
-              aria-checked={l === lang}
-              className={l === lang ? "pt-chip is-on" : "pt-chip"}
-              onClick={() => {
-                const lv = progress[l]?.level;
-                update({ lang: l, ...(lv ? { level: lv } : {}) });
-              }}
-            >
-              {tr(`parler.lang_${l}`)}
-            </button>
-          ))}
+        <label className="pt-h" htmlFor="pt-lang">
+          {tr("parler.language")}
+        </label>
+        <div className="pt-select">
+          <select
+            id="pt-lang"
+            value={lang}
+            onChange={(e) => {
+              const l = e.target.value as PartnerLang;
+              const lv = progress[l]?.level;
+              update({ lang: l, ...(lv ? { level: lv } : {}) });
+            }}
+          >
+            {PARTNER_LANGS.map((l) => (
+              <option key={l} value={l}>
+                {tr(`parler.lang_${l}`)}
+              </option>
+            ))}
+            <optgroup label={tr("parler.soon")}>
+              {SOON_LANGS.map((name) => (
+                <option key={name} value={`soon-${name}`} disabled>
+                  {name}
+                </option>
+              ))}
+            </optgroup>
+          </select>
         </div>
         {lang === "ar" && <p className="pt-variety">{tr("parler.variety_ar")}</p>}
-        <p className="pt-soon">{tr("parler.soonList", { list: SOON_LANGS.join(", ") })}</p>
 
         <h2 className="pt-h">{tr("parler.partner")}</h2>
         <ul className="pt-partners" role="radiogroup" aria-label={tr("parler.partner")}>
