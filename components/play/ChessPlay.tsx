@@ -20,6 +20,7 @@ import {
   hintTopic,
   levelFor,
   openingOf,
+  START,
   parseElo,
   parsePrefs,
   parseSavedGame,
@@ -51,7 +52,6 @@ import { Engine, FULL_STRENGTH } from "./chess-engine";
 //   move on the board, the vault note about what was missed, "replay from
 //   here" and "make it a card" (a question in that note's deck).
 
-const START = new Chess().fen();
 const BOT_ICON: Record<string, string> = {
   debutant: "p",
   facile: "n",
@@ -370,6 +370,23 @@ export function ChessPlay({ notes }: { notes: Notes }) {
     });
   };
 
+  // Links from the home's chess card: "#reprendre" picks the saved game
+  // up, "#jouer=<level>" starts a new one at that level. Read once, after
+  // the saved game and the Elo are in, then dropped from the address.
+  const fromHash = useRef(false);
+  useEffect(() => {
+    if (fromHash.current || !rec) return;
+    fromHash.current = true;
+    const h = location.hash.slice(1);
+    if (!h) return;
+    history.replaceState(null, "", location.pathname + location.search);
+    if (h === "reprendre" && saved) resume();
+    const m = /^jouer=([a-z]+)$/.exec(h);
+    const lv = m && LEVELS.find((l) => l.id === m[1]);
+    if (lv) begin({ level: lv, color: pickColor(prefs.color), start: START, sans: [], unrated: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rec, saved]);
+
   // --- what is shown ---------------------------------------------------------
 
   const live = cursor === null;
@@ -391,20 +408,30 @@ export function ChessPlay({ notes }: { notes: Notes }) {
     [start, sans, shownPly, locale],
   );
 
+  /** A move of the player's from `from` to `to`, if legal; a pawn reaching
+   *  the last rank opens the promotion picker first. */
+  const moveTo = (from: Square, to: Square): boolean => {
+    const g = game.current;
+    if (!g.moves({ square: from, verbose: true }).some((m) => m.to === to)) return false;
+    const p = g.get(from);
+    if (p?.type === "p" && (to[1] === "8" || to[1] === "1")) {
+      setSel(from);
+      setPromo({ from, to });
+      return true;
+    }
+    play(from, to);
+    return true;
+  };
+
+  const mine = (sq: Square): boolean => {
+    const p = view.get(sq);
+    return !!p && p.color === color;
+  };
+
   const tap = (sq: Square) => {
     if (!myTurn) return;
-    const g = game.current;
-    const piece = g.get(sq);
-    if (sel && targets.has(sq)) {
-      const p = g.get(sel);
-      if (p?.type === "p" && (sq[1] === "8" || sq[1] === "1")) {
-        setPromo({ from: sel, to: sq });
-        return;
-      }
-      play(sel, sq);
-      return;
-    }
-    setSel(piece && piece.color === color && sel !== sq ? sq : null);
+    if (sel && targets.has(sq) && moveTo(sel, sq)) return;
+    setSel(mine(sq) && sel !== sq ? sq : null);
   };
 
   const play = (from: Square, to: Square, promotion: "q" | "r" | "b" | "n" = "q") => {
@@ -885,6 +912,11 @@ export function ChessPlay({ notes }: { notes: Notes }) {
                   : null
             }
             onTap={phase === "play" ? tap : undefined}
+            canDrag={myTurn && !promo ? mine : undefined}
+            onDragStart={(sq) => setSel(sq)}
+            onDrop={(from, to) => {
+              if (!moveTo(from, to)) setSel(from);
+            }}
             promo={
               promo
                 ? {

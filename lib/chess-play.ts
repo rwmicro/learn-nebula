@@ -8,6 +8,12 @@
 import { Chess } from "chess.js";
 import { PIECE_SVG } from "./chess-pieces";
 
+/** chess.js, for the home's chess card, which loads this module lazily. */
+export { Chess };
+
+/** The usual start position. */
+export const START = new Chess().fen();
+
 export interface Level {
   id: string;
   /** Rating the level plays at, for the reader's Elo. */

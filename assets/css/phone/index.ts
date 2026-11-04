@@ -7,6 +7,7 @@ import "./base.css";
 import "./tabbar.css";
 import "./titles.css";
 import "./home.css";
+import "./home-chess.css";
 import "./note.css";
 import "./parcours.css";
 import "./tables.css";

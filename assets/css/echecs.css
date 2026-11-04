@@ -243,6 +243,59 @@
   border-radius: 50%;
   border: 0.6cqi solid rgb(30 60 40 / 0.4);
 }
+/* Your own pieces on your turn: a finger on one drags it instead of
+   scrolling the page (the empty squares still scroll). */
+.chess-sq.is-mine {
+  touch-action: none;
+  cursor: grab;
+}
+.chess-board.is-dragging,
+.chess-board.is-dragging .chess-sq {
+  cursor: grabbing;
+}
+/* The square the piece left keeps a faint copy. */
+.chess-sq.is-lifted .chess-pc {
+  opacity: 0.3;
+}
+/* The square under the finger while dragging. */
+.chess-sq.is-over::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 0.9cqi rgb(255 255 255 / 0.75);
+  background: rgb(63 107 74 / 0.25);
+}
+.chess-sq.is-over.is-to::after,
+.chess-sq.is-over.is-take::after {
+  opacity: 0;
+}
+/* The piece in hand: follows the pointer, bigger under a finger. */
+.chess-ghost {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 60;
+  pointer-events: none;
+  will-change: transform;
+}
+.chess-ghost svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 6px rgb(0 0 0 / 0.3));
+}
+.chess-ghost.is-touch svg {
+  scale: 1.5;
+}
+/* A tapped piece rises a little. */
+.chess-sq.is-sel .chess-pc {
+  scale: 1.08;
+  transition: scale 0.12s ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .chess-sq.is-sel .chess-pc {
+    transition: none;
+  }
+}
 .chess-sq:focus-visible {
   outline: 3px solid var(--garden);
   outline-offset: -3px;
