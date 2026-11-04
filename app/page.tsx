@@ -18,6 +18,7 @@ import { HomeDashboard, type DashDayNote, type DashPath, type DashRecent } from 
 import { extractPlain } from "@/lib/markdown";
 import { readingMinutes } from "@/lib/path-extras";
 import { familyOfPrefix, pathFamily } from "@/lib/path-family";
+import { boardSvg, CHESS_NOTES, LEVELS, START } from "@/lib/chess-play";
 import "@/assets/css/graphiques.css";
 
 // Editorial serif for the content zone. next/font self-hosts the files at build
@@ -123,6 +124,8 @@ export default async function HomePage() {
   const doc = getIndexDoc();
   const dash = dashboardData();
   const noteCount = getAllPosts().filter((d) => d.rawPath !== INDEX_NOTE).length;
+  const openings = getAllPosts().some((d) => d.slug === CHESS_NOTES.openings) ? `/posts/${CHESS_NOTES.openings}/` : null;
+  const chess = { startBoard: boardSvg(START), levels: LEVELS.map((l) => ({ id: l.id, elo: l.elo })), openings };
   return (
     <>
       <Header doc={doc} />
@@ -132,6 +135,7 @@ export default async function HomePage() {
         paths={dash.paths}
         dayNotes={dash.dayNotes}
         noteCount={noteCount}
+        chess={chess}
       />
       {/* Intro and painting: the phone dashboard shows the painting as its
           banner and moves the intro to "À propos du jardin" (app.css). */}

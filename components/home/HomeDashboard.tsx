@@ -13,6 +13,8 @@ import type { PathFamily } from "@/lib/path-family";
 import { ERAGNY, paintingFor } from "@/lib/paintings";
 import { daysAgo, loadAllNoteDecks, NOTE_PREFIX, retentionBySlug, type Retention } from "@/lib/note-quiz";
 import { dayKey, daysBetween } from "@/lib/srs";
+import { PIECE_SVG } from "@/lib/chess-pieces";
+import { HomeChess, type HomeChessData } from "@/components/home/HomeChess";
 
 // The home as an app dashboard, on phones only (app.css hides it from 640px,
 // and hides there the masthead it replaces). From the top: the date and a
@@ -212,6 +214,7 @@ export function HomeDashboard({
   paths,
   dayNotes,
   noteCount,
+  chess,
 }: {
   dataVersion: string;
   recent: DashRecent[];
@@ -219,6 +222,7 @@ export function HomeDashboard({
   paths: DashPath[];
   dayNotes: DashDayNote[];
   noteCount: number;
+  chess: HomeChessData;
 }) {
   const locale = useLocale();
   const shortName = (p: { slug: string; name: string }) => pathName(p, "title", locale);
@@ -432,6 +436,18 @@ export function HomeDashboard({
               </a>
             </li>
             <li>
+              <a href="/echecs/">
+                <span className="dash-way-icon dash-way-chess" aria-hidden="true">
+                  <svg viewBox="0 0 45 45" dangerouslySetInnerHTML={{ __html: PIECE_SVG.wn }} />
+                </span>
+                <span>
+                  <b>{tr("dash.wayChess")}</b>
+                  <small>{tr("dash.wayChessText")}</small>
+                </span>
+                <Chevron />
+              </a>
+            </li>
+            <li>
               <a href="/hasard/">
                 <span className="dash-way-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" {...s}>
@@ -452,6 +468,8 @@ export function HomeDashboard({
           </ul>
         </section>
       )}
+
+      <HomeChess data={chess} />
 
       {!resume && me && Object.keys(me.days).length > 0 && (
         <a className="dash-week" href="/defis/">

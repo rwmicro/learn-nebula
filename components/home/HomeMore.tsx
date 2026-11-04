@@ -1,8 +1,9 @@
 import { t } from "@/lib/i18n";
 import { AUTHOR } from "@/lib/site";
+import { PIECE_SVG } from "@/lib/chess-pieces";
 
-// The end of the phone home (app.css shows it below 640px only): four ways to
-// wander (the graph, the timeline, the map, the themes), then a footer with
+// The end of the phone home (app.css shows it below 640px only): ways to
+// wander (the graph, the timeline, the map, the themes, chess), then a footer with
 // the wordmark, a short "À propos" whose rest unfolds in place, the garden in
 // three numbers and the licence. Built at build time in French, swapped by
 // /js/i18n.js through data-i18n.
@@ -85,6 +86,15 @@ export function HomeMore({ notes, paths, languages }: { notes: number; paths: nu
           <span className="home-more-tx">
             <b {...L("dash.themes")}>{t("dash.themes")}</b>
             <small {...L("dash.themesText")}>{t("dash.themesText")}</small>
+          </span>
+        </a>
+        <a href="/echecs/" data-family="jeux">
+          <span className="home-more-art">
+            <svg className="home-more-chess" viewBox="0 0 45 45" aria-hidden="true" dangerouslySetInnerHTML={{ __html: PIECE_SVG.wn }} />
+          </span>
+          <span className="home-more-tx">
+            <b {...L("dash.chessTile")}>{t("dash.chessTile")}</b>
+            <small {...L("dash.chessTileText")}>{t("dash.chessTileText")}</small>
           </span>
         </a>
       </div>
