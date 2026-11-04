@@ -115,7 +115,12 @@ export default function Header({ doc }: { doc: Doc }) {
             jump to their group in the notes list below. */}
         <div className="home-nav absolute right-2 top-1 z-30 w-max rounded-md border border-rule-strong bg-paper px-6 py-3 text-small font-semibold uppercase tracking-[0.08em] shadow-lg sm:static sm:w-auto sm:border-0 sm:border-b sm:border-rule sm:bg-transparent sm:px-0 sm:py-2 sm:shadow-none sm:rounded-none">
           <SiteNavLinks
-            links={MENU.map((n) => ({ href: n.home ?? n.href, key: n.name, label: t(n.name) }))}
+            links={[
+              ...MENU.map((n) => ({ href: n.home ?? n.href, key: n.name, label: t(n.name) })),
+              // The home's own two: chess and the spoken partner.
+              { href: "/echecs/", key: "desk.jouer", label: t("desk.jouer") },
+              { href: "/parler/", key: "desk.parler", label: t("desk.parler") },
+            ]}
           />
         </div>
       </nav>

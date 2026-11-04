@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
-import { getAllPosts, getDisciplines, getIndexDoc, getLanguageScopes, getPost, getReadingPaths, getRecentNotes, INDEX_NOTE } from "@/lib/content";
+import { getAllPosts, getDisciplines, getIndexDoc, getLanguageScopes, getPost, getReadingPaths, getRecentNotes, getWikiLinkEdges, INDEX_NOTE } from "@/lib/content";
 import { HomeMore } from "@/components/home/HomeMore";
 import { PARTNER_DATA, PARTNER_LANGS, VAULT_FOLDER } from "@/lib/partner-scenes";
 import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
@@ -23,7 +23,11 @@ import { resolveVaultAsset } from "@/lib/vault-assets";
 import { readingMinutes } from "@/lib/path-extras";
 import { familyOfPrefix, pathFamily } from "@/lib/path-family";
 import { boardSvg, LEVELS, START } from "@/lib/chess-play";
+import { HomeDesk, type DeskChart, type DeskDomain } from "@/components/home/HomeDesk";
+import { enrichWidget } from "@/lib/widget-data";
+import { areaChartSvg } from "@/lib/home-chart";
 import "@/assets/css/graphiques.css";
+import "@/assets/css/home-desk.css";
 
 // Editorial serif for the content zone. next/font self-hosts the files at build
 // time, so they are served from our own origin — no Google CDN request, and the
@@ -108,6 +112,7 @@ function dashboardData(): { paths: DashPath[]; recent: DashRecent[]; dayNotes: D
     // a vocabulary table reads badly as a teaser ("Dans cette fiche Nommer…").
     const opening = extractPlain(openingParagraph(doc.body));
     if (!opening) continue;
+    const path = getReadingPaths().find((p) => p.notes.some((n) => n.slug === doc.slug));
     dayNotes.push({
       title: doc.frontmatter.title,
       href: `/posts/${doc.slug}/`,
@@ -115,6 +120,14 @@ function dashboardData(): { paths: DashPath[]; recent: DashRecent[]; dayNotes: D
       family: d.family,
       minutes,
       excerpt: excerpt(opening),
+      lede: excerpt(opening, 420),
+      // The desktop card's "Dans cette note": its first four sections.
+      toc: [...doc.body.matchAll(/^##\s+(.+?)\s*#*\s*$/gm)]
+        .map((m) => extractPlain(m[1]).replace(/^\d+[.)]\s*/, "").trim())
+        .filter(Boolean)
+        .slice(0, 4),
+      questions: (doc.body.match(/^>\s*\[!quiz\]/gim) ?? []).length,
+      ...(path ? { path: { slug: path.slug, name: path.name } } : {}),
     });
   }
   const paths = getReadingPaths().map((p) => ({
@@ -156,6 +169,60 @@ function wordsOfDay(): HomeWordLang[] {
   return out;
 }
 
+/** The desktop home's extras (components/home/HomeDesk.tsx): the latest
+ *  graphique note with its first Our World in Data series drawn at build, and
+ *  the disciplines by grand domain for its "Sommaire". */
+async function deskData(): Promise<{ chart: DeskChart | null; index: DeskDomain[]; links: number }> {
+  const [g] = getGraphiques(1);
+  let chart: DeskChart | null = null;
+  if (g) {
+    const doc = getPost(g.href.replace(/^\/posts\//, "").replace(/\/$/, ""));
+    const block = /```widget:owid\n([\s\S]*?)```/.exec(doc.body)?.[1] ?? "";
+    const props = Object.fromEntries(
+      block
+        .split("\n")
+        .map((l) => /^([\w-]+)\s*:\s*(.+)$/.exec(l.trim()))
+        .filter((m): m is RegExpExecArray => !!m)
+        .map((m) => [m[1], m[2]]),
+    );
+    let svg = "";
+    let source = "";
+    if (block) {
+      try {
+        const e = await enrichWidget("owid", props);
+        const series = (e?.props.series as { points: [number, number][] }[] | undefined)?.[0];
+        if (series) svg = areaChartSvg(series.points, String(props.unite ?? e?.props.unit ?? ""));
+        source = String((e?.props.source as { title?: string } | undefined)?.title ?? "");
+      } catch {
+        /* no data offline: the card keeps its text */
+      }
+    }
+    const disc = getDisciplines().find((d) => doc.slug.startsWith(d.prefix));
+    chart = {
+      title: g.title,
+      href: g.href,
+      lede: g.lede,
+      at: g.at.toISOString(),
+      source: source || "Our World in Data",
+      family: disc ? familyOfPrefix(disc.prefix) : null,
+      folder: `/notes/${doc.slug.split("/").slice(0, -1).join("/")}/`,
+      svg,
+    };
+  }
+  const tops = new Map<string, DeskDomain>();
+  for (const d of getDisciplines()) {
+    const key = d.prefix.split("/")[0];
+    const dom = tops.get(key) ?? { slug: key, name: key === "applied-sciences" ? "nav.appliedsciences" : "nav.socialsciences", count: 0, items: [] };
+    dom.count += d.count;
+    dom.items.push({ name: d.name, slug: d.slug, count: d.count });
+    tops.set(key, dom);
+  }
+  const index = [...tops.values()]
+    .sort((a, b) => a.slug.localeCompare(b.slug))
+    .map((dom) => ({ ...dom, items: dom.items.sort((a, b) => a.name.localeCompare(b.name, "fr")) }));
+  return { chart, index, links: getWikiLinkEdges().length };
+}
+
 export default async function HomePage() {
   const doc = getIndexDoc();
   const dash = dashboardData();
@@ -165,6 +232,8 @@ export default async function HomePage() {
     return { id, partners: [...d.partners], line: d.scenes.cafe.exprs[0].t };
   });
   const chess = { startBoard: boardSvg(START), levels: LEVELS.map((l) => ({ id: l.id, elo: l.elo })) };
+  const desk = await deskData();
+  const words = wordsOfDay();
   return (
     <>
       <Header doc={doc} />
@@ -176,7 +245,7 @@ export default async function HomePage() {
         noteCount={noteCount}
         chess={chess}
         talk={talk}
-        words={wordsOfDay()}
+        words={words}
       />
       {/* Intro and painting: the phone dashboard shows the painting as its
           banner and moves the intro to "À propos du jardin" (app.css). */}
@@ -203,6 +272,21 @@ export default async function HomePage() {
           </div>
       </div>
       <main id="main" className={`home-main ${newsreader.variable}`}>
+        {/* The desktop home (from 1024px, home-desk.css), in place of what
+            follows, which tablets keep. */}
+        <HomeDesk
+          dataVersion={homeDataVersion()}
+          recent={dash.recent}
+          paths={dash.paths}
+          dayNotes={dash.dayNotes}
+          noteCount={noteCount}
+          chess={chess}
+          talk={talk}
+          words={words}
+          chart={desk.chart}
+          index={desk.index}
+          stats={{ notes: noteCount, paths: getReadingPaths().length, languages: getLanguageScopes().length, links: desk.links }}
+        />
         <RecentNotes notes={getRecentNotes()} />
         <Graphiques items={getGraphiques(3)} />
         {/* The full tree and the folder-graph preview

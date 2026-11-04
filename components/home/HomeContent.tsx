@@ -69,7 +69,7 @@ function Chevron({ open, size = 11 }: { open: boolean; size?: number }) {
 
 // Mount the circular-map preview only once its box scrolls near the viewport,
 // so the home page's most-common first paint isn't weighed down by it.
-function LazyGraph({ graphData }: { graphData: GraphData | null }) {
+export function LazyGraph({ graphData }: { graphData: GraphData | null }) {
   const ref = useRef<HTMLDivElement>(null);
   const [show, setShow] = useState(false);
   useEffect(() => {

@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import {
   t,
   disciplineKey,
@@ -60,7 +61,10 @@ function Art({ art, eager = false }: { art: Painting; eager?: boolean }) {
 export function ParcoursIndex({
   paths,
   extras,
+  desk,
 }: {
+  /** The desktop page (from 1024px), rendered first in <main>. */
+  desk?: ReactNode;
   paths: ReadingPathView[];
   /** Per path slug: reading times and quiz ids (for the "maîtrisées" count). */
   extras: Record<string, PathExtras>;
@@ -89,6 +93,7 @@ export function ParcoursIndex({
   }));
   return (
     <main id="main" className="themes-page parcours-page tab-root">
+      {desk}
       <Back href="/" labelKey="nav.home" />
       <h1 className="themes-title" {...i18nProps("parcours.title")}>
         {t("parcours.title")}

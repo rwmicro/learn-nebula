@@ -30,7 +30,9 @@ interface Rec {
   games: number;
 }
 
-export function HomeChess({ data }: { data: HomeChessData }) {
+/** The chess card's state, shared with the desktop home (HomeDesk): the
+ *  game in progress or the level to play, and the line under the title. */
+export function useChessCard(data: HomeChessData) {
   const locale = useLocale();
   const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
   const [rec, setRec] = useState<Rec | null>(null);
@@ -85,13 +87,17 @@ export function HomeChess({ data }: { data: HomeChessData }) {
     : rec && rec.games > 0
       ? tr("dash.chessYourElo", { elo: rec.elo, lv: lv(level) })
       : tr("dash.chessBot", { lv: lv(level), elo });
+  return { href, sub, level, saved: !!saved, board: saved ? saved.board : data.startBoard, tr };
+}
 
+export function HomeChess({ data }: { data: HomeChessData }) {
+  const { href, sub, saved, board, tr } = useChessCard(data);
   return (
     <a className="dash-play-card dash-play-chess" href={href}>
       <span className="dash-play-band" aria-hidden="true">
         <span
           className={`dash-chess-board${saved ? " is-game" : ""}`}
-          dangerouslySetInnerHTML={{ __html: saved ? saved.board : data.startBoard }}
+          dangerouslySetInnerHTML={{ __html: board }}
         />
       </span>
       <span className="dash-play-body">

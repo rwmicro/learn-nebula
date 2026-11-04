@@ -539,12 +539,26 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       setSection(sectionOf(text));
       requestAnimationFrame(() => inputRef.current?.focus());
     };
+    // detail: { question?, mode?, resume?: conversation id, view?: "history" }
+    // (the desktop home's ask card: modes, "Reprendre", "Mes questions").
     const onAsk = async (e: Event) => {
-      const q = String(
-        (e as CustomEvent<{ question?: string }>).detail?.question ?? "",
-      ).trim();
+      const d =
+        (e as CustomEvent<{ question?: string; mode?: ChatMode; resume?: string; view?: "history" }>).detail ?? {};
+      const q = String(d.question ?? "").trim();
       if (!(await openChat())) return;
-      newConversation("answer", null);
+      if (d.view === "history") {
+        setView("history");
+        return;
+      }
+      if (d.resume) {
+        const s = store();
+        const c = s ? loadChats(s).find((x) => x.id === d.resume) : undefined;
+        if (c) {
+          resume(c);
+          return;
+        }
+      }
+      newConversation(d.mode === "socratic" || d.mode === "own" ? d.mode : "answer", null);
       if (q) sendRef.current(q);
     };
     const onSetup = async () => {

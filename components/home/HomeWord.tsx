@@ -27,7 +27,9 @@ export interface HomeWordLang {
   }[];
 }
 
-export function HomeWord({ langs }: { langs: HomeWordLang[] }) {
+/** The word of the day (one a day, in the language last practised) and its
+ *  clip; shared with the desktop home (HomeDesk). Null before hydration. */
+export function useWordOfDay(langs: HomeWordLang[]) {
   const locale = useLocale();
   const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
   // Chosen after hydration (the date and the stored language are the
@@ -51,7 +53,6 @@ export function HomeWord({ langs }: { langs: HomeWordLang[] }) {
   const { lang } = pick;
   const word = lang.words[pick.i];
   const langName = tr(`parler.lang_${lang.id}`);
-
   const play = () => {
     try {
       audio.current?.pause();
@@ -64,6 +65,13 @@ export function HomeWord({ langs }: { langs: HomeWordLang[] }) {
       setPlaying(false);
     }
   };
+  return { lang, word, langName, play, playing, tr };
+}
+
+export function HomeWord({ langs }: { langs: HomeWordLang[] }) {
+  const w = useWordOfDay(langs);
+  if (!w) return null;
+  const { lang, word, langName, play, playing, tr } = w;
 
   return (
     <section className="dash-word-sec" aria-labelledby="dash-word-h">

@@ -51,7 +51,7 @@ export interface DashPath {
 }
 
 /** Answered questions, and those due again, by note slug (this browser). */
-function useRetention(): Map<string, Retention> {
+export function useRetention(): Map<string, Retention> {
   const [m, setM] = useState<Map<string, Retention>>(new Map());
   useEffect(() => {
     const load = () => {
@@ -81,10 +81,18 @@ export interface DashDayNote {
   family: PathFamily | null;
   minutes: number;
   excerpt: string;
+  /** A longer opening, for the desktop card. */
+  lede?: string;
+  /** Its first section titles (desktop "Dans cette note"). */
+  toc?: string[];
+  /** Its `[!quiz]` cards. */
+  questions?: number;
+  /** The reading path it belongs to. */
+  path?: { slug: string; name: string };
 }
 
 /** Notes read a day that fill the "notes lues aujourd'hui" count. */
-const DAILY_GOAL = 3;
+export const DAILY_GOAL = 3;
 
 const Chevron = () => (
   <svg className="dash-chev" viewBox="0 0 24 24" aria-hidden="true" {...s} strokeWidth={2.4}>
@@ -101,7 +109,7 @@ const Play = () => (
 /** The path to pick up: among those started and not finished, the one whose
  *  notes were last visited; its next step is its first unread note, with how
  *  far into it the reader got and the minutes left. */
-function resumePath(data: HomeData | null, store: ReadingStore) {
+export function resumePath(data: HomeData | null, store: ReadingStore) {
   if (!data) return null;
   let best: { last: number; path: HomeData["paths"][number] } | null = null;
   for (const p of data.paths) {
@@ -130,13 +138,13 @@ function resumePath(data: HomeData | null, store: ReadingStore) {
 
 /** The share of a path read, the current note's progress counting as part
  *  of its step, 0–100. */
-function pathShare(read: number, total: number, pct: number) {
+export function pathShare(read: number, total: number, pct: number) {
   return Math.min(100, (100 * (read + pct / 100)) / total);
 }
 
 /** Round robin over the colour families, so the row never shows the same
  *  family twice in a row while others remain. */
-function mixFamilies<T extends { family: PathFamily | null }>(items: T[]): T[] {
+export function mixFamilies<T extends { family: PathFamily | null }>(items: T[]): T[] {
   const groups = new Map<string, T[]>();
   for (const it of items) {
     const k = it.family ?? "";
@@ -153,10 +161,10 @@ function mixFamilies<T extends { family: PathFamily | null }>(items: T[]): T[] {
   return out;
 }
 
-const LOCALE_TAG: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES", zh: "zh-CN", ar: "ar", id: "id-ID" };
+export const LOCALE_TAG: Record<string, string> = { fr: "fr-FR", en: "en-GB", es: "es-ES", zh: "zh-CN", ar: "ar", id: "id-ID" };
 
 /** Monday-first days of this week, as local "YYYY-MM-DD". */
-function thisWeek(now: Date): string[] {
+export function thisWeek(now: Date): string[] {
   const d = new Date(now);
   d.setHours(12, 0, 0, 0);
   d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
@@ -167,7 +175,7 @@ function thisWeek(now: Date): string[] {
   });
 }
 
-interface Personal {
+export interface Personal {
   now: Date;
   run: number;
   days: Record<string, { r: number; c: number }>;
@@ -175,7 +183,7 @@ interface Personal {
   fresh: boolean;
 }
 
-function usePersonal(store: ReadingStore): Personal | null {
+export function usePersonal(store: ReadingStore): Personal | null {
   const [p, setP] = useState<Personal | null>(null);
   useEffect(() => {
     const load = () => {

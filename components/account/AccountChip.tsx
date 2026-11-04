@@ -121,23 +121,25 @@ export function AccountChip() {
  *  localStorage), with where to review them: the question review when
  *  questions are due, else the decks. Null when nothing is due. Shared by
  *  the review reminder and the phone tab bar's badge. */
-export function useReviewDue(): { n: number; href: string } | null {
-  const [due, setDue] = useState<{ n: number; href: string } | null>(null);
+export function useReviewDue(): { n: number; href: string; decks: number } | null {
+  const [due, setDue] = useState<{ n: number; href: string; decks: number } | null>(null);
   useEffect(() => {
     const count = () => {
       try {
         const today = dayKey();
         let q = 0;
         let c = 0;
+        let decks = 0;
         for (let i = 0; i < localStorage.length; i++) {
           const k = localStorage.key(i);
           if (!k || !k.startsWith("srs:") || k === "srs:probe") continue;
           const p = parseProgress(localStorage.getItem(k));
           const n = Object.values(p.cards).filter((x) => x.due <= today).length;
+          if (n > 0) decks++;
           if (k.startsWith("srs:note:")) q += n;
           else c += n;
         }
-        setDue(q + c > 0 ? { n: q + c, href: q > 0 ? "/cartes/revision/" : "/cartes/" } : null);
+        setDue(q + c > 0 ? { n: q + c, href: q > 0 ? "/cartes/revision/" : "/cartes/", decks } : null);
         // The installed app's icon carries the same count (lib/app-badge.ts).
         setDueBadge(q + c);
       } catch {
