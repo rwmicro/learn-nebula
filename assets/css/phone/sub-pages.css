@@ -55,22 +55,25 @@
   display: none;
 }
 @media (max-width: 639.98px) {
+  /* Two short lines: a small gap above them, not a screen's worth. */
   footer.site-foot {
     border-top: 0;
-    margin-top: 2rem;
+    margin-top: 1rem;
+    padding-top: 0.25rem;
+    padding-bottom: 0.5rem;
   }
   footer.site-foot .site-foot-wide {
     display: none;
   }
   footer.site-foot .site-foot-phone {
     display: block;
-    padding: 0.5rem 1rem 0;
+    padding: 0 1rem;
     text-align: center;
     font: 400 0.8125rem/1.6 var(--font-ui);
     color: var(--muted);
   }
   .site-foot-phone p {
-    margin: 0.5rem 0 0;
+    margin: 0.35rem 0 0;
   }
   .site-foot-phone a {
     color: inherit;

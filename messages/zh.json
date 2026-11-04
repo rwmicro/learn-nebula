@@ -1975,7 +1975,11 @@
     "whiteToPlay": "白方走棋。",
     "blackToPlay": "黑方走棋。",
     "cardQ": "最佳着法是什么？",
-    "cardA": "你在对局中走了 {m}"
+    "cardA": "你在对局中走了 {m}",
+    "endWin": "胜利！",
+    "endLoss": "失败",
+    "endDraw": "和棋",
+    "endClose": "关闭"
   },
   "chat": {
     "title": "花园",
@@ -2413,7 +2417,7 @@
     "lang_de": "德语",
     "lang_fr": "法语",
     "lang_zh": "普通话",
-    "lang_ar": "阿拉伯语",
+    "lang_ar": "标准阿拉伯语",
     "lang_hi": "印地语",
     "lang_id": "印尼语",
     "lang_tr": "土耳其语",
@@ -2445,7 +2449,7 @@
     "downloading": "正在下载模型… {p}%",
     "noModel": "此浏览器无法运行伙伴。请在电脑上使用 Chrome 或 Edge，或使用较新的安卓手机。",
     "needsDownload": "伙伴需要一个 {n} GB 的模型，只需下载一次并保存在设备上。",
-    "cloudListen": "此浏览器会把您的声音发送到其识别服务。其余内容都留在设备上。",
+    "cloudListen": "此浏览器会把你的声音发送到它的语音识别服务。其余一切都在设备上进行。",
     "onDevice": "任何内容都不会离开您的设备。",
     "start": "与 {name} 对话",
     "back": "返回",
@@ -2551,6 +2555,13 @@
     "inviteTitle": "{lang}：开口练习",
     "inviteText": "和伙伴在场景中语音对话，在您的设备上运行。",
     "inviteGo": "开口说",
-    "inviteTextTandem": "在您的设备上与伙伴进行场景对话，或与朋友通话。"
+    "inviteTextTandem": "在您的设备上与伙伴进行场景对话，或与朋友通话。",
+    "variety_ar": "现代标准阿拉伯语（Fuṣḥā）：书面、新闻和演讲使用的阿拉伯语，从拉巴特到巴格达都能听懂。它不是黎凡特语（黎巴嫩、叙利亚、约旦）或摩洛哥达里贾语那样的日常口语方言。",
+    "goalsPreview": "目标：",
+    "voiceLoading": "正在下载语音… {p}%",
+    "noVoice": "此设备上没有安装{lang}语音：开启自然语音即可听到句子。",
+    "turnOnVoice": "开启自然语音",
+    "failedWhy": "详情：{why}",
+    "micError": "麦克风已停止（{e}）。请检查网站是否有使用麦克风的权限，或直接输入你的回答。"
   }
 }

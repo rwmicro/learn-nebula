@@ -92,8 +92,28 @@ export interface Listening {
   cancel(): void;
 }
 
-/** Listen in `tag` until stop(); `onInterim` gets the words so far. */
-export function listen(tag: string, mode: ListenMode, onInterim?: (text: string) => void): Listening | null {
+/** iOS routes Web Audio to the earpiece, quietly, once the microphone was
+ *  used, unless the page says what it is doing (Safari's Audio Session API;
+ *  absent elsewhere, where this does nothing). */
+function audioSession(type: "playback" | "play-and-record"): void {
+  const s = (globalThis.navigator as unknown as { audioSession?: { type: string } } | undefined)?.audioSession;
+  if (!s) return;
+  try {
+    s.type = type;
+  } catch {
+    /* read-only here */
+  }
+}
+
+/** Listen in `tag` until stop(); `onInterim` gets the words so far. `onEnd`
+ *  fires when the recogniser stops by itself before stop() was asked (Safari
+ *  ends after a silence, or on an error such as a refused microphone). */
+export function listen(
+  tag: string,
+  mode: ListenMode,
+  onInterim?: (text: string) => void,
+  onEnd?: (error: string | null) => void,
+): Listening | null {
   const R = recogniser();
   if (!R || mode === "none") return null;
   let r: SRInstance;
@@ -111,6 +131,7 @@ export function listen(tag: string, mode: ListenMode, onInterim?: (text: string)
   let firstAlts: string[] = [];
   let interim = "";
   let ended = false;
+  let asked = false;
   let resolveEnd: () => void = () => {};
   const endP = new Promise<void>((res) => (resolveEnd = res));
   r.onresult = (e) => {
@@ -124,14 +145,21 @@ export function listen(tag: string, mode: ListenMode, onInterim?: (text: string)
     }
     onInterim?.(`${finals.filter(Boolean).join(" ")} ${interim}`.trim());
   };
+  let error: string | null = null;
   r.onend = () => {
+    if (ended) return;
     ended = true;
     resolveEnd();
+    if (!asked) onEnd?.(error);
   };
-  r.onerror = () => {
-    ended = true;
-    resolveEnd();
+  r.onerror = (e) => {
+    // "no-speech" and "aborted" are not failures: nothing was said, or we
+    // stopped it.
+    if (e?.error && e.error !== "no-speech" && e.error !== "aborted") error = e.error;
+    // Some engines fire onerror without onend.
+    setTimeout(() => r.onend?.(), 300);
   };
+  audioSession("play-and-record");
   try {
     r.start();
   } catch {
@@ -139,6 +167,7 @@ export function listen(tag: string, mode: ListenMode, onInterim?: (text: string)
   }
   return {
     async stop() {
+      asked = true;
       if (!ended) {
         try {
           r.stop();
@@ -155,6 +184,7 @@ export function listen(tag: string, mode: ListenMode, onInterim?: (text: string)
       return [best, ...alts.filter((a) => a && a !== best)];
     },
     cancel() {
+      asked = true;
       try {
         r.abort();
       } catch {
@@ -230,20 +260,53 @@ export interface Speaking {
 }
 
 let ctx: AudioContext | null = null;
+let primed = false;
 
-/** Make the AudioContext inside a click (iOS needs it for the natural voice). */
+/** Make the AudioContext inside a click (iOS needs it for the natural voice),
+ *  and say an empty line once: iOS only lets speechSynthesis talk outside a
+ *  click (the partner's answers, which arrive later) after a first line said
+ *  inside one. */
 export function unlockAudio(): void {
   try {
-    ctx ??= new AudioContext();
+    if (!ctx || ctx.state === "closed") ctx = new AudioContext();
     if (ctx.state === "suspended") void ctx.resume();
   } catch {
     ctx = null;
   }
+  const synth = globalThis.speechSynthesis;
+  if (!primed && synth && typeof SpeechSynthesisUtterance === "function") {
+    primed = true;
+    try {
+      const u = new SpeechSynthesisUtterance(" ");
+      u.volume = 0;
+      synth.speak(u);
+    } catch {
+      /* no speech here */
+    }
+  }
+}
+
+/** Whether the system has a voice for `tag` (any region). The list may load
+ *  late (Chrome fills it after a `voiceschanged`): this waits for it a little. */
+export async function hasSystemVoice(tag: string): Promise<boolean> {
+  const synth = globalThis.speechSynthesis;
+  if (!synth) return false;
+  if (!synth.getVoices().length)
+    await new Promise<void>((res) => {
+      const done = () => {
+        synth.removeEventListener?.("voiceschanged", done);
+        res();
+      };
+      synth.addEventListener?.("voiceschanged", done);
+      setTimeout(done, 1500);
+    });
+  return systemVoice(tag) !== null;
 }
 
 /** Say `text` in `tag` at `rate` (1 = normal). The natural voice when it is
- *  on and the language has one; it reads at its own pace, so a slower rate
- *  ("plus lentement") goes to the system voice. */
+ *  on and the language has one (a slower rate stretches it: Arabic or Hindi
+ *  often have no system voice to fall back on), else the system voice, which
+ *  also takes over when the natural one fails before saying anything. */
 let current: Speaking | null = null;
 
 export function speak(text: string, tag: string, rate = 1, onProgress?: (pct: number) => void): Speaking {
@@ -255,6 +318,7 @@ export function speak(text: string, tag: string, rate = 1, onProgress?: (pct: nu
   let piper: PiperReading | null = null;
   let finish: () => void = () => {};
   const done = new Promise<void>((res) => (finish = res));
+  audioSession("playback");
   const system = () => {
     const synth = globalThis.speechSynthesis;
     if (!synth || typeof SpeechSynthesisUtterance !== "function" || stopped) return finish();
@@ -272,14 +336,18 @@ export function speak(text: string, tag: string, rate = 1, onProgress?: (pct: nu
     synth.speak(u);
     synth.resume();
   };
-  if (naturalVoiceOn() && naturalVoiceFor(tag) && rate >= 0.9 && ctx) {
+  if (naturalVoiceOn() && naturalVoiceFor(tag) && ctx && ctx.state !== "closed") {
+    let played = false;
     void readWithPiper({
       ctx,
       lang: tag,
       chunks: [text],
+      rate,
+      keepContext: true,
       onProgress,
+      onPlaying: () => (played = true),
       onEnd: () => finish(),
-      onError: () => finish(),
+      onError: () => (played ? finish() : system()),
     }).then((r) => {
       if (!r) return system();
       piper = r;

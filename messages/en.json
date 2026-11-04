@@ -1975,7 +1975,11 @@
     "whiteToPlay": "White to play.",
     "blackToPlay": "Black to play.",
     "cardQ": "What is the best move?",
-    "cardA": "in your game you played {m}"
+    "cardA": "in your game you played {m}",
+    "endWin": "You won!",
+    "endLoss": "You lost",
+    "endDraw": "Draw",
+    "endClose": "Close"
   },
   "chat": {
     "title": "Garden",
@@ -2413,7 +2417,7 @@
     "lang_de": "German",
     "lang_fr": "French",
     "lang_zh": "Mandarin",
-    "lang_ar": "Arabic",
+    "lang_ar": "Standard Arabic",
     "lang_hi": "Hindi",
     "lang_id": "Indonesian",
     "lang_tr": "Turkish",
@@ -2445,7 +2449,7 @@
     "downloading": "Downloading the model… {p}%",
     "noModel": "This browser can't run the partner. Try Chrome or Edge on a computer, or a recent Android phone.",
     "needsDownload": "The partner needs a {n} GB model, downloaded once and kept on the device.",
-    "cloudListen": "This browser sends your voice to its recognition service. Everything else stays on the device.",
+    "cloudListen": "This browser sends your voice to its speech recognition service. Everything else stays on the device.",
     "onDevice": "Nothing leaves your device.",
     "start": "Talk with {name}",
     "back": "Back",
@@ -2551,6 +2555,13 @@
     "inviteTitle": "{lang}: say it out loud",
     "inviteText": "A scene with a partner, spoken, on your device.",
     "inviteGo": "Speak",
-    "inviteTextTandem": "A scene with a partner on your device, or a call with a friend."
+    "inviteTextTandem": "A scene with a partner on your device, or a call with a friend.",
+    "variety_ar": "Modern Standard Arabic (fuṣḥā): the Arabic of writing, the news and speeches, understood from Rabat to Baghdad. It is not an everyday spoken dialect like Levantine (Lebanese, Syrian, Jordanian) or Moroccan Darija.",
+    "goalsPreview": "Goals:",
+    "voiceLoading": "Downloading the voice… {p}%",
+    "noVoice": "No {lang} voice is installed on this device: turn on the natural voice to hear the sentences.",
+    "turnOnVoice": "Turn on the natural voice",
+    "failedWhy": "Details: {why}",
+    "micError": "The microphone stopped ({e}). Check that the site may use the microphone, or type your answer."
   }
 }

@@ -575,33 +575,135 @@ button.prix[aria-expanded="true"] {
 }
 
 /* ------------------------------------------------- chess game replay */
+/* `partie` and `echiquier` (public/js/data/chessboard.js): the board of
+   /echecs/ (assets/css/echecs.css), same squares, same SVG pieces. */
 .l-partie-grid {
   display: grid;
-  grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
   gap: 1rem 1.4rem;
   align-items: start;
 }
-.l-board {
-  margin-bottom: 0.5rem;
+.wc-side {
+  display: grid;
+  gap: 0.6rem;
+  max-width: 22rem;
 }
-.l-board:focus-visible {
-  outline: 2px solid var(--link);
+.wc-board {
+  --sq-l: #eee6d3;
+  --sq-d: #b59a74;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.08),
+    0 6px 20px rgb(0 0 0 / 0.08);
+  container-type: inline-size;
+}
+:root[data-theme="dark"] .wc-board {
+  --sq-l: #d9ccb0;
+  --sq-d: #9a7f5c;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .wc-board {
+    --sq-l: #d9ccb0;
+    --sq-d: #9a7f5c;
+  }
+}
+.wc-board:focus-visible {
+  outline: 3px solid var(--garden);
+  outline-offset: 3px;
+}
+.wc-sq {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: var(--sq-l);
+}
+.wc-sq.is-dark {
+  background: var(--sq-d);
+}
+.wc-sq.is-last::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgb(214 178 62 / 0.42);
+}
+.wc-pc {
+  position: relative;
+  z-index: 1;
+  width: 92%;
+  height: 92%;
+}
+.wc-co {
+  position: absolute;
+  z-index: 2;
+  font: 700 max(0.55rem, 2.6cqi) / 1 var(--font-ui);
+  color: var(--sq-d);
+}
+.wc-sq.is-dark .wc-co {
+  color: var(--sq-l);
+}
+.wc-co.is-rank {
+  top: 0.15rem;
+  left: 0.2rem;
+}
+.wc-co.is-file {
+  right: 0.25rem;
+  bottom: 0.1rem;
+}
+/* The move buttons: round icons, "next" in the garden's green, as the
+   move controls of /echecs/. */
+.wc-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.wc-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+}
+.wc-btn:hover:not(:disabled) {
+  background: var(--wash);
+}
+.wc-btn.is-main {
+  border-color: transparent;
+  background: var(--garden);
+  color: var(--paper);
+}
+.wc-btn.is-main:hover:not(:disabled) {
+  background: var(--garden);
+  filter: brightness(1.08);
+}
+.wc-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.wc-btn:focus-visible {
+  outline: 2px solid var(--garden);
   outline-offset: 2px;
 }
-/* Pieces are objects, not text: the same ivory and ebony in both themes,
-   filled glyphs so the two sides differ by more than an outline. */
-.l-pc-w,
-.l-pc-b {
-  font-size: 1.65rem;
-  line-height: 1;
+.wc-count {
+  margin-left: auto;
+  color: var(--muted);
+  font: 600 var(--text-small) var(--font-ui);
+  font-variant-numeric: tabular-nums;
 }
-.l-pc-w {
-  color: #f6f1e4;
-  -webkit-text-stroke: 1px #2a2620;
-  paint-order: stroke fill;
-}
-.l-pc-b {
-  color: #2a2620;
+.wc-move {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: var(--text-small);
 }
 .l-moves {
   display: flex;
@@ -1036,20 +1138,6 @@ button.prix[aria-expanded="true"] {
 }
 .w-goal-action {
   display: none;
-}
-.widget.is-live .l-board {
-  max-width: 22rem;
-}
-.widget.is-live .l-pc-w,
-.widget.is-live .l-pc-b {
-  font-size: clamp(1.2rem, 6vw, 1.9rem);
-}
-.widget.is-live .l-pc-w {
-  color: #fbf8f0;
-  -webkit-text-stroke: 1px #222;
-}
-.widget.is-live .l-pc-b {
-  color: #111;
 }
 .widget.is-live .l-moves {
   font-size: 0.9rem;

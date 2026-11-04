@@ -184,33 +184,130 @@
 
 /* ------------------------------------------------------------------ setup */
 
-.pt-chips {
+/* "Hello" in the nine languages, the chosen one lit: decoration only. */
+.pt-hello {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  justify-content: center;
+  gap: 0.55rem 0.5rem;
+  margin: -0.25rem 0 0.5rem;
+  padding: 0.4rem 0 0.6rem;
 }
-.pt-chip {
-  display: inline-flex;
-  align-items: center;
-  height: var(--chip-h);
-  padding: var(--chip-pad);
-  border: 0;
-  border-radius: var(--radius-pill);
-  background: var(--chip-bg);
+.pt-hello span {
+  position: relative;
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--rule);
+  border-radius: 1rem;
+  background: var(--paper-raised);
+  color: var(--muted);
+  font: 500 0.9rem/1.3 var(--font-text);
+  rotate: calc((var(--i) - 4) * 0.6deg);
+  animation: pt-hello-float 5s ease-in-out calc(var(--i) * -0.6s) infinite;
+  transition:
+    background 0.25s,
+    color 0.25s,
+    border-color 0.25s,
+    scale 0.25s;
+}
+/* The tail, on alternate sides. */
+.pt-hello span::after {
+  content: "";
+  position: absolute;
+  bottom: -0.32rem;
+  left: 0.9rem;
+  width: 0.55rem;
+  height: 0.55rem;
+  border: inherit;
+  border-top: 0;
+  border-left: 0;
+  background: inherit;
+  transform: rotate(45deg) skew(10deg, 10deg);
+}
+.pt-hello span:nth-child(even)::after {
+  left: auto;
+  right: 0.9rem;
+}
+.pt-hello span.is-on {
+  border-color: var(--garden);
+  background: var(--garden);
+  color: var(--paper);
+  font-weight: 600;
+  scale: 1.12;
+  z-index: 1;
+}
+@media (max-width: 639px) {
+  .pt-hello {
+    gap: 0.45rem 0.3rem;
+    margin: -0.4rem 0 0;
+  }
+  .pt-hello span {
+    padding: 0.15rem 0.5rem;
+    font-size: 0.8rem;
+  }
+  .pt-hello span::after {
+    left: 0.6rem;
+  }
+  .pt-hello span:nth-child(even)::after {
+    right: 0.6rem;
+  }
+}
+@keyframes pt-hello-float {
+  50% {
+    translate: 0 -3px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pt-hello span {
+    animation: none;
+  }
+}
+.pt-scene-ico {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-bottom: 0.2rem;
+  fill: none;
+  stroke: var(--garden);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+label.pt-h {
+  display: block;
+}
+/* The language: one native list (the phone's own picker), not a wall of
+   chips; the languages to come sit greyed in its last group. */
+.pt-select {
+  position: relative;
+  max-width: 22rem;
+}
+.pt-select select {
+  appearance: none;
+  width: 100%;
+  height: 2.75rem;
+  padding: 0 2.5rem 0 1rem;
+  border: 1px solid var(--rule-strong);
+  border-radius: 0.75rem;
+  background: var(--paper-raised);
   color: var(--ink);
-  font: var(--chip-font);
+  font: 500 1rem var(--font-ui);
   cursor: pointer;
 }
-.pt-chip.is-on {
-  background: var(--chip-on-bg);
-  color: var(--chip-on-ink);
+.pt-select select:focus-visible {
+  outline: 2px solid var(--color-garden);
+  outline-offset: 2px;
 }
-.pt-chip.is-soon {
-  background: transparent;
-  border: 1px dashed var(--rule-strong);
-  color: var(--faint);
-  cursor: default;
-  font-size: 0.85rem;
+.pt-select::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 2px solid var(--muted);
+  border-bottom: 2px solid var(--muted);
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
 }
 
 .pt-partners {
@@ -993,6 +1090,152 @@
     gap: 1.25rem;
   }
   .pt-composer.is-typing .pt-mic-label {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------- the setup, made compact */
+
+/* The kind of Arabic the partner speaks, under the chips. */
+.pt-variety {
+  margin: 0.7rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border-left: 3px solid var(--garden);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--wash);
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+.pt-partner-name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+}
+.pt-partner-txt .pt-lv {
+  padding: 0 0.4rem;
+  border-radius: var(--radius-pill);
+  background: var(--wash);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.pt-partner.is-on .pt-lv {
+  background: var(--paper);
+  color: var(--garden);
+}
+/* Where the voice goes, above the start button (not in its sticky bar). */
+.pt-device-setup {
+  margin-top: 1.5rem;
+}
+/* The two goals of the chosen scene, before it starts. */
+.pt-goals-preview {
+  margin: 0.7rem 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.pt-goals-preview b {
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.pt-summary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-align: center;
+}
+.pt-notice {
+  margin: 0 0 0.9rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--radius-md);
+  background: var(--pt-bad-wash);
+  color: var(--ink-2);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+.pt-talk .pt-notice {
+  margin: 0.5rem 0 0;
+}
+.pt-error-why {
+  display: block;
+  margin-top: 0.2rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+/* Phones: the setup was a long column of full-width cards (four partners,
+   seven scenes), with the start button at its very end. The cards go two by
+   two, and the start button stays at hand above the tab bar. */
+@media (max-width: 639px) {
+  .parler {
+    padding-bottom: 1rem;
+  }
+  .pt-setup .pt-intro {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+  }
+  .pt-setup .pt-h {
+    margin: 1.4rem 0 0.55rem;
+  }
+  .pt-partners,
+  .pt-scenes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+  .pt-partner {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 0.25rem 0.55rem;
+    height: 100%;
+    padding: 0.6rem 0.65rem;
+  }
+  .pt-partner .pt-avatar {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.95rem;
+  }
+  .pt-partner-txt small {
+    font-size: 0.76rem;
+    line-height: 1.3;
+  }
+  .pt-mine {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+  .pt-scene {
+    padding: 0.6rem 0.7rem;
+  }
+  .pt-scene b {
+    font-size: 0.95rem;
+    line-height: 1.25;
+  }
+  .pt-scene small {
+    font-size: 0.76rem;
+    line-height: 1.3;
+  }
+  .pt-start-sticky {
+    position: sticky;
+    bottom: calc(var(--gk-tabbar-h, 0px) + 0.5rem);
+    z-index: 5;
+    gap: 0.4rem;
+    margin: 1.5rem -0.5rem 0;
+    padding: 0.6rem 0.5rem 0.5rem;
+    border-radius: 1.25rem;
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    -webkit-backdrop-filter: blur(12px) saturate(1.6);
+    backdrop-filter: blur(12px) saturate(1.6);
+  }
+  .pt-start-sticky {
+    margin-top: 0.75rem;
+  }
+  /* The conversation is a full screen of its own: its top row ends with the
+     subtitles button, where the round "Moi" button sat over it, and the
+     licence line peeked under the microphone. */
+  body:has(.pt-talk) .site-bar-me,
+  body:has(.pt-talk) footer.site-foot {
     display: none;
   }
 }

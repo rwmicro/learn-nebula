@@ -281,7 +281,9 @@ export function mount(builders) {
     index++;
     // A data widget whose numbers could not be had at build keeps the message
     // rehypeWidgets put in its fallback (data-error).
-    if (!build || fig.classList.contains("is-live") || fig.hasAttribute("data-error")) continue;
+    // Only the figures given to a pack (data-pack): the older library keeps
+    // the others, such as an `echiquier` star hunt.
+    if (!build || !fig.hasAttribute("data-pack") || fig.classList.contains("is-live") || fig.hasAttribute("data-error")) continue;
     let props = {};
     try {
       props = JSON.parse(fig.getAttribute("data-props") || "{}");

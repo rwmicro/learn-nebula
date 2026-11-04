@@ -1563,7 +1563,9 @@ function rehypeWidgets(dir: string) {
           // Which pack bundle the loader fetches; absent for the original
           // library. Read by public/js/widgets-loader.js so that the note
           // bundle every page downloads needn't carry the widget registry.
-          "data-pack": extra?.pack,
+          // `echiquier` is drawn by the data pack (the board of /echecs/),
+          // except its star hunt (`etoiles:`), which keeps the old library.
+          "data-pack": extra?.pack ?? (name === "echiquier" && !props.etoiles ? "data" : undefined),
           "data-props": JSON.stringify(props),
           "data-pagefind-ignore": true,
         },

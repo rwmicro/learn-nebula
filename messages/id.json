@@ -1975,7 +1975,11 @@
     "whiteToPlay": "Putih jalan.",
     "blackToPlay": "Hitam jalan.",
     "cardQ": "Apa langkah terbaik?",
-    "cardA": "dalam permainanmu, kamu memainkan {m}"
+    "cardA": "dalam permainanmu, kamu memainkan {m}",
+    "endWin": "Menang!",
+    "endLoss": "Kalah",
+    "endDraw": "Remis",
+    "endClose": "Tutup"
   },
   "chat": {
     "title": "Kebun",
@@ -2413,7 +2417,7 @@
     "lang_de": "Jerman",
     "lang_fr": "Prancis",
     "lang_zh": "Mandarin",
-    "lang_ar": "Arab",
+    "lang_ar": "Arab standar",
     "lang_hi": "Hindi",
     "lang_id": "Indonesia",
     "lang_tr": "Turki",
@@ -2445,7 +2449,7 @@
     "downloading": "Mengunduh model… {p}%",
     "noModel": "Peramban ini tidak bisa menjalankan mitra. Coba Chrome atau Edge di komputer, atau ponsel Android terbaru.",
     "needsDownload": "Mitra memerlukan model {n} GB, diunduh sekali lalu disimpan di perangkat.",
-    "cloudListen": "Peramban ini mengirim suara Anda ke layanan pengenalannya. Sisanya tetap di perangkat.",
+    "cloudListen": "Peramban ini mengirim suaramu ke layanan pengenalan suaranya. Semua yang lain tetap di perangkat.",
     "onDevice": "Tidak ada yang keluar dari perangkat Anda.",
     "start": "Bicara dengan {name}",
     "back": "Kembali",
@@ -2551,6 +2555,13 @@
     "inviteTitle": "{lang}: saatnya berbicara",
     "inviteText": "Adegan dengan mitra, diucapkan, di perangkat Anda.",
     "inviteGo": "Bicara",
-    "inviteTextTandem": "Adegan dengan mitra di perangkat Anda, atau panggilan dengan teman."
+    "inviteTextTandem": "Adegan dengan mitra di perangkat Anda, atau panggilan dengan teman.",
+    "variety_ar": "Bahasa Arab Standar Modern (fuṣḥā): bahasa Arab tulisan, berita, dan pidato, dipahami dari Rabat sampai Bagdad. Ini bukan dialek sehari-hari seperti Arab Syam (Lebanon, Suriah, Yordania) atau Darija Maroko.",
+    "goalsPreview": "Tujuan:",
+    "voiceLoading": "Mengunduh suara… {p}%",
+    "noVoice": "Tidak ada suara {lang} di perangkat ini: aktifkan suara alami untuk mendengar kalimatnya.",
+    "turnOnVoice": "Aktifkan suara alami",
+    "failedWhy": "Detail: {why}",
+    "micError": "Mikrofon berhenti ({e}). Periksa apakah situs boleh memakai mikrofon, atau ketik jawabanmu."
   }
 }
