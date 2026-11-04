@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { backdropRefraction, lensMap } from "./liquid-glass";
+import { backdropRefraction, lensMap, specularMap } from "./liquid-glass";
 
 const at = (m: Uint8ClampedArray, w: number, x: number, y: number) => {
   const i = (y * w + x) * 4;
@@ -36,6 +36,31 @@ describe("lensMap", () => {
     const o = lensMap(7, 5, 50, 2);
     expect(o.length).toBe(7 * 5 * 4);
     expect(at(o, 7, 3, 2)).toEqual([128, 128, 128, 255]);
+  });
+});
+
+describe("specularMap", () => {
+  const w = 120;
+  const h = 40;
+  const m = specularMap(w, h, 20, 16, 2);
+  const W = w * 2;
+  const alpha = (x: number, y: number) => at(m, W, x, y)[3];
+
+  it("is drawn at the given density", () => {
+    expect(m.length).toBe(W * h * 2 * 4);
+  });
+
+  it("leaves the middle clear", () => {
+    expect(alpha(W / 2, h)).toBe(0);
+  });
+
+  it("lights the rim facing the light more than the one facing away", () => {
+    // Light from the top left: the top edge shines, the bottom one less.
+    const top = alpha(W / 2 - 40, 1);
+    const bottom = alpha(W / 2 - 40, h * 2 - 2);
+    expect(top).toBeGreaterThan(150);
+    expect(bottom).toBeGreaterThan(0);
+    expect(top).toBeGreaterThan(bottom);
   });
 });
 

@@ -54,6 +54,7 @@
   --glass-drop: 0 10px 30px rgb(0 0 0 / 0.45);
   --glass-shadow: var(--glass-inset), var(--glass-drop);
   --glass-rim-o: 0.4;
+  --glass-spec-o: 0.55;
   --glass-sheen: linear-gradient(
     135deg,
     rgb(255 255 255 / 0.18),
@@ -73,6 +74,7 @@
     --glass-drop: 0 10px 30px rgb(0 0 0 / 0.45);
     --glass-shadow: var(--glass-inset), var(--glass-drop);
     --glass-rim-o: 0.4;
+  --glass-spec-o: 0.55;
     --glass-sheen: linear-gradient(
       135deg,
       rgb(255 255 255 / 0.18),
@@ -124,6 +126,16 @@
     linear-gradient(#000 0 0) content-box exclude,
     linear-gradient(#000 0 0);
   pointer-events: none;
+}
+/* The light the rim catches, drawn for the element's shape and size
+   (lib/liquid-glass.ts specularMap): replaces the gradient ring where it is
+   attached. A still image, so it costs Safari nothing per frame. */
+.glass.has-spec::after {
+  padding: 0;
+  background: var(--glass-spec) 0 0 / 100% 100% no-repeat;
+  opacity: var(--glass-spec-o, 1);
+  -webkit-mask: none;
+  mask: none;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass {
