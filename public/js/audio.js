@@ -91,14 +91,29 @@ function loadPiper() {
     const main = document.getElementById("main");
     return ((main && main.getAttribute("lang")) || "fr").toLowerCase();
   }
+  // The best installed voice for `lang`. iOS and macOS ship a small
+  // "compact" voice per language, but the reader can install far better
+  // ones (Réglages › Accessibilité › Contenu énoncé › Voix): "Premium",
+  // then "Enhanced" ("améliorée"), which show in the name or the voiceURI
+  // (com.apple.voice.premium.fr-FR.Audrey). Eloquence's voices (Eddy, Flo,
+  // Grandma…) and the novelty ones come last.
+  function voiceScore(v) {
+    const id = `${v.name} ${v.voiceURI}`.toLowerCase();
+    let s = 0;
+    if (/premium/.test(id)) s += 4;
+    else if (/enhanced|amélioré|natural|neural/.test(id)) s += 3;
+    if (/eloquence|speech\.synthesis\.voice/.test(id)) s -= 3;
+    if (v.localService) s += 1;
+    return s;
+  }
   function pickVoice(lang) {
     const base = lang.split("-")[0];
-    const voices = synth ? synth.getVoices() : [];
-    return (
-      voices.find((v) => v.lang && v.lang.toLowerCase().startsWith(base) && v.localService) ||
-      voices.find((v) => v.lang && v.lang.toLowerCase().startsWith(base)) ||
-      null
+    const voices = (synth ? synth.getVoices() : []).filter(
+      (v) => v.lang && v.lang.toLowerCase().replace("_", "-").startsWith(base),
     );
+    let best = null;
+    for (const v of voices) if (!best || voiceScore(v) > voiceScore(best)) best = v;
+    return best;
   }
 
   // Chrome on a computer silently stops SpeechSynthesis after ~15 seconds; a
