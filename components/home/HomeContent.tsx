@@ -513,7 +513,7 @@ export function HomeContent({
             </p>
           </section>
 
-          <section className="home-ask rounded-md bg-wash px-6 py-5">
+          <section id="demander" className="home-ask rounded-md bg-wash px-6 py-5">
             <div className="home-ask-head mb-[0.6rem] flex items-center justify-between gap-2">
               <h2 className={labelCls}>{tr("home.askLabel")}</h2>
               {/* Pushpin: open the garden chat (components/chat/GardenChat.tsx) and

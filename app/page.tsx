@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Newsreader } from "next/font/google";
 import { getAllPosts, getDisciplines, getIndexDoc, getLanguageScopes, getPost, getReadingPaths, getRecentNotes, INDEX_NOTE } from "@/lib/content";
 import { HomeMore } from "@/components/home/HomeMore";
-import { PARTNER_DATA, PARTNER_LANGS } from "@/lib/partner-scenes";
+import { PARTNER_DATA, PARTNER_LANGS, VAULT_FOLDER } from "@/lib/partner-scenes";
 import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
 import { t } from "@/lib/i18n";
 import { pageMetadata } from "@/lib/seo";
@@ -16,10 +16,13 @@ import { Graphiques } from "@/components/explore/Graphiques";
 import { getGraphiques } from "@/lib/graphiques";
 import { namedLevels } from "@/components/paths/Parcours";
 import { HomeDashboard, type DashDayNote, type DashPath, type DashRecent } from "@/components/home/HomeDashboard";
+import type { HomeWordLang } from "@/components/home/HomeWord";
 import { extractPlain } from "@/lib/markdown";
+import { openingParagraph, vocabFromMarkdown } from "@/lib/home-picks";
+import { resolveVaultAsset } from "@/lib/vault-assets";
 import { readingMinutes } from "@/lib/path-extras";
 import { familyOfPrefix, pathFamily } from "@/lib/path-family";
-import { boardSvg, CHESS_NOTES, LEVELS, START } from "@/lib/chess-play";
+import { boardSvg, LEVELS, START } from "@/lib/chess-play";
 import "@/assets/css/graphiques.css";
 
 // Editorial serif for the content zone. next/font self-hosts the files at build
@@ -75,7 +78,8 @@ function dashboardData(): { paths: DashPath[]; recent: DashRecent[]; dayNotes: D
     .map((d) => ({ slug: d.slug, name: d.name, count: d.count, family: familyOfPrefix(d.prefix), prefix: d.prefix }))
     .sort((a, b) => b.count - a.count);
   const builtAt = Date.now();
-  const recent = getRecentNotes().map((n) => {
+  // Folder indexes are maps, not new growth.
+  const recent = getRecentNotes(12).filter((n) => !/\bindex\b/i.test(n.title)).slice(0, 3).map((n) => {
     const slug = n.href.replace(/^\/posts\//, "").replace(/\/$/, "");
     const d = disciplines.find((x) => slug.startsWith(x.prefix));
     return {
@@ -100,14 +104,17 @@ function dashboardData(): { paths: DashPath[]; recent: DashRecent[]; dayNotes: D
     const plain = extractPlain(doc.body);
     const minutes = readingMinutes(plain);
     if (minutes < 3 || plain.length < 400) continue;
+    // Its first real paragraph: a note that opens on a list of objectives or
+    // a vocabulary table reads badly as a teaser ("Dans cette fiche Nommer…").
+    const opening = extractPlain(openingParagraph(doc.body));
+    if (!opening) continue;
     dayNotes.push({
       title: doc.frontmatter.title,
       href: `/posts/${doc.slug}/`,
       discipline: d.name,
       family: d.family,
       minutes,
-      // The body often opens on its own title: start after it.
-      excerpt: excerpt(plain.startsWith(doc.frontmatter.title) ? plain.slice(doc.frontmatter.title.length) : plain),
+      excerpt: excerpt(opening),
     });
   }
   const paths = getReadingPaths().map((p) => ({
@@ -121,17 +128,43 @@ function dashboardData(): { paths: DashPath[]; recent: DashRecent[]; dayNotes: D
   return { paths, recent, dayNotes };
 }
 
+/** The phone home's word of the day (components/home/HomeWord.tsx): for each
+ *  language Parler offers, ten words with their clip, from the vocabulary
+ *  tables of its vault folder, in a stable shuffle. The browser shows one a
+ *  day, in the language last practised. */
+function wordsOfDay(): HomeWordLang[] {
+  const out: HomeWordLang[] = [];
+  for (const id of PARTNER_LANGS) {
+    const folder = VAULT_FOLDER[id];
+    if (!folder) continue;
+    const marker = `Languages - Dialects/${folder}/`;
+    const seen = new Set<string>();
+    const words: HomeWordLang["words"] = [];
+    for (const doc of getAllPosts()) {
+      if (!doc.rawPath.includes(marker)) continue;
+      const dir = doc.rawPath.split("/").slice(0, -1).join("/");
+      for (const v of vocabFromMarkdown(doc.body)) {
+        const audio = resolveVaultAsset(v.audio, dir);
+        const key = v.w.toLowerCase();
+        if (!audio || seen.has(key)) continue;
+        seen.add(key);
+        words.push({ ...v, audio, note: doc.frontmatter.title, href: `/posts/${doc.slug}/` });
+      }
+    }
+    if (words.length) out.push({ id, words: words.sort((a, b) => slugHash(a.audio) - slugHash(b.audio)).slice(0, 10) });
+  }
+  return out;
+}
+
 export default async function HomePage() {
   const doc = getIndexDoc();
   const dash = dashboardData();
   const noteCount = getAllPosts().filter((d) => d.rawPath !== INDEX_NOTE).length;
-  const openings = getAllPosts().some((d) => d.slug === CHESS_NOTES.openings) ? `/posts/${CHESS_NOTES.openings}/` : null;
   const talk = PARTNER_LANGS.map((id) => {
     const d = PARTNER_DATA[id];
-    const e = d.scenes.cafe.exprs[0];
-    return { id, partners: [...d.partners], line: e.t, gloss: { fr: e.fr, en: e.en } };
+    return { id, partners: [...d.partners], line: d.scenes.cafe.exprs[0].t };
   });
-  const chess = { startBoard: boardSvg(START), levels: LEVELS.map((l) => ({ id: l.id, elo: l.elo })), openings };
+  const chess = { startBoard: boardSvg(START), levels: LEVELS.map((l) => ({ id: l.id, elo: l.elo })) };
   return (
     <>
       <Header doc={doc} />
@@ -143,6 +176,7 @@ export default async function HomePage() {
         noteCount={noteCount}
         chess={chess}
         talk={talk}
+        words={wordsOfDay()}
       />
       {/* Intro and painting: the phone dashboard shows the painting as its
           banner and moves the intro to "À propos du jardin" (app.css). */}

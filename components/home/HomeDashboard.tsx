@@ -13,17 +13,17 @@ import type { PathFamily } from "@/lib/path-family";
 import { ERAGNY, paintingFor } from "@/lib/paintings";
 import { daysAgo, loadAllNoteDecks, NOTE_PREFIX, retentionBySlug, type Retention } from "@/lib/note-quiz";
 import { dayKey, daysBetween } from "@/lib/srs";
-import { PIECE_SVG } from "@/lib/chess-pieces";
 import { HomeChess, type HomeChessData } from "@/components/home/HomeChess";
 import { HomeTalk, type HomeTalkLang } from "@/components/home/HomeTalk";
+import { HomeWord, type HomeWordLang } from "@/components/home/HomeWord";
 
 // The home as an app dashboard, on phones only (app.css hides it from 640px,
 // and hides there the masthead it replaces). From the top: the date and a
 // greeting; "Aujourd'hui", the discipline's painting (lib/paintings.ts) over the next step of the reading
 // path in progress with today's cards and notes (or, with nothing under
-// way, three ways in); the week's reading days; the paths under way; paths
-// to discover, mixing the disciplines; the note of the day; the latest
-// notes. Everything personal is read from this browser after hydration, so
+// way, three ways in); the week's reading days; the other paths under way;
+// paths to discover, mixing the disciplines; the word and the note of the
+// day; chess and the spoken partner side by side; the latest notes. Everything personal is read from this browser after hydration, so
 // the first paint is the welcome card.
 
 export interface DashRecent {
@@ -217,6 +217,7 @@ export function HomeDashboard({
   noteCount,
   chess,
   talk,
+  words,
 }: {
   dataVersion: string;
   recent: DashRecent[];
@@ -226,6 +227,7 @@ export function HomeDashboard({
   noteCount: number;
   chess: HomeChessData;
   talk: HomeTalkLang[];
+  words: HomeWordLang[];
 }) {
   const locale = useLocale();
   const shortName = (p: { slug: string; name: string }) => pathName(p, "title", locale);
@@ -246,8 +248,9 @@ export function HomeDashboard({
     [paths, store],
   );
   // Under way, furthest along first.
+  // Not the one the top card already resumes.
   const mine = rows
-    .filter((p) => p.read > 0 && p.read < p.total)
+    .filter((p) => p.read > 0 && p.read < p.total && p.slug !== resume?.path.slug)
     .sort((a, b) => b.read / b.total - a.read / a.total)
     .slice(0, 3);
   // "À rafraîchir": the levels whose answered questions are due again, the
@@ -362,6 +365,7 @@ export function HomeDashboard({
                 {(me?.readToday ?? 0) >= DAILY_GOAL ? Math.min(me?.readToday ?? 0, 99) : `${me?.readToday ?? 0} / ${DAILY_GOAL}`}
               </b>
               {tr("dash.readToday")}
+              {(me?.days[today]?.c ?? 0) > 0 && ` · ${tr(me!.days[today].c === 1 ? "dash.cardsToday1" : "dash.cardsToday", { n: me!.days[today].c })}`}
             </span>
           </a>
         </section>
@@ -439,33 +443,6 @@ export function HomeDashboard({
               </a>
             </li>
             <li>
-              <a href="/echecs/">
-                <span className="dash-way-icon dash-way-chess" aria-hidden="true">
-                  <svg viewBox="0 0 45 45" dangerouslySetInnerHTML={{ __html: PIECE_SVG.wn }} />
-                </span>
-                <span>
-                  <b>{tr("dash.wayChess")}</b>
-                  <small>{tr("dash.wayChessText")}</small>
-                </span>
-                <Chevron />
-              </a>
-            </li>
-            <li>
-              <a href="/parler/">
-                <span className="dash-way-icon" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" {...s}>
-                    <rect x="9" y="3" width="6" height="11" rx="3" />
-                    <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
-                  </svg>
-                </span>
-                <span>
-                  <b>{tr("dash.wayTalk")}</b>
-                  <small>{tr("dash.wayTalkText")}</small>
-                </span>
-                <Chevron />
-              </a>
-            </li>
-            <li>
               <a href="/hasard/">
                 <span className="dash-way-icon" aria-hidden="true">
                   <svg viewBox="0 0 24 24" {...s}>
@@ -483,12 +460,31 @@ export function HomeDashboard({
                 <Chevron />
               </a>
             </li>
+            <li>
+              <a
+                href="#demander"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.dispatchEvent(new CustomEvent("gk:chat-ask", { detail: {} }));
+                }}
+              >
+                <span className="dash-way-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" {...s}>
+                    <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" />
+                    <path d="M9.6 9.5a2.5 2.5 0 0 1 4.8.9c0 1.6-2.4 2-2.4 3.4" />
+                    <circle cx="12" cy="16.6" r=".4" fill="currentColor" />
+                  </svg>
+                </span>
+                <span>
+                  <b>{tr("dash.wayAsk")}</b>
+                  <small>{tr("dash.wayAskText")}</small>
+                </span>
+                <Chevron />
+              </a>
+            </li>
           </ul>
         </section>
       )}
-
-      <HomeChess data={chess} />
-      <HomeTalk langs={talk} />
 
       {!resume && me && Object.keys(me.days).length > 0 && (
         <a className="dash-week" href="/defis/">
@@ -606,6 +602,8 @@ export function HomeDashboard({
         </>
       )}
 
+      <HomeWord langs={words} />
+
       {dayNote && (
         <>
           <div className="dash-row-h">
@@ -625,6 +623,20 @@ export function HomeDashboard({
           </article>
         </>
       )}
+
+      {/* Chess and the spoken partner, side by side. */}
+      <section className="dash-play-sec" aria-labelledby="dash-play-h">
+        <div className="dash-row-h">
+          <h2 className="dash-h" id="dash-play-h">
+            {tr("dash.play")}
+          </h2>
+          <a href="/duel/">{tr("dash.chessDuel")}</a>
+        </div>
+        <div className="dash-play">
+          <HomeChess data={chess} />
+          <HomeTalk langs={talk} />
+        </div>
+      </section>
 
       <div className="dash-row-h">
         <h2 className="dash-h">{tr("dash.recent")}</h2>
