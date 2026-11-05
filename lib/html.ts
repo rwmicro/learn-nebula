@@ -930,9 +930,9 @@ export function lessonButtonHtml(): string {
  *  the bottom (main.css `.note-dock`, public/js/note-dock.js). Sommaire (the
  *  drawer, until the aside has its own column), the reading actions passed
  *  in `tools`, then the assistant (proxying the floating "Demander à l'IA"
- *  button, which the bar replaces). Scrolling down, it shrinks to the
- *  progress ring, the section being read, the next note and the assistant;
- *  scrolling back up brings it back whole. Phones keep lib/note-app.ts's. */
+ *  button, which the bar replaces). One bar whichever way the reader
+ *  scrolls: the progress ring and the section being read sit beside the
+ *  tools, the next note before the assistant. Phones keep lib/note-app.ts's. */
 export function noteDockHtml(
   tools: string,
   next: { slug: string; title: string } | null,

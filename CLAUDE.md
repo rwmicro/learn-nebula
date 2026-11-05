@@ -104,7 +104,7 @@ image tag in `ci.yml` together with `@playwright/test`.
   the note opens on, never a bold-only `.lead-in` or past a list; the same
   plugin lifts `###`-only notes to `##` and numbers sections (`.sec-n`). From
   640px the reading tools are a liquid-glass bar at the bottom
-  (`noteDockHtml`, `public/js/note-dock.js`) that shrinks while scrolling down;
+  (`noteDockHtml`, `public/js/note-dock.js`) (one bar, the same whichever way one scrolls);
   phones keep `lib/note-app.ts`'s own toolbar. The text is one centred column
   at every width (the aside is a drawer, sidenotes inline); from 1100px it has
   the contents on its left (`toc.js` rail: sections, the current one's
@@ -281,6 +281,17 @@ image tag in `ci.yml` together with `@playwright/test`.
   can become a card in the note's SRS deck (`RECTO/VERSO`, `lib/note-quiz.ts`).
   Conversations live in localStorage only (`lib/chat-history.ts`: "Reprendre"
   on the chat home, "Mes questions" grouped by note).
+  Desktop tools (from 640px): history column with search, "Élargir", a
+  draggable width, the ⋯ menu (rename, pin, Markdown export, delete),
+  shortcuts (Ctrl/⌘ J, Ctrl/⌘ ⇧ O, Ctrl/⌘ \\). **"Côte à côte"** (the default from
+  1100px, until the reader picks "par-dessus") shows the page
+  in a same-origin iframe exactly as wide as the room left of the chat
+  (`lib/chat-dock.ts`), so every layout rule behaves as on a screen that size;
+  the page's own chat in the frame only forwards its events up. That is why
+  the server sends `X-Frame-Options: SAMEORIGIN` / `frame-ancestors 'self'`
+  (never `DENY`/`'none'`). Answers render formulas with KaTeX (lazy-loaded)
+  and the prompt numbers its excerpts so `[n]` becomes a source pastille
+  (`markdownToHtml`'s `math`/`cite` hooks; pure helpers in `lib/chat-tools.ts`).
 - **Everything is generated on the device** (`lib/garden-ai.ts` `aiRoute()`):
   Chrome's Gemini Nano (`lib/browser-ai.ts`) when it covers the language, else
   the opt-in downloaded Qwen3.5-2B (`lib/local-llm.ts`: Transformers.js on

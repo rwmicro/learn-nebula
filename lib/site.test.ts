@@ -25,7 +25,7 @@ describe("buildCSP", () => {
     expect(csp).toContain("object-src 'none'");
     expect(csp).toContain("base-uri 'self'");
     expect(csp).toContain("form-action 'none'");
-    expect(csp).toContain("frame-ancestors 'none'");
+    expect(csp).toContain("frame-ancestors 'self'");
   });
 
   it("leaves frame-ancestors out of the <meta> version, which ignores it", () => {

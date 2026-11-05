@@ -47,3 +47,28 @@ describe("markdownToHtml", () => {
     );
   });
 });
+
+describe("markdownToHtml hooks", () => {
+  const math = (t: string, d: boolean) => `<m${d ? " d" : ""}>${t}</m>`;
+  it("hands formulas to math() before escaping", () => {
+    expect(markdownToHtml("Le poids $P = m g$ et $$a<b$$", { math })).toBe(
+      "<p>Le poids <m>P = m g</m> et <m d>a<b</m></p>",
+    );
+    expect(markdownToHtml("\\(x\\) puis \\[y\\]", { math })).toBe("<p><m>x</m> puis <m d>y</m></p>");
+  });
+  it("leaves prices and code alone", () => {
+    expect(markdownToHtml("5 $ et 10 $", { math })).toBe("<p>5 $ et 10 $</p>");
+    expect(markdownToHtml("`$x$`", { math })).toBe("<p><code>$x$</code></p>");
+    expect(markdownToHtml("$x$")).toBe("<p>$x$</p>");
+  });
+  it("turns [n] into cite() output, only for known sources", () => {
+    const cite = (n: number) => (n <= 2 ? `<c>${n}</c>` : null);
+    expect(markdownToHtml("Vrai [1]. Aussi [1, 2]. Pas [3].", { cite })).toBe(
+      "<p>Vrai<c>1</c>. Aussi<c>1</c><c>2</c>. Pas [3].</p>",
+    );
+    expect(markdownToHtml("[1](/posts/x/)", { cite })).toBe('<p><a href="/posts/x/">1</a></p>');
+  });
+  it("never lets math() output be re-escaped or a slot be forged", () => {
+    expect(markdownToHtml("a\u00000\u0000b", { math })).toBe("<p>a0b</p>");
+  });
+});

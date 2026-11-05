@@ -90,3 +90,15 @@ describe("chat history", () => {
     expect(chatTitle("a".repeat(80), "x")).toHaveLength(58);
   });
 });
+
+describe("pinned conversations", () => {
+  it("keeps the pinned flag and never drops a pinned one at the cap", () => {
+    const s = memStore();
+    saveChat(s, { ...conv("old", 0), pinned: true });
+    for (let i = 1; i <= MAX_CHATS + 5; i++) saveChat(s, conv(`c${i}`, i));
+    const chats = loadChats(s);
+    expect(chats.length).toBe(MAX_CHATS);
+    expect(chats.find((c) => c.id === "old")?.pinned).toBe(true);
+    expect(chats.filter((c) => c.pinned).length).toBe(1);
+  });
+});

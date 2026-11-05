@@ -111,10 +111,12 @@ export function buildCSP({ meta = false }: { meta?: boolean } = {}): string {
     `connect-src 'self' ${SITE_URL.replace(/^http/, "ws")} https://cloudflareinsights.com https://huggingface.co https://*.hf.co`,
     // Turnstile's challenge iframe + the click-to-load YouTube facade (#16),
     // which swaps in a youtube-nocookie.com player only after a click.
-    `frame-src ${turnstile} https://www.youtube-nocookie.com`,
+    `frame-src 'self' ${turnstile} https://www.youtube-nocookie.com`,
     "form-action 'none'",
   ];
-  if (!meta) directives.push("frame-ancestors 'none'");
+  // 'self': the chat's « côte à côte » frames the site's own pages
+  // (lib/chat-dock.ts); no other origin may.
+  if (!meta) directives.push("frame-ancestors 'self'");
   // Only force HTTPS upgrades on an HTTPS site (not on a .onion HTTP build).
   if (!dev && SITE_URL.startsWith("https://"))
     directives.push("upgrade-insecure-requests");

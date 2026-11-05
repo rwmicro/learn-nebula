@@ -420,35 +420,23 @@ main[data-family],
     display: none;
   }
 
-  /* Shrunk while scrolling down: ring + section, the next note, the
-     assistant. Écouter stays while it reads aloud. */
-  .note-dock-bar .dock-now,
-  .note-dock-bar .dock-next {
-    display: none;
-  }
-  .note-dock.is-compact :is(.dock-toc, .bookmark-btn, .note-more, .lesson-btn),
-  .note-dock.is-compact .audio-btn[data-state="idle"] {
-    display: none;
-  }
-  .note-dock.is-compact .dock-now {
+  /* One bar whichever way the reader scrolls: the progress ring and the
+     section being read sit beside the tools, the next note is an icon
+     before the assistant. */
+  .note-dock-bar .dock-now {
     display: inline-flex;
-    max-width: min(16rem, 46vw);
-    padding-inline: 0.75rem 1rem;
+    min-width: 0;
+    flex: 0 1 auto;
+    /* A set width: the bar doesn't change size as the sections go by. */
+    width: min(13rem, 24vw);
+    padding-inline: 0.7rem 0.9rem;
     color: var(--ink-2);
   }
-  .note-dock.is-compact .dock-next {
+  .note-dock-bar .dock-next {
     display: inline-flex;
     width: 2.6rem;
     padding: 0;
     justify-content: center;
-  }
-  .note-dock.is-compact .dock-ask {
-    width: 2.6rem;
-    padding: 0;
-    justify-content: center;
-  }
-  .note-dock.is-compact .dock-ask .dock-label {
-    display: none;
   }
   .dock-sec {
     overflow: hidden;
@@ -466,14 +454,6 @@ main[data-family],
     stroke: var(--fam, var(--garden));
     stroke-linecap: round;
     transition: stroke-dashoffset 0.15s linear;
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .note-dock.is-compact .note-dock-bar {
-      animation: dock-shrink 0.34s cubic-bezier(0.3, 1.35, 0.5, 1);
-    }
-    .note-dock:not(.is-compact) .note-dock-bar {
-      animation: dock-grow 0.34s cubic-bezier(0.3, 1.35, 0.5, 1);
-    }
   }
   /* Contents and display as icons, ≡ and Aa (their names stay in the
      aria-label); "Affichage" and its chevron are for the old row. */
@@ -493,14 +473,14 @@ main[data-family],
     font: 600 1.08rem/1 var(--font-text);
     letter-spacing: -0.01em;
   }
-  /* Where no rail shows the contents, the bar names the section being read
-     (from the width where it fits beside the tools). */
-  @media (min-width: 760px) and (max-width: 1099.98px) {
+  /* Narrow tablets: the section name gives way to the tools, the ring stays. */
+  @media (max-width: 759.98px) {
+    .note-dock-bar .dock-sec {
+      display: none;
+    }
     .note-dock-bar .dock-now {
-      display: inline-flex;
-      max-width: 11rem;
-      padding-inline: 0.7rem 0.9rem;
-      color: var(--ink-2);
+      width: auto;
+      padding-inline: 0.6rem;
     }
   }
 
@@ -550,22 +530,9 @@ main[data-family],
   .note-dock-bar .dock-toc:not([hidden]) {
     display: inline-flex;
   }
-  .note-dock.is-compact .note-dock-bar .dock-toc {
-    display: none;
-  }
   /* The bar has "Sommaire": the condensed header at the top needn't. */
   .note-header-condensed .aside-toggle {
     display: none;
-  }
-}
-@keyframes dock-shrink {
-  from {
-    transform: scale(1.06, 0.94);
-  }
-}
-@keyframes dock-grow {
-  from {
-    transform: scale(0.94, 1.06);
   }
 }
 body[data-focus="true"] .note-meta {

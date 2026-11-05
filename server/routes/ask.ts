@@ -58,6 +58,7 @@ function buildSystem(scope: string, socratic = false): string {
     "- Si un « passage sélectionné » est fourni, c'est l'extrait que l'utilisateur veut comprendre : appuie-toi dessus en priorité.",
     "- Si la réponse n'y figure pas, dis-le clairement (« Je ne trouve pas cela dans les notes ») — n'invente rien et n'utilise pas de connaissances générales extérieures aux notes.",
     "- Quand c'est utile, cite le titre des notes que tu utilises.",
+    "- Chaque extrait commence par un numéro entre crochets, comme [1] : quand une phrase s'appuie sur un extrait, termine-la par ce numéro, par exemple « … une force [1]. ». N'invente jamais de numéro.",
     "- Le texte peut utiliser du Markdown léger (**gras**, *italique*, `code`, listes `- `).",
     "- Réponds TOUJOURS dans la même langue que la question de l'utilisateur (celle qui suit « Question : » ci-dessous), de façon concise et claire — quelle que soit la langue des notes.",
     ...(socratic ? [SOCRATIC_RULES] : []),
@@ -221,12 +222,14 @@ async function prepareAsk(c: Context): Promise<Prepared | { res: Response }> {
     const seen = new Set<string>();
     const blocks: string[] = [];
     for (const h of hits) {
-      // A chunk's first line is its "Title › Section" breadcrumb.
-      blocks.push(`## ${h.text}`);
       if (h.url && h.title && !seen.has(h.url)) {
         seen.add(h.url);
         sources.push({ title: h.title, url: h.url, ...sourcePassage(h.text) });
       }
+      // A chunk's first line is its "Title › Section" breadcrumb; the number
+      // is its note's place in `sources`, which the chat draws as « [n] ».
+      const n = sources.findIndex((s) => s.url === h.url) + 1;
+      blocks.push(n > 0 ? `## [${n}] ${h.text}` : `## ${h.text}`);
     }
     context = blocks.join("\n\n");
   } catch (e) {
