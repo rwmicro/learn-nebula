@@ -1245,6 +1245,15 @@ body:has(.home-masthead) .site-bar {
 .site-bar-menu-panel li + li {
   margin-top: 0.55rem;
 }
+/* The language editions (components/layout/LangSwitcher.tsx): the one under
+   the pointer or the keyboard takes the current one's highlighter yellow.
+   Plain :hover, as Tailwind's `hover:` waits for `@media (hover: hover)`. */
+.lang-opt:hover,
+.lang-opt:focus-visible {
+  background: var(--mark);
+  color: #1a1a1a;
+  text-decoration: underline;
+}
 @media (max-width: 1080px) {
   .site-bar {
     margin: 0 1.2rem 1.2rem;

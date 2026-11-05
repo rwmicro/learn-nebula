@@ -80,7 +80,10 @@ export function LangSwitcher({ compact = false }: { compact?: boolean } = {}) {
 
   const current = LANG_OPTIONS.find((o) => o.code === locale) ?? LANG_OPTIONS[0];
 
-  // Black & white, to sit in the masthead dateline.
+  // Black & white, to sit in the masthead dateline. The current language is
+  // on the highlighter yellow; the one under the pointer takes it too
+  // (`.lang-opt`, global.css: a plain :hover, not Tailwind's `hover:`, which
+  // only fires under `@media (hover: hover)`).
   const btn = (active: boolean) =>
     ` 
   inline-block
@@ -96,8 +99,7 @@ export function LangSwitcher({ compact = false }: { compact?: boolean } = {}) {
   leading-none
   whitespace-nowrap
   underline-offset-[3px]
-  hover:underline
-  focus-visible:underline
+  lang-opt
   ${
     active
       ? "bg-[#ffcf33] text-[#1a1a1a] underline"
