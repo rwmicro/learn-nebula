@@ -465,7 +465,12 @@ test("the language is picked from a list, the coming ones greyed", async ({
   await expect(
     list.locator("optgroup option[disabled]").first(),
   ).toBeAttached();
-  await list.selectOption("de");
+  // From 1024px the list gives way to tiles (the select stays, hidden).
+  const tile = page.locator(".pt-langs [role=radio]", { hasText: "Allemand" });
+  if (await tile.isVisible()) {
+    await tile.click();
+    await expect(tile).toHaveAttribute("aria-checked", "true");
+  } else await list.selectOption("de");
   await expect(page.locator(".pt-summary")).toContainText("Allemand");
   const saved = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("gk-partner-prefs") || "{}"),
