@@ -283,7 +283,8 @@ image tag in `ci.yml` together with `@playwright/test`.
   on the chat home, "Mes questions" grouped by note).
   Desktop tools (from 640px): history column with search, "Élargir", a
   draggable width, the ⋯ menu (rename, pin, Markdown export, delete),
-  shortcuts (Ctrl/⌘ J, Ctrl/⌘ ⇧ O, Ctrl/⌘ \\). **"Côte à côte"** shows the page
+  shortcuts (Ctrl/⌘ J, Ctrl/⌘ ⇧ O, Ctrl/⌘ \\). **"Côte à côte"** (the default from
+  1100px, until the reader picks "par-dessus") shows the page
   in a same-origin iframe exactly as wide as the room left of the chat
   (`lib/chat-dock.ts`), so every layout rule behaves as on a screen that size;
   the page's own chat in the frame only forwards its events up. That is why

@@ -324,7 +324,8 @@ const SRC_COLORS = ["#3f6b4a", "#6b4fbb", "#b8740f", "#2d6cc0", "#009b8f"];
 
 const SCOPE_KEY = "gkChatScope";
 const DL_LATER_KEY = "gkLocalLlmLater";
-/** Desktop layout: over the page, beside it, or wide (localStorage). */
+/** Desktop layout: over the page, beside it, or wide (localStorage). Unset =
+ *  beside the page where there is room (from 1100px), else over it. */
 const LAYOUT_KEY = "gkChatLayout";
 /** The history column shown (localStorage, "1"). */
 const RAIL_KEY = "gkChatRail";
@@ -683,7 +684,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   function setLayout(l: Layout) {
     layoutRef.current = l;
     setLayoutState(l);
-    lsSet(LAYOUT_KEY, l === "overlay" ? "" : l);
+    lsSet(LAYOUT_KEY, l);
   }
 
   /** The page beside the chat, in a frame its exact width (lib/chat-dock.ts). */
@@ -822,7 +823,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     const s = store();
     if (s) setChats(loadChats(s));
     const l = lsGet(LAYOUT_KEY);
-    layoutRef.current = l === "dock" || l === "wide" ? l : "overlay";
+    layoutRef.current = l === "overlay" || l === "wide" ? l : "dock";
     setLayoutState(layoutRef.current);
     setRail(lsGet(RAIL_KEY) === "1");
     setPanelW(Number(lsGet(WIDTH_KEY)) || 0);
