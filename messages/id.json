@@ -2628,7 +2628,11 @@
     "noVoice": "Tidak ada suara {lang} di perangkat ini: aktifkan suara alami untuk mendengar kalimatnya.",
     "turnOnVoice": "Aktifkan suara alami",
     "failedWhy": "Detail: {why}",
-    "micError": "Mikrofon berhenti ({e}). Periksa apakah situs boleh memakai mikrofon, atau ketik jawabanmu."
+    "micError": "Mikrofon berhenti ({e}). Periksa apakah situs boleh memakai mikrofon, atau ketik jawabanmu.",
+    "heroKicker": "Bicara · teman bicara bersuara",
+    "exprOfDay": "Ungkapan hari ini",
+    "thisWeek": "Percakapanmu, 7 hari",
+    "thisWeekN": "{n} adegan"
   },
   "desk": {
     "nextStep": "Langkah berikutnya · sisa {m} menit",
@@ -2782,5 +2786,35 @@
     "roomShort_arts": "Seni, sastra",
     "roomShort_langues": "Bahasa",
     "roomShort_jeux": "Permainan"
+  },
+  "cdk": {
+    "kicker": "Kartu · pengulangan berjarak",
+    "sub": "Setiap kartu kembali pada hari kamu hampir melupakannya.",
+    "due": "perlu diulang",
+    "fresh": "baru",
+    "duration": "durasi",
+    "minutes": "≈ {n} mnt",
+    "runLabel": "hari berturut-turut",
+    "run": "{n} h",
+    "goCards": "{n} kartu",
+    "practice": "Latihan kesalahan",
+    "flip": "balik kartu",
+    "next": "diulang lebih dulu",
+    "today": "hari ini",
+    "todayShort": "hr ini",
+    "memory": "Ingatanmu, setahun",
+    "memoryHint": "setiap kotak, satu hari",
+    "memoryAria": "{n} kartu diulang dalam setahun",
+    "reviews": "kartu diulang",
+    "kept": "diingat (30 hari)",
+    "known": "dikuasai",
+    "best": "rekor beruntun",
+    "week": "Minggu ini",
+    "weekHint": "mendatang",
+    "decks": "Dekmu",
+    "decksHint": "yang paling banyak dulu",
+    "questionsHint": "disimpan saat membaca",
+    "more": "dan {n} lainnya",
+    "ringAria": "{n}% dikuasai"
   }
 }

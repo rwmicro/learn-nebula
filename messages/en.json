@@ -2628,7 +2628,11 @@
     "noVoice": "No {lang} voice is installed on this device: turn on the natural voice to hear the sentences.",
     "turnOnVoice": "Turn on the natural voice",
     "failedWhy": "Details: {why}",
-    "micError": "The microphone stopped ({e}). Check that the site may use the microphone, or type your answer."
+    "micError": "The microphone stopped ({e}). Check that the site may use the microphone, or type your answer.",
+    "heroKicker": "Speak · a partner, out loud",
+    "exprOfDay": "Expression of the day",
+    "thisWeek": "Your talks, last 7 days",
+    "thisWeekN": "{n} scenes"
   },
   "desk": {
     "nextStep": "Next step · {m} min left",
@@ -2782,5 +2786,35 @@
     "roomShort_arts": "Arts, letters",
     "roomShort_langues": "Languages",
     "roomShort_jeux": "Games"
+  },
+  "cdk": {
+    "kicker": "Flashcards · spaced repetition",
+    "sub": "Each card comes back on the day you were about to forget it.",
+    "due": "to review",
+    "fresh": "new",
+    "duration": "time",
+    "minutes": "≈ {n} min",
+    "runLabel": "days in a row",
+    "run": "{n} d",
+    "goCards": "{n} cards",
+    "practice": "Practise your mistakes",
+    "flip": "flip the card",
+    "next": "first to review",
+    "today": "today",
+    "todayShort": "today",
+    "memory": "Your memory, over a year",
+    "memoryHint": "each square, one day",
+    "memoryAria": "{n} cards reviewed in a year",
+    "reviews": "cards reviewed",
+    "kept": "remembered (30 days)",
+    "known": "learnt for good",
+    "best": "best streak",
+    "week": "This week",
+    "weekHint": "coming up",
+    "decks": "Your decks",
+    "decksHint": "busiest first",
+    "questionsHint": "kept while you read",
+    "more": "and {n} more",
+    "ringAria": "{n}% learnt for good"
   }
 }

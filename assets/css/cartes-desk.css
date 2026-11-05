@@ -1,0 +1,624 @@
+/* "Réviser" from 1024px (components/review/CartesDesk.tsx): the desk with
+   today's pile, the year of reviews and the week ahead, the decks by subject
+   with their pictures, the reader's questions. Below 1024px the phone list
+   (phone/cartes.css) stays, untouched. */
+
+.cdk {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  html main.cartes-index > .rv {
+    display: none;
+  }
+  html main.cartes-index > .cdk {
+    display: block;
+  }
+  html main.cartes-index {
+    max-width: none;
+    width: min(75rem, calc(100vw - 4rem));
+    margin-block: 0;
+    margin-inline: calc(50% - min(37.5rem, 50vw - 2rem));
+    padding: 0 0 5rem;
+  }
+  .cdk {
+    --cdk-gold: #b8924a;
+    --cdk-new: hsl(210 50% 45%);
+    --cdk-stamp: #b4452f;
+    color: var(--ink);
+    font-family: var(--font-ui);
+    font-variant-numeric: lining-nums;
+  }
+  :root[data-theme="dark"] .cdk {
+    --cdk-new: hsl(210 60% 72%);
+    --cdk-stamp: #e0806b;
+    --cdk-gold: #d4b06a;
+  }
+  .cdk a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* --- The desk ---------------------------------------------------------- */
+  .cdk-desk {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(22rem, 32rem);
+    gap: 2.5rem;
+    align-items: center;
+    padding: 3.2rem 3.5rem 3rem;
+    border-radius: 1.75rem;
+    border: 1px solid var(--rule);
+    background:
+      radial-gradient(color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.2px) 0 0 / 22px 22px,
+      color-mix(in srgb, var(--garden) 6%, var(--paper-raised));
+    overflow: hidden;
+  }
+  .cdk-kicker {
+    margin: 0;
+    font: 600 0.75rem var(--font-caps);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--garden);
+  }
+  .cdk-title {
+    margin: 0.6rem 0 0.75rem;
+    font: 500 clamp(3.6rem, 6cqi + 2rem, 5.25rem) / 1 var(--font-text);
+    letter-spacing: -0.01em;
+  }
+  .cdk-sub {
+    margin: 0;
+    max-width: 30em;
+    font: italic 400 1.25rem/1.45 var(--font-text);
+    color: var(--muted-warm);
+  }
+  .cdk-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 0;
+    margin: 1.9rem 0;
+  }
+  .cdk-meta div {
+    display: flex;
+    flex-direction: column-reverse;
+    padding-inline: 1.6rem;
+  }
+  .cdk-meta div:first-child {
+    padding-inline-start: 0;
+  }
+  .cdk-meta div + div {
+    border-inline-start: 1px solid var(--rule-strong);
+  }
+  .cdk-meta dd {
+    margin: 0;
+    font: 500 2.5rem/1 var(--font-text);
+  }
+  .cdk-meta dt {
+    margin-top: 0.3rem;
+    font: 400 0.875rem var(--font-ui);
+    color: var(--muted-warm);
+  }
+  .cdk-meta .is-due dd {
+    color: var(--garden);
+  }
+  .cdk-meta .is-new dd {
+    color: var(--cdk-new);
+  }
+  .cdk-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.4rem;
+    margin: 0;
+  }
+  .cdk .cdk-go {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    height: 3.6rem;
+    padding: 0 1.9rem;
+    border-radius: 999px;
+    background: var(--garden);
+    color: var(--paper);
+    font: 600 1.125rem var(--font-ui);
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--garden) 30%, transparent);
+  }
+  .cdk .cdk-go:hover {
+    filter: brightness(1.08);
+  }
+  .cdk-go svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+  .cdk-go small {
+    font: 400 0.875rem var(--font-ui);
+    opacity: 0.8;
+  }
+  .cdk .cdk-alt {
+    font: 500 0.95rem var(--font-ui);
+    color: var(--ink-soft);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    text-decoration-color: var(--rule-strong);
+  }
+
+  /* The pile: three cards fanned under the first one due. */
+  .cdk-pile {
+    position: relative;
+    display: block;
+    height: 20.5rem;
+  }
+  .cdk-k {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: min(25rem, 92%);
+    height: 15.5rem;
+    border-radius: 1rem;
+    border: 1px solid var(--rule-strong);
+    background: var(--paper);
+    box-shadow: 0 1px 0 var(--rule), 0 14px 30px rgb(0 0 0 / 0.1);
+    translate: -50% -50%;
+    transition: rotate 0.25s, translate 0.25s;
+  }
+  .cdk-k:nth-child(1) {
+    rotate: -9deg;
+    translate: calc(-50% - 26px) calc(-50% + 18px);
+    background: color-mix(in srgb, hsl(270 45% 60%) 16%, var(--paper));
+  }
+  .cdk-k:nth-child(2) {
+    rotate: 7deg;
+    translate: calc(-50% + 30px) calc(-50% + 10px);
+    background: color-mix(in srgb, hsl(210 50% 55%) 14%, var(--paper));
+  }
+  .cdk-k:nth-child(3) {
+    rotate: -3deg;
+    translate: calc(-50% - 8px) calc(-50% + 4px);
+    background: color-mix(in srgb, hsl(35 60% 55%) 18%, var(--paper));
+  }
+  .cdk-top {
+    rotate: 1.5deg;
+    display: flex;
+    flex-direction: column;
+    padding: 1.6rem 1.9rem 1.3rem;
+  }
+  .cdk-pile:hover .cdk-top {
+    rotate: 0deg;
+    translate: -50% calc(-50% - 6px);
+  }
+  .cdk-pile:focus-visible {
+    outline: none;
+  }
+  .cdk-pile:focus-visible .cdk-top {
+    outline: 2px solid var(--garden);
+    outline-offset: 3px;
+  }
+  .cdk-tag {
+    overflow: hidden;
+    font: 600 0.69rem var(--font-caps);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: var(--muted-warm);
+    padding-inline-end: 4.5rem;
+  }
+  .cdk-q {
+    display: -webkit-box;
+    margin: auto 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    font: 500 1.6rem/1.3 var(--font-text);
+    text-align: center;
+    text-wrap: balance;
+  }
+  .cdk-hint {
+    text-align: center;
+    font: 500 0.84rem var(--font-ui);
+    color: var(--muted-warm);
+  }
+  .cdk-stamp {
+    position: absolute;
+    right: 0;
+    top: -0.6rem;
+    z-index: 3;
+    display: grid;
+    place-content: center;
+    width: 6.5rem;
+    height: 6.5rem;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    outline: 1px solid currentColor;
+    outline-offset: -8px;
+    color: var(--cdk-stamp);
+    background: color-mix(in srgb, var(--paper) 80%, transparent);
+    text-align: center;
+    rotate: 12deg;
+  }
+  .cdk-stamp b {
+    font: 600 2.2rem/1 var(--font-text);
+  }
+  .cdk-stamp span {
+    font: 700 0.6rem var(--font-caps);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  /* --- The year and the week --------------------------------------------- */
+  .cdk-mem {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 19rem;
+    gap: 1.1rem;
+    align-items: start;
+    margin-top: 1.1rem;
+  }
+  .cdk-card {
+    padding: 1.25rem 1.4rem;
+    border-radius: 1rem;
+    border: 1px solid var(--rule);
+    background: var(--paper-raised);
+  }
+  .cdk-card-h {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin: 0 0 0.9rem;
+    font: 600 0.75rem var(--font-caps);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .cdk-card-h span {
+    font: italic 400 0.875rem var(--font-text);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--muted-warm);
+  }
+  .cdk-heat,
+  .cdk-months {
+    display: grid;
+    grid-template-columns: repeat(var(--wk), minmax(0, 1fr));
+    column-gap: 3px;
+  }
+  .cdk-heat {
+    grid-auto-flow: column;
+    grid-template-rows: repeat(7, auto);
+    row-gap: 3px;
+  }
+  .cdk-heat i {
+    aspect-ratio: 1;
+    border-radius: 2px;
+    background: var(--wash-2);
+  }
+  .cdk-heat .l1 {
+    background: color-mix(in srgb, var(--garden) 28%, var(--wash-2));
+  }
+  .cdk-heat .l2 {
+    background: color-mix(in srgb, var(--garden) 52%, var(--wash-2));
+  }
+  .cdk-heat .l3 {
+    background: color-mix(in srgb, var(--garden) 76%, var(--wash-2));
+  }
+  .cdk-heat .l4 {
+    background: var(--garden);
+  }
+  .cdk-heat .is-today {
+    outline: 2px solid var(--cdk-gold);
+    outline-offset: 1px;
+  }
+  .cdk-heat .is-future {
+    visibility: hidden;
+  }
+  .cdk-months {
+    margin-top: 0.4rem;
+    font: 500 0.72rem var(--font-ui);
+    color: var(--muted-warm);
+    white-space: nowrap;
+  }
+  .cdk-figs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.8rem;
+    margin: 1rem 0 0;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--rule);
+    font: 400 0.875rem var(--font-ui);
+    color: var(--muted-warm);
+  }
+  .cdk-figs b {
+    margin-inline-end: 0.2rem;
+    font: 600 1.1rem var(--font-text);
+    color: var(--ink);
+  }
+  .cdk-week {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.45rem;
+    height: 8.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cdk-week li {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.3rem;
+    height: 100%;
+    font: 500 0.72rem var(--font-ui);
+    color: var(--muted-warm);
+  }
+  .cdk-week i {
+    width: 100%;
+    border-radius: 4px 4px 2px 2px;
+    background: color-mix(in srgb, var(--cdk-new) 45%, transparent);
+  }
+  .cdk-week .is-today i {
+    background: var(--garden);
+  }
+  .cdk-week em {
+    font: 600 0.72rem var(--font-ui);
+    font-style: normal;
+    color: var(--ink-soft);
+  }
+
+  /* --- Sections ----------------------------------------------------------- */
+  .cdk-h {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin: 2.75rem 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--rule);
+    font: 600 0.82rem var(--font-caps);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .cdk-h i {
+    font-style: normal;
+    color: var(--cdk-gold);
+  }
+  .cdk-h span {
+    margin-inline-start: auto;
+    font: italic 400 0.95rem var(--font-text);
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--muted-warm);
+  }
+  .cdk-empty {
+    font-style: italic;
+    color: var(--muted-warm);
+  }
+
+  /* --- Decks by subject ---------------------------------------------------- */
+  .cdk-decks {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16.5rem, 1fr));
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cdk-deck {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid var(--rule);
+    background: var(--paper-raised);
+    transition: border-color 0.15s, translate 0.15s;
+  }
+  .cdk-deck:hover {
+    border-color: var(--rule-strong);
+    translate: 0 -2px;
+  }
+  .cdk-deck-top {
+    position: relative;
+    display: block;
+    height: 8.25rem;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--fam, var(--garden)) 16%, var(--paper));
+  }
+  .cdk-deck-img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0.55;
+    mask-image: linear-gradient(180deg, #000 30%, transparent 100%);
+  }
+  .cdk-deck-art {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+  }
+  .cdk-deck-art svg {
+    width: 100%;
+    height: auto;
+  }
+  .cdk-pill {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.8rem;
+    height: 1.6rem;
+    padding: 0 0.55rem;
+    border-radius: 999px;
+    background: var(--garden);
+    color: var(--paper);
+    font: 700 0.8rem var(--font-ui);
+  }
+  .cdk-pill.is-soft {
+    background: var(--wash-2);
+    color: var(--muted-warm);
+  }
+  .cdk-deck-top .cdk-pill {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+  }
+  .cdk-deck-bd {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem 0.95rem;
+  }
+  .cdk-deck-bd > div {
+    flex: 1;
+    min-width: 0;
+  }
+  .cdk-deck-name {
+    display: block;
+    font: 500 1.125rem/1.25 var(--font-text);
+  }
+  .cdk-deck-bd small {
+    font: 400 0.8rem var(--font-ui);
+    color: var(--muted-warm);
+  }
+  .cdk-ring {
+    --p: 0;
+    position: relative;
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background: conic-gradient(var(--garden) calc(var(--p) * 1%), var(--wash-2) 0);
+    font: 700 0.69rem var(--font-ui);
+    color: var(--ink-soft);
+  }
+  .cdk-ring::before {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    border-radius: 50%;
+    background: var(--paper-raised);
+  }
+  .cdk-ring em {
+    position: relative;
+    font-style: normal;
+  }
+  .cdk-deck-list {
+    margin: 0 0.6rem 0.6rem;
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--rule);
+  }
+  .cdk-deck-list a {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.45rem 0.4rem;
+    border-radius: 0.5rem;
+    font: 500 0.875rem var(--font-ui);
+    color: var(--ink-soft);
+  }
+  .cdk-deck-list a:hover {
+    background: var(--wash-2);
+    color: var(--ink);
+  }
+  .cdk-deck-list span {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .cdk-deck-list b {
+    font: 700 0.75rem var(--font-ui);
+    color: var(--garden);
+  }
+  .cdk-chev {
+    flex: none;
+    width: 0.85rem;
+    height: 0.85rem;
+    color: var(--muted-warm);
+  }
+  .cdk-more {
+    padding: 0.35rem 0.4rem 0;
+    font: italic 400 0.85rem var(--font-text);
+    color: var(--muted-warm);
+  }
+
+  /* --- My questions --------------------------------------------------------- */
+  .cdk-q2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .cdk-q2 a {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.1rem;
+    border-radius: 1rem;
+    border: 1px solid var(--rule);
+    background: var(--paper-raised);
+  }
+  .cdk-q2 a:hover {
+    border-color: var(--rule-strong);
+  }
+  .cdk-ico {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 0.65rem;
+    background: var(--wash-2);
+    color: var(--garden);
+  }
+  .cdk-ico svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  .cdk-tx {
+    flex: 1;
+    min-width: 0;
+  }
+  .cdk-tx b {
+    display: block;
+    font: 500 1.125rem var(--font-text);
+  }
+  .cdk-tx small {
+    font: 400 0.875rem var(--font-ui);
+    color: var(--muted-warm);
+  }
+}
+@media (min-width: 1024px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cdk {
+    --cdk-new: hsl(210 60% 72%);
+    --cdk-stamp: #e0806b;
+    --cdk-gold: #d4b06a;
+  }
+}
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  .cdk-k,
+  .cdk-deck {
+    transition: none;
+  }
+}
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .cdk-desk {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: 1.5rem;
+    padding: 2.6rem 2.4rem;
+  }
+  .cdk-meta div {
+    padding-inline: 1rem;
+  }
+  .cdk-meta dd {
+    font-size: 1.9rem;
+  }
+  .cdk-mem {
+    grid-template-columns: minmax(0, 1fr) 15rem;
+  }
+}
