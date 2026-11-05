@@ -13,6 +13,9 @@
 
   /* The site bar lies over the hero, white on the picture; the hero draws
      the wordmark on its left and the hairline under both. */
+  /* global.css gives body a 2rem margin above 1650px: a strip of paper
+     over the hero. */
+  body:has(.pcd) { margin: 0 auto; }
   body:has(.pcd):not(:has(.na-chrome)) .site-bar { position: absolute; top: 0; left: 0; right: 0; width: auto; transform: none; margin: 0; padding: 14px 48px 0 340px; border: 0; background: none; color: #fff; }
   /* Its pills in the hero's glass. */
   body:has(.pcd) .site-bar :is(.review-pill, .palette-btn[data-palette-open], .theme-toggle, .account-chip, .account-login, .site-bar-lang summary, .site-bar-lang button) {
@@ -329,15 +332,25 @@
    up to a 1440px window here: they stay, smaller, and the search keeps only
    its icon. */
 @media (min-width: 1024px) and (max-width: 1439px) {
-  body:has(.pcd) .site-bar-nav { display: block !important; }
+  body:has(.pcd) .site-bar-nav { display: block !important; flex: 1; min-width: 0; }
   body:has(.pcd) .site-bar-menu { display: none !important; }
-  body:has(.pcd) .site-bar-nav ul { gap: 14px; }
-  body:has(.pcd) .site-bar-nav a { font-size: 11px; letter-spacing: .12em; }
-  body:has(.pcd) .site-bar .palette-kbd { display: none; }
+  /* One line, never two: with a reader signed in (cards due, coins) the
+     tools take 300px more. */
+  body:has(.pcd) .site-bar-nav ul { gap: 12px; flex-wrap: nowrap; }
+  body:has(.pcd) .site-bar-nav a { font-size: 11px; letter-spacing: .1em; white-space: nowrap; }
+  body:has(.pcd) .site-bar .palette-kbd,
+  body:has(.pcd) .site-bar .palette-btn-label { display: none; }
+  body:has(.pcd) .site-bar .palette-btn[data-palette-open] { min-width: 0; width: 42px; padding: 0; justify-content: center; }
 }
 @media (min-width: 1024px) and (max-width: 1279px) {
-  body:has(.pcd):not(:has(.na-chrome)) .site-bar { padding-left: 274px; }
-  .pcd-logo { font-size: 24px; top: 24px; }
+  /* Too narrow for the blackletter name and six links beside a signed-in
+     reader's tools: the bar's own linocut logo stands in for it. */
+  body:has(.pcd):not(:has(.na-chrome)) .site-bar { padding-left: 48px; }
+  .pcd-logo { display: none; }
+  body:has(.pcd) .site-bar-brand { display: flex; flex: none; margin-right: 18px; }
+  body:has(.pcd) .site-bar-brand :is(span, .site-bar-page) { display: none; }
+  body:has(.pcd) .site-bar-brand .site-bar-logo--light { display: none; }
+  body:has(.pcd) .site-bar-brand .site-bar-logo--dark { display: block; width: 30px; height: 30px; }
   .pcd-hero.fv .pcd-cartel { display: none; }
   .pcd-hero.fv .pcd-ex { font-size: 18px; margin: 12px 0 16px; }
   .pcd-pick small { width: 120px; }
@@ -369,4 +382,19 @@
   :root:not([data-theme="light"]) .pcd-time .dice { background: #2a241c; border-color: #3a332a; color: var(--ink); }
   :root:not([data-theme="light"]) .pcd-seal { box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px #c9503e; }
   :root:not([data-theme="light"]) .pcd-how .pcd-q span.ok { color: #0d1a10; }
+}
+
+/* Touch screens (tablets): every glass piece over the hero is a backdrop
+   blur plus a soft-light layer the GPU redraws on each frame while the hero
+   is in view, about twenty of them on a first visit, which is what made
+   the top of the page slow to scroll on an iPad. Only the panel keeps a
+   blur; the rest get the same tint without it. */
+@media (min-width: 1024px) and (hover: none) {
+  .pcd :is(.pcd-chip, .pcd-btn.ghost, .pcd-pick button, .pcd-room-l, .pcd-m.cur, .pcd-fade),
+  body:has(.pcd) .site-bar :is(.review-pill, .palette-btn[data-palette-open], .theme-toggle, .account-chip, .account-login, .site-bar-lang summary, .site-bar-lang button) {
+    -webkit-backdrop-filter: none; backdrop-filter: none; background: rgb(30 26 22 / .55);
+  }
+  .pcd :is(.pcd-chip, .pcd-btn.ghost, .pcd-panel, .pcd-pick button, .pcd-room-l)::before { content: none; }
+  .pcd .pcd-hero > .pcd-panel { -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+  .pcd-h { text-shadow: none; }
 }
