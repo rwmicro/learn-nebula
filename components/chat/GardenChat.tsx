@@ -25,7 +25,14 @@ import { useLocale } from "@/lib/use-locale";
 import { markdownToHtml } from "@/lib/markdown-lite";
 import { escapeHtml } from "@/lib/escape";
 import { readAskStream } from "@/lib/ask-stream";
-import { detectLanguage } from "@/lib/browser-ai";
+import {
+  detectLanguage,
+  nanoAvailability,
+  nanoSetAsideReason,
+  resetNano,
+  warmNano,
+  type Availability,
+} from "@/lib/browser-ai";
 import {
   deleteLocalModel,
   loadLocalModel,
@@ -335,6 +342,9 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const [busy, setBusy] = useState(false);
   const [status, setStatus] = useState("");
   const [route, setRoute] = useState<AiRoute | null>(null);
+  // Gemini Nano as the settings show it: Chrome's availability for the
+  // reader's language, "missing" without the API, "aside" once set aside.
+  const [nano, setNano] = useState<Availability | "missing" | "aside" | null>(null);
   // Whether this is a note page, decided after mount: reading `location`
   // while rendering would put the trigger in the client's first render but
   // not in the exported HTML, and that hydration mismatch makes React
@@ -417,6 +427,14 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   /** The "couldn't answer" line, with the device model's own reason when it
    *  gave one (a load error, or the worker stopped, as for memory). */
   function noAnswer(r: AiRoute): string {
+    if (r === "nano") {
+      // Nano is now set aside for this tab: say why, and what comes next.
+      const why = nanoSetAsideReason();
+      if (!why) return tr("chat.errNoAnswer");
+      return `${tr("chat.errNoAnswer")}\n\n${tr("chat.nanoFailed", {
+        why: why === "echo" ? tr("chat.nanoEcho") : why,
+      })}`;
+    }
     const why = r === "local" ? localModelError() : "";
     return why ? `${tr("chat.errNoAnswer")}\n\n${tr("chat.errDevice", { why })}` : tr("chat.errNoAnswer");
   }
@@ -442,9 +460,14 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     setSheet("confirm");
   }
 
+  async function refreshNano() {
+    if (!("LanguageModel" in self)) return setNano("missing");
+    if (nanoSetAsideReason()) return setNano("aside");
+    setNano(await nanoAvailability(preferredLang()));
+  }
   // --- opening -------------------------------------------------------------
-  const refreshRoute = useCallback(async () => {
-    const r = await aiRoute(preferredLang());
+  const refreshRoute = useCallback(async (questionLang = "") => {
+    const r = await aiRoute(preferredLang(), questionLang);
     setRoute(r);
     if (r === "local" && localModelLoaded()) setDl("ready");
     return r;
@@ -625,10 +648,14 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     const mode = opts.mode ?? c0.mode;
     const pass = opts.passage ?? passage;
     if (busy || (!text.trim() && !pass)) return;
+    // Still inside the click: Chrome only starts Gemini Nano's first
+    // download from a user activation, which detection and retrieval below
+    // can outlast.
+    if (route === "nano") warmNano(preferredLang());
     const lang = replyLangHint(
       (await detectLanguage(text || pass, { allowDownload: true })) ?? "",
     );
-    const r = await refreshRoute();
+    const r = await refreshRoute(lang);
     if (r === "none") {
       setSheet("unsupported");
       return;
@@ -772,7 +799,14 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         prompt,
         history: prior,
         lang: lang || preferredLang(),
+        fallbackLang: preferredLang(),
         signal: ctrl.signal,
+        onDownload: (f) =>
+          setStatus(
+            f < 1
+              ? tr("chat.nanoDownloading", { pct: Math.floor(f * 100) })
+              : tr("chat.writing"),
+          ),
         onText: (t2) => {
           setWaitingModel(false);
           setStatus("");
@@ -1701,7 +1735,10 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         <button
           type="button"
           className="gc-ib"
-          onClick={() => setView("settings")}
+          onClick={() => {
+            setView("settings");
+            void refreshNano();
+          }}
           aria-label={tr("chat.settings")}
           title={tr("chat.settings")}
         >
@@ -1786,6 +1823,38 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         <h2 className="gc-big">{tr("chat.setTitle")}</h2>
         {route === "nano" && (
           <p className="gc-fine gc-fine-left">{tr("chat.setNano")}</p>
+        )}
+        {nano && (
+          <>
+            <div className="gc-grp">Gemini Nano (Chrome)</div>
+            <div className="gc-box">
+              <div className="gc-li">
+                <span className="gc-li-tx">
+                  {tr(`chat.nanoState.${nano}`)}
+                  {nano === "aside" && (
+                    <span>
+                      {nanoSetAsideReason() === "echo"
+                        ? tr("chat.nanoEcho")
+                        : nanoSetAsideReason()}
+                    </span>
+                  )}
+                </span>
+                {nano === "aside" && (
+                  <button
+                    type="button"
+                    className="gc-btn sec"
+                    onClick={async () => {
+                      resetNano();
+                      await refreshNano();
+                      await refreshRoute();
+                    }}
+                  >
+                    {tr("chat.nanoRetry")}
+                  </button>
+                )}
+              </div>
+            </div>
+          </>
         )}
         <div className="gc-grp">{tr("chat.setModel")}</div>
         <div className="gc-box">
@@ -1971,7 +2040,35 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
                 <span>{tr("chat.noMeanwhile")}</span>
               </div>
             </div>
+            {nanoSetAsideReason() && (
+              // Gemini Nano was there but failed in this tab: it can be
+              // tried again, or this sheet would be the only way out.
+              <p className="gc-fine gc-fine-left">
+                {tr("chat.nanoFailed", {
+                  why:
+                    nanoSetAsideReason() === "echo"
+                      ? tr("chat.nanoEcho")
+                      : nanoSetAsideReason(),
+                })}
+              </p>
+            )}
             <div className="gc-btns">
+              {nanoSetAsideReason() && (
+                <button
+                  type="button"
+                  className="gc-btn sec"
+                  onClick={async () => {
+                    resetNano();
+                    setSheet(null);
+                    if ((await refreshRoute()) === "none") return;
+                    setPage(readPage());
+                    setOpen(true);
+                    setView("chat");
+                  }}
+                >
+                  {tr("chat.nanoRetry")}
+                </button>
+              )}
               <button
                 type="button"
                 className="gc-btn pri"

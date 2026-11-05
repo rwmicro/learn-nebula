@@ -2115,6 +2115,18 @@
     "setNano": "Chrome 已内置模型（Gemini Nano）：它懂这种语言时会作答。",
     "errNoAnswer": "模型无法回答。请重试或刷新页面。",
     "errDevice": "设备给出的原因：{why}",
+    "nanoDownloading": "Chrome 正在下载 Gemini Nano… {pct}%",
+    "nanoFailed": "Gemini Nano 无法回答（{why}）。本标签页已暂停使用它；可在助手设置中重试。",
+    "nanoEcho": "它复述了指令而没有回答",
+    "nanoRetry": "重试",
+    "nanoState": {
+      "missing": "此浏览器没有（仅限桌面版 Chrome）。",
+      "unavailable": "Chrome 在此不提供：语言、硬件或设置所限。",
+      "downloadable": "Chrome 会在第一个问题时下载它。",
+      "downloading": "Chrome 正在下载它。",
+      "available": "已就绪：优先回答。",
+      "aside": "已在此浏览器上暂停使用。"
+    },
     "errContext": "花园没有响应。你的问题没有丢失：请稍后重试。",
     "errRate": "提问太频繁：请稍后再试。"
   },

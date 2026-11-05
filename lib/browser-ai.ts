@@ -13,7 +13,7 @@
 // `allowDownload: false` (use the model only when it is already there);
 // callers inside a click pass true.
 
-type Availability = "unavailable" | "downloadable" | "downloading" | "available";
+export type Availability = "unavailable" | "downloadable" | "downloading" | "available";
 
 interface Monitor {
   addEventListener(type: "downloadprogress", cb: (e: { loaded: number }) => void): void;
@@ -28,6 +28,11 @@ interface DetectorCtor {
 interface LmSession {
   promptStreaming(input: string, opts?: { signal?: AbortSignal }): AsyncIterable<string>;
   destroy(): void;
+  /** Tokens the session can hold, and how many it holds already (the system
+   *  prompt). Chrome 138+; older builds named them differently. */
+  inputQuota?: number;
+  inputUsage?: number;
+  measureInputUsage?(input: string): Promise<number>;
 }
 interface LmOptions {
   expectedInputs?: { type: "text"; languages: string[] }[];
@@ -94,13 +99,19 @@ const lmOptions = (lang: string): LmOptions => ({
  *  languages (English, Spanish, Japanese at first), so a French reader
  *  usually gets "no" and the server answers. */
 export async function promptAvailable(lang: string, allowDownload = true): Promise<boolean> {
+  const a = await nanoAvailability(lang);
+  return a === "available" || (allowDownload && (a === "downloadable" || a === "downloading"));
+}
+
+/** Chrome's own answer for `lang`; "unavailable" when the API is missing or
+ *  rejects the language (Chrome throws on a code it doesn't know, e.g. "zh"). */
+export async function nanoAvailability(lang: string): Promise<Availability> {
   const LM = g().LanguageModel as LmCtor | undefined;
-  if (!LM || typeof LM.availability !== "function") return false;
+  if (!LM || typeof LM.availability !== "function") return "unavailable";
   try {
-    const a = await LM.availability(lmOptions(baseLang(lang)));
-    return a === "available" || (allowDownload && (a === "downloadable" || a === "downloading"));
+    return await LM.availability(lmOptions(baseLang(lang)));
   } catch {
-    return false;
+    return "unavailable";
   }
 }
 
@@ -133,13 +144,53 @@ export function echoesPrompt(out: string, system = ""): boolean {
   return sys.length >= 40 && squash(out).includes(sys);
 }
 
-/** Whether Nano echoed its prompt on this browser build (see above). Read by
- *  aiRoute(), not promptAvailable(): the note bundle has a size budget. */
+/** Whether Nano echoed its prompt on this browser build (see above), or
+ *  failed outright in this tab session (see FAILED_KEY). Read by aiRoute(),
+ *  not promptAvailable(): the note bundle has a size budget. */
 export function nanoBroken(): boolean {
   try {
+    if (sessionStorage.getItem(FAILED_KEY)) return true;
     return localStorage.getItem(BROKEN_KEY) === String(navigator.userAgent);
   } catch {
     return false;
+  }
+}
+
+// A Nano that throws (create() refused, the model crashed, a download that
+// can't finish…) used to stay the route: every question then ended on "no
+// answer". It is set aside for the tab session instead (a new tab tries
+// again), with Chrome's own message kept for the chat's settings.
+const FAILED_KEY = "gk-nano-failed";
+
+/** Why Nano was set aside: "echo", Chrome's error ("NotAllowedError: …"),
+ *  or "" when it wasn't. */
+export function nanoSetAsideReason(): string {
+  try {
+    const failed = sessionStorage.getItem(FAILED_KEY);
+    if (failed) return failed;
+    return localStorage.getItem(BROKEN_KEY) === String(navigator.userAgent) ? "echo" : "";
+  } catch {
+    return "";
+  }
+}
+
+/** Try Nano again (the chat's settings): forget both marks. */
+export function resetNano(): void {
+  try {
+    sessionStorage.removeItem(FAILED_KEY);
+    localStorage.removeItem(BROKEN_KEY);
+  } catch {
+    /* nothing stored */
+  }
+}
+
+function markNanoFailed(e: unknown): void {
+  const err = e as { name?: string; message?: string } | null;
+  const why = [err?.name, err?.message].filter(Boolean).join(": ").slice(0, 300) || "error";
+  try {
+    sessionStorage.setItem(FAILED_KEY, why);
+  } catch {
+    /* private mode */
   }
 }
 
@@ -151,35 +202,81 @@ function markNanoBroken(): void {
   }
 }
 
+/** The first of `langs` Chrome's model can write, or null. The question's
+ *  language (detected) may be one Nano doesn't cover while the reader's
+ *  locale is: declaring the unsupported one makes create() throw. */
+async function nanoLang(langs: string[]): Promise<string | null> {
+  for (const l of [...new Set(langs.map(baseLang).filter(Boolean))])
+    if ((await nanoAvailability(l)) !== "unavailable") return l;
+  return null;
+}
+
+/** Room the session has left for one prompt, minus room for the answer;
+ *  null when this Chrome can't say. */
+async function fits(session: LmSession, prompt: string): Promise<boolean | null> {
+  if (typeof session.measureInputUsage !== "function" || !session.inputQuota) return null;
+  const need = await session.measureInputUsage(prompt);
+  return need <= session.inputQuota - (session.inputUsage ?? 0) - 64;
+}
+
+/** Shorten `prompt` to about `ratio` of its length, keeping its start (the
+ *  passages, most relevant first) and its end (the question). */
+function shorten(prompt: string, ratio: number): string {
+  const keep = Math.max(400, Math.floor(prompt.length * ratio));
+  if (keep >= prompt.length) return prompt;
+  const tail = Math.min(800, Math.floor(keep / 2));
+  return `${prompt.slice(0, keep - tail).trimEnd()}\n…\n${prompt.slice(-tail).trimStart()}`;
+}
+
 /** Run one prompt on the device, streaming the text so far into `onText`.
  *  Resolves with the whole answer, or null when the model is missing or fails
  *  before saying anything (the caller then asks the server). An abort
- *  rejects with the AbortError, like fetch. */
+ *  rejects with the AbortError, like fetch.
+ *
+ *  `prompts` are the same request from the richest to the leanest (with the
+ *  conversation, without it): the first that fits the session's input quota
+ *  is sent, and the last is shortened when none does — an over-long prompt
+ *  otherwise rejects with a QuotaExceededError and the reader gets nothing. */
 export async function promptOnDevice(opts: {
   system: string;
-  prompt: string;
+  prompt: string | string[];
   lang: string;
+  /** Tried when Nano can't write `lang` (the reader's locale). */
+  fallbackLang?: string;
   signal?: AbortSignal;
   onText?: (text: string) => void;
   onDownload?: (fraction: number) => void;
 }): Promise<string | null> {
   const LM = g().LanguageModel as LmCtor | undefined;
   if (!LM) return null;
+  const lang = await nanoLang([opts.lang, opts.fallbackLang ?? ""]);
+  if (!lang) return null;
+  const prompts = (Array.isArray(opts.prompt) ? opts.prompt : [opts.prompt]).filter(Boolean);
   let session: LmSession | null = null;
   let out = "";
   try {
     session = await LM.create({
-      ...lmOptions(baseLang(opts.lang)),
+      ...lmOptions(lang),
       initialPrompts: [{ role: "system", content: opts.system }],
       signal: opts.signal,
       monitor(m) {
         if (opts.onDownload) m.addEventListener("downloadprogress", (e) => opts.onDownload!(e.loaded));
       },
     });
+    let prompt = prompts[prompts.length - 1] ?? "";
+    for (const p of prompts) {
+      const ok = await fits(session, p);
+      if (ok !== false) {
+        prompt = p;
+        break;
+      }
+    }
+    for (let ratio = 0.7; ratio > 0.1 && (await fits(session, prompt)) === false; ratio -= 0.2)
+      prompt = shorten(prompt, ratio);
     // Nothing is shown before HOLD_BACK characters: a leak starts with the
     // backend banner or "System:", and must never reach the reader.
     let shown = false;
-    for await (const chunk of session.promptStreaming(opts.prompt, { signal: opts.signal })) {
+    for await (const chunk of session.promptStreaming(prompt, { signal: opts.signal })) {
       // Chrome streams deltas; early builds streamed the whole text so far.
       out = out.length > 20 && chunk.startsWith(out) ? chunk : out + chunk;
       if (echoesPrompt(out, opts.system)) {
@@ -197,10 +294,13 @@ export async function promptOnDevice(opts: {
       return null;
     }
     if (!shown && out.trim()) opts.onText?.(out);
+    if (!out.trim()) markNanoFailed({ name: "EmptyAnswer" });
     return out.trim() ? out : null;
   } catch (e) {
     if ((e as Error)?.name === "AbortError") throw e;
-    return out.trim() && !echoesPrompt(out, opts.system) ? out : null;
+    if (out.trim() && !echoesPrompt(out, opts.system)) return out;
+    markNanoFailed(e);
+    return null;
   } finally {
     try {
       session?.destroy();
@@ -208,4 +308,21 @@ export async function promptOnDevice(opts: {
       /* already gone */
     }
   }
+}
+
+/** Start Chrome's first download of Gemini Nano, from inside a click.
+ *  While the model is "downloadable", create() needs a user activation; the
+ *  chat's own create() comes after language detection and retrieval, when a
+ *  click may have expired and Chrome refuses with a NotAllowedError. Does
+ *  nothing when the model is already there, or can't be. */
+export function warmNano(lang: string): void {
+  const LM = g().LanguageModel as LmCtor | undefined;
+  if (!LM || typeof LM.availability !== "function") return;
+  const o = lmOptions(baseLang(lang));
+  LM.availability(o)
+    .then((a) => (a === "downloadable" ? LM.create(o) : null))
+    .then((s) => s?.destroy())
+    .catch(() => {
+      /* the chat's own create() reports it */
+    });
 }
