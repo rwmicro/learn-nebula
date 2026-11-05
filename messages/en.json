@@ -2115,6 +2115,18 @@
     "setNano": "Chrome already provides a model (Gemini Nano): it answers when it knows the language.",
     "errNoAnswer": "The model couldn't answer. Try again, or reload the page.",
     "errDevice": "Reason given by the device: {why}",
+    "nanoDownloading": "Chrome is downloading Gemini Nano… {pct}%",
+    "nanoFailed": "Gemini Nano couldn't answer ({why}). It is set aside in this tab; you can try it again from the assistant's settings.",
+    "nanoEcho": "it copied its instructions instead of answering",
+    "nanoRetry": "Try again",
+    "nanoState": {
+      "missing": "Not in this browser (desktop Chrome only).",
+      "unavailable": "Chrome doesn't offer it here: language, hardware or settings.",
+      "downloadable": "Chrome will download it on the first question.",
+      "downloading": "Chrome is downloading it.",
+      "available": "Ready: it answers first.",
+      "aside": "Set aside on this browser."
+    },
     "errContext": "The garden isn't answering. Your question isn't lost: try again in a moment.",
     "errRate": "Too many questions at once: try again in a moment."
   },

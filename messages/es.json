@@ -2115,6 +2115,18 @@
     "setNano": "Chrome ya ofrece un modelo (Gemini Nano): responde cuando conoce el idioma.",
     "errNoAnswer": "El modelo no pudo responder. Reintenta o recarga la página.",
     "errDevice": "Motivo indicado por el dispositivo: {why}",
+    "nanoDownloading": "Chrome está descargando Gemini Nano… {pct} %",
+    "nanoFailed": "Gemini Nano no pudo responder ({why}). Queda apartado en esta pestaña; puedes reintentarlo desde los ajustes del asistente.",
+    "nanoEcho": "copió sus instrucciones en lugar de responder",
+    "nanoRetry": "Reintentar",
+    "nanoState": {
+      "missing": "No está en este navegador (solo Chrome de escritorio).",
+      "unavailable": "Chrome no lo ofrece aquí: idioma, hardware o ajustes.",
+      "downloadable": "Chrome lo descargará con la primera pregunta.",
+      "downloading": "Chrome lo está descargando.",
+      "available": "Listo: responde primero.",
+      "aside": "Apartado en este navegador."
+    },
     "errContext": "El jardín no responde. Tu pregunta no se ha perdido: reinténtalo en un momento.",
     "errRate": "Demasiadas preguntas a la vez: reinténtalo en un momento."
   },

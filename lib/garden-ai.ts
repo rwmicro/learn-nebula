@@ -33,8 +33,15 @@ export { SERVER_LLM_OFFERED, deviceWord } from "./garden-ai-flags";
  *  - "none": nothing can answer here. */
 export type AiRoute = "nano" | "local" | "download" | "server" | "none";
 
-export async function aiRoute(lang: string): Promise<AiRoute> {
-  if (!nanoBroken() && (await promptAvailable(lang))) return "nano";
+export async function aiRoute(lang: string, alsoLang = ""): Promise<AiRoute> {
+  // `alsoLang`: the question's own language, which generateOnDevice() tries
+  // first (fallbackLang = `lang`, the reader's locale).
+  if (
+    !nanoBroken() &&
+    ((await promptAvailable(lang)) ||
+      (!!alsoLang && alsoLang !== lang && (await promptAvailable(alsoLang))))
+  )
+    return "nano";
   if (await localModelSupported())
     return localModelEnabled() ? "local" : "download";
   return SERVER_LLM_OFFERED ? "server" : "none";
@@ -48,9 +55,13 @@ export async function generateOnDevice(opts: {
   prompt: string;
   history?: ChatTurn[];
   lang: string;
+  /** For Nano, when it can't write `lang`: the reader's locale. */
+  fallbackLang?: string;
   maxTokens?: number;
   signal?: AbortSignal;
   onText?: (text: string) => void;
+  /** Chrome downloading Gemini Nano on its first use (0…1). */
+  onDownload?: (fraction: number) => void;
 }): Promise<string | null> {
   // An answer saved before echoes were caught is the old prompt, not a turn.
   const history = (opts.history ?? []).filter(
@@ -66,10 +77,13 @@ export async function generateOnDevice(opts: {
       .join("\n\n");
     const out = await promptOnDevice({
       system: opts.system,
-      prompt: past ? `${past}\n\nUtilisateur : ${opts.prompt}` : opts.prompt,
+      // Without the conversation when it doesn't fit Nano's input quota.
+      prompt: past ? [`${past}\n\nUtilisateur : ${opts.prompt}`, opts.prompt] : opts.prompt,
       lang: opts.lang,
+      fallbackLang: opts.fallbackLang,
       signal: opts.signal,
       onText: opts.onText,
+      onDownload: opts.onDownload,
     });
     // Nano failed (or echoed its prompt and is now set aside): the
     // downloaded model, when the reader agreed to it, answers instead.

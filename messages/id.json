@@ -2115,6 +2115,18 @@
     "setNano": "Chrome sudah menyediakan model (Gemini Nano): model itu menjawab jika mengenal bahasanya.",
     "errNoAnswer": "Model tidak dapat menjawab. Coba lagi, atau muat ulang halaman.",
     "errDevice": "Alasan dari perangkat: {why}",
+    "nanoDownloading": "Chrome sedang mengunduh Gemini Nano… {pct}%",
+    "nanoFailed": "Gemini Nano tidak bisa menjawab ({why}). Ia disisihkan di tab ini; kamu bisa mencobanya lagi dari pengaturan asisten.",
+    "nanoEcho": "ia menyalin instruksinya alih-alih menjawab",
+    "nanoRetry": "Coba lagi",
+    "nanoState": {
+      "missing": "Tidak ada di peramban ini (hanya Chrome desktop).",
+      "unavailable": "Chrome tidak menyediakannya di sini: bahasa, perangkat keras, atau pengaturan.",
+      "downloadable": "Chrome akan mengunduhnya pada pertanyaan pertama.",
+      "downloading": "Chrome sedang mengunduhnya.",
+      "available": "Siap: ia menjawab lebih dulu.",
+      "aside": "Disisihkan di peramban ini."
+    },
     "errContext": "Kebun tidak menjawab. Pertanyaanmu tidak hilang: coba lagi sebentar lagi.",
     "errRate": "Terlalu banyak pertanyaan sekaligus: coba lagi sebentar lagi."
   },
