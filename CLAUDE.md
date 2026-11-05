@@ -281,6 +281,16 @@ image tag in `ci.yml` together with `@playwright/test`.
   can become a card in the note's SRS deck (`RECTO/VERSO`, `lib/note-quiz.ts`).
   Conversations live in localStorage only (`lib/chat-history.ts`: "Reprendre"
   on the chat home, "Mes questions" grouped by note).
+  Desktop tools (from 640px): history column with search, "Élargir", a
+  draggable width, the ⋯ menu (rename, pin, Markdown export, delete),
+  shortcuts (Ctrl/⌘ J, Ctrl/⌘ ⇧ O, Ctrl/⌘ \\). **"Côte à côte"** shows the page
+  in a same-origin iframe exactly as wide as the room left of the chat
+  (`lib/chat-dock.ts`), so every layout rule behaves as on a screen that size;
+  the page's own chat in the frame only forwards its events up. That is why
+  the server sends `X-Frame-Options: SAMEORIGIN` / `frame-ancestors 'self'`
+  (never `DENY`/`'none'`). Answers render formulas with KaTeX (lazy-loaded)
+  and the prompt numbers its excerpts so `[n]` becomes a source pastille
+  (`markdownToHtml`'s `math`/`cite` hooks; pure helpers in `lib/chat-tools.ts`).
 - **Everything is generated on the device** (`lib/garden-ai.ts` `aiRoute()`):
   Chrome's Gemini Nano (`lib/browser-ai.ts`) when it covers the language, else
   the opt-in downloaded Qwen3.5-2B (`lib/local-llm.ts`: Transformers.js on

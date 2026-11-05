@@ -48,7 +48,9 @@ app.use("*", async (c, next) => {
   await next();
   c.header("Content-Security-Policy", csp);
   c.header("X-Content-Type-Options", "nosniff");
-  c.header("X-Frame-Options", "DENY");
+  // Same origin only: the chat's « côte à côte » shows the page in a frame
+  // beside it (lib/chat-dock.ts). No other site may frame this one.
+  c.header("X-Frame-Options", "SAMEORIGIN");
   c.header("Referrer-Policy", "strict-origin-when-cross-origin");
   // Microphone for this origin only: pronunciation practice (/js/pronounce.js)
   // records in the browser, nothing is uploaded.

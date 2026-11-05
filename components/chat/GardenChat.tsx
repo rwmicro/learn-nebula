@@ -18,11 +18,21 @@
 //   • `gk:ai-setup` (public/js/translate.js) opens only the download sheet.
 // Conversations stay in this browser (lib/chat-history.ts): the home lists
 // the last ones (« Reprendre »), « Tout voir » groups them by note.
+//
+// From 640px, desktop tools: the history as a column with a search (☰), a
+// panel the reader can widen (drag its edge, or « Élargir »), « Côte à côte »
+// (the page beside the chat, never under it: lib/chat-dock.ts), the ⋯ menu
+// (rename, pin, Markdown export, delete), keyboard shortcuts (Ctrl/⌘ J,
+// Ctrl/⌘ ⇧ O, Ctrl/⌘ \, Échap, ↑). Everywhere: formulas drawn by KaTeX
+// (loaded on demand), the answer's « [n] » as source pastilles that show their
+// passage and find it in the note, editing a question, follow-ups under an
+// answer, and « + » to attach the section on screen, the selection or
+// another note.
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
-import { markdownToHtml } from "@/lib/markdown-lite";
+import { hasMath, markdownToHtml } from "@/lib/markdown-lite";
 import { escapeHtml } from "@/lib/escape";
 import { readAskStream } from "@/lib/ask-stream";
 import {
@@ -81,6 +91,28 @@ import {
   noteSlugFromPath,
   saveNoteDeck,
 } from "@/lib/note-quiz";
+import {
+  conversationMarkdown,
+  exportFileName,
+  nextSection,
+  railGroups,
+  searchChats,
+  searchNotes,
+} from "@/lib/chat-tools";
+import {
+  canDock,
+  dock,
+  flashPassage,
+  headingWords,
+  inDockFrame,
+  isDocked,
+  navigatePage,
+  noteTextFromHtml,
+  pageDoc,
+  pageWindow,
+  undock,
+  visibleSection,
+} from "@/lib/chat-dock";
 // Type-only: erased at build, so lib/content.ts (node:fs) never reaches the bundle.
 import type { ScopeOption } from "@/lib/content";
 
@@ -203,6 +235,76 @@ const Ic = {
       <path d="m20 20-3.5-3.5" />
     </svg>
   ),
+  side: (
+    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M9 4v16" />
+    </svg>
+  ),
+  dock: (
+    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M14 4v16M6.5 9h4M6.5 12.5h4" />
+    </svg>
+  ),
+  expand: (
+    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
+      <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />
+    </svg>
+  ),
+  shrink: (
+    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
+      <path d="M20 4l-6 6M14 5v5h5M4 20l6-6M5 14h5v5" />
+    </svg>
+  ),
+  more: (
+    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.6} aria-hidden="true">
+      <circle cx="5" cy="12" r="0.8" />
+      <circle cx="12" cy="12" r="0.8" />
+      <circle cx="19" cy="12" r="0.8" />
+    </svg>
+  ),
+  plus: (
+    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.2} aria-hidden="true">
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  ),
+  pin: (
+    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
+      <path d="M9 4h6l-1 6 4 3H6l4-3-1-6ZM12 13v7" />
+    </svg>
+  ),
+  trash: (
+    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
+      <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
+    </svg>
+  ),
+  kbd: (
+    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
+      <rect x="2" y="6" width="20" height="12" rx="2" />
+      <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10" />
+    </svg>
+  ),
+  arrow: (
+    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.2} aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  ),
+  sel: (
+    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
+      <path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3M8 12h8" />
+    </svg>
+  ),
+  sec: (
+    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
+      <path d="M4 6h16M4 12h10M4 18h7" />
+    </svg>
+  ),
+  x: (
+    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.2} aria-hidden="true">
+      <path d="M6 6l12 12M18 6 6 18" />
+    </svg>
+  ),
   gear: (
     <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
       <circle cx="12" cy="12" r="3" />
@@ -222,6 +324,54 @@ const SRC_COLORS = ["#3f6b4a", "#6b4fbb", "#b8740f", "#2d6cc0", "#009b8f"];
 
 const SCOPE_KEY = "gkChatScope";
 const DL_LATER_KEY = "gkLocalLlmLater";
+/** Desktop layout: over the page, beside it, or wide (localStorage). */
+const LAYOUT_KEY = "gkChatLayout";
+/** The history column shown (localStorage, "1"). */
+const RAIL_KEY = "gkChatRail";
+/** The panel's width in px, as the reader dragged it (localStorage). */
+const WIDTH_KEY = "gkChatWidth";
+/** A conversation to reopen on the next page load (sessionStorage): set
+ *  while « côte à côte » (a reload) and when leaving it for another page. */
+const REOPEN_KEY = "gkChatReopen";
+type Layout = "overlay" | "dock" | "wide";
+
+function lsGet(k: string): string {
+  try {
+    return localStorage.getItem(k) ?? "";
+  } catch {
+    return "";
+  }
+}
+function lsSet(k: string, v: string) {
+  try {
+    if (v) localStorage.setItem(k, v);
+    else localStorage.removeItem(k);
+  } catch {
+    /* storage blocked */
+  }
+}
+
+// KaTeX for the formulas in answers: ~270 KB, so loaded the first time an
+// answer holds one, with the site's own stylesheet (public/katex/).
+type Katex = { renderToString(tex: string, o: object): string };
+let katexLib: Katex | null = null;
+let katexLoading: Promise<void> | null = null;
+function loadKatex(): Promise<void> {
+  if (!katexLoading) {
+    katexLoading = import("katex").then((m) => {
+      katexLib = ((m as unknown as { default?: Katex }).default ?? m) as Katex;
+      if (!document.querySelector('link[href="/katex/katex.min.css"]')) {
+        const l = document.createElement("link");
+        l.rel = "stylesheet";
+        l.href = "/katex/katex.min.css";
+        document.head.appendChild(l);
+      }
+    });
+  }
+  return katexLoading;
+}
+const katexMath = (tex: string, display: boolean) =>
+  katexLib!.renderToString(tex, { displayMode: display, throwOnError: false, output: "html" });
 const newId = () =>
   `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 
@@ -233,11 +383,12 @@ interface PageNote extends ChatNote {
 }
 
 function readPage(): PageNote | null {
-  if (
-    typeof location === "undefined" ||
-    !location.pathname.startsWith("/posts/")
-  )
-    return null;
+  if (typeof window === "undefined") return null;
+  // Beside the chat, the page is in the frame (lib/chat-dock.ts).
+  const win = pageWindow();
+  const document = win.document;
+  const location = win.location;
+  if (!location.pathname.startsWith("/posts/")) return null;
   const title =
     document
       .querySelector("main h1")
@@ -253,7 +404,7 @@ function readPage(): PageNote | null {
   const headings = Array.from(
     document.querySelectorAll("main .article-body h2"),
   )
-    .map(headingText)
+    .map(headingWords)
     .filter((h) => h.length > 2 && h.length < 70)
     .slice(0, 6);
   return {
@@ -265,21 +416,12 @@ function readPage(): PageNote | null {
   };
 }
 
-/** The heading of the section a passage sits in, for « Relire … ». */
 /** A heading's words, without its "#" anchor link or section number. */
-function headingText(h: Element): string {
-  const c = h.cloneNode(true) as Element;
-  c.querySelectorAll(".anchor, .sec-num, [aria-hidden='true']").forEach((x) =>
-    x.remove(),
-  );
-  return (c.textContent ?? "")
-    .replace(/\s+/g, " ")
-    .replace(/^\d+[.\s]*/, "")
-    .trim();
-}
+const headingText = headingWords;
 
+/** The heading of the section a passage sits in, for « Relire … ». */
 function sectionOf(passage: string): { title: string; id: string } | null {
-  const body = document.querySelector("main .article-body");
+  const body = pageDoc().querySelector("main .article-body");
   const probe = passage.replace(/\s+/g, " ").trim().slice(0, 40);
   if (!body || !probe) return null;
   let heading: Element | null = null;
@@ -320,7 +462,8 @@ const fmtGb = (bytes: number, locale: string) =>
 const fmtMb = (bytes: number, locale: string) =>
   bytes >= 1e9 ? `${fmtGb(bytes, locale)} Go` : `${Math.round(bytes / 1e6)} Mo`;
 
-type Sheet = null | "confirm" | "sources" | "unsupported" | "card";
+type Sheet = null | "confirm" | "sources" | "unsupported" | "card" | "keys";
+type NoteRef = { title: string; href: string; folder?: string };
 type DlState = "idle" | "loading" | "ready" | "failed";
 
 export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
@@ -378,6 +521,41 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     null,
   );
   const [wide, setWide] = useState(false);
+  // --- desktop tools ---
+  const [layout, setLayoutState] = useState<Layout>("overlay");
+  const [docked, setDocked] = useState(false);
+  const [dockable, setDockable] = useState(false);
+  const [rail, setRail] = useState(false);
+  const [railQuery, setRailQuery] = useState("");
+  const [panelW, setPanelW] = useState(0);
+  const [menu, setMenu] = useState<null | "more" | "attach">(null);
+  const [attachNotes, setAttachNotes] = useState(false);
+  const [noteQuery, setNoteQuery] = useState("");
+  const [noteIndex, setNoteIndex] = useState<NoteRef[] | null>(null);
+  const [passageFrom, setPassageFrom] = useState("");
+  const [renaming, setRenaming] = useState(false);
+  const [renameText, setRenameText] = useState("");
+  const [editing, setEditing] = useState(-1);
+  const [editText, setEditText] = useState("");
+  const [cite, setCite] = useState<{
+    i: number;
+    n: number;
+    top: number;
+    left: number;
+    below: boolean;
+  } | null>(null);
+  const [, setMathTick] = useState(0);
+  // The frame's page (« côte à côte »): its chat only forwards (lib/chat-dock.ts).
+  const [passive, setPassive] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLDivElement>(null);
+  const citeTimer = useRef(0);
+  /** The last text the reader selected in the page, for « + ». */
+  const lastSel = useRef("");
+  const layoutRef = useRef<Layout>("overlay");
+  const onKeyRef = useRef<(e: KeyboardEvent) => void>(() => {});
+  /** A source to light up once the frame shows its note. */
+  const pendingFlash = useRef<{ path: string; hash: string; excerpt?: string } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const convRef = useRef(conv);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -484,12 +662,116 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     setPage(readPage());
     setOpen(true);
     setView("chat");
+    if (layoutRef.current === "dock") enterDock();
     return true;
   }
 
   function closeChat() {
+    try {
+      sessionStorage.removeItem(REOPEN_KEY);
+    } catch {
+      /* ignore */
+    }
+    setMenu(null);
+    setCite(null);
+    if (isDocked()) leaveDock(false);
     setOpen(false);
     setScopeMenu(false);
+  }
+
+  // --- layouts (from 640px) ------------------------------------------------
+  function setLayout(l: Layout) {
+    layoutRef.current = l;
+    setLayoutState(l);
+    lsSet(LAYOUT_KEY, l === "overlay" ? "" : l);
+  }
+
+  /** The page beside the chat, in a frame its exact width (lib/chat-dock.ts). */
+  function enterDock() {
+    if (isDocked() || !canDock()) return;
+    dock({
+      onPage: (win) => {
+        const note = readPage();
+        setPage(note);
+        // A conversation not started yet follows the page being read.
+        const c = convRef.current;
+        if (!c.messages.length && c.note?.url !== note?.url) {
+          updateConv((x) => ({
+            ...x,
+            note: note
+              ? { title: note.title, url: note.url, discipline: note.discipline }
+              : null,
+            scope: note ? note.folder : x.scope,
+          }));
+        }
+        win.addEventListener("keydown", (e) => onKeyRef.current(e));
+        win.document.addEventListener("selectionchange", () =>
+          noteSelection(win),
+        );
+        const f = pendingFlash.current;
+        if (f && win.location.pathname === f.path) {
+          pendingFlash.current = null;
+          window.setTimeout(
+            () => flashPassage(win.document, { hash: f.hash, excerpt: f.excerpt }),
+            300,
+          );
+        }
+      },
+    });
+    setDocked(true);
+  }
+
+  /** Back over the page. When the reader moved to another page meanwhile,
+   *  that page is loaded up here (and the chat reopens on it if `keepOpen`). */
+  function leaveDock(keepOpen: boolean) {
+    if (!isDocked()) return;
+    const c = convRef.current;
+    const { url, moved } = undock();
+    setDocked(false);
+    document.documentElement.style.removeProperty("--gc-total");
+    if (moved) {
+      try {
+        if (keepOpen) {
+          persist(c);
+          sessionStorage.setItem(REOPEN_KEY, c.messages.length ? c.id : "new");
+        } else sessionStorage.removeItem(REOPEN_KEY);
+      } catch {
+        /* ignore */
+      }
+      location.replace(url);
+      return;
+    }
+    setPage(readPage());
+  }
+
+  function toggleDock() {
+    setMenu(null);
+    if (isDocked()) {
+      setLayout("overlay");
+      leaveDock(true);
+    } else {
+      setLayout("dock");
+      enterDock();
+    }
+  }
+
+  function toggleWide() {
+    setMenu(null);
+    if (layoutRef.current === "wide") return setLayout("overlay");
+    setLayout("wide");
+    if (isDocked()) leaveDock(true);
+  }
+
+  function noteSelection(win: Window) {
+    const sel = win.getSelection();
+    const text = sel?.toString().trim() ?? "";
+    const node = sel?.anchorNode;
+    const el = node && (node.nodeType === 1 ? (node as Element) : node.parentElement);
+    if (text.length > 2 && !el?.closest(".gc")) lastSel.current = text.slice(0, 4000);
+  }
+
+  function focusComposer() {
+    requestAnimationFrame(() => inputRef.current?.focus());
   }
 
   function newConversation(mode: ChatMode = "answer", note = readPage()) {
@@ -512,6 +794,10 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     setPage(note);
     setInput("");
     setPassage("");
+    setPassageFrom("");
+    setEditing(-1);
+    setRenaming(false);
+    setCite(null);
     setBusy(false);
     setStatus("");
     setWaitingModel(false);
@@ -520,8 +806,57 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   }
 
   useEffect(() => {
+    // In the frame beside the chat: forward everything to the chat up there.
+    if (inDockFrame()) {
+      setPassive(true);
+      const top = window.parent as typeof window;
+      const fwd = (e: Event) =>
+        top.dispatchEvent(
+          new top.CustomEvent(e.type, { detail: (e as CustomEvent).detail }),
+        );
+      const types = ["gk:pin-chat", "gk:explain", "gk:explain-own", "gk:chat-ask", "gk:ai-setup"];
+      types.forEach((t2) => window.addEventListener(t2, fwd));
+      setOnNote(location.pathname.startsWith("/posts/"));
+      return () => types.forEach((t2) => window.removeEventListener(t2, fwd));
+    }
     const s = store();
     if (s) setChats(loadChats(s));
+    const l = lsGet(LAYOUT_KEY);
+    layoutRef.current = l === "dock" || l === "wide" ? l : "overlay";
+    setLayoutState(layoutRef.current);
+    setRail(lsGet(RAIL_KEY) === "1");
+    setPanelW(Number(lsGet(WIDTH_KEY)) || 0);
+    setDockable(canDock());
+    const onResize = () => {
+      setDockable(canDock());
+      if (isDocked() && !canDock()) leaveDock(true);
+    };
+    window.addEventListener("resize", onResize);
+    const onKey = (e: KeyboardEvent) => onKeyRef.current(e);
+    window.addEventListener("keydown", onKey);
+    const onSel = () => noteSelection(window);
+    document.addEventListener("selectionchange", onSel);
+    // The « Demander » bar of the page beside the chat.
+    const onFocusAsk = () => {
+      if (isDocked()) focusComposer();
+    };
+    window.addEventListener("gk:chat-focus", onFocusAsk);
+    // Reopen what was open before a reload or leaving « côte à côte ».
+    let reopen = "";
+    try {
+      reopen = sessionStorage.getItem(REOPEN_KEY) ?? "";
+      sessionStorage.removeItem(REOPEN_KEY);
+    } catch {
+      /* ignore */
+    }
+    if (reopen) {
+      void openChat().then((ok) => {
+        if (!ok) return;
+        const c = s ? loadChats(s).find((x) => x.id === reopen) : undefined;
+        if (c) resume(c);
+        else newConversation();
+      });
+    }
     try {
       setDlLater(sessionStorage.getItem(DL_LATER_KEY) === "1");
     } catch {
@@ -595,6 +930,10 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     window.addEventListener("gk:chat-ask", onAsk);
     window.addEventListener("gk:ai-setup", onSetup);
     return () => {
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("selectionchange", onSel);
+      window.removeEventListener("gk:chat-focus", onFocusAsk);
       mq.removeEventListener("change", onMq);
       window.removeEventListener("gk:pin-chat", onPin);
       window.removeEventListener("gk:explain", onExplain);
@@ -605,6 +944,53 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  // Formulas: KaTeX arrives the first time an answer holds one.
+  useEffect(() => {
+    if (katexLib || busy) return;
+    if (conv.messages.some((m) => m.role === "assistant" && hasMath(m.text)))
+      void loadKatex()
+        .then(() => setMathTick((n) => n + 1))
+        .catch(() => {});
+  }, [conv, busy]);
+
+  // Beside the page: a reload brings the same conversation back.
+  useEffect(() => {
+    if (!docked || !open) return;
+    try {
+      sessionStorage.setItem(REOPEN_KEY, conv.messages.length ? conv.id : "new");
+    } catch {
+      /* ignore */
+    }
+  }, [docked, open, conv.id, conv.messages.length]);
+
+  // The frame takes exactly the room the panel leaves.
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!docked || !open || !el) return;
+    const ro = new ResizeObserver(() =>
+      document.documentElement.style.setProperty(
+        "--gc-total",
+        `${Math.round(el.getBoundingClientRect().width)}px`,
+      ),
+    );
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [docked, open]);
+
+  // A menu closes on a click elsewhere.
+  useEffect(() => {
+    if (!menu) return;
+    const onDown = (e: PointerEvent) => {
+      const t2 = e.target as Element | null;
+      if (!t2?.closest?.(".gc-menu, .gc-menu-btn")) {
+        setMenu(null);
+        setAttachNotes(false);
+      }
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [menu]);
 
   // Phones: the page under the chat doesn't scroll.
   useEffect(() => {
@@ -642,11 +1028,17 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   async function send(
     text: string,
-    opts: { passage?: string; mode?: ChatMode; regenerate?: boolean } = {},
+    opts: {
+      passage?: string;
+      passageFrom?: string;
+      mode?: ChatMode;
+      regenerate?: boolean;
+    } = {},
   ) {
     const c0 = convRef.current;
     const mode = opts.mode ?? c0.mode;
     const pass = opts.passage ?? passage;
+    const from = opts.passageFrom ?? (opts.passage === undefined ? passageFrom : "");
     if (busy || (!text.trim() && !pass)) return;
     // Still inside the click: Chrome only starts Gemini Nano's first
     // download from a user activation, which detection and retrieval below
@@ -691,12 +1083,14 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             role: "user",
             text: question || (mode === "own" ? "" : tr("chat.explainDefault")),
             ...(pass ? { passage: pass } : {}),
+            ...(pass && from ? { passageFrom: from } : {}),
           },
         ],
       }));
     }
     setInput("");
     setPassage("");
+    setPassageFrom("");
     setBusy(true);
     setStatus(mode === "own" ? tr("chat.writing") : tr("chat.searching"));
     const via: ChatMessage["via"] =
@@ -1071,8 +1465,290 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     setConv(c);
     setBusy(false);
     setStatus("");
+    setEditing(-1);
+    setRenaming(false);
+    setCite(null);
     setView("chat");
   }
+
+  // --- the ⋯ menu ----------------------------------------------------------
+  const exportLabels = () => ({
+    me: tr("chat.exportMe"),
+    garden: tr("chat.title"),
+    note: tr("chat.exportNote"),
+    passage: tr("chat.exportPassage"),
+    sources: tr("chat.sourcesTitle"),
+  });
+
+  async function copyMarkdown() {
+    setMenu(null);
+    try {
+      await navigator.clipboard.writeText(
+        conversationMarkdown(convRef.current, exportLabels(), location.origin),
+      );
+      showToast(tr("chat.exportCopied"));
+    } catch {
+      /* clipboard blocked */
+    }
+  }
+
+  function downloadMarkdown() {
+    setMenu(null);
+    const c = convRef.current;
+    const blob = new Blob([conversationMarkdown(c, exportLabels(), location.origin)], {
+      type: "text/markdown;charset=utf-8",
+    });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = exportFileName(c.title);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+
+  function startRename() {
+    setMenu(null);
+    setRenameText(convRef.current.title);
+    setRenaming(true);
+  }
+
+  function commitRename() {
+    const title = renameText.replace(/\s+/g, " ").trim().slice(0, 200);
+    setRenaming(false);
+    if (title && title !== convRef.current.title)
+      updateConv((c) => ({ ...c, title }), true);
+  }
+
+  function togglePin() {
+    setMenu(null);
+    const pinned = !convRef.current.pinned;
+    updateConv((c) => ({ ...c, pinned: pinned || undefined }), true);
+    showToast(tr(pinned ? "chat.pinned" : "chat.unpinned"));
+  }
+
+  function deleteCurrent() {
+    setMenu(null);
+    const s2 = store();
+    if (s2) setChats(deleteChat(s2, convRef.current.id));
+    newConversation();
+    showToast(tr("chat.convDeleted"));
+  }
+
+  // --- editing a question ----------------------------------------------------
+  function startEdit(i: number) {
+    const m = convRef.current.messages[i];
+    if (!m || m.role !== "user" || busy) return;
+    setEditing(i);
+    setEditText(m.text === tr("chat.explainDefault") ? "" : m.text);
+  }
+
+  /** Send the edited question in place of the old one and what followed. */
+  function submitEdit() {
+    const i = editing;
+    const m = convRef.current.messages[i];
+    if (!m || busy) return;
+    const text = editText.trim();
+    if (!text && !m.passage) return;
+    updateConv((c) => ({ ...c, messages: c.messages.slice(0, i) }));
+    setEditing(-1);
+    void send(text, { passage: m.passage ?? "", passageFrom: m.passageFrom ?? "" });
+  }
+
+  // --- « + »: attach the section on screen, the selection, a note ------------
+  function attachSection() {
+    setMenu(null);
+    const sec = visibleSection(pageDoc(), pageWindow());
+    if (!sec) return;
+    setPassage(sec.text);
+    setPassageFrom(tr("chat.fromSection", { title: sec.title }));
+    focusComposer();
+  }
+
+  function attachSelection() {
+    setMenu(null);
+    if (!lastSel.current) return;
+    setPassage(lastSel.current);
+    setPassageFrom("");
+    focusComposer();
+  }
+
+  function openNotePicker() {
+    setAttachNotes(true);
+    setNoteQuery("");
+    if (noteIndex) return;
+    const v = document
+      .querySelector('meta[name="gk-notes-index"]')
+      ?.getAttribute("content");
+    fetch(`/notes-index.json${v ? `?v=${encodeURIComponent(v)}` : ""}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((list: unknown) =>
+        setNoteIndex(
+          Array.isArray(list)
+            ? (list as NoteRef[]).filter(
+                (x) =>
+                  x &&
+                  typeof x.title === "string" &&
+                  typeof x.href === "string" &&
+                  /^\/(?!\/)/.test(x.href),
+              )
+            : [],
+        ),
+      )
+      .catch(() => setNoteIndex([]));
+  }
+
+  async function attachNote(n: NoteRef) {
+    setMenu(null);
+    setAttachNotes(false);
+    try {
+      const r = await fetch(n.href);
+      const text = r.ok ? noteTextFromHtml(await r.text()) : "";
+      if (text) {
+        setPassage(text);
+        setPassageFrom(tr("chat.fromNote", { title: n.title }));
+      }
+    } catch {
+      /* offline */
+    }
+    focusComposer();
+  }
+
+  // --- sources in the text ----------------------------------------------------
+  function citeHtml(sources: ChatSource[]) {
+    return (n: number) => {
+      const s2 = sources[n - 1];
+      if (!s2) return null;
+      return `<button type="button" class="gc-cite" data-n="${n}" style="background:${
+        SRC_COLORS[(n - 1) % SRC_COLORS.length]
+      }" aria-label="${escapeHtml(tr("chat.citeAria", { n, title: s2.title }))}">${n}</button>`;
+    };
+  }
+
+  function openCite(b: HTMLElement) {
+    const wrap = b.closest<HTMLElement>("[data-i]");
+    const main = mainRef.current;
+    if (!wrap || !main) return;
+    window.clearTimeout(citeTimer.current);
+    const r = b.getBoundingClientRect();
+    const mr = main.getBoundingClientRect();
+    const below = r.top - mr.top < 220;
+    setCite({
+      i: Number(wrap.dataset.i),
+      n: Number(b.dataset.n),
+      top: below ? r.bottom - mr.top + 8 : mr.bottom - r.top + 8,
+      left: Math.max(12, Math.min(r.left - mr.left - 140, mr.width - 12 - 304)),
+      below,
+    });
+  }
+
+  function closeCiteSoon() {
+    window.clearTimeout(citeTimer.current);
+    citeTimer.current = window.setTimeout(() => setCite(null), 260);
+  }
+
+  /** Find a cited passage in the page: this page lights it up, another one
+   *  opens beside the chat (« côte à côte ») or in place of this page. */
+  function showSource(src: ChatSource) {
+    setCite(null);
+    let u: URL;
+    try {
+      u = new URL(src.url, location.origin);
+    } catch {
+      return;
+    }
+    if (u.origin !== location.origin) return;
+    if (u.pathname === pageWindow().location.pathname) {
+      // On a phone the chat covers the page: close it first.
+      if (!wide) closeChat();
+      window.setTimeout(() => {
+        if (!flashPassage(pageDoc(), { hash: u.hash, excerpt: src.excerpt }) && u.hash)
+          pageWindow().location.hash = u.hash;
+      }, wide ? 0 : 60);
+      return;
+    }
+    if (isDocked()) {
+      pendingFlash.current = { path: u.pathname, hash: u.hash, excerpt: src.excerpt };
+      navigatePage(u.pathname + u.hash);
+    } else location.assign(u.pathname + u.search + u.hash);
+  }
+
+  // --- the panel's width (drag its edge) --------------------------------------
+  function startResize(e: React.PointerEvent) {
+    const main = mainRef.current;
+    if (!main || layoutRef.current === "wide") return;
+    e.preventDefault();
+    const x0 = e.clientX;
+    const w0 = main.getBoundingClientRect().width;
+    let w = w0;
+    const max = () => window.innerWidth - (isDocked() ? 600 : 120);
+    const move = (ev: PointerEvent) => {
+      w = Math.round(Math.max(360, Math.min(max(), w0 + x0 - ev.clientX)));
+      setPanelW(w);
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      document.documentElement.classList.remove("gc-resizing");
+      lsSet(WIDTH_KEY, String(w));
+    };
+    document.documentElement.classList.add("gc-resizing");
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  }
+
+  function toggleRail() {
+    const next = !rail;
+    setRail(next);
+    lsSet(RAIL_KEY, next ? "1" : "");
+  }
+
+  // --- keyboard -------------------------------------------------------------
+  onKeyRef.current = (e: KeyboardEvent) => {
+    if (e.defaultPrevented) return;
+    const mod = e.ctrlKey || e.metaKey;
+    const k = e.key.toLowerCase();
+    if (mod && !e.shiftKey && !e.altKey && k === "j") {
+      e.preventDefault();
+      if (open) closeChat();
+      else void openChat().then((ok) => ok && focusComposer());
+      return;
+    }
+    if (mod && e.shiftKey && !e.altKey && k === "o") {
+      e.preventDefault();
+      void (open ? Promise.resolve(true) : openChat()).then((ok) => {
+        if (!ok) return;
+        newConversation();
+        focusComposer();
+      });
+      return;
+    }
+    if (mod && !e.altKey && (e.code === "Backslash" || e.key === "\\")) {
+      if (!canDock()) return;
+      e.preventDefault();
+      if (open) toggleDock();
+      else {
+        setLayout("dock");
+        void openChat();
+      }
+      return;
+    }
+    if (e.key === "Escape" && open) {
+      if (cite || menu || renaming || editing >= 0 || scopeMenu || sheet) {
+        e.preventDefault();
+        setCite(null);
+        setMenu(null);
+        setRenaming(false);
+        setEditing(-1);
+        setScopeMenu(false);
+        setSheet(null);
+        return;
+      }
+      // Beside the page, closing would reload it: Échap only leaves the field.
+      if (isDocked()) (document.activeElement as HTMLElement | null)?.blur();
+      else if (wide) closeChat();
+    }
+  };
 
   // --- rendering -----------------------------------------------------------
   const model = localModel();
@@ -1153,13 +1829,19 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     </span>
   );
 
+  /** A real answer, not one of the chat's own error lines. */
+  const answered = (m: ChatMessage) =>
+    !m.text.startsWith(tr("chat.errNoAnswer")) &&
+    m.text !== tr("chat.errContext") &&
+    m.text !== tr("chat.errRate");
+
   function renderAssistant(m: ChatMessage, i: number) {
     const last = i === lastIdx;
     const writing = last && busy;
     const fb = m.own && !writing ? parseExplainFeedback(m.text) : null;
     const sources = m.sources ?? [];
     return (
-      <div className="gc-ai-wrap" key={i}>
+      <div className="gc-ai-wrap" key={i} data-i={i}>
         {writing && status && !m.text && (
           <p className="gc-status">
             <span className="gc-shine">{status}</span>
@@ -1210,7 +1892,13 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
               <a
                 className="gc-fb-go"
                 href={`#${section.id}`}
-                onClick={() => closeChat()}
+                onClick={(e) => {
+                  if (!isDocked()) return closeChat();
+                  e.preventDefault();
+                  pageDoc()
+                    .getElementById(section.id)
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }}
               >
                 {tr("chat.ownReread", { section: section.title })}
                 {Ic.chev}
@@ -1228,7 +1916,12 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
           <div
             className="gc-ai"
             aria-live="polite"
-            dangerouslySetInnerHTML={{ __html: markdownToHtml(m.text) }}
+            dangerouslySetInnerHTML={{
+              __html: markdownToHtml(m.text, {
+                math: katexLib ? katexMath : undefined,
+                cite: citeHtml(sources),
+              }),
+            }}
           />
         )}
         {!writing && sources.length > 0 && (
@@ -1311,6 +2004,37 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             )}
           </div>
         )}
+        {last && !busy && m.text && conv.mode === "answer" && !m.own && answered(m) && (
+          <div className="gc-chips gc-next">
+            <button type="button" onClick={() => send(tr("chat.nextExampleQ"))}>
+              {Ic.arrow}
+              {tr("chat.nextExample")}
+            </button>
+            {(() => {
+              const q = msgs.slice(0, i).reverse().find((x) => x.role === "user");
+              const sec = nextSection(q?.text ?? "", sources);
+              return sec ? (
+                <button
+                  type="button"
+                  onClick={() => send(tr("chat.nextSectionQ", { s: sec }))}
+                >
+                  {Ic.arrow}
+                  {tr("chat.nextSection", { s: sec })}
+                </button>
+              ) : null;
+            })()}
+            <button
+              type="button"
+              onClick={() => {
+                updateConv((c) => ({ ...c, mode: "socratic" }));
+                send(tr("chat.nextQuizQ"), { mode: "socratic", passage: "" });
+              }}
+            >
+              {Ic.arrow}
+              {tr("chat.nextQuiz")}
+            </button>
+          </div>
+        )}
         {last && !busy && m.text && conv.mode === "socratic" && (
           <div className="gc-chips">
             {["chat.socDontKnow", "chat.socHint", "chat.socAnswer"].map((k) => (
@@ -1377,6 +2101,107 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   );
 
   const canSend = !!(input.trim() || (passage && conv.mode !== "own"));
+  const notesFound = noteIndex
+    ? searchNotes(noteIndex, noteQuery, page?.url ?? "")
+    : [];
+  const plusBtn = (
+    <button
+      type="button"
+      className={menu === "attach" ? "gc-plus gc-menu-btn on" : "gc-plus gc-menu-btn"}
+      aria-label={tr("chat.attach")}
+      title={tr("chat.attach")}
+      aria-expanded={menu === "attach"}
+      // Keep the page's selection: no focus change on press.
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={() => {
+        setAttachNotes(false);
+        setMenu(menu === "attach" ? null : "attach");
+      }}
+    >
+      {Ic.plus}
+    </button>
+  );
+  const attachMenu = menu === "attach" && (
+    <div className="gc-menu gc-attach" role="menu">
+      {attachNotes ? (
+        <>
+          <input
+            className="gc-menu-find"
+            autoFocus
+            value={noteQuery}
+            placeholder={tr("chat.attachFind")}
+            aria-label={tr("chat.attachFind")}
+            onChange={(e) => setNoteQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && notesFound[0]) {
+                e.preventDefault();
+                void attachNote(notesFound[0]);
+              }
+            }}
+          />
+          <div className="gc-menu-list">
+            {noteIndex === null ? (
+              <p className="gc-menu-empty">…</p>
+            ) : notesFound.length ? (
+              notesFound.map((n) => (
+                <button
+                  key={n.href}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => void attachNote(n)}
+                >
+                  {Ic.doc}
+                  <span>
+                    {n.title}
+                    {n.folder && <small>{n.folder}</small>}
+                  </span>
+                </button>
+              ))
+            ) : (
+              <p className="gc-menu-empty">{tr("chat.attachNone")}</p>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          <p>{tr("chat.attach")}</p>
+          {page && (
+            <button
+              type="button"
+              role="menuitem"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={attachSection}
+            >
+              {Ic.sec}
+              <span>{tr("chat.attachSection")}</span>
+            </button>
+          )}
+          <button
+            type="button"
+            role="menuitem"
+            disabled={!lastSel.current}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={attachSelection}
+          >
+            {Ic.sel}
+            <span>
+              {tr("chat.attachSelection")}
+              {lastSel.current && (
+                <small>
+                  « {lastSel.current.length > 50 ? `${lastSel.current.slice(0, 50)}…` : lastSel.current} »
+                </small>
+              )}
+            </span>
+          </button>
+          <button type="button" role="menuitem" onClick={openNotePicker}>
+            {Ic.doc}
+            <span>{tr("chat.attachNote")}</span>
+            <kbd>@</kbd>
+          </button>
+        </>
+      )}
+    </div>
+  );
   const composer = (
     <form
       className={started ? "gc-comp gc-comp-pill" : "gc-comp"}
@@ -1386,27 +2211,50 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         if (canSend) send(input);
       }}
     >
+      {attachMenu}
       {passage && (
         <div className="gc-pin">
           <span>
+            {passageFrom && <b className="gc-pin-from">{passageFrom}</b>}
             {passage.length > 140 ? `${passage.slice(0, 140)}…` : passage}
           </span>
           <button
             type="button"
-            onClick={() => setPassage("")}
+            onClick={() => {
+              setPassage("");
+              setPassageFrom("");
+            }}
             aria-label={tr("chat.removePassage")}
           >
             ×
           </button>
         </div>
       )}
+      {started && plusBtn}
       <textarea
         ref={inputRef}
         rows={1}
         value={input}
         maxLength={1000}
-        onChange={(e) => setInput(e.target.value)}
+        onChange={(e) => {
+          // « @ » alone: pick a note to attach.
+          if (e.target.value === "@" && !input) {
+            setInput("");
+            setMenu("attach");
+            openNotePicker();
+            return;
+          }
+          setInput(e.target.value);
+        }}
         onKeyDown={(e) => {
+          if (e.key === "ArrowUp" && !input && started && !busy) {
+            const last = msgs.map((m) => m.role).lastIndexOf("user");
+            if (last >= 0) {
+              e.preventDefault();
+              startEdit(last);
+            }
+            return;
+          }
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             e.currentTarget.form?.requestSubmit();
@@ -1422,6 +2270,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         aria-label={tr("chat.placeholderShort")}
       />
       <div className="gc-comp-row">
+        {!started && plusBtn}
         {!started && noteTitle && conv.note && (
           <span className="gc-ctx">
             {Ic.doc}
@@ -1605,27 +2454,104 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     </div>
   );
 
+  const citeTarget = (e: React.SyntheticEvent) =>
+    (e.target as Element | null)?.closest?.<HTMLElement>(".gc-cite") ?? null;
   const conversation = (
-    <div className="gc-conv">
+    <div
+      className="gc-conv"
+      onClick={(e) => {
+        const b = citeTarget(e);
+        if (!b) return;
+        if (cite && cite.n === Number(b.dataset.n) && cite.i === Number(b.closest<HTMLElement>("[data-i]")?.dataset.i))
+          setCite(null);
+        else openCite(b);
+      }}
+      onMouseOver={(e) => {
+        const b = citeTarget(e);
+        if (b && wide) openCite(b);
+      }}
+      onMouseOut={(e) => {
+        if (citeTarget(e) && wide) closeCiteSoon();
+      }}
+    >
       {msgs.map((m, i) =>
         m.role === "user" ? (
-          <div className="gc-user" key={i}>
-            {(conv.note || m.passage) && (
-              <div className="gc-att">
-                {Ic.doc}
-                {conv.note?.title ?? tr("chat.wholeGarden")}
-                {m.passage ? ` · ${tr("chat.passage")}` : ""}
+          editing === i ? (
+            <form
+              className="gc-edit"
+              key={i}
+              onSubmit={(e) => {
+                e.preventDefault();
+                submitEdit();
+              }}
+            >
+              {m.passage && (
+                <div className="gc-att">
+                  {Ic.doc}
+                  {m.passageFrom || tr("chat.passage")}
+                </div>
+              )}
+              <textarea
+                autoFocus
+                rows={2}
+                value={editText}
+                maxLength={1000}
+                aria-label={tr("chat.editQuestion")}
+                onChange={(e) => setEditText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    submitEdit();
+                  }
+                }}
+              />
+              <div className="gc-btns">
+                <button type="button" className="gc-btn sec" onClick={() => setEditing(-1)}>
+                  {tr("chat.cancel")}
+                </button>
+                <button
+                  type="submit"
+                  className="gc-btn pri"
+                  disabled={!editText.trim() && !m.passage}
+                >
+                  {tr("chat.send")}
+                </button>
               </div>
-            )}
-            {m.passage && (
-              <div className="gc-pq">
-                {m.passage.length > 400
-                  ? `${m.passage.slice(0, 400)}…`
-                  : m.passage}
+            </form>
+          ) : (
+            <div className="gc-uwrap" key={i}>
+              {!busy && (
+                <button
+                  type="button"
+                  className="gc-uedit"
+                  onClick={() => startEdit(i)}
+                  aria-label={tr("chat.editQuestion")}
+                  title={tr("chat.editQuestion")}
+                >
+                  {Ic.edit}
+                </button>
+              )}
+              <div className="gc-user">
+                {(conv.note || m.passage) && (
+                  <div className="gc-att">
+                    {Ic.doc}
+                    {m.passageFrom ||
+                      `${conv.note?.title ?? tr("chat.wholeGarden")}${
+                        m.passage ? ` · ${tr("chat.passage")}` : ""
+                      }`}
+                  </div>
+                )}
+                {m.passage && (
+                  <div className="gc-pq">
+                    {m.passage.length > 400
+                      ? `${m.passage.slice(0, 400)}…`
+                      : m.passage}
+                  </div>
+                )}
+                {m.text}
               </div>
-            )}
-            {m.text}
-          </div>
+            </div>
+          )
         ) : (
           renderAssistant(m, i)
         ),
@@ -1633,8 +2559,76 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     </div>
   );
 
+  const modKey =
+    typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl";
   const topTitle =
     view === "history" ? "" : started ? conv.title : tr("chat.title");
+
+  const showRail = wide && (rail || layout === "wide");
+  const moreMenu = menu === "more" && (
+    <div className="gc-menu gc-more" role="menu">
+      {wide && (
+        <>
+          <button type="button" role="menuitem" onClick={toggleWide}>
+            {layout === "wide" ? Ic.shrink : Ic.expand}
+            <span>{tr(layout === "wide" ? "chat.narrow" : "chat.widen")}</span>
+          </button>
+          {dockable && (
+            <button type="button" role="menuitem" onClick={toggleDock}>
+              {Ic.dock}
+              <span>{tr(docked ? "chat.undock" : "chat.dock")}</span>
+              <kbd>{modKey} \</kbd>
+            </button>
+          )}
+          <hr />
+        </>
+      )}
+      <button type="button" role="menuitem" disabled={!started} onClick={startRename}>
+        {Ic.edit}
+        <span>{tr("chat.rename")}</span>
+      </button>
+      <button type="button" role="menuitem" disabled={!started} onClick={togglePin}>
+        {Ic.pin}
+        <span>{tr(conv.pinned ? "chat.unpin" : "chat.pin")}</span>
+      </button>
+      <hr />
+      <button type="button" role="menuitem" disabled={!started} onClick={() => void copyMarkdown()}>
+        {Ic.copy}
+        <span>{tr("chat.exportCopy")}</span>
+      </button>
+      <button type="button" role="menuitem" disabled={!started} onClick={downloadMarkdown}>
+        {Ic.dl}
+        <span>{tr("chat.exportDownload")}</span>
+      </button>
+      {wide && (
+        <>
+          <hr />
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setMenu(null);
+              setSheet("keys");
+            }}
+          >
+            {Ic.kbd}
+            <span>{tr("chat.keys")}</span>
+          </button>
+        </>
+      )}
+      <hr />
+      <button
+        type="button"
+        role="menuitem"
+        className="gc-danger"
+        disabled={!started}
+        onClick={deleteCurrent}
+      >
+        {Ic.trash}
+        <span>{tr("chat.deleteConv")}</span>
+      </button>
+    </div>
+  );
 
   const chatView = (
     <>
@@ -1644,19 +2638,56 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
           className="gc-ib"
           onClick={closeChat}
           aria-label={tr("chat.close")}
+          title={wide ? `${tr("chat.close")} (${modKey} J)` : undefined}
         >
-          {Ic.back}
+          {wide ? Ic.x : Ic.back}
         </button>
+        {wide && layout !== "wide" && (
+          <button
+            type="button"
+            className={rail ? "gc-ib gc-ib-sm on" : "gc-ib gc-ib-sm"}
+            onClick={toggleRail}
+            aria-pressed={rail}
+            aria-label={tr("chat.rail")}
+            title={tr("chat.rail")}
+          >
+            {Ic.side}
+          </button>
+        )}
         <div className="gc-ttl">
+          {renaming ? (
+            <input
+              className="gc-rename"
+              autoFocus
+              value={renameText}
+              maxLength={200}
+              aria-label={tr("chat.rename")}
+              onChange={(e) => setRenameText(e.target.value)}
+              onBlur={commitRename}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  commitRename();
+                }
+                if (e.key === "Escape") {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setRenaming(false);
+                }
+              }}
+            />
+          ) : (
           <button
             type="button"
             onClick={() => setScopeMenu((v) => !v)}
             aria-expanded={scopeMenu}
             aria-haspopup="listbox"
           >
+            {conv.pinned && <span className="gc-ttl-pin">{Ic.pin}</span>}
             <span className="gc-ttl-t">{topTitle}</span>
             {Ic.down}
           </button>
+          )}
           {scopeMenu && (
             <div
               className="gc-scope"
@@ -1696,15 +2727,41 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             </div>
           )}
         </div>
+        {wide && dockable && (
+          <button
+            type="button"
+            className={docked ? "gc-ib gc-ib-sm on" : "gc-ib gc-ib-sm"}
+            onClick={toggleDock}
+            aria-pressed={docked}
+            aria-label={tr(docked ? "chat.undock" : "chat.dock")}
+            title={`${tr(docked ? "chat.undock" : "chat.dock")} (${modKey} \\)`}
+          >
+            {Ic.dock}
+          </button>
+        )}
         <button
           type="button"
-          className="gc-ib"
-          onClick={() => newConversation()}
-          aria-label={tr("chat.new")}
-          title={tr("chat.new")}
+          className={menu === "more" ? "gc-ib gc-ib-sm gc-menu-btn on" : "gc-ib gc-ib-sm gc-menu-btn"}
+          onClick={() => setMenu(menu === "more" ? null : "more")}
+          aria-expanded={menu === "more"}
+          aria-haspopup="menu"
+          aria-label={tr("chat.more")}
+          title={tr("chat.more")}
         >
-          {Ic.edit}
+          {Ic.more}
         </button>
+        {!showRail && (
+          <button
+            type="button"
+            className="gc-ib"
+            onClick={() => newConversation()}
+            aria-label={tr("chat.new")}
+            title={wide ? `${tr("chat.new")} (${modKey} ⇧ O)` : tr("chat.new")}
+          >
+            {Ic.edit}
+          </button>
+        )}
+        {moreMenu}
       </div>
       {(started || conv.mode !== "answer" || passage) && modes}
       {!started && !passage && (
@@ -1717,6 +2774,119 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       </div>
       {composer}
     </>
+  );
+
+  const railChats = searchChats(chats, railQuery);
+  const railView = (
+    <aside className="gc-rail" aria-label={tr("chat.historyTitle")}>
+      <button
+        type="button"
+        className="gc-rail-new"
+        title={`${tr("chat.new")} (${modKey} ⇧ O)`}
+        onClick={() => {
+          newConversation();
+          focusComposer();
+        }}
+      >
+        {Ic.edit}
+        <span>{tr("chat.new")}</span>
+      </button>
+      <label className="gc-rail-find">
+        {Ic.search}
+        <input
+          type="search"
+          value={railQuery}
+          placeholder={tr("chat.railFind")}
+          aria-label={tr("chat.railFind")}
+          onChange={(e) => setRailQuery(e.target.value)}
+        />
+      </label>
+      <div className="gc-rail-list">
+        {railGroups(railChats, page?.url ?? null).map((g) => (
+          <div key={g.key}>
+            <div className="gc-rail-h">{tr(`chat.rail_${g.key}`)}</div>
+            {g.chats.map((c) => (
+              <div
+                key={c.id}
+                className={c.id === conv.id ? "gc-rail-i on" : "gc-rail-i"}
+              >
+                <button type="button" onClick={() => resume(c)} title={c.title}>
+                  <i
+                    style={{
+                      background: avColor(c.note?.discipline ?? c.note?.title ?? ""),
+                    }}
+                  />
+                  <span>{c.title}</span>
+                </button>
+                <button
+                  type="button"
+                  className="gc-rail-del"
+                  aria-label={tr("chat.delete")}
+                  title={tr("chat.delete")}
+                  onClick={() => {
+                    const s2 = store();
+                    if (s2) setChats(deleteChat(s2, c.id));
+                    if (c.id === conv.id) newConversation();
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        ))}
+        {!railChats.length && (
+          <p className="gc-rail-empty">
+            {tr(railQuery.trim() ? "chat.railNone" : "chat.historyEmpty")}
+          </p>
+        )}
+      </div>
+      <button
+        type="button"
+        className="gc-rail-set"
+        onClick={() => {
+          setView("settings");
+          void refreshNano();
+        }}
+      >
+        {Ic.gear}
+        <span>{tr("chat.settings")}</span>
+      </button>
+    </aside>
+  );
+
+  const citeSrc = cite ? msgs[cite.i]?.sources?.[cite.n - 1] : undefined;
+  const citeHere =
+    !!citeSrc &&
+    (() => {
+      try {
+        return new URL(citeSrc.url, location.origin).pathname === pageWindow().location.pathname;
+      } catch {
+        return false;
+      }
+    })();
+  const citePop = citeSrc && cite && (
+    <div
+      className="gc-cite-pop"
+      role="dialog"
+      aria-label={citeSrc.title}
+      style={
+        cite.below
+          ? { top: cite.top, left: cite.left }
+          : { bottom: cite.top, left: cite.left }
+      }
+      onMouseEnter={() => window.clearTimeout(citeTimer.current)}
+      onMouseLeave={() => wide && closeCiteSoon()}
+    >
+      <small>
+        {cite.n} · {citeSrc.crumb || citeSrc.title}
+      </small>
+      {citeSrc.excerpt && <q>{citeSrc.excerpt}</q>}
+      <button type="button" onClick={() => showSource(citeSrc)}>
+        {tr(citeHere ? "chat.showInNote" : docked ? "chat.openBeside" : "chat.openNote")}
+        {Ic.arrow}
+      </button>
+    </div>
   );
 
   const groups = groupByNote(chats);
@@ -2079,6 +3249,36 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             </div>
           </>
         )}
+        {sheet === "keys" && (
+          <>
+            <h2 className="gc-sheet-h">{tr("chat.keys")}</h2>
+            <dl className="gc-keys">
+              {(
+                [
+                  [`${modKey} J`, "chat.keyToggle"],
+                  [`${modKey} ⇧ O`, "chat.keyNew"],
+                  [`${modKey} \\`, "chat.keyDock"],
+                  ["↑", "chat.keyEdit"],
+                  ["@", "chat.keyAttach"],
+                  ["⇧ ↵", "chat.keyLine"],
+                  [tr("chat.escKey"), "chat.keyEsc"],
+                ] as const
+              ).map(([k, label]) => (
+                <div key={label}>
+                  <dt>{tr(label)}</dt>
+                  <dd>
+                    <kbd>{k}</kbd>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <div className="gc-btns">
+              <button type="button" className="gc-btn pri" onClick={() => setSheet(null)}>
+                {tr("chat.ok")}
+              </button>
+            </div>
+          </>
+        )}
         {sheet === "sources" && (
           <>
             <h2 className="gc-sheet-h">
@@ -2090,7 +3290,11 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
                 className="gc-src"
                 key={s.url}
                 href={s.url}
-                onClick={closeChat}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setSheet(null);
+                  showSource(s);
+                }}
               >
                 <span
                   className="gc-src-n"
@@ -2186,6 +3390,12 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
           type="button"
           className="gk-pinned-trigger gc-trigger"
           onClick={async () => {
+            if (passive) {
+              // The page beside the chat: its bar focuses the chat up there.
+              const top = window.parent as typeof window;
+              top.dispatchEvent(new top.CustomEvent("gk:chat-focus"));
+              return;
+            }
             if (await openChat()) newConversation();
           }}
         >
@@ -2196,12 +3406,45 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         </button>
       )}
       {open && (
-        <section className="gc" aria-label={tr("home.askLabel")}>
-          {view === "chat"
-            ? chatView
-            : view === "history"
-              ? historyView
-              : settingsView}
+        <section
+          ref={sectionRef}
+          className={[
+            "gc",
+            wide && layout === "wide" ? "gc-l-wide" : "",
+            docked ? "gc-l-dock" : "",
+            showRail ? "gc-has-rail" : "",
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          style={
+            wide && panelW && layout !== "wide"
+              ? ({ "--gc-w": `${panelW}px` } as React.CSSProperties)
+              : undefined
+          }
+          aria-label={tr("home.askLabel")}
+        >
+          {wide && layout !== "wide" && (
+            <div
+              className="gc-resize"
+              role="separator"
+              aria-orientation="vertical"
+              aria-label={tr("chat.resize")}
+              onPointerDown={startResize}
+              onDoubleClick={() => {
+                setPanelW(0);
+                lsSet(WIDTH_KEY, "");
+              }}
+            />
+          )}
+          {showRail && railView}
+          <div className="gc-main" ref={mainRef}>
+            {view === "chat"
+              ? chatView
+              : view === "history"
+                ? historyView
+                : settingsView}
+            {cite && citePop}
+          </div>
           {toast && (
             <div className="gc-toast glass" role="status">
               {Ic.check}

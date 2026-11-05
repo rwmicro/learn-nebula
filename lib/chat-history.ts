@@ -26,6 +26,9 @@ export interface ChatMessage {
   text: string;
   /** The note passage the question is about (user turns). */
   passage?: string;
+  /** Where that passage comes from, when it isn't a selection: « Section :
+   *  … », « Note : … » (the chat's « + » menu). */
+  passageFrom?: string;
   sources?: ChatSource[];
   /** Which model wrote it (assistant turns). */
   via?: "nano" | "local" | "server";
@@ -51,6 +54,8 @@ export interface Conversation {
   mode: ChatMode;
   updated: number;
   messages: ChatMessage[];
+  /** Kept at the top of the history column, and never trimmed. */
+  pinned?: boolean;
 }
 
 type Store = Pick<Storage, "getItem" | "setItem">;
@@ -88,8 +93,9 @@ export function loadChats(store: Store): Conversation[] {
   if (!Array.isArray(raw)) return [];
   return raw
     .filter(validConversation)
-    .map((c) => ({
+    .map(({ pinned, ...c }) => ({
       ...c,
+      ...(pinned === true ? { pinned: true } : {}),
       note:
         c.note && typeof c.note.title === "string" && safeUrl(c.note.url)
           ? {
@@ -108,8 +114,12 @@ export function loadChats(store: Store): Conversation[] {
 }
 
 function write(store: Store, chats: Conversation[]): void {
+  // Pinned conversations are never the ones dropped at the cap.
+  const pinned = chats.filter((c) => c.pinned);
+  const rest = chats.filter((c) => !c.pinned);
+  const kept = [...pinned, ...rest.slice(0, Math.max(0, MAX_CHATS - pinned.length))];
   try {
-    store.setItem(CHATS_KEY, JSON.stringify(chats.slice(0, MAX_CHATS)));
+    store.setItem(CHATS_KEY, JSON.stringify(kept.sort((a, b) => b.updated - a.updated)));
   } catch {
     /* quota: keep going without history */
   }
@@ -124,6 +134,7 @@ export function saveChat(store: Store, conv: Conversation): Conversation[] {
       ...m,
       text: m.text.slice(0, MAX_TEXT),
       passage: m.passage?.slice(0, 4000),
+      passageFrom: m.passageFrom?.slice(0, 200),
     })),
   };
   const chats = [clean, ...loadChats(store).filter((c) => c.id !== conv.id)];
