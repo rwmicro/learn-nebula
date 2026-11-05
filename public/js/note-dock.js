@@ -1,10 +1,9 @@
 // The note's reading bar from 640px up (lib/html.ts noteDockHtml, main.css
 // `.note-dock`): liquid glass floating at the bottom, its rim bending what
-// scrolls under it on Chromium (lib/liquid-glass.ts). Scrolling down it
-// shrinks to the progress ring, the section being read, the next note and
-// the assistant; scrolling up, or near the top, it comes back whole, like the
-// phone's tab bar (components/layout/MobileTabBar.tsx). Phones have their own
-// toolbar (note-app.js) and never see this one.
+// scrolls under it on Chromium (lib/liquid-glass.ts). One bar, the same
+// whichever way the reader scrolls: contents, the progress ring and the
+// section being read, the reading tools, the next note and the assistant.
+// Phones have their own toolbar (note-app.js) and never see this one.
 import { attachLens } from "../../lib/liquid-glass";
 import { scrollProgress } from "../../lib/reading-progress";
 
@@ -73,33 +72,18 @@ import { scrollProgress } from "../../lib/reading-progress";
     }
   }
 
-  // Shrinks on the way down, comes back on the way up or near the top.
-  const FROM = 160;
-  let last = window.scrollY;
+  // The ring and the section follow the reading, once per frame.
   let queued = false;
   function onScroll() {
     if (queued) return;
     queued = true;
     requestAnimationFrame(() => {
       queued = false;
-      const y = window.scrollY;
-      const dy = y - last;
-      // Not while a menu of the bar is open: it would fold under the reader.
-      const busy = bar.querySelector(".note-more[open], .translate-menu:not([hidden])");
       paint();
-      const was = dock.classList.contains("is-compact");
-      let compact = was;
-      if (y < FROM) compact = false;
-      else if (dy > 6 && !busy) compact = true;
-      else if (dy < -10) compact = false;
-      if (compact !== was) dock.classList.toggle("is-compact", compact);
-      if (Math.abs(dy) > 6 || y < FROM) last = y;
     });
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   window.addEventListener("resize", onScroll, { passive: true });
-  // A tap on the shrunk bar's section brings the whole bar back.
-  dock.querySelector(".dock-now")?.addEventListener("click", () => dock.classList.remove("is-compact"));
   paint();
 
   // The right-hand column (main.css .note-side) stays on screen while it
