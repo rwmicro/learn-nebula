@@ -1328,6 +1328,75 @@ body:has(.home-masthead) .site-bar {
     display: block;
   }
 }
+/* Tablets, and a desktop bar beside a signed-in reader's tools (cards due,
+   coins): one row would wrap the links under the tools. Two floors
+   instead, the name and the tools on top, the links centred below, in the
+   masthead's small capitals. Parcours lays its own bar over the hero
+   (parcours-desk.css) and keeps one row. */
+@container (min-width: 680px) and (max-width: 1099px) {
+  :root:not(:has(.pcd)) .site-bar-inner {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  :root:not(:has(.pcd)) .site-bar-nav {
+    display: block;
+    order: 3;
+    flex: 1 0 100%;
+    padding: 0.4rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  :root:not(:has(.pcd)) .site-bar-nav ul {
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+  :root:not(:has(.pcd)) .site-bar-nav li + li::before {
+    content: none;
+  }
+  :root:not(:has(.pcd)) .site-bar-nav li + li {
+    margin-inline-start: 1.6rem;
+  }
+  :root:not(:has(.pcd)) .site-bar-nav a {
+    font-family: var(--font-caps);
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    white-space: nowrap;
+  }
+  :root:not(:has(.pcd)) .site-bar-menu {
+    display: none;
+  }
+}
+@container (min-width: 1100px) and (max-width: 1399px) {
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) .site-bar-nav {
+    order: 3;
+    flex: 1 0 100%;
+    padding: 0.4rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) .site-bar-nav ul {
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) .site-bar-nav li + li::before {
+    content: none;
+  }
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) .site-bar-nav li + li {
+    margin-inline-start: 1.8rem;
+  }
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) .site-bar-nav a {
+    font-family: var(--font-caps);
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    white-space: nowrap;
+  }
+}
 @media (max-width: 639.98px) {
   .site-bar {
     margin: 0 0.9rem 1rem;
