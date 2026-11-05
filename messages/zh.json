@@ -2628,7 +2628,11 @@
     "noVoice": "此设备上没有安装{lang}语音：开启自然语音即可听到句子。",
     "turnOnVoice": "开启自然语音",
     "failedWhy": "详情：{why}",
-    "micError": "麦克风已停止（{e}）。请检查网站是否有使用麦克风的权限，或直接输入你的回答。"
+    "micError": "麦克风已停止（{e}）。请检查网站是否有使用麦克风的权限，或直接输入你的回答。",
+    "heroKicker": "口语 · 大声对话的伙伴",
+    "exprOfDay": "每日一句",
+    "thisWeek": "你的对话，近 7 天",
+    "thisWeekN": "{n} 个场景"
   },
   "desk": {
     "nextStep": "下一步 · 还剩 {m} 分钟",
@@ -2782,5 +2786,35 @@
     "roomShort_arts": "艺术、文学",
     "roomShort_langues": "语言",
     "roomShort_jeux": "游戏"
+  },
+  "cdk": {
+    "kicker": "闪卡 · 间隔重复",
+    "sub": "每张卡片都会在你快要忘记的那天回来。",
+    "due": "待复习",
+    "fresh": "新卡",
+    "duration": "时长",
+    "minutes": "≈ {n} 分钟",
+    "runLabel": "连续天数",
+    "run": "{n} 天",
+    "goCards": "{n} 张",
+    "practice": "练习错题",
+    "flip": "翻转卡片",
+    "next": "优先复习",
+    "today": "今天",
+    "todayShort": "今天",
+    "memory": "你一年的记忆",
+    "memoryHint": "每格一天",
+    "memoryAria": "一年复习了 {n} 张卡片",
+    "reviews": "张已复习",
+    "kept": "记住（30 天）",
+    "known": "已牢记",
+    "best": "最长连续",
+    "week": "本周",
+    "weekHint": "即将到来",
+    "decks": "你的卡组",
+    "decksHint": "待复习最多的在前",
+    "questionsHint": "阅读时保存的",
+    "more": "还有 {n} 个",
+    "ringAria": "已牢记 {n}%"
   }
 }

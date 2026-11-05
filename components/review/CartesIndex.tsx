@@ -4,6 +4,7 @@ import { NoteQuestionsEntry } from "@/components/note/NoteQuestionsEntry";
 import { CartesToday, DeckDue, StartedDecks } from "@/components/review/CartesToday";
 import { homeFolderLabel } from "@/lib/content";
 import { CartesPhone } from "@/components/review/CartesPhone";
+import { CartesDesk } from "@/components/review/CartesDesk";
 import { familyOfFolder } from "@/lib/path-family";
 import { fold } from "@/lib/palette-match";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -42,6 +43,8 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
   return (
     <main className="cartes-index tab-root">
       <CartesPhone decks={phoneDecks} />
+      {/* From 1024px it stands in for the list (cartes-desk.css). */}
+      <CartesDesk decks={phoneDecks} />
       <PageHeader
         name="cartes-index"
         title={t("cartesIndex.title")}

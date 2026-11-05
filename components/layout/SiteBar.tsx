@@ -6,6 +6,8 @@ import { AccountChip, ReviewPill } from "@/components/account/AccountChip";
 import { MeButton } from "@/components/layout/MeButton";
 import { TopBarScroll } from "@/components/layout/TopBarScroll";
 import { LangSwitcher } from "@/components/layout/LangSwitcher";
+import { EditionDate } from "@/components/ui/EditionDate";
+import { blackletter } from "@/components/layout/Header";
 
 // The one site menu, the same on every page: the home's masthead lists the
 // same links (components/layout/Header.tsx) and this slim bar is hidden there (CSS,
@@ -17,7 +19,13 @@ import { LangSwitcher } from "@/components/layout/LangSwitcher";
 // <details> "Menu" (no JS needed). On the right: the review reminder, the
 // language (the home's inline list folded into a dropdown), search,
 // light/dark, and the account button.
+//
+// From 1024px (global.css, "Bandeau"), the bar is the home's masthead in
+// small: the name in blackletter and the edition date beside the tools, a
+// double rule, then the links centred in small capitals. The blackletter
+// face reaches the CSS as --bl, so phones never apply it.
 export function SiteBar() {
+  const editionIso = new Date().toISOString();
   const links = [
     ...MENU.map((n) => ({ href: n.href, key: n.name, label: t(n.name) })),
     // Chess and the spoken partner, as on the home's masthead.
@@ -34,10 +42,17 @@ export function SiteBar() {
           <img className="site-bar-logo site-bar-logo--light" src="/brand/logo-clair.png" width="24" height="24" alt="" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="site-bar-logo site-bar-logo--dark" src="/brand/logo-sombre.png" width="24" height="24" alt="" />
-          <span data-i18n="siteBar.brand">{t("siteBar.brand")}</span>
+          <span
+            className="site-bar-name"
+            data-i18n="siteBar.brand"
+            style={{ "--bl": blackletter.style.fontFamily } as React.CSSProperties}
+          >
+            {t("siteBar.brand")}
+          </span>
           {/* Phones: the page's title, once scrolled past (TopBarScroll). */}
           <b className="site-bar-page" aria-hidden="true" />
         </a>
+        <EditionDate iso={editionIso} className="site-bar-date" />
         <nav className="site-bar-nav" aria-label={t("siteBar.navAria")}>
           <SiteNavLinks links={links} />
         </nav>

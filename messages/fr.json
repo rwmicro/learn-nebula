@@ -2628,7 +2628,11 @@
     "noVoice": "Aucune voix en {lang} n'est installée sur cet appareil : active la voix naturelle pour entendre les phrases.",
     "turnOnVoice": "Activer la voix naturelle",
     "failedWhy": "Détail : {why}",
-    "micError": "Le micro s'est arrêté ({e}). Vérifie que le site a le droit d'utiliser le micro, ou écris ta réponse."
+    "micError": "Le micro s'est arrêté ({e}). Vérifie que le site a le droit d'utiliser le micro, ou écris ta réponse.",
+    "heroKicker": "Parler · un partenaire à voix haute",
+    "exprOfDay": "Expression du jour",
+    "thisWeek": "Tes conversations, 7 jours",
+    "thisWeekN": "{n} scènes"
   },
   "desk": {
     "nextStep": "Prochaine étape · il te reste {m} min",
@@ -2782,5 +2786,35 @@
     "roomShort_arts": "Arts, lettres",
     "roomShort_langues": "Langues",
     "roomShort_jeux": "Jeux"
+  },
+  "cdk": {
+    "kicker": "Flashcards · répétition espacée",
+    "sub": "Chaque carte revient le jour où tu allais l'oublier.",
+    "due": "à revoir",
+    "fresh": "nouvelles",
+    "duration": "durée",
+    "minutes": "≈ {n} min",
+    "runLabel": "jours de suite",
+    "run": "{n} j",
+    "goCards": "{n} cartes",
+    "practice": "S'entraîner sur les erreurs",
+    "flip": "retourner la carte",
+    "next": "à revoir en premier",
+    "today": "aujourd'hui",
+    "todayShort": "auj.",
+    "memory": "Ta mémoire, sur un an",
+    "memoryHint": "chaque case, un jour",
+    "memoryAria": "{n} cartes révisées en un an",
+    "reviews": "cartes révisées",
+    "kept": "retenues (30 jours)",
+    "known": "apprises pour de bon",
+    "best": "meilleure série",
+    "week": "Cette semaine",
+    "weekHint": "à venir",
+    "decks": "Tes paquets",
+    "decksHint": "les plus chargés d'abord",
+    "questionsHint": "gardées pendant tes lectures",
+    "more": "et {n} autres",
+    "ringAria": "{n} % appris pour de bon"
   }
 }

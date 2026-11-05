@@ -3,6 +3,7 @@ import { getAnkiManifest } from "@/lib/anki";
 import { CartesIndex } from "@/components/review/CartesIndex";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/cartes-index.css";
+import "@/assets/css/cartes-desk.css";
 
 // noindex like the decks themselves (app/cartes/[slug]): a deck is a study
 // tool over notes that are already indexed, not content of its own.

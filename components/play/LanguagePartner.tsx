@@ -335,7 +335,12 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
   const exprs: SceneExpr[] = scene === "libre" ? [] : data.scenes[scene].exprs;
   const gloss = (e: SceneExpr) => (locale === "fr" ? e.fr : e.en);
 
+  // The day, once on the device: the expression of the day and the week's
+  // conversations differ from the build's.
+  const [today, setToday] = useState<string | null>(null);
+
   useEffect(() => {
+    setToday(new Date().toISOString().slice(0, 10));
     setPrefs(withHashLang(readPrefs()));
     try {
       setProgress(parseProgress(localStorage.getItem(PARTNER_KEY)));
@@ -730,6 +735,21 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
       .reduce<ReactNode[]>((acc, el, i) => (i ? [...acc, " ", el] : [el]), []);
 
   const langName = tr(`parler.lang_${lang}`);
+
+  // From 1024px: the band's first exchange (the scene's first two lines),
+  // an expression of the day from all the language's scenes, and the
+  // conversations of the last seven days.
+  const heroLines = data.scenes[scene === "libre" ? "cafe" : scene].exprs;
+  const allExprs = SCENE_IDS.flatMap((s) => data.scenes[s].exprs);
+  const dayExpr = today ? allExprs[Math.floor(Date.parse(today) / 86_400_000) % allExprs.length] : null;
+  const weekDays: string[] = [];
+  const weekly: number[] = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = today ? new Date(Date.parse(today) - i * 86_400_000) : null;
+    const key = d?.toISOString().slice(0, 10);
+    weekDays.push(d ? d.toLocaleDateString(locale, { weekday: "narrow", timeZone: "UTC" }) : "");
+    weekly.push(key ? history.filter((r) => r.at.slice(0, 10) === key).length : 0);
+  }
   const voiceNotice = (
     <>
       {voicePct !== null && (
@@ -788,6 +808,46 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
   if (phase === "setup")
     return (
       <div className="pt pt-setup">
+        {/* From 1024px (parler.css): a band with "hello" in every language
+            and a first exchange of the scene chosen below, in its language. */}
+        <section className="pt-hero" aria-hidden="true">
+          <span className="pt-hero-words">
+            {PARTNER_LANGS.filter((l) => l !== lang).map((l, i) => (
+              <span key={l} lang={l} dir={l === "ar" ? "rtl" : undefined} style={{ "--i": i } as React.CSSProperties}>
+                {HELLO[l]}
+              </span>
+            ))}
+          </span>
+          <span className="pt-hero-txt">
+            <span className="pt-hero-kicker">{tr("parler.heroKicker")}</span>
+            <span className="pt-hero-title">{tr("parler.title")}</span>
+            <span className="pt-hero-sub">{tr("parler.intro")}</span>
+          </span>
+          <span className="pt-hero-chat">
+            <span className="pt-bub is-them">
+              <span className="pt-avatar">{who[0]}</span>
+              <span lang={lang} dir={lang === "ar" ? "rtl" : undefined}>
+                {HELLO[lang]}
+              </span>
+            </span>
+            {heroLines[0] && (
+              <span className="pt-bub is-me">
+                <span lang={lang} dir={lang === "ar" ? "rtl" : undefined}>
+                  {heroLines[0].t}
+                </span>
+                <small>{gloss(heroLines[0])}</small>
+                <span className="pt-wave">
+                  {Array.from({ length: 30 }, (_, i) => (
+                    <i key={i} style={{ height: `${6 + Math.round(16 * Math.abs(Math.sin(i * 1.7 + 1)))}px` }} />
+                  ))}
+                </span>
+              </span>
+            )}
+          </span>
+        </section>
+
+        <div className="pt-cols">
+        <div className="pt-main">
         <p className="pt-intro">{tr("parler.intro")}</p>
         <HelloBubbles lang={lang} />
 
@@ -817,6 +877,28 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
               ))}
             </optgroup>
           </select>
+        </div>
+        {/* From 1024px the select gives way to tiles, the greeting in its script. */}
+        <div className="pt-langs" role="radiogroup" aria-label={tr("parler.language")}>
+          {PARTNER_LANGS.map((l) => (
+            <button
+              key={l}
+              type="button"
+              role="radio"
+              aria-checked={l === lang}
+              className={l === lang ? "pt-lang is-on" : "pt-lang"}
+              onClick={() => {
+                const lv = progress[l]?.level;
+                update({ lang: l, ...(lv ? { level: lv } : {}) });
+              }}
+            >
+              <span className="pt-lang-g" lang={l} dir={l === "ar" ? "rtl" : undefined}>
+                {HELLO[l]}
+              </span>
+              <b>{tr(`parler.lang_${l}`)}</b>
+              {progress[l]?.level && <small>{tr(`parler.lv_${progress[l]!.level}`)}</small>}
+            </button>
+          ))}
         </div>
         {lang === "ar" && <p className="pt-variety">{tr("parler.variety_ar")}</p>}
 
@@ -865,6 +947,11 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
               <SceneIcon s={s} />
               <b>{tr(`parler.scene_${s}`)}</b>
               <small>{tr(`parler.scened_${s}`)}</small>
+              {s !== "libre" && (
+                <q className="pt-scene-line" lang={lang} dir={lang === "ar" ? "rtl" : undefined}>
+                  {PARTNER_DATA[lang].scenes[s].exprs[0].t}
+                </q>
+              )}
             </button>
           ))}
         </div>
@@ -924,6 +1011,28 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
           </div>
         )}
 
+        </div>
+
+        <aside className="pt-aside">
+          {dayExpr && (
+            <section className="pt-card pt-expr">
+              <h2 className="pt-card-h">
+                {tr("parler.exprOfDay")} <span>{langName}</span>
+              </h2>
+              <p className="pt-expr-t" lang={lang} dir={lang === "ar" ? "rtl" : undefined}>
+                {dayExpr.t}
+              </p>
+              {dayExpr.r && <p className="pt-expr-r">{dayExpr.r}</p>}
+              <p className="pt-expr-tr">{gloss(dayExpr)}</p>
+              <button type="button" className="pt-expr-play" onClick={() => hearNow(dayExpr.t, LEVEL_RATE[level])}>
+                <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" {...ic}>
+                  <path d="M4 9v6h4l5 4V5L8 9z" />
+                  <path d="M16 9a4 4 0 0 1 0 6" />
+                </svg>
+                {tr("parler.listen")}
+              </button>
+            </section>
+          )}
         {history.length > 0 && (
           <>
             <h2 className="pt-h">{tr("parler.history")}</h2>
@@ -952,6 +1061,21 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
             </ul>
           </>
         )}
+          <section className="pt-card pt-weekly">
+            <h2 className="pt-card-h">
+              {tr("parler.thisWeek")} <span>{tr("parler.thisWeekN", { n: weekly.reduce((a, b) => a + b, 0) })}</span>
+            </h2>
+            <ol className="pt-dots">
+              {weekly.map((n, i) => (
+                <li key={i} className={n > 1 ? "is-2" : n ? "is-1" : undefined}>
+                  <i />
+                  <span>{weekDays[i]}</span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        </aside>
+        </div>
 
         <p className="pt-device pt-device-setup">
             {unavailable

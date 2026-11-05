@@ -2628,7 +2628,11 @@
     "noVoice": "No hay ninguna voz en {lang} instalada en este dispositivo: activa la voz natural para oír las frases.",
     "turnOnVoice": "Activar la voz natural",
     "failedWhy": "Detalle: {why}",
-    "micError": "El micrófono se detuvo ({e}). Comprueba que el sitio puede usar el micrófono, o escribe tu respuesta."
+    "micError": "El micrófono se detuvo ({e}). Comprueba que el sitio puede usar el micrófono, o escribe tu respuesta.",
+    "heroKicker": "Hablar · un compañero en voz alta",
+    "exprOfDay": "Expresión del día",
+    "thisWeek": "Tus conversaciones, 7 días",
+    "thisWeekN": "{n} escenas"
   },
   "desk": {
     "nextStep": "Próximo paso · te quedan {m} min",
@@ -2782,5 +2786,35 @@
     "roomShort_arts": "Artes, letras",
     "roomShort_langues": "Lenguas",
     "roomShort_jeux": "Juegos"
+  },
+  "cdk": {
+    "kicker": "Tarjetas · repetición espaciada",
+    "sub": "Cada tarjeta vuelve el día en que ibas a olvidarla.",
+    "due": "por repasar",
+    "fresh": "nuevas",
+    "duration": "duración",
+    "minutes": "≈ {n} min",
+    "runLabel": "días seguidos",
+    "run": "{n} d",
+    "goCards": "{n} tarjetas",
+    "practice": "Practicar los errores",
+    "flip": "girar la tarjeta",
+    "next": "primero por repasar",
+    "today": "hoy",
+    "todayShort": "hoy",
+    "memory": "Tu memoria, en un año",
+    "memoryHint": "cada casilla, un día",
+    "memoryAria": "{n} tarjetas repasadas en un año",
+    "reviews": "tarjetas repasadas",
+    "kept": "recordadas (30 días)",
+    "known": "aprendidas del todo",
+    "best": "mejor racha",
+    "week": "Esta semana",
+    "weekHint": "por venir",
+    "decks": "Tus mazos",
+    "decksHint": "los más cargados primero",
+    "questionsHint": "guardadas mientras lees",
+    "more": "y {n} más",
+    "ringAria": "{n} % aprendido"
   }
 }
