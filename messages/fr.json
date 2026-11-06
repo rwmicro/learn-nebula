@@ -2815,6 +2815,14 @@
     "decksHint": "les plus chargés d'abord",
     "questionsHint": "gardées pendant tes lectures",
     "more": "et {n} autres",
-    "ringAria": "{n} % appris pour de bon"
+    "ringAria": "{n} % appris pour de bon",
+    "otherFamily": "Autres",
+    "moreDecks": "+{n} paquets",
+    "oneDeck": "1 paquet",
+    "cards": "cartes",
+    "learned": "{n} % sues",
+    "notStarted": "Pas commencé",
+    "review": "Réviser",
+    "open": "Ouvrir"
   }
 }

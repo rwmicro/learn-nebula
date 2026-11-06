@@ -11,7 +11,7 @@ import { loadLog, successRate, type ReviewLog } from "@/lib/srs-log";
 import { calendarDays, currentRun, loadActivity } from "@/lib/personal";
 import { loadStore } from "@/lib/reading-progress";
 import { htmlText } from "@/lib/deck-cards";
-import { artStrip, levelArt } from "@/lib/road-art";
+import { FamilyIcon } from "@/components/ui/FamilyIcon";
 import type { PathFamily } from "@/lib/path-family";
 import type { PhoneDeck } from "@/components/review/CartesPhone";
 
@@ -19,7 +19,8 @@ import type { PhoneDeck } from "@/components/review/CartesPhone";
 // it stands in for): the desk (today's figures, "Tout réviser", the pile of
 // today's cards with the first question on top), the year of reviews day by
 // day beside the week to come, then the decks by subject, each with its
-// discipline's picture and drawings, and the reader's own questions. Every
+// file folder per subject in its discipline's colour, its decks as index
+// cards standing in it, and the reader's own questions. Every
 // figure comes from this browser's storage, after hydration; the static HTML
 // is the desk with its links and the decks without counts.
 
@@ -61,6 +62,19 @@ const CHEV = (
     <path d="m9 5 7 7-7 7" />
   </svg>
 );
+const ARROW = (
+  <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M5 12h14M13 6l6 6-6 6" />
+  </svg>
+);
+/** How each index card leans in its folder. */
+const TILT = [-2.2, 1.6, -0.8, 2.4];
+
+function splitOnce(s: string, sep: string): [string, string] {
+  const i = s.indexOf(sep);
+  return [s.slice(0, i), s.slice(i + sep.length)];
+}
+
 const ico = (d: React.ReactNode) => (
   <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
     {d}
@@ -325,49 +339,77 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
         <p className="cdk-empty">{tr("cartesIndex.empty")}</p>
       ) : (
         <ul className="cdk-decks">
-          {groups.map(([group, list]) => {
+          {groups.map(([group, list], gi) => {
             const family = (list[0].family as PathFamily | null) ?? null;
             const n = list.reduce((s, d) => s + dueOf(d), 0);
             const cards = list.reduce((s, d) => s + d.count, 0);
             const kn = list.reduce((s, d) => s + (counts?.[d.slug]?.known ?? 0), 0);
             const tot = list.reduce((s, d) => s + (counts?.[d.slug]?.total ?? d.count), 0);
             const pct = tot ? Math.round((kn / tot) * 100) : 0;
+            const started = list.some((d) => counts?.[d.slug]?.started);
             const one = list.length === 1;
+            // "Architecture · Essential Architecture": the subject on the
+            // label, the deck's own name under it.
+            const [name, sub] = one && list[0].label.includes(" · ") ? splitOnce(list[0].label, " · ") : [one ? list[0].label : group, ""];
+            const href = `/cartes/${list[0].slug}/`;
             return (
-              <li key={group} className="cdk-deck" data-family={family ?? undefined}>
-                <a className="cdk-deck-top deco" href={`/cartes/${list[0].slug}/`} tabIndex={-1} aria-hidden="true">
-                  {family && <span className="cdk-deck-img" style={{ backgroundImage: `url(/images/disciplines/${family}.webp)` }} />}
-                  <span className="cdk-deck-art" dangerouslySetInnerHTML={{ __html: artStrip(levelArt(list[0].label, "", family)) }} />
-                  {n > 0 && <span className="cdk-pill">{n}</span>}
-                </a>
-                <div className="cdk-deck-bd">
-                  <div>
-                    <a className="cdk-deck-name" href={`/cartes/${list[0].slug}/`}>
-                      {one ? list[0].label : group}
-                    </a>
-                    <small>
-                      {one ? "" : `${tr("rv.deckCount", { n: list.length })} · `}
-                      {tr("cartesIndex.count", { count: cards.toLocaleString(locale) })}
-                    </small>
-                  </div>
-                  <span className="cdk-ring" style={{ "--p": pct } as React.CSSProperties} role="img" aria-label={tr("cdk.ringAria", { n: pct })}>
-                    <em>{pct}%</em>
+              <li key={group} className="cdk-fold" data-family={family ?? undefined} style={{ "--d": `${Math.min(gi, 12) * 45}ms` } as React.CSSProperties}>
+                <div className="cdk-back">
+                  <span className="cdk-tab">
+                    <span className="cdk-tab-ic" aria-hidden="true">
+                      <FamilyIcon family={family} />
+                    </span>
+                    {family ? tr(`parcours.family.${family}`) : tr("cdk.otherFamily")}
                   </span>
                 </div>
-                {!one && (
-                  <ul className="cdk-deck-list">
-                    {list.slice(0, 4).map((d) => (
-                      <li key={d.slug}>
-                        <a href={`/cartes/${d.slug}/`}>
+                <div className="cdk-fiches">
+                  {one ? (
+                    <>
+                      <span className="cdk-fiche is-blank" aria-hidden="true" style={{ "--i": 0, "--r": "-1.5deg" } as React.CSSProperties} />
+                      <span className="cdk-fiche is-blank" aria-hidden="true" style={{ "--i": 1, "--r": "2deg" } as React.CSSProperties} />
+                    </>
+                  ) : (
+                    <>
+                      {list.slice(0, 3).map((d, i) => (
+                        <a key={d.slug} className="cdk-fiche" href={`/cartes/${d.slug}/`} title={d.name} style={{ "--i": i, "--r": `${TILT[i]}deg` } as React.CSSProperties}>
                           <span>{d.name}</span>
                           {dueOf(d) > 0 && <b>{dueOf(d)}</b>}
-                          {CHEV}
                         </a>
-                      </li>
-                    ))}
-                    {list.length > 4 && <li className="cdk-more">{tr("cdk.more", { n: list.length - 4 })}</li>}
-                  </ul>
-                )}
+                      ))}
+                      {list.length > 3 && (
+                        <a className="cdk-fiche is-more" href={href} style={{ "--i": 3, "--r": `${TILT[3]}deg` } as React.CSSProperties}>
+                          <span>{tr("cdk.moreDecks", { n: list.length - 3 })}</span>
+                        </a>
+                      )}
+                    </>
+                  )}
+                </div>
+                <a className="cdk-front" href={href}>
+                  <span className="cdk-label">
+                    <b>{name}</b>
+                    <em>{sub || (one ? tr("cdk.oneDeck") : tr("rv.deckCount", { n: list.length }))}</em>
+                  </span>
+                  <span className="cdk-count">
+                    <b>{cards.toLocaleString(locale)}</b>
+                    {tr("cdk.cards")}
+                  </span>
+                  <span className="cdk-prog">
+                    <span className="cdk-crayon" role="img" aria-label={tr("cdk.ringAria", { n: pct })}>
+                      {started && <i style={{ width: `${Math.max(pct, 3)}%` }} />}
+                    </span>
+                    {started ? <span className="cdk-pct">{tr("cdk.learned", { n: pct })}</span> : <span className="cdk-pct is-idle">{tr("cdk.notStarted")}</span>}
+                  </span>
+                  <span className="cdk-open">
+                    {n > 0 ? tr("cdk.review") : tr("cdk.open")}
+                    {ARROW}
+                  </span>
+                  {n > 0 && (
+                    <span className="cdk-stamp2">
+                      <b>{n > 999 ? "999+" : n}</b>
+                      {tr("cdk.due")}
+                    </span>
+                  )}
+                </a>
               </li>
             );
           })}

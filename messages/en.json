@@ -2815,6 +2815,14 @@
     "decksHint": "busiest first",
     "questionsHint": "kept while you read",
     "more": "and {n} more",
-    "ringAria": "{n}% learnt for good"
+    "ringAria": "{n}% learnt for good",
+    "otherFamily": "Other",
+    "moreDecks": "+{n} decks",
+    "oneDeck": "1 deck",
+    "cards": "cards",
+    "learned": "{n}% learnt",
+    "notStarted": "Not started",
+    "review": "Review",
+    "open": "Open"
   }
 }

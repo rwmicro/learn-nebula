@@ -2815,6 +2815,14 @@
     "decksHint": "الأكثر أولاً",
     "questionsHint": "محفوظة أثناء قراءتك",
     "more": "و{n} أخرى",
-    "ringAria": "{n}٪ مُتقن"
+    "ringAria": "{n}٪ مُتقن",
+    "otherFamily": "أخرى",
+    "moreDecks": "+{n} مجموعات",
+    "oneDeck": "مجموعة واحدة",
+    "cards": "بطاقة",
+    "learned": "{n}٪ متقن",
+    "notStarted": "لم تبدأ بعد",
+    "review": "راجع",
+    "open": "افتح"
   }
 }
