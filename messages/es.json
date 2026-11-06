@@ -2815,6 +2815,14 @@
     "decksHint": "los más cargados primero",
     "questionsHint": "guardadas mientras lees",
     "more": "y {n} más",
-    "ringAria": "{n} % aprendido"
+    "ringAria": "{n} % aprendido",
+    "otherFamily": "Otros",
+    "moreDecks": "+{n} mazos",
+    "oneDeck": "1 mazo",
+    "cards": "tarjetas",
+    "learned": "{n} % aprendido",
+    "notStarted": "Sin empezar",
+    "review": "Repasar",
+    "open": "Abrir"
   }
 }

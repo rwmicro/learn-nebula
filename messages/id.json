@@ -2815,6 +2815,14 @@
     "decksHint": "yang paling banyak dulu",
     "questionsHint": "disimpan saat membaca",
     "more": "dan {n} lainnya",
-    "ringAria": "{n}% dikuasai"
+    "ringAria": "{n}% dikuasai",
+    "otherFamily": "Lainnya",
+    "moreDecks": "+{n} dek",
+    "oneDeck": "1 dek",
+    "cards": "kartu",
+    "learned": "{n}% dikuasai",
+    "notStarted": "Belum dimulai",
+    "review": "Ulangi",
+    "open": "Buka"
   }
 }

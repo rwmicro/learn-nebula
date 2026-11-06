@@ -2815,6 +2815,14 @@
     "decksHint": "待复习最多的在前",
     "questionsHint": "阅读时保存的",
     "more": "还有 {n} 个",
-    "ringAria": "已牢记 {n}%"
+    "ringAria": "已牢记 {n}%",
+    "otherFamily": "其他",
+    "moreDecks": "另 {n} 套",
+    "oneDeck": "1 套卡组",
+    "cards": "张卡片",
+    "learned": "已掌握 {n}%",
+    "notStarted": "尚未开始",
+    "review": "复习",
+    "open": "打开"
   }
 }
