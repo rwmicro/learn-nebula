@@ -434,3 +434,29 @@
   /* Hung from the top, under the bandeau, rather than from the rooms. */
   .pcd-hero.fv .pcd-sug { bottom: auto; top: 140px; }
 }
+
+/* Returning reader: the page's title hangs under the bandeau and the current
+   path stands on the rail, both absolute, so on a short window (a tablet in
+   landscape, about 915px tall in Chrome) a two-line headline and a long lede
+   pushed the path's chip and step line up over "13 chemins, huit salles"
+   (6 Nov 2026). Both now sit in the hero's flow, one above the other: the
+   path keeps to the bottom while there is room, and the hero grows taller
+   rather than letting them meet. */
+@media (min-width: 1024px) {
+  .pcd-hero:not(.fv) { display: flex; flex-direction: column; height: auto; min-height: clamp(820px, 100svh, 1040px); padding: 168px 0 170px; box-sizing: border-box; }
+  /* Left, as before, in Arabic too: the panel and the cartel stay on the right. */
+  .pcd-hero:not(.fv) > :is(.pcd-title, .pcd-main) { position: relative; inset: auto; margin: 0 auto 0 48px; }
+  .pcd-hero:not(.fv) > .pcd-main { margin-top: auto; padding-top: 32px; }
+  /* The lede is an excerpt of the note: two lines say enough. */
+  .pcd-hero:not(.fv) .pcd-ex { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+}
+/* A short window keeps the whole hero, rail included, on screen. */
+@media (min-width: 1024px) and (max-height: 880px) {
+  .pcd-hero:not(.fv) .pcd-h { font-size: 72px; }
+  .pcd-hero:not(.fv) .pcd-ex { margin: 14px 0 20px; font-size: 19px; }
+}
+@media (min-width: 1024px) {
+  /* Room for the "Tu es ici" label over the current station, which covered
+     "Plan du parcours" when the reader stands on the first one. */
+  .pcd-rail .pcd-rail-h { margin-bottom: 38px; }
+}
