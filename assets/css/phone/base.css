@@ -129,7 +129,8 @@
 }
 /* The light the rim catches, drawn for the element's shape and size
    (lib/liquid-glass.ts specularMap): replaces the gradient ring where it is
-   attached. A still image, so it costs Safari nothing per frame. */
+   attached. Plain images (one per light direction, swapped as the light
+   follows the tilt or the mouse), so it costs Safari no filter. */
 .glass.has-spec::after {
   padding: 0;
   background: var(--glass-spec) 0 0 / 100% 100% no-repeat;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { backdropRefraction, lensMap, specularMap } from "./liquid-glass";
+import { LIGHT_REST, LIGHT_STEPS, backdropRefraction, lensMap, lightStep, pointerLight, specularMap, stepAngle, tiltLight } from "./liquid-glass";
 
 const at = (m: Uint8ClampedArray, w: number, x: number, y: number) => {
   const i = (y * w + x) * 4;
@@ -75,5 +75,39 @@ describe("backdropRefraction", () => {
     expect(backdropRefraction(nav("Mozilla/5.0 (iPhone) AppleWebKit/605.1.15 CriOS/131.0 Mobile/15E148 Safari/604.1"))).toBe(false);
     expect(backdropRefraction(nav("Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0"))).toBe(false);
     expect(backdropRefraction(undefined)).toBe(false);
+  });
+});
+
+describe("moving light", () => {
+  it("rests at the top left", () => {
+    expect(tiltLight(0, 0)).toBeCloseTo(LIGHT_REST);
+    expect(lightStep(tiltLight(0, 0))).toBe(lightStep(LIGHT_REST));
+  });
+
+  it("slides against the tilt", () => {
+    // Tilted right: the light moves left, towards -π.
+    expect(Math.cos(tiltLight(20, 0))).toBeLessThan(Math.cos(LIGHT_REST));
+    // Tilted left: towards the top.
+    expect(Math.cos(tiltLight(-20, 0))).toBeGreaterThan(Math.cos(LIGHT_REST));
+  });
+
+  it("leans to the pointer's side", () => {
+    expect(Math.cos(pointerLight(300, 0))).toBeGreaterThan(0); // pointer right: lit from the right
+    expect(Math.sin(pointerLight(0, -300))).toBeLessThan(-0.9); // pointer above: lit from above
+    expect(pointerLight(0, 0)).toBe(LIGHT_REST);
+  });
+
+  it("rounds a direction to a step and back", () => {
+    for (let s = 0; s < LIGHT_STEPS; s++) expect(lightStep(stepAngle(s))).toBe(s);
+    expect(lightStep(-Math.PI / 2)).toBe((LIGHT_STEPS * 3) / 4);
+    expect(lightStep(2 * Math.PI)).toBe(0);
+  });
+
+  it("lights the rim on the light's side", () => {
+    const w = 120;
+    const h = 40;
+    const right = specularMap(w, h, 20, 16, 1, 0);
+    const left = specularMap(w, h, 20, 16, 1, Math.PI);
+    expect(at(right, w, w - 2, 20)[3]).toBeGreaterThan(at(left, w, w - 2, 20)[3]);
   });
 });
