@@ -31,7 +31,7 @@ export const LANG_NAME_FR: Record<PartnerLang, string> = {
   de: "allemand",
   fr: "français",
   zh: "chinois mandarin (caractères simplifiés)",
-  ar: "arabe standard moderne",
+  ar: "arabe libanais, le dialecte parlé à Beyrouth (en alphabet arabe ; jamais d'arabe standard)",
   hi: "hindi (écriture devanagari)",
   id: "indonésien",
   tr: "turc",

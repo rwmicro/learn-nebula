@@ -846,3 +846,13 @@ body[data-focus="true"] .note-meta {
     grid-column: 1;
   }
 }
+
+/* The bandeau (global.css) is taller than the old one-line bar: the rails
+   hang under its hairline. */
+@media screen and (min-width: 1100px) {
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .toc-rail,
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .note-side {
+    top: 9.6rem;
+    max-height: calc(100vh - 11.5rem);
+  }
+}

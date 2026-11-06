@@ -2452,19 +2452,19 @@ body.rs-pip {
    The site bar from 1024px, "Bandeau" (revues/header-et-pages-reviser-
    parler-2026-11-05, piste A): the home's masthead in small. The name in
    blackletter and the edition date on the left, the tools on the right, a
-   double rule, then the links centred in small capitals. The reading pages
-   (.na-chrome) keep their slim bar; Parcours draws the same bandeau in white
-   over its picture (parcours-desk.css). Grid areas, so the container queries
+   double rule, then the links centred in small capitals, on every page but
+   the home (its own masthead); Parcours draws it in white over its picture
+   (parcours-desk.css). Grid areas, so the container queries
    above (wrap, order) have nothing left to move. */
 .site-bar-date {
   display: none;
 }
 @media (min-width: 1024px) {
-  html:root:not(:has(.pcd)) body:not(:has(.na-chrome)) .site-bar {
+  html:root:not(:has(.pcd)) body .site-bar {
     margin-bottom: 2rem;
     border-bottom: 0;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-inner {
+  html:root body .site-bar .site-bar-inner {
     display: grid;
     grid-template-columns: auto auto minmax(0, 1fr);
     grid-template-areas: "brand date tools" "nav nav nav";
@@ -2474,16 +2474,22 @@ body.rs-pip {
     min-height: 0;
     padding: 0;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-brand {
+  html:root body .site-bar .site-bar-brand {
     grid-area: brand;
     display: inline-flex;
     padding: 1.1rem 0 0.9rem;
     margin: 0;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-brand .site-bar-logo {
-    display: none;
+  /* The logo beside the name (the home draws its own masthead). */
+  html:root body .site-bar .site-bar-brand {
+    align-items: center;
+    gap: 0.7rem;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-brand .site-bar-name {
+  html:root body .site-bar .site-bar-brand .site-bar-logo {
+    width: 2.6rem;
+    height: 2.6rem;
+  }
+  html:root body .site-bar .site-bar-brand .site-bar-name {
     position: static;
     width: auto;
     height: auto;
@@ -2497,7 +2503,7 @@ body.rs-pip {
     letter-spacing: 0;
     white-space: nowrap;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-date {
+  html:root body .site-bar .site-bar-date {
     grid-area: date;
     display: block;
     max-width: 8.5rem;
@@ -2509,14 +2515,14 @@ body.rs-pip {
     text-transform: uppercase;
     color: var(--muted-warm);
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-tools {
+  html:root body .site-bar .site-bar-tools {
     grid-area: tools;
     justify-self: end;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-menu {
+  html:root body .site-bar .site-bar-menu {
     display: none;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-inner .site-bar-nav {
+  html:root body .site-bar .site-bar-inner .site-bar-nav {
     grid-area: nav;
     display: block;
     flex: none;
@@ -2526,18 +2532,18 @@ body.rs-pip {
     border-bottom: 1px solid var(--rule);
     padding: 0.55rem 0;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-inner .site-bar-nav ul {
+  html:root body .site-bar .site-bar-inner .site-bar-nav ul {
     justify-content: center;
     flex-wrap: nowrap;
     gap: 0 2.4rem;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-inner .site-bar-nav li + li {
+  html:root body .site-bar .site-bar-inner .site-bar-nav li + li {
     margin-inline-start: 0;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-inner .site-bar-nav li + li::before {
+  html:root body .site-bar .site-bar-inner .site-bar-nav li + li::before {
     content: none;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-inner .site-bar-nav a {
+  html:root body .site-bar .site-bar-inner .site-bar-nav a {
     display: inline-block;
     padding: 0.3rem 0;
     font: 600 0.8125rem var(--font-caps);
@@ -2547,10 +2553,10 @@ body.rs-pip {
     color: var(--ink-soft);
     text-decoration: none;
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-inner .site-bar-nav a:hover {
+  html:root body .site-bar .site-bar-inner .site-bar-nav a:hover {
     color: var(--ink);
   }
-  html:root body:not(:has(.na-chrome)) .site-bar .site-bar-inner .site-bar-nav a[aria-current="page"] {
+  html:root body .site-bar .site-bar-inner .site-bar-nav a[aria-current="page"] {
     color: var(--ink);
     box-shadow: 0 6px 0 -4px #b8924a;
   }
