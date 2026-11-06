@@ -150,7 +150,12 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
   );
 
   // The calendar: WEEKS columns of seven days, Monday on top, this week last.
-  const end = today || dayKey();
+  // Until the effect has read today's date, nothing dated is drawn: the build
+  // ran on another day, and a text that differs from the static HTML makes
+  // React rebuild the whole document on hydration, dropping <html data-theme>
+  // (the reader's theme fell back to Auto on this page).
+  const dated = today !== "";
+  const end = today || "2000-01-03";
   const first = addDays(monday(end), -7 * (WEEKS - 1));
   const cells: { day: string; n: number; future: boolean }[] = [];
   for (let i = 0; i < WEEKS * 7; i++) {
@@ -262,13 +267,13 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
             {cells.map((c) => (
               <i
                 key={c.day}
-                className={c.future ? "is-future" : c.day === end ? `l${shade(c.n)} is-today` : `l${shade(c.n)}`}
-                title={c.future ? undefined : `${new Date(`${c.day}T12:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "long", timeZone: "UTC" })} · ${c.n}`}
+                className={!dated ? "l0" : c.future ? "is-future" : c.day === end ? `l${shade(c.n)} is-today` : `l${shade(c.n)}`}
+                title={!dated || c.future ? undefined : `${new Date(`${c.day}T12:00:00Z`).toLocaleDateString(locale, { day: "numeric", month: "long", timeZone: "UTC" })} · ${c.n}`}
               />
             ))}
           </div>
           <div className="cdk-months" style={{ "--wk": WEEKS } as React.CSSProperties} aria-hidden="true">
-            {months.map((m) => (
+            {(dated ? months : []).map((m) => (
               <span key={m.col} style={{ gridColumnStart: m.col + 1 }}>
                 {m.label}
               </span>
@@ -301,7 +306,9 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
                 <span>
                   {i === 0
                     ? tr("cdk.todayShort")
-                    : new Date(`${addDays(end, i)}T12:00:00Z`).toLocaleDateString(locale, { weekday: "short", timeZone: "UTC" })}
+                    : dated
+                      ? new Date(`${addDays(end, i)}T12:00:00Z`).toLocaleDateString(locale, { weekday: "short", timeZone: "UTC" })
+                      : ""}
                 </span>
               </li>
             ))}
