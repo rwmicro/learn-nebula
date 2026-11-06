@@ -414,10 +414,9 @@ test.describe("Parler in Arabic", () => {
     await page.goto("/parler/");
     const list = page.locator("#pt-lang");
     await expect(list).toHaveValue("ar");
-    await expect(list.locator("option:checked")).toHaveText("Arabe standard");
-    await expect(page.locator(".pt-variety")).toContainText("fuṣḥā");
+    await expect(list.locator("option:checked")).toHaveText("Arabe libanais");
+    await expect(page.locator(".pt-variety")).toContainText("Beyrouth");
     await expect(page.locator(".pt-variety")).toContainText("levantin");
-    await expect(page.locator(".pt-variety")).toContainText("darija");
   });
 
   test("a phone without an Arabic voice is told how to hear the warm-up", async ({
@@ -426,7 +425,7 @@ test.describe("Parler in Arabic", () => {
     await page.goto("/parler/");
     await startButton(page).click();
     const notice = page.locator(".pt-warmup .pt-notice");
-    await expect(notice).toContainText("Aucune voix en arabe standard");
+    await expect(notice).toContainText("Aucune voix en arabe libanais");
     await expect(
       notice.getByRole("button", { name: "Activer la voix naturelle" }),
     ).toBeVisible();
@@ -452,7 +451,7 @@ test.describe("Parler in Arabic", () => {
     await first.getByRole("button", { name: "Écouter" }).click();
     await expect
       .poll(() => page.evaluate(() => window.__said.at(-1)))
-      .toMatchObject({ text: expr, lang: "ar-SA", voice: "Majed", rate: 0.8 });
+      .toMatchObject({ text: expr, lang: "ar-LB", voice: "Majed", rate: 0.8 });
   });
 });
 

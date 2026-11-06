@@ -406,17 +406,21 @@
 }
 
 /* The bandeau (global.css, from 1024px) in white over the picture: the bar
-   draws the blackletter name itself, so the hero's own goes. */
+   draws the blackletter name itself, so the hero's own goes. Prefixed
+   html:root, so they outweigh global.css's bandeau rules in either order. */
 @media (min-width: 1024px) {
-  html body:has(.pcd):not(:has(.na-chrome)) .site-bar { padding: 4px 48px 0; }
+  html:root body:has(.pcd) .site-bar { padding: 4px 48px 0; }
   .pcd-logo { display: none; }
-  html body:has(.pcd) .site-bar .site-bar-brand { display: inline-flex; margin: 0; color: #fff; }
-  html body:has(.pcd) .site-bar .site-bar-brand .site-bar-name { display: inline; color: #fff; text-shadow: 0 1px 12px rgb(0 0 0 / .35); }
-  html body:has(.pcd) .site-bar .site-bar-date { color: rgb(255 255 255 / .78); border-color: rgb(255 255 255 / .35); }
-  html body:has(.pcd) .site-bar .site-bar-inner .site-bar-nav { border-top-color: rgb(255 255 255 / .85); border-bottom-color: rgb(255 255 255 / .22); }
-  html body:has(.pcd) .site-bar .site-bar-inner .site-bar-nav a { color: rgb(255 255 255 / .85); text-shadow: 0 1px 8px rgb(0 0 0 / .35); }
-  html body:has(.pcd) .site-bar .site-bar-inner .site-bar-nav a:is(:hover, [aria-current="page"]) { color: #fff; }
-  html body:has(.pcd) .site-bar .site-bar-inner .site-bar-nav a[aria-current="page"] { box-shadow: 0 6px 0 -4px #e9c77a; }
+  /* The night print of the logo, whatever the theme: the picture is dark. */
+  html:root body:has(.pcd) .site-bar .site-bar-brand .site-bar-logo--light { display: none; }
+  html:root body:has(.pcd) .site-bar .site-bar-brand .site-bar-logo--dark { display: block; }
+  html:root body:has(.pcd) .site-bar .site-bar-brand { display: inline-flex; margin: 0; color: #fff; }
+  html:root body:has(.pcd) .site-bar .site-bar-brand .site-bar-name { display: inline; color: #fff; text-shadow: 0 1px 12px rgb(0 0 0 / .35); }
+  html:root body:has(.pcd) .site-bar .site-bar-date { color: rgb(255 255 255 / .78); border-color: rgb(255 255 255 / .35); }
+  html:root body:has(.pcd) .site-bar .site-bar-inner .site-bar-nav { border-top-color: rgb(255 255 255 / .85); border-bottom-color: rgb(255 255 255 / .22); }
+  html:root body:has(.pcd) .site-bar .site-bar-inner .site-bar-nav a { color: rgb(255 255 255 / .85); text-shadow: 0 1px 8px rgb(0 0 0 / .35); }
+  html:root body:has(.pcd) .site-bar .site-bar-inner .site-bar-nav a:is(:hover, [aria-current="page"]) { color: #fff; }
+  html:root body:has(.pcd) .site-bar .site-bar-inner .site-bar-nav a[aria-current="page"] { box-shadow: 0 6px 0 -4px #e9c77a; }
 }
 /* The bandeau is about 60px taller than the old one-line bar: the hero
    grows by as much, and what hung under the bar moves down with it. */

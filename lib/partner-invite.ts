@@ -15,7 +15,8 @@ export function partnerLangOfPath(rawPath: string): PartnerLang | null {
   const parts = rawPath.normalize("NFC").split("/");
   const i = parts.indexOf("Languages - Dialects");
   if (i < 0 || parts.length < i + 3) return null;
-  return BY_FOLDER.get(parts[i + 1]) ?? null;
+  // A dialect sits one folder deeper ("Arabe/Libanais").
+  return BY_FOLDER.get(`${parts[i + 1]}/${parts[i + 2]}`) ?? BY_FOLDER.get(parts[i + 1]) ?? null;
 }
 
 const MIC =
