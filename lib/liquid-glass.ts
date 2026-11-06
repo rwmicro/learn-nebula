@@ -5,7 +5,9 @@
 //
 // The rim also catches light: a specular image drawn from the same bezel
 // (brighter where it is steep and faces the light), shown by CSS in every
-// browser, Safari included, as a plain still background.
+// browser, Safari included, as a plain background image. The light follows
+// the phone's tilt or the mouse: one image per 10° of direction, drawn once
+// and swapped, so moving it costs a background change, not a filter.
 //
 // Only Chromium renders an SVG filter in backdrop-filter. Safari and Firefox
 // accept the syntax and draw nothing (so `@supports` answers yes), hence the
@@ -157,6 +159,40 @@ export function specularMap(
   return out;
 }
 
+/** Where the light comes from when nothing moves it: the top left. */
+export const LIGHT_REST = (-3 * Math.PI) / 4;
+/** The light's direction is drawn in this many steps around the circle
+ *  (10° each): every step is one specular image, drawn the first time it is
+ *  needed and kept, so a light that wanders back and forth costs nothing
+ *  after its first pass. */
+export const LIGHT_STEPS = 36;
+
+const clamp1 = (v: number) => Math.max(-1, Math.min(1, v));
+
+/** The light's direction for a phone tilted `dGamma` degrees to the right
+ *  and `dBeta` degrees towards the reader from how it was being held: the
+ *  room's light stays put, so on the screen it slides the other way, as the
+ *  highlights of iOS 26 do. 30° of tilt moves it by a whole unit. */
+export function tiltLight(dGamma: number, dBeta: number): number {
+  return Math.atan2(Math.sin(LIGHT_REST) - clamp1(dBeta / 30), Math.cos(LIGHT_REST) - clamp1(dGamma / 30));
+}
+
+/** The light's direction for a pointer `dx`, `dy` px from the glass's
+ *  centre: it shines from the pointer's side, still leaning towards the top
+ *  left, so the rim facing the pointer lights up. */
+export function pointerLight(dx: number, dy: number): number {
+  const l = Math.hypot(dx, dy);
+  if (l < 1) return LIGHT_REST;
+  return Math.atan2(0.6 * Math.sin(LIGHT_REST) + dy / l, 0.6 * Math.cos(LIGHT_REST) + dx / l);
+}
+
+/** The step (0 … LIGHT_STEPS - 1) nearest to a direction, and back. */
+export const lightStep = (angle: number) => {
+  const turn = (((angle / (2 * Math.PI)) % 1) + 1) % 1;
+  return Math.round(turn * LIGHT_STEPS) % LIGHT_STEPS;
+};
+export const stepAngle = (step: number) => (step * 2 * Math.PI) / LIGHT_STEPS;
+
 /** True where `backdrop-filter: url(#svg)` actually renders: Chromium
  *  (Chrome, Edge, Samsung Internet, Opera…), not on iOS where every browser
  *  is WebKit. */
@@ -185,6 +221,59 @@ function defs(): SVGSVGElement {
   return holder;
 }
 
+// One source of light for every glass on the page: the device's tilt
+// (phones, wherever orientation events arrive without asking: Android; iOS
+// only sends them once a page was granted motion access) or the mouse.
+// Nothing when the reader asks for reduced motion.
+type Light = { tilt: number } | { x: number; y: number };
+let light: Light | null = null;
+const watchers = new Set<() => void>();
+let stopLight: (() => void) | null = null;
+
+function startLight() {
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return () => {};
+  let frame = 0;
+  const publish = (next: Light) => {
+    light = next;
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      watchers.forEach((f) => f());
+    });
+  };
+  const onPointer = (e: PointerEvent) => {
+    if (e.pointerType === "mouse" || e.pointerType === "pen") publish({ x: e.clientX, y: e.clientY });
+  };
+  // The phone's posture drifts (one reads lying down, then sitting): the
+  // rest position follows it slowly, so only a tilt reads as one.
+  let base: [number, number] | null = null;
+  const onTilt = (e: DeviceOrientationEvent) => {
+    if (e.gamma == null || e.beta == null) return;
+    base = base ? [base[0] + (e.gamma - base[0]) * 0.02, base[1] + (e.beta - base[1]) * 0.02] : [e.gamma, e.beta];
+    publish({ tilt: tiltLight(e.gamma - base[0], e.beta - base[1]) });
+  };
+  window.addEventListener("pointermove", onPointer, { passive: true });
+  window.addEventListener("deviceorientation", onTilt, { passive: true });
+  return () => {
+    cancelAnimationFrame(frame);
+    window.removeEventListener("pointermove", onPointer);
+    window.removeEventListener("deviceorientation", onTilt);
+  };
+}
+
+function watchLight(f: () => void): () => void {
+  watchers.add(f);
+  stopLight ??= startLight();
+  return () => {
+    watchers.delete(f);
+    if (!watchers.size && stopLight) {
+      stopLight();
+      stopLight = null;
+      light = null;
+    }
+  };
+}
+
 function pngUrl(w: number, h: number, data: Uint8ClampedArray): string {
   const c = document.createElement("canvas");
   c.width = w;
@@ -208,11 +297,13 @@ export interface LensOptions {
   /** Colour fringe at the rim (red and blue bent a little apart), 0–0.2. */
   chroma?: number;
   saturate?: number;
+  /** The rim's light follows the device's tilt or the mouse (default). */
+  follow?: boolean;
 }
 
-/** Gives `el` the light its rim catches (every browser: a still image, the
- *  CSS `::after` of `.glass.has-spec` shows it) and, on Chromium, a rim that
- *  bends what is behind it. Neither when the reader asks for less
+/** Gives `el` the light its rim catches (every browser: an image the CSS
+ *  `::after` of `.glass.has-spec` shows, swapped as the light moves) and,
+ *  on Chromium, a rim that bends what is behind it. Neither when the reader asks for less
  *  transparency. Both follow the element's size. Returns the cleanup. */
 export function attachLens(el: HTMLElement, opts: LensOptions = {}): () => void {
   if (typeof ResizeObserver === "undefined" || matchMedia("(prefers-reduced-transparency: reduce)").matches) {
@@ -230,6 +321,35 @@ export function attachLens(el: HTMLElement, opts: LensOptions = {}): () => void 
   }
 
   let size = "";
+  // The specular images drawn for this size, one per light step (stepAngle).
+  let geom: { w: number; h: number; r: number; edge: number; dpr: number } | null = null;
+  let specs = new Map<number, string>();
+  let shown = -1;
+  let want = lightStep(LIGHT_REST);
+  const showSpec = () => {
+    if (!geom) return;
+    let url = specs.get(want);
+    if (!url) {
+      const { w, h, r, edge, dpr } = geom;
+      url = `url("${pngUrl(Math.round(w * dpr), Math.round(h * dpr), specularMap(w, h, r, edge, dpr, stepAngle(want)))}")`;
+      specs.set(want, url);
+    }
+    if (want === shown) return;
+    shown = want;
+    el.style.setProperty("--glass-spec", url);
+  };
+  const aim = () => {
+    let angle = LIGHT_REST;
+    if (light && "tilt" in light) angle = light.tilt;
+    else if (light) {
+      const b = el.getBoundingClientRect();
+      angle = pointerLight(light.x - (b.left + b.width / 2), light.y - (b.top + b.height / 2));
+    }
+    want = lightStep(angle);
+    if (want !== shown) showSpec();
+  };
+  const unwatch = opts.follow === false ? () => {} : watchLight(aim);
+
   const draw = () => {
     const w = Math.round(el.offsetWidth);
     const h = Math.round(el.offsetHeight);
@@ -240,9 +360,10 @@ export function attachLens(el: HTMLElement, opts: LensOptions = {}): () => void 
     size = `${w}x${h}@${dpr}`;
     const r = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
     const edge = opts.edge ?? Math.min(32, Math.max(12, h * 0.5));
-    const sw = Math.round(w * dpr);
-    const sh = Math.round(h * dpr);
-    el.style.setProperty("--glass-spec", `url("${pngUrl(sw, sh, specularMap(w, h, r, edge, dpr))}")`);
+    geom = { w, h, r, edge, dpr };
+    specs = new Map();
+    shown = -1;
+    showSpec();
     el.classList.add("has-spec");
     if (!filter) return;
     for (const [k, v] of [["x", 0], ["y", 0], ["width", w], ["height", h]] as const) filter.setAttribute(k, String(v));
@@ -297,6 +418,7 @@ export function attachLens(el: HTMLElement, opts: LensOptions = {}): () => void 
   ro.observe(el);
   draw();
   return () => {
+    unwatch();
     ro.disconnect();
     cancelAnimationFrame(frame);
     clearTimeout(settle);
