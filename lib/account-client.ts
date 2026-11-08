@@ -84,24 +84,50 @@ export interface AuthConfig {
   /** Passkeys offered beside the magic link (server/routes/passkey.ts). */
   passkey?: boolean;
   turnstileSiteKey?: string;
+  /** The server didn't answer (throttled, down, offline): not cached. */
+  unreachable?: boolean;
 }
 
-/** Whether the server offers accounts. Cached for the tab's session. */
-export async function authConfig(): Promise<AuthConfig> {
+/** Whether the server offers accounts. Cached for the tab's session.
+ *
+ *  Only a real answer is cached: a server that says "off" (or no server at
+ *  all, 404 under `next dev`) is remembered for ten minutes, but a 429, a 5xx
+ *  or a network error is not, otherwise one throttled request hid "Se
+ *  connecter" and told /compte/ that accounts were closed for ten minutes.
+ *  Those get one retry, then `{ enabled: false, unreachable: true }`.
+ *  Concurrent callers (the header chip and /compte/) share one request. */
+let cfgInFlight: Promise<AuthConfig> | null = null;
+export function authConfig(): Promise<AuthConfig> {
   const cached = readJson<AuthConfig & { at: number }>(ss(), CFG_KEY);
-  if (cached && Date.now() - cached.at < 10 * 60_000) return cached;
-  try {
-    const r = await fetch("/api/auth/config", { cache: "no-store" });
-    if (!r.ok) throw new Error(String(r.status));
-    const c = (await r.json()) as AuthConfig;
-    const out = { enabled: !!c.enabled, passkey: !!c.passkey, turnstileSiteKey: c.turnstileSiteKey };
-    writeJson(ss(), CFG_KEY, { ...out, at: Date.now() });
-    return out;
-  } catch {
-    const out = { enabled: false };
-    writeJson(ss(), CFG_KEY, { ...out, at: Date.now() });
-    return out;
+  if (cached && Date.now() - cached.at < 10 * 60_000) return Promise.resolve(cached);
+  if (!cfgInFlight) {
+    cfgInFlight = fetchAuthConfig().finally(() => {
+      cfgInFlight = null;
+    });
   }
+  return cfgInFlight;
+}
+
+async function fetchAuthConfig(): Promise<AuthConfig> {
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt) await new Promise((res) => setTimeout(res, 1500));
+    try {
+      const r = await fetch("/api/auth/config", { cache: "no-store" });
+      if (r.status === 404) {
+        const out = { enabled: false };
+        writeJson(ss(), CFG_KEY, { ...out, at: Date.now() });
+        return out;
+      }
+      if (!r.ok) continue;
+      const c = (await r.json()) as AuthConfig;
+      const out = { enabled: !!c.enabled, passkey: !!c.passkey, turnstileSiteKey: c.turnstileSiteKey };
+      writeJson(ss(), CFG_KEY, { ...out, at: Date.now() });
+      return out;
+    } catch {
+      /* network error: retry, then report unreachable */
+    }
+  }
+  return { enabled: false, unreachable: true };
 }
 
 /** The signed-in reader, or null. Keeps the hint in step. */

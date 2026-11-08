@@ -960,7 +960,7 @@
     "login": "Iniciar sesión",
     "loading": "Cargando…",
     "offTitle": "Las cuentas no están abiertas aquí",
-    "offText": "Este sitio aún no ofrece cuentas (o el servidor no responde). Tu progreso sigue guardado en este navegador.",
+    "offText": "Este sitio aún no ofrece cuentas. Tu progreso sigue guardado en este navegador.",
     "offLink": "Exportar o importar mi progreso",
     "loginTitle": "Entrar en el jardín",
     "loginIntro": "Sin contraseña: escribe tu dirección y recibirás un enlace válido 15 minutos.",
@@ -995,7 +995,9 @@
     "deleteNow": "Borrar para siempre",
     "cancel": "Cancelar",
     "sentTitle": "El enlace ya salió",
-    "resend": "Reenviar el enlace"
+    "resend": "Reenviar el enlace",
+    "downTitle": "El servidor no responde por ahora",
+    "downText": "Vuelve a intentarlo en un momento. Mientras tanto, tu progreso sigue guardado en este navegador."
   },
   "avatar": {
     "aria": "Tu pequeño jardinero",

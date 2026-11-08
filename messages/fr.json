@@ -960,7 +960,7 @@
     "login": "Se connecter",
     "loading": "Chargement…",
     "offTitle": "Les comptes ne sont pas ouverts ici",
-    "offText": "Ce site ne propose pas encore de compte (ou le serveur ne répond pas). Votre progression reste enregistrée dans ce navigateur.",
+    "offText": "Ce site ne propose pas encore de compte. Ta progression reste enregistrée dans ce navigateur.",
     "offLink": "Exporter ou importer ma progression",
     "loginTitle": "Se connecter au jardin",
     "loginIntro": "Pas de mot de passe : entrez votre adresse, vous recevez un lien valable 15 minutes.",
@@ -995,7 +995,9 @@
     "deleteNow": "Supprimer définitivement",
     "cancel": "Annuler",
     "sentTitle": "Le lien est parti",
-    "resend": "Renvoyer le lien"
+    "resend": "Renvoyer le lien",
+    "downTitle": "Le serveur ne répond pas pour l’instant",
+    "downText": "Réessaie dans un moment. En attendant, ta progression reste enregistrée dans ce navigateur."
   },
   "avatar": {
     "aria": "Votre petit jardinier",

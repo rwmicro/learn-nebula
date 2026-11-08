@@ -17,14 +17,14 @@ export function usePasskeyAutofill(enabled: boolean | undefined) {
     let live = true;
     let tries = 0;
     const arm = () => {
-      void autofillSignIn().then((ok) => {
+      void autofillSignIn().then((res) => {
         if (!live) return;
-        if (ok) {
+        if (res === "ok") {
           writeHint({ ...readHint(), in: true });
           const next = nextParam();
           if (next) location.assign(next);
           else location.reload();
-        } else if (++tries < 3) window.setTimeout(arm, 1000);
+        } else if (res === "retry" && ++tries < 3) window.setTimeout(arm, 1000);
       });
     };
     arm();

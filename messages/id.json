@@ -960,7 +960,7 @@
     "login": "Masuk",
     "loading": "Memuat…",
     "offTitle": "Akun belum dibuka di sini",
-    "offText": "Situs ini belum menawarkan akun (atau server tidak menjawab). Kemajuanmu tetap tersimpan di peramban ini.",
+    "offText": "Situs ini belum menawarkan akun. Kemajuanmu tetap tersimpan di peramban ini.",
     "offLink": "Ekspor atau impor kemajuanku",
     "loginTitle": "Masuk ke kebun",
     "loginIntro": "Tanpa kata sandi: masukkan alamatmu dan kamu akan menerima tautan yang berlaku selama 15 menit.",
@@ -995,7 +995,9 @@
     "deleteNow": "Hapus selamanya",
     "cancel": "Batal",
     "sentTitle": "Tautannya sedang dikirim",
-    "resend": "Kirim ulang tautan"
+    "resend": "Kirim ulang tautan",
+    "downTitle": "Server sedang tidak menjawab",
+    "downText": "Coba lagi sebentar lagi. Sementara itu, kemajuanmu tetap tersimpan di peramban ini."
   },
   "avatar": {
     "aria": "Tukang kebun kecilmu",
