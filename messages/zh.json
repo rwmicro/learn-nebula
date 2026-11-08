@@ -282,7 +282,9 @@
     "resetView": "重置视图",
     "phoneTitle": "关系图需要更大的屏幕",
     "phoneText": "在手机上，请按学科浏览笔记。",
-    "phoneLink": "查看笔记"
+    "phoneLink": "查看笔记",
+    "title": "花园图谱",
+    "loading": "正在绘制图谱…"
   },
   "lightbox": {
     "close": "关闭",

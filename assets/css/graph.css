@@ -8,6 +8,17 @@
   background: var(--paper);
   z-index: 1;
 }
+/* While /graph-data.json loads (components/explore/GraphLoader.tsx). */
+.graph-loading {
+  display: grid;
+  place-items: center;
+}
+.graph-loading p {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-size: var(--text-small);
+  color: var(--muted);
+}
 
 .graph-canvas {
   width: 100%;

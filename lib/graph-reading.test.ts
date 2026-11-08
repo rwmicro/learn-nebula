@@ -33,6 +33,12 @@ describe("readingView", () => {
     expect(v.total).toBe(5);
   });
 
+  it("leaves the Anki decks out of the count", () => {
+    const deck = { ...note("x"), id: "file:/cartes/deck/", href: "/cartes/deck/" };
+    const v = readingView({ ...data, nodes: [...data.nodes, deck] }, read());
+    expect(v.total).toBe(5);
+  });
+
   it("suggests unread neighbours of what was read, most connected first", () => {
     const v = readingView(data, read("kant"));
     expect(v.fromReading).toBe(true);

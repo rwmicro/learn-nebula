@@ -282,7 +282,9 @@
     "resetView": "Réinitialiser la vue",
     "phoneTitle": "Le graphe se lit sur un plus grand écran",
     "phoneText": "Sur téléphone, parcours les notes par discipline.",
-    "phoneLink": "Voir les notes"
+    "phoneLink": "Voir les notes",
+    "title": "Le graphe du jardin",
+    "loading": "Le graphe se dessine…"
   },
   "lightbox": {
     "close": "Fermer",

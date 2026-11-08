@@ -282,7 +282,9 @@
     "resetView": "Reset the view",
     "phoneTitle": "The graph needs a bigger screen",
     "phoneText": "On a phone, browse the notes by discipline.",
-    "phoneLink": "See the notes"
+    "phoneLink": "See the notes",
+    "title": "The garden graph",
+    "loading": "Drawing the graph…"
   },
   "lightbox": {
     "close": "Close",

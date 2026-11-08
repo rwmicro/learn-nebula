@@ -282,7 +282,9 @@
     "resetView": "Atur ulang tampilan",
     "phoneTitle": "Graf perlu layar yang lebih besar",
     "phoneText": "Di ponsel, jelajahi catatan per disiplin.",
-    "phoneLink": "Lihat catatan"
+    "phoneLink": "Lihat catatan",
+    "title": "Graf taman",
+    "loading": "Menggambar graf…"
   },
   "lightbox": {
     "close": "Tutup",

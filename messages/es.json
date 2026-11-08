@@ -282,7 +282,9 @@
     "resetView": "Restablecer la vista",
     "phoneTitle": "El grafo se ve en una pantalla más grande",
     "phoneText": "En el teléfono, recorre las notas por disciplina.",
-    "phoneLink": "Ver las notas"
+    "phoneLink": "Ver las notas",
+    "title": "El grafo del jardín",
+    "loading": "Dibujando el grafo…"
   },
   "lightbox": {
     "close": "Cerrar",
