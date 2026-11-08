@@ -11,6 +11,7 @@ import { fold } from "@/lib/palette-match";
 import { deskLines, placeLines, timeBuckets, LANG_HELLO, type PlacedLine } from "@/lib/path-desk";
 import { ParcoursDeskHero, type HeroLevels } from "@/components/paths/ParcoursDeskHero";
 import { DeskFilter, DeskMarks, DeskMore, DeskDice } from "@/components/paths/ParcoursDeskBits";
+import { srcSet } from "@/lib/responsive-image";
 
 // The desktop /parcours/ (from 1024px; parcours-desk.css shows it and hides
 // the list that follows it in <main>, which phones and tablets keep). A hero
@@ -228,8 +229,8 @@ export function ParcoursDesk({
                 <figure>
                   <span className="pcd-fr">
                     <picture>
-                      <source type="image/avif" srcSet={`${art.src}.avif`} />
-                      <img src={`${art.src}.webp`} alt="" loading="lazy" decoding="async" style={{ objectPosition: `${art.focus} 50%` }} />
+                      <source type="image/avif" srcSet={srcSet(art.src, "avif")} sizes="160px" />
+                      <img src={`${art.src}.webp`} srcSet={srcSet(art.src, "webp")} sizes="160px" alt="" loading="lazy" decoding="async" style={{ objectPosition: `${art.focus} 50%` }} />
                     </picture>
                   </span>
                   <figcaption>{art.credit}</figcaption>

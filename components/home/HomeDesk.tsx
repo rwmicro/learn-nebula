@@ -28,6 +28,7 @@ import {
   type DashPath,
   type DashRecent,
 } from "@/components/home/HomeDashboard";
+import { srcSet, ERAGNY_SIZES } from "@/lib/responsive-image";
 
 // The home on a desktop (from 1024px; home-desk.css shows it and hides the
 // tablet layout that follows it in <main>): the phone dashboard's content set
@@ -370,8 +371,8 @@ export function HomeDesk({
         <figure className="hd2-art" data-family={resume.path.family ?? undefined}>
           <a className="hd2-frame" href={`/posts/${resume.slug}/#reprendre`} aria-label={tr("dash.continueAria", { title: resume.title })}>
             <picture>
-              <source type="image/avif" srcSet={`${art.src}.avif`} />
-              <img src={`${art.src}.webp`} alt="" title={art.credit} decoding="async" fetchPriority="high" />
+              <source type="image/avif" srcSet={srcSet(art.src, "avif")} sizes="min(1070px, 92vw)" />
+              <img src={`${art.src}.webp`} srcSet={srcSet(art.src, "webp")} sizes="min(1070px, 92vw)" alt="" title={art.credit} decoding="async" fetchPriority="high" />
             </picture>
             <span className="hd-chip">
               <span>
@@ -403,8 +404,8 @@ export function HomeDesk({
         <figure className="hd2-art hd3-art">
           <div className="hd2-frame">
             <picture>
-              <source type="image/avif" srcSet={`${ERAGNY.src}.avif`} />
-              <img src={`${ERAGNY.src}.webp`} alt="" decoding="async" fetchPriority="high" />
+              <source type="image/avif" srcSet={srcSet(ERAGNY.src, "avif")} sizes={ERAGNY_SIZES} />
+              <img src={`${ERAGNY.src}.webp`} srcSet={srcSet(ERAGNY.src, "webp")} sizes={ERAGNY_SIZES} alt="" decoding="async" fetchPriority="high" />
             </picture>
             <span className="hd2-cap">
               <small>{tr("desk.tagline")}</small>

@@ -33,15 +33,18 @@ import { prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
 import { splitMinutes } from "@/lib/path-study";
 import { pathLevels } from "@/lib/path-levels";
 import { paintingFor, type Painting } from "@/lib/paintings";
+import { srcSet } from "@/lib/responsive-image";
 
 /** A family's painting (lib/paintings.ts), as the backdrop of a heading:
  *  decorative, its credit carried by the caption next to it. */
 function Art({ art, eager = false }: { art: Painting; eager?: boolean }) {
   return (
     <picture className="parcours-art">
-      <source type="image/avif" srcSet={`${art.src}.avif`} />
+      <source type="image/avif" srcSet={srcSet(art.src, "avif")} sizes="100vw" />
       <img
         src={`${art.src}.webp`}
+        srcSet={srcSet(art.src, "webp")}
+        sizes="100vw"
         alt=""
         decoding="async"
         loading={eager ? "eager" : "lazy"}

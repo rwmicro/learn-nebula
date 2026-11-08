@@ -10,6 +10,7 @@ import { ERAGNY, paintingFor, type Painting } from "@/lib/paintings";
 import { splitMinutes } from "@/lib/path-study";
 import type { PathFamily } from "@/lib/path-family";
 import { useStore } from "@/components/paths/ParcoursDeskBits";
+import { srcSet } from "@/lib/responsive-image";
 
 /** Per path slug, its levels as [n, name, from, to]. */
 export type HeroLevels = Record<string, [number, string, number, number][]>;
@@ -30,11 +31,13 @@ const Refresh = () => (
 
 function Pic({ art, hero = false, className, eager = false }: { art: Painting; hero?: boolean; className?: string; eager?: boolean }) {
   const src = hero && art.hero ? art.hero : art.src;
+  // The hero fills the screen; otherwise the picture sits in a card.
+  const sizes = hero ? "100vw" : "(max-width: 1100px) 50vw, 420px";
   return (
     <picture className={className}>
-      <source type="image/avif" srcSet={`${src}.avif`} />
+      <source type="image/avif" srcSet={srcSet(src, "avif")} sizes={sizes} />
       { }
-      <img src={`${src}.webp`} alt="" title={art.credit} decoding="async" style={hero ? undefined : { objectPosition: `${art.focus} 50%` }} {...(eager ? { fetchPriority: "high" as const } : { loading: "lazy" as const })} />
+      <img src={`${src}.webp`} srcSet={srcSet(src, "webp")} sizes={sizes} alt="" title={art.credit} decoding="async" style={hero ? undefined : { objectPosition: `${art.focus} 50%` }} {...(eager ? { fetchPriority: "high" as const } : { loading: "lazy" as const })} />
     </picture>
   );
 }
