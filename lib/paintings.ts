@@ -43,7 +43,7 @@ function painting(name: string, by: string, title: string, note: string, hero = 
   };
 }
 
-export const ERAGNY: Painting = painting("/images/eragny", "Camille Pissarro", "Le Jardin potager à Éragny", "1879", false);
+export const ERAGNY: Painting = painting("/images/eragny", "Camille Pissarro", "Le Jardin potager à Éragny", "1897", false);
 
 const BY_FAMILY: Record<PathFamily, Painting> = {
   sciences: painting("sciences", "Louis Thouverez", "Horloge planétaire", "Paris, 1790", true, "84%"),
