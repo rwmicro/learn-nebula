@@ -84,7 +84,7 @@ function dashboardData(): { paths: DashPath[]; recent: DashRecent[]; dayNotes: D
     .sort((a, b) => b.count - a.count);
   const builtAt = Date.now();
   // Folder indexes are maps, not new growth.
-  const recent = getRecentNotes(12).filter((n) => !/\bindex\b/i.test(n.title)).slice(0, 3).map((n) => {
+  const recent = getRecentNotes(12).filter((n) => !/\bindex\b/i.test(n.title)).slice(0, 5).map((n) => {
     const slug = n.href.replace(/^\/posts\//, "").replace(/\/$/, "");
     const d = disciplines.find((x) => slug.startsWith(x.prefix));
     return {

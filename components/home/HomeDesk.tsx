@@ -805,12 +805,13 @@ export function HomeDesk({
       </div>
 
       <div className="hd-row r-57">
-        {/* V. Latest notes */}
+        {/* V. Latest notes: five, so the card is as tall as the chart beside
+            it (three left it half empty). The phone keeps three. */}
         <div className="hd-stack">
           <Head n="V" title={tr("dash.recent")} link={{ href: "/jardin/", label: tr("dash.seeAll") }} />
           <section className="hd-card hd-recent">
             <ul className="hd-list">
-              {recent.slice(0, 3).map((n) => (
+              {recent.slice(0, 5).map((n) => (
                 <li key={n.href} data-family={n.family ?? undefined}>
                   <a href={n.href}>
                     <span className="hd-ic">
