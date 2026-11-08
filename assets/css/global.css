@@ -907,10 +907,15 @@ footer {
    colophon (.hd-colo, home-desk.css) on one line, at the site bar's width
    and place, so every page ends like the home. Phones: phone/sub-pages.css. */
 @media (min-width: 640px) {
-  footer.site-foot {
+  /* Centred on the viewport, whatever the page did to <body> (680px on a
+     note under 1080px). !important: page rules (`footer { margin-right:
+     26rem }`, account, admin, parcours…) each gave it its own width. */
+  html body > footer.site-foot {
     position: relative;
     left: 50%;
-    width: min(75rem, calc(100vw - 4rem));
+    width: min(75rem, calc(100vw - 4rem)) !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
     transform: translateX(-50%);
     border-top: 3px double var(--ink);
   }
@@ -961,8 +966,8 @@ footer {
   }
 }
 @media (min-width: 640px) and (max-width: 1080px) {
-  footer.site-foot {
-    width: calc(100vw - 2.4rem);
+  html body > footer.site-foot {
+    width: calc(100vw - 2.4rem) !important;
   }
 }
 
