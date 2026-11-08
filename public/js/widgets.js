@@ -2723,8 +2723,8 @@
         ].map((r) => el("tr", {}, [el("th", {}, [r[0]]), el("td", {}, [r[1]])]))),
         el("p", { class: "w-note" }, [
           meme
-            ? "Vos deux réponses sont cohérentes : les options étant identiques, c'est la réponse rationnelle."
-            : "Vos deux réponses diffèrent, alors que les options décrivent exactement les mêmes issues. " +
+            ? "Tes deux réponses sont cohérentes : les options étant identiques, c'est la réponse rationnelle."
+            : "Tes deux réponses diffèrent, alors que les options décrivent exactement les mêmes issues. " +
               "C'est l'effet de cadrage : formulé en vies sauvées, on préfère le certain ; formulé en morts, on préfère le pari.",
         ]),
         el("p", { class: "w-note" }, [

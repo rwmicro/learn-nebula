@@ -16,7 +16,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 export const metadata: Metadata = pageMetadata({
   title: `Parler une langue · ${SITE_TITLE}`,
   description:
-    "Une conversation à voix haute avec un partenaire, dans une scène de la vie courante, puis le bilan de vos phrases.",
+    "Une conversation à voix haute avec un partenaire, dans une scène de la vie courante, puis le bilan de tes phrases.",
   path: "/parler/",
 });
 

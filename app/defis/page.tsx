@@ -8,7 +8,7 @@ import "@/assets/css/defis.css";
 // Linked from the streak tiles (home, Moi).
 export const metadata: Metadata = {
   title: `Défis · ${SITE_TITLE}`,
-  description: "Votre série de jours et les petits défis du jour.",
+  description: "Ta série de jours et les petits défis du jour.",
   robots: { index: false },
 };
 
