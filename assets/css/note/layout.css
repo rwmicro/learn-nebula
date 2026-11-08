@@ -582,7 +582,11 @@ body[data-focus="true"] .note-meta {
     width: var(--side);
     max-height: calc(100vh - 8.5rem);
     overflow-y: auto;
-    overscroll-behavior: contain;
+    /* No overscroll-behavior: contain here. These rails are scroll containers
+       even when nothing overflows, and "contain" then swallowed the wheel:
+       over the contents or the right column (half the screen width) the note
+       didn't scroll at all. Left at auto, a rail scrolls itself first and
+       hands the rest to the page. */
     scrollbar-width: thin;
   }
   body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .toc-rail {
