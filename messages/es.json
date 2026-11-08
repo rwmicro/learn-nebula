@@ -1181,7 +1181,8 @@
     "citedTitle": "Las notas más citadas",
     "links": "{n} enlaces",
     "growingTitle": "Lo que creció en los últimos tres meses",
-    "newNotes": "+{n} notas"
+    "newNotes": "+{n} notas",
+    "undated": "La curva solo cuenta las notas con fecha: {n} no tienen fecha."
   },
   "fiche": {
     "back": "Volver al recorrido",

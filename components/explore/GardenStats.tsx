@@ -55,6 +55,13 @@ export function GardenStats({ stats, builtAt }: { stats: Stats; builtAt: Date })
               {t("jardin.peak", { n: stats.peak.planted, month: monthLabel(stats.peak.month) })}
             </p>
           )}
+          {/* The curve ends below the count above when some notes carry no
+              date: say so rather than show two numbers that disagree. */}
+          {stats.undated > 0 && (
+            <p className="jardin-note" {...i18nProps("jardin.undated", { n: stats.undated })}>
+              {t("jardin.undated", { n: stats.undated })}
+            </p>
+          )}
         </section>
       )}
 

@@ -1181,7 +1181,8 @@
     "citedTitle": "The most cited notes",
     "links": "{n} links",
     "growingTitle": "What grew in the last three months",
-    "newNotes": "+{n} notes"
+    "newNotes": "+{n} notes",
+    "undated": "The curve counts dated notes only: {n} have no date."
   },
   "fiche": {
     "back": "Back to the path",

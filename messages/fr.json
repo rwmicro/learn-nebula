@@ -1181,7 +1181,8 @@
     "citedTitle": "Les notes les plus citées",
     "links": "{n} liens",
     "growingTitle": "Ce qui pousse ces trois derniers mois",
-    "newNotes": "+{n} notes"
+    "newNotes": "+{n} notes",
+    "undated": "La courbe ne compte que les notes datées : {n} n’ont pas de date."
   },
   "fiche": {
     "back": "Retour au parcours",

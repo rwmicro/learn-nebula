@@ -1181,7 +1181,8 @@
     "citedTitle": "Catatan yang paling sering dikutip",
     "links": "{n} tautan",
     "growingTitle": "Yang tumbuh dalam tiga bulan terakhir",
-    "newNotes": "+{n} catatan"
+    "newNotes": "+{n} catatan",
+    "undated": "Kurva hanya menghitung catatan bertanggal: {n} tidak bertanggal."
   },
   "fiche": {
     "back": "Kembali ke jalur",

@@ -1181,7 +1181,8 @@
     "citedTitle": "被引用最多的笔记",
     "links": "{n} 个链接",
     "growingTitle": "最近三个月的生长",
-    "newNotes": "+{n} 篇"
+    "newNotes": "+{n} 篇",
+    "undated": "曲线只统计有日期的笔记：{n} 篇没有日期。"
   },
   "fiche": {
     "back": "返回路线",
