@@ -190,6 +190,15 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
   const weekMax = Math.max(1, ...week);
 
   const state = counts === null ? "loading" : total > 0 ? "due" : Object.values(counts).some((c) => c.started) ? "done" : "new";
+  // First visit: no deck started. Instead of a wall of zeros (0 to review,
+  // 0 new, ≈ 0 min, an empty year), three decks to start with, one per
+  // discipline, the fullest first.
+  const starters: PhoneDeck[] = [];
+  if (state === "new")
+    for (const d of [...decks].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))) {
+      if (starters.length === 3) break;
+      if (!starters.some((x) => x.group === d.group)) starters.push(d);
+    }
 
   return (
     <div className="cdk" data-pagefind-ignore>
@@ -198,6 +207,18 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
           <p className="cdk-kicker">{tr("cdk.kicker")}</p>
           <h1 className="cdk-title">{tr("tabbar.review")}</h1>
           <p className="cdk-sub">{tr("cdk.sub")}</p>
+          {state === "new" && starters.length > 0 ? (
+            <ul className="cdk-starters" aria-label={tr("rv.startKicker")}>
+              {starters.map((d) => (
+                <li key={d.slug}>
+                  <a href={`/cartes/${d.slug}/`}>
+                    <b>{d.label}</b>
+                    <span>{tr("cdk.goCards", { n: d.count.toLocaleString(locale) })}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          ) : (
           <dl className="cdk-meta">
             <div className="is-due">
               <dt>{tr("cdk.due")}</dt>
@@ -216,6 +237,7 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
               <dd>{tr("cdk.run", { n: run })}</dd>
             </div>
           </dl>
+          )}
           <p className="cdk-actions">
             {state === "new" ? (
               <a className="cdk-go" href="#cdk-decks">
@@ -238,7 +260,11 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
           </p>
         </div>
 
-        <a className="cdk-pile" href={state === "due" ? "/cartes/aujourdhui/" : "#cdk-decks"} aria-label={tr("cartesIndex.today")}>
+        <a
+          className="cdk-pile"
+          href={state === "due" ? "/cartes/aujourdhui/" : starters[0] ? `/cartes/${starters[0].slug}/` : "#cdk-decks"}
+          aria-label={starters[0] ? starters[0].label : tr("cartesIndex.today")}
+        >
           <span className="cdk-k" aria-hidden="true" />
           <span className="cdk-k" aria-hidden="true" />
           <span className="cdk-k" aria-hidden="true" />
@@ -254,6 +280,12 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
                 <span className="cdk-tag">{tr("cdk.next")}</span>
                 <span className="cdk-q">{top.label}</span>
                 <span className="cdk-hint">{tr("rv.due", { n: top.n })}</span>
+              </>
+            ) : starters[0] ? (
+              <>
+                <span className="cdk-tag">{tr("rv.startKicker")}</span>
+                <span className="cdk-q">{starters[0].label}</span>
+                <span className="cdk-hint">{tr("cdk.goCards", { n: starters[0].count.toLocaleString(locale) })}</span>
               </>
             ) : (
               <>
@@ -272,7 +304,7 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
         </a>
       </section>
 
-      <div className="cdk-mem">
+      <div className="cdk-mem" hidden={state === "new"}>
         <section className="cdk-card">
           <h2 className="cdk-card-h">
             {tr("cdk.memory")} <span>{tr("cdk.memoryHint")}</span>

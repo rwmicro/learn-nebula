@@ -104,6 +104,41 @@
   .cdk-meta .is-new dd {
     color: var(--cdk-new);
   }
+  /* First visit: three decks to start with, in place of .cdk-meta. */
+  .cdk-starters {
+    display: grid;
+    gap: 0.5rem;
+    max-width: 30rem;
+    margin: 1.6rem 0 1.9rem;
+    padding: 0;
+    list-style: none;
+  }
+  .cdk-starters a {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 0.75rem;
+    background: var(--paper);
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .cdk-starters a:hover {
+    border-color: var(--garden);
+  }
+  .cdk-starters b {
+    font: 500 1.05rem var(--font-text);
+  }
+  .cdk-starters span {
+    flex: none;
+    font: 400 0.875rem var(--font-ui);
+    color: var(--muted-warm);
+  }
+  .cdk-mem[hidden] {
+    display: none;
+  }
   .cdk-actions {
     display: flex;
     flex-wrap: wrap;

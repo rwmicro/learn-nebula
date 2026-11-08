@@ -344,9 +344,9 @@ export function HomeDesk({
     <section className="hd" data-pagefind-ignore data-first={first ? "" : undefined} aria-label={tr("nav.home")}>
       <div className="hd-hello">
         <div>
-          <h1 data-ready={me ? "" : undefined}>
+          <h2 data-ready={me ? "" : undefined}>
             {tr(greeting)} <em>{tr(`${greeting}Em`)}</em>
-          </h1>
+          </h2>
           {first && <p>{tr("dash.welcomeText", { n: nf.format(noteCount) })}</p>}
         </div>
         <button
