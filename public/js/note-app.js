@@ -65,8 +65,21 @@
   const cover = $(".na-cover", main);
   let current = -2;
 
+  // Reading down the text, the "Demander sur cette note…" field steps aside
+  // (the top bar, it and the toolbar took ~30 % of a phone's height); it
+  // comes back on the way up, near the end of the note, and at the top.
+  let lastY = window.scrollY;
+  function askAside(y) {
+    const d = y - lastY;
+    if (Math.abs(d) < 12) return;
+    lastY = y;
+    const nearEnd = y + window.innerHeight > document.documentElement.scrollHeight - 600;
+    document.documentElement.toggleAttribute("data-na-reading", d > 0 && y > 240 && !nearEnd);
+  }
+
   function update() {
     const y = window.scrollY;
+    askAside(y);
     // Over the cover: its own floating buttons; past it, the section pill.
     if (cover) {
       const past = cover.getBoundingClientRect().bottom < 70;
