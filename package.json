@@ -3,6 +3,12 @@
   "private": true,
   "type": "module",
   "packageManager": "pnpm@10.28.0",
+  "imports": {
+    "#i18n-bundles": {
+      "browser": "./lib/i18n-bundles.browser.ts",
+      "default": "./lib/i18n-bundles.ts"
+    }
+  },
   "scripts": {
     "predev": "tsx scripts/build-i18n.ts && node scripts/bundle-js.mjs && node scripts/build-figures.mjs && node scripts/copy-mermaid.mjs && node scripts/copy-ort.mjs && node scripts/copy-piper.mjs && node scripts/copy-vault-images.mjs && node scripts/build-image-variants.mjs && node scripts/build-anki.mjs",
     "dev": "next dev",
