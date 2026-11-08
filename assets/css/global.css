@@ -916,6 +916,7 @@ footer {
     width: min(75rem, calc(100vw - 4rem)) !important;
     max-width: none !important;
     margin-inline: 0 !important;
+    margin-top: 2.5rem;
     transform: translateX(-50%);
     border-top: 3px double var(--ink);
   }
@@ -930,6 +931,14 @@ footer {
   .site-foot-quote {
     max-width: 34rem;
     margin: 0;
+  }
+  /* /parcours/ closes on its own quote and figures (.pcd-colo): one
+     quote is enough, the footer keeps only the licence lines. */
+  body:has(.pcd-colo) .site-foot-quote {
+    display: none;
+  }
+  body:has(.pcd-colo) .site-foot-wide {
+    justify-content: flex-end;
   }
   .site-foot-quote q {
     font: italic 400 1.15rem/1.45 var(--font-text);
