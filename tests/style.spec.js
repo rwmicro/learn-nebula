@@ -77,6 +77,13 @@ async function shoot(page, url, file, { scheme = "light", locale, open } = {}) {
     let x = 42;
     Math.random = () => ((x = (x * 1103515245 + 12345) % 2147483648) / 2147483648);
   });
+  // The srcset variants (scripts/build-site-images.mjs) are encoded by the
+  // machine that builds, and AVIF/WebP encoders round differently from one
+  // CPU to the next: serve the tracked original instead, so the pixels only
+  // change when the page does.
+  await page.route(/\/images\/.+-\d+w\.(avif|webp)$/, (route) =>
+    route.continue({ url: route.request().url().replace(/-\d+w\.(avif|webp)$/, ".$1") }),
+  );
   await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
   if (locale) {
     await page.addInitScript((l) => localStorage.setItem("locale", l), locale);

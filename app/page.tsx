@@ -22,12 +22,13 @@ import { openingParagraph, vocabFromMarkdown } from "@/lib/home-picks";
 import { resolveVaultAsset } from "@/lib/vault-assets";
 import { readingMinutes } from "@/lib/path-extras";
 import { familyOfPrefix, pathFamily } from "@/lib/path-family";
-import { boardSvg, LEVELS, START } from "@/lib/chess-play";
+import { LEVELS } from "@/lib/chess-play";
 import { HomeDesk, type DeskChart, type DeskDomain } from "@/components/home/HomeDesk";
 import { enrichWidget } from "@/lib/widget-data";
 import { areaChartSvg } from "@/lib/home-chart";
 import "@/assets/css/graphiques.css";
 import "@/assets/css/home-desk.css";
+import { srcSet, ERAGNY_SIZES } from "@/lib/responsive-image";
 
 // Editorial serif for the content zone. next/font self-hosts the files at build
 // time, so they are served from our own origin — no Google CDN request, and the
@@ -83,7 +84,7 @@ function dashboardData(): { paths: DashPath[]; recent: DashRecent[]; dayNotes: D
     .sort((a, b) => b.count - a.count);
   const builtAt = Date.now();
   // Folder indexes are maps, not new growth.
-  const recent = getRecentNotes(12).filter((n) => !/\bindex\b/i.test(n.title)).slice(0, 3).map((n) => {
+  const recent = getRecentNotes(12).filter((n) => !/\bindex\b/i.test(n.title)).slice(0, 5).map((n) => {
     const slug = n.href.replace(/^\/posts\//, "").replace(/\/$/, "");
     const d = disciplines.find((x) => slug.startsWith(x.prefix));
     return {
@@ -231,7 +232,11 @@ export default async function HomePage() {
     const d = PARTNER_DATA[id];
     return { id, partners: [...d.partners], line: d.scenes.cafe.exprs[0].t };
   });
-  const chess = { startBoard: boardSvg(START), levels: LEVELS.map((l) => ({ id: l.id, elo: l.elo })) };
+  // The start position as a file (app/chess-start.svg/route.ts), not ~50 KB of
+  // inline SVG repeated in each card and in the RSC payload.
+  const startBoard =
+    '<img class="chess-card-board" src="/chess-start.svg" width="240" height="240" alt="" decoding="async" loading="lazy">';
+  const chess = { startBoard, levels: LEVELS.map((l) => ({ id: l.id, elo: l.elo })) };
   const desk = await deskData();
   const words = wordsOfDay();
   return (
@@ -264,8 +269,8 @@ export default async function HomePage() {
           <div className="w-full md:w-11/12 max-w-11/12 mx-auto">
             <span className="home-frame mb-2 block">
               <picture>
-                <source type="image/avif" srcSet="/images/eragny.avif" />
-                <img src="/images/eragny.webp" alt="Éragny" width="1200" height="950" fetchPriority="high" decoding="async" />
+                <source type="image/avif" srcSet={srcSet("/images/eragny", "avif")} sizes={ERAGNY_SIZES} />
+                <img src="/images/eragny.webp" srcSet={srcSet("/images/eragny", "webp")} sizes={ERAGNY_SIZES} alt="Éragny" width="1200" height="950" fetchPriority="high" decoding="async" />
               </picture>
             </span>
             <span className="text-sm text-muted" data-i18n="home.imageCaption"> Camille Pissarro, Le Jardin potager à Éragny, 1897. — La connaissance, comme un jardin, se cultive et se transmet.</span>

@@ -1409,6 +1409,23 @@ button.gc-ib:hover {
   body[data-focus="true"] .gc-trigger {
     display: none !important;
   }
+  /* Reading down a note (public/js/note-app.js sets the flag): the field
+     slides under the toolbar, back on the way up. */
+  body:has(.na-chrome) .gk-pinned-trigger.gc-trigger {
+    transition:
+      transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 0.2s;
+  }
+  html[data-na-reading] body:has(.na-chrome) .gk-pinned-trigger.gc-trigger {
+    transform: translateY(4.4rem);
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+@media (max-width: 639.98px) and (prefers-reduced-motion: reduce) {
+  body:has(.na-chrome) .gk-pinned-trigger.gc-trigger {
+    transition: none;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .gc-shine,

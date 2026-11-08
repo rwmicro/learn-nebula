@@ -217,7 +217,8 @@
     "licenseMiddle": ", dan kode sumbernya di bawah ",
     "licenseGpl": "GNU GPL",
     "licenseAfter": ". Awalnya dibuat oleh ",
-    "progression": "Kemajuanku: ekspor, impor"
+    "progression": "Kemajuanku: ekspor, impor",
+    "origin": "Awalnya dibuat oleh"
   },
   "home": {
     "intro1": "Berkas ini berisi semua yang saya kuasai sepanjang perjalanan hidup saya.",
@@ -282,7 +283,9 @@
     "resetView": "Atur ulang tampilan",
     "phoneTitle": "Graf perlu layar yang lebih besar",
     "phoneText": "Di ponsel, jelajahi catatan per disiplin.",
-    "phoneLink": "Lihat catatan"
+    "phoneLink": "Lihat catatan",
+    "title": "Graf taman",
+    "loading": "Menggambar graf…"
   },
   "lightbox": {
     "close": "Tutup",
@@ -960,7 +963,7 @@
     "login": "Masuk",
     "loading": "Memuat…",
     "offTitle": "Akun belum dibuka di sini",
-    "offText": "Situs ini belum menawarkan akun (atau server tidak menjawab). Kemajuanmu tetap tersimpan di peramban ini.",
+    "offText": "Situs ini belum menawarkan akun. Kemajuanmu tetap tersimpan di peramban ini.",
     "offLink": "Ekspor atau impor kemajuanku",
     "loginTitle": "Masuk ke kebun",
     "loginIntro": "Tanpa kata sandi: masukkan alamatmu dan kamu akan menerima tautan yang berlaku selama 15 menit.",
@@ -995,7 +998,9 @@
     "deleteNow": "Hapus selamanya",
     "cancel": "Batal",
     "sentTitle": "Tautannya sedang dikirim",
-    "resend": "Kirim ulang tautan"
+    "resend": "Kirim ulang tautan",
+    "downTitle": "Server sedang tidak menjawab",
+    "downText": "Coba lagi sebentar lagi. Sementara itu, kemajuanmu tetap tersimpan di peramban ini."
   },
   "avatar": {
     "aria": "Tukang kebun kecilmu",
@@ -1176,7 +1181,8 @@
     "citedTitle": "Catatan yang paling sering dikutip",
     "links": "{n} tautan",
     "growingTitle": "Yang tumbuh dalam tiga bulan terakhir",
-    "newNotes": "+{n} catatan"
+    "newNotes": "+{n} catatan",
+    "undated": "Kurva hanya menghitung catatan bertanggal: {n} tidak bertanggal."
   },
   "fiche": {
     "back": "Kembali ke jalur",
@@ -1200,25 +1206,6 @@
     "notes": "Catatan",
     "resumeAria": "Lanjutkan membaca: {title}",
     "left": "{m} menit lagi"
-  },
-  "explorer": {
-    "metaTitle": "Jelajahi",
-    "title": "Jelajahi",
-    "lede": "Kebun dari sudut pandang lain.",
-    "graph": "Graf",
-    "graphDesc": "Setiap catatan, menurut disiplin",
-    "frise": "Linimasa",
-    "friseDesc": "Dari Zaman Kuno hingga kini",
-    "carte": "Peta",
-    "carteDesc": "Catatan yang ditempatkan di peta dunia",
-    "themes": "Tema",
-    "themesDesc": "Setiap disiplin",
-    "jardin": "Kebun dalam angka",
-    "jardinDesc": "Isi kebun",
-    "donnees": "Data terbuka",
-    "donneesDesc": "Kumpulan data catatan",
-    "random": "Catatan acak",
-    "randomDesc": "Biar kebun yang memilih"
   },
   "dash": {
     "step": "Langkah {n} · {m} menit",

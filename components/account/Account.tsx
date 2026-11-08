@@ -141,8 +141,8 @@ export function Account() {
   if (!cfg.enabled) {
     return (
       <section className="acct-card acct-card--off">
-        <h2>{tr("account.offTitle")}</h2>
-        <p>{tr("account.offText")}</p>
+        <h2>{tr(cfg.unreachable ? "account.downTitle" : "account.offTitle")}</h2>
+        <p>{tr(cfg.unreachable ? "account.downText" : "account.offText")}</p>
         <p>
           <a className="acct-btn" href="/progression/">
             {tr("account.offLink")} →

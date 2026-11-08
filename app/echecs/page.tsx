@@ -13,7 +13,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 // are linked, so a renamed note drops its link rather than a 404.
 export const metadata: Metadata = pageMetadata({
   title: `Jouer aux échecs · ${SITE_TITLE}`,
-  description: "Une partie contre Stockfish, à votre niveau, puis la revue de vos erreurs avec la note qui en parle.",
+  description: "Une partie contre Stockfish, à ton niveau, puis la revue de tes erreurs avec la note qui en parle.",
   path: "/echecs/",
 });
 

@@ -1,7 +1,9 @@
 import { t } from "@/lib/i18n";
 
 // The garden's other views as a row of small tiles at the top of the "Notes"
-// tab (app/notes/page.tsx): what the Explorer tab used to hold. Server-side
+// tab (app/notes/page.tsx): what the Explorer tab used to hold (/explorer/ now
+// sends here). Chess and the spoken partner are not views of the notes: they
+// have their own entries in the site menu ("Jouer", "Parler"). Server-side
 // only; labels swap at runtime through data-i18n like the rest of the page.
 
 const ic = {
@@ -84,27 +86,6 @@ const VIEWS: {
       <svg viewBox="0 0 24 24" {...ic}>
         <ellipse cx="12" cy="5.5" rx="8" ry="2.5" />
         <path d="M4 5.5v13c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5v-13M4 12c0 1.4 3.6 2.5 8 2.5s8-1.1 8-2.5" />
-      </svg>
-    ),
-  },
-  {
-    key: "echecs",
-    href: "/echecs/",
-    family: "jeux",
-    icon: (
-      <svg viewBox="0 0 24 24" {...ic}>
-        <path d="M8 21h8M9 21l.8-6h4.4l.8 6M9.5 15c-1-1.5-1.5-3-1-4.5L10 8h4l1.5 2.5c.5 1.5 0 3-1 4.5M10 8 9 5h6l-1 3M12 3v2" />
-      </svg>
-    ),
-  },
-  {
-    key: "parler",
-    href: "/parler/",
-    family: "jeux",
-    icon: (
-      <svg viewBox="0 0 24 24" {...ic}>
-        <rect x="9" y="3" width="6" height="11" rx="3" />
-        <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
       </svg>
     ),
   },

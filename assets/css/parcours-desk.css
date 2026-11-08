@@ -409,7 +409,11 @@
    draws the blackletter name itself, so the hero's own goes. Prefixed
    html:root, so they outweigh global.css's bandeau rules in either order. */
 @media (min-width: 1024px) {
-  html:root body:has(.pcd) .site-bar { padding: 4px 48px 0; }
+  html:root body:has(.pcd) .site-bar { padding: 4px 0 0; }
+  /* The same width as on every other page (global.css: min(75rem, 100vw -
+     4rem)), over the picture: full width with 48 px gutters here, the name,
+     links and tools jumped sideways on the way in and out of /parcours/. */
+  html:root body:has(.pcd) .site-bar-inner { max-width: min(75rem, calc(100vw - 4rem)); margin-inline: auto; }
   .pcd-logo { display: none; }
   /* The night print of the logo, whatever the theme: the picture is dark. */
   html:root body:has(.pcd) .site-bar .site-bar-brand .site-bar-logo--light { display: none; }

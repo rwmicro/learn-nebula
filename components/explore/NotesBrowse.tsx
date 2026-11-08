@@ -11,7 +11,7 @@ import {
 } from "@/lib/reading-progress";
 import type { FolderRow, NoteRow } from "@/lib/notes-browse";
 import { splitRank } from "@/lib/folder-label";
-import { FamilyIcon } from "@/components/ui/FamilyIcon";
+import { DisciplineIcon } from "@/components/ui/DisciplineIcon";
 
 // The read state of the "Notes" tab (app/notes/): how many notes of each
 // folder this reader has read, the state of each note (read, started, not
@@ -66,7 +66,7 @@ export function FolderRows({ rows }: { rows: FolderRow[] }) {
                 aria-hidden="true"
               >
                 {f.family !== undefined ? (
-                  <FamilyIcon family={f.family} />
+                  <DisciplineIcon disciplineKey={f.key} family={f.family} />
                 ) : (
                   <svg viewBox="0 0 24 24">
                     <path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.5h7a2 2 0 0 1 2 2v7.5a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2Z" />

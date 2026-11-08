@@ -216,11 +216,12 @@ export function CircularGraph({
     [size, layout.radius, clusters],
   );
   const PHONE_BAND = (PHONE_TOP - PHONE_BOTTOM) / 2;
-  // Adopt the fit zoom on first measure / data change. The full graph opens a
-  // little zoomed in on the centre (arriving from the home mini-map); the
-  // preview fits the whole folder ring in its box.
+  // Adopt the fit zoom on first measure / data change: the whole ring in view,
+  // families labelled. It used to open zoomed in 2.8× on the centre, which
+  // showed mostly empty curves and 6 px labels; the wheel, the search and a
+  // click on a family still zoom in.
   useEffect(() => {
-    setZoom(preview || clusters ? fitZoom : fitZoom * 2.8);
+    setZoom(fitZoom);
     setPan({ x: 0, y: clusters ? PHONE_BAND : 0 });
     // PHONE_BAND is a constant.
     // eslint-disable-next-line react-hooks/exhaustive-deps

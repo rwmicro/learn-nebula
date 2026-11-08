@@ -217,7 +217,8 @@
     "licenseMiddle": ", and the source code under the ",
     "licenseGpl": "GNU GPL",
     "licenseAfter": ". Originally created by ",
-    "progression": "My progress: export, import"
+    "progression": "My progress: export, import",
+    "origin": "Originally created by"
   },
   "home": {
     "intro1": "This file contains all the work I mastered over my journey of life.",
@@ -282,7 +283,9 @@
     "resetView": "Reset the view",
     "phoneTitle": "The graph needs a bigger screen",
     "phoneText": "On a phone, browse the notes by discipline.",
-    "phoneLink": "See the notes"
+    "phoneLink": "See the notes",
+    "title": "The garden graph",
+    "loading": "Drawing the graph…"
   },
   "lightbox": {
     "close": "Close",
@@ -960,7 +963,7 @@
     "login": "Sign in",
     "loading": "Loading…",
     "offTitle": "Accounts aren’t open here",
-    "offText": "This site doesn’t offer accounts yet (or the server isn’t answering). Your progress is still kept in this browser.",
+    "offText": "This site doesn’t offer accounts yet. Your progress is still kept in this browser.",
     "offLink": "Export or import my progress",
     "loginTitle": "Sign in to the garden",
     "loginIntro": "No password: enter your address and you’ll get a link valid for 15 minutes.",
@@ -995,7 +998,9 @@
     "deleteNow": "Delete for good",
     "cancel": "Cancel",
     "sentTitle": "The link is on its way",
-    "resend": "Send the link again"
+    "resend": "Send the link again",
+    "downTitle": "The server isn’t answering right now",
+    "downText": "Try again in a moment. Meanwhile, your progress is still kept in this browser."
   },
   "avatar": {
     "aria": "Your little gardener",
@@ -1176,7 +1181,8 @@
     "citedTitle": "The most cited notes",
     "links": "{n} links",
     "growingTitle": "What grew in the last three months",
-    "newNotes": "+{n} notes"
+    "newNotes": "+{n} notes",
+    "undated": "The curve counts dated notes only: {n} have no date."
   },
   "fiche": {
     "back": "Back to the path",
@@ -1200,25 +1206,6 @@
     "notes": "Notes",
     "resumeAria": "Resume reading: {title}",
     "left": "{m} min left"
-  },
-  "explorer": {
-    "metaTitle": "Explore",
-    "title": "Explore",
-    "lede": "The garden from other angles.",
-    "graph": "Graph",
-    "graphDesc": "Every note, by discipline",
-    "frise": "Timeline",
-    "friseDesc": "From Antiquity to today",
-    "carte": "Map",
-    "carteDesc": "Notes placed on the world",
-    "themes": "Themes",
-    "themesDesc": "Every discipline",
-    "jardin": "The garden in numbers",
-    "jardinDesc": "What the garden holds",
-    "donnees": "Open data",
-    "donneesDesc": "The notes’ datasets",
-    "random": "A random note",
-    "randomDesc": "Let the garden choose"
   },
   "dash": {
     "step": "Step {n} · {m} min",

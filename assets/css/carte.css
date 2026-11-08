@@ -165,6 +165,17 @@
   margin: 0 0 0.35rem;
   font-size: 0.95rem;
 }
+/* A finger needs 24 px (WCAG 2.5.8): the links were 20 px tall, 0.35rem
+   apart. Same lines, a taller target. */
+@media (pointer: coarse) {
+  .carte-notes li {
+    margin-bottom: 0.15rem;
+  }
+  .carte-notes a {
+    display: inline-block;
+    padding-block: 0.2rem;
+  }
+}
 .carte-kind {
   margin-left: 0.4rem;
   font-size: 0.75rem;

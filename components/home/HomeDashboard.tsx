@@ -16,6 +16,7 @@ import { dayKey, daysBetween } from "@/lib/srs";
 import { HomeChess, type HomeChessData } from "@/components/home/HomeChess";
 import { HomeTalk, type HomeTalkLang } from "@/components/home/HomeTalk";
 import { HomeWord, type HomeWordLang } from "@/components/home/HomeWord";
+import { srcSet, ERAGNY_SIZES } from "@/lib/responsive-image";
 
 // The home as an app dashboard, on phones only (app.css hides it from 640px,
 // and hides there the masthead it replaces). From the top: the date and a
@@ -338,8 +339,8 @@ export function HomeDashboard({
         <section className="dash-today" data-family={resume.path.family ?? undefined} aria-label={tr("dash.today")}>
           <a className="dash-art" href={`/posts/${resume.slug}/#reprendre`} tabIndex={-1} aria-hidden="true">
             <picture className={art === ERAGNY ? undefined : "is-family"}>
-              <source type="image/avif" srcSet={`${art.src}.avif`} />
-              <img src={`${art.src}.webp`} alt="" title={art.credit} decoding="async" />
+              <source type="image/avif" srcSet={srcSet(art.src, "avif")} sizes="100vw" />
+              <img src={`${art.src}.webp`} srcSet={srcSet(art.src, "webp")} sizes="100vw" alt="" title={art.credit} decoding="async" />
             </picture>
             <span className="dash-chip">
               <span className="dash-chip-dot">
@@ -406,8 +407,8 @@ export function HomeDashboard({
         <section className="dash-today dash-welcome" aria-label={tr("dash.today")}>
           <div className="dash-art">
             <picture>
-              <source type="image/avif" srcSet="/images/eragny.avif" />
-              <img src="/images/eragny.webp" alt="" width="1200" height="950" decoding="async" />
+              <source type="image/avif" srcSet={srcSet("/images/eragny", "avif")} sizes={ERAGNY_SIZES} />
+              <img src="/images/eragny.webp" srcSet={srcSet("/images/eragny", "webp")} sizes={ERAGNY_SIZES} alt="" width="1200" height="950" decoding="async" />
             </picture>
             <span className="dash-cap">
               <b>{tr("dash.quote")}</b>

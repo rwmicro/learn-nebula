@@ -217,7 +217,8 @@
     "licenseMiddle": "，源代码采用 ",
     "licenseGpl": "GNU GPL",
     "licenseAfter": "。最初由 ",
-    "progression": "我的进度：导出、导入"
+    "progression": "我的进度：导出、导入",
+    "origin": "最初由"
   },
   "home": {
     "intro1": "这里收录了我在人生旅途中学会并掌握的一切。",
@@ -282,7 +283,9 @@
     "resetView": "重置视图",
     "phoneTitle": "关系图需要更大的屏幕",
     "phoneText": "在手机上，请按学科浏览笔记。",
-    "phoneLink": "查看笔记"
+    "phoneLink": "查看笔记",
+    "title": "花园图谱",
+    "loading": "正在绘制图谱…"
   },
   "lightbox": {
     "close": "关闭",
@@ -960,7 +963,7 @@
     "login": "登录",
     "loading": "加载中…",
     "offTitle": "此处尚未开放账户",
-    "offText": "本网站暂未提供账户（或服务器无响应）。你的进度仍保存在此浏览器中。",
+    "offText": "本网站暂未提供账户。你的进度仍保存在此浏览器中。",
     "offLink": "导出或导入我的进度",
     "loginTitle": "登录花园",
     "loginIntro": "无需密码：输入邮箱，你会收到一个 15 分钟内有效的链接。",
@@ -995,7 +998,9 @@
     "deleteNow": "永久删除",
     "cancel": "取消",
     "sentTitle": "链接已发出",
-    "resend": "重新发送链接"
+    "resend": "重新发送链接",
+    "downTitle": "服务器暂时没有响应",
+    "downText": "请稍后再试。在此期间，你的进度仍保存在此浏览器中。"
   },
   "avatar": {
     "aria": "你的小园丁",
@@ -1176,7 +1181,8 @@
     "citedTitle": "被引用最多的笔记",
     "links": "{n} 个链接",
     "growingTitle": "最近三个月的生长",
-    "newNotes": "+{n} 篇"
+    "newNotes": "+{n} 篇",
+    "undated": "曲线只统计有日期的笔记：{n} 篇没有日期。"
   },
   "fiche": {
     "back": "返回路线",
@@ -1200,25 +1206,6 @@
     "notes": "笔记",
     "resumeAria": "继续阅读：{title}",
     "left": "还剩 {m} 分钟"
-  },
-  "explorer": {
-    "metaTitle": "探索",
-    "title": "探索",
-    "lede": "换个角度看花园。",
-    "graph": "图谱",
-    "graphDesc": "所有笔记，按学科",
-    "frise": "时间线",
-    "friseDesc": "从古代到今天",
-    "carte": "地图",
-    "carteDesc": "笔记在世界上的位置",
-    "themes": "主题",
-    "themesDesc": "所有学科",
-    "jardin": "花园数据",
-    "jardinDesc": "花园里有什么",
-    "donnees": "开放数据",
-    "donneesDesc": "笔记的数据集",
-    "random": "随机笔记",
-    "randomDesc": "让花园来选"
   },
   "dash": {
     "step": "第 {n} 步 · {m} 分钟",

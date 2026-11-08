@@ -32,7 +32,9 @@ export interface ReadingView {
  * unread neighbour), the most linked-to notes overall are a good way in.
  */
 export function readingView(data: GraphData, store: ReadingStore, limit = 5): ReadingView {
-  const notes = data.nodes.filter((n) => n.kind === "note");
+  // Anki decks are "note" nodes too (/cartes/<deck>/): left out, or the count
+  // read "0 / 1258" beside a garden of 1 239 notes.
+  const notes = data.nodes.filter((n) => n.kind === "note" && slugOf(n.id) !== null);
   const read = new Set<string>();
   for (const n of notes) if (isRead(store, slugOf(n.id))) read.add(n.id);
 

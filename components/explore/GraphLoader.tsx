@@ -47,5 +47,19 @@ export function GraphLoader({ version }: { version: string }) {
       </main>
     );
   }
-  return data ? <CircularGraph data={data} /> : null;
+  // A title for screen readers and outlines (the graph itself has none), and
+  // a line while /graph-data.json loads: the page was blank until then, and
+  // its first contentful paint was the footer, ~10 s in on the full vault.
+  return (
+    <>
+      <h1 className="sr-only">{t("graph.title", undefined, locale)}</h1>
+      {data ? (
+        <CircularGraph data={data} />
+      ) : (
+        <div className="graph-page graph-loading" aria-busy="true">
+          <p>{t("graph.loading", undefined, locale)}</p>
+        </div>
+      )}
+    </>
+  );
 }

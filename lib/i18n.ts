@@ -1,29 +1,14 @@
-import frMessages from "../messages/fr.json";
-import enMessages from "../messages/en.json";
-import esMessages from "../messages/es.json";
-import zhMessages from "../messages/zh.json";
-import arMessages from "../messages/ar.json";
-import idMessages from "../messages/id.json";
+import { BUNDLES, type Messages } from "#i18n-bundles";
 
 export const LOCALES = ["fr", "en", "es", "zh", "ar", "id"] as const;
 export type Locale = (typeof LOCALES)[number];
 export const DEFAULT_LOCALE: Locale = "fr";
 
-// Loose, structural shape: a nested string dictionary. Bundles don't have to be
-// perfectly key-identical (a locale may add/omit a key without a type error) —
-// t() falls back to the default locale, then the key itself, at runtime.
-interface Messages {
-  [key: string]: string | Messages;
-}
-const BUNDLES: Record<Locale, Messages> = {
-  fr: frMessages,
-  en: enMessages,
-  es: esMessages,
-  zh: zhMessages,
-  ar: arMessages,
-  id: idMessages,
-};
-
+// The bundles themselves come from lib/i18n-bundles.ts: the JSON files on the
+// server, window.__i18n.bundles in the browser (the "browser" condition of
+// package.json's "#i18n-bundles" import), so
+// client components no longer ship all six locales. Bundles don't have to be
+// perfectly key-identical: t() falls back to the default locale, then the key.
 function lookup(bundle: unknown, key: string): string | null {
   let val: unknown = bundle;
   for (const p of key.split(".")) {
@@ -93,7 +78,7 @@ export function i18nAttrProps(attr: string, key: string): Record<string, string>
 }
 
 export function getMessages(locale: Locale): Messages {
-  return BUNDLES[locale];
+  return BUNDLES[locale] ?? {};
 }
 
 /** The `discipline.*` key of a discipline display name ("Philosophy",

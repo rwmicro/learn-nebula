@@ -62,6 +62,10 @@ if (typeof sweep.unref === "function") sweep.unref();
 // Same spirit as the magic link's quotas: generous for a person, a wall for a
 // script. Login per IP; registration and deletion per account.
 const loginQuota = new Quota(30, 10 * 60_000);
+// The autofill asks for options on every visit of the login form, before the
+// reader does anything: a separate, roomier budget, so browsing /compte/ never
+// eats into the attempts that count (/login/verify).
+const optionsQuota = new Quota(120, 10 * 60_000);
 const accountQuota = new Quota(20, 60 * 60_000);
 
 export const passkeyRoute = new Hono();
@@ -147,7 +151,7 @@ passkeyRoute.post("/register/verify", async (c) => {
 passkeyRoute.post("/login/options", async (c) => {
   const rp = passkeyRp();
   if (!rp) return disabled(c);
-  if (loginQuota.exceeded(`ip:${getIp(c)}`)) return c.json({ error: "rate-limited" }, 429);
+  if (optionsQuota.exceeded(`ip:${getIp(c)}`)) return c.json({ error: "rate-limited" }, 429);
   // The autofill waits on the open form: as long as the challenge lives.
   const options = await generateAuthenticationOptions({
     rpID: rp.id,

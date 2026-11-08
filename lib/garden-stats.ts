@@ -27,6 +27,9 @@ export interface GardenStats {
   months: MonthCount[];
   /** Biggest month (for the chart's note). */
   peak: MonthCount | null;
+  /** Notes with no (or a future) date: in `notes`, not on the curve, which
+   *  is why it can end below the headline count. */
+  undated: number;
   /** Discipline folder name → notes, biggest first. */
   byDiscipline: { name: string; notes: number }[];
   /** Most linked-to notes. */
@@ -142,6 +145,7 @@ export function gardenStats(
     clips: clips.size,
     months,
     peak: peak && peak.planted > 0 ? peak : null,
+    undated: notes.length - total,
     byDiscipline: rest.length
       ? [...shown, { name: "", notes: rest.reduce((a, d) => a + d.notes, 0) }]
       : shown,

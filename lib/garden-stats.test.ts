@@ -59,6 +59,11 @@ describe("gardenStats", () => {
     expect(s.peak?.month).toBe("2026-02");
   });
 
+  it("counts the notes the curve leaves out", () => {
+    expect(s.undated).toBe(1);
+    expect(s.months.at(-1)!.total + s.undated).toBe(s.notes);
+  });
+
   it("ranks notes by distinct linking notes", () => {
     expect(s.cited[0]).toEqual({ slug: "kant", title: "KANT", links: 2 });
     expect(s.cited.map((c) => c.slug)).not.toContain("nope");

@@ -53,20 +53,23 @@ export async function canAutoRegister(): Promise<boolean> {
 
 /**
  * Arms the passkey autofill on the login form's e-mail field (it needs
- * `autocomplete="username webauthn"`). Resolves true once the reader picked a
- * passkey and the server opened the session; false when unsupported,
- * dismissed or refused. `cancel()` from the effect's cleanup.
+ * `autocomplete="username webauthn"`). Resolves "ok" once the reader picked a
+ * passkey and the server opened the session; "retry" when the ceremony was
+ * dismissed or refused (an expired challenge is worth re-arming); "stop" when
+ * unsupported or the server wouldn't hand out options (a 429 or an outage
+ * won't be fixed by asking again a second later). `cancel()` from the
+ * effect's cleanup.
  */
-export async function autofillSignIn(): Promise<boolean> {
-  if (!passkeysSupported() || !(await browserSupportsWebAuthnAutofill().catch(() => false))) return false;
+export async function autofillSignIn(): Promise<"ok" | "retry" | "stop"> {
+  if (!passkeysSupported() || !(await browserSupportsWebAuthnAutofill().catch(() => false))) return "stop";
   const r = await post("/login/options").catch(() => null);
-  if (!r?.ok) return false;
+  if (!r?.ok) return "stop";
   try {
     const response = await startAuthentication({ optionsJSON: await r.json(), useBrowserAutofill: true });
     const v = await post("/login/verify", { response });
-    return v.ok;
+    return v.ok ? "ok" : "retry";
   } catch {
-    return false;
+    return "retry";
   }
 }
 

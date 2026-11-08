@@ -28,6 +28,7 @@ import {
   type DashPath,
   type DashRecent,
 } from "@/components/home/HomeDashboard";
+import { srcSet, ERAGNY_SIZES } from "@/lib/responsive-image";
 
 // The home on a desktop (from 1024px; home-desk.css shows it and hides the
 // tablet layout that follows it in <main>): the phone dashboard's content set
@@ -343,9 +344,9 @@ export function HomeDesk({
     <section className="hd" data-pagefind-ignore data-first={first ? "" : undefined} aria-label={tr("nav.home")}>
       <div className="hd-hello">
         <div>
-          <h1 data-ready={me ? "" : undefined}>
+          <h2 data-ready={me ? "" : undefined}>
             {tr(greeting)} <em>{tr(`${greeting}Em`)}</em>
-          </h1>
+          </h2>
           {first && <p>{tr("dash.welcomeText", { n: nf.format(noteCount) })}</p>}
         </div>
         <button
@@ -370,8 +371,8 @@ export function HomeDesk({
         <figure className="hd2-art" data-family={resume.path.family ?? undefined}>
           <a className="hd2-frame" href={`/posts/${resume.slug}/#reprendre`} aria-label={tr("dash.continueAria", { title: resume.title })}>
             <picture>
-              <source type="image/avif" srcSet={`${art.src}.avif`} />
-              <img src={`${art.src}.webp`} alt="" title={art.credit} decoding="async" fetchPriority="high" />
+              <source type="image/avif" srcSet={srcSet(art.src, "avif")} sizes="min(1070px, 92vw)" />
+              <img src={`${art.src}.webp`} srcSet={srcSet(art.src, "webp")} sizes="min(1070px, 92vw)" alt="" title={art.credit} decoding="async" fetchPriority="high" />
             </picture>
             <span className="hd-chip">
               <span>
@@ -403,8 +404,8 @@ export function HomeDesk({
         <figure className="hd2-art hd3-art">
           <div className="hd2-frame">
             <picture>
-              <source type="image/avif" srcSet={`${ERAGNY.src}.avif`} />
-              <img src={`${ERAGNY.src}.webp`} alt="" decoding="async" fetchPriority="high" />
+              <source type="image/avif" srcSet={srcSet(ERAGNY.src, "avif")} sizes={ERAGNY_SIZES} />
+              <img src={`${ERAGNY.src}.webp`} srcSet={srcSet(ERAGNY.src, "webp")} sizes={ERAGNY_SIZES} alt="" decoding="async" fetchPriority="high" />
             </picture>
             <span className="hd2-cap">
               <small>{tr("desk.tagline")}</small>
@@ -804,12 +805,13 @@ export function HomeDesk({
       </div>
 
       <div className="hd-row r-57">
-        {/* V. Latest notes */}
+        {/* V. Latest notes: five, so the card is as tall as the chart beside
+            it (three left it half empty). The phone keeps three. */}
         <div className="hd-stack">
           <Head n="V" title={tr("dash.recent")} link={{ href: "/jardin/", label: tr("dash.seeAll") }} />
           <section className="hd-card hd-recent">
             <ul className="hd-list">
-              {recent.slice(0, 3).map((n) => (
+              {recent.slice(0, 5).map((n) => (
                 <li key={n.href} data-family={n.family ?? undefined}>
                   <a href={n.href}>
                     <span className="hd-ic">
