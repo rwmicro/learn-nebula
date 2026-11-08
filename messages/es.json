@@ -1206,25 +1206,6 @@
     "resumeAria": "Seguir leyendo: {title}",
     "left": "quedan {m} min"
   },
-  "explorer": {
-    "metaTitle": "Explorar",
-    "title": "Explorar",
-    "lede": "El jardín desde otros ángulos.",
-    "graph": "Grafo",
-    "graphDesc": "Todas las notas, por disciplina",
-    "frise": "Cronología",
-    "friseDesc": "De la Antigüedad a hoy",
-    "carte": "Mapa",
-    "carteDesc": "Las notas sobre el mundo",
-    "themes": "Temas",
-    "themesDesc": "Todas las disciplinas",
-    "jardin": "El jardín en cifras",
-    "jardinDesc": "Lo que contiene el jardín",
-    "donnees": "Datos abiertos",
-    "donneesDesc": "Los conjuntos de datos de las notas",
-    "random": "Una nota al azar",
-    "randomDesc": "Deja que el jardín elija"
-  },
   "dash": {
     "step": "Paso {n} · {m} min",
     "continueAria": "Seguir el itinerario: {title}",

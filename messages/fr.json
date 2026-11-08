@@ -1206,25 +1206,6 @@
     "resumeAria": "Reprendre la lecture : {title}",
     "left": "{m} min restantes"
   },
-  "explorer": {
-    "metaTitle": "Explorer",
-    "title": "Explorer",
-    "lede": "Le jardin sous d’autres angles.",
-    "graph": "Graphe",
-    "graphDesc": "Toutes les notes, par discipline",
-    "frise": "Frise",
-    "friseDesc": "De l’Antiquité à aujourd’hui",
-    "carte": "Carte",
-    "carteDesc": "Les notes posées sur le monde",
-    "themes": "Thèmes",
-    "themesDesc": "Toutes les disciplines",
-    "jardin": "Le jardin en chiffres",
-    "jardinDesc": "Ce que contient le jardin",
-    "donnees": "Données ouvertes",
-    "donneesDesc": "Les jeux de données des notes",
-    "random": "Une note au hasard",
-    "randomDesc": "Laisse le jardin choisir"
-  },
   "dash": {
     "step": "Étape {n} · {m} min",
     "continueAria": "Continuer le parcours : {title}",

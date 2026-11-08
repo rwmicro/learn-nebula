@@ -1206,25 +1206,6 @@
     "resumeAria": "继续阅读：{title}",
     "left": "还剩 {m} 分钟"
   },
-  "explorer": {
-    "metaTitle": "探索",
-    "title": "探索",
-    "lede": "换个角度看花园。",
-    "graph": "图谱",
-    "graphDesc": "所有笔记，按学科",
-    "frise": "时间线",
-    "friseDesc": "从古代到今天",
-    "carte": "地图",
-    "carteDesc": "笔记在世界上的位置",
-    "themes": "主题",
-    "themesDesc": "所有学科",
-    "jardin": "花园数据",
-    "jardinDesc": "花园里有什么",
-    "donnees": "开放数据",
-    "donneesDesc": "笔记的数据集",
-    "random": "随机笔记",
-    "randomDesc": "让花园来选"
-  },
   "dash": {
     "step": "第 {n} 步 · {m} 分钟",
     "continueAria": "继续路径：{title}",

@@ -1206,25 +1206,6 @@
     "resumeAria": "Lanjutkan membaca: {title}",
     "left": "{m} menit lagi"
   },
-  "explorer": {
-    "metaTitle": "Jelajahi",
-    "title": "Jelajahi",
-    "lede": "Kebun dari sudut pandang lain.",
-    "graph": "Graf",
-    "graphDesc": "Setiap catatan, menurut disiplin",
-    "frise": "Linimasa",
-    "friseDesc": "Dari Zaman Kuno hingga kini",
-    "carte": "Peta",
-    "carteDesc": "Catatan yang ditempatkan di peta dunia",
-    "themes": "Tema",
-    "themesDesc": "Setiap disiplin",
-    "jardin": "Kebun dalam angka",
-    "jardinDesc": "Isi kebun",
-    "donnees": "Data terbuka",
-    "donneesDesc": "Kumpulan data catatan",
-    "random": "Catatan acak",
-    "randomDesc": "Biar kebun yang memilih"
-  },
   "dash": {
     "step": "Langkah {n} · {m} menit",
     "continueAria": "Lanjutkan jalur: {title}",

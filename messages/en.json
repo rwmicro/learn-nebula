@@ -1206,25 +1206,6 @@
     "resumeAria": "Resume reading: {title}",
     "left": "{m} min left"
   },
-  "explorer": {
-    "metaTitle": "Explore",
-    "title": "Explore",
-    "lede": "The garden from other angles.",
-    "graph": "Graph",
-    "graphDesc": "Every note, by discipline",
-    "frise": "Timeline",
-    "friseDesc": "From Antiquity to today",
-    "carte": "Map",
-    "carteDesc": "Notes placed on the world",
-    "themes": "Themes",
-    "themesDesc": "Every discipline",
-    "jardin": "The garden in numbers",
-    "jardinDesc": "What the garden holds",
-    "donnees": "Open data",
-    "donneesDesc": "The notes’ datasets",
-    "random": "A random note",
-    "randomDesc": "Let the garden choose"
-  },
   "dash": {
     "step": "Step {n} · {m} min",
     "continueAria": "Continue the path: {title}",
