@@ -903,6 +903,69 @@ footer {
   text-decoration-color: currentColor;
 }
 
+/* The site footer from 640px (components/layout/Footer.tsx): the home's
+   colophon (.hd-colo, home-desk.css) on one line, at the site bar's width
+   and place, so every page ends like the home. Phones: phone/sub-pages.css. */
+@media (min-width: 640px) {
+  footer.site-foot {
+    position: relative;
+    left: 50%;
+    width: min(75rem, calc(100vw - 4rem));
+    transform: translateX(-50%);
+    border-top: 3px double var(--ink);
+  }
+  .site-foot-wide {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 2.5rem;
+    padding: 1.4rem 0 1rem;
+  }
+  .site-foot-quote {
+    max-width: 34rem;
+    margin: 0;
+  }
+  .site-foot-quote q {
+    font: italic 400 1.15rem/1.45 var(--font-text);
+    color: var(--ink-2);
+    quotes: "« " " »";
+  }
+  .site-foot-by {
+    display: block;
+    margin-top: 0.35rem;
+    font: 500 0.8125rem var(--font-caps);
+    letter-spacing: 0.12em;
+    color: var(--muted-warm);
+  }
+  .site-foot-lic {
+    margin: 0;
+    text-align: end;
+    font: 400 0.8125rem/1.7 var(--font-ui);
+    color: var(--muted);
+  }
+  .site-foot-lic a {
+    color: inherit;
+  }
+  .footer-prose a.site-foot-cc {
+    display: inline-flex;
+    align-items: center;
+    height: 1.4rem;
+    padding: 0 0.55rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: 0.75rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+}
+@media (min-width: 640px) and (max-width: 1080px) {
+  footer.site-foot {
+    width: calc(100vw - 2.4rem);
+  }
+}
+
 /* Theme button (themeToggleHtml in lib/html.ts, /js/theme.js), opens .theme-menu:
    an icon-only button in the masthead utility bar and the note nav. The icon
    shown is picked from <html data-theme> here, so it is right on first paint. */

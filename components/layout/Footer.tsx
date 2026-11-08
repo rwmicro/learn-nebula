@@ -1,20 +1,18 @@
 import { AUTHOR, ORIGINAL_AUTHOR, ORIGINAL_AUTHOR_URL } from "@/lib/site";
 import { t } from "@/lib/i18n";
 
-// Single site-wide footer, identical on the home page and note pages.
+// Single site-wide footer, the same on every page (the desktop home draws its
+// own colophon in this shape, components/home/HomeDesk.tsx).
 //
 // Built in the default locale (fr) like every other string, and swapped at
 // runtime by public/js/i18n.js through the data-i18n markers. That runtime only
-// replaces textContent, so the licence sentence is one marked span per run of
-// text between its links (footer.licenseBefore / …Middle / …After), and each
-// link label carries its own key.
+// replaces textContent, so each run of text between links carries its own key.
 export function Footer() {
   const year = new Date().getFullYear();
-  const vars = { year, author: AUTHOR };
   return (
     <footer
       data-pagefind-ignore
-      className="site-foot mt-10 border-t border-rule-strong pt-4 pb-4 xl:pb-0 text-small leading-relaxed text-ink-2 [container-type:inline-size]"
+      className="site-foot mt-10 pt-4 pb-4 text-small leading-relaxed text-ink-2"
     >
       {/* Phones: the home's short footer (app.css), the same on every page. */}
       <div className="site-foot-phone">
@@ -28,52 +26,35 @@ export function Footer() {
           </a>
         </p>
       </div>
-      <div className="site-foot-wide flex flex-col gap-3 min-[480px]:flex-row min-[480px]:items-start min-[480px]:gap-5">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className="h-auto w-[5.25rem] shrink-0"
-          src="/images/license.png"
-          alt={t("footer.licenseAlt")}
-          data-i18n-alt="footer.licenseAlt"
-          width={88}
-          height={31}
-          // Lazy, or React hoists a high-priority <link rel=preload> for this
-          // badge at the very bottom of every page into the <head>, where it
-          // competes with the CSS and the fonts.
-          loading="lazy"
-          decoding="async"
-        />
-        <div className="space-y-1">
-          <p className="m-0" data-i18n="footer.copyright" data-i18n-vars={JSON.stringify(vars)}>
-            {t("footer.copyright", vars)}
-          </p>
-          {/* Prose links: `.footer-prose a` (global.css) gives them a persistent
-              underline so they're distinguishable without colour (WCAG 1.4.1) —
-              done in plain CSS, not a Tailwind utility, because the note-page
-              `a { text-decoration: none }` (unlayered) would otherwise win. */}
-          <p className="footer-prose m-0">
-            <span data-i18n="footer.licenseBefore">{t("footer.licenseBefore")}</span>
-            <a
-              href="https://creativecommons.org/licenses/by-nc-sa/4.0/"
-              data-i18n="footer.licenseLink"
-            >
-              {t("footer.licenseLink")}
-            </a>
-            <span data-i18n="footer.licenseMiddle">{t("footer.licenseMiddle")}</span>
-            <a href="https://www.gnu.org/licenses/gpl-3.0.html" data-i18n="footer.licenseGpl">
-              {t("footer.licenseGpl")}
-            </a>
-            <span data-i18n="footer.licenseAfter">{t("footer.licenseAfter")}</span>
-            <a href={ORIGINAL_AUTHOR_URL}>{ORIGINAL_AUTHOR}</a>.
-          </p>
+      {/* From 640px: the home's colophon (components/home/HomeDesk.tsx,
+          .hd-colo) in one line, so every page closes the same way, at the
+          site bar's width. It used to be an older licence paragraph, in a
+          column of its own that lined up with neither the bar nor the page. */}
+      <div className="site-foot-wide">
+        <p className="site-foot-quote">
+          <q data-i18n="dash.aboutQuote">{t("dash.aboutQuote")}</q>
+          <span className="site-foot-by">
+            <span lang="en">The Gardener</span>
+          </span>
+        </p>
+        <p className="site-foot-lic footer-prose">
+          <a className="site-foot-cc" href="https://creativecommons.org/licenses/by-nc-sa/4.0/" title={t("footer.licenseAlt")} data-i18n-title="footer.licenseAlt">
+            CC BY-NC-SA
+          </a>{" "}
+          © {year} {AUTHOR}
+          <br />
+          <a href="https://www.gnu.org/licenses/gpl-3.0.html" data-i18n="dash.footerCode">
+            {t("dash.footerCode")}
+          </a>
+          {" · "}
           {/* Reading / review progress lives in this browser only: the way to
               keep it or move it (app/progression). */}
-          <p className="footer-prose m-0 print:hidden">
-            <a href="/progression/" data-i18n="footer.progression">
-              {t("footer.progression")}
-            </a>
-          </p>
-        </div>
+          <a className="print:hidden" href="/progression/" data-i18n="footer.progression">
+            {t("footer.progression")}
+          </a>
+          <br />
+          <span data-i18n="footer.origin">{t("footer.origin")}</span> <a href={ORIGINAL_AUTHOR_URL}>{ORIGINAL_AUTHOR}</a>
+        </p>
       </div>
     </footer>
   );

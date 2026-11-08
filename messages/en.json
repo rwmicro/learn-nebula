@@ -217,7 +217,8 @@
     "licenseMiddle": ", and the source code under the ",
     "licenseGpl": "GNU GPL",
     "licenseAfter": ". Originally created by ",
-    "progression": "My progress: export, import"
+    "progression": "My progress: export, import",
+    "origin": "Originally created by"
   },
   "home": {
     "intro1": "This file contains all the work I mastered over my journey of life.",
