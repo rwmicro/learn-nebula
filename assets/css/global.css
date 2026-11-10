@@ -2657,7 +2657,7 @@ body.rs-pip {
      read: Défis, Frise, Progression, Compte, Jardin, Données, a discipline.
    html body main: above each page's own `main.x` / `.x` rule. */
 @media (min-width: 1100px) {
-  html body main:is(.app-page.nb, .echecs, .carte-page, .themes-page--index) {
+  html body main:is(.app-page.nb, .echecs, .carte-page, .themes-page--index, .parcours-page--path) {
     max-width: none;
     width: min(75rem, calc(100vw - 4rem));
     margin-inline: calc(50% - min(37.5rem, 50vw - 2rem));

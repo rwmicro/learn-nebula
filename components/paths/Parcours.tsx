@@ -398,6 +398,10 @@ export function ParcoursPage({
       {path.description && (
         <p className="themes-intro parcours-desc">{path.description}</p>
       )}
+      {/* From 1100px the side column, pinned while the levels scroll by:
+          where the reader stands and the ways in (audit UI 2026-11-10). */}
+      <div className="parcours-body">
+      <div className="parcours-side">
       <div className="parcours-status" data-read-group>
         <span>
           <span {...i18nProps("parcours.count", { n: path.notes.length })}>
@@ -437,6 +441,8 @@ export function ParcoursPage({
         levels={levels.length > 1 ? levels.map((l) => path.notes.slice(l.from, l.to).map((n) => n.slug)) : []}
         nextPath={path.next ?? null}
       />
+      </div>
+      <div className="parcours-main">
 
       <PathRoad
         pathSlug={path.slug}
@@ -584,6 +590,8 @@ export function ParcoursPage({
         {t("reading.privacy")}
       </p>
       <ReadMarks />
+      </div>
+      </div>
     </main>
   );
 }
