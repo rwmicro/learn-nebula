@@ -42,7 +42,7 @@ export default function ParlerPage() {
     <main id="main" className="parler">
       <PageHeader
         name="parler"
-        back={{ href: "/notes/", labelKey: "tabbar.notes" }}
+        back={{ href: "/", labelKey: "tabbar.home" }}
         title={t("parler.title")}
         titleProps={{ "data-i18n": "parler.title" }}
       />

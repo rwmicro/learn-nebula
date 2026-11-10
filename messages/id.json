@@ -6,7 +6,7 @@
     "home": "Beranda",
     "appliedsciences": "Ilmu Terapan",
     "socialsciences": "Ilmu Sosial",
-    "flashcards": "Kartu hafalan",
+    "flashcards": "Ulangi",
     "graph": "Graf",
     "frise": "Linimasa",
     "menu": "Menu",
@@ -285,7 +285,8 @@
     "phoneText": "Di ponsel, jelajahi catatan per disiplin.",
     "phoneLink": "Lihat catatan",
     "title": "Graf taman",
-    "loading": "Menggambar graf…"
+    "loading": "Menggambar graf…",
+    "intro": "Setiap titik adalah satu catatan, disusun per disiplin di sekeliling lingkaran; garis menghubungkan dua catatan yang saling merujuk. Arahkan ke titik untuk melihat tetangganya, klik untuk membukanya."
   },
   "lightbox": {
     "close": "Tutup",

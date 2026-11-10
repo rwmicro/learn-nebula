@@ -388,7 +388,10 @@
 }
 @media (min-width: 860px) {
   .chess-setup {
-    grid-template-columns: minmax(0, 1fr) 24rem;
+    /* The board never taller than the screen, now that the page has the
+       site bar's width (global.css, "Two page widths"). */
+    grid-template-columns: minmax(0, min(42rem, 100vh - 11rem)) minmax(24rem, 30rem);
+    justify-content: space-between;
     align-items: start;
   }
   .chess-setup-board {
@@ -591,7 +594,8 @@
 }
 @media (min-width: 980px) {
   .chess-table {
-    grid-template-columns: minmax(0, 1fr) 21rem;
+    grid-template-columns: minmax(0, min(42rem, 100vh - 9rem)) minmax(21rem, 30rem);
+    justify-content: space-between;
     align-items: start;
     gap: 2rem;
   }

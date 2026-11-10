@@ -6,7 +6,7 @@
     "home": "Home",
     "appliedsciences": "Applied Sciences",
     "socialsciences": "Social Sciences",
-    "flashcards": "Flashcards",
+    "flashcards": "Review",
     "graph": "Graph",
     "frise": "Timeline",
     "menu": "Menu",
@@ -285,7 +285,8 @@
     "phoneText": "On a phone, browse the notes by discipline.",
     "phoneLink": "See the notes",
     "title": "The garden graph",
-    "loading": "Drawing the graph…"
+    "loading": "Drawing the graph…",
+    "intro": "Each dot is a note, arranged by discipline around the circle; a line joins two notes that cite each other. Hover a dot to see its neighbours, click to open it."
   },
   "lightbox": {
     "close": "Close",

@@ -6,7 +6,7 @@
     "home": "Accueil",
     "appliedsciences": "Sciences appliquées",
     "socialsciences": "Sciences sociales",
-    "flashcards": "Flashcards",
+    "flashcards": "Réviser",
     "graph": "Graphe",
     "frise": "Frise",
     "menu": "Menu",
@@ -285,7 +285,8 @@
     "phoneText": "Sur téléphone, parcours les notes par discipline.",
     "phoneLink": "Voir les notes",
     "title": "Le graphe du jardin",
-    "loading": "Le graphe se dessine…"
+    "loading": "Le graphe se dessine…",
+    "intro": "Chaque point est une note, rangée par discipline autour du cercle ; un trait relie deux notes qui se citent. Survole un point pour voir ses voisins, clique pour l’ouvrir."
   },
   "lightbox": {
     "close": "Fermer",

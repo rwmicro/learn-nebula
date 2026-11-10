@@ -6,7 +6,7 @@
     "home": "首页",
     "appliedsciences": "应用科学",
     "socialsciences": "社会科学",
-    "flashcards": "闪卡",
+    "flashcards": "复习",
     "graph": "图谱",
     "frise": "时间线",
     "menu": "菜单",
@@ -285,7 +285,8 @@
     "phoneText": "在手机上，请按学科浏览笔记。",
     "phoneLink": "查看笔记",
     "title": "花园图谱",
-    "loading": "正在绘制图谱…"
+    "loading": "正在绘制图谱…",
+    "intro": "每个点是一篇笔记，按学科排列在圆周上；连线表示两篇笔记互相引用。悬停查看相邻笔记，点击打开。"
   },
   "lightbox": {
     "close": "关闭",

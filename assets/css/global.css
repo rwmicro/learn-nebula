@@ -254,6 +254,10 @@
   --garden: #3f6b4a;
   --garden-hover: #345a3e;
   --garden-wash: #eef3ec;
+  /* Large filled surfaces (the review banner, the main way in): the light
+     green as is, a deep green in dark mode instead of a mint slab. */
+  --garden-deep: var(--garden);
+  --garden-deep-ink: #fcfcfc;
   --danger: #b3322f;
   --danger-ink: #660000; /* inline code, footnote marks */
   --warn: #b8740f;
@@ -309,6 +313,8 @@
   --garden: #86b893; /* 7.6:1; the paper colour on it is 7.6:1 too */
   --garden-hover: #a3c9a9;
   --garden-wash: #233027;
+  --garden-deep: #2f5039;
+  --garden-deep-ink: #e9f1ea;
   --danger: #ef8a80;
   --danger-ink: #f0a39b;
   --warn: #e0a84a;
@@ -354,6 +360,8 @@
     --garden: #86b893;
     --garden-hover: #a3c9a9;
     --garden-wash: #233027;
+    --garden-deep: #2f5039;
+    --garden-deep-ink: #e9f1ea;
     --danger: #ef8a80;
     --danger-ink: #f0a39b;
     --warn: #e0a84a;
@@ -2636,5 +2644,28 @@ body.rs-pip {
   html:root body .site-bar .site-bar-inner .site-bar-nav a[aria-current="page"] {
     color: var(--ink);
     box-shadow: 0 6px 0 -4px #b8924a;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Two page widths on a computer (audit UI 2026-11-10). The title used to start
+   at seven different places from one page to the next (51 to 505 px at 1440).
+   - wide: the site bar's width and place (75rem), for the pages that are
+     lists or tools: Notes, Échecs, Carte, Thèmes (Réviser, Parler and a
+     parcours already were);
+   - reading: one centred column (--measure-text), for the pages that are
+     read: Défis, Frise, Progression, Compte, Jardin, Données, a discipline.
+   html body main: above each page's own `main.x` / `.x` rule. */
+@media (min-width: 1100px) {
+  html body main:is(.app-page.nb, .echecs, .carte-page, .themes-page--index) {
+    max-width: none;
+    width: min(75rem, calc(100vw - 4rem));
+    margin-inline: calc(50% - min(37.5rem, 50vw - 2rem));
+    padding-inline: 0;
+  }
+  html body main:is(.defis, .frise-page, .progression, .acct-page, .jardin-page, .donnees-page, .themes-page:not(.themes-page--index, .parcours-page)) {
+    max-width: var(--measure-text);
+    margin-inline: auto;
+    padding-inline: 0;
   }
 }

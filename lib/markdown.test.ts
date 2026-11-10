@@ -490,11 +490,18 @@ describe("outline (rehypeOutline)", () => {
     expect(html).toContain('<p class="dropcap">Le début.</p>');
     expect(html.match(/dropcap/g)).toHaveLength(1);
   });
-  it("numbers two sections or more, unless they are numbered by hand", async () => {
+  it("numbers two sections or more, in place of hand numbers", async () => {
     const a = await renderMarkdown("## Un\n\nx\n\n## Deux\n\ny");
     expect(a.html.match(/class="sec-n"/g)).toHaveLength(2);
-    const b = await renderMarkdown("## 1. Un\n\nx\n\n## 2. Deux\n\ny");
-    expect(b.html).not.toContain("sec-n");
+    const b = await renderMarkdown("## 1. Un\n\nx\n\n### 1.1 Détail\n\nz\n\n## 2. Deux\n\ny");
+    // Hand numbers give way to the margin's, the ids stay.
+    expect(b.html.match(/class="sec-n"/g)).toHaveLength(2);
+    expect(b.html).toMatch(/<h2[^>]*id="1-un"[^>]*>(?:<[^>]+>)*Un/);
+    expect(b.html).toMatch(/<h3[^>]*id="11-détail"[^>]*>(?:<[^>]+>)*Détail/);
+    expect(b.html).not.toContain("data-hand-number");
+    // A year is a title, not a number.
+    const d = await renderMarkdown("## 1984 et après\n\nx\n\n## Avant\n\ny");
+    expect(d.html).toContain("1984 et après");
     const c = await renderMarkdown("## Seule\n\nx");
     expect(c.html).not.toContain("sec-n");
   });

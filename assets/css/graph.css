@@ -1007,3 +1007,34 @@
   color: var(--btn-ink);
   text-decoration: none;
 }
+
+/* What the wheel shows, top-left on a computer (CircularGraph's .cg-intro).
+   Phones use the clusters view, which has none. */
+.cg-intro {
+  position: absolute;
+  top: 1rem;
+  left: 1.2rem;
+  z-index: 2;
+  max-width: min(24rem, 34vw);
+  padding: 0.6rem 0.8rem;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  border-left: 2px solid var(--garden);
+  font-family: var(--font-ui);
+  pointer-events: none;
+}
+.cg-intro-t {
+  margin: 0 0 0.25rem;
+  font: 600 1.25rem/1.2 var(--font-text);
+  color: var(--ink);
+}
+.cg-intro-p {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--muted);
+}
+@media (max-width: 639.98px) {
+  .cg-intro {
+    display: none;
+  }
+}

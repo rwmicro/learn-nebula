@@ -824,7 +824,30 @@ function rehypeHeadingIds() {
   };
 }
 
-const SELF_NUMBERED = /^\s*(?:\d+|[IVXLC]+)[.)\s]/;
+/** A hand-written heading number: "1.", "2)", "1.1", "1.2.3 ", "IV." —
+ *  followed by a space and the title itself. */
+const HAND_NUMBER = /^\s*(?:\d+(?:\.\d+)+\.?|\d+[.)]|[IVXLC]+[.)])\s+(?=\S)/;
+
+/** Drops the numbers rehypeOutline flagged (`data-hand-number`) from the
+ *  heading's first text, once its id is set. */
+export function rehypeDropHandNumbers() {
+  return (tree: Root) => {
+    visit(tree, "element", (node: Element) => {
+      if (!/^h[2-4]$/.test(node.tagName) || node.properties.dataHandNumber == null) return;
+      delete node.properties.dataHandNumber;
+      let done = false;
+      const strip = (n: ElementContent) => {
+        if (done) return;
+        if (n.type === "text") {
+          if (!n.value.trim()) return;
+          n.value = n.value.replace(HAND_NUMBER, "");
+          done = true;
+        } else if (n.type === "element") n.children.forEach(strip);
+      };
+      node.children.forEach(strip);
+    });
+  };
+}
 
 function slugText(s: string): string {
   return (
@@ -852,8 +875,8 @@ function textOf(node: ElementContent | RootContent): string {
  *   bullets) is a lead-in, not body text: `.lead-in`, styled as a label, and
  *   never the paragraph that gets the dropcap; under a section it gets an id
  *   (`s-évolution` → `s-evolution`), so the left rail can list it;
- * - two sections or more, none numbered by hand, are numbered i., ii.… in the
- *   margin (`.sec-n`, a CSS counter).
+ * - two sections or more are numbered i., ii.… in the
+ *   margin (`.sec-n`, a CSS counter), in place of any hand-written "1.".
  */
 export function rehypeOutline() {
   return (tree: Root) => {
@@ -925,10 +948,22 @@ export function rehypeOutline() {
       }
       break;
     }
-    if (sections.length >= 2 && !sections.some((h) => SELF_NUMBERED.test(textOf(h)))) {
+    // Numbered by hand ("1. Intro", "1.1 Détail") or not, every note reads
+    // the same: the margin's i., ii.… (audit UI 2026-11-10 — a note with its
+    // own "1." beside one with "i." in the margin read as two systems). The
+    // author's numbers are only flagged here and dropped by
+    // rehypeDropHandNumbers, after rehypeSlug, so the ids (and every link to
+    // "#1-intro") stay what they were.
+    if (sections.length >= 2) {
+      const byHand = sections.some((h) => HAND_NUMBER.test(textOf(h)));
       for (const h of sections) {
         const cls = h.properties.className;
         h.properties.className = [...(Array.isArray(cls) ? cls : []), "sec-n"];
+      }
+      if (byHand) {
+        visit(tree, "element", (node: Element) => {
+          if (/^h[2-4]$/.test(node.tagName) && HAND_NUMBER.test(textOf(node))) node.properties.dataHandNumber = "";
+        });
       }
     }
     // A small fleuron (lib/deco-art.ts) between two sections: before each
@@ -1984,6 +2019,7 @@ export async function renderMarkdown(
     .use(rehypeOutline)
     .use(rehypeHeadingIds)
     .use(rehypeSlug)
+    .use(rehypeDropHandNumbers)
     .use(rehypeAutolinkHeadings, {
       behavior: "append",
       // className first: buildToc (lib/html.ts) strips `<a class="anchor"…`.

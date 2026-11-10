@@ -6,7 +6,7 @@
     "home": "Inicio",
     "appliedsciences": "Ciencias aplicadas",
     "socialsciences": "Ciencias sociales",
-    "flashcards": "Tarjetas",
+    "flashcards": "Repasar",
     "graph": "Grafo",
     "frise": "Cronología",
     "menu": "Menú",
@@ -285,7 +285,8 @@
     "phoneText": "En el teléfono, recorre las notas por disciplina.",
     "phoneLink": "Ver las notas",
     "title": "El grafo del jardín",
-    "loading": "Dibujando el grafo…"
+    "loading": "Dibujando el grafo…",
+    "intro": "Cada punto es una nota, ordenada por disciplina alrededor del círculo; una línea une dos notas que se citan. Pasa sobre un punto para ver sus vecinas y haz clic para abrirla."
   },
   "lightbox": {
     "close": "Cerrar",
