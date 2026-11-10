@@ -246,7 +246,8 @@ self.addEventListener("push", (event) => {
         lang: n.lang,
         tag: n.tag || "gk-review",
         icon: "/icon-192.png",
-        badge: "/icon-192.png",
+        // Android paints only the alpha, in white, in the status bar.
+        badge: "/icons/notification-badge.png",
         data: { url: sameOriginUrl(n.navigate) },
       });
     })(),
