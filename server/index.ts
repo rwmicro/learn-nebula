@@ -171,6 +171,11 @@ app.use("*", async (c, next) => {
 // reader who types it to the list of notes.
 app.get("/posts", (c) => c.redirect("/notes/", 301));
 app.get("/posts/", (c) => c.redirect("/notes/", 301));
+// /explorer/ (the old phone tab) is a static meta-refresh page: answered
+// here instead, the reader never sees its half-built chrome (raw
+// "tabbar.home" labels) before the refresh.
+app.get("/explorer", (c) => c.redirect("/notes/", 301));
+app.get("/explorer/", (c) => c.redirect("/notes/", 301));
 
 // Static export. trailingSlash:true means URLs are "/foo/" → out/foo/index.html,
 // which serveStatic maps automatically.
