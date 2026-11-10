@@ -1038,3 +1038,13 @@
     display: none;
   }
 }
+
+/* From 1024px the site bar is the masthead in small (two rows, ~7.5rem),
+   fixed over the canvas: the corner overlays start below it, or the intro
+   and the search box sat under it. */
+@media (min-width: 1024px) {
+  .cg-intro,
+  .cg-locate {
+    top: 8rem;
+  }
+}
