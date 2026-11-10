@@ -27,7 +27,7 @@ import {
 import type { AnkiDeck } from "@/lib/anki";
 import { ReviewSession } from "@/components/review/ReviewSession";
 import { familyOfFolder } from "@/lib/path-family";
-import { PRACTICE_SIZE, practicePick, shuffled, type PracticeMode } from "@/lib/practice";
+import { PRACTICE_SIZE, interleaveBy, practicePick, shuffled, type PracticeMode } from "@/lib/practice";
 import { AppBack } from "@/components/layout/AppBack";
 import { EmptyActions } from "@/components/home/EmptyActions";
 import { GrowLoader } from "@/components/ui/GrowLoader";
@@ -74,7 +74,7 @@ export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: Practic
     setHasNotes(Object.keys(all).length > 0);
     // S'entraîner (lib/practice.ts): studied cards only, nothing rescheduled.
     const notePick = (st: Parameters<typeof practicePick>[1]) =>
-      mode === "eclair" ? true : mode && mode !== "ecoute" ? practicePick(mode, st, today) : false;
+      mode === "eclair" || mode === "melange" ? true : mode && mode !== "ecoute" ? practicePick(mode, st, today) : false;
     const reviews: ReviewItem[] = mode
       ? shuffled(
           Object.entries(all).flatMap(([slug, d]) =>
@@ -146,7 +146,9 @@ export function TodayReview({ decks, mode }: { decks: AnkiDeck[]; mode?: Practic
         for (const f of fresh) if (i < f.length) interleaved.push(f[i]);
       setFailed(bad);
       setLoading(null);
-      const q = mode ? shuffled(reviews).slice(0, PRACTICE_SIZE[mode]) : [...reviews, ...interleaved];
+      const q = mode
+        ? (mode === "melange" ? interleaveBy(reviews, (r) => r.slug) : shuffled(reviews)).slice(0, PRACTICE_SIZE[mode])
+        : [...reviews, ...interleaved];
       setEmptyStart(!!mode && q.length === 0);
       setQueue(q);
     });

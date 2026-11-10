@@ -39,6 +39,7 @@ import {
 import type { AnkiDeck } from "@/lib/anki";
 import { ReviewStats } from "@/components/review/ReviewStats";
 import { AppSettings } from "@/components/layout/AppSettings";
+import { Calibration } from "@/components/progress/Calibration";
 import { MoiPhone } from "@/components/progress/MoiPhone";
 import { PageHeader } from "@/components/ui/PageHeader";
 
@@ -290,6 +291,7 @@ export function Progression({ decks = [] }: { decks?: AnkiDeck[] }) {
               <Stat n={summary?.bookmarks} label={tr("statBookmarks")} />
               <Stat n={summary?.highlights} label={tr("statHighlights")} />
             </dl>
+            <Calibration />
           </>
         )}
       </section>

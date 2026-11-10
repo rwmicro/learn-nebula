@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderMarkdown, extractPlain, truncate } from "./markdown";
+import { renderMarkdown, extractPlain, truncate, preprocessTrueFalse } from "./markdown";
 import { listVaultAssets, getVaultImage } from "./vault-assets";
 import type { GlossaryEntry } from "./glossary";
 
@@ -506,3 +506,33 @@ describe("outline (rehypeOutline)", () => {
     expect(c.html).not.toContain("sec-n");
   });
 });
+
+describe("study callouts (audit pédagogie 2026-11-10)", () => {
+  it("turns a [!vraifaux] into a two-choice quiz, explanation in the answer", async () => {
+    const { html, hasQuiz } = await renderMarkdown(
+      "> [!vraifaux] Les saisons viennent de la distance au Soleil.\n> Faux. C’est l’inclinaison de l’axe.",
+    );
+    expect(hasQuiz).toBe(true);
+    expect(html).toContain("quiz--choice");
+    expect(html).toMatch(/data-ok="0"[^]*Vrai[^]*data-ok="1"[^]*Faux/);
+    expect(html).toContain("inclinaison");
+  });
+  it("reads the statement from the body when the title is empty", () => {
+    const out = preprocessTrueFalse("> [!vraifaux]\n> L’eau bout à 100 °C partout.\n> Faux : pas en altitude.");
+    expect(out).toContain("> [!quiz] L’eau bout à 100 °C partout.");
+    expect(out).toContain("> - [x] Faux");
+    expect(out).toContain("> pas en altitude.");
+  });
+  it("leaves a block without a readable answer, and code, alone", () => {
+    const a = "> [!vraifaux] Énoncé\n> Peut-être.";
+    expect(preprocessTrueFalse(a)).toBe(a);
+    const b = "```\n> [!vraifaux] x\n> Vrai.\n```";
+    expect(preprocessTrueFalse(b)).toBe(b);
+  });
+  it("renders [!solution] as its own callout", async () => {
+    const { html } = await renderMarkdown("> [!solution]\n> 1. Poser\n> 2. Calculer");
+    expect(html).toContain("callout-solution");
+    expect(html).toContain("Solution pas à pas");
+  });
+});
+

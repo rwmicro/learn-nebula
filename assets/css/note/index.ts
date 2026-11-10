@@ -12,3 +12,4 @@ import "./native.css";
 import "./layout.css";
 import "./exercises.css";
 import "./partner-invite.css";
+import "./study.css";

@@ -133,7 +133,10 @@ import {
     `<div class="hl-card-actions">` +
     `<button type="button" class="hl-card-save" data-i18n="highlight.save">${esc(tt("highlight.save"))}</button>` +
     `<button type="button" class="hl-card-remove" data-i18n="highlight.remove">${esc(tt("highlight.remove"))}</button>` +
-    `</div>`;
+    // A cloze card from the passage (public/js/study-tools.js answers gk:cloze).
+    `<button type="button" class="hl-card-cloze" data-i18n="study.clozeAdd">${esc(tt("study.clozeAdd"))}</button>` +
+    `</div>` +
+    `<p class="hl-card-said" aria-live="polite"></p>`;
   document.body.appendChild(card);
   const ta = card.querySelector("textarea");
   let openId = null;
@@ -144,6 +147,9 @@ import {
     opener = mark;
     const h = loadHighlights()[slug]?.items[openId];
     ta.value = h?.n || "";
+    const said = card.querySelector(".hl-card-said");
+    said.textContent = "";
+    said.removeAttribute("data-i18n");
     card.hidden = false;
     const r = mark.getBoundingClientRect();
     const w = Math.min(320, document.documentElement.clientWidth - 16);
@@ -166,6 +172,23 @@ import {
       .querySelectorAll(`mark.hl[data-hl="${CSS.escape(openId)}"]`)
       .forEach((m) => m.classList.toggle("hl--note", !!ta.value.trim()));
     closeCard();
+  });
+  card.querySelector(".hl-card-cloze").addEventListener("click", () => {
+    if (!openId || !opener) return;
+    const h = loadHighlights()[slug]?.items[openId];
+    const said = card.querySelector(".hl-card-said");
+    window.dispatchEvent(
+      new CustomEvent("gk:cloze", {
+        detail: {
+          quote: h?.q || opener.textContent || "",
+          mark: opener,
+          done: (key) => {
+            said.textContent = tt(key);
+            said.setAttribute("data-i18n", key);
+          },
+        },
+      }),
+    );
   });
   card.querySelector(".hl-card-remove").addEventListener("click", () => {
     if (!openId) return;

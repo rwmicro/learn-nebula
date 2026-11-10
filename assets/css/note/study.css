@@ -1,0 +1,279 @@
+/* The note's study tools (public/js/study-tools.js, lib/html.ts
+   objectivesHtml; audit pédagogie 2026-11-10). */
+
+/* "À la fin de cette note, tu sauras…" above the text. */
+.note-objectives {
+  margin: 0 0 1.6rem;
+  padding: 0.8rem 1rem 0.85rem;
+  border-left: 3px solid var(--fam-ink, var(--garden));
+  background: var(--fam-wash, var(--garden-wash));
+  font-family: var(--font-ui);
+}
+.note-objectives-k {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fam-ink, var(--garden));
+}
+.note-objectives ul {
+  margin: 0;
+  padding-inline-start: 1.1rem;
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.note-objectives li {
+  margin: 0.15rem 0;
+  padding: 0;
+}
+
+/* Mastery dot before a section's entry in the contents. */
+.toc-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-inline-end: 0.4rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted);
+  vertical-align: 0.08em;
+  flex: none;
+}
+.toc-dot[data-state="some"] {
+  border-color: var(--garden);
+  background: linear-gradient(90deg, var(--garden) 50%, transparent 50%);
+}
+.toc-dot[data-state="done"] {
+  border-color: var(--garden);
+  background: var(--garden);
+}
+.toc-dot[data-state="reread"] {
+  border-color: #c77a2b;
+  background: #c77a2b;
+}
+
+/* [!solution]: one step at a time. */
+.callout-solution .callout-body ol > li {
+  margin-block: 0.35rem;
+}
+.solution-step-new {
+  animation: study-in 0.3s ease-out;
+}
+@keyframes study-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.2rem);
+  }
+}
+.solution-controls,
+.study-recall-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.6rem;
+}
+.solution-next,
+.solution-all,
+.formula-card,
+.quiz-sure-btn,
+.study-check-btn,
+.study-recall-start,
+.study-recall-done {
+  font: 500 0.88rem/1.1 var(--font-ui);
+  padding: 0.38rem 0.9rem;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+.solution-next,
+.study-recall-start,
+.study-recall-done {
+  color: var(--garden-deep-ink);
+  background: var(--garden-deep);
+  border-color: var(--garden-deep);
+}
+.solution-all {
+  border-color: transparent;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+/* "Réviser cette formule": discreet, under the formula, on the right. */
+.formula-card {
+  display: block;
+  margin: -0.4rem 0 1rem auto;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.8rem;
+  color: var(--muted);
+  border-color: var(--rule);
+}
+.formula-card:disabled {
+  cursor: default;
+  border-color: transparent;
+}
+@media (hover: hover) {
+  .formula-card:not(:disabled):hover {
+    color: var(--garden);
+    border-color: var(--garden);
+  }
+}
+
+/* Sure / hesitant, above the choices. */
+.quiz-sure {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.4rem 0 0.6rem;
+  font: 0.85rem var(--font-ui);
+  color: var(--muted);
+}
+.quiz-sure-btn {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.82rem;
+}
+.quiz-sure-btn[aria-pressed="true"],
+.study-check-btn[aria-pressed="true"] {
+  color: var(--paper);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.quiz-sure[data-verdict="warn"] {
+  color: #b2601b;
+}
+
+/* End of the note: self-check, then free recall. */
+.study-end {
+  max-width: var(--measure-text);
+  margin: 2.4rem auto 1rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-ui);
+}
+.study-end-h {
+  margin: 0 0 0.3rem;
+  font: 600 1.35rem/1.2 var(--font-text);
+  text-transform: none;
+  font-variant: normal;
+  letter-spacing: 0;
+}
+.study-end-intro,
+.study-recall-p {
+  margin: 0 0 0.9rem;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+.study-check {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.study-check li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem 1rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.study-check-t {
+  flex: 1 1 14rem;
+  font-size: 0.95rem;
+}
+.study-check-btns {
+  display: inline-flex;
+  gap: 0.3rem;
+}
+.study-check-btn {
+  padding: 0.25rem 0.7rem;
+  font-size: 0.82rem;
+}
+.study-check-btn[data-v="doute"][aria-pressed="true"] {
+  background: #c77a2b;
+  border-color: #c77a2b;
+}
+.study-check-btn[data-v="sait"][aria-pressed="true"] {
+  color: var(--garden-deep-ink);
+  background: var(--garden-deep);
+  border-color: var(--garden-deep);
+}
+.study-reread {
+  margin: 0.8rem 0 0;
+  font-size: 0.92rem;
+}
+.study-recall {
+  margin-top: 1.8rem;
+}
+.study-recall-k {
+  margin: 0 0 0.2rem;
+  font-weight: 600;
+}
+.study-recall-ta {
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.6rem 0.7rem;
+  font: 1rem/1.5 var(--font-text);
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-sm);
+  resize: vertical;
+}
+.study-recall-clock {
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.study-recall-out ul {
+  margin: 0.4rem 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.92rem;
+}
+.study-recall-out li::before {
+  content: "○";
+  display: inline-block;
+  width: 1.3rem;
+  color: var(--muted);
+}
+.study-recall-out li[data-hit="1"]::before {
+  content: "✓";
+  color: var(--garden);
+}
+.study-recall-score {
+  margin: 0.8rem 0 0;
+  font-weight: 600;
+}
+.study-recall-tip {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+/* A highlight as a cloze card (public/js/highlights.js). */
+.hl-card-actions {
+  flex-wrap: wrap;
+}
+.hl-card-said {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.hl-card-said:empty {
+  display: none;
+}
+
+@media print {
+  .formula-card,
+  .quiz-sure,
+  .study-end,
+  .solution-controls {
+    display: none !important;
+  }
+  .callout-solution .callout-body ol > li[hidden] {
+    display: list-item !important;
+  }
+}

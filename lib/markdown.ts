@@ -205,6 +205,11 @@ const CALLOUT_ALIAS: Record<string, string> = {
   // « L'essentiel sur… » boxes.
   chiffres: "chiffres",
   figures: "chiffres",
+  // A worked solution, one step at a time: its numbered list is shown step
+  // by step behind "Étape suivante" (public/js/study-tools.js).
+  solution: "solution",
+  etapes: "solution",
+  steps: "solution",
   // Exercises (lib/exercises.ts): their own card when the body holds one.
   traduire: "ex",
   translate: "ex",
@@ -233,9 +238,11 @@ const CALLOUT_LABEL: Record<string, string> = {
   quiz: "Question",
   predict: "À ton avis ?",
   chiffres: "En quelques chiffres",
+  solution: "Solution pas à pas",
   ex: "Exercice",
 };
 const CALLOUT_ICON: Record<string, string> = {
+  solution: calloutSvg('<path d="M4 18h4v-4h4v-4h4V6h4"/>'),
   ex: calloutSvg('<path d="M4 7h10M4 12h7M4 17h10"/><path d="m15 14 2.5 2.5L22 12"/>'),
   note: calloutSvg(
     '<path d="M4 20h4L18 8a2 2 0 0 0-3-3L5 16v4z"/><path d="M14 6l3 3"/>',
@@ -1986,6 +1993,65 @@ export interface Rendered {
   hasGlossary: boolean;
 }
 
+const TRUE_FALSE = /^(\s*>\s*)\[!(?:vraifaux|vrai-faux|truefalse|true-false|idee-recue|idée-reçue)\]([+-]?)\s*(.*)$/i;
+const TF_ANSWER = /^(vrai|faux|true|false)\b[\s.,:;!—–-]*/i;
+
+/**
+ * `> [!vraifaux] Statement` + a body opening on "Vrai." / "Faux." (and the
+ * explanation) → a two-choice `[!quiz]`: misconceptions asked as such, the
+ * explanation shown with the answer. Without a title, the body's first line
+ * is the statement. A block whose answer can't be read stays as written.
+ */
+export function preprocessTrueFalse(raw: string): string {
+  if (!/\[!(?:vrai|true|id[eé]e)/i.test(raw)) return raw;
+  const lines = raw.split("\n");
+  const out: string[] = [];
+  let fence = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^\s*(```|~~~)/.test(line)) fence = !fence;
+    const m = fence ? null : TRUE_FALSE.exec(line);
+    if (!m) {
+      out.push(line);
+      continue;
+    }
+    const [, quote, fold, title] = m;
+    const body: string[] = [];
+    let j = i + 1;
+    for (; j < lines.length && /^\s*>/.test(lines[j]); j++) body.push(lines[j].replace(/^\s*>\s?/, ""));
+    let statement = title.trim();
+    let rest = body;
+    if (!statement) {
+      const k = rest.findIndex((l) => l.trim());
+      if (k < 0) {
+        out.push(line);
+        continue;
+      }
+      statement = rest[k].trim();
+      rest = rest.slice(k + 1);
+    }
+    const k = rest.findIndex((l) => l.trim());
+    const a = k < 0 ? null : TF_ANSWER.exec(rest[k].trim());
+    if (!a) {
+      out.push(line);
+      continue;
+    }
+    const isTrue = /^(vrai|true)$/i.test(a[1]);
+    const english = /^(true|false)$/i.test(a[1]);
+    const explanation = [rest[k].trim().slice(a[0].length), ...rest.slice(k + 1)];
+    out.push(
+      `${quote}[!quiz]${fold} ${statement}`,
+      `${quote}- [${isTrue ? "x" : " "}] ${english ? "True" : "Vrai"}`,
+      `${quote}- [${isTrue ? " " : "x"}] ${english ? "False" : "Faux"}`,
+    );
+    if (explanation.some((l) => l.trim())) {
+      out.push(quote.trimEnd(), ...explanation.map((l) => `${quote}${l}`.trimEnd()));
+    }
+    i = j - 1;
+  }
+  return out.join("\n");
+}
+
 export async function renderMarkdown(
   raw: string,
   opts: {
@@ -1996,7 +2062,7 @@ export async function renderMarkdown(
 ): Promise<Rendered> {
   const dir = opts.dir ?? "";
   const ph = newPlaceholders();
-  const text = preprocessMath(raw, ph);
+  const text = preprocessMath(preprocessTrueFalse(raw), ph);
 
   const processor = unified()
     .use(remarkParse)
