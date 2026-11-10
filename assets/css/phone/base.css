@@ -13,14 +13,14 @@
      included; the other floating buttons sit above it (see the end). */
   --gk-tabbar-h: 0px;
   --gk-safe-b: env(safe-area-inset-bottom, 0px);
-  --glass-bg: rgb(255 255 255 / 0.34);
+  --glass-bg: rgb(255 255 255 / 0.2);
   --glass-edge: rgb(255 255 255 / 0.75);
   /* The glass's own light (inside the edge) and its drop shadow, apart: a
      refracting glass (lib/liquid-glass.ts) keeps its drop shadow on another
      element. */
   --glass-inset:
     inset 0 1.5px 0 rgb(255 255 255 / 0.9), inset 0 -1px 1px rgb(255 255 255 / 0.35),
-    inset 0 0 12px rgb(255 255 255 / 0.25);
+    inset 0 0 12px rgb(255 255 255 / 0.12);
   --glass-drop: 0 10px 30px rgb(0 0 0 / 0.14), 0 1px 3px rgb(0 0 0 / 0.08);
   --glass-shadow: var(--glass-inset), var(--glass-drop);
   /* Specular light along the rim: brightest at the top left, again at the
@@ -43,10 +43,15 @@
     rgb(255 255 255 / 0.22)
   );
   --glass-on: rgb(0 0 0 / 0.06);
+  /* What the glass does to the page behind it where it can't bend it
+     (Safari, Firefox, and Chromium until the lens is attached). A light
+     blur: the page stays recognisable through the glass, as on iOS 26,
+     instead of melting into a frosted pane. */
+  --glass-filter: blur(5px) saturate(1.8) brightness(1.05);
   --bar-bg: color-mix(in srgb, var(--paper) 80%, transparent);
 }
 :root[data-theme="dark"] {
-  --glass-bg: rgb(30 29 27 / 0.4);
+  --glass-bg: rgb(30 29 27 / 0.28);
   --glass-edge: rgb(255 255 255 / 0.16);
   --glass-inset:
     inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 1px rgb(255 255 255 / 0.06),
@@ -66,7 +71,7 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --glass-bg: rgb(30 29 27 / 0.4);
+    --glass-bg: rgb(30 29 27 / 0.28);
     --glass-edge: rgb(255 255 255 / 0.16);
     --glass-inset:
       inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -1px 1px rgb(255 255 255 / 0.06),
@@ -95,8 +100,8 @@
   position: relative;
   isolation: isolate;
   background: var(--glass-bg);
-  -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
-  backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+  -webkit-backdrop-filter: var(--glass-filter);
+  backdrop-filter: var(--glass-filter);
   border: 0.5px solid var(--glass-edge);
   box-shadow: var(--glass-shadow);
 }
@@ -143,10 +148,34 @@
     background: var(--paper-raised);
   }
 }
-@media (prefers-reduced-transparency: reduce) {
+/* Less transparency, or more contrast, asked for: every glass surface turns
+   to plain paper (the tokens, so the bars that only borrow them follow),
+   and with more contrast it gets a real edge and loses its sheen. The lens
+   (lib/liquid-glass.ts) isn't attached in either case. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  :root:root {
+    --glass-bg: var(--paper-raised);
+    --glass-filter: none;
+  }
   .glass {
     background: var(--paper-raised);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+}
+@media (prefers-contrast: more) {
+  :root:root {
+    --glass-edge: var(--ink);
+    --glass-inset: none;
+    --glass-sheen: none;
+    --glass-rim-o: 0;
+    --glass-on: color-mix(in srgb, var(--ink) 14%, transparent);
+  }
+  .glass {
+    border: 1px solid var(--ink);
+  }
+  .glass::before,
+  .glass::after {
+    display: none;
   }
 }
