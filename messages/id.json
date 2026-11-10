@@ -1441,7 +1441,9 @@
     "nothingToday": "tidak ada hari ini",
     "inProgress": "Sedang berjalan",
     "deckCount": "{n} dek",
-    "masteryAria": "{known} dikuasai, {learning} sedang dipelajari, {unseen} belum dilihat"
+    "masteryAria": "{known} dikuasai, {learning} sedang dipelajari, {unseen} belum dilihat",
+    "startPick": "Mulailah dengan dek pendek, atau simpan pertanyaan dari catatan saat membaca.",
+    "noteQuestionsEmpty": "Simpan pertanyaan saat membaca: pertanyaan itu akan kembali ke sini"
   },
   "road": {
     "levelOf": "Tingkat {n} dari {total}",
@@ -2784,10 +2786,8 @@
     "runLabel": "hari berturut-turut",
     "run": "{n} h",
     "goCards": "{n} kartu",
-    "practice": "Latihan kesalahan",
     "flip": "balik kartu",
     "next": "diulang lebih dulu",
-    "today": "hari ini",
     "todayShort": "hr ini",
     "memory": "Ingatanmu, setahun",
     "memoryHint": "setiap kotak, satu hari",
@@ -2810,6 +2810,10 @@
     "learned": "{n}% dikuasai",
     "notStarted": "Belum dimulai",
     "review": "Ulangi",
-    "open": "Buka"
+    "open": "Buka",
+    "nothingYet": "belum ada yang dipelajari",
+    "choose": "Pilih",
+    "chooseAria": "{subject}: pilih di antara {n} dek",
+    "close": "Tutup"
   }
 }

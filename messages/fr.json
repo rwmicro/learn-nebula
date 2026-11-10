@@ -1441,7 +1441,9 @@
     "nothingToday": "rien aujourd’hui",
     "inProgress": "En cours",
     "deckCount": "{n} paquets",
-    "masteryAria": "{known} acquises, {learning} en cours, {unseen} jamais vues"
+    "masteryAria": "{known} acquises, {learning} en cours, {unseen} jamais vues",
+    "startPick": "Commence par un paquet court, ou garde les questions d’une note pendant ta lecture.",
+    "noteQuestionsEmpty": "Garde une question pendant ta lecture : elle reviendra ici"
   },
   "road": {
     "levelOf": "Niveau {n} sur {total}",
@@ -2784,10 +2786,8 @@
     "runLabel": "jours de suite",
     "run": "{n} j",
     "goCards": "{n} cartes",
-    "practice": "S'entraîner sur les erreurs",
     "flip": "retourner la carte",
     "next": "à revoir en premier",
-    "today": "aujourd'hui",
     "todayShort": "auj.",
     "memory": "Ta mémoire, sur un an",
     "memoryHint": "chaque case, un jour",
@@ -2810,6 +2810,10 @@
     "learned": "{n} % sues",
     "notStarted": "Pas commencé",
     "review": "Réviser",
-    "open": "Ouvrir"
+    "open": "Ouvrir",
+    "nothingYet": "rien d’appris encore",
+    "choose": "Choisir",
+    "chooseAria": "{subject} : choisir parmi {n} paquets",
+    "close": "Fermer"
   }
 }

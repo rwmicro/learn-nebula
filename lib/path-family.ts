@@ -42,6 +42,7 @@ const FAMILY_OF: Record<string, PathFamily> = {
   Law: "societe",
   Communication: "societe",
   Economy: "societe",
+  Geography: "societe",
   Psychologie: "societe",
   Arts: "arts",
   Architecture: "arts",

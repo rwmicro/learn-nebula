@@ -1441,7 +1441,9 @@
     "nothingToday": "nada hoy",
     "inProgress": "En curso",
     "deckCount": "{n} mazos",
-    "masteryAria": "{known} dominadas, {learning} en aprendizaje, {unseen} sin ver"
+    "masteryAria": "{known} dominadas, {learning} en aprendizaje, {unseen} sin ver",
+    "startPick": "Empieza por un mazo corto, o guarda las preguntas de una nota mientras lees.",
+    "noteQuestionsEmpty": "Guarda una pregunta mientras lees: volverá aquí"
   },
   "road": {
     "levelOf": "Nivel {n} de {total}",
@@ -2784,10 +2786,8 @@
     "runLabel": "días seguidos",
     "run": "{n} d",
     "goCards": "{n} tarjetas",
-    "practice": "Practicar los errores",
     "flip": "girar la tarjeta",
     "next": "primero por repasar",
-    "today": "hoy",
     "todayShort": "hoy",
     "memory": "Tu memoria, en un año",
     "memoryHint": "cada casilla, un día",
@@ -2810,6 +2810,10 @@
     "learned": "{n} % aprendido",
     "notStarted": "Sin empezar",
     "review": "Repasar",
-    "open": "Abrir"
+    "open": "Abrir",
+    "nothingYet": "nada aprendido todavía",
+    "choose": "Elegir",
+    "chooseAria": "{subject}: elegir entre {n} mazos",
+    "close": "Cerrar"
   }
 }

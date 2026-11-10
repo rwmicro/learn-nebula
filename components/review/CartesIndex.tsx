@@ -1,9 +1,9 @@
-import { t, i18nProps } from "@/lib/i18n";
+import { t, i18nProps, disciplineKey } from "@/lib/i18n";
 import type { AnkiDeck } from "@/lib/anki";
 import { NoteQuestionsEntry } from "@/components/note/NoteQuestionsEntry";
 import { CartesToday, DeckDue, StartedDecks } from "@/components/review/CartesToday";
 import { homeFolderLabel } from "@/lib/content";
-import { CartesPhone } from "@/components/review/CartesPhone";
+import { CartesPhone, type PhoneDeck } from "@/components/review/CartesPhone";
 import { CartesDesk } from "@/components/review/CartesDesk";
 import { familyOfFolder } from "@/lib/path-family";
 import { fold } from "@/lib/palette-match";
@@ -27,18 +27,7 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
   }
   const folders = [...groups.keys()].sort((a, b) => a.localeCompare(b));
 
-  const phoneDecks = decks.map((d) => {
-    // "Arabe › Libanais" reads "Arabe libanais"; elsewhere the discipline
-    // is implied by the colour and only the last folder is kept ("Réseau").
-    const family = familyOfFolder(d.folder);
-    const parts = folderLabel(d.folder).split(" › ");
-    const place = family === "langues" ? [parts[0], ...parts.slice(1).map((p) => p.toLowerCase())].join(" ") : parts[parts.length - 1];
-    // "Anglais · Anglais Vocabulaire TOEIC" says the language twice: the
-    // deck's own name loses a leading copy of the place.
-    const name = place && fold(d.name).startsWith(fold(place) + " ") ? d.name.slice(place.length).replace(/^[\s·:–-]+/, "") : d.name;
-    const label = place && place !== "—" && fold(name) !== fold(place) ? `${place} · ${name}` : name;
-    return { slug: d.slug, label, name, group: place && place !== "—" ? place : name, count: d.count, family };
-  });
+  const phoneDecks = decks.map(phoneDeck);
 
   return (
     <main className="cartes-index tab-root">
@@ -99,6 +88,37 @@ export function CartesIndex({ decks }: { decks: AnkiDeck[] }) {
       )}
     </main>
   );
+}
+
+/** A deck as the /cartes/ lists show it: its subject (a language, a
+ *  discipline), its own name, its colour family. */
+export function phoneDeck(d: AnkiDeck): PhoneDeck {
+  // "Arabe › Libanais" reads "Arabe libanais"; elsewhere the discipline
+  // is implied by the colour and only the last folder is kept ("Réseau").
+  const family = familyOfFolder(d.folder);
+  const parts = folderLabel(d.folder).split(" › ");
+  const place = family === "langues" ? [parts[0], ...parts.slice(1).map((p) => p.toLowerCase())].join(" ") : parts[parts.length - 1];
+  // "Anglais · Anglais Vocabulaire TOEIC" says the language twice: the
+  // deck's own name loses a leading copy of the place.
+  // A deck named "🖋️ Figures de Style" loses its leading emoji.
+  const own = d.name.replace(/^[^\p{L}\p{N}]+/u, "") || d.name;
+  const name = place && fold(own).startsWith(fold(place) + " ") ? own.slice(place.length).replace(/^[\s·:–-]+/, "") : own;
+  const label = place && place !== "—" && fold(name) !== fold(place) ? `${place} · ${name}` : name;
+  // The discipline folders keep their English names on disk ("Geography",
+  // "History"): the subject is shown through its `discipline.*` key, so it
+  // reads "Géographie" in French and follows the reader's language.
+  const groupKey = family !== "langues" && place && place !== "—" ? disciplineKey(place) : null;
+  const discipline = d.folder.replace(/\\/g, "/").split("/")[1] ?? "";
+  return {
+    slug: d.slug,
+    label,
+    name,
+    group: place && place !== "—" ? place : name,
+    groupKey,
+    discipline,
+    count: d.count,
+    family,
+  };
 }
 
 /** "Social Sciences/Languages - Dialects/Arabe/Libanais/Anki" → "Arabe ›

@@ -1441,7 +1441,9 @@
     "nothingToday": "لا شيء اليوم",
     "inProgress": "قيد المراجعة",
     "deckCount": "{n} مجموعات",
-    "masteryAria": "{known} محفوظة، {learning} قيد التعلّم، {unseen} لم تُرَ بعد"
+    "masteryAria": "{known} محفوظة، {learning} قيد التعلّم، {unseen} لم تُرَ بعد",
+    "startPick": "ابدأ بحزمة قصيرة، أو احفظ أسئلة ملاحظة أثناء القراءة.",
+    "noteQuestionsEmpty": "احفظ سؤالًا أثناء القراءة: سيعود إلى هنا"
   },
   "road": {
     "levelOf": "المستوى {n} من {total}",
@@ -2784,10 +2786,8 @@
     "runLabel": "أيام متتالية",
     "run": "{n} ي",
     "goCards": "{n} بطاقة",
-    "practice": "تدرّب على الأخطاء",
     "flip": "اقلب البطاقة",
     "next": "للمراجعة أولاً",
-    "today": "اليوم",
     "todayShort": "اليوم",
     "memory": "ذاكرتك على مدى عام",
     "memoryHint": "كل مربع يوم",
@@ -2810,6 +2810,10 @@
     "learned": "{n}٪ متقن",
     "notStarted": "لم تبدأ بعد",
     "review": "راجع",
-    "open": "افتح"
+    "open": "افتح",
+    "nothingYet": "لم تتعلّم شيئًا بعد",
+    "choose": "اختر",
+    "chooseAria": "{subject}: اختر من بين {n} حزم",
+    "close": "إغلاق"
   }
 }

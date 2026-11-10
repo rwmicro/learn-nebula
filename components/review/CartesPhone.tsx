@@ -1,6 +1,6 @@
 "use client";
 
-import { ART, levelArt } from "@/lib/road-art";
+import { ART, levelArt, type ArtKey } from "@/lib/road-art";
 import type { PathFamily } from "@/lib/path-family";
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
@@ -11,12 +11,14 @@ import { dueQuestions, loadAllNoteDecks } from "@/lib/note-quiz";
 import { deckMastery, isStarted, loadDeckProgress, quickCounts, storageOk } from "@/lib/review-item";
 import { calendarDays, currentRun, loadActivity } from "@/lib/personal";
 import { loadStore } from "@/lib/reading-progress";
+import { starterDecks } from "@/lib/deck-starters";
 
 // "Réviser" on a phone (app.css shows it below 640px and hides the desktop
 // index it stands in for): today's load on one green card with "Tout
-// réviser", the note questions, the decks under way, then every deck grouped
-// by subject (a language, a discipline) with how much of it is known. Counts
-// come from this browser's storage, after hydration.
+// réviser" (on a first visit, three short decks to start with), the decks
+// under way, every deck grouped by subject (a language, a discipline) with
+// how much of it is known, then the note questions and practice. Counts come
+// from this browser's storage, after hydration.
 
 export interface PhoneDeck {
   slug: string;
@@ -24,11 +26,24 @@ export interface PhoneDeck {
   label: string;
   /** The deck's own name, without the subject: "Arabic for LS". */
   name: string;
-  /** The subject it is listed under: "Arabe libanais", "Géographie". */
+  /** The subject it is listed under: "Arabe libanais", "Geography". */
   group: string;
+  /** The subject's `discipline.*` key when it has one ("Geography" →
+   *  "discipline.geography"): shown in the reader's language. */
+  groupKey: string | null;
+  /** The vault's level-2 folder ("Geography", "Languages - Dialects"). */
+  discipline: string;
   count: number;
   family: string | null;
 }
+
+type Tr = (k: string, v?: Record<string, string | number>) => string;
+
+/** The subject as shown: "Géographie", not the folder's "Geography". */
+export const subjectOf = (d: PhoneDeck, tr: Tr) => (d.groupKey ? tr(d.groupKey) : d.group);
+
+/** "Géographie · Capitales du monde". */
+export const labelOf = (d: PhoneDeck, tr: Tr) => (d.groupKey && d.label !== d.name ? `${tr(d.groupKey)} · ${d.name}` : d.label);
 
 type Mastery = { known: number; learning: number; unseen: number };
 type Count = { due: number; fresh: number; paused: boolean; started: boolean; m: Mastery };
@@ -54,6 +69,16 @@ const sum = (ms: (Mastery | undefined)[]): Mastery | null =>
         { known: 0, learning: 0, unseen: 0 },
       )
     : null;
+/** A drawing per subject where the family's would mislead (Architecture,
+ *  Arts and Littérature all share the painter's palette otherwise). */
+const SUBJECT_ART: Record<string, ArtKey> = {
+  Architecture: "temple",
+  Arts: "palette",
+  Geography: "globe",
+  History: "scroll",
+  Litterature: "quill",
+  Littérature: "quill",
+};
 const CHEV = (
   <svg className="rv-chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
     <path d="m9 5 7 7-7 7" />
@@ -103,6 +128,7 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
   const started = Object.values(counts ?? {}).some((c) => c.started);
   // Before the counts load (or without storage) the regular card shows.
   const state = counts === null ? "counts" : !started && saved === 0 ? "new" : total === 0 ? "done" : "counts";
+  const starters = state === "new" ? starterDecks(decks) : [];
   const sorted = [...decks].sort((a, b) => load(b) - load(a) || a.label.localeCompare(b.label));
 
   // Subjects with something due first, then by name; decks likewise inside.
@@ -137,7 +163,7 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
       </span>
     );
   const icon = (d: PhoneDeck) => {
-    const art = levelArt(d.label, "", (d.family as PathFamily | null) ?? null)[0];
+    const art = SUBJECT_ART[d.discipline] ?? levelArt(d.label, "", (d.family as PathFamily | null) ?? null)[0];
     return <span className="rv-ico rv-art deco" aria-hidden="true" dangerouslySetInnerHTML={{ __html: ART[art] }} />;
   };
   const deckRow = (d: PhoneDeck, title: string, inGroup = false) => {
@@ -175,7 +201,19 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
         <section className="rv-today rv-start">
           <p className="rv-kicker">{tr("rv.startKicker")}</p>
           <p className="rv-start-h">{tr("rv.startTitle")}</p>
-          <p className="rv-start-p">{tr("rv.startText")}</p>
+          <p className="rv-start-p">{tr("rv.startPick")}</p>
+          {starters.length > 0 && (
+            <ul className="rv-starters">
+              {starters.map((d) => (
+                <li key={d.slug}>
+                  <a href={`/cartes/${d.slug}/`}>
+                    <b>{labelOf(d, tr)}</b>
+                    <span>{tr("cartesIndex.count", { count: d.count.toLocaleString(locale) })}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
           <a className="rv-go" href="#rv-decks">
             {tr("rv.startGo")}
           </a>
@@ -218,31 +256,6 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
       </section>
       )}
 
-      <h2 className="rv-h">{tr("rv.myQuestions")}</h2>
-      <ul className="rv-list">
-        <li>
-          <a href="/cartes/revision/">
-            <span className="rv-ico">{QUIZ}</span>
-            <span className="rv-tx">
-              <b>{tr("rv.noteQuestions")}</b>
-              <small>{tr("rv.noteQuestionsText")}</small>
-            </span>
-            <span className={`rv-pill${notes ? "" : " soft"}`}>{notes}</span>
-            {CHEV}
-          </a>
-        </li>
-        <li>
-          <a href="/cartes/entrainer/">
-            <span className="rv-ico">{svg(<path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z" />)}</span>
-            <span className="rv-tx">
-              <b>{tr("rv.practice")}</b>
-              <small>{tr("rv.practiceText")}</small>
-            </span>
-            {CHEV}
-          </a>
-        </li>
-      </ul>
-
       {started && (
         <>
           <h2 className="rv-h">{tr("rv.inProgress")}</h2>
@@ -251,7 +264,7 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
               .filter((d) => counts?.[d.slug]?.started)
               .map((d) => (
                 <li key={d.slug} data-family={d.family ?? undefined}>
-                  {deckRow(d, d.label)}
+                  {deckRow(d, labelOf(d, tr))}
                 </li>
               ))}
           </ul>
@@ -274,13 +287,13 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
                 <ul key={b[0][0].slug} className="rv-list rv-rows">
                   {b.map(([d]) => (
                     <li key={d.slug} data-family={d.family ?? undefined}>
-                      {deckRow(d, d.label)}
+                      {deckRow(d, labelOf(d, tr))}
                     </li>
                   ))}
                 </ul>
               );
             const list = b[0];
-            const group = list[0].group;
+            const group = subjectOf(list[0], tr);
             const due = list.reduce((n, d) => n + dueOf(d), 0);
             const cards = list.reduce((n, d) => n + d.count, 0);
             const m = sum(list.map((d) => counts?.[d.slug]?.m));
@@ -308,6 +321,31 @@ export function CartesPhone({ decks }: { decks: PhoneDeck[] }) {
           })}
         </div>
       )}
+
+      <h2 className="rv-h">{tr("rv.myQuestions")}</h2>
+      <ul className="rv-list">
+        <li>
+          <a href="/cartes/revision/">
+            <span className="rv-ico">{QUIZ}</span>
+            <span className="rv-tx">
+              <b>{tr("rv.noteQuestions")}</b>
+              <small>{saved ? tr("rv.noteQuestionsText") : tr("rv.noteQuestionsEmpty")}</small>
+            </span>
+            {saved > 0 && <span className={`rv-pill${notes ? "" : " soft"}`}>{notes}</span>}
+            {CHEV}
+          </a>
+        </li>
+        <li>
+          <a href="/cartes/entrainer/">
+            <span className="rv-ico">{svg(<path d="m13 2-9 12h7l-1 8 9-12h-7l1-8Z" />)}</span>
+            <span className="rv-tx">
+              <b>{tr("rv.practice")}</b>
+              <small>{tr("rv.practiceText")}</small>
+            </span>
+            {CHEV}
+          </a>
+        </li>
+      </ul>
     </div>
   );
 }

@@ -1441,7 +1441,9 @@
     "nothingToday": "nothing today",
     "inProgress": "In progress",
     "deckCount": "{n} decks",
-    "masteryAria": "{known} known, {learning} learning, {unseen} not seen yet"
+    "masteryAria": "{known} known, {learning} learning, {unseen} not seen yet",
+    "startPick": "Start with a short deck, or save a note’s questions while you read.",
+    "noteQuestionsEmpty": "Save a question while you read: it will come back here"
   },
   "road": {
     "levelOf": "Level {n} of {total}",
@@ -2784,10 +2786,8 @@
     "runLabel": "days in a row",
     "run": "{n} d",
     "goCards": "{n} cards",
-    "practice": "Practise your mistakes",
     "flip": "flip the card",
     "next": "first to review",
-    "today": "today",
     "todayShort": "today",
     "memory": "Your memory, over a year",
     "memoryHint": "each square, one day",
@@ -2810,6 +2810,10 @@
     "learned": "{n}% learnt",
     "notStarted": "Not started",
     "review": "Review",
-    "open": "Open"
+    "open": "Open",
+    "nothingYet": "nothing learned yet",
+    "choose": "Choose",
+    "chooseAria": "{subject}: choose among {n} decks",
+    "close": "Close"
   }
 }

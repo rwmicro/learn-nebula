@@ -391,7 +391,7 @@ export function ReviewSession({
       ) : (
         <section ref={surfaceRef} tabIndex={-1} className="deck-review outline-none" aria-label={head.deckName}>
           <div
-            className="flex w-full cursor-pointer items-center justify-center rounded-md border border-rule bg-paper p-6 text-center sm:p-8"
+            className="fc-card flex w-full cursor-pointer items-center justify-center rounded-md border border-rule bg-paper p-6 text-center sm:p-8"
             style={{ minHeight: `${(expected != null ? 16 : 22) * zoom}rem` }}
             onClick={(e) => {
               if ((e.target as HTMLElement).closest(".pron-btn, a")) return;
