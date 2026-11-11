@@ -2693,3 +2693,29 @@ body.rs-pip {
     transform: rotate(4deg);
   }
 }
+
+/* A button that acts once held down until full (components/ui/HoldButton):
+   a layer of its own text colour grows from the start edge, so it suits
+   whichever button it is put on. */
+.hold-btn {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+.hold-btn-fill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: currentColor;
+  opacity: 0.22;
+  transform: scaleX(var(--hold, 0));
+  transform-origin: left;
+  pointer-events: none;
+}
+:dir(rtl) .hold-btn-fill {
+  transform-origin: right;
+}

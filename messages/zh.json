@@ -336,8 +336,8 @@
     "easy": "简单",
     "done": "今天没有需要复习的卡片。",
     "doneNext": "今天没有需要复习的卡片 — 下次复习：{date}",
-    "reset": "重置进度",
-    "resetConfirm": "重置此卡组的全部进度？此操作无法撤销。",
+    "resetHold": "按住以重置进度",
+    "resetHint": "此卡组的全部进度将被清除。按住直到按钮填满。",
     "ivNow": "< 1 天",
     "ivDays": "{n} 天",
     "ivMonths": "{n} 个月",
@@ -1004,9 +1004,7 @@
     "delete": "删除我的账户",
     "dangerTitle": "删除账户",
     "deleteText": "账户、金币、小园丁以及进度副本将被永久删除。保存在此浏览器中的进度会保留。",
-    "deleteWord": "删除",
-    "deleteType": "请输入“{word}”以确认：",
-    "deleteNow": "永久删除",
+    "deleteNow": "按住以删除",
     "cancel": "取消",
     "sentTitle": "链接已发出",
     "resend": "重新发送链接",
@@ -1138,7 +1136,11 @@
     "open": "高亮：添加备注或移除",
     "noteLabel": "我对这段的备注",
     "save": "保存",
-    "remove": "移除高亮"
+    "remove": "移除高亮",
+    "colors": "高亮颜色",
+    "c1": "黄色：要记住",
+    "c2": "绿色：要复习",
+    "c3": "粉色：要提问"
   },
   "todayReview": {
     "title": "全部复习",
@@ -2093,6 +2095,10 @@
     "dlLoading": "正在加载模型",
     "dlBytes": "{a} / {b}",
     "dlCancel": "取消",
+    "dlGot": "已下载",
+    "dlLeft": "剩余",
+    "dlLeftMin": "约 {n} 分钟",
+    "dlLeftSec": "约 {n} 秒",
     "dlWait": "模型就绪后会立即处理你的问题。",
     "dlTab": "你可以关闭对话去读笔记：只要标签页开着，下载就会继续。",
     "dlReadyPhone": "模型就绪 · 已保存在此手机",
@@ -2112,7 +2118,7 @@
     "setDownloaded": "{name} · 下载于 {date}",
     "setNotDownloaded": "{name} · 尚未下载",
     "setSpace": "已用空间",
-    "setDelete": "删除模型（释放 {n} GB）",
+    "setDelete": "按住以删除模型（释放 {n} GB）",
     "setFail": "如果模型无法回答",
     "setFailA": "手机太旧、内存已满…",
     "setFailB": "助手会说明并提议重试。不会发送给任何在线 AI。",
@@ -2869,5 +2875,9 @@
     "calibSure": "有把握时，你的正确率是 {pct}%（{n} 次）。",
     "calibUnsure": "犹豫时：{pct}%（{n} 次）。",
     "calibTip": "常错的“有把握”提示你最该先复习的内容。"
+  },
+  "hold": {
+    "hint": "按住直到按钮填满",
+    "tooShort": "请一直按到底"
   }
 }

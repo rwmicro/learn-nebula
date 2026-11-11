@@ -336,8 +336,8 @@
     "easy": "Fácil",
     "done": "Nada que repasar hoy.",
     "doneNext": "Nada que repasar hoy — próximo repaso: {date}",
-    "reset": "Reiniciar el progreso",
-    "resetConfirm": "¿Reiniciar todo el progreso de este mazo? No se puede deshacer.",
+    "resetHold": "Mantén pulsado para reiniciar el progreso",
+    "resetHint": "Se borrará todo el progreso de este mazo. Mantén pulsado hasta que el botón se llene.",
     "ivNow": "< 1 d",
     "ivDays": "{n} d",
     "ivMonths": "{n} meses",
@@ -1004,9 +1004,7 @@
     "delete": "Borrar mi cuenta",
     "dangerTitle": "Borrar la cuenta",
     "deleteText": "La cuenta, sus monedas, su jardinero y su copia del progreso se borran para siempre. El progreso guardado en este navegador se queda.",
-    "deleteWord": "borrar",
-    "deleteType": "Para confirmar, escribe «{word}»:",
-    "deleteNow": "Borrar para siempre",
+    "deleteNow": "Mantén pulsado para eliminar",
     "cancel": "Cancelar",
     "sentTitle": "El enlace ya salió",
     "resend": "Reenviar el enlace",
@@ -1138,7 +1136,11 @@
     "open": "Subrayado: añadir una nota o quitarlo",
     "noteLabel": "Mi nota sobre este pasaje",
     "save": "Guardar",
-    "remove": "Quitar subrayado"
+    "remove": "Quitar subrayado",
+    "colors": "Color del resaltado",
+    "c1": "Amarillo: para recordar",
+    "c2": "Verde: para repasar",
+    "c3": "Rosa: para preguntar"
   },
   "todayReview": {
     "title": "Repasarlo todo",
@@ -2093,6 +2095,10 @@
     "dlLoading": "Cargando el modelo",
     "dlBytes": "{a} de {b}",
     "dlCancel": "Cancelar",
+    "dlGot": "descargado",
+    "dlLeft": "restante",
+    "dlLeftMin": "≈ {n} min",
+    "dlLeftSec": "≈ {n} s",
     "dlWait": "Tu pregunta saldrá en cuanto el modelo esté listo.",
     "dlTab": "Puedes cerrar este chat y leer la nota: la descarga sigue mientras la pestaña esté abierta.",
     "dlReadyPhone": "Modelo listo · guardado en este teléfono",
@@ -2112,7 +2118,7 @@
     "setDownloaded": "{name} · descargado el {date}",
     "setNotDownloaded": "{name} · aún no descargado",
     "setSpace": "Espacio usado",
-    "setDelete": "Eliminar el modelo (libera {n} GB)",
+    "setDelete": "Mantén pulsado para eliminar el modelo (libera {n} GB)",
     "setFail": "Si el modelo no puede responder",
     "setFailA": "Teléfono demasiado antiguo, memoria llena…",
     "setFailB": "El asistente lo dice y propone reintentar. No se envía nada a una IA en línea.",
@@ -2869,5 +2875,9 @@
     "calibSure": "Cuando estás seguro, aciertas el {pct} % de las veces ({n} respuestas).",
     "calibUnsure": "Cuando dudas: {pct} % ({n}).",
     "calibTip": "Una certeza a menudo errónea señala lo que hay que repasar primero."
+  },
+  "hold": {
+    "hint": "Mantén pulsado hasta que el botón se llene",
+    "tooShort": "Mantén pulsado hasta el final"
   }
 }

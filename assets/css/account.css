@@ -618,26 +618,40 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   font-size: 10px;
   fill: var(--muted);
 }
-.cal-cell,
-.cal-key {
-  fill: var(--rule-soft);
-  background: var(--rule-soft);
+/* Each day a plant (ActivityCalendar.tsx Plant): the leaves in the garden
+   green, the full day's tulip in the "Aube" print's red (global.css
+   .gk-bloom). The cell itself only catches the pointer for the tooltip. */
+.cal {
+  --cal-petal: #c4553b;
 }
-.cal-l1 {
-  fill: #c6dfbf;
-  background: #c6dfbf;
+:root[data-theme="dark"] .cal {
+  --cal-petal: #d9785f;
 }
-.cal-l2 {
-  fill: #8fbf82;
-  background: #8fbf82;
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .cal {
+    --cal-petal: #d9785f;
+  }
 }
-.cal-l3 {
-  fill: #5b9a4c;
-  background: #5b9a4c;
+.cal-cell {
+  fill: transparent;
 }
-.cal-l4 {
-  fill: #3f6b4a;
-  background: #3f6b4a;
+.cal-dot {
+  fill: var(--rule-strong);
+}
+.cal-leaf {
+  fill: var(--garden);
+}
+.cal-seed {
+  opacity: 0.55;
+}
+.cal-stem {
+  fill: none;
+  stroke: var(--garden);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+.cal-petal {
+  fill: var(--cal-petal);
 }
 .cal-legend {
   display: flex;
@@ -649,9 +663,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 }
 .cal-key {
   display: inline-block;
-  width: 11px;
-  height: 11px;
-  border-radius: var(--radius-xs);
+  flex: none;
 }
 
 /* /progression/: bookmarks and highlights (components/note/MyMarks.tsx). */
@@ -699,6 +711,12 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   margin: 0;
   padding: 0.1rem 0 0.1rem 0.8rem;
   border-left: 3px solid var(--mark);
+}
+.marks-hl blockquote.marks-hl--c2 {
+  border-left-color: #4fae62;
+}
+.marks-hl blockquote.marks-hl--c3 {
+  border-left-color: #f0708f;
 }
 .marks-hl blockquote a {
   color: var(--ink);

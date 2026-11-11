@@ -107,7 +107,15 @@ export interface Highlight {
   t: number;
   /** The reader's own note on it. */
   n?: string;
+  /** The marker colour when not the first (yellow, "à retenir"): 2 green
+   *  "à revoir", 3 pink "à demander". */
+  c?: HighlightColor;
   del?: 1;
+}
+export type HighlightColor = 2 | 3;
+/** 1, 2 or 3 from anything, 1 (the default, not stored) otherwise. */
+export function highlightColor(v: unknown): 1 | HighlightColor {
+  return v === 2 || v === 3 ? v : 1;
 }
 export interface NoteHighlights {
   title: string;
@@ -127,6 +135,8 @@ export function parseHighlights(v: unknown): Highlights {
       if (!Number.isFinite(t)) continue;
       const it: Highlight = { q: h.q.slice(0, MAX_HIGHLIGHT_CHARS), t: Math.round(t) };
       if (typeof h.n === "string" && h.n.trim()) it.n = h.n.slice(0, MAX_HIGHLIGHT_NOTE_CHARS);
+      const c = highlightColor(h.c);
+      if (c !== 1) it.c = c;
       if (h.del) it.del = 1;
       items[id] = it;
     }
@@ -153,14 +163,24 @@ export function mergeHighlights(a: Highlights, b: Highlights): Highlights {
   return out;
 }
 
+export interface HighlightRow {
+  slug: string;
+  title: string;
+  id: string;
+  q: string;
+  n?: string;
+  c: 1 | HighlightColor;
+  t: number;
+}
+
 /** Live highlights of every note, newest first. */
 export function listHighlights(
   s: Highlights,
-): { slug: string; title: string; id: string; q: string; n?: string; t: number }[] {
-  const rows: { slug: string; title: string; id: string; q: string; n?: string; t: number }[] = [];
+): HighlightRow[] {
+  const rows: HighlightRow[] = [];
   for (const [slug, nh] of Object.entries(s)) {
     for (const [id, h] of Object.entries(nh.items)) {
-      if (!h.del) rows.push({ slug, title: nh.title, id, q: h.q, n: h.n, t: h.t });
+      if (!h.del) rows.push({ slug, title: nh.title, id, q: h.q, n: h.n, c: highlightColor(h.c), t: h.t });
     }
   }
   return rows.sort((x, y) => y.t - x.t);
@@ -176,11 +196,14 @@ export function addHighlight(
   title: string,
   quote: string,
   now = Date.now(),
+  color: 1 | HighlightColor = 1,
 ): { store: Highlights; id: string } {
   const q = normalizeQuote(quote);
   const id = sec(now).toString(36) + Math.random().toString(36).slice(2, 6);
   const cur = s[slug] ?? { title, items: {} };
-  const items: Record<string, Highlight> = { ...cur.items, [id]: { q, t: sec(now) } };
+  const h: Highlight = { q, t: sec(now) };
+  if (color !== 1) h.c = color;
+  const items: Record<string, Highlight> = { ...cur.items, [id]: h };
   const ids = Object.keys(items);
   if (ids.length > MAX_HIGHLIGHTS_PER_NOTE) {
     ids
@@ -195,7 +218,7 @@ export function updateHighlight(
   s: Highlights,
   slug: string,
   id: string,
-  change: { n?: string; del?: boolean },
+  change: { n?: string; c?: 1 | HighlightColor; del?: boolean },
   now = Date.now(),
 ): Highlights {
   const nh = s[slug];
@@ -206,6 +229,10 @@ export function updateHighlight(
     const n = change.n.trim().slice(0, MAX_HIGHLIGHT_NOTE_CHARS);
     if (n) next.n = n;
     else delete next.n;
+  }
+  if (change.c !== undefined) {
+    if (change.c === 1) delete next.c;
+    else next.c = change.c;
   }
   if (change.del) next.del = 1;
   return { ...s, [slug]: { ...nh, items: { ...nh.items, [id]: next } } };

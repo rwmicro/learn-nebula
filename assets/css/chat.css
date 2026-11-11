@@ -564,9 +564,105 @@ button.gc-ib:hover {
   margin-left: 3px;
 }
 .gc-status {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
   margin: 0 0 8px;
   font-weight: 500;
   font-size: 0.9rem;
+}
+/* The sprout beside the status (ThinkingSprout.tsx): stem, leaves, bud,
+   then it fades and comes up again, 2.8 s a round. */
+.gc-sprout {
+  flex: none;
+  overflow: visible;
+}
+.gc-sprout-soil {
+  fill: none;
+  stroke: var(--rule-strong);
+  stroke-width: 1.6;
+  stroke-linecap: round;
+}
+.gc-sprout-stem {
+  fill: none;
+  stroke: var(--garden);
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  animation: gc-sprout-stem 2.8s ease-in-out infinite;
+}
+.gc-sprout-lf {
+  fill: var(--garden);
+  transform-box: fill-box;
+  animation: gc-sprout-pop 2.8s ease-in-out infinite;
+}
+.gc-sprout-lf--l {
+  transform-origin: 100% 100%;
+}
+.gc-sprout-lf--r {
+  transform-origin: 0 100%;
+  animation-delay: 0.12s;
+}
+.gc-sprout-bud {
+  fill: #c4553b;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: gc-sprout-bud 2.8s ease-in-out infinite;
+}
+:root[data-theme="dark"] .gc-sprout-bud {
+  fill: #d9785f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .gc-sprout-bud {
+    fill: #d9785f;
+  }
+}
+@keyframes gc-sprout-stem {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  40%,
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+@keyframes gc-sprout-pop {
+  0%,
+  30% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  50%,
+  85% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+@keyframes gc-sprout-bud {
+  0%,
+  50% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  68%,
+  85% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
 }
 .gc-shine {
   background: linear-gradient(
@@ -851,63 +947,76 @@ button.gc-ib:hover {
   padding: 0 14px;
 }
 .gc-prog {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   margin: 4px 0 14px;
   border: 0.5px solid var(--rule-strong);
   border-radius: 16px;
   padding: 12px 14px;
   background: var(--gc-card);
 }
-.gc-prog-r1 {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+/* The download as a ring of dots (GardenChat progressCard). */
+.gc-ring {
+  position: relative;
+  flex: none;
+  width: 84px;
+  height: 84px;
 }
-.gc-prog-ic {
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  background: var(--garden-wash);
-  color: var(--garden);
+.gc-ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.gc-ring circle {
+  fill: var(--wash-2);
+  transition: fill 0.25s;
+}
+.gc-ring circle.is-on {
+  fill: var(--garden);
+}
+.gc-ring-pct {
+  position: absolute;
+  inset: 0;
   display: grid;
   place-items: center;
-  flex: none;
+  font-weight: 700;
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
 }
-.gc-prog-ic svg {
-  width: 17px;
-  height: 17px;
-}
-.gc-prog-r1 b {
+.gc-prog-tx {
   flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  justify-items: start;
+}
+.gc-prog-tx b {
   font-weight: 700;
   font-size: 0.98rem;
 }
-.gc-prog-pct {
-  font-weight: 600;
-  font-size: 0.9rem;
-  color: var(--garden);
-  font-variant-numeric: tabular-nums;
-}
-.gc-prog-bar {
-  height: 6px;
-  border-radius: 3px;
-  background: var(--wash-2);
-  margin: 10px 0 8px;
-  overflow: hidden;
-}
-.gc-prog-bar i {
-  display: block;
-  height: 100%;
-  border-radius: 3px;
-  background: var(--garden);
-  transition: width 0.3s;
-}
-.gc-prog-r2 {
+.gc-prog-st {
   display: flex;
-  justify-content: space-between;
-  font-size: 0.84rem;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 0;
+}
+.gc-prog-st div {
+  display: grid;
+  gap: 1px;
+}
+.gc-prog-st dt {
+  font-size: 0.78rem;
   color: var(--muted-warm);
 }
-.gc .gc-prog-r2 button {
+.gc-prog-st dd {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+.gc .gc-prog-tx button {
+  font-size: 0.84rem;
   color: var(--ink-2);
   text-decoration: underline;
 }
@@ -1429,7 +1538,8 @@ button.gc-ib:hover {
 }
 @media (prefers-reduced-motion: reduce) {
   .gc-shine,
-  .gc-typing i {
+  .gc-typing i,
+  .gc-sprout * {
     animation: none;
   }
 }

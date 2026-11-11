@@ -336,8 +336,8 @@
     "easy": "Facile",
     "done": "Rien à réviser aujourd’hui.",
     "doneNext": "Rien à réviser aujourd’hui — prochaine révision : {date}",
-    "reset": "Réinitialiser la progression",
-    "resetConfirm": "Réinitialiser toute la progression de ce deck ? Cette action est irréversible.",
+    "resetHold": "Maintenir pour réinitialiser la progression",
+    "resetHint": "Toute la progression de ce paquet sera effacée. Garde appuyé jusqu’à ce que le bouton soit plein.",
     "ivNow": "< 1 j",
     "ivDays": "{n} j",
     "ivMonths": "{n} mois",
@@ -1004,9 +1004,7 @@
     "delete": "Supprimer mon compte",
     "dangerTitle": "Supprimer le compte",
     "deleteText": "Le compte, ses pièces, son jardinier et sa copie de la progression sont effacés pour de bon. La progression gardée dans ce navigateur reste là.",
-    "deleteWord": "supprimer",
-    "deleteType": "Pour confirmer, tape « {word} » :",
-    "deleteNow": "Supprimer définitivement",
+    "deleteNow": "Maintenir pour supprimer",
     "cancel": "Annuler",
     "sentTitle": "Le lien est parti",
     "resend": "Renvoyer le lien",
@@ -1138,7 +1136,11 @@
     "open": "Surlignage : ajouter une note ou le retirer",
     "noteLabel": "Ma note sur ce passage",
     "save": "Enregistrer",
-    "remove": "Retirer le surlignage"
+    "remove": "Retirer le surlignage",
+    "colors": "Couleur du surlignage",
+    "c1": "Jaune : à retenir",
+    "c2": "Vert : à revoir",
+    "c3": "Rose : à demander"
   },
   "todayReview": {
     "title": "Tout réviser",
@@ -2093,6 +2095,10 @@
     "dlLoading": "Chargement du modèle",
     "dlBytes": "{a} sur {b}",
     "dlCancel": "Annuler",
+    "dlGot": "téléchargé",
+    "dlLeft": "restant",
+    "dlLeftMin": "≈ {n} min",
+    "dlLeftSec": "≈ {n} s",
     "dlWait": "Ta question partira dès que le modèle est prêt.",
     "dlTab": "Tu peux fermer ce chat et lire la note : le téléchargement continue tant que l'onglet reste ouvert.",
     "dlReadyPhone": "Modèle prêt · gardé sur ce téléphone",
@@ -2112,7 +2118,7 @@
     "setDownloaded": "{name} · téléchargé le {date}",
     "setNotDownloaded": "{name} · pas encore téléchargé",
     "setSpace": "Place utilisée",
-    "setDelete": "Supprimer le modèle (libère {n} Go)",
+    "setDelete": "Maintenir pour supprimer le modèle (libère {n} Go)",
     "setFail": "Si le modèle ne peut pas répondre",
     "setFailA": "Téléphone trop ancien, mémoire pleine…",
     "setFailB": "L'assistant le dit et propose de réessayer. Rien n'est envoyé à une IA en ligne.",
@@ -2869,5 +2875,9 @@
     "calibSure": "Quand tu es sûr·e, tu as raison {pct} % du temps ({n} réponses).",
     "calibUnsure": "Quand tu hésites : {pct} % ({n}).",
     "calibTip": "Une certitude souvent fausse signale ce qu’il faut revoir en premier."
+  },
+  "hold": {
+    "hint": "Garde appuyé jusqu’à ce que le bouton soit plein",
+    "tooShort": "Garde appuyé jusqu’au bout"
   }
 }

@@ -4,6 +4,7 @@ import { SCENES } from "@/lib/deco-art";
 import { useCallback, useEffect, useState } from "react";
 import { Avatar } from "@/components/account/Avatar";
 import { ActivityCalendar } from "@/components/progress/ActivityCalendar";
+import { HoldButton } from "@/components/ui/HoldButton";
 import { Milestones } from "@/components/progress/Milestones";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -450,9 +451,9 @@ export function Account() {
  *  last 50 events). */
 const LEDGER_DAYS = 5;
 
-/** Deleting the account: set apart at the bottom of the settings, and armed
- *  only once the reader has typed the confirmation word (the e-mail shown on
- *  the page is masked, so it cannot be the thing to retype). */
+/** Deleting the account: set apart at the bottom of the settings. Opening
+ *  it shows what goes, then a button that acts only once held down until it
+ *  is full (components/ui/HoldButton.tsx). */
 function DangerZone({
   tr,
   busy,
@@ -463,41 +464,25 @@ function DangerZone({
   onDelete: () => Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
-  const [typed, setTyped] = useState("");
-  const word = tr("account.deleteWord");
-  const ok = typed.trim().toLocaleLowerCase() === word.toLocaleLowerCase();
   return (
     <div className="acct-danger">
       <h3>{tr("account.dangerTitle")}</h3>
       <p className="acct-muted">{tr("account.deleteText")}</p>
       {open ? (
-        <form
-          className="acct-danger-form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (ok) void onDelete();
-          }}
-        >
-          <label>
-            {tr("account.deleteType", { word })}
-            <input value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" autoFocus />
-          </label>
-          <div className="acct-row">
-            <button type="submit" className="acct-btn acct-btn--danger-solid" disabled={!ok || busy}>
-              {tr("account.deleteNow")}
-            </button>
-            <button
-              type="button"
-              className="acct-btn"
-              onClick={() => {
-                setOpen(false);
-                setTyped("");
-              }}
-            >
-              {tr("account.cancel")}
-            </button>
-          </div>
-        </form>
+        <div className="acct-row">
+          <HoldButton
+            className="acct-btn acct-btn--danger-solid"
+            disabled={busy}
+            hint={tr("hold.hint")}
+            tooShort={tr("hold.tooShort")}
+            onConfirm={() => void onDelete()}
+          >
+            {tr("account.deleteNow")}
+          </HoldButton>
+          <button type="button" className="acct-btn" onClick={() => setOpen(false)}>
+            {tr("account.cancel")}
+          </button>
+        </div>
       ) : (
         <button type="button" className="acct-btn acct-btn--danger" onClick={() => setOpen(true)}>
           {tr("account.delete")}

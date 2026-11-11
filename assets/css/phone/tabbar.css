@@ -74,22 +74,33 @@
     }
   }
   /* A soft scroll edge under the bar (Apple's "scroll edge effect"): the
-     page pales and blurs a little as it reaches the bottom, so the labels
-     never sit on sharp busy text, but it still shows through the glass. */
-  .tabbar::before {
+     page pales and blurs more and more as it reaches the bottom, so the
+     labels never sit on sharp busy text, but it still shows through the
+     glass. Two layers, each masked by its own gradient: a light blur that
+     starts high, a stronger one only near the edge (a progressive blur). */
+  .tabbar::before,
+  .tabbar::after {
     content: "";
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
     z-index: -1;
-    height: calc(6.5rem + var(--gk-safe-b));
-    background: linear-gradient(transparent, color-mix(in srgb, var(--paper) 35%, transparent) 70%);
-    -webkit-backdrop-filter: blur(2px);
-    backdrop-filter: blur(2px);
-    -webkit-mask: linear-gradient(transparent, #000 60%);
-    mask: linear-gradient(transparent, #000 60%);
+    height: calc(7rem + var(--gk-safe-b));
     pointer-events: none;
+  }
+  .tabbar::before {
+    background: linear-gradient(transparent, color-mix(in srgb, var(--paper) 35%, transparent) 70%);
+    -webkit-backdrop-filter: blur(1.5px);
+    backdrop-filter: blur(1.5px);
+    -webkit-mask: linear-gradient(transparent, #000 55%);
+    mask: linear-gradient(transparent, #000 55%);
+  }
+  .tabbar::after {
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    -webkit-mask: linear-gradient(transparent 40%, #000 85%);
+    mask: linear-gradient(transparent 40%, #000 85%);
   }
   .tabbar-bar {
     flex: 1 1 0%;
@@ -513,17 +524,54 @@
     border: 0;
     pointer-events: none;
   }
-  body:not(:has(.na-chrome)) .site-bar::before {
+  /* Once scrolled, the same edge at the top: the paper pales and blurs
+     more and more towards the top of the screen (two layers, as under the
+     tab bar), so the pill and the avatar never sit on sharp text. */
+  body:not(:has(.na-chrome)) .site-bar::before,
+  body:not(:has(.na-chrome)) .site-bar::after {
     content: "";
     position: absolute;
-    inset: 0 0 -1.2rem;
+    inset: 0 0 -1.6rem;
     z-index: -1;
-    background: linear-gradient(var(--paper) 50%, transparent);
     opacity: 0;
     transition: opacity 0.25s;
+    pointer-events: none;
   }
-  :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar::before {
+  body:not(:has(.na-chrome)) .site-bar::before {
+    background: linear-gradient(color-mix(in srgb, var(--paper) 70%, transparent) 35%, transparent);
+    -webkit-backdrop-filter: blur(1.5px);
+    backdrop-filter: blur(1.5px);
+    -webkit-mask: linear-gradient(#000 45%, transparent);
+    mask: linear-gradient(#000 45%, transparent);
+  }
+  body:not(:has(.na-chrome)) .site-bar::after {
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    -webkit-mask: linear-gradient(#000 25%, transparent 65%);
+    mask: linear-gradient(#000 25%, transparent 65%);
+  }
+  :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar::before,
+  :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar::after {
     opacity: 1;
+  }
+  /* Less transparency asked for, or no blur: the plain fade of the paper. */
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+    .tabbar::after,
+    body:not(:has(.na-chrome)) .site-bar::after {
+      display: none;
+    }
+    body:not(:has(.na-chrome)) .site-bar::before {
+      background: linear-gradient(var(--paper) 50%, transparent);
+      -webkit-mask: none;
+      mask: none;
+    }
+  }
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    body:not(:has(.na-chrome)) .site-bar::before {
+      background: linear-gradient(var(--paper) 50%, transparent);
+      -webkit-mask: none;
+      mask: none;
+    }
   }
   body:not(:has(.na-chrome)) .site-bar-inner {
     height: 2.875rem;

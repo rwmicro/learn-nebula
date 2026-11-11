@@ -1,6 +1,7 @@
 "use client";
 
 import { GrowLoader } from "@/components/ui/GrowLoader";
+import { HoldButton } from "@/components/ui/HoldButton";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -297,7 +298,6 @@ export function Flashcards({
   }, [flip, go, reviewing]);
 
   const reset = () => {
-    if (!window.confirm(tr("resetConfirm"))) return;
     const p = emptyProgress();
     saveDeckProgress(slug, null);
     setProgress(p);
@@ -587,9 +587,14 @@ export function Flashcards({
 
       {progress && summary && summary.learned > 0 && (
         <p className="mt-10 text-center">
-          <button type="button" className={quiet} onClick={reset}>
-            {tr("reset")}
-          </button>
+          <HoldButton
+            className={quiet}
+            hint={tr("resetHint")}
+            tooShort={t("hold.tooShort", undefined, locale)}
+            onConfirm={reset}
+          >
+            {tr("resetHold")}
+          </HoldButton>
         </p>
       )}
     </main>

@@ -93,11 +93,14 @@ import {
 } from "@/lib/note-quiz";
 import {
   conversationMarkdown,
+  downloadSecondsLeft,
   exportFileName,
   nextSection,
   railGroups,
   searchChats,
   searchNotes,
+  tickDownload,
+  type DownloadClock,
 } from "@/lib/chat-tools";
 import {
   canDock,
@@ -115,6 +118,8 @@ import {
 } from "@/lib/chat-dock";
 // Type-only: erased at build, so lib/content.ts (node:fs) never reaches the bundle.
 import type { ScopeOption } from "@/lib/content";
+import { HoldButton } from "@/components/ui/HoldButton";
+import { ThinkingSprout } from "@/components/chat/ThinkingSprout";
 
 const st = {
   fill: "none",
@@ -598,7 +603,18 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   }
 
   // --- the download --------------------------------------------------------
-  useEffect(() => onLoadProgress(setProgress), []);
+  // The clock behind "time left": restarted with each new download.
+  const dlClock = useRef<{ clock: DownloadClock | null; last: number }>({ clock: null, last: 0 });
+  useEffect(
+    () =>
+      onLoadProgress((p) => {
+        const c = dlClock.current;
+        c.clock = tickDownload(c.clock, c.last, p.loaded, Date.now());
+        c.last = p.loaded;
+        setProgress(p);
+      }),
+    [],
+  );
   useEffect(() => {
     if (dl === "loading") void localModelCached().then(setFromCache);
   }, [dl]);
@@ -1776,31 +1792,69 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     progress && progress.total
       ? Math.min(100, Math.round((100 * progress.loaded) / progress.total))
       : 0;
+  const loadingOnly =
+    fromCache || pct >= 100 || (!!progress && progress.total < model.bytes / 2);
+  const secsLeft =
+    progress && !loadingOnly
+      ? downloadSecondsLeft(dlClock.current.clock, progress.loaded, progress.total, Date.now())
+      : null;
+  // The download as a ring of 60 dots (chat.css .gc-ring), one lit for each
+  // sixtieth that has arrived, every fifth a little larger, like a dial.
+  const RING_DOTS = 60;
+  const lit = Math.round((pct / 100) * RING_DOTS);
   const progressCard = (
     <div className="gc-prog">
-      <div className="gc-prog-r1">
-        <span className="gc-prog-ic">{Ic.dl}</span>
-        <b>
-          {tr(
-            fromCache || pct >= 100 || (progress && progress.total < model.bytes / 2)
-              ? "chat.dlLoading"
-              : "chat.dlProgress",
+      <div
+        className="gc-ring"
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        aria-label={tr(loadingOnly ? "chat.dlLoading" : "chat.dlProgress")}
+      >
+        <svg viewBox="0 0 100 100" aria-hidden="true">
+          {Array.from({ length: RING_DOTS }, (_, i) => {
+            const a = -Math.PI / 2 + (i / RING_DOTS) * Math.PI * 2;
+            return (
+              <circle
+                key={i}
+                className={i < lit ? "is-on" : undefined}
+                cx={(50 + 42 * Math.cos(a)).toFixed(2)}
+                cy={(50 + 42 * Math.sin(a)).toFixed(2)}
+                r={i % 5 === 0 ? 2.6 : 1.9}
+              />
+            );
+          })}
+        </svg>
+        <span className="gc-ring-pct">{pct} %</span>
+      </div>
+      <div className="gc-prog-tx">
+        <b>{tr(loadingOnly ? "chat.dlLoading" : "chat.dlProgress")}</b>
+        <dl className="gc-prog-st">
+          <div>
+            <dt>{tr("chat.dlGot")}</dt>
+            <dd>
+              {progress
+                ? tr("chat.dlBytes", {
+                    a: fmtMb(progress.loaded, locale),
+                    b: fmtMb(progress.total, locale),
+                  })
+                : "…"}
+            </dd>
+          </div>
+          {!loadingOnly && (
+            <div>
+              <dt>{tr("chat.dlLeft")}</dt>
+              <dd>
+                {secsLeft === null
+                  ? "…"
+                  : secsLeft >= 60
+                    ? tr("chat.dlLeftMin", { n: Math.ceil(secsLeft / 60) })
+                    : tr("chat.dlLeftSec", { n: Math.max(1, secsLeft) })}
+              </dd>
+            </div>
           )}
-        </b>
-        <span className="gc-prog-pct">{pct} %</span>
-      </div>
-      <div className="gc-prog-bar">
-        <i style={{ width: `${pct}%` }} />
-      </div>
-      <div className="gc-prog-r2">
-        <span>
-          {progress
-            ? tr("chat.dlBytes", {
-                a: fmtMb(progress.loaded, locale),
-                b: fmtMb(progress.total, locale),
-              })
-            : "…"}
-        </span>
+        </dl>
         <button
           type="button"
           onClick={() => {
@@ -1845,6 +1899,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       <div className="gc-ai-wrap" key={i} data-i={i}>
         {writing && status && !m.text && (
           <p className="gc-status">
+            <ThinkingSprout />
             <span className="gc-shine">{status}</span>
           </p>
         )}
@@ -3060,10 +3115,11 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             <em>{downloadedOn ? `${gb} Go` : "0 Go"}</em>
           </div>
           {downloadedOn && (
-            <button
-              type="button"
+            <HoldButton
               className="gc-li gc-red"
-              onClick={async () => {
+              hint={tr("hold.hint")}
+              tooShort={tr("hold.tooShort")}
+              onConfirm={async () => {
                 await deleteLocalModel();
                 setRoute("download");
                 setDl("idle");
@@ -3071,7 +3127,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
               }}
             >
               {tr("chat.setDelete", { n: gb })}
-            </button>
+            </HoldButton>
           )}
         </div>
         <div className="gc-grp">{tr("chat.setFail")}</div>

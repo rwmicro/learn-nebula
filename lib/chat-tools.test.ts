@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import type { Conversation } from "./chat-history";
 import {
   conversationMarkdown,
+  downloadSecondsLeft,
   exportFileName,
   nextSection,
   railGroups,
   searchChats,
   searchNotes,
+  tickDownload,
 } from "./chat-tools";
 
 const NOW = new Date("2026-11-05T15:00:00").getTime();
@@ -190,5 +192,23 @@ describe("sourceSection", () => {
         { title: "N", url: "/a", crumb: "Newton › 1.1 Forces usuelles" },
       ]),
     ).toBe("Forces usuelles");
+  });
+});
+
+describe("download time left", () => {
+  it("waits for two seconds and some bytes", () => {
+    const c = tickDownload(null, 0, 100, 0);
+    expect(downloadSecondsLeft(c, 100, 1000, 1000)).toBeNull();
+    expect(downloadSecondsLeft(c, 100, 1000, 3000)).toBeNull();
+  });
+  it("uses the average speed since the start", () => {
+    const c = tickDownload(null, 0, 0, 0);
+    // 200 bytes in 4 s: 50 B/s, 800 left.
+    expect(downloadSecondsLeft(c, 200, 1000, 4000)).toBe(16);
+  });
+  it("restarts on a new download", () => {
+    const c = tickDownload({ t0: 0, loaded0: 0 }, 900, 10, 5000);
+    expect(c).toEqual({ t0: 5000, loaded0: 10 });
+    expect(tickDownload(c, 10, 20, 6000)).toBe(c);
   });
 });
