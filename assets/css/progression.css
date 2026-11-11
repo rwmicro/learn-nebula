@@ -584,3 +584,10 @@
   width: min(16rem, 100%);
   margin: 0 0 0.75rem;
 }
+
+/* "Quand tu es sûr·e, tu as raison 82 % du temps" (components/progress/Calibration.tsx). */
+.progression-calibration {
+  margin: 0.9rem 0 0;
+  font: 0.92rem/1.45 var(--font-ui);
+  color: var(--muted);
+}

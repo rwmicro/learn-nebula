@@ -31,6 +31,11 @@ export function SiteBar() {
     // Chess and the spoken partner, as on the home's masthead.
     { href: "/echecs/", key: "desk.jouer", label: t("desk.jouer") },
     { href: "/parler/", key: "desk.parler", label: t("desk.parler") },
+    // Progress and challenges: before, a computer reached them only through
+    // the account menu or a typed URL (audit UI 2026-11-10); phones have
+    // "Moi" in the bar.
+    { href: "/progression/", key: "nav.progression", label: t("nav.progression") },
+    { href: "/defis/", key: "defis.title", label: t("defis.title") },
   ];
   return (
     <header className="site-bar" data-pagefind-ignore>

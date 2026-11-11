@@ -125,6 +125,10 @@ export function Account() {
       void authConfig().then((c) => {
         setCfg(c);
         if (c.enabled) {
+          // Not signed in by this browser's account: show the sign-in form
+          // now rather than after /api/me answers (a slow Pi kept the page on
+          // "Chargement…"); load() still runs and corrects it if needed.
+          if (!readHint().in) setMe(null);
           void load().then((u) => {
             if (u) void syncNow({ force: true }).then(() => load());
             // Just in by the e-mailed link: offer a passkey for next time.

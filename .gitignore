@@ -22,6 +22,7 @@
 /public/js/quiz.bundle.js
 /public/js/glossary.bundle.js
 /public/js/note-end.bundle.js
+/public/js/study-tools.bundle.js
 /public/js/widgets-*.bundle.js
 /public/js/pronounce.bundle.js
 /public/js/diagram-zoom.bundle.js

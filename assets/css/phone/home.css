@@ -407,8 +407,8 @@
 }
 
 .dash .dash-ways .is-main {
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-deep);
+  color: var(--garden-deep-ink);
 }
 
 .dash-ways .is-main .dash-way-icon {

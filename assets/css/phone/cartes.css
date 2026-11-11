@@ -36,17 +36,8 @@
   .rv-today {
     padding: 1.125rem;
     border-radius: 1.25rem;
-    background: var(--garden);
-    color: var(--paper);
-    /* In dark, the light green as a whole card glared on the dark page: a
-       dark green surface with the green kept for the button. */
-    background: light-dark(var(--garden), var(--garden-wash));
-    color: light-dark(var(--paper), var(--ink));
-    border: 1px solid light-dark(transparent, color-mix(in srgb, var(--garden) 32%, transparent));
-  }
-  .rv-today .rv-kicker {
-    color: light-dark(inherit, var(--garden));
-    opacity: light-dark(0.8, 1);
+    background: var(--garden-deep);
+    color: var(--garden-deep-ink);
   }
   .rv-starters {
     display: grid;
@@ -68,7 +59,7 @@
     gap: 0.75rem;
     padding: 0.625rem 0.875rem;
     border-radius: 0.75rem;
-    background: light-dark(rgb(255 255 255 / 0.14), color-mix(in srgb, var(--garden) 14%, transparent));
+    background: rgb(255 255 255 / 0.14);
   }
   .rv-starters b {
     min-width: 0;
@@ -138,12 +129,9 @@
     height: var(--btn-h);
     margin-top: 0.875rem;
     border-radius: var(--btn-radius);
-    /* Inverted: it sits on the green review card (in dark, on the dark
-       green one, it takes the green back). */
-    background: var(--btn-ink);
-    color: var(--btn-bg);
-    background: light-dark(var(--btn-ink), var(--garden));
-    color: light-dark(var(--btn-bg), var(--paper));
+    /* Inverted: it sits on the green review card. */
+    background: var(--garden-deep-ink);
+    color: var(--garden-deep);
     font: var(--btn-font);
   }
   .rv-go svg {

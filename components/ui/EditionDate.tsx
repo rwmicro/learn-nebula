@@ -12,9 +12,11 @@ const BCP47: Record<string, string> = {
   id: "id-ID",
 };
 
-/** Masthead "edition date", localized to the active UI language. Takes the
- *  build-time ISO date as a prop so server and client hydrate to the same
- *  string (default locale), then re-formats on the i18n:change event. */
+/** Masthead date, localized to the active UI language. Takes the build-time
+ *  ISO date as a prop so server and client hydrate to the same string
+ *  (default locale), then switches to the reader's today once mounted (a
+ *  static export can be days old, and a dated masthead must not look stale)
+ *  and re-formats on the i18n:change event. */
 export function EditionDate({
   iso,
   className,
@@ -23,7 +25,9 @@ export function EditionDate({
   className?: string;
 }) {
   const [locale, setLocale] = useState<Locale>(DEFAULT_LOCALE);
+  const [date, setDate] = useState(iso);
   useEffect(() => {
+    setDate(new Date().toISOString());
     const isLocale = (s: unknown): s is Locale =>
       typeof s === "string" && (LOCALES as readonly string[]).includes(s);
     const current = window.__i18n?.locale ?? window.__i18n?.defaultLocale;
@@ -41,10 +45,10 @@ export function EditionDate({
     day: "numeric",
     month: "long",
     year: "numeric",
-  }).format(new Date(iso));
+  }).format(new Date(date));
 
   return (
-    <time dateTime={iso} className={className} suppressHydrationWarning>
+    <time dateTime={date.slice(0, 10)} className={className} suppressHydrationWarning>
       {formatted}
     </time>
   );

@@ -23,7 +23,13 @@ export function openingParagraph(md: string, min = 160): string {
     const first = lines[0].trim();
     // Headings, lists, tables, rules, embeds, html, math, shortcodes.
     if (/^(#|[-*+]\s|\d+[.)]\s|\||---|\*\*\*|!\[|<|\$\$|\{\{)/.test(first)) continue;
-    const text = lines.join(" ").trim();
+    // A bold label over a list ("**Niveaux**" then "1. Chimique…") is a list:
+    // joined into one line it reads "Niveaux 1. Chimique : Atomes 2. …".
+    if (lines.slice(1).some((l) => /^\s*([-*+]\s|\d+[.)]\s|\|)/.test(l))) continue;
+    // A bold label alone on its line is a title, not the text's first words.
+    const prose = /^\*\*[^*]+\*\*:?$/.test(first) ? lines.slice(1) : lines;
+    if (!prose.length) continue;
+    const text = prose.join(" ").trim();
     if (text.replace(/[*_`[\]()]/g, "").length < min) continue;
     return text;
   }
