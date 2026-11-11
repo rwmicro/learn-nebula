@@ -157,7 +157,8 @@ export function useReviewDue(): { n: number; href: string; decks: number } | nul
           const k = localStorage.key(i);
           if (!k || !k.startsWith("srs:") || k === "srs:probe") continue;
           const p = parseProgress(localStorage.getItem(k));
-          const n = Object.values(p.cards).filter((x) => x.due <= today).length;
+          // Suspended cards wait for nobody (as server/push.ts dueCount).
+          const n = Object.values(p.cards).filter((x) => x.due <= today && !x.sus).length;
           if (n > 0) decks++;
           if (k.startsWith("srs:note:")) q += n;
           else c += n;
