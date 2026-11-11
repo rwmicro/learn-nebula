@@ -217,8 +217,18 @@
     "licenseMiddle": "، والشفرة المصدرية بموجب ",
     "licenseGpl": "رخصة GNU GPL",
     "licenseAfter": ". أُنشئ في الأصل بواسطة ",
-    "progression": "تقدّمي: تصدير واستيراد",
-    "origin": "أنشأه في الأصل"
+    "navLabel": "تنقّل تذييل الصفحة",
+    "learn": "تعلّم",
+    "explore": "استكشف",
+    "play": "العب",
+    "garden": "الحديقة",
+    "notesRepo": "الملاحظات",
+    "codeRepo": "الشيفرة",
+    "contentLabel": "المحتوى",
+    "codeLabel": "الشيفرة",
+    "engraving": "حفر:",
+    "threeTrees": "الأشجار الثلاث",
+    "engravingAlt": "رامبرانت، الأشجار الثلاث، حفر بالحمض، 1643"
   },
   "home": {
     "intro1": "يضمّ هذا الملف كل ما أتقنته خلال رحلة حياتي.",

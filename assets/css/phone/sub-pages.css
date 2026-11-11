@@ -50,48 +50,6 @@
   }
 }
 
-/* The site footer: on a phone, the home's short one (components/layout/Footer.tsx). */
-.site-foot-phone {
-  display: none;
-}
-@media (max-width: 639.98px) {
-  /* Two short lines: a small gap above them, not a screen's worth. */
-  footer.site-foot {
-    border-top: 0;
-    margin-top: 1rem;
-    padding-top: 0.25rem;
-    padding-bottom: 0.5rem;
-  }
-  footer.site-foot .site-foot-wide {
-    display: none;
-  }
-  footer.site-foot .site-foot-phone {
-    display: block;
-    padding: 0 1rem;
-    text-align: center;
-    font: 400 0.8125rem/1.6 var(--font-ui);
-    color: var(--muted);
-  }
-  .site-foot-phone p {
-    margin: 0.35rem 0 0;
-  }
-  .site-foot-phone a {
-    color: inherit;
-  }
-  .site-foot-phone .site-foot-cc {
-    display: inline-flex;
-    align-items: center;
-    height: 1.5rem;
-    padding: 0 0.5625rem;
-    border: 1px solid var(--rule-strong);
-    border-radius: 0.75rem;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    color: var(--ink-2);
-    text-decoration: none;
-  }
-}
-
 /* End of a note (phone): "Et ensuite ?" and the toolbar's arrow already lead
    to the next note; the folder list's own ← / → pair would be a third. */
 @media (max-width: 639.98px) {

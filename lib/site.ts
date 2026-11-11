@@ -11,9 +11,10 @@ export const SITE_DESCRIPTION =
   "Jardin de connaissances en français : des notes reliées en sciences appliquées et sociales, des parcours de lecture et des cartes de révision.";
 export const AUTHOR = "The Gardener";
 
-// Original author of the site and its source code (credited in the footer).
-export const ORIGINAL_AUTHOR = "David Álvarez Rosa";
-export const ORIGINAL_AUTHOR_URL = "https://david.alvarezrosa.com";
+// The two public repositories, linked from the footer: the notes (the vault
+// scripts/fetch-notes.mjs clones) and this site's code.
+export const NOTES_REPO_PAGE = "https://github.com/rwmicro/pensine";
+export const CODE_REPO_PAGE = "https://github.com/rwmicro/learn-nebula";
 
 /** NAV entries store an i18n key in `name`; navHtml resolves it via t() at
  * build time and the runtime swap (/js/i18n.js) does the same at locale

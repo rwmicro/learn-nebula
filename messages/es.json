@@ -217,8 +217,18 @@
     "licenseMiddle": ", y el código fuente bajo la ",
     "licenseGpl": "GNU GPL",
     "licenseAfter": ". Creado originalmente por ",
-    "progression": "Mi progreso: exportar, importar",
-    "origin": "Creado originalmente por"
+    "navLabel": "Navegación del pie de página",
+    "learn": "Aprender",
+    "explore": "Explorar",
+    "play": "Jugar",
+    "garden": "El jardín",
+    "notesRepo": "Las notas",
+    "codeRepo": "El código",
+    "contentLabel": "Contenido",
+    "codeLabel": "Código",
+    "engraving": "Grabado:",
+    "threeTrees": "Los tres árboles",
+    "engravingAlt": "Rembrandt, Los tres árboles, aguafuerte, 1643"
   },
   "home": {
     "intro1": "Este archivo reúne todo lo que he llegado a dominar a lo largo de mi vida.",

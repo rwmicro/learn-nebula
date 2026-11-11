@@ -1,0 +1,413 @@
+/* The site footer (components/layout/Footer.tsx): a sky over Rembrandt's
+   Three Trees whose colour follows the reader's clock. Design reviews:
+   revues/footer-2026-11-10/ (v14 « Selon l'heure »).
+
+   - Five skies, each a set of tokens on footer[data-ciel] (aube, jour,
+     estampe, crépuscule, nuit), picked by the footer's inline script.
+   - The etching is two masks (public/images/pied/): terre.webp, the land and
+     the trees cut from the plate's sky, filled with the plate's paper;
+     traits.webp, its lines, printed in the sky's ink. « Estampe » shows the
+     plate itself (estampe.webp) as the whole background instead.
+   - The links sit over the sky, the trees rise behind their last rows, the
+     credits sit on the dark ground.
+   - Dark theme: a veil lowers the sky and the land, not the text. */
+
+/* ——— the five skies ——— */
+footer.gf,
+footer.gf[data-ciel="nuit"] {
+  --gf-sky-top: #08140f; --gf-sky-mid: #143a29; --gf-sky-low: #2f6e4a;
+  --gf-land-hi: #b9c9a6; --gf-land-lo: #5f7a5d; --gf-land-ink: #0c2318; --gf-deep: #08130d;
+  --gf-ink: #f2f5ee; --gf-ink-2: #b4c9b4; --gf-head: #9fd0ac; --gf-rule: rgb(242 245 238 / 0.2);
+  --gf-stars: 1;
+}
+footer.gf[data-ciel="aube"] {
+  --gf-sky-top: #232a4d; --gf-sky-mid: #7a6488; --gf-sky-low: #eeb08f;
+  --gf-land-hi: #f6dcc2; --gf-land-lo: #8c7470; --gf-land-ink: #2b2236; --gf-deep: #1b1626;
+  --gf-ink: #fbf6f2; --gf-ink-2: #e2cfd6; --gf-head: #ffcfb4; --gf-rule: rgb(251 246 242 / 0.24);
+  --gf-stars: 0.35;
+}
+footer.gf[data-ciel="jour"] {
+  --gf-sky-top: #2b6a93; --gf-sky-mid: #5e9ec2; --gf-sky-low: #c4e0e8;
+  --gf-land-hi: #f1f2de; --gf-land-lo: #8aa07a; --gf-land-ink: #1e3a29; --gf-deep: #13241a;
+  --gf-ink: #ffffff; --gf-ink-2: #e2eff5; --gf-head: #e9f6d6; --gf-rule: rgb(255 255 255 / 0.28);
+  --gf-stars: 0;
+}
+footer.gf[data-ciel="crepuscule"] {
+  --gf-sky-top: #1c1d3c; --gf-sky-mid: #7b3b52; --gf-sky-low: #e5804c;
+  --gf-land-hi: #f5c58f; --gf-land-lo: #6f4a3b; --gf-land-ink: #26141b; --gf-deep: #160d11;
+  --gf-ink: #fdf3ea; --gf-ink-2: #e8c7c2; --gf-head: #ffc79c; --gf-rule: rgb(253 243 234 / 0.22);
+  --gf-stars: 0.2;
+}
+
+/* ——— frame: full width, whatever the page did to <body> (a 680px column on
+   a note under 1080px) or to footer (margins on note pages) ——— */
+html body > footer.site-foot.gf {
+  position: relative;
+  left: 50%;
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 3rem 0 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  transform: translateX(-50%);
+  /* Over the note's fixed rails (contents, side column: z-index 10), under
+     its reading bar and the phone's bars. */
+  z-index: 20;
+  isolation: isolate;
+  overflow: hidden;
+  color: var(--gf-ink);
+  font-family: var(--font-text);
+  background: linear-gradient(180deg, var(--gf-sky-top) 0%, var(--gf-sky-mid) 42%, var(--gf-sky-low) 80%, var(--gf-sky-low) 100%);
+}
+/* The footer closes the page: no margin of the body under it. */
+body:has(> footer.site-foot.gf) {
+  margin-bottom: 0 !important;
+}
+
+/* stars, really visible only at night */
+footer.gf::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 40% 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--gf-stars);
+  background:
+    radial-gradient(1.2px 1.2px at 12% 18%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 27% 42%, #fff 50%, transparent 51%),
+    radial-gradient(1.4px 1.4px at 44% 12%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 58% 33%, #fff 50%, transparent 51%),
+    radial-gradient(1.3px 1.3px at 71% 8%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 83% 27%, #fff 50%, transparent 51%),
+    radial-gradient(1.2px 1.2px at 93% 48%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 36% 64%, #fff 50%, transparent 51%),
+    radial-gradient(1px 1px at 6% 56%, #fff 50%, transparent 51%),
+    radial-gradient(1.1px 1.1px at 65% 58%, #fff 50%, transparent 51%);
+  background-size: 640px 360px;
+}
+/* a fine grain over everything */
+footer.gf::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.32;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.6 -.3'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+/* the dark theme's veil: under the text, over the sky and the land */
+.gf-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: #000;
+  opacity: 0;
+}
+:root[data-theme="dark"] .gf-veil {
+  opacity: 0.28;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .gf-veil {
+    opacity: 0.28;
+  }
+}
+
+/* ——— text ——— */
+.gf-in {
+  position: relative;
+  z-index: 3;
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 4.5rem max(2rem, env(safe-area-inset-right, 0px)) 0 max(2rem, env(safe-area-inset-left, 0px));
+}
+.gf-top {
+  display: grid;
+  grid-template-columns: minmax(18rem, 25rem) 1fr;
+  gap: 4rem;
+}
+.gf-word {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  font: 500 1.85rem/1 var(--font-caps);
+  color: inherit;
+  text-decoration: none;
+}
+.gf-word img {
+  width: 34px;
+  height: 34px;
+}
+.gf-quote {
+  margin: 1.1rem 0 0;
+  font: italic 400 1.22rem/1.5 var(--font-text);
+  color: var(--gf-ink-2);
+}
+.gf-quote q {
+  quotes: "« " " »";
+}
+.gf-cols {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 2rem;
+  padding-top: 0.55rem;
+}
+.gf-col h2 {
+  margin: 0 0 1.1rem;
+  font: 500 0.9rem/1 var(--font-caps);
+  text-transform: lowercase;
+  letter-spacing: 0.32em;
+  color: var(--gf-head);
+}
+.gf-col ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+footer.gf .gf-col a {
+  font: 400 1.1rem/1.3 var(--font-ui);
+  color: var(--gf-ink);
+  text-decoration: none;
+  text-shadow: 0 1px 10px rgb(0 0 0 / 0.35);
+}
+footer.gf .gf-col a:hover {
+  text-decoration: underline;
+  text-decoration-color: var(--gf-head);
+  text-underline-offset: 0.25em;
+}
+.gf-col small {
+  margin-left: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--gf-ink-2);
+}
+footer.gf a:focus-visible {
+  outline: 2px solid var(--gf-head);
+  outline-offset: 3px;
+}
+
+/* ——— the ground: the etching rises behind the last rows of links ——— */
+.gf-ground {
+  position: relative;
+  margin-top: var(--gf-rise, -10rem);
+}
+.gf-land {
+  position: relative;
+  z-index: 1;
+  height: var(--gf-land-h, max(25.8rem, 44.5vw));
+  pointer-events: none;
+}
+.gf-land i {
+  position: absolute;
+  inset: 0;
+  -webkit-mask: url(/images/pied/terre.webp) var(--gf-land-x, 74%) 100% / max(100%, 58rem) auto no-repeat;
+  mask: url(/images/pied/terre.webp) var(--gf-land-x, 74%) 100% / max(100%, 58rem) auto no-repeat;
+}
+.gf-land i:first-child {
+  background: linear-gradient(180deg, var(--gf-sky-low) 0%, var(--gf-sky-low) 38%, var(--gf-land-hi) 56%, var(--gf-land-hi) 64%, var(--gf-land-lo) 86%, var(--gf-deep) 100%);
+}
+.gf-land i:nth-child(2) {
+  background: var(--gf-land-ink);
+  -webkit-mask-image: url(/images/pied/traits.webp);
+  mask-image: url(/images/pied/traits.webp);
+}
+.gf-land::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 72%, color-mix(in srgb, var(--gf-deep) 55%, transparent) 92%, color-mix(in srgb, var(--gf-deep) 80%, transparent) 100%);
+}
+
+.gf-foot {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 3;
+}
+.gf-colo {
+  max-width: 76rem;
+  margin: 0 auto;
+  padding: 0 max(2rem, env(safe-area-inset-right, 0px)) 1.6rem max(2rem, env(safe-area-inset-left, 0px));
+  font: 400 0.9rem/1.75 var(--font-ui);
+  color: var(--gf-ink-2);
+}
+.gf-colo-in {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.3rem 2rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--gf-rule);
+}
+.gf-colo-in > div {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.45rem;
+}
+.gf-colo span {
+  white-space: nowrap;
+}
+.gf-colo-in > div:first-child > span:not(:last-child)::after {
+  content: " ·";
+  opacity: 0.55;
+}
+footer.gf .gf-colo a {
+  color: var(--gf-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--gf-rule);
+  text-underline-offset: 0.22em;
+}
+/* Room under the credits for the note's reading bar (from 640px). */
+body:has(.note-dock) .gf-colo {
+  padding-bottom: 5.5rem;
+}
+
+/* ——— « Estampe »: the plate itself, edge to edge: paper and ink, no tint,
+   no cut, no veil. The links and section titles sit on small white labels,
+   so they read the same over the sky and over the trees; the rest is plain
+   ink, the credits light on the plate's dark foreground. ——— */
+footer.gf[data-ciel="estampe"] {
+  --gf-ink: #1b1712; --gf-ink-2: #3f372d; --gf-head: #6b5333; --gf-rule: transparent;
+  --gf-label: #fbf9f4;
+  --gf-stars: 1;
+  --gf-land-h: max(24rem, 56vw);
+  background: #231d16;
+}
+/* the plate, on a layer a little wider than the footer and always as tall
+   as it, so it is framed the same at every width and never ends early */
+footer.gf[data-ciel="estampe"]::before {
+  inset: 0 0 0 min(-28%, -2rem);
+  background: url(/images/pied/estampe.webp) 100% 6% / cover no-repeat;
+}
+footer.gf[data-ciel="estampe"]::after,
+footer.gf[data-ciel="estampe"] .gf-veil,
+footer.gf[data-ciel="estampe"] .gf-land i,
+footer.gf[data-ciel="estampe"] .gf-land::after {
+  display: none;
+}
+footer.gf[data-ciel="estampe"] .gf-word span {
+  font-weight: 500;
+}
+footer.gf[data-ciel="estampe"] .gf-quote {
+  color: var(--gf-ink);
+}
+footer.gf[data-ciel="estampe"] .gf-col h2,
+footer.gf[data-ciel="estampe"] .gf-col a {
+  display: inline-block;
+  padding: 0.12em 0.42em;
+  border-radius: 2px;
+  white-space: nowrap;
+  background: var(--gf-label);
+  text-shadow: none;
+}
+footer.gf[data-ciel="estampe"] .gf-col h2 {
+  padding: 0.35em 0.5em 0.3em calc(0.5em + 0.32em);
+}
+footer.gf[data-ciel="estampe"] .gf-col a:hover {
+  background: var(--gf-ink);
+  color: var(--gf-label);
+  text-decoration: none;
+}
+footer.gf[data-ciel="estampe"] .gf-col a:hover small {
+  color: inherit;
+}
+footer.gf[data-ciel="estampe"] .gf-col small {
+  color: var(--gf-head);
+}
+footer.gf[data-ciel="estampe"] .gf-colo-in {
+  border-top-color: rgb(246 238 224 / 0.3);
+}
+footer.gf[data-ciel="estampe"] .gf-colo {
+  color: #e9dcc6;
+}
+footer.gf[data-ciel="estampe"] .gf-colo a {
+  color: #fbf4e6;
+  text-decoration-color: rgb(251 244 230 / 0.4);
+}
+
+/* /parcours/ closes on its own quote and figures (.pcd-colo): one quote is
+   enough. */
+body:has(.pcd-colo) .gf-quote {
+  display: none;
+}
+
+@media (max-width: 1023.98px) {
+  .gf-top {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+}
+@media (max-width: 639.98px) {
+  footer.gf {
+    --gf-land-h: 17rem;
+    --gf-land-x: 72%;
+    --gf-rise: -8.5rem;
+  }
+  html body > footer.site-foot.gf {
+    margin-top: 2rem !important;
+  }
+  .gf-land i {
+    -webkit-mask-size: auto 100%;
+    mask-size: auto 100%;
+  }
+  .gf-in {
+    padding: 3rem max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px));
+  }
+  .gf-word {
+    font-size: 1.55rem;
+  }
+  .gf-word img {
+    width: 30px;
+    height: 30px;
+  }
+  .gf-quote {
+    font-size: 1.1rem;
+  }
+  .gf-top {
+    gap: 2.5rem;
+  }
+  .gf-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.4rem 1rem;
+  }
+  /* The credits under the land, clear of the tab bar. */
+  .gf-foot {
+    position: relative;
+    background: var(--gf-deep);
+  }
+  :root[data-theme="dark"] .gf-foot {
+    background: color-mix(in srgb, var(--gf-deep), #000 28%);
+  }
+  .gf-colo {
+    font-size: 0.86rem;
+    padding: 1.1rem max(20px, env(safe-area-inset-right, 0px)) calc(var(--gk-tabbar-h, 5.5rem) + 1rem) max(20px, env(safe-area-inset-left, 0px));
+  }
+  .gf-colo-in {
+    display: block;
+    border-top: 0;
+    padding-top: 0;
+  }
+  .gf-colo span.gf-wrap {
+    white-space: normal;
+  }
+  footer.gf[data-ciel="estampe"]::before {
+    inset: 0;
+    background-position: 72% 100%;
+  }
+  footer.gf[data-ciel="estampe"] .gf-foot {
+    background: none;
+  }
+}
+
+@media (max-width: 639.98px) and (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .gf-foot {
+    background: color-mix(in srgb, var(--gf-deep), #000 28%);
+  }
+}
+
+@media print {
+  footer.gf {
+    display: none !important;
+  }
+}

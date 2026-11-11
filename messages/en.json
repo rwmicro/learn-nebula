@@ -217,8 +217,18 @@
     "licenseMiddle": ", and the source code under the ",
     "licenseGpl": "GNU GPL",
     "licenseAfter": ". Originally created by ",
-    "progression": "My progress: export, import",
-    "origin": "Originally created by"
+    "navLabel": "Footer navigation",
+    "learn": "Learn",
+    "explore": "Explore",
+    "play": "Play",
+    "garden": "The garden",
+    "notesRepo": "The notes",
+    "codeRepo": "The code",
+    "contentLabel": "Content",
+    "codeLabel": "Code",
+    "engraving": "Etching:",
+    "threeTrees": "The Three Trees",
+    "engravingAlt": "Rembrandt, The Three Trees, etching, 1643"
   },
   "home": {
     "intro1": "This file contains all the work I mastered over my journey of life.",
