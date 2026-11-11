@@ -217,8 +217,18 @@
     "licenseMiddle": "，源代码采用 ",
     "licenseGpl": "GNU GPL",
     "licenseAfter": "。最初由 ",
-    "progression": "我的进度：导出、导入",
-    "origin": "最初由"
+    "navLabel": "页脚导航",
+    "learn": "学习",
+    "explore": "探索",
+    "play": "游戏",
+    "garden": "花园",
+    "notesRepo": "笔记",
+    "codeRepo": "代码",
+    "contentLabel": "内容",
+    "codeLabel": "代码",
+    "engraving": "版画：",
+    "threeTrees": "三棵树",
+    "engravingAlt": "伦勃朗，《三棵树》，蚀刻版画，1643 年"
   },
   "home": {
     "intro1": "这里收录了我在人生旅途中学会并掌握的一切。",

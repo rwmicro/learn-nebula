@@ -217,8 +217,18 @@
     "licenseMiddle": ", et le code source sous ",
     "licenseGpl": "licence GNU GPL",
     "licenseAfter": ". Créé à l'origine par ",
-    "progression": "Ma progression : exporter, importer",
-    "origin": "Créé à l’origine par"
+    "navLabel": "Navigation du pied de page",
+    "learn": "Apprendre",
+    "explore": "Explorer",
+    "play": "Jouer",
+    "garden": "Le jardin",
+    "notesRepo": "Les notes",
+    "codeRepo": "Le code",
+    "contentLabel": "Contenu",
+    "codeLabel": "Code",
+    "engraving": "Gravure\u00a0:",
+    "threeTrees": "Les Trois Arbres",
+    "engravingAlt": "Rembrandt, Les Trois Arbres, eau-forte, 1643"
   },
   "home": {
     "intro1": "Ce fichier rassemble tout ce que j’ai appris à maîtriser au fil de ma vie.",

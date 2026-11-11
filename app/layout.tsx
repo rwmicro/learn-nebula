@@ -27,6 +27,8 @@ import "../assets/css/palette.css";
 // the shared phone components (large titles, tiles).
 import "../assets/css/phone";
 import "../assets/css/chat.css";
+// The site footer, a sky over an etching (components/layout/Footer.tsx).
+import "../assets/css/footer.css";
 
 // Message bundles are static files (/i18n/<locale>.<hash>.js, lib/i18n-assets.ts)
 // cached for a year, not inlined: inlining all five cost ~220 KB per page, twice

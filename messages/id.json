@@ -217,8 +217,18 @@
     "licenseMiddle": ", dan kode sumbernya di bawah ",
     "licenseGpl": "GNU GPL",
     "licenseAfter": ". Awalnya dibuat oleh ",
-    "progression": "Kemajuanku: ekspor, impor",
-    "origin": "Awalnya dibuat oleh"
+    "navLabel": "Navigasi kaki halaman",
+    "learn": "Belajar",
+    "explore": "Jelajahi",
+    "play": "Bermain",
+    "garden": "Taman",
+    "notesRepo": "Catatan",
+    "codeRepo": "Kode",
+    "contentLabel": "Konten",
+    "codeLabel": "Kode",
+    "engraving": "Etsa:",
+    "threeTrees": "Tiga Pohon",
+    "engravingAlt": "Rembrandt, Tiga Pohon, etsa, 1643"
   },
   "home": {
     "intro1": "Berkas ini berisi semua yang saya kuasai sepanjang perjalanan hidup saya.",
