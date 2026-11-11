@@ -28,8 +28,9 @@
       transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
       opacity 0.25s;
   }
-  /* A light veil of paper under the bar: the page still shows through the
-     glass, but the labels never sit on busy text. */
+  /* A soft scroll edge under the bar (Apple's "scroll edge effect"): the
+     page pales and blurs a little as it reaches the bottom, so the labels
+     never sit on sharp busy text, but it still shows through the glass. */
   .tabbar::before {
     content: "";
     position: fixed;
@@ -38,7 +39,11 @@
     bottom: 0;
     z-index: -1;
     height: calc(6.5rem + var(--gk-safe-b));
-    background: linear-gradient(transparent, color-mix(in srgb, var(--paper) 45%, transparent) 70%);
+    background: linear-gradient(transparent, color-mix(in srgb, var(--paper) 35%, transparent) 70%);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
+    -webkit-mask: linear-gradient(transparent, #000 60%);
+    mask: linear-gradient(transparent, #000 60%);
     pointer-events: none;
   }
   .tabbar-bar {
@@ -223,8 +228,8 @@
   /* While a finger slides, the pill grows past the bar: Chromium would shift
      the bending by that much, so the bar is plain glass for the moment. */
   .tabbar-bar.has-lens.is-sliding {
-    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04) !important;
-    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04) !important;
+    -webkit-backdrop-filter: var(--glass-filter) !important;
+    backdrop-filter: var(--glass-filter) !important;
   }
   /* The sliding lens magnifies the tabs under it: a copy of the row, held
      in place under the moving pill and scaled with it. */
@@ -502,8 +507,8 @@
     padding: 0 1rem 0 0.75rem;
     border-radius: 1.375rem;
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
-    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
     border: 0.5px solid var(--glass-edge);
     box-shadow: var(--glass-shadow);
     color: var(--ink);
@@ -555,8 +560,8 @@
     width: 2.75rem;
     height: 2.75rem;
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
-    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
     border: 0.5px solid var(--glass-edge);
     box-shadow: var(--glass-shadow);
     color: var(--ink);
