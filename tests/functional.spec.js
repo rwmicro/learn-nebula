@@ -295,8 +295,10 @@ test.describe("Widgets", () => {
     // natural-voice.bundle.js and natural-voice.worker.js; ≈ 98 KB once
     // the switch said when the voice failed to load; ≈ 100 KB with the
     // glass's specular rim and Snell lens, lib/liquid-glass.ts; ≈ 101.5 KB
-    // once that rim's light followed the tilt and the mouse).
-    expect(bundle.length).toBeLessThan(102_500);
+    // once that rim's light followed the tilt and the mouse; ≈ 105.5 KB
+    // with the dock's gliding bubble and the highlighter's three colours
+    // and felt-tip stroke).
+    expect(bundle.length).toBeLessThan(106_500);
     // Those two load only where they are used (see below).
     expect(bundle).not.toContain("quiz-self-btn");
     expect(bundle).not.toContain("gloss-popover");
