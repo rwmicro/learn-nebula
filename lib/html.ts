@@ -1095,3 +1095,17 @@ export function noteSideHtml(o: {
     `</div>`
   );
 }
+
+/** "À la fin de cette note, tu sauras…": the note's `objectifs` above its
+ *  text. public/js/study-tools.js reads the same list back for the
+ *  self-check at the end of the note. */
+export function objectivesHtml(list: string[] | undefined): string {
+  if (!list?.length) return "";
+  const items = list.map((o) => `<li>${escapeHtml(o.replace(/[*_`]/g, ""))}</li>`).join("");
+  return (
+    `<aside class="note-objectives" data-pagefind-ignore aria-labelledby="note-objectives-h">` +
+    `<p class="note-objectives-k" id="note-objectives-h"${i18nAttrs("study.objectives")}>${escapeHtml(t("study.objectives"))}</p>` +
+    `<ul>${items}</ul></aside>`
+  );
+}
+

@@ -304,9 +304,9 @@ export interface LensOptions {
 /** Gives `el` the light its rim catches (every browser: an image the CSS
  *  `::after` of `.glass.has-spec` shows, swapped as the light moves) and,
  *  on Chromium, a rim that bends what is behind it. Neither when the reader asks for less
- *  transparency. Both follow the element's size. Returns the cleanup. */
+ *  transparency or more contrast (phone/base.css turns the glass to paper). Both follow the element's size. Returns the cleanup. */
 export function attachLens(el: HTMLElement, opts: LensOptions = {}): () => void {
-  if (typeof ResizeObserver === "undefined" || matchMedia("(prefers-reduced-transparency: reduce)").matches) {
+  if (typeof ResizeObserver === "undefined" || matchMedia("(prefers-reduced-transparency: reduce), (prefers-contrast: more)").matches) {
     return () => {};
   }
   const refract = backdropRefraction();

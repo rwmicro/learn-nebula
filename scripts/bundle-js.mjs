@@ -104,7 +104,7 @@ console.log(`bundle-js: bundled ${SCRIPTS.length} scripts → public/js/note.bun
 // translate-device: fetched by translate.js on the first translation the
 // Translator API can't do (the device model, lib/garden-ai.ts).
 // natural-voice: fetched by audio.js once the reader turns the natural voice on.
-for (const name of ["palette", "quiz", "glossary", "note-end", "widgets-data", "widgets-sci", "widgets-lang", "pronounce", "diagram-zoom", "mermaid-render", "translate-device", "natural-voice"]) {
+for (const name of ["palette", "quiz", "glossary", "note-end", "study-tools", "widgets-data", "widgets-sci", "widgets-lang", "pronounce", "diagram-zoom", "mermaid-render", "translate-device", "natural-voice"]) {
   await build({
     entryPoints: [join(JS_DIR, `${name}.js`)],
     outfile: join(JS_DIR, `${name}.bundle.js`),

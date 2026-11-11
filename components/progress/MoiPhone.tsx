@@ -36,6 +36,8 @@ function weekStart(now = new Date()): string {
   return localDay(d);
 }
 
+const FIXED_MONDAY = new Date("2026-01-05T12:00:00");
+
 const Chevron = () => (
   <svg className="moi-chev" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
     <path d="m9 5 7 7-7 7" />
@@ -116,8 +118,15 @@ export function MoiPhone() {
 
   const run = useMemo(() => currentRun(days), [days]);
   const best = useMemo(() => longestRun(days), [days]);
-  const today = localDay();
-  const since = weekStart();
+  // The calendar is drawn from the reader's today, known only once mounted:
+  // drawn from the build's day on the server, its month labels differed from
+  // the browser's and React threw a hydration error (#418). Until then, a
+  // fixed Monday and no month names.
+  const [now, setNow] = useState<Date | null>(null);
+  useEffect(() => setNow(new Date()), []);
+  const anchor = now ?? FIXED_MONDAY;
+  const today = localDay(anchor);
+  const since = weekStart(anchor);
   const active = (d: string) => !!days[d] && (days[d].r > 0 || days[d].c > 0);
   const cards = Object.entries(days)
     .filter(([d]) => d >= since)
@@ -125,18 +134,18 @@ export function MoiPhone() {
 
   // This week, Monday first: active days filled, today ringed.
   const weekDays = useMemo(() => {
-    const start = new Date(`${weekStart()}T12:00:00`);
+    const start = new Date(`${since}T12:00:00`);
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
       return { day: localDay(d), letter: d.toLocaleDateString(locale, { weekday: "narrow" }) };
     });
-  }, [locale]);
+  }, [locale, since]);
 
   // Twelve weeks as columns, Monday to Sunday down each; the current week
   // runs to today. A month's name heads the first week that starts in it.
   const heat = useMemo(() => {
-    const start = new Date(`${weekStart()}T12:00:00`);
+    const start = new Date(`${since}T12:00:00`);
     start.setDate(start.getDate() - 7 * 11);
     const cells: { day: string; level: number; future: boolean }[] = [];
     const months: string[] = [];
@@ -146,7 +155,7 @@ export function MoiPhone() {
       d.setDate(start.getDate() + i);
       const day = localDay(d);
       if (i % 7 === 0) {
-        months.push(d.getMonth() === lastMonth ? "" : d.toLocaleDateString(locale, { month: "short" }));
+        months.push(!now || d.getMonth() === lastMonth ? "" : d.toLocaleDateString(locale, { month: "short" }));
         lastMonth = d.getMonth();
       }
       const n = (days[day]?.r ?? 0) * 3 + (days[day]?.c ?? 0);
@@ -155,7 +164,7 @@ export function MoiPhone() {
     // Rows are weekdays: cell (week w, day d) is cells[w * 7 + d].
     const grid = Array.from({ length: 7 }, (_, d) => Array.from({ length: 12 }, (_, w) => cells[w * 7 + d]));
     return { months, grid, first: cells[0].day };
-  }, [days, locale, today]);
+  }, [days, locale, today, since, now]);
   const activeDays = Object.keys(days).filter((d) => d >= heat.first && active(d)).length;
 
   const langLabel = LANG_OPTIONS.find((o) => o.code === locale)?.label ?? locale;

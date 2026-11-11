@@ -362,11 +362,19 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
     let live = true;
     setRoute(null);
     void aiRoute(lang).then((r) => live && setRoute(r));
-    void listenMode(tag).then((m) => live && setMode(m));
+    // SpeechRecognition.available() is asked only once the reader touches the
+    // page: called on load it crashed the tab in Chromium without a speech
+    // service (headless 153). Until then, the cautious "browser's service".
+    setMode(canListen() ? "cloud" : "none");
+    const probe = () => void listenMode(tag).then((m) => live && setMode(m));
+    window.addEventListener("pointerdown", probe, { once: true });
+    window.addEventListener("keydown", probe, { once: true });
     void Promise.resolve().then(() => live && setCanNatural(naturalVoiceFor(tag)));
     void hasSystemVoice(tag).then((has) => live && setNoVoice(!has));
     return () => {
       live = false;
+      window.removeEventListener("pointerdown", probe);
+      window.removeEventListener("keydown", probe);
     };
   }, [lang, tag]);
 

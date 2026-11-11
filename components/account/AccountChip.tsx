@@ -24,10 +24,15 @@ import type { Look } from "@/lib/avatar";
  * or reviewed, and when the tab is hidden) and shows the coins just earned.
  * Renders nothing when accounts are off (no server, mail not configured).
  */
+const AUTH_ON_KEY = "gk-auth-on";
+
 export function AccountChip() {
   const locale = useLocale();
-  const [state, setState] = useState<{ on: boolean; in: boolean; look?: Look; coins?: number }>({
-    on: false,
+  // on: null until known. The last answer is kept in localStorage so the
+  // button shows at once on the next page instead of after /api/auth/config
+  // (a slow answer used to leave the bar without it).
+  const [state, setState] = useState<{ on: boolean | null; in: boolean; look?: Look; coins?: number }>({
+    on: null,
     in: false,
   });
   const [toast, setToast] = useState<{ n: number; kinds: string[]; id: number } | null>(null);
@@ -40,9 +45,20 @@ export function AccountChip() {
       setState((s) => ({ ...s, in: h.in, look: h.look, coins: h.coins }));
     };
     fromHint();
+    try {
+      const last = localStorage.getItem(AUTH_ON_KEY);
+      if (last === "1" || last === "0") setState((s) => ({ ...s, on: last === "1" }));
+    } catch {
+      /* storage blocked */
+    }
     void authConfig().then((c) => {
       if (!alive) return;
       setState((s) => ({ ...s, on: c.enabled }));
+      try {
+        localStorage.setItem(AUTH_ON_KEY, c.enabled ? "1" : "0");
+      } catch {
+        /* storage blocked */
+      }
       if (c.enabled && readHint().in) {
         void fetchMe().then(() => alive && (fromHint(), maybeSync()));
       }
@@ -109,7 +125,14 @@ export function AccountChip() {
       </>
     );
   }
-  if (!state.on) return null;
+  if (state.on === false) return null;
+  if (state.on === null)
+    // Not known yet: hold the button's room so the bar doesn't jump.
+    return (
+      <span className="account-login" aria-hidden="true" style={{ visibility: "hidden" }}>
+        {t("account.login", undefined, locale)}
+      </span>
+    );
   return (
     <a className="account-login" href="/compte/">
       {t("account.login", undefined, locale)}

@@ -28,7 +28,7 @@ export default function EchecsPage() {
     <main id="main" className="echecs">
       <PageHeader
         name="echecs"
-        back={{ href: "/notes/", labelKey: "tabbar.notes" }}
+        back={{ href: "/", labelKey: "tabbar.home" }}
         title={t("chess.title")}
         titleProps={{ "data-i18n": "chess.title" }}
       />

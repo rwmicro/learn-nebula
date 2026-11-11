@@ -205,6 +205,11 @@ const CALLOUT_ALIAS: Record<string, string> = {
   // « L'essentiel sur… » boxes.
   chiffres: "chiffres",
   figures: "chiffres",
+  // A worked solution, one step at a time: its numbered list is shown step
+  // by step behind "Étape suivante" (public/js/study-tools.js).
+  solution: "solution",
+  etapes: "solution",
+  steps: "solution",
   // Exercises (lib/exercises.ts): their own card when the body holds one.
   traduire: "ex",
   translate: "ex",
@@ -233,9 +238,11 @@ const CALLOUT_LABEL: Record<string, string> = {
   quiz: "Question",
   predict: "À ton avis ?",
   chiffres: "En quelques chiffres",
+  solution: "Solution pas à pas",
   ex: "Exercice",
 };
 const CALLOUT_ICON: Record<string, string> = {
+  solution: calloutSvg('<path d="M4 18h4v-4h4v-4h4V6h4"/>'),
   ex: calloutSvg('<path d="M4 7h10M4 12h7M4 17h10"/><path d="m15 14 2.5 2.5L22 12"/>'),
   note: calloutSvg(
     '<path d="M4 20h4L18 8a2 2 0 0 0-3-3L5 16v4z"/><path d="M14 6l3 3"/>',
@@ -824,7 +831,30 @@ function rehypeHeadingIds() {
   };
 }
 
-const SELF_NUMBERED = /^\s*(?:\d+|[IVXLC]+)[.)\s]/;
+/** A hand-written heading number: "1.", "2)", "1.1", "1.2.3 ", "IV." —
+ *  followed by a space and the title itself. */
+const HAND_NUMBER = /^\s*(?:\d+(?:\.\d+)+\.?|\d+[.)]|[IVXLC]+[.)])\s+(?=\S)/;
+
+/** Drops the numbers rehypeOutline flagged (`data-hand-number`) from the
+ *  heading's first text, once its id is set. */
+export function rehypeDropHandNumbers() {
+  return (tree: Root) => {
+    visit(tree, "element", (node: Element) => {
+      if (!/^h[2-4]$/.test(node.tagName) || node.properties.dataHandNumber == null) return;
+      delete node.properties.dataHandNumber;
+      let done = false;
+      const strip = (n: ElementContent) => {
+        if (done) return;
+        if (n.type === "text") {
+          if (!n.value.trim()) return;
+          n.value = n.value.replace(HAND_NUMBER, "");
+          done = true;
+        } else if (n.type === "element") n.children.forEach(strip);
+      };
+      node.children.forEach(strip);
+    });
+  };
+}
 
 function slugText(s: string): string {
   return (
@@ -852,8 +882,8 @@ function textOf(node: ElementContent | RootContent): string {
  *   bullets) is a lead-in, not body text: `.lead-in`, styled as a label, and
  *   never the paragraph that gets the dropcap; under a section it gets an id
  *   (`s-évolution` → `s-evolution`), so the left rail can list it;
- * - two sections or more, none numbered by hand, are numbered i., ii.… in the
- *   margin (`.sec-n`, a CSS counter).
+ * - two sections or more are numbered i., ii.… in the
+ *   margin (`.sec-n`, a CSS counter), in place of any hand-written "1.".
  */
 export function rehypeOutline() {
   return (tree: Root) => {
@@ -925,10 +955,22 @@ export function rehypeOutline() {
       }
       break;
     }
-    if (sections.length >= 2 && !sections.some((h) => SELF_NUMBERED.test(textOf(h)))) {
+    // Numbered by hand ("1. Intro", "1.1 Détail") or not, every note reads
+    // the same: the margin's i., ii.… (audit UI 2026-11-10 — a note with its
+    // own "1." beside one with "i." in the margin read as two systems). The
+    // author's numbers are only flagged here and dropped by
+    // rehypeDropHandNumbers, after rehypeSlug, so the ids (and every link to
+    // "#1-intro") stay what they were.
+    if (sections.length >= 2) {
+      const byHand = sections.some((h) => HAND_NUMBER.test(textOf(h)));
       for (const h of sections) {
         const cls = h.properties.className;
         h.properties.className = [...(Array.isArray(cls) ? cls : []), "sec-n"];
+      }
+      if (byHand) {
+        visit(tree, "element", (node: Element) => {
+          if (/^h[2-4]$/.test(node.tagName) && HAND_NUMBER.test(textOf(node))) node.properties.dataHandNumber = "";
+        });
       }
     }
     // A small fleuron (lib/deco-art.ts) between two sections: before each
@@ -1951,6 +1993,65 @@ export interface Rendered {
   hasGlossary: boolean;
 }
 
+const TRUE_FALSE = /^(\s*>\s*)\[!(?:vraifaux|vrai-faux|truefalse|true-false|idee-recue|idée-reçue)\]([+-]?)\s*(.*)$/i;
+const TF_ANSWER = /^(vrai|faux|true|false)\b[\s.,:;!—–-]*/i;
+
+/**
+ * `> [!vraifaux] Statement` + a body opening on "Vrai." / "Faux." (and the
+ * explanation) → a two-choice `[!quiz]`: misconceptions asked as such, the
+ * explanation shown with the answer. Without a title, the body's first line
+ * is the statement. A block whose answer can't be read stays as written.
+ */
+export function preprocessTrueFalse(raw: string): string {
+  if (!/\[!(?:vrai|true|id[eé]e)/i.test(raw)) return raw;
+  const lines = raw.split("\n");
+  const out: string[] = [];
+  let fence = false;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^\s*(```|~~~)/.test(line)) fence = !fence;
+    const m = fence ? null : TRUE_FALSE.exec(line);
+    if (!m) {
+      out.push(line);
+      continue;
+    }
+    const [, quote, fold, title] = m;
+    const body: string[] = [];
+    let j = i + 1;
+    for (; j < lines.length && /^\s*>/.test(lines[j]); j++) body.push(lines[j].replace(/^\s*>\s?/, ""));
+    let statement = title.trim();
+    let rest = body;
+    if (!statement) {
+      const k = rest.findIndex((l) => l.trim());
+      if (k < 0) {
+        out.push(line);
+        continue;
+      }
+      statement = rest[k].trim();
+      rest = rest.slice(k + 1);
+    }
+    const k = rest.findIndex((l) => l.trim());
+    const a = k < 0 ? null : TF_ANSWER.exec(rest[k].trim());
+    if (!a) {
+      out.push(line);
+      continue;
+    }
+    const isTrue = /^(vrai|true)$/i.test(a[1]);
+    const english = /^(true|false)$/i.test(a[1]);
+    const explanation = [rest[k].trim().slice(a[0].length), ...rest.slice(k + 1)];
+    out.push(
+      `${quote}[!quiz]${fold} ${statement}`,
+      `${quote}- [${isTrue ? "x" : " "}] ${english ? "True" : "Vrai"}`,
+      `${quote}- [${isTrue ? " " : "x"}] ${english ? "False" : "Faux"}`,
+    );
+    if (explanation.some((l) => l.trim())) {
+      out.push(quote.trimEnd(), ...explanation.map((l) => `${quote}${l}`.trimEnd()));
+    }
+    i = j - 1;
+  }
+  return out.join("\n");
+}
+
 export async function renderMarkdown(
   raw: string,
   opts: {
@@ -1961,7 +2062,7 @@ export async function renderMarkdown(
 ): Promise<Rendered> {
   const dir = opts.dir ?? "";
   const ph = newPlaceholders();
-  const text = preprocessMath(raw, ph);
+  const text = preprocessMath(preprocessTrueFalse(raw), ph);
 
   const processor = unified()
     .use(remarkParse)
@@ -1984,6 +2085,7 @@ export async function renderMarkdown(
     .use(rehypeOutline)
     .use(rehypeHeadingIds)
     .use(rehypeSlug)
+    .use(rehypeDropHandNumbers)
     .use(rehypeAutolinkHeadings, {
       behavior: "append",
       // className first: buildToc (lib/html.ts) strips `<a class="anchor"…`.

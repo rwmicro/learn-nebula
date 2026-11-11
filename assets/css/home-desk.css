@@ -113,7 +113,7 @@
   .hd3-ways .hd-ic { width: 44px; height: 44px; }
   .hd3-ways b { display: block; font: 600 17px var(--font-ui); }
   .hd3-ways small { display: block; font: 400 14px/1.35 var(--font-ui); color: var(--hd-muted-warm); }
-  .hd3-ways .main a { background: var(--garden); border-color: var(--garden); color: #fff; }
+  .hd3-ways .main a { background: var(--garden-deep); border-color: var(--garden-deep); color: var(--garden-deep-ink); }
   .hd3-ways .main small { color: rgb(255 255 255 / .82); }
   .hd3-ways .main .hd-ic { background: rgb(255 255 255 / .16); color: #fff; }
   .hd3-how { padding: 20px 22px; }

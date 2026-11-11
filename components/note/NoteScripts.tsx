@@ -43,6 +43,9 @@ export function NoteFeatureScripts({
   return (
     <>
       {path && <Script src={jsAsset("note-end.bundle.js")} strategy="afterInteractive" />}
+      {/* Mastery dots, self-check, free recall, [!solution] steps… on every
+          note, its own bundle so note.bundle.js stays light. */}
+      <Script src={jsAsset("study-tools.bundle.js")} strategy="lazyOnload" />
       {quiz && <Script src={jsAsset("quiz.bundle.js")} strategy="afterInteractive" />}
       {glossary && (
         <Script src={jsAsset("glossary.bundle.js")} strategy="afterInteractive" />
