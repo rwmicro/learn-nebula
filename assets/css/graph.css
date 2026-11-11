@@ -645,8 +645,8 @@
     padding: 0;
     border-radius: 50%;
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
-    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
     border: 0.5px solid var(--glass-edge);
     box-shadow: var(--glass-shadow);
     color: var(--ink);
@@ -671,8 +671,8 @@
     border: 0.5px solid var(--glass-edge);
     border-radius: 1.375rem;
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
-    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
     box-shadow: var(--glass-shadow);
     font-size: 1rem;
   }
@@ -697,8 +697,8 @@
     border: 0.5px solid var(--glass-edge);
     border-radius: 1.25rem;
     background: var(--glass-bg);
-    -webkit-backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
-    backdrop-filter: blur(10px) saturate(1.9) brightness(1.04);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
     box-shadow: var(--glass-shadow);
     font: 600 0.9375rem var(--font-ui);
     color: var(--ink);
