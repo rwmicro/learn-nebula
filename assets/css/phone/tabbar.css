@@ -28,6 +28,51 @@
       transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
       opacity 0.25s;
   }
+  /* The bar's glass, after Apple Music's: a neutral grey pane that takes
+     its colour only from what scrolls behind it. Barely saturated (the
+     shared 1.8 turned a teal or purple card into a coloured stain under a
+     tab), a light blur so the page stays clear through it, a lighter pane
+     in dark mode, and a thin bright edge all around. */
+  .tabbar {
+    --glass-bg: rgb(250 250 250 / 0.38);
+    --glass-filter: blur(4px) saturate(1.15) brightness(1.04);
+    --glass-edge: rgb(255 255 255 / 0.9);
+    --glass-rim-o: 1;
+    --glass-on: rgb(0 0 0 / 0.06);
+  }
+  :root[data-theme="dark"] .tabbar {
+    --glass-bg: rgb(165 165 165 / 0.2);
+    --glass-filter: blur(4px) saturate(1.15) brightness(1.15);
+    --glass-edge: rgb(255 255 255 / 0.3);
+    --glass-rim-o: 0.75;
+    --glass-spec-o: 0.8;
+    --glass-on: rgb(255 255 255 / 0.13);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) .tabbar {
+      --glass-bg: rgb(165 165 165 / 0.2);
+      --glass-filter: blur(4px) saturate(1.15) brightness(1.15);
+      --glass-edge: rgb(255 255 255 / 0.3);
+      --glass-rim-o: 0.75;
+      --glass-spec-o: 0.8;
+      --glass-on: rgb(255 255 255 / 0.13);
+    }
+  }
+  /* Less transparency or more contrast still win (base.css): the tokens
+     set here would otherwise shadow the ones it puts on :root. */
+  @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+    :root .tabbar.tabbar {
+      --glass-bg: var(--paper-raised);
+      --glass-filter: none;
+    }
+  }
+  @media (prefers-contrast: more) {
+    :root .tabbar.tabbar {
+      --glass-edge: var(--ink);
+      --glass-rim-o: 0;
+      --glass-on: color-mix(in srgb, var(--ink) 14%, transparent);
+    }
+  }
   /* A soft scroll edge under the bar (Apple's "scroll edge effect"): the
      page pales and blurs a little as it reaches the bottom, so the labels
      never sit on sharp busy text, but it still shows through the glass. */
@@ -105,8 +150,9 @@
     left: 0;
     z-index: 0;
     border-radius: 1.7rem;
+    /* A soft grey pill, no rim of its own: the coloured icon says which
+       tab is current. */
     background: var(--glass-on);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
     pointer-events: none;
     transition:
       transform 0.42s cubic-bezier(0.3, 1.35, 0.5, 1),
@@ -162,7 +208,7 @@
   .tabbar-tab[aria-current="page"] .tabbar-fill,
   .tabbar-tab.is-lit .tabbar-fill {
     fill: currentColor;
-    fill-opacity: 0.22;
+    fill-opacity: 0.45;
   }
   .tabbar-badge {
     position: absolute;
