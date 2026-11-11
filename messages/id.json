@@ -336,8 +336,8 @@
     "easy": "Mudah",
     "done": "Tidak ada yang perlu diulang hari ini.",
     "doneNext": "Tidak ada yang perlu diulang hari ini — pengulangan berikutnya: {date}",
-    "reset": "Atur ulang kemajuan",
-    "resetConfirm": "Atur ulang semua kemajuan dek ini? Tindakan ini tidak dapat dibatalkan.",
+    "resetHold": "Tahan untuk mengatur ulang kemajuan",
+    "resetHint": "Semua kemajuan dek ini akan dihapus. Tahan sampai tombol penuh.",
     "ivNow": "< 1 hr",
     "ivDays": "{n} hr",
     "ivMonths": "{n} bln",
@@ -1004,9 +1004,7 @@
     "delete": "Hapus akunku",
     "dangerTitle": "Hapus akun",
     "deleteText": "Akun, koin, tukang kebun, dan salinan kemajuanmu dihapus untuk selamanya. Kemajuan yang tersimpan di peramban ini tetap ada.",
-    "deleteWord": "hapus",
-    "deleteType": "Untuk mengonfirmasi, ketik “{word}”:",
-    "deleteNow": "Hapus selamanya",
+    "deleteNow": "Tahan untuk menghapus",
     "cancel": "Batal",
     "sentTitle": "Tautannya sedang dikirim",
     "resend": "Kirim ulang tautan",
@@ -1138,7 +1136,11 @@
     "open": "Sorotan: tambahkan catatan atau hapus",
     "noteLabel": "Catatanku tentang bagian ini",
     "save": "Simpan",
-    "remove": "Hapus sorotan"
+    "remove": "Hapus sorotan",
+    "colors": "Warna sorotan",
+    "c1": "Kuning: untuk diingat",
+    "c2": "Hijau: untuk diulang",
+    "c3": "Merah muda: untuk ditanyakan"
   },
   "todayReview": {
     "title": "Ulang semuanya",
@@ -2093,6 +2095,10 @@
     "dlLoading": "Memuat model",
     "dlBytes": "{a} dari {b}",
     "dlCancel": "Batal",
+    "dlGot": "terunduh",
+    "dlLeft": "tersisa",
+    "dlLeftMin": "≈ {n} mnt",
+    "dlLeftSec": "≈ {n} dtk",
     "dlWait": "Pertanyaanmu akan dikirim begitu model siap.",
     "dlTab": "Kamu bisa menutup obrolan ini dan membaca catatannya: pengunduhan tetap berjalan selama tab terbuka.",
     "dlReadyPhone": "Model siap · tersimpan di ponsel ini",
@@ -2112,7 +2118,7 @@
     "setDownloaded": "{name} · diunduh pada {date}",
     "setNotDownloaded": "{name} · belum diunduh",
     "setSpace": "Ruang terpakai",
-    "setDelete": "Hapus model (membebaskan {n} GB)",
+    "setDelete": "Tahan untuk menghapus model (membebaskan {n} GB)",
     "setFail": "Jika model tidak dapat menjawab",
     "setFailA": "Ponsel terlalu lama, memori penuh…",
     "setFailB": "Asisten akan memberitahumu dan menawarkan untuk mencoba lagi. Tidak ada yang dikirim ke AI daring.",
@@ -2869,5 +2875,9 @@
     "calibSure": "Saat yakin, kamu benar {pct}% dari waktu ({n} jawaban).",
     "calibUnsure": "Saat ragu: {pct}% ({n}).",
     "calibTip": "Keyakinan yang sering salah menunjukkan apa yang perlu diulang lebih dulu."
+  },
+  "hold": {
+    "hint": "Tahan sampai tombol penuh",
+    "tooShort": "Tahan sampai selesai"
   }
 }

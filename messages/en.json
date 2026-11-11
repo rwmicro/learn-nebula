@@ -336,8 +336,8 @@
     "easy": "Easy",
     "done": "Nothing to review today.",
     "doneNext": "Nothing to review today — next review: {date}",
-    "reset": "Reset progress",
-    "resetConfirm": "Reset all progress for this deck? This cannot be undone.",
+    "resetHold": "Hold to reset progress",
+    "resetHint": "All progress on this deck will be erased. Keep pressing until the button is full.",
     "ivNow": "< 1 d",
     "ivDays": "{n} d",
     "ivMonths": "{n} mo",
@@ -1004,9 +1004,7 @@
     "delete": "Delete my account",
     "dangerTitle": "Delete the account",
     "deleteText": "The account, its coins, its gardener and its copy of your progress are erased for good. The progress kept in this browser stays.",
-    "deleteWord": "delete",
-    "deleteType": "To confirm, type “{word}”:",
-    "deleteNow": "Delete for good",
+    "deleteNow": "Hold to delete",
     "cancel": "Cancel",
     "sentTitle": "The link is on its way",
     "resend": "Send the link again",
@@ -1138,7 +1136,11 @@
     "open": "Highlight: add a note or remove it",
     "noteLabel": "My note on this passage",
     "save": "Save",
-    "remove": "Remove highlight"
+    "remove": "Remove highlight",
+    "colors": "Highlight colour",
+    "c1": "Yellow: to remember",
+    "c2": "Green: to review",
+    "c3": "Pink: to ask about"
   },
   "todayReview": {
     "title": "Review everything",
@@ -2093,6 +2095,10 @@
     "dlLoading": "Loading the model",
     "dlBytes": "{a} of {b}",
     "dlCancel": "Cancel",
+    "dlGot": "downloaded",
+    "dlLeft": "left",
+    "dlLeftMin": "≈ {n} min",
+    "dlLeftSec": "≈ {n} s",
     "dlWait": "Your question will go as soon as the model is ready.",
     "dlTab": "You can close this chat and read the note: the download goes on while the tab stays open.",
     "dlReadyPhone": "Model ready · kept on this phone",
@@ -2112,7 +2118,7 @@
     "setDownloaded": "{name} · downloaded on {date}",
     "setNotDownloaded": "{name} · not downloaded yet",
     "setSpace": "Space used",
-    "setDelete": "Delete the model (frees {n} GB)",
+    "setDelete": "Hold to delete the model (frees {n} GB)",
     "setFail": "If the model can't answer",
     "setFailA": "Phone too old, memory full…",
     "setFailB": "The assistant says so and offers to try again. Nothing is sent to an online AI.",
@@ -2869,5 +2875,9 @@
     "calibSure": "When you’re sure, you’re right {pct}% of the time ({n} answers).",
     "calibUnsure": "When you hesitate: {pct}% ({n}).",
     "calibTip": "Certainty that is often wrong points at what to review first."
+  },
+  "hold": {
+    "hint": "Keep pressing until the button is full",
+    "tooShort": "Keep holding until the end"
   }
 }

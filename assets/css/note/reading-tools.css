@@ -943,15 +943,31 @@ body[data-focus="true"] .title-note {
   display: none;
 }
 
-/* Highlights. */
+/* Highlights (public/js/highlights.js): a felt-tip stroke, its ends a
+   little uneven and each line its own stroke, in one of three colours. A new
+   one is drawn left to right, line after line. */
 mark.hl {
-  background: var(--mark-soft);
+  --hl-ink: var(--mark-soft);
+  background: linear-gradient(
+      100deg,
+      transparent 0 0.12em,
+      var(--hl-ink) 0.3em calc(100% - 0.3em),
+      transparent calc(100% - 0.12em)
+    )
+    no-repeat 0 62% / 100% 80%;
   color: inherit;
-  padding: 0.05em 0;
-  border-radius: var(--radius-xs);
+  padding: 0.05em 0.15em;
+  margin-inline: -0.15em;
+  border-radius: 0.3em 0.6em 0.35em 0.55em;
   cursor: pointer;
   -webkit-box-decoration-break: clone;
   box-decoration-break: clone;
+}
+mark.hl--c2 {
+  --hl-ink: color-mix(in srgb, #4fae62 32%, transparent);
+}
+mark.hl--c3 {
+  --hl-ink: color-mix(in srgb, #f0708f 30%, transparent);
 }
 mark.hl--note {
   border-bottom: 2px dotted var(--warn);
@@ -960,12 +976,44 @@ mark.hl:focus-visible {
   outline: 2px solid var(--garden);
 }
 mark.hl--new {
-  animation: hl-in 0.8s ease;
+  animation: hl-draw 0.5s cubic-bezier(0.4, 0, 0.2, 1) var(--hl-delay, 0s)
+    backwards;
 }
-@keyframes hl-in {
+:dir(rtl) mark.hl {
+  background-position-x: 100%;
+}
+@keyframes hl-draw {
   from {
-    background: var(--mark);
+    background-size: 0% 80%;
   }
+}
+/* The colours in the highlight's card. */
+.hl-card-colors {
+  display: flex;
+  gap: 0.45rem;
+  margin-top: 0.55rem;
+}
+.hl-swatch {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  background: var(--sw);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+.hl-swatch--c1 {
+  --sw: color-mix(in srgb, var(--mark) 70%, var(--paper));
+}
+.hl-swatch--c2 {
+  --sw: color-mix(in srgb, #4fae62 60%, var(--paper));
+}
+.hl-swatch--c3 {
+  --sw: color-mix(in srgb, #f0708f 60%, var(--paper));
+}
+.hl-swatch[aria-pressed="true"] {
+  border-color: var(--ink);
 }
 .hl-card {
   position: absolute;

@@ -7,14 +7,37 @@
 // the article (first occurrence, whitespace-insensitive) and wrapped in
 // <mark class="hl">; one that no longer appears is simply not drawn (it
 // stays listed on /progression/). Clicking a highlight opens a small card to
-// add a personal note or remove it.
+// add a personal note, change its colour or remove it.
+//
+// Three marker colours, one per use: yellow "à retenir" (the default, not
+// stored), green "à revoir", pink "à demander". A new highlight takes the
+// colour picked last. It is drawn like a felt-tip stroke, left to right
+// (reading-tools.css `mark.hl--new`).
 import {
   loadHighlights,
   saveHighlights,
   addHighlight,
   updateHighlight,
   normalizeQuote,
+  highlightColor,
 } from "../../lib/personal";
+
+const COLOR_KEY = "gkHlColor";
+const lastColor = () => {
+  try {
+    return highlightColor(Number(localStorage.getItem(COLOR_KEY)));
+  } catch {
+    return 1;
+  }
+};
+const keepColor = (c) => {
+  try {
+    localStorage.setItem(COLOR_KEY, String(c));
+  } catch {
+    /* private mode: the colour just isn't remembered */
+  }
+};
+const colorClass = (c) => (c === 2 || c === 3 ? ` hl--c${c}` : "");
 
 (function () {
   const article = document.querySelector(".article-body");
@@ -70,7 +93,7 @@ import {
   }
 
   /** Wrap every text node piece inside `range` in a <mark>. */
-  function wrap(range, id, note) {
+  function wrap(range, id, note, color) {
     const nodes = [];
     const walker = document.createTreeWalker(range.commonAncestorContainer.nodeType === 3 ? range.commonAncestorContainer.parentNode : range.commonAncestorContainer, NodeFilter.SHOW_TEXT);
     for (let n = walker.nextNode(); n; n = walker.nextNode()) {
@@ -88,7 +111,7 @@ import {
       }
       if (end < node.data.length) node.splitText(end);
       const m = document.createElement("mark");
-      m.className = "hl" + (note ? " hl--note" : "");
+      m.className = "hl" + (note ? " hl--note" : "") + colorClass(color);
       m.dataset.hl = id;
       m.tabIndex = marks.length ? -1 : 0;
       m.setAttribute("role", "button");
@@ -117,7 +140,7 @@ import {
     for (const [id, h] of Object.entries(mine.items)) {
       if (h.del || article.querySelector(`mark.hl[data-hl="${CSS.escape(id)}"]`)) continue;
       const r = findRange(h.q, idx);
-      if (r) wrap(r, id, h.n);
+      if (r) wrap(r, id, h.n, h.c);
     }
   }
 
@@ -130,6 +153,15 @@ import {
   card.innerHTML =
     `<label class="hl-card-label"><span data-i18n="highlight.noteLabel">${esc(tt("highlight.noteLabel"))}</span>` +
     `<textarea rows="3" maxlength="2000"></textarea></label>` +
+    `<div class="hl-card-colors" role="group" aria-label="${esc(tt("highlight.colors"))}" data-i18n-aria-label="highlight.colors">` +
+    [1, 2, 3]
+      .map(
+        (c) =>
+          `<button type="button" class="hl-swatch hl-swatch--c${c}" data-c="${c}" aria-pressed="false"` +
+          ` aria-label="${esc(tt(`highlight.c${c}`))}" data-i18n-aria-label="highlight.c${c}" title="${esc(tt(`highlight.c${c}`))}" data-i18n-title="highlight.c${c}"></button>`,
+      )
+      .join("") +
+    `</div>` +
     `<div class="hl-card-actions">` +
     `<button type="button" class="hl-card-save" data-i18n="highlight.save">${esc(tt("highlight.save"))}</button>` +
     `<button type="button" class="hl-card-remove" data-i18n="highlight.remove">${esc(tt("highlight.remove"))}</button>` +
@@ -147,6 +179,7 @@ import {
     opener = mark;
     const h = loadHighlights()[slug]?.items[openId];
     ta.value = h?.n || "";
+    paintSwatches(highlightColor(h?.c));
     const said = card.querySelector(".hl-card-said");
     said.textContent = "";
     said.removeAttribute("data-i18n");
@@ -173,6 +206,28 @@ import {
       .forEach((m) => m.classList.toggle("hl--note", !!ta.value.trim()));
     closeCard();
   });
+  function paintSwatches(c) {
+    card
+      .querySelectorAll(".hl-swatch")
+      .forEach((b) =>
+        b.setAttribute("aria-pressed", String(Number(b.dataset.c) === c)),
+      );
+  }
+  card.querySelectorAll(".hl-swatch").forEach((b) =>
+    b.addEventListener("click", () => {
+      if (!openId) return;
+      const c = highlightColor(Number(b.dataset.c));
+      saveHighlights(updateHighlight(loadHighlights(), slug, openId, { c }));
+      keepColor(c);
+      paintSwatches(c);
+      article
+        .querySelectorAll(`mark.hl[data-hl="${CSS.escape(openId)}"]`)
+        .forEach((m) => {
+          m.classList.remove("hl--c2", "hl--c3");
+          if (c !== 1) m.classList.add(`hl--c${c}`);
+        });
+    }),
+  );
   card.querySelector(".hl-card-cloze").addEventListener("click", () => {
     if (!openId || !opener) return;
     const h = loadHighlights()[slug]?.items[openId];
@@ -226,10 +281,25 @@ import {
     if (!range) return;
     const quote = normalizeQuote(range.toString());
     if (!quote) return;
-    const { store, id } = addHighlight(loadHighlights(), slug, title, quote);
+    const color = lastColor();
+    const { store, id } = addHighlight(
+      loadHighlights(),
+      slug,
+      title,
+      quote,
+      Date.now(),
+      color,
+    );
     saveHighlights(store);
-    const marks = wrap(range, id, "");
-    marks[0]?.classList.add("hl--new");
+    const marks = wrap(range, id, "", color);
+    // Each line's piece is drawn in turn, like one stroke down the passage.
+    marks.forEach((m, i) => {
+      m.classList.add("hl--new");
+      m.style.setProperty("--hl-delay", `${Math.min(i, 8) * 0.12}s`);
+      m.addEventListener("animationend", () => m.classList.remove("hl--new"), {
+        once: true,
+      });
+    });
     window.dispatchEvent(new CustomEvent("gk:activity", { detail: { kind: "highlight" } }));
   });
 

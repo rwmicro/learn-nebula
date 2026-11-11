@@ -48,6 +48,28 @@ describe("highlights", () => {
     expect(listHighlights(mergeHighlights(noted, {}))[0].n).toBe("à revoir");
     expect(parseHighlights(JSON.parse(JSON.stringify(noted)))).toEqual(noted);
   });
+  it("keeps a marker colour, the first one unstored", () => {
+    const { store, id } = addHighlight(
+      {},
+      "n",
+      "Note",
+      "passage",
+      1_000_000,
+      3,
+    );
+    expect(store.n.items[id].c).toBe(3);
+    const green = updateHighlight(store, "n", id, { c: 2 }, 1_000_000);
+    expect(listHighlights(green)[0].c).toBe(2);
+    const yellow = updateHighlight(green, "n", id, { c: 1 }, 1_001_000);
+    expect(yellow.n.items[id].c).toBeUndefined();
+    expect(listHighlights(yellow)[0].c).toBe(1);
+    expect(
+      parseHighlights({
+        n: { title: "N", items: { a: { q: "x", t: 1, c: 7 } } },
+      }).n.items.a.c,
+    ).toBeUndefined();
+    expect(parseHighlights(JSON.parse(JSON.stringify(green)))).toEqual(green);
+  });
 });
 
 describe("activity", () => {

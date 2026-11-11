@@ -868,3 +868,51 @@ body[data-focus="true"] .note-meta {
     max-height: calc(100vh - 11.5rem);
   }
 }
+
+/* The bubble over the reading bar (public/js/note-dock.js): one for the
+   whole bar, gliding to the control under the pointer or the keyboard. */
+@media (min-width: 640px) {
+  .dock-tip {
+    position: absolute;
+    bottom: calc(100% + 0.6rem);
+    left: 0;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: var(--radius-sm);
+    background: var(--ink);
+    color: var(--paper);
+    font: 500 0.9rem/1 var(--font-ui);
+    white-space: nowrap;
+    pointer-events: none;
+    translate: -50% 0.25rem;
+    opacity: 0;
+    transition:
+      left 0.32s cubic-bezier(0.3, 1.3, 0.5, 1),
+      opacity 0.15s,
+      translate 0.15s;
+  }
+  .dock-tip.is-on {
+    opacity: 1;
+    translate: -50% 0;
+  }
+  .dock-tip.is-still {
+    transition: none;
+  }
+  .dock-tip kbd {
+    padding: 0.2rem 0.35rem;
+    border-radius: var(--radius-xs);
+    background: color-mix(in srgb, var(--paper) 20%, transparent);
+    font: 600 0.78rem/1 var(--font-ui);
+  }
+  .dock-tip [hidden] {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dock-tip {
+    transition: opacity 0.15s;
+  }
+}

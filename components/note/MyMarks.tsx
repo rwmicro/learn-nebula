@@ -91,7 +91,9 @@ export function MyMarks() {
           <ul className="marks-hl">
             {hl.map((h) => (
               <li key={`${h.slug}#${h.id}`}>
-                <blockquote>
+                <blockquote
+                  className={h.c === 1 ? undefined : `marks-hl--c${h.c}`}
+                >
                   <a href={textFragmentUrl(noteHref(h.slug), h.q)}>{h.q}</a>
                 </blockquote>
                 {h.n && <p className="marks-hl-note">{h.n}</p>}

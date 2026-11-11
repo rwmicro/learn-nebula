@@ -197,3 +197,37 @@ export function searchNotes<T extends NoteLink>(
     .slice(0, max)
     .map(([, n]) => n);
 }
+
+/** Where a download stands, for the time left: when it started being
+ *  measured and how much had arrived then. */
+export interface DownloadClock {
+  t0: number;
+  loaded0: number;
+}
+
+/** Restarts the clock when a new download begins (fewer bytes than the last
+ *  sample), and starts it on the first sample. */
+export function tickDownload(
+  clock: DownloadClock | null,
+  last: number,
+  loaded: number,
+  now: number,
+): DownloadClock {
+  if (!clock || loaded < last) return { t0: now, loaded0: loaded };
+  return clock;
+}
+
+/** Seconds left at the average speed since the clock started, or null while
+ *  there is too little to go on (under 2 s, or nothing arrived yet). */
+export function downloadSecondsLeft(
+  clock: DownloadClock | null,
+  loaded: number,
+  total: number,
+  now: number,
+): number | null {
+  if (!clock || !total) return null;
+  const dt = (now - clock.t0) / 1000;
+  const got = loaded - clock.loaded0;
+  if (dt < 2 || got <= 0) return null;
+  return Math.max(0, Math.round((total - loaded) / (got / dt)));
+}

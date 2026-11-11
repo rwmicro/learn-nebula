@@ -14,10 +14,63 @@ import { loadStore } from "@/lib/reading-progress";
 
 const WEEKS = 26;
 
+/** One day's plant, drawn in a 13 px cell: a dot for a day off, then a seed,
+ *  a sprout, a young plant and a tulip as the day did more. */
+function Plant({ level }: { level: number }) {
+  switch (level) {
+    case 0:
+      return <circle className="cal-dot" cx="6.5" cy="9" r="1.4" />;
+    case 1:
+      return (
+        <ellipse
+          className="cal-leaf cal-seed"
+          cx="6.5"
+          cy="10"
+          rx="2.6"
+          ry="1.8"
+        />
+      );
+    case 2:
+      return (
+        <>
+          <path className="cal-stem" d="M6.5 12V6.5" />
+          <path
+            className="cal-leaf"
+            d="M6.5 8.5q-3.6-.4-4-3.4q3.4 0 4 3.4zM6.5 7.6q3.6-.4 4-3.4q-3.4 0-4 3.4z"
+          />
+        </>
+      );
+    case 3:
+      return (
+        <>
+          <path className="cal-stem" d="M6.5 12.5V3" />
+          <path
+            className="cal-leaf"
+            d="M6.5 9.5q-4.6-.3-5-4.1q4.4 0 5 4.1zM6.5 6.8q4.6-.3 5-4.1q-4.4 0-5 4.1z"
+          />
+        </>
+      );
+    default:
+      return (
+        <>
+          <path className="cal-stem" d="M6.5 12.5V6" />
+          <path
+            className="cal-leaf"
+            d="M6.5 10.6q-4-.2-4.4-3.4q3.8 0 4.4 3.4z"
+          />
+          <path
+            className="cal-petal"
+            d="M3.6 1.6q0 4.8 2.9 4.8t2.9-4.8l-1.45 1.8L6.5 1l-1.45 2.4z"
+          />
+        </>
+      );
+  }
+}
+
 /**
- * Regularity calendar: one square per day over the last six months, darker
- * the more was done (notes finished, cards and questions reviewed), like
- * GitHub's contributions. Read from this browser (lib/personal.ts activity
+ * Regularity calendar: one cell per day over the last six months, where a
+ * plant grows taller the more was done (notes finished, cards and questions
+ * reviewed), up to a tulip: GitHub's contributions, as a garden. Read from this browser (lib/personal.ts activity
  * log + the reading store's "read" dates), so it needs no account; with one,
  * the sync brings the other devices' days in.
  */
@@ -110,15 +163,12 @@ export function ActivityCalendar() {
           {grid.cols.map((col, w) =>
             col.map((c, d) =>
               c.future ? null : (
-                <rect
+                <g
                   key={c.day}
-                  x={w * (CELL + GAP)}
-                  y={16 + d * (CELL + GAP)}
-                  width={CELL}
-                  height={CELL}
-                  rx={3}
-                  className={`cal-cell cal-l${level(c.n)}`}
+                  transform={`translate(${w * (CELL + GAP)} ${16 + d * (CELL + GAP)})`}
                 >
+                  <rect width={CELL} height={CELL} className="cal-cell" />
+                  <Plant level={level(c.n)} />
                   <title>
                     {dayFmt.format(new Date(`${c.day}T12:00:00`)) +
                       " · " +
@@ -126,7 +176,7 @@ export function ActivityCalendar() {
                         ? t("calendar.cell", { r: c.r, c: c.c }, locale)
                         : t("calendar.none", undefined, locale))}
                   </title>
-                </rect>
+                </g>
               ),
             ),
           )}
@@ -135,7 +185,15 @@ export function ActivityCalendar() {
       <p className="cal-legend" aria-hidden="true">
         <span>{t("calendar.less", undefined, locale)}</span>
         {[0, 1, 2, 3, 4].map((l) => (
-          <span key={l} className={`cal-key cal-l${l}`} />
+          <svg
+            key={l}
+            className="cal-key"
+            viewBox="0 0 13 13"
+            width="13"
+            height="13"
+          >
+            <Plant level={l} />
+          </svg>
         ))}
         <span>{t("calendar.more", undefined, locale)}</span>
       </p>
