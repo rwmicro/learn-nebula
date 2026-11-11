@@ -183,15 +183,15 @@ export function MobileTabBar() {
   // The refracting rim (Chromium; elsewhere the CSS glass alone).
   useEffect(() => {
     const off = [
-      barRef.current && attachLens(barRef.current, { depth: 34, chroma: 0.12 }),
-      searchRef.current && attachLens(searchRef.current, { depth: 30, chroma: 0.12 }),
+      barRef.current && attachLens(barRef.current, { depth: 34, chroma: 0.12, saturate: 1.15 }),
+      searchRef.current && attachLens(searchRef.current, { depth: 30, chroma: 0.12, saturate: 1.15 }),
     ];
     return () => off.forEach((f) => f?.());
   }, []);
   const hasMini = !!playing;
   useEffect(() => {
     if (!hasMini || !miniRef.current) return;
-    return attachLens(miniRef.current, { depth: 30, chroma: 0.12 });
+    return attachLens(miniRef.current, { depth: 30, chroma: 0.12, saturate: 1.15 });
   }, [hasMini]);
 
   useEffect(() => {
