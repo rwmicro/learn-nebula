@@ -13,7 +13,8 @@ import { loadStore } from "@/lib/reading-progress";
 import { htmlText } from "@/lib/deck-cards";
 import { FamilyIcon } from "@/components/ui/FamilyIcon";
 import type { PathFamily } from "@/lib/path-family";
-import type { PhoneDeck } from "@/components/review/CartesPhone";
+import { labelOf, subjectOf, type PhoneDeck } from "@/components/review/CartesPhone";
+import { starterDecks } from "@/lib/deck-starters";
 
 // "Réviser" from 1024px (cartes-desk.css shows it and hides the phone list
 // it stands in for): the desk (today's figures, "Tout réviser", the pile of
@@ -70,10 +71,6 @@ const ARROW = (
 /** How each index card leans in its folder. */
 const TILT = [-2.2, 1.6, -0.8, 2.4];
 
-function splitOnce(s: string, sep: string): [string, string] {
-  const i = s.indexOf(sep);
-  return [s.slice(0, i), s.slice(i + sep.length)];
-}
 
 const ico = (d: React.ReactNode) => (
   <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -86,6 +83,7 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
   const tr = (k: string, v?: Record<string, string | number>) => t(k, v, locale);
   const [counts, setCounts] = useState<Record<string, Count> | null>(null);
   const [notes, setNotes] = useState(0);
+  const [saved, setSaved] = useState(0);
   const [top, setTop] = useState<{ kind: "q"; text: string; from: string } | { kind: "deck"; label: string; n: number } | null>(null);
   const [run, setRun] = useState(0);
   const [log, setLog] = useState<ReviewLog>({});
@@ -126,16 +124,17 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
       dueQ.length
         ? { kind: "q", text: htmlText(dueQ[0].item.q), from: dueQ[0].item.title }
         : busiest && out[busiest.slug].due + out[busiest.slug].fresh > 0
-          ? { kind: "deck", label: busiest.label, n: out[busiest.slug].due + out[busiest.slug].fresh }
+          ? { kind: "deck", label: labelOf(busiest, (k, v) => t(k, v, locale)), n: out[busiest.slug].due + out[busiest.slug].fresh }
           : null,
     );
     setCounts(out);
     setNotes(dueQ.length);
+    setSaved(Object.values(noteDecks).reduce((n, d) => n + Object.keys(d.items).length, 0));
     setRun(currentRun(calendarDays(loadActivity(), reads)));
     setLog(loadLog());
     setWeek(forecast(states, day, 7));
     setToday(day);
-  }, [decks]);
+  }, [decks, locale]);
 
   let due = notes;
   let fresh = 0;
@@ -191,14 +190,9 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
 
   const state = counts === null ? "loading" : total > 0 ? "due" : Object.values(counts).some((c) => c.started) ? "done" : "new";
   // First visit: no deck started. Instead of a wall of zeros (0 to review,
-  // 0 new, ≈ 0 min, an empty year), three decks to start with, one per
-  // discipline, the fullest first.
-  const starters: PhoneDeck[] = [];
-  if (state === "new")
-    for (const d of [...decks].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))) {
-      if (starters.length === 3) break;
-      if (!starters.some((x) => x.group === d.group)) starters.push(d);
-    }
+  // 0 new, ≈ 0 min, an empty year), three short decks to start with, one
+  // per discipline (lib/deck-starters.ts).
+  const starters = state === "new" ? starterDecks(decks) : [];
 
   return (
     <div className="cdk" data-pagefind-ignore>
@@ -212,7 +206,7 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
               {starters.map((d) => (
                 <li key={d.slug}>
                   <a href={`/cartes/${d.slug}/`}>
-                    <b>{d.label}</b>
+                    <b>{labelOf(d, tr)}</b>
                     <span>{tr("cdk.goCards", { n: d.count.toLocaleString(locale) })}</span>
                   </a>
                 </li>
@@ -254,16 +248,13 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
                 {total > 0 && <small>{tr("cdk.goCards", { n: total })}</small>}
               </a>
             )}
-            <a className="cdk-alt" href="/cartes/entrainer/">
-              {tr("cdk.practice")}
-            </a>
           </p>
         </div>
 
         <a
           className="cdk-pile"
           href={state === "due" ? "/cartes/aujourdhui/" : starters[0] ? `/cartes/${starters[0].slug}/` : "#cdk-decks"}
-          aria-label={starters[0] ? starters[0].label : tr("cartesIndex.today")}
+          aria-label={starters[0] ? labelOf(starters[0], tr) : tr("cartesIndex.today")}
         >
           <span className="cdk-k" aria-hidden="true" />
           <span className="cdk-k" aria-hidden="true" />
@@ -284,7 +275,7 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
             ) : starters[0] ? (
               <>
                 <span className="cdk-tag">{tr("rv.startKicker")}</span>
-                <span className="cdk-q">{starters[0].label}</span>
+                <span className="cdk-q">{labelOf(starters[0], tr)}</span>
                 <span className="cdk-hint">{tr("cdk.goCards", { n: starters[0].count.toLocaleString(locale) })}</span>
               </>
             ) : (
@@ -295,12 +286,6 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
               </>
             )}
           </span>
-          {total > 0 && (
-            <span className="cdk-stamp" aria-hidden="true">
-              <b>{total}</b>
-              <span>{tr("cdk.today")}</span>
-            </span>
-          )}
         </a>
       </section>
 
@@ -380,10 +365,46 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
             const pct = tot ? Math.round((kn / tot) * 100) : 0;
             const started = list.some((d) => counts?.[d.slug]?.started);
             const one = list.length === 1;
-            // "Architecture · Essential Architecture": the subject on the
-            // label, the deck's own name under it.
-            const [name, sub] = one && list[0].label.includes(" · ") ? splitOnce(list[0].label, " · ") : [one ? list[0].label : group, ""];
+            const subject = subjectOf(list[0], tr);
             const href = `/cartes/${list[0].slug}/`;
+            // A subject of several decks opens the list of its decks, not
+            // whichever one sorted first.
+            const pick = `cdk-pick-${gi}`;
+            const tilt = (i: number) => ({ "--i": i, "--r": `${TILT[i]}deg` }) as React.CSSProperties;
+            const inside = (
+              <>
+                <span className="cdk-label">
+                  <b>{subject}</b>
+                  <em>{one ? tr("cdk.oneDeck") : tr("rv.deckCount", { n: list.length })}</em>
+                </span>
+                <span className="cdk-count">
+                  <b>{cards.toLocaleString(locale)}</b>
+                  {tr("cdk.cards")}
+                </span>
+                <span className="cdk-prog">
+                  <span className="cdk-crayon" role="img" aria-label={tr("cdk.ringAria", { n: pct })}>
+                    {started && kn > 0 && <i style={{ width: `${Math.max(pct, 3)}%` }} />}
+                  </span>
+                  {!started ? (
+                    <span className="cdk-pct is-idle">{tr("cdk.notStarted")}</span>
+                  ) : kn === 0 ? (
+                    <span className="cdk-pct is-idle">{tr("cdk.nothingYet")}</span>
+                  ) : (
+                    <span className="cdk-pct">{tr("cdk.learned", { n: pct })}</span>
+                  )}
+                </span>
+                <span className="cdk-open">
+                  {n > 0 ? tr("cdk.review") : one ? tr("cdk.open") : tr("cdk.choose")}
+                  {ARROW}
+                </span>
+                {n > 0 && (
+                  <span className="cdk-stamp2">
+                    <b>{n > 999 ? "999+" : n}</b>
+                    {tr("cdk.due")}
+                  </span>
+                )}
+              </>
+            );
             return (
               <li key={group} className="cdk-fold" data-family={family ?? undefined} style={{ "--d": `${Math.min(gi, 12) * 45}ms` } as React.CSSProperties}>
                 <div className="cdk-back">
@@ -395,53 +416,58 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
                   </span>
                 </div>
                 <div className="cdk-fiches">
-                  {one ? (
-                    <>
-                      <span className="cdk-fiche is-blank" aria-hidden="true" style={{ "--i": 0, "--r": "-1.5deg" } as React.CSSProperties} />
-                      <span className="cdk-fiche is-blank" aria-hidden="true" style={{ "--i": 1, "--r": "2deg" } as React.CSSProperties} />
-                    </>
-                  ) : (
-                    <>
-                      {list.slice(0, 3).map((d, i) => (
-                        <a key={d.slug} className="cdk-fiche" href={`/cartes/${d.slug}/`} title={d.name} style={{ "--i": i, "--r": `${TILT[i]}deg` } as React.CSSProperties}>
-                          <span>{d.name}</span>
-                          {dueOf(d) > 0 && <b>{dueOf(d)}</b>}
-                        </a>
-                      ))}
-                      {list.length > 3 && (
-                        <a className="cdk-fiche is-more" href={href} style={{ "--i": 3, "--r": `${TILT[3]}deg` } as React.CSSProperties}>
-                          <span>{tr("cdk.moreDecks", { n: list.length - 3 })}</span>
-                        </a>
-                      )}
-                    </>
+                  {list.slice(0, 3).map((d, i) => (
+                    <a key={d.slug} className="cdk-fiche" href={`/cartes/${d.slug}/`} title={d.name} style={tilt(i)}>
+                      <span>{d.name}</span>
+                      {dueOf(d) > 0 && <b>{dueOf(d)}</b>}
+                    </a>
+                  ))}
+                  {list.length > 3 && (
+                    <button type="button" className="cdk-fiche is-more" popoverTarget={pick} style={tilt(3)}>
+                      <span>{tr("cdk.moreDecks", { n: list.length - 3 })}</span>
+                    </button>
                   )}
                 </div>
-                <a className="cdk-front" href={href}>
-                  <span className="cdk-label">
-                    <b>{name}</b>
-                    <em>{sub || (one ? tr("cdk.oneDeck") : tr("rv.deckCount", { n: list.length }))}</em>
-                  </span>
-                  <span className="cdk-count">
-                    <b>{cards.toLocaleString(locale)}</b>
-                    {tr("cdk.cards")}
-                  </span>
-                  <span className="cdk-prog">
-                    <span className="cdk-crayon" role="img" aria-label={tr("cdk.ringAria", { n: pct })}>
-                      {started && <i style={{ width: `${Math.max(pct, 3)}%` }} />}
-                    </span>
-                    {started ? <span className="cdk-pct">{tr("cdk.learned", { n: pct })}</span> : <span className="cdk-pct is-idle">{tr("cdk.notStarted")}</span>}
-                  </span>
-                  <span className="cdk-open">
-                    {n > 0 ? tr("cdk.review") : tr("cdk.open")}
-                    {ARROW}
-                  </span>
-                  {n > 0 && (
-                    <span className="cdk-stamp2">
-                      <b>{n > 999 ? "999+" : n}</b>
-                      {tr("cdk.due")}
-                    </span>
-                  )}
-                </a>
+                {one ? (
+                  <a className="cdk-front" href={href}>
+                    {inside}
+                  </a>
+                ) : (
+                  <button type="button" className="cdk-front" popoverTarget={pick} aria-label={tr("cdk.chooseAria", { subject, n: list.length })}>
+                    {inside}
+                  </button>
+                )}
+                {!one && (
+                  <div id={pick} className="cdk-pick" popover="auto" data-family={family ?? undefined}>
+                    <p className="cdk-pick-h">
+                      <b>{subject}</b>
+                      <span>{tr("rv.deckCount", { n: list.length })}</span>
+                      <button type="button" className="cdk-pick-x" popoverTarget={pick} popoverTargetAction="hide" aria-label={tr("cdk.close")}>
+                        ×
+                      </button>
+                    </p>
+                    <ul>
+                      {list.map((d) => {
+                        const c = counts?.[d.slug];
+                        const due = dueOf(d);
+                        return (
+                          <li key={d.slug}>
+                            <a href={`/cartes/${d.slug}/`}>
+                              <span className="cdk-pick-n">{d.name}</span>
+                              <span className="cdk-pick-m">
+                                {c?.paused
+                                  ? tr("cartesIndex.paused")
+                                  : tr("cartesIndex.count", { count: d.count.toLocaleString(locale) })}
+                              </span>
+                              {due > 0 && <span className="cdk-pill">{due}</span>}
+                              {CHEV}
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                )}
               </li>
             );
           })}
@@ -466,9 +492,9 @@ export function CartesDesk({ decks }: { decks: PhoneDeck[] }) {
             </span>
             <span className="cdk-tx">
               <b>{tr("rv.noteQuestions")}</b>
-              <small>{tr("rv.noteQuestionsText")}</small>
+              <small>{saved ? tr("rv.noteQuestionsText") : tr("rv.noteQuestionsEmpty")}</small>
             </span>
-            <span className={notes ? "cdk-pill" : "cdk-pill is-soft"}>{notes}</span>
+            {saved > 0 && <span className={notes ? "cdk-pill" : "cdk-pill is-soft"}>{notes}</span>}
             {CHEV}
           </a>
         </li>

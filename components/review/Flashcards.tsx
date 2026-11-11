@@ -49,6 +49,8 @@ import { ReviewSession } from "@/components/review/ReviewSession";
 import { btn, quiet } from "@/components/review/srs-ui";
 import { DeckFace } from "@/components/review/DeckFace";
 import { AppBack } from "@/components/layout/AppBack";
+import { FamilyIcon } from "@/components/ui/FamilyIcon";
+import type { PathFamily } from "@/lib/path-family";
 
 // Card zoom levels (whole card content scales: text + images), smaller and
 // larger than the deck's own size (1).
@@ -67,7 +69,19 @@ type Mode = "review" | "browse";
  * per deck in localStorage (`srs:<slug>`); without storage the page falls
  * back to the plain flip-through.
  */
-export function Flashcards({ slug, name, family = null }: { slug: string; name: string; family?: string | null }) {
+export function Flashcards({
+  slug,
+  name,
+  family = null,
+  subject = null,
+}: {
+  slug: string;
+  name: string;
+  family?: string | null;
+  /** The subject the deck is filed under on /cartes/ ("Géographie" through
+   *  its `discipline.*` key, else the folder's name). */
+  subject?: { group: string; key: string | null } | null;
+}) {
   const locale = useLocale();
   const tr = (k: string, vars?: Record<string, string | number>) =>
     t(`flashcards.${k}`, vars, locale);
@@ -317,6 +331,7 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
   return (
     <main
       id="main"
+      data-family={family ?? undefined}
       className="flashcards-main mx-auto px-5 py-12 text-ink transition-[max-width] duration-200"
       style={{ maxWidth: `${60 * Math.max(1, zoom)}rem` }}
     >
@@ -330,6 +345,14 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
       </a>
 
       <header className="fc-head">
+        {subject && (
+          <p className="fc-subject">
+            <span className="fc-subject-ic" aria-hidden="true">
+              <FamilyIcon family={(family as PathFamily | null) ?? null} />
+            </span>
+            {subject.key ? t(subject.key, undefined, locale) : subject.group}
+          </p>
+        )}
         <h1 className="fc-title">
           {name}
           {cfg.sub && <span className="text-muted-warm"> › {cfg.sub}</span>}
@@ -400,7 +423,7 @@ export function Flashcards({ slug, name, family = null }: { slug: string; name: 
               type="button"
               onClick={handleCardClick}
               aria-label={tr("flip")}
-              className="flex w-full cursor-pointer items-center justify-center rounded-md border border-rule bg-paper p-6 text-center transition-[min-height] duration-200 hover:bg-paper sm:p-8"
+              className="fc-card flex w-full cursor-pointer items-center justify-center rounded-md border border-rule bg-paper p-6 text-center transition-[min-height] duration-200 hover:bg-paper sm:p-8"
               style={{ minHeight: `${22 * zoom}rem` }}
             >
               <DeckFace

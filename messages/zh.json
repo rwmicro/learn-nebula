@@ -1442,7 +1442,9 @@
     "nothingToday": "今天没有",
     "inProgress": "进行中",
     "deckCount": "{n} 个卡组",
-    "masteryAria": "已掌握 {known}，学习中 {learning}，未学 {unseen}"
+    "masteryAria": "已掌握 {known}，学习中 {learning}，未学 {unseen}",
+    "startPick": "从一个短卡组开始，或在阅读时保存笔记里的问题。",
+    "noteQuestionsEmpty": "阅读时保存一个问题：它会回到这里"
   },
   "road": {
     "levelOf": "第 {n} 级，共 {total} 级",
@@ -2789,10 +2791,8 @@
     "runLabel": "连续天数",
     "run": "{n} 天",
     "goCards": "{n} 张",
-    "practice": "练习错题",
     "flip": "翻转卡片",
     "next": "优先复习",
-    "today": "今天",
     "todayShort": "今天",
     "memory": "你一年的记忆",
     "memoryHint": "每格一天",
@@ -2815,7 +2815,11 @@
     "learned": "已掌握 {n}%",
     "notStarted": "尚未开始",
     "review": "复习",
-    "open": "打开"
+    "open": "打开",
+    "nothingYet": "尚未掌握任何卡片",
+    "choose": "选择",
+    "chooseAria": "{subject}：从 {n} 个卡组中选择",
+    "close": "关闭"
   },
   "study": {
     "objectives": "读完这篇笔记，你将能够",
