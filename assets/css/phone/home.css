@@ -891,6 +891,71 @@
     display: none;
   }
 
+  /* The site's language, beside "Moi": the site bar's compact switcher
+     (LangSwitcher), hidden on the other phone pages (it lives in Moi
+     there), comes back on the home as a second round glass button showing
+     the current code. The list opens under it, in the same glass. */
+  /* Two buttons now share the top right: the date keeps clear of both,
+     and the greeting starts just under them, so a long one (or a narrow
+     phone) never runs beneath "FR". */
+  .dash-date.dash-date {
+    padding-inline-end: 6.75rem;
+  }
+  .dash .dash-hello.dash-hello {
+    margin-top: 0.9rem;
+  }
+  html body:has(.home-masthead) .site-bar .site-bar-lang {
+    display: inline-flex;
+    pointer-events: auto;
+    margin-inline-end: 0.5rem;
+  }
+  html body:has(.home-masthead) .site-bar .site-bar-lang > span > button {
+    display: inline-flex;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: 0.5px solid var(--glass-edge);
+    border-radius: 50%;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
+    box-shadow: var(--glass-shadow);
+    color: var(--ink);
+    font: 700 0.8125rem/1 var(--font-ui);
+    letter-spacing: 0.04em;
+  }
+  html body:has(.home-masthead) .site-bar .site-bar-lang > span > button svg {
+    display: none;
+  }
+  html body:has(.home-masthead) .site-bar .site-bar-lang ul {
+    min-width: 9.5rem;
+    margin-top: 0.5rem;
+    padding: 0.375rem;
+    border: 0.5px solid var(--glass-edge);
+    border-radius: 1.25rem;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: var(--glass-filter);
+    backdrop-filter: var(--glass-filter);
+    box-shadow: var(--glass-shadow);
+  }
+  /* Glass alone lets the painting behind wash the names out: a nearly
+     opaque paper under it keeps every language readable. */
+  html body:has(.home-masthead) .site-bar .site-bar-lang ul {
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+  }
+  html body:has(.home-masthead) .site-bar .site-bar-lang ul button:not([aria-current]) {
+    color: var(--ink);
+  }
+  html body:has(.home-masthead) .site-bar .site-bar-lang ul button {
+    padding: 0.625rem 0.75rem;
+    border-radius: 0.875rem;
+    font: 600 0.9375rem/1.2 var(--font-ui);
+    letter-spacing: 0;
+    text-transform: none;
+    text-decoration: none;
+  }
+
 
 
 
