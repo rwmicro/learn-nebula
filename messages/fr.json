@@ -6,7 +6,7 @@
     "home": "Accueil",
     "appliedsciences": "Sciences appliquées",
     "socialsciences": "Sciences sociales",
-    "flashcards": "Flashcards",
+    "flashcards": "Réviser",
     "graph": "Graphe",
     "frise": "Frise",
     "menu": "Menu",
@@ -285,7 +285,8 @@
     "phoneText": "Sur téléphone, parcours les notes par discipline.",
     "phoneLink": "Voir les notes",
     "title": "Le graphe du jardin",
-    "loading": "Le graphe se dessine…"
+    "loading": "Le graphe se dessine…",
+    "intro": "Chaque point est une note, rangée par discipline autour du cercle ; un trait relie deux notes qui se citent. Survole un point pour voir ses voisins, clique pour l’ouvrir."
   },
   "lightbox": {
     "close": "Fermer",
@@ -1521,7 +1522,11 @@
     "ecouteIntro": "Des cartes de langue avec leur son, joué d’abord. Leur planning ne change pas.",
     "eclairIntro": "Un tirage de tes questions de notes. Leur planning ne change pas.",
     "done": "Entraînement terminé.",
-    "empty": "Rien à travailler ici pour l’instant."
+    "empty": "Rien à travailler ici pour l’instant.",
+    "melange": "Séance mélangée",
+    "melangeSub": "Toutes matières, en alternance",
+    "melangeN": "{n} cartes de toutes matières",
+    "melangeIntro": "Des cartes déjà apprises, une matière après l’autre : reconnaître ce que demande chaque question fait partie de l’exercice. Leur planning ne change pas."
   },
   "noteEnd": {
     "step": "Étape {n} sur {total}",
@@ -2811,5 +2816,44 @@
     "notStarted": "Pas commencé",
     "review": "Réviser",
     "open": "Ouvrir"
+  },
+  "study": {
+    "objectives": "À la fin de cette note, tu sauras",
+    "checkTitle": "Fais le point",
+    "checkIntro": "Pour chaque partie, dis honnêtement où tu en es : ce qui n’est pas sûr part dans « à relire ».",
+    "checkIntroObj": "Reprends les objectifs du début : sais-tu le faire maintenant ?",
+    "sait": "Je sais",
+    "doute": "Pas sûr",
+    "non": "Non",
+    "reread": "À relire :",
+    "rereadNone": "Rien à relire : bravo.",
+    "dotQuiz": "{ok} question(s) réussie(s) sur {n}",
+    "dotKnown": "Tu as dit que tu savais",
+    "dotReread": "À relire",
+    "recallTitle": "Rappel libre · 60 secondes",
+    "recallIntro": "Sans relire, écris tout ce qui te reste de la note. Te forcer à rappeler fixe mieux que relire.",
+    "recallStart": "Commencer",
+    "recallPlaceholder": "Ce dont je me souviens…",
+    "recallDone": "J’ai fini",
+    "recallScore": "Tu as abordé {n} partie(s) sur {total}.",
+    "recallTip": "Les parties sans coche sont celles à relire en premier.",
+    "solutionNext": "Étape suivante ({n}/{total})",
+    "solutionAll": "Tout afficher",
+    "formulaAdd": "Réviser cette formule",
+    "formulaAdded": "Formule ajoutée à tes révisions",
+    "formulaQ": "Écris la formule de « {section} ».",
+    "clozeAdd": "Carte à trous",
+    "clozeAdded": "Carte ajoutée à tes révisions.",
+    "clozeNone": "Surligne quelques mots d’une phrase, pas la phrase entière.",
+    "sureAsk": "Avant de répondre :",
+    "sure": "Sûr·e",
+    "unsure": "J’hésite",
+    "sureRight": "Sûr·e, et juste : c’est acquis.",
+    "sureWrong": "Sûr·e, mais faux : c’est l’erreur à retenir.",
+    "unsureRight": "Tu hésitais, et c’était juste : à consolider.",
+    "unsureWrong": "Tu hésitais : relis la partie.",
+    "calibSure": "Quand tu es sûr·e, tu as raison {pct} % du temps ({n} réponses).",
+    "calibUnsure": "Quand tu hésites : {pct} % ({n}).",
+    "calibTip": "Une certitude souvent fausse signale ce qu’il faut revoir en premier."
   }
 }

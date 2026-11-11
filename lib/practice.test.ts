@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { practicePick, shuffled } from "./practice";
+import { interleaveBy, practicePick, shuffled } from "./practice";
 import type { CardState } from "./srs";
 
 const st = (o: Partial<CardState>): CardState => ({ s: 1, d: 5, iv: 1, reps: 1, lapses: 0, last: "2026-10-10", due: "2026-10-20", ...o });
@@ -25,3 +25,14 @@ describe("shuffled", () => {
     expect(shuffled([1, 2, 3, 4]).sort()).toEqual([1, 2, 3, 4]);
   });
 });
+
+describe("interleaveBy", () => {
+  it("alternates sources until one runs out", () => {
+    const xs = ["a1", "a2", "a3", "b1", "b2", "c1"];
+    const out = interleaveBy(xs, (x) => x[0], () => 0);
+    expect(out).toHaveLength(6);
+    expect(out.slice(0, 3).map((x) => x[0]).sort()).toEqual(["a", "b", "c"]);
+    expect(out.slice(3, 5).map((x) => x[0]).sort()).toEqual(["a", "b"]);
+  });
+});
+

@@ -36,8 +36,8 @@
   .rv-today {
     padding: 1.125rem;
     border-radius: 1.25rem;
-    background: var(--garden);
-    color: var(--paper);
+    background: var(--garden-deep);
+    color: var(--garden-deep-ink);
   }
   .rv-today p {
     margin: 0;
@@ -96,8 +96,8 @@
     margin-top: 0.875rem;
     border-radius: var(--btn-radius);
     /* Inverted: it sits on the green review card. */
-    background: var(--btn-ink);
-    color: var(--btn-bg);
+    background: var(--garden-deep-ink);
+    color: var(--garden-deep);
     font: var(--btn-font);
   }
   .rv-go svg {

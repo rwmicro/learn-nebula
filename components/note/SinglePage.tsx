@@ -51,6 +51,7 @@ import {
   noteSideHtml,
   prerenderNextHtml,
   type NextUp,
+  objectivesHtml,
 } from "@/lib/html";
 import { t, i18nAttrs, i18nAttr, pathName, pathNameAttrs, pathNameKeys, pathNameRef } from "@/lib/i18n";
 import { citeHtml } from "@/lib/cite";
@@ -340,6 +341,7 @@ export async function SinglePage({
         )
       : "") +
     prereqs +
+    (note ? objectivesHtml(fm.objectifs) : "") +
     `<div class="article-body">${html}</div>` +
     // The vignette that closes a note (lib/deco-art.ts).
     (note

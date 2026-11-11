@@ -13,6 +13,10 @@ describe("openingParagraph", () => {
   it("gives nothing for a note that is only lists and tables", () => {
     expect(openingParagraph("# T\n\n- a\n- b\n\n| a | b |\n|---|---|\n| 1 | 2 |")).toBe("");
   });
+  it("skips a bold label over a list, and drops a bold label over prose", () => {
+    const md = `# Anatomie\n\n**Niveaux d'Organisation**\n1. **Chimique** : Atomes, molécules\n2. **Cellulaire** : Cellules\n\n**Définition**\nL'anatomie est l'étude de la structure du corps humain et de ses parties, la base de la compréhension médicale.`;
+    expect(openingParagraph(md, 60)).toMatch(/^L'anatomie est/);
+  });
   it("ignores short paragraphs and frontmatter", () => {
     expect(openingParagraph("---\ntitle: x\n---\n\nCourt.\n\n" + "Un long paragraphe. ".repeat(10), 100)).toMatch(/^Un long/);
   });

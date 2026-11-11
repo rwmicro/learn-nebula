@@ -46,12 +46,10 @@
     grid-template-columns: minmax(0, 1fr) minmax(22rem, 32rem);
     gap: 2.5rem;
     align-items: center;
-    padding: 3.2rem 3.5rem 3rem;
-    border-radius: 1.75rem;
-    border: 1px solid var(--rule);
-    background:
-      radial-gradient(color-mix(in srgb, var(--ink) 9%, transparent) 1px, transparent 1.2px) 0 0 / 22px 22px,
-      color-mix(in srgb, var(--garden) 6%, var(--paper-raised));
+    /* On the paper, under a rule like every page's header (audit UI
+       2026-11-10: no tinted rounded box behind a title). */
+    padding: 1.2rem 0 2.6rem;
+    border-bottom: 1px solid var(--rule);
     overflow: hidden;
   }
   .cdk-kicker {

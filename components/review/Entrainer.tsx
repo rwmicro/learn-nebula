@@ -43,6 +43,11 @@ const TILES: { mode: PracticeMode; tone: string; icon: React.ReactNode }[] = [
     ),
   },
   {
+    mode: "melange",
+    tone: "langues",
+    icon: svg(<path d="M4 7h4l8 10h4M4 17h4l2.5-3.1M13.5 10.1 16 7h4M18 4l3 3-3 3M18 14l3 3-3 3" />),
+  },
+  {
     mode: "eclair",
     tone: "vivant",
     icon: svg(
@@ -62,13 +67,14 @@ export function Entrainer({ decks }: { decks: { slug: string; langues: boolean }
   useEffect(() => {
     if (!storageOk()) return;
     const today = dayKey();
-    const c: Record<PracticeMode, number> = { erreurs: 0, fragiles: 0, ecoute: 0, eclair: 0 };
+    const c: Record<PracticeMode, number> = { erreurs: 0, fragiles: 0, ecoute: 0, eclair: 0, melange: 0 };
     for (const d of decks) {
       const p = loadDeckProgress(d.slug);
       if (!isStarted(p)) continue;
       for (const st of Object.values(p.cards)) {
         if (practicePick("erreurs", st, today)) c.erreurs++;
         if (practicePick("fragiles", st, today)) c.fragiles++;
+        if (practicePick("melange", st, today)) c.melange++;
       }
       if (d.langues) c.ecoute++;
     }
@@ -79,6 +85,7 @@ export function Entrainer({ decks }: { decks: { slug: string; langues: boolean }
         if (practicePick("fragiles", nd.cards[id], today)) c.fragiles++;
       }
     c.eclair = countSaved(notes);
+    c.melange += c.eclair;
     setN(c);
   }, [decks]);
 
@@ -87,6 +94,7 @@ export function Entrainer({ decks }: { decks: { slug: string; langues: boolean }
     if (m === "erreurs") return tr("practice.erreursN", { n: n.erreurs });
     if (m === "fragiles") return n.fragiles ? tr("practice.fragilesN", { n: n.fragiles }) : tr("practice.fragilesSub", { n: FRAGILE_LAPSES });
     if (m === "ecoute") return tr("practice.ecouteSub");
+    if (m === "melange") return tr("practice.melangeN", { n: n.melange });
     return tr("practice.eclairN", { n: n.eclair });
   };
   const empty = (m: PracticeMode) => !!n && (m === "ecoute" ? n.ecoute === 0 : n[m] === 0);

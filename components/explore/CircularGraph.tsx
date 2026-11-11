@@ -877,6 +877,14 @@ export function CircularGraph({
           <a href="/" className="old-back graph-back">
             ← {tr("nav.home")}
           </a>
+          {/* Computers: what this picture is and how to read it (the page
+              opened on an unexplained wheel, audit UI 2026-11-10). */}
+          {!clusters && (
+            <div className="cg-intro">
+              <p className="cg-intro-t">{tr("graph.title")}</p>
+              <p className="cg-intro-p">{tr("graph.intro")}</p>
+            </div>
+          )}
 
           <div className="cg-locate">
             <svg className="cg-locate-icon" viewBox="0 0 24 24" aria-hidden="true">

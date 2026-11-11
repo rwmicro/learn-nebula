@@ -67,6 +67,11 @@ export interface Frontmatter {
    *  "Langues" search facet / /graph language filter. Independent of the
    *  site's own UI locale (lib/i18n.ts). */
   lang?: string;
+  /** What the reader should be able to do after the note ("Nommer les
+   *  parties du corps"), from `objectifs` / `objectives` / `goals`: a list
+   *  or one line. Shown above the text and checked at the end of the note
+   *  (lib/html.ts objectivesHtml, public/js/study-tools.js). */
+  objectifs?: string[];
   /** The historical year this note is ABOUT — e.g. a note on the French
    *  Revolution sets `year: 1789`, not today's date (that's `date` above).
    *  Negative for BCE (`year: -509` for 509 BCE). Powers /frise/; a note
@@ -335,8 +340,16 @@ function parse(file: string, slug: string, rawPath: string): Doc {
       period: typeof fm.period === "string" ? fm.period.trim() || undefined : undefined,
       description:
         typeof fm.description === "string" ? fm.description.trim() || undefined : undefined,
+      objectifs: toList(fm.objectifs ?? fm.objectives ?? fm.goals),
     },
   };
+}
+
+function toList(v: unknown): string[] | undefined {
+  const list = (Array.isArray(v) ? v : typeof v === "string" ? [v] : [])
+    .map((x) => (typeof x === "string" || typeof x === "number" ? String(x).trim() : ""))
+    .filter(Boolean);
+  return list.length ? list : undefined;
 }
 
 export function getPostSlugs(): string[] {
