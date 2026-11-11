@@ -25,7 +25,7 @@ import {
   deleteUser,
   meView,
   sessionUser,
-  syncProgress,
+  syncProgress as syncWith,
   updateMe,
   upsertUser,
   LOGIN_TTL_MS,
@@ -159,6 +159,19 @@ beforeEach(() => {
   db.pragma("foreign_keys = ON");
   db.exec(ACCOUNT_SCHEMA);
 });
+
+// The content manifest is a build artifact (data/content-manifest.json): left
+// to its default, syncProgress would read it and pay nothing for these tests'
+// made-up slugs in a checkout that has been built. Pay everything unless a
+// test passes its own `known`.
+const PAY_ALL: ContentKnown = { hasNote: () => true, hasDeck: () => true, available: false };
+const syncProgress = (
+  d: Database.Database,
+  id: number,
+  items: Record<string, unknown>,
+  now: number,
+  known: ContentKnown = PAY_ALL,
+) => syncWith(d, id, items, now, known);
 
 const reading = (slugs: string[], t = 100) =>
   Object.fromEntries(slugs.map((s) => [s, { p: 1000, t, r: t }]));
