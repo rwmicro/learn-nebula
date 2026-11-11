@@ -2669,3 +2669,114 @@ body.rs-pip {
     padding-inline: 0;
   }
 }
+
+/* The tulip over the top of the page (public/js/tulip-pull.js): a band just
+   above the document, seen only while Safari rubber-bands the page down. The
+   "Aube" print of the linocut logo: warm paper and ink streaks in light, the
+   logo's night sky with a moon in dark. */
+.gk-bloom {
+  --bloom-sky: #f1e8d4;
+  --bloom-streak: #4a4336;
+  --bloom-edge: #f1e8d4;
+  --bloom-leaf: #467a4d;
+  --bloom-petal: #c4553b;
+  --bloom-sun: #c9862a;
+  position: absolute;
+  top: -180px;
+  left: 0;
+  right: 0;
+  height: 180px;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--bloom-sky);
+}
+:root[data-theme="dark"] .gk-bloom {
+  --bloom-sky: #1b2645;
+  --bloom-streak: #c9c6b8;
+  --bloom-edge: #c9c6b8;
+  --bloom-leaf: #5c9a68;
+  --bloom-petal: #d9785f;
+  --bloom-sun: #e8d9a0;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .gk-bloom {
+    --bloom-sky: #1b2645;
+    --bloom-streak: #c9c6b8;
+    --bloom-edge: #c9c6b8;
+    --bloom-leaf: #5c9a68;
+    --bloom-petal: #d9785f;
+    --bloom-sun: #e8d9a0;
+  }
+}
+.gk-bloom-streaks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.gk-bloom-streaks line {
+  stroke: var(--bloom-streak);
+  stroke-linecap: round;
+  opacity: 0.55;
+}
+:root[data-theme="dark"] .gk-bloom-streaks line {
+  opacity: 0.85;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .gk-bloom-streaks line {
+    opacity: 0.85;
+  }
+}
+.gk-bloom-plant {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  height: 0;
+  transform: translateX(-50%);
+  overflow: visible;
+}
+.gk-bloom-edge {
+  fill: none;
+  stroke: var(--bloom-edge);
+  stroke-linecap: round;
+}
+.gk-bloom-stem {
+  fill: none;
+  stroke: var(--bloom-leaf);
+  stroke-linecap: round;
+}
+.gk-bloom-leaf,
+.gk-bloom-petal {
+  fill: var(--bloom-leaf);
+  stroke: var(--bloom-edge);
+  stroke-width: 3;
+  paint-order: stroke;
+  stroke-linejoin: round;
+}
+.gk-bloom-petal {
+  fill: var(--bloom-petal);
+}
+.gk-bloom-sun {
+  fill: var(--bloom-sun);
+}
+.gk-bloom-cut {
+  fill: var(--bloom-sky);
+}
+.gk-bloom-ray {
+  stroke: var(--bloom-streak);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.gk-bloom-done .gk-bloom-petal {
+  animation: gk-bloom-rustle 600ms ease-out;
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+@keyframes gk-bloom-rustle {
+  30% {
+    transform: rotate(-8deg) scale(1.08);
+  }
+  65% {
+    transform: rotate(4deg);
+  }
+}

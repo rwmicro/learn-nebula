@@ -307,6 +307,12 @@ image tag in `ci.yml` together with `@playwright/test`.
   then the device model block by block in place (inline markup swapped for
   `<tN>`/`<kN>` tags and restored), else the setup sheet. On-device speech
   check in the pronunciation coach (`lib/speech-match.ts`, `processLocally`).
+- **Installed app launch + top of page**: `scripts/build-splash.ts` draws
+  the iOS launch screens (`public/splash/`, git-ignored, every iPhone/iPad
+  size of `lib/splash.ts`, light + dark) linked by `appleWebApp.startupImage`;
+  Android composes its own from the manifest. `public/js/tulip-pull.js`
+  grows a tulip ("Aube" print, `.gk-bloom` in `global.css`) above the page
+  while Safari rubber-bands it (negative `scrollY`); nothing elsewhere.
 - **`/api/search`**: embedding-only nearest notes for the palette's "Proches
   par le sens" group (`server/routes/search.ts`, needs RAG).
 - **Parler** (`/parler/`, `components/play/LanguagePartner.tsx`, CSS
