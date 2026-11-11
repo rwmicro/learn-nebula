@@ -42,5 +42,38 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "maskable",
       },
     ],
+    // Long press on the installed icon (Chrome on Android, Windows, macOS;
+    // Safari on iOS ignores them). Android shows at most four. Icons are
+    // drawn by scripts/build-pwa-icons.mjs.
+    shortcuts: [
+      {
+        name: "Tout réviser",
+        short_name: "Réviser",
+        description: "Les cartes et questions à revoir aujourd’hui.",
+        url: "/cartes/aujourdhui/",
+        icons: [{ src: "/icons/raccourci-reviser.png", sizes: "96x96", type: "image/png" }],
+      },
+      {
+        name: "Parcours de lecture",
+        short_name: "Parcours",
+        description: "Des suites de notes à lire dans l’ordre.",
+        url: "/parcours/",
+        icons: [{ src: "/icons/raccourci-parcours.png", sizes: "96x96", type: "image/png" }],
+      },
+      {
+        name: "Parler une langue",
+        short_name: "Parler",
+        description: "Converser avec un partenaire à voix haute.",
+        url: "/parler/",
+        icons: [{ src: "/icons/raccourci-parler.png", sizes: "96x96", type: "image/png" }],
+      },
+      {
+        name: "Une note au hasard",
+        short_name: "Au hasard",
+        description: "Ouvrir une note tirée au sort.",
+        url: "/hasard/",
+        icons: [{ src: "/icons/raccourci-hasard.png", sizes: "96x96", type: "image/png" }],
+      },
+    ],
   };
 }
