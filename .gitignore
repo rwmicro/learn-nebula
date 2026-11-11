@@ -84,3 +84,6 @@ content/vault-images.json
 # smaller copies of public/images/ pictures (scripts/build-site-images.mjs)
 /public/images/**/*-[0-9]*w.avif
 /public/images/**/*-[0-9]*w.webp
+
+# iPhone/iPad launch screens (scripts/build-splash.ts)
+/public/splash/

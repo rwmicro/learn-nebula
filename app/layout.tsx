@@ -10,6 +10,7 @@ import {
 import { DEFAULT_LOCALE, t } from "@/lib/i18n";
 import { i18nAssetUrls } from "@/lib/i18n-assets";
 import { jsAsset } from "@/lib/js-assets";
+import { splashImages } from "@/lib/splash";
 import { getLanguageScopes } from "@/lib/content";
 import { notesIndexVersion, paletteExtraVersion } from "@/lib/home-data";
 import { Footer } from "@/components/layout/Footer";
@@ -151,7 +152,14 @@ export const metadata: Metadata = {
   // "default" status bar keeps its own strip, coloured by theme-color, so
   // the page never slides under it ("black-translucent" would force white
   // text, unreadable on the light theme).
-  appleWebApp: { capable: true, title: SITE_TITLE, statusBarStyle: "default" },
+  // startupImage: iOS's launch screens (lib/splash.ts), one per iPhone/iPad
+  // size and theme, or iOS shows a blank white screen while the app opens.
+  appleWebApp: {
+    capable: true,
+    title: SITE_TITLE,
+    statusBarStyle: "default",
+    startupImage: splashImages().map(({ file, media }) => ({ url: file, media })),
+  },
 };
 
 export const viewport: Viewport = {
@@ -240,6 +248,9 @@ export default function RootLayout({
         {/* Service worker: offline reading of visited notes + instant repeat
             loads. It never caches /api/*. */}
         <Script src={jsAsset("sw-register.js")} strategy="afterInteractive" />
+        {/* The tulip above the page when it is pulled past the top (Safari's
+            rubber band only; draws nothing elsewhere). */}
+        <Script src={jsAsset("tulip-pull.js")} strategy="afterInteractive" />
         {/* Cloudflare Web Analytics (cookieless). Set NEXT_PUBLIC_CF_BEACON_TOKEN
             in the Pages env (from the Cloudflare dashboard) to enable it; unset
             in dev/local so no analytics are sent. */}
