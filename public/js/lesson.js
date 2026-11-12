@@ -35,7 +35,7 @@ import { keepAwake } from "../../lib/wake-lock";
     document
       .querySelector(".read-state[data-slug]")
       ?.getAttribute("data-slug") || null;
-  btn.hidden = false;
+  if (btn) btn.hidden = false;
 
   const isQuestion = (n) =>
     n instanceof Element &&
