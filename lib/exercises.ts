@@ -69,6 +69,10 @@ const KEYS: Record<string, string> = {
   vers: "vers",
   langue: "vers",
   to: "vers",
+  mots: "mots",
+  glose: "mots",
+  gloss: "mots",
+  words: "mots",
 };
 const fold = (s: string) =>
   s
@@ -81,6 +85,55 @@ export function keyLine(line: string): { key: string; value: string } | null {
   if (!m) return null;
   const key = KEYS[fold(m[1])];
   return key ? { key, value: m[2].trim() } : null;
+}
+
+/** A `mots:` value: "wa = je, em = ne… pas, cai = savoir" (`;` also
+ *  separates), the word-by-word meaning shown once a translation is
+ *  answered. */
+export function glossValue(v: string): [string, string][] {
+  return v
+    .split(/\s*[;,]\s*/)
+    .map((p) => p.split(/\s+=\s+/))
+    .filter((p) => p.length === 2 && p[0].trim() && p[1].trim())
+    .map(([a, b]) => [a.trim(), b.trim()] as [string, string]);
+}
+
+/** How many pairs each round of an `[!associer]` shows: all of them up to
+ *  five, else rounds of four at most, as even as possible (6 → 3 + 3,
+ *  7 → 4 + 3, 8 → 4 + 4). */
+export function roundSizes(n: number): number[] {
+  if (n <= 5) return [n];
+  const rounds = Math.ceil(n / 4);
+  const base = Math.floor(n / rounds);
+  return Array.from({ length: rounds }, (_, i) => base + (i < n % rounds ? 1 : 0));
+}
+
+/** A wrong translation word by word: which of the reader's words are not in
+ *  the answer (`wrong`, to strike) and which of the answer's words they
+ *  missed (`missing`, to stress), along their longest common run. Words
+ *  compare as `sameSentence` does. */
+export function answerMarks(got: string[], answer: string): { wrong: boolean[]; missing: boolean[] } {
+  const norm = (w: string) =>
+    fold(w)
+      .replace(/[\p{P}\p{S}]+/gu, "")
+      .trim();
+  const a = got.map(norm);
+  const b = bankWords(answer).map(norm);
+  const L = Array.from({ length: a.length + 1 }, () => new Array<number>(b.length + 1).fill(0));
+  for (let i = a.length - 1; i >= 0; i--)
+    for (let j = b.length - 1; j >= 0; j--) L[i][j] = a[i] === b[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const wrong = a.map(() => true);
+  const missing = b.map(() => true);
+  let i = 0;
+  let j = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) {
+      wrong[i++] = false;
+      missing[j++] = false;
+    } else if (L[i + 1][j] >= L[i][j + 1]) i++;
+    else j++;
+  }
+  return { wrong, missing };
 }
 
 /** A `piège:` value: comma-separated (or " / "). */
@@ -154,7 +207,7 @@ const items = (list: Element) =>
     .filter(Boolean);
 
 export interface ExerciseData {
-  traduire: { answer: string; also: string[]; traps: string[]; lang?: string };
+  traduire: { answer: string; also: string[]; traps: string[]; lang?: string; gloss?: [string, string][] };
   ordre: { items: string[]; traps: string[] };
   associer: { pairs: [string, string][] };
   ligne: { line: number };
@@ -170,7 +223,14 @@ export function exerciseData<T extends ExerciseType>(type: T, body: ElementConte
     if (!answer) return null;
     const also = p.keys.filter((k) => k.key === "aussi").map((k) => k.value);
     const lang = p.keys.find((k) => k.key === "vers")?.value;
-    return (lang ? { answer, also, traps, lang } : { answer, also, traps }) as ExerciseData[T];
+    const gloss = p.keys.filter((k) => k.key === "mots").flatMap((k) => glossValue(k.value));
+    return {
+      answer,
+      also,
+      traps,
+      ...(lang ? { lang } : {}),
+      ...(gloss.length ? { gloss } : {}),
+    } as ExerciseData[T];
   }
   if (type === "ordre") {
     const list = p.blocks.find((b) => b.tagName === "ol" || b.tagName === "ul");

@@ -8,7 +8,14 @@
 //   so quiz.js, the widgets and the glossary keep working on them unchanged.
 // - The last screen counts the questions right at the first try and offers
 //   the next step of the reading path; finishing marks the note read.
+// - A run of three exercises or more in a row ([!traduire], [!associer],
+//   multiple-choice [!quiz]…) folds into one card, "8 exercices sur cette
+//   note", whose button opens the same screen on those exercises only: a
+//   series. A miss comes back once at the end, and the last screen lists
+//   what to review (added to the note's review deck on request).
 import { recordActivity } from "../../lib/personal";
+import { SELF_GRADE, addQuestion, loadNoteDeck, noteSlugFromPath, saveNoteDeck } from "../../lib/note-quiz.ts";
+import { cardId } from "../../lib/srs.ts";
 import {
   CHANGE_EVENT,
   isRead,
@@ -21,14 +28,14 @@ import { keepAwake } from "../../lib/wake-lock";
 (function () {
   const body = document.querySelector(".article-body");
   const btn = document.querySelector(".lesson-btn");
-  if (!body || !btn) return;
+  if (!body) return;
   const tt = (k, v) =>
     window.__i18n && window.__i18n.t ? window.__i18n.t(k, v) : k;
   const slug =
     document
       .querySelector(".read-state[data-slug]")
       ?.getAttribute("data-slug") || null;
-  btn.hidden = false;
+  if (btn) btn.hidden = false;
 
   const isQuestion = (n) =>
     n instanceof Element &&
@@ -76,10 +83,13 @@ import { keepAwake } from "../../lib/wake-lock";
 
   let ui = null;
 
-  function open() {
+  function open(opts) {
     if (ui) return;
-    const steps = buildSteps();
+    // A series: only the given exercises, one step each.
+    const series = opts && Array.isArray(opts.items) ? opts.items : null;
+    const steps = series ? series.map((n) => ({ kind: "question", nodes: [n] })) : buildSteps();
     if (!steps.length) return;
+    const first = new Map(); // card → right at the first try (series)
     // "À ton avis ?" veils are pointless here: the order already holds back
     // the answer. Their explanation still shows when a guess is picked.
     body
@@ -95,7 +105,7 @@ import { keepAwake } from "../../lib/wake-lock";
     // The screen stays on for the lesson's length (lib/wake-lock.ts).
     const sleep = keepAwake();
     const root = document.createElement("div");
-    root.className = "lesson";
+    root.className = series ? "lesson lesson--series" : "lesson";
     root.setAttribute("role", "dialog");
     root.setAttribute("aria-modal", "true");
     root.setAttribute("aria-label", tt("lesson.aria"));
@@ -169,8 +179,13 @@ import { keepAwake } from "../../lib/wake-lock";
         n: k + 1,
         total: steps.length,
       });
-      back.hidden = k === 0;
+      back.hidden = k === 0 || !!series;
       next.textContent = tt("lesson.next");
+      // A miss back for its second try: start it afresh.
+      if (steps[k].retry) {
+        const card = cardOf(steps[k]);
+        card.querySelector(".quiz-feedback .ex-again")?.click();
+      }
       scroll.scrollTop = 0;
       update();
       const focusable = stage.querySelector(
@@ -225,12 +240,35 @@ import { keepAwake } from "../../lib/wake-lock";
       attributeFilter: ["class", "disabled"],
     });
 
+    // Series: how the step just left went, the first time; a missed
+    // exercise comes back once, at the end.
+    function settleStep(k) {
+      const step = steps[k];
+      if (!series || !step || step.retry) return;
+      const card = cardOf(step);
+      if (first.has(card)) return;
+      const ok =
+        !skipped.has(k) &&
+        (card.classList.contains("callout-ex")
+          ? !!card.querySelector(".quiz-feedback--ok")
+          : card.dataset.self === "knew");
+      first.set(card, ok);
+      if (!ok && card.classList.contains("callout-ex") && card.classList.contains("is-answered")) {
+        steps.push({ kind: "question", nodes: [card], retry: true });
+        const seg = document.createElement("i");
+        seg.className = "lesson-seg lesson-seg--question";
+        root.querySelector(".lesson-segs").appendChild(seg);
+        segs.push(seg);
+      }
+    }
+
     function finish() {
       obs.disconnect();
       segs.forEach((s) => {
         s.classList.add("is-done");
         s.classList.remove("is-current");
       });
+      if (series) return finishSeries();
       const cards = steps
         .filter(
           (s) =>
@@ -281,6 +319,162 @@ import { keepAwake } from "../../lib/wake-lock";
       } else {
         next.textContent = tt("lesson.toNote");
         next.onclick = close;
+      }
+      next.focus({ preventScroll: true });
+    }
+
+    // The prompt and the expected answer of a card, as text.
+    function promptOf(card) {
+      const q = card.querySelector(".ex-prompt, .quiz-question");
+      if (!q) return "";
+      const c = q.cloneNode(true);
+      c.querySelectorAll("button, .ex-say").forEach((x) => x.remove());
+      return c.textContent.replace(/\s+/g, " ").trim();
+    }
+    function answerOf(card) {
+      if (card.classList.contains("callout-quiz")) {
+        const r = card.querySelector('.quiz-choice[data-ok="1"]');
+        if (!r) return "";
+        const c = r.cloneNode(true);
+        c.querySelectorAll(".quiz-why, .quiz-sprout, .quiz-key").forEach((x) => x.remove());
+        return c.textContent.replace(/\s+/g, " ").trim();
+      }
+      let d = null;
+      try {
+        d = JSON.parse(card.dataset.exData || "null");
+      } catch {
+        /* no data */
+      }
+      if (!d) return "";
+      if (d.answer) return d.answer;
+      if (d.items) return d.items.map((x) => (typeof x === "string" ? x : x.what)).join(" → ");
+      if (d.pairs) return d.pairs.map(([a, b]) => `${a} = ${b}`).join(" · ");
+      if (d.line) return tt("ex.lineN", { n: d.line });
+      return "";
+    }
+    const esc = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const lsGet = () => {
+      try {
+        return window.localStorage;
+      } catch {
+        return null;
+      }
+    };
+
+    function finishSeries() {
+      const total = series.length;
+      const missed = series.filter((c) => first.get(c) === false || !first.has(c));
+      const right = total - missed.length;
+      const ls = lsGet();
+      const nslug = noteSlugFromPath(location.pathname);
+      if (ls && nslug && opts.key) {
+        try {
+          ls.setItem(`ex-series:${nslug}:${opts.key}`, JSON.stringify({ right, total }));
+        } catch {
+          /* full or blocked */
+        }
+      }
+      stage.innerHTML = "";
+      const end = document.createElement("div");
+      end.className = "lesson-end series-end";
+      const ring = document.createElement("div");
+      ring.className = "series-ring";
+      ring.style.setProperty("--p", String(total ? right / total : 0));
+      ring.innerHTML = `<span><b></b><small></small></span>`;
+      ring.querySelector("b").textContent = `${right}/${total}`;
+      ring.querySelector("small").textContent = tt("ex.endRight");
+      const title = document.createElement("h2");
+      title.className = "lesson-end-title";
+      title.textContent = tt("ex.endTitle");
+      end.append(ring, title);
+      let add = null;
+      if (missed.length) {
+        const box = document.createElement("div");
+        box.className = "series-missed";
+        const k = document.createElement("p");
+        k.className = "series-missed-k";
+        k.textContent = tt("ex.endMissed");
+        const list = document.createElement("ul");
+        for (const c of missed) {
+          const li = document.createElement("li");
+          const q = document.createElement("span");
+          q.className = "series-q";
+          q.textContent = promptOf(c);
+          const a = document.createElement("span");
+          a.className = "series-a";
+          a.textContent = answerOf(c);
+          li.append(q, a);
+          list.appendChild(li);
+        }
+        const label = document.createElement("label");
+        label.className = "series-add";
+        add = document.createElement("input");
+        add.type = "checkbox";
+        add.checked = true;
+        label.append(add, document.createTextNode(` ${tt("ex.endAdd")}`));
+        box.append(k, list, label);
+        end.appendChild(box);
+      } else {
+        const p = document.createElement("p");
+        p.className = "lesson-end-stats";
+        p.textContent = tt("ex.endAll");
+        end.appendChild(p);
+      }
+      stage.appendChild(end);
+      count.textContent = tt("ex.endTitle");
+      back.hidden = true;
+      skip.hidden = true;
+      wait.hidden = true;
+      next.disabled = false;
+      // The misses go to the note's review deck, if asked, on the way out.
+      const keep = () => {
+        if (!add || !add.checked || !ls || !nslug) return;
+        let deck = loadNoteDeck(ls, nslug);
+        const h1 = document.querySelector("h1.title-note");
+        for (const c of missed) {
+          const q = promptOf(c);
+          const a = answerOf(c);
+          if (!q || !a) continue;
+          const id = c.dataset.quizId || `ex-${cardId(q, a)}`;
+          deck = addQuestion(
+            deck,
+            id,
+            {
+              q: esc(q),
+              a: esc(a),
+              url: c.id ? `${location.pathname}#${c.id}` : location.pathname,
+              title: h1 ? (h1.textContent || "").trim() : document.title,
+            },
+            SELF_GRADE.notYet,
+          );
+        }
+        try {
+          saveNoteDeck(ls, nslug, deck);
+          window.dispatchEvent(new CustomEvent("gk:quiz-change"));
+        } catch {
+          /* full or blocked */
+        }
+      };
+      next.textContent = tt("ex.endBack");
+      next.onclick = () => {
+        keep();
+        close();
+      };
+      // The missed exercises again (multiple choice can't be undone: those
+      // wait for the reviews).
+      const redo = missed.filter((c) => c.classList.contains("callout-ex"));
+      if (redo.length) {
+        const again = document.createElement("button");
+        again.type = "button";
+        again.className = "lesson-to-note series-again";
+        again.textContent = tt("ex.endRetry");
+        again.addEventListener("click", () => {
+          keep();
+          close();
+          for (const c of redo) c.querySelector(".quiz-feedback .ex-again")?.click();
+          open({ items: redo, key: null });
+        });
+        end.appendChild(again);
       }
       next.focus({ preventScroll: true });
     }
@@ -345,17 +539,136 @@ import { keepAwake } from "../../lib/wake-lock";
     skip.addEventListener("click", () => {
       skipped.add(i);
       update();
+      settleStep(i);
       show(i + 1);
     });
     next.onclick = () => {
       if (next.disabled) return;
       const pc = proxyCheck();
       if (pc) pc.click();
-      else show(i + 1);
+      else {
+        settleStep(i);
+        show(i + 1);
+      }
     };
     ui = { close };
     show(0);
   }
 
-  btn.addEventListener("click", open);
+  if (btn) btn.addEventListener("click", () => open());
+
+  // --- Runs of exercises: one card in the note, a series on demand ----------
+  const isRunItem = (n) =>
+    n instanceof Element &&
+    ((n.classList.contains("callout-ex") && n.hasAttribute("data-ex")) ||
+      (n.classList.contains("callout-quiz") && n.classList.contains("quiz--choice")));
+  const SECONDS = { traduire: 30, associer: 45, ordre: 40, ligne: 30, choisir: 25 };
+  const typeOf = (n) => (n.classList.contains("callout-quiz") ? "choisir" : n.dataset.ex);
+
+  function launcher(items, key) {
+    const box = document.createElement("div");
+    box.className = "ex-launch";
+    box.setAttribute("data-pagefind-ignore", "");
+    const counts = {};
+    for (const n of items) counts[typeOf(n)] = (counts[typeOf(n)] || 0) + 1;
+    const secs = items.reduce((t, n) => t + (SECONDS[typeOf(n)] || 30), 0);
+    const t = (k, v) => {
+      const e = document.createElement("span");
+      e.textContent = tt(k, v);
+      e.setAttribute("data-i18n", k);
+      if (v) e.setAttribute("data-i18n-vars", JSON.stringify(v));
+      return e;
+    };
+    const top = document.createElement("div");
+    top.className = "ex-launch-top";
+    const kick = t("ex.yourTurn");
+    kick.className = "ex-launch-k";
+    const time = t("ex.runTime", { n: Math.max(1, Math.round(secs / 60)) });
+    time.className = "ex-launch-time";
+    top.append(kick, time);
+    const title = document.createElement("p");
+    title.className = "ex-launch-title";
+    title.append(t("ex.runTitle", { n: items.length }));
+    const pills = document.createElement("div");
+    pills.className = "ex-launch-pills";
+    for (const [type, n] of Object.entries(counts)) pills.append(t(`ex.pill_${type}`, { n }));
+    const last = document.createElement("p");
+    last.className = "ex-launch-last";
+    last.hidden = true;
+    const ls = lsGetGlobal();
+    const nslug = noteSlugFromPath(location.pathname);
+    let before = null;
+    try {
+      before = ls && nslug ? JSON.parse(ls.getItem(`ex-series:${nslug}:${key}`) || "null") : null;
+    } catch {
+      before = null;
+    }
+    if (before && before.total) {
+      last.hidden = false;
+      last.append(t("ex.runLast", { right: before.right, total: before.total }));
+    }
+    const go = document.createElement("button");
+    go.type = "button";
+    go.className = "ex-launch-go";
+    go.append(t(before ? "ex.runAgain" : "ex.runStart"));
+    go.addEventListener("click", () => {
+      // A fresh start for the cards already answered in the page.
+      for (const n of items) n.querySelector(".quiz-feedback .ex-again")?.click();
+      open({ items, key });
+    });
+    const show = document.createElement("button");
+    show.type = "button";
+    show.className = "ex-launch-show";
+    show.setAttribute("aria-expanded", "false");
+    show.append(t("ex.runShow"));
+    show.addEventListener("click", () => {
+      const opening = show.getAttribute("aria-expanded") !== "true";
+      show.setAttribute("aria-expanded", String(opening));
+      show.replaceChildren(t(opening ? "ex.runHide" : "ex.runShow"));
+      for (const n of items) n.classList.toggle("ex-folded", !opening);
+    });
+    box.append(top, title, pills, last, go, show);
+    return box;
+  }
+  function lsGetGlobal() {
+    try {
+      return window.localStorage;
+    } catch {
+      return null;
+    }
+  }
+
+  function foldRuns() {
+    if (document.documentElement.classList.contains("lesson-open") || body.querySelector(":scope > .ex-launch")) return;
+    const runs = [];
+    let cur = [];
+    for (const n of Array.from(body.childNodes)) {
+      if (isRunItem(n)) cur.push(n);
+      else if (n.nodeType === Node.TEXT_NODE && !n.textContent.trim()) continue;
+      else {
+        if (cur.length) runs.push(cur);
+        cur = [];
+      }
+    }
+    if (cur.length) runs.push(cur);
+    runs
+      .filter((r) => r.length >= 3)
+      .forEach((items, k) => {
+        items[0].before(launcher(items, String(k)));
+        for (const n of items) n.classList.add("ex-folded");
+      });
+  }
+  foldRuns();
+  // A translation (translate.js) swaps the article body: fold it again.
+  if ("MutationObserver" in window) {
+    let queued = false;
+    new MutationObserver(() => {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(() => {
+        queued = false;
+        foldRuns();
+      });
+    }).observe(body, { childList: true });
+  }
 })();

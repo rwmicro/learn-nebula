@@ -11,5 +11,6 @@ import "./note-end.css";
 import "./native.css";
 import "./layout.css";
 import "./exercises.css";
+import "./series.css";
 import "./partner-invite.css";
 import "./study.css";

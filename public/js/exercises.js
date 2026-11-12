@@ -9,7 +9,7 @@
 // "Vérifier" (lesson.js moves that one to the bottom bar).
 // Imported by quiz.js, so it rides in quiz.bundle.js.
 import { recordActivity } from "../../lib/personal";
-import { bankWords, periodYear, sameSentence } from "../../lib/exercises.ts";
+import { answerMarks, bankWords, periodYear, roundSizes, sameSentence } from "../../lib/exercises.ts";
 
 (function () {
   const LETTERS = "ABCDEFGHI";
@@ -56,7 +56,7 @@ import { bankWords, periodYear, sameSentence } from "../../lib/exercises.ts";
 
   /** The feedback band and the explanation: shown once answered. In lesson
    *  mode the explanation also rides in the band (main.css shows it there). */
-  function finish(card, ok, answerText) {
+  function finish(card, ok, answerText, { answerNode = null, gloss = null } = {}) {
     card.classList.add("is-answered");
     const fb = card.querySelector(".quiz-feedback");
     const after = card.querySelector(".ex-after");
@@ -64,7 +64,18 @@ import { bankWords, periodYear, sameSentence } from "../../lib/exercises.ts";
       fb.hidden = false;
       fb.className = `quiz-feedback quiz-feedback--${ok ? "ok" : "bad"}`;
       fb.replaceChildren(i18n(h("p", "quiz-feedback-title"), ok ? "ex.right" : "ex.wrong"));
-      if (!ok && answerText) fb.appendChild(i18n(h("p", "ex-answer"), "ex.answer", { answer: answerText }));
+      if (!ok && answerNode) fb.appendChild(answerNode);
+      else if (!ok && answerText) fb.appendChild(i18n(h("p", "ex-answer"), "ex.answer", { answer: answerText }));
+      // A translation's words, one by one (`mots:` in the vault).
+      if (gloss && gloss.length) {
+        const g = h("dl", "ex-gloss");
+        for (const [w, m] of gloss) {
+          const item = h("div", "ex-gloss-w");
+          item.append(h("dt", null, w), h("dd", null, m));
+          g.appendChild(item);
+        }
+        fb.appendChild(g);
+      }
       if (after) {
         const why = h("div", "ex-why");
         why.append(...[...after.childNodes].map((n) => n.cloneNode(true)));
@@ -253,7 +264,24 @@ import { bankWords, periodYear, sameSentence } from "../../lib/exercises.ts";
       sequence(card, stage, words, (got, typed) => {
         const said = typed ?? got.join(" ");
         const ok = [d.answer, ...d.also].some((a) => sameSentence(a, said));
-        finish(card, ok, d.answer);
+        let answerNode = null;
+        if (!ok) {
+          // Strike the placed words that are not in the answer, and stress
+          // the answer's words the reader left out.
+          const { wrong, missing } = answerMarks(typed ? said.split(/\s+/) : got, d.answer);
+          if (!typed) stage.querySelectorAll(".ex-line .ex-chip").forEach((c, i) => c.classList.toggle("is-wrong-word", !!wrong[i]));
+          answerNode = h("div", "ex-answer ex-answer--words");
+          answerNode.append(i18n(h("span", "ex-answer-k"), "ex.rightAnswer"));
+          const line = h("p", "ex-answer-line");
+          bankWords(d.answer).forEach((w, i) => {
+            if (i) line.append(" ");
+            line.append(missing[i] ? h("strong", null, w) : w);
+          });
+          const end = d.answer.trim().match(/[.!?…。！？]+$/u);
+          if (end) line.append(end[0]);
+          answerNode.append(line);
+        }
+        finish(card, ok, d.answer, { answerNode, gloss: d.gloss });
       });
     },
     ordre(card, stage, d) {
@@ -271,7 +299,9 @@ import { bankWords, periodYear, sameSentence } from "../../lib/exercises.ts";
     },
     associer(card, stage, d) {
       // One row per pair: a name (numbered) and a phrase (lettered). A found
-      // pair lines up on its row and fades; "1 sur 5" counts them.
+      // pair lines up on its row and stays, green; "3 sur 8" counts them.
+      // More than five pairs come in rounds of four at most (roundSizes),
+      // the next one drawn as soon as one is done.
       const grid = h("div", "ex-pairs");
       const acts = foot(card, "associer");
       const again = i18n(h("button", "ex-check ex-restart"), "ex.again");
@@ -279,13 +309,16 @@ import { bankWords, periodYear, sameSentence } from "../../lib/exercises.ts";
       again.addEventListener("click", () => mount(card, true));
       acts.append(again);
       const pairOf = new Map(d.pairs.map(([a, b]) => [a, b]));
-      const L = shuffle(d.pairs.map(([a]) => a)).map((v, i) => chip(v, String(i + 1)));
-      const R = shuffle(d.pairs.map(([, b]) => b)).map((v, i) => chip(v, LETTERS[i]));
-      L.forEach((c) => c.classList.add("ex-who"));
-      const draw = () => grid.replaceChildren(...L.flatMap((l, i) => [l, R[i]]));
-      let picked = null;
+      const all = shuffle(d.pairs);
+      const sizes = roundSizes(all.length);
+      const label = sizes.length > 1 ? h("p", "ex-round") : null;
+      let round = 0;
       let wrong = 0;
       let done = 0;
+      let L = [];
+      let R = [];
+      let picked = null;
+      const draw = () => grid.replaceChildren(...L.flatMap((l, i) => [l, R[i]]));
       const tap = (c, side) => {
         if (c.disabled || card.classList.contains("is-answered")) return;
         if (!picked || picked.side === side) {
@@ -307,8 +340,9 @@ import { bankWords, periodYear, sameSentence } from "../../lib/exercises.ts";
             x.classList.add("is-right");
           }
           draw();
-          count(card, ++done, d.pairs.length);
-          if (done === d.pairs.length) finish(card, wrong === 0, "");
+          count(card, ++done, all.length);
+          if (done === all.length) finish(card, wrong === 0, "");
+          else if (L.every((x) => x.disabled)) setTimeout(() => start(round + 1), 450);
         } else {
           wrong++;
           for (const x of [a, b]) {
@@ -317,11 +351,25 @@ import { bankWords, periodYear, sameSentence } from "../../lib/exercises.ts";
           }
         }
       };
-      L.forEach((c) => c.addEventListener("click", () => tap(c, "l")));
-      R.forEach((c) => c.addEventListener("click", () => tap(c, "r")));
-      draw();
-      count(card, 0, d.pairs.length);
+      function start(r) {
+        round = r;
+        const from = sizes.slice(0, r).reduce((x, y) => x + y, 0);
+        const set = all.slice(from, from + sizes[r]);
+        L = shuffle(set.map(([a]) => a)).map((v, i) => chip(v, String(i + 1)));
+        R = shuffle(set.map(([, b]) => b)).map((v, i) => chip(v, LETTERS[i]));
+        L.forEach((c) => {
+          c.classList.add("ex-who");
+          c.addEventListener("click", () => tap(c, "l"));
+        });
+        R.forEach((c) => c.addEventListener("click", () => tap(c, "r")));
+        picked = null;
+        if (label) i18n(label, "ex.round", { n: r + 1, total: sizes.length });
+        draw();
+      }
+      count(card, 0, all.length);
+      if (label) stage.append(label);
       stage.append(grid);
+      start(0);
     },
     ligne(card, stage, d) {
       // Shiki writes one .line span per source line; fall back to the
