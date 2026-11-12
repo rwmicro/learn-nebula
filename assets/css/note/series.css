@@ -1,0 +1,254 @@
+/* ---------------------------------------------------------------------------
+ * Exercise series (public/js/lesson.js, the run of exercises folded into one
+ * card) and the word-by-word correction of exercises.js. Drawn after the
+ * mockups "Exercices de langue" (2026-11-12): one card in the note, then the
+ * lesson screen on those exercises only, a miss back once at the end, and a
+ * last screen with the score and what to review.
+ * ------------------------------------------------------------------------- */
+
+/* The run's cards stay in the page, folded behind the launcher; "Les voir
+   tous dans la page" unfolds them. In a lesson (or a series) they show. */
+.article-body:not(.lesson-stage) > .ex-folded {
+  display: none;
+}
+.lesson-stage .ex-launch {
+  display: none;
+}
+
+.ex-launch {
+  --c: var(--fam, var(--garden));
+  display: grid;
+  gap: 0.9rem;
+  margin: 1.4rem 0;
+  padding: 1.2rem 1.25rem 1.1rem;
+  border: 1.5px solid var(--rule);
+  border-radius: 22px;
+  box-shadow: 0 2px 0 var(--rule);
+  background: var(--paper-raised, var(--paper));
+}
+.ex-launch-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.ex-launch-k {
+  color: var(--c);
+  font: 700 0.72rem var(--font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.ex-launch-time {
+  color: var(--muted);
+  font: 500 0.85rem var(--font-ui);
+}
+.ex-launch-title {
+  margin: 0;
+  font: 600 clamp(1.4rem, 1.2rem + 0.8vw, 1.75rem) / 1.15 var(--font-text);
+  color: var(--ink);
+}
+.ex-launch-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+.ex-launch-pills > span {
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--c) 12%, transparent);
+  color: color-mix(in srgb, var(--c) 80%, var(--ink));
+  font: 600 0.85rem var(--font-ui);
+}
+.ex-launch-last {
+  margin: 0;
+  color: var(--muted);
+  font: 500 0.9rem var(--font-ui);
+}
+.ex-launch-go {
+  min-height: 52px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--garden);
+  color: var(--paper);
+  font: 700 1rem var(--font-ui);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--garden) 70%, #000);
+  cursor: pointer;
+}
+.ex-launch-go:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--garden) 70%, #000);
+}
+.ex-launch-go:focus-visible,
+.ex-launch-show:focus-visible {
+  outline: 2px solid var(--c);
+  outline-offset: 3px;
+}
+.ex-launch-show {
+  justify-self: center;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  border: 0;
+  background: none;
+  color: var(--c);
+  font: 600 0.95rem var(--font-ui);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+/* Unfolded: the cards follow the launcher, spaced as in the note. */
+.ex-launch:has(.ex-launch-show[aria-expanded="true"]) {
+  margin-bottom: 1rem;
+}
+
+/* --- Correction, word by word (exercises.js traduire) --------------------- */
+.ex-chip.is-wrong-word {
+  border-color: color-mix(in srgb, var(--warn) 70%, transparent);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--warn) 70%, transparent);
+  background: color-mix(in srgb, var(--warn) 9%, var(--tile, var(--paper)));
+  color: var(--warn);
+}
+.ex-chip.is-wrong-word .ex-t {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+.ex-answer--words {
+  display: grid;
+  gap: 0.15rem;
+  margin: 0.4rem 0 0;
+}
+.ex-answer-k {
+  color: var(--muted);
+  font: 700 0.72rem var(--font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.ex-answer-line {
+  margin: 0;
+  font: 500 1.25rem/1.3 var(--font-text);
+  color: var(--ink);
+}
+.ex-answer-line strong {
+  color: var(--warn);
+  font-weight: 700;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+.ex-gloss {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 0.45rem;
+  margin: 0.7rem 0 0;
+}
+.ex-gloss-w {
+  display: grid;
+  gap: 0.05rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: 12px;
+  background: var(--paper-raised, var(--paper));
+  border: 1px solid var(--rule);
+}
+.ex-gloss dt {
+  font: 500 1.05rem var(--font-text);
+  color: var(--ink);
+}
+.ex-gloss dd {
+  margin: 0;
+  font: 500 0.85rem var(--font-ui);
+  color: var(--muted);
+}
+
+/* --- Associer in rounds ---------------------------------------------------- */
+.ex-round {
+  margin: 0 0 0.7rem;
+  color: var(--muted);
+  font: 600 0.88rem var(--font-ui);
+}
+
+/* --- The last screen of a series ------------------------------------------ */
+.series-end {
+  gap: 1rem;
+}
+.series-ring {
+  --p: 0;
+  display: grid;
+  place-items: center;
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  background: conic-gradient(var(--garden) calc(var(--p) * 360deg), var(--rule) 0);
+}
+.series-ring > span {
+  display: grid;
+  place-items: center;
+  align-content: center;
+  width: 118px;
+  height: 118px;
+  border-radius: 50%;
+  background: var(--paper);
+}
+.series-ring b {
+  font: 700 2.4rem/1 var(--font-text);
+  color: var(--ink);
+  font-variant-numeric: lining-nums;
+}
+.series-ring small {
+  max-width: 96px;
+  color: var(--muted);
+  font: 500 0.78rem/1.2 var(--font-ui);
+}
+.series-missed {
+  width: min(100%, 34rem);
+  display: grid;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+  border: 1.5px solid var(--rule);
+  border-radius: 20px;
+  background: var(--paper-raised, var(--paper));
+  text-align: start;
+}
+.series-missed-k {
+  margin: 0;
+  color: var(--warn);
+  font: 700 0.72rem var(--font-ui);
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+.series-missed ul {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.series-missed li {
+  display: grid;
+  gap: 0.1rem;
+}
+.series-q {
+  color: var(--muted);
+  font: 500 0.95rem var(--font-ui);
+}
+.series-a {
+  font: 500 1.15rem/1.3 var(--font-text);
+  color: var(--ink);
+}
+.series-add {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 44px;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--rule);
+  color: var(--ink-2);
+  font: 500 0.95rem var(--font-ui);
+  cursor: pointer;
+}
+.series-add input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--garden);
+}

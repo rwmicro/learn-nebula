@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderMarkdown } from "./markdown";
-import { bankWords, parseTimeline, periodYear, sameSentence, keyLine } from "./exercises";
+import { answerMarks, bankWords, glossValue, parseTimeline, periodYear, roundSizes, sameSentence, keyLine } from "./exercises";
 
 const data = (html: string) => {
   const m = html.match(/data-ex-data="([^"]*)"/);
@@ -85,5 +85,39 @@ describe("helpers", () => {
     expect(keyLine("Piège : a, b")).toEqual({ key: "piege", value: "a, b" });
     expect(keyLine("faille: 4")).toEqual({ key: "ligne", value: "4" });
     expect(keyLine("Nama saya")).toBeNull();
+  });
+});
+
+describe("series helpers", () => {
+  it("reads a word-by-word gloss", async () => {
+    expect(glossValue("wa = je, em = ne… pas ; cai = savoir")).toEqual([
+      ["wa", "je"],
+      ["em", "ne… pas"],
+      ["cai", "savoir"],
+    ]);
+    const { html } = await renderMarkdown("> [!traduire] Je ne sais pas.\n> Wa em cai.\n> mots: wa = je, em = ne… pas, cai = savoir");
+    expect(data(html).gloss).toEqual([
+      ["wa", "je"],
+      ["em", "ne… pas"],
+      ["cai", "savoir"],
+    ]);
+  });
+
+  it("splits pairs into rounds of four at most", () => {
+    expect(roundSizes(3)).toEqual([3]);
+    expect(roundSizes(5)).toEqual([5]);
+    expect(roundSizes(6)).toEqual([3, 3]);
+    expect(roundSizes(7)).toEqual([4, 3]);
+    expect(roundSizes(8)).toEqual([4, 4]);
+    expect(roundSizes(9)).toEqual([3, 3, 3]);
+  });
+
+  it("marks the wrong and the missing words of a translation", () => {
+    expect(answerMarks(["Wa", "bo", "cai"], "Wa em cai.")).toEqual({ wrong: [false, true, false], missing: [false, true, false] });
+    expect(answerMarks(["Le", "ai", "khe", "tiko"], "Le ai khe tiko?")).toEqual({
+      wrong: [false, false, false, false],
+      missing: [false, false, false, false],
+    });
+    expect(answerMarks(["cai", "Wa"], "Wa em cai.").missing).toEqual([false, true, true]);
   });
 });
