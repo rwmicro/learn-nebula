@@ -232,7 +232,7 @@
   .pcd-how .pcd-q { width: auto; height: auto; margin-top: auto; display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; border-radius: 12px; background: var(--wash); color: var(--ink); }
   .pcd-how .pcd-q b { width: 100%; font: 500 15px var(--serif); margin-bottom: 4px; }
   .pcd-how .pcd-q span { padding: 4px 12px; border-radius: 999px; border: 1px solid var(--rule-strong); font: 500 13px var(--font-ui); }
-  .pcd-how .pcd-q span.ok { background: var(--garden); color: #fff; border-color: var(--garden); }
+  .pcd-how .pcd-q span.ok { background: var(--garden-fill); color: #fff; border-color: var(--garden-fill); }
   .pcd-cards { margin-top: auto; position: relative; height: 62px; }
   .pcd-cards i { position: absolute; left: 0; right: 30%; top: 0; height: 50px; border-radius: 10px; border: 1px solid var(--rule-strong); background: var(--paper); }
   .pcd-cards i:nth-child(1) { transform: translate(14px, 10px) rotate(3deg); }

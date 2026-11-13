@@ -375,8 +375,8 @@ main .path-sheet-list .is-here a {
   margin-inline-start: auto;
   padding: 0.1rem 0.5rem;
   border-radius: 999px;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   font-size: 0.75rem;
   white-space: nowrap;
 }
@@ -403,10 +403,10 @@ main .path-sheet-btn {
   text-decoration: none;
 }
 main .path-sheet-btn--go {
-  border-color: var(--garden);
+  border-color: var(--garden-fill);
   border-bottom: 3px solid color-mix(in srgb, var(--garden) 60%, #000);
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 main .path-sheet-btn:focus-visible {
   outline: 2px solid var(--link);
@@ -561,8 +561,8 @@ main .path-sheet-btn:focus-visible {
   width: 2.3rem;
   height: 2.3rem;
   border-radius: var(--radius-sm);
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   border-bottom: 3px solid color-mix(in srgb, var(--garden) 60%, #000);
   font-size: 1.1rem;
 }

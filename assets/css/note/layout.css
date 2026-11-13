@@ -411,11 +411,11 @@ main[data-family],
   .note-dock-bar .dock-ask {
     margin-inline-start: 0.3rem;
     padding-inline: 0.85rem 1.05rem;
-    background: var(--garden);
-    color: var(--paper);
+    background: var(--garden-fill);
+    color: var(--garden-fill-ink);
   }
   .note-dock-bar .dock-ask:hover {
-    background: var(--garden-hover);
+    background: var(--garden-fill-hover);
   }
   .note-dock-bar .dock-ask[hidden] {
     display: none;

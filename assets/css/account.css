@@ -403,15 +403,15 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   cursor: default;
 }
 .acct-btn--primary {
-  background: var(--garden);
-  border-color: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  border-color: var(--garden-fill);
+  color: var(--garden-fill-ink);
   font-weight: 600;
 }
 .acct-btn--primary:hover:not(:disabled) {
-  background: var(--garden-hover);
-  border-color: var(--garden-hover);
-  color: var(--paper);
+  background: var(--garden-fill-hover);
+  border-color: var(--garden-fill-hover);
+  color: var(--garden-fill-ink);
 }
 .acct-btn--danger {
   color: var(--danger);
@@ -1372,8 +1372,8 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     width: 2.375rem;
     height: 2.375rem;
     border-radius: 50%;
-    background: var(--garden);
-    color: var(--paper);
+    background: var(--garden-fill);
+    color: var(--garden-fill-ink);
     border: 3px solid var(--paper);
   }
   .ap-pencil svg {
@@ -1620,8 +1620,8 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     width: 1.375rem;
     height: 1.375rem;
     border-radius: 50%;
-    background: var(--garden);
-    color: var(--paper);
+    background: var(--garden-fill);
+    color: var(--garden-fill-ink);
   }
   .ap-wi-tick svg {
     width: 0.8125rem;

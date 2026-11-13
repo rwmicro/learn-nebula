@@ -101,13 +101,13 @@
 }
 .duo-pri {
   align-self: flex-start;
-  border-color: var(--garden);
+  border-color: var(--garden-fill);
   border-bottom-width: 3px;
-  background: var(--garden);
+  background: var(--garden-fill);
   color: #fff;
 }
 .duo-pri:hover:not(:disabled) {
-  background: var(--garden-hover);
+  background: var(--garden-fill-hover);
 }
 .duo-hang {
   border-color: var(--danger);

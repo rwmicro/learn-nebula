@@ -124,8 +124,8 @@
   --btn-h-sm: 2.875rem;
   --btn-radius: 999px;
   --btn-font: 600 1.0625rem var(--font-ui);
-  --btn-bg: var(--garden);
-  --btn-ink: var(--paper);
+  --btn-bg: var(--garden-fill);
+  --btn-ink: var(--garden-fill-ink);
 }
 
 /* components/ui/PageHeader.tsx */
@@ -208,6 +208,9 @@
   --color-link-wash: var(--link-wash);
   --color-garden: var(--garden);
   --color-garden-dark: var(--garden-hover);
+  --color-garden-fill: var(--garden-fill);
+  --color-garden-fill-hover: var(--garden-fill-hover);
+  --color-garden-fill-ink: var(--garden-fill-ink);
   --color-danger: var(--danger);
   --color-mark: var(--mark);
   --color-mark-soft: var(--mark-soft);
@@ -254,6 +257,12 @@
   --garden: #3f6b4a;
   --garden-hover: #345a3e;
   --garden-wash: #eef3ec;
+  /* Filled buttons and badges with text on them. In light the same green
+     with the paper colour on it; in dark a deep green with light text, so a
+     button reads the same way in both themes instead of a pale mint slab. */
+  --garden-fill: var(--garden);
+  --garden-fill-hover: var(--garden-hover);
+  --garden-fill-ink: var(--paper);
   /* Large filled surfaces (the review banner, the main way in): the light
      green as is, a deep green in dark mode instead of a mint slab. */
   --garden-deep: var(--garden);
@@ -310,16 +319,19 @@
   --link-wash: #1f2a37;
   --link-soft: #34506f;
   --link-mid: #4a76a3;
-  --garden: #86b893; /* 7.6:1; the paper colour on it is 7.6:1 too */
-  --garden-hover: #a3c9a9;
+  --garden: #8cc79a; /* 8.8:1 */
+  --garden-hover: #a6d4b0;
   --garden-wash: #233027;
+  --garden-fill: #3a6b48; /* light ink on it 5.1:1 */
+  --garden-fill-hover: #3f744e; /* 4.5:1 */
+  --garden-fill-ink: #ebe8e2;
   --garden-deep: #2f5039;
   --garden-deep-ink: #e9f1ea;
   --danger: #ef8a80;
   --danger-ink: #f0a39b;
   --warn: #e0a84a;
   --growth-1: #b0d48f;
-  --growth-2: #86b893;
+  --growth-2: #8cc79a;
   --growth-3: #6fa87c;
   --callout-blue: #7fb2f0;
   --callout-teal: #4fc4b8;
@@ -357,16 +369,19 @@
     --link-wash: #1f2a37;
     --link-soft: #34506f;
     --link-mid: #4a76a3;
-    --garden: #86b893;
-    --garden-hover: #a3c9a9;
+    --garden: #8cc79a;
+    --garden-hover: #a6d4b0;
     --garden-wash: #233027;
+    --garden-fill: #3a6b48;
+    --garden-fill-hover: #3f744e;
+    --garden-fill-ink: #ebe8e2;
     --garden-deep: #2f5039;
     --garden-deep-ink: #e9f1ea;
     --danger: #ef8a80;
     --danger-ink: #f0a39b;
     --warn: #e0a84a;
     --growth-1: #b0d48f;
-    --growth-2: #86b893;
+    --growth-2: #8cc79a;
     --growth-3: #6fa87c;
     --callout-blue: #7fb2f0;
     --callout-teal: #4fc4b8;
@@ -566,9 +581,9 @@ body {
   align-items: center;
   gap: 0.45rem;
   padding: 0.55rem 1.1rem;
-  border: 1px solid var(--garden);
-  background: var(--garden);
-  color: var(--paper);
+  border: 1px solid var(--garden-fill);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   border-radius: var(--radius-pill);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
   cursor: pointer;
@@ -580,8 +595,8 @@ body {
   line-height: 1.2;
 }
 .gk-pinned-trigger:hover {
-  background: var(--garden-hover);
-  border-color: var(--garden-hover);
+  background: var(--garden-fill-hover);
+  border-color: var(--garden-fill-hover);
 }
 /* Phones: a round sprout button instead of the pill, on one row with
    "Étape suivante" / "Remonter" (main.css, path-step.css). The label stays
@@ -1424,8 +1439,8 @@ body:has(.home-masthead) .site-bar {
   align-items: center;
   padding: 0.22rem 0.75rem;
   border-radius: var(--radius-pill);
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   font-family: var(--font-ui);
   font-size: 0.85rem;
   font-weight: 600;
@@ -1433,8 +1448,8 @@ body:has(.home-masthead) .site-bar {
   white-space: nowrap;
 }
 .account-login:hover {
-  background: var(--garden-hover);
-  color: var(--paper);
+  background: var(--garden-fill-hover);
+  color: var(--garden-fill-ink);
 }
 .account-chip {
   display: inline-flex;
@@ -1482,8 +1497,8 @@ body:has(.home-masthead) .site-bar {
   white-space: nowrap;
 }
 .review-pill:hover {
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .review-pill-dot {
   width: 0.45rem;
@@ -2094,11 +2109,11 @@ body:has(.home-masthead) .site-bar {
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   box-shadow:
     0 0 0 8px var(--garden-wash),
-    0 10px 24px color-mix(in srgb, var(--garden) 40%, transparent);
+    0 10px 24px color-mix(in srgb, var(--garden-fill) 40%, transparent);
 }
 .pron-coach-mic svg {
   position: relative;
@@ -2258,11 +2273,11 @@ body:has(.home-masthead) .site-bar {
   border-radius: 26px;
   gap: 8px;
   font-size: 17px;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .pron-coach-both:hover {
-  background: var(--garden-hover);
+  background: var(--garden-fill-hover);
 }
 .pron-coach-both svg {
   width: 20px;

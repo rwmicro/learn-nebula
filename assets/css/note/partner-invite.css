@@ -18,8 +18,8 @@
   width: 2.6rem;
   height: 2.6rem;
   border-radius: 50%;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .partner-invite-txt {
   display: grid;
@@ -39,14 +39,14 @@
   flex: none;
   padding: 0.6rem 1.1rem;
   border-radius: var(--radius-pill);
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   font: 600 0.95rem var(--font-ui);
   text-decoration: none;
 }
 .partner-invite-go:hover {
-  background: color-mix(in srgb, var(--garden) 88%, var(--ink));
-  color: var(--paper);
+  background: color-mix(in srgb, var(--garden-fill) 88%, var(--ink));
+  color: var(--garden-fill-ink);
 }
 .partner-invite-actions {
   display: flex;

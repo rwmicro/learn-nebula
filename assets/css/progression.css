@@ -145,13 +145,13 @@
   cursor: not-allowed;
 }
 .progression-btn--primary {
-  border-color: var(--garden);
-  background: var(--garden);
-  color: var(--paper);
+  border-color: var(--garden-fill);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .progression-btn--primary:hover:not(:disabled) {
-  border-color: var(--garden-hover);
-  background: var(--garden-hover);
+  border-color: var(--garden-fill-hover);
+  background: var(--garden-fill-hover);
 }
 .progression-btn--primary.is-danger {
   border-color: var(--danger);

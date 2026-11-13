@@ -464,8 +464,8 @@
 
 .dash-week-days i.is-on {
   border: 0;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 
 .dash-week-days i.is-now {
@@ -655,8 +655,8 @@
   width: 2.125rem;
   height: 2.125rem;
   border-radius: 0.625rem;
-  background: var(--fam, var(--garden));
-  color: var(--paper);
+  background: var(--fam, var(--garden-fill));
+  color: var(--garden-fill-ink);
 }
 
 .dash-disc-icon svg {

@@ -56,13 +56,13 @@
 }
 .sel-menu-explain {
   padding: 0 0.85rem 0 0.7rem;
-  color: var(--paper);
-  background: var(--garden);
+  color: var(--garden-fill-ink);
+  background: var(--garden-fill);
   font-weight: 700;
 }
 .sel-menu-explain:hover,
 .sel-menu-explain:focus-visible {
-  background: var(--garden-hover);
+  background: var(--garden-fill-hover);
 }
 /* Link and flag: the icon alone (aria-label says it); "Lien copié" shows. */
 .sel-menu-icon {
@@ -190,9 +190,9 @@
   border: 1px solid var(--rule-strong);
 }
 .report-send {
-  color: var(--paper);
-  background: var(--garden);
-  border: 1px solid var(--garden);
+  color: var(--garden-fill-ink);
+  background: var(--garden-fill);
+  border: 1px solid var(--garden-fill);
   font-weight: 700;
 }
 .report-send:disabled {
@@ -802,9 +802,9 @@ html.lesson-open {
   font-family: var(--font-text);
   font-size: 1.08rem;
   font-weight: 700;
-  color: var(--paper);
-  background: var(--garden);
-  border: 1.5px solid var(--garden-hover);
+  color: var(--garden-fill-ink);
+  background: var(--garden-fill);
+  border: 1.5px solid var(--garden-fill-hover);
   border-bottom: 4px solid color-mix(in srgb, var(--garden) 60%, #000);
   border-radius: var(--radius-sm);
   padding: 0.65rem 1.6rem;
@@ -1064,9 +1064,9 @@ mark.hl--new {
   cursor: pointer;
 }
 .hl-card-save {
-  background: var(--garden) !important;
-  border-color: var(--garden) !important;
-  color: var(--paper) !important;
+  background: var(--garden-fill) !important;
+  border-color: var(--garden-fill) !important;
+  color: var(--garden-fill-ink) !important;
 }
 .hl-card-remove:hover {
   color: var(--danger);
@@ -1195,15 +1195,15 @@ mark.hl--new {
 .w-goal-btn {
   font: inherit;
   font-weight: 700;
-  border: 1px solid var(--garden);
+  border: 1px solid var(--garden-fill);
   border-radius: var(--radius-sm, 4px);
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   padding: 0.25rem 0.9rem;
   cursor: pointer;
 }
 .w-goal-btn:hover {
-  background: var(--garden-hover);
+  background: var(--garden-fill-hover);
 }
 .w-goal-btn:active {
   transform: translateY(1px);

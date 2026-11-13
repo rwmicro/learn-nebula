@@ -712,8 +712,8 @@ html:has(.palette--phone .palette-input:focus) .palette--phone .palette-field {
   width: 1.75rem;
   height: 1.75rem;
   border-radius: 50%;
-  background: var(--fam, var(--garden));
-  color: var(--paper);
+  background: var(--fam, var(--garden-fill));
+  color: var(--garden-fill-ink);
 }
 .pp-pchip i svg {
   width: 1rem;
@@ -768,8 +768,8 @@ html:has(.palette--phone .palette-input:focus) .palette--phone .palette-field {
   width: 2.875rem;
   height: 2.875rem;
   border-radius: 0.875rem;
-  background: var(--fam, var(--garden));
-  color: var(--paper);
+  background: var(--fam, var(--garden-fill));
+  color: var(--garden-fill-ink);
 }
 .pp-pi svg {
   width: 1.5rem;
@@ -963,8 +963,8 @@ html:has(.palette--phone .palette-input:focus) .palette--phone .palette-field {
   width: 2.375rem;
   height: 2.375rem;
   border-radius: 0.75rem;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .pp-ask-h i svg {
   width: 1.25rem;

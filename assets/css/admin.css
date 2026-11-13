@@ -768,11 +768,11 @@ body:has(.admin-panel.is-console) footer {
   padding: 0.25rem 0.6rem;
   font-size: var(--text-small);
   font-weight: 600;
-  color: var(--paper);
-  background: var(--garden);
+  color: var(--garden-fill-ink);
+  background: var(--garden-fill);
 }
 .admin-btn-primary:hover:not(:disabled) {
-  background: var(--garden-hover);
+  background: var(--garden-fill-hover);
 }
 .admin-btn-primary:disabled {
   opacity: 0.4;

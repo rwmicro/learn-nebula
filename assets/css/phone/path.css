@@ -140,9 +140,9 @@
     padding: 0.625rem 4rem 0.625rem 1.375rem;
     border: 0;
     border-radius: 2.125rem;
-    background: var(--garden);
+    background: var(--garden-fill);
     box-shadow: none;
-    color: var(--paper);
+    color: var(--garden-fill-ink);
     text-decoration: none;
   }
   main.parcours-page--path .parcours-cta-verb {

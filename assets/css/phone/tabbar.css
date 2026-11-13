@@ -446,8 +446,8 @@
     width: 2.375rem;
     height: 2.375rem;
     border-radius: 50%;
-    background: var(--garden);
-    color: var(--paper);
+    background: var(--garden-fill);
+    color: var(--garden-fill-ink);
   }
   .tabbar-mini-play svg {
     width: 1rem;

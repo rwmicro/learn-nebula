@@ -76,8 +76,8 @@
 .defis-week .now span {
   padding: 0 0.4rem;
   border-radius: 0.5rem;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .defis-freeze {
   display: flex;

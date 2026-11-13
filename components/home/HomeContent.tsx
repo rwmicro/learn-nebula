@@ -568,7 +568,7 @@ export function HomeContent({
               <button
                 type="submit"
                 aria-label={tr("home.askSend")}
-                className="home-ask-send shrink-0 cursor-pointer rounded-sm border-0 bg-garden px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-paper transition-colors hover:bg-garden-dark focus-visible:bg-garden-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-rule-strong disabled:text-paper"
+                className="home-ask-send shrink-0 cursor-pointer rounded-sm border-0 bg-garden-fill px-4 py-[0.4rem] text-meta font-semibold uppercase tracking-[0.1em] text-garden-fill-ink transition-colors hover:bg-garden-fill-hover focus-visible:bg-garden-fill-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-garden disabled:cursor-default disabled:bg-rule-strong disabled:text-paper"
               >
                 <span className="home-ask-send-text">{tr("home.askSend")}</span>
                 <svg className="home-ask-send-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">

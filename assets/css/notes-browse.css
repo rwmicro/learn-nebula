@@ -195,7 +195,7 @@
   stroke-linejoin: round;
 }
 .nb-ico-fam {
-  background: var(--fam, var(--garden));
+  background: var(--fam, var(--garden-fill));
   color: #fff;
 }
 .nb-tx {
@@ -282,8 +282,8 @@
   border: 1.5px solid var(--rule-strong);
 }
 .nb-st-read {
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .nb-st-started {
   background: conic-gradient(var(--garden) 0 40%, var(--wash-2) 0);
@@ -394,8 +394,8 @@
   width: 2.25rem;
   height: 2.25rem;
   border-radius: 50%;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .nb-play svg {
   width: 1rem;

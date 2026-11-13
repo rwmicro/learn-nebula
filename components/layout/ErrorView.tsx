@@ -38,7 +38,7 @@ export function ErrorView({ error, reset }: { error: Error; reset: () => void })
         <button
           type="button"
           onClick={retry}
-          className="rounded-full bg-garden px-5 py-2 text-paper [font-family:'Alegreya_Sans',sans-serif]"
+          className="rounded-full bg-garden-fill px-5 py-2 text-garden-fill-ink [font-family:'Alegreya_Sans',sans-serif]"
           data-i18n="errorPage.retry"
         >
           {t("errorPage.retry")}

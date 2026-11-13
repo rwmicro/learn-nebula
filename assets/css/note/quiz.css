@@ -216,9 +216,9 @@
   background: var(--garden-wash);
 }
 .quiz-choice.is-right .quiz-choice-key {
-  border-color: var(--garden);
-  background: var(--garden);
-  color: var(--paper);
+  border-color: var(--garden-fill);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .is-answered .quiz-choice:not(.is-right):not(.is-wrong):not(.is-picked) {
   opacity: 0.6;
