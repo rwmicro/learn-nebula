@@ -42,24 +42,12 @@
     if (!rail) return;
     if (open) {
       document.body.dataset.railOpen = "true";
-      rail.setAttribute("role", "dialog");
-      rail.setAttribute(
-        "aria-label",
-        lastTrigger.getAttribute("aria-label") || "",
-      );
       const a = rail.querySelector("a.active") || rail.querySelector("a");
       if (a) setTimeout(() => a.focus({ preventScroll: true }), 50);
     } else {
       delete document.body.dataset.railOpen;
-      rail.removeAttribute("role");
-      rail.removeAttribute("aria-label");
-      if (rail.contains(document.activeElement)) {
-        try {
-          lastTrigger.focus({ preventScroll: true });
-        } catch {
-          lastTrigger.focus();
-        }
-      }
+      if (rail.contains(document.activeElement))
+        lastTrigger.focus({ preventScroll: true });
     }
     toggles.forEach((t) => t.setAttribute("aria-expanded", String(open)));
   }
