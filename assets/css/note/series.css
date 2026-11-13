@@ -68,12 +68,12 @@
   min-height: 52px;
   border: 0;
   border-radius: 16px;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   font: 700 1rem var(--font-ui);
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  box-shadow: 0 4px 0 color-mix(in srgb, var(--garden) 70%, #000);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--garden-fill) 70%, #000);
   cursor: pointer;
 }
 .ex-launch-go:active {

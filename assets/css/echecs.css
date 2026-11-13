@@ -77,11 +77,11 @@
 }
 .chess-btn--pri {
   border-color: transparent;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .chess-btn--pri:hover:not(:disabled) {
-  background: var(--garden-hover);
+  background: var(--garden-fill-hover);
 }
 .chess-btn--quiet {
   border-color: transparent;
@@ -665,8 +665,8 @@
   margin-left: auto;
   padding: 0.2rem 0.75rem;
   border-radius: var(--radius-pill);
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   font: 700 0.85rem var(--font-ui);
   white-space: nowrap;
 }

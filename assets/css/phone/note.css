@@ -580,13 +580,13 @@
     width: 3.85rem;
     height: 3.85rem;
     border-radius: 50%;
-    background: var(--garden);
-    color: var(--paper);
+    background: var(--garden-fill);
+    color: var(--garden-fill-ink);
     transition: transform 0.15s;
   }
   .na-next:hover {
-    background: var(--garden);
-    color: var(--paper);
+    background: var(--garden-fill);
+    color: var(--garden-fill-ink);
   }
   .na-next:active {
     transform: scale(0.92);

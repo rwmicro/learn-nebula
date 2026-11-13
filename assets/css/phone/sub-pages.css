@@ -80,9 +80,9 @@
   text-decoration: none;
 }
 .review-empty-btn--primary {
-  border-color: var(--garden);
-  background: var(--garden);
-  color: var(--paper);
+  border-color: var(--garden-fill);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .review-empty-btn:hover {
   filter: brightness(1.05);
@@ -178,9 +178,9 @@ main.nf-page .nf-title {
   text-decoration: none;
 }
 .nf-btn--primary {
-  border-color: var(--garden);
-  background: var(--garden);
-  color: var(--paper);
+  border-color: var(--garden-fill);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   font-weight: 700;
 }
 .nf-btn:hover {
@@ -496,8 +496,8 @@ main.nf-page .nf-title {
   min-height: 3.2rem;
   border: 0;
   border-radius: 1rem;
-  background: var(--garden);
-  box-shadow: 0 4px 0 color-mix(in srgb, var(--garden) 70%, #000);
+  background: var(--garden-fill);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--garden-fill) 70%, #000);
   color: #fff;
   font: 700 1rem var(--font-ui);
   letter-spacing: 0.06em;
@@ -613,8 +613,8 @@ main.nf-page .nf-title {
   place-items: center;
   min-height: 3rem;
   border-radius: 1rem;
-  background: var(--garden);
-  box-shadow: 0 4px 0 color-mix(in srgb, var(--garden) 70%, #000);
+  background: var(--garden-fill);
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--garden-fill) 70%, #000);
   color: #fff;
   font: 700 0.95rem var(--font-ui);
   letter-spacing: 0.06em;
@@ -676,8 +676,8 @@ main.nf-page .nf-title {
     display: block;
     padding: 0.8rem;
     border-radius: var(--radius-pill);
-    background: var(--garden);
-    color: var(--paper);
+    background: var(--garden-fill);
+    color: var(--garden-fill-ink);
     font: 700 1rem var(--font-ui);
     text-decoration: none;
   }

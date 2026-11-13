@@ -343,9 +343,9 @@
   font: 700 0.85rem var(--font-ui);
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--paper);
-  background: var(--garden);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--garden) 65%, #000);
+  color: var(--garden-fill-ink);
+  background: var(--garden-fill);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--garden-fill) 65%, #000);
   cursor: pointer;
 }
 .ex-check:active:not(:disabled) {

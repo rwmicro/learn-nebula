@@ -356,8 +356,8 @@ body:has(.parcours-page) footer {
   max-width: 100%;
   padding: 0.45rem 1.1rem;
   border-radius: var(--radius-pill);
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   font-weight: 600;
   font-size: 1.02rem;
   line-height: 1.35;
@@ -365,11 +365,11 @@ body:has(.parcours-page) footer {
 }
 .themes-page a.parcours-cta,
 .themes-page a.parcours-cta:hover {
-  color: var(--paper);
+  color: var(--garden-fill-ink);
   text-decoration: none;
 }
 .parcours-cta:hover {
-  background: color-mix(in srgb, var(--garden) 85%, var(--ink));
+  background: color-mix(in srgb, var(--garden-fill) 85%, var(--ink));
 }
 .parcours-cta:focus-visible {
   outline: 2px solid var(--link);
@@ -496,9 +496,9 @@ a.parcours-tool {
   color: var(--garden);
 }
 .parcours-tool--yes:hover {
-  background: var(--garden);
-  border-color: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  border-color: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .parcours-tool--no {
   border-color: var(--callout-red);
@@ -513,8 +513,8 @@ a.parcours-tool {
   min-width: 1.4em;
   padding: 0 0.35em;
   border-radius: var(--radius-pill);
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   font-size: 0.8rem;
   text-align: center;
   font-variant-numeric: tabular-nums;

@@ -67,8 +67,8 @@
   height: 2.5rem;
   margin-top: 0.6rem;
   border-radius: var(--radius-pill);
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
   font: 700 0.9375rem var(--font-ui);
 }
 .dash-play-go svg {
@@ -77,7 +77,7 @@
 }
 @media (hover: hover) {
   .dash .dash-play-card:hover .dash-play-go {
-    background: color-mix(in srgb, var(--garden) 88%, var(--ink));
+    background: color-mix(in srgb, var(--garden-fill) 88%, var(--ink));
   }
 }
 

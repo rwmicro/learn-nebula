@@ -679,11 +679,11 @@ button.prix[aria-expanded="true"] {
 }
 .wc-btn.is-main {
   border-color: transparent;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .wc-btn.is-main:hover:not(:disabled) {
-  background: var(--garden);
+  background: var(--garden-fill);
   filter: brightness(1.08);
 }
 .wc-btn:disabled {

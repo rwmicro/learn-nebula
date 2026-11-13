@@ -151,10 +151,10 @@
     height: 3.6rem;
     padding: 0 1.9rem;
     border-radius: 999px;
-    background: var(--garden);
-    color: var(--paper);
+    background: var(--garden-fill);
+    color: var(--garden-fill-ink);
     font: 600 1.125rem var(--font-ui);
-    box-shadow: 0 10px 24px color-mix(in srgb, var(--garden) 30%, transparent);
+    box-shadow: 0 10px 24px color-mix(in srgb, var(--garden-fill) 30%, transparent);
   }
   .cdk .cdk-go:hover {
     filter: brightness(1.08);
@@ -781,8 +781,8 @@
     height: 1.6rem;
     padding: 0 0.55rem;
     border-radius: 999px;
-    background: var(--garden);
-    color: var(--paper);
+    background: var(--garden-fill);
+    color: var(--garden-fill-ink);
     font: 700 0.8rem var(--font-ui);
   }
   .cdk-pill.is-soft {

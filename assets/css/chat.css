@@ -455,8 +455,8 @@ button.gc-ib:hover {
   display: grid;
   place-items: center;
   flex: none;
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .gc .gc-send.off {
   background: var(--wash-2);
@@ -1709,8 +1709,8 @@ li.translate-now::marker {
   text-transform: uppercase;
 }
 .tl-switch button[aria-pressed="true"] {
-  background: var(--garden);
-  color: var(--paper);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
 }
 .translate-pill {
   position: fixed;

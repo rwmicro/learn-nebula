@@ -2064,17 +2064,17 @@ a.theme-pill:focus-visible {
   letter-spacing: -0.01rem;
   font-size: 1.15rem;
   padding: 0.4rem 1.4rem;
-  background: var(--garden);
-  border: 1px solid var(--garden);
+  background: var(--garden-fill);
+  border: 1px solid var(--garden-fill);
   border-radius: var(--radius-sm);
-  color: var(--paper);
+  color: var(--garden-fill-ink);
   cursor: pointer;
   line-height: 1.2;
 }
 
 .comments-submit:hover {
-  background: var(--garden-hover);
-  border-color: var(--garden-hover);
+  background: var(--garden-fill-hover);
+  border-color: var(--garden-fill-hover);
   transition: background 0.2s;
 }
 
