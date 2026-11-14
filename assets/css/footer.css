@@ -213,6 +213,16 @@ footer.gf a:focus-visible {
   -webkit-mask-image: url(/images/pied/traits.webp);
   mask-image: url(/images/pied/traits.webp);
 }
+/* Far from the screen (Footer.tsx SKY_SCRIPT): no mask or plate yet, so
+   their files are not fetched on a page nobody scrolls to the end of. */
+footer.gf.gf-far .gf-land i {
+  visibility: hidden;
+  -webkit-mask: none;
+  mask: none;
+}
+footer.gf.gf-far::before {
+  background-image: none;
+}
 .gf-land::after {
   content: "";
   position: absolute;
@@ -370,6 +380,15 @@ body:has(.pcd-colo) .gf-quote {
   .gf-cols {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 2.4rem 1rem;
+  }
+  /* Taller tap targets (a link line was 23px): the padding takes the
+     list's gap. */
+  .gf-col ul {
+    gap: 0.1rem;
+  }
+  footer.gf .gf-col a {
+    display: inline-block;
+    padding: 0.35rem 0;
   }
   /* The credits under the land, clear of the tab bar. */
   .gf-foot {

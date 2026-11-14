@@ -1048,3 +1048,9 @@
     top: 8rem;
   }
 }
+
+/* The graph fills the screen (fixed, z-index 1): the site footer (z-index 20,
+   above the notes' fixed rails) would otherwise be drawn over it. */
+html body:has(.graph-page) > footer.site-foot.gf {
+  display: none;
+}
