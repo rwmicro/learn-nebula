@@ -214,34 +214,40 @@ export function Defis({ paths }: { paths: DefisPath[] }) {
         )}
       </section>
 
-      <div className="defis-h">
-        <h2>{tr("defis.today")}</h2>
-        <span>{left}</span>
+      {/* Two columns from 1024px (defis.css): the day, then the month. */}
+      <div className="defis-cols">
+        <div className="defis-col">
+          <div className="defis-h">
+            <h2>{tr("defis.today")}</h2>
+            <span>{left}</span>
+          </div>
+          <ul className="defis-list">
+            {goal("cards", ICON.cards, "", d?.cards ?? 0, GOALS.cards, GOALS.cards * COIN.review)}
+            {goal("read", ICON.book, "langues", d?.read ?? 0, GOALS.read, GOALS.read * COIN.read)}
+            {goal("right", ICON.quiz, "sciences", d?.right ?? 0, GOALS.right, GOALS.right * COIN.review)}
+          </ul>
+        </div>
+        <div className="defis-col">
+          <div className="defis-h">
+            <h2>{tr(/^[aeiouyàâéèêh]/i.test(monthName) ? "defis.monthVowel" : "defis.month", { month: monthName })}</h2>
+          </div>
+          <ul className="defis-list">
+            <li className="defi defi-month" data-family="pensee">
+              <span className="defi-ico">{ICON.star}</span>
+              <span className="defi-tx">
+                <b>{tr("defis.paths", { n: GOALS.paths })}</b>
+                <span className="defi-bar" role="progressbar" aria-valuemin={0} aria-valuemax={GOALS.paths} aria-valuenow={Math.min(d?.paths ?? 0, GOALS.paths)} aria-label={tr("defis.paths", { n: GOALS.paths })}>
+                  <i style={{ width: `${Math.min(100, (100 * (d?.paths ?? 0)) / GOALS.paths)}%` }} />
+                  <em className={(d?.paths ?? 0) / GOALS.paths > 0.45 ? "in" : undefined}>
+                    {(d?.paths ?? 0) >= GOALS.paths ? tr("defis.done") : `${d?.paths ?? 0} / ${GOALS.paths}`}
+                  </em>
+                </span>
+              </span>
+            </li>
+          </ul>
+          <p className="defis-note">{tr("defis.note")}</p>
+        </div>
       </div>
-      <ul className="defis-list">
-        {goal("cards", ICON.cards, "", d?.cards ?? 0, GOALS.cards, GOALS.cards * COIN.review)}
-        {goal("read", ICON.book, "langues", d?.read ?? 0, GOALS.read, GOALS.read * COIN.read)}
-        {goal("right", ICON.quiz, "sciences", d?.right ?? 0, GOALS.right, GOALS.right * COIN.review)}
-      </ul>
-
-      <div className="defis-h">
-        <h2>{tr(/^[aeiouyàâéèêh]/i.test(monthName) ? "defis.monthVowel" : "defis.month", { month: monthName })}</h2>
-      </div>
-      <ul className="defis-list">
-        <li className="defi defi-month" data-family="pensee">
-          <span className="defi-ico">{ICON.star}</span>
-          <span className="defi-tx">
-            <b>{tr("defis.paths", { n: GOALS.paths })}</b>
-            <span className="defi-bar" role="progressbar" aria-valuemin={0} aria-valuemax={GOALS.paths} aria-valuenow={Math.min(d?.paths ?? 0, GOALS.paths)} aria-label={tr("defis.paths", { n: GOALS.paths })}>
-              <i style={{ width: `${Math.min(100, (100 * (d?.paths ?? 0)) / GOALS.paths)}%` }} />
-              <em className={(d?.paths ?? 0) / GOALS.paths > 0.45 ? "in" : undefined}>
-                {(d?.paths ?? 0) >= GOALS.paths ? tr("defis.done") : `${d?.paths ?? 0} / ${GOALS.paths}`}
-              </em>
-            </span>
-          </span>
-        </li>
-      </ul>
-      <p className="defis-note">{tr("defis.note")}</p>
     </main>
   );
 }
