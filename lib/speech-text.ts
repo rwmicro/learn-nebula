@@ -18,7 +18,7 @@ export const SPEECH_SKIP =
   ".side, .yt-embed";
 
 /** Elements after which a listener needs a pause, not run-on words. */
-const BLOCKS =
+export const SPEECH_BLOCKS =
   /^(P|LI|D[TDL]|H[1-6R]|BLOCKQUOTE|T[RHD]|TABLE|FIGCAPTION|CAPTION|DIV|SECTION|ASIDE|DETAILS|SUMMARY|BR|[OU]L|FIGURE)$/;
 
 /** A piece of text, or the end of a block. */
@@ -57,7 +57,7 @@ export function speechParts(root: Element, parts: SpeechPart[] = []): SpeechPart
       // The margin note's number in the text (not `sup:has(+ .side)`: a
       // browser without :has() would throw on the whole selector).
       if (el.tagName === "SUP" && el.nextElementSibling?.classList.contains("side")) continue;
-      const block = BLOCKS.test(el.tagName);
+      const block = SPEECH_BLOCKS.test(el.tagName);
       if (block) parts.push(null);
       speechParts(el, parts);
       if (block) parts.push(null);

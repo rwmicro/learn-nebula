@@ -185,6 +185,21 @@ image tag in `ci.yml` together with `@playwright/test`.
   nothing leaves the browser) and draws both waveforms. Playback goes through
   Web Audio, not a `blob:` URL, so no CSP `media-src` change is needed; the
   server's `Permissions-Policy` allows `microphone=(self)`.
+- **Écouter** (read aloud): `public/js/audio.js` (in the note bundle) only
+  shows the button and fetches `read-aloud.bundle.js` (`public/js/read-aloud.js`)
+  on the first hover/tap. The note is cut into passages, one language each
+  (`lib/read-aloud-dom.ts`: a `lang` attribute, a table whose header names
+  languages, else the script, with `data-speech-lang` on `.article-body`, the
+  language the note studies, from its slug), each read by the voice of its
+  language (`lib/read-aloud.ts`: `LANGS`, `voiceOptions`, `chooseVoice`,
+  choices in localStorage `gk-voices`) and played in order by
+  `lib/read-aloud-player.ts` (pure, fake engines in its tests). Engines:
+  SpeechSynthesis and Piper (`lib/piper-voice.ts`; its worker keeps two voices
+  in memory). While it reads, the relay (pause in a ring cut by language, who
+  reads, "Voix", stop) replaces the section title in the reading bar, and
+  "Demander sur cette note…" on a phone (`assets/css/note/read-aloud.css`). A
+  language no voice can read is skipped, and "Voix" says so. Browser tests:
+  `tests/read-aloud.spec.js` (fake SpeechSynthesis).
 - **Mermaid diagrams** are SVG rendered at build (`scripts/render-mermaid.mjs`,
   Chromium). `lib/mermaid-theme.js` then moves the rules every diagram of a
   type shares into one hashed `/_next/static/css/mermaid.<hash>.css`, with

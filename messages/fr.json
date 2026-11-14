@@ -226,7 +226,7 @@
     "codeRepo": "Le code",
     "contentLabel": "Contenu",
     "codeLabel": "Code",
-    "engraving": "Gravure\u00a0:",
+    "engraving": "Gravure :",
     "threeTrees": "Les Trois Arbres",
     "engravingAlt": "Rembrandt, Les Trois Arbres, eau-forte, 1643"
   },
@@ -2900,5 +2900,24 @@
   "hold": {
     "hint": "Garde appuyé jusqu’à ce que le bouton soit plein",
     "tooShort": "Garde appuyé jusqu’au bout"
+  },
+  "readAloud": {
+    "voices": "Voix",
+    "panelTitle": "Voix de cette note",
+    "panelSub": "Une voix par langue. Le choix est gardé pour les autres notes.",
+    "then": "puis {lang} · {voice}",
+    "now": "en cours",
+    "none": "aucune voix sur cet appareil",
+    "skipped": "{langs} : aucune voix ne sait lire cette langue ici, ses passages sont sautés.",
+    "system": "voix de l’appareil",
+    "natural": "voix naturelle, ≈ 70 Mo",
+    "device": "Voix de l’appareil",
+    "pick": "Choisir une voix",
+    "voiceFor": "Voix pour {lang}",
+    "sample": "Écouter un extrait avec {voice}",
+    "stop": "Arrêter la lecture",
+    "close": "Fermer",
+    "local": "Tout est lu sur cet appareil : aucun texte n’est envoyé à un serveur.",
+    "unread": "non lu tant qu’aucune voix n’est choisie"
   }
 }

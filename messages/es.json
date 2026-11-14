@@ -2900,5 +2900,24 @@
   "hold": {
     "hint": "Mantén pulsado hasta que el botón se llene",
     "tooShort": "Mantén pulsado hasta el final"
+  },
+  "readAloud": {
+    "voices": "Voces",
+    "panelTitle": "Voces de esta nota",
+    "panelSub": "Una voz por idioma. La elección se guarda para las demás notas.",
+    "then": "luego {lang} · {voice}",
+    "now": "leyendo ahora",
+    "none": "ninguna voz en este dispositivo",
+    "skipped": "{langs}: ninguna voz sabe leer este idioma aquí, sus pasajes se omiten.",
+    "system": "voz del dispositivo",
+    "natural": "voz natural, ≈ 70 MB",
+    "device": "Voz del dispositivo",
+    "pick": "Elegir una voz",
+    "voiceFor": "Voz para {lang}",
+    "sample": "Escuchar una muestra con {voice}",
+    "stop": "Detener la lectura",
+    "close": "Cerrar",
+    "local": "Todo se lee en este dispositivo: ningún texto se envía a un servidor.",
+    "unread": "se omite hasta elegir una voz"
   }
 }

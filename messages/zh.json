@@ -2900,5 +2900,24 @@
   "hold": {
     "hint": "按住直到按钮填满",
     "tooShort": "请一直按到底"
+  },
+  "readAloud": {
+    "voices": "语音",
+    "panelTitle": "本篇笔记的语音",
+    "panelSub": "每种语言一个语音。你的选择会保留到其他笔记。",
+    "then": "接着是{lang} · {voice}",
+    "now": "正在朗读",
+    "none": "此设备上没有语音",
+    "skipped": "{langs}：这里没有能朗读该语言的语音，相关段落会被跳过。",
+    "system": "设备语音",
+    "natural": "自然语音，约 70 MB",
+    "device": "设备语音",
+    "pick": "选择语音",
+    "voiceFor": "{lang}的语音",
+    "sample": "用 {voice} 试听",
+    "stop": "停止朗读",
+    "close": "关闭",
+    "local": "全部在此设备上朗读：不会向服务器发送任何文字。",
+    "unread": "选择语音前会被跳过"
   }
 }

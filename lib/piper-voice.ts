@@ -139,6 +139,7 @@ export async function readWithPiper(opts: {
   keepContext?: boolean;
 }): Promise<PiperReading | null> {
   const { ctx, chunks } = opts;
+  const path = piperVoiceFor(opts.lang);
   const rate = await loadPiperVoice(opts.lang, opts.onProgress);
   if (!rate || !worker || ctx.state === "closed") return null;
   const w = worker;
@@ -170,6 +171,9 @@ export async function readWithPiper(opts: {
         id,
         text: chunks[ids.get(id)!],
         rate: rateOf,
+        // The worker keeps two voices: a reading in two languages says
+        // which one each chunk is for.
+        path,
       });
     }
   };

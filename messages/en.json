@@ -2900,5 +2900,24 @@
   "hold": {
     "hint": "Keep pressing until the button is full",
     "tooShort": "Keep holding until the end"
+  },
+  "readAloud": {
+    "voices": "Voices",
+    "panelTitle": "Voices for this note",
+    "panelSub": "One voice per language. Your choice is kept for other notes.",
+    "then": "then {lang} · {voice}",
+    "now": "reading now",
+    "none": "no voice on this device",
+    "skipped": "{langs}: no voice can read this language here, its passages are skipped.",
+    "system": "device voice",
+    "natural": "natural voice, ≈ 70 MB",
+    "device": "Device voice",
+    "pick": "Choose a voice",
+    "voiceFor": "Voice for {lang}",
+    "sample": "Hear a sample with {voice}",
+    "stop": "Stop reading",
+    "close": "Close",
+    "local": "Everything is read on this device: no text is sent to a server.",
+    "unread": "skipped until a voice is chosen"
   }
 }

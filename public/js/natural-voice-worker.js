@@ -128,12 +128,24 @@ async function phonemeIds(text, lang) {
   return ids;
 }
 
-let voice = null; // {path, session, config}
-let loading = null;
+// The voices in memory, by path, the most recently used last. A note can
+// alternate between two languages (French prose, Chinese examples): keeping
+// both spares reloading 70 MB of model at every change of voice. A third
+// one releases the oldest.
+const MAX_VOICES = 2;
+const voices = new Map(); // path → {path, session, config}
+let voice = null; // the last one asked for
+const loads = new Map(); // path → promise
 
 function load(path) {
-  if (voice?.path === path) return Promise.resolve(voice);
-  if (loading?.path === path) return loading.promise;
+  const have = voices.get(path);
+  if (have) {
+    voices.delete(path);
+    voices.set(path, have);
+    voice = have;
+    return Promise.resolve(have);
+  }
+  if (loads.has(path)) return loads.get(path);
   const promise = (async () => {
     const [config, model] = await Promise.all([
       cachedBytes(`${VOICES_BASE}${path}.onnx.json`).then((b) =>
@@ -147,18 +159,30 @@ function load(path) {
     const session = await ort.InferenceSession.create(model, {
       executionProviders: ["wasm"],
     });
-    voice = { path, session, config };
-    return voice;
+    const v = { path, session, config };
+    voices.set(path, v);
+    voice = v;
+    for (const [old, gone] of voices) {
+      if (voices.size <= MAX_VOICES) break;
+      if (old === path) continue;
+      voices.delete(old);
+      // After what is already queued for it has been said.
+      queue = queue.then(() => gone.session.release?.()).catch(() => {});
+    }
+    return v;
   })();
-  loading = { path, promise };
-  promise.finally(() => {
-    if (loading?.promise === promise) loading = null;
-  });
+  loads.set(path, promise);
+  promise.then(
+    () => loads.delete(path),
+    () => loads.delete(path),
+  );
   return promise;
 }
 
-async function speak(text, rate = 1) {
-  const v = voice ?? (await loading?.promise);
+async function speak(text, rate = 1, path = null) {
+  // `path` names the voice (a reading in several languages); without it,
+  // the last one loaded.
+  const v = path ? await load(path) : (voice ?? (await [...loads.values()].pop()));
   if (!v) throw new Error("no voice loaded");
   const ids = await phonemeIds(text, v.config.espeak.voice);
   const inf = v.config.inference;
@@ -205,7 +229,11 @@ self.addEventListener("message", (e) => {
     );
   } else if (msg.type === "speak") {
     queue = queue.then(() =>
-      speak(String(msg.text), Math.min(2, Math.max(0.5, Number(msg.rate) || 1))).then(
+      speak(
+        String(msg.text),
+        Math.min(2, Math.max(0.5, Number(msg.rate) || 1)),
+        msg.path ? String(msg.path) : null,
+      ).then(
         (pcm) =>
           self.postMessage({ type: "audio", id: msg.id, pcm }, [pcm.buffer]),
         (err) =>
