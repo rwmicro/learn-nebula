@@ -17,6 +17,7 @@ import { speechChunks } from "../../lib/speech-text";
 import { notePassages, passageRanges } from "../../lib/read-aloud-dom";
 import {
   LANGS,
+  NATURAL_IDS,
   VOICE_PREFS_KEY,
   chooseVoice,
   coarseArcs,
@@ -301,6 +302,7 @@ function loadPiper() {
     return piper.readWithPiper({
       ctx: c,
       lang: speakTag(lang) || lang,
+      voice: _voice && _voice.key,
       chunks: speechChunks(text, 320),
       keepContext: true,
       onProgress: (pct) => cb.onProgress(pct),
@@ -644,9 +646,15 @@ function loadPiper() {
     }
   }
   function optionLabel(o) {
-    return o.engine === "piper"
-      ? `${o.name} · ${tt("readAloud.natural")}`
-      : `${o.name} · ${tt("readAloud.system")}`;
+    const kind =
+      o.id === "kokoro"
+        ? "naturalKokoro"
+        : o.id === "mms"
+          ? "naturalMms"
+          : o.engine === "piper"
+            ? "natural"
+            : "system";
+    return `${o.name} · ${tt(`readAloud.${kind}`)}`;
   }
   function buildPanelRows() {
     const list = panel.querySelector(".ra-rows");
@@ -690,7 +698,7 @@ function loadPiper() {
           prefs = { ...readPrefs(), [lang]: sel.value };
           writePrefs(prefs);
           // A tap: the natural voice may need its audio context now.
-          if (sel.value === "piper") ensureCtx();
+          if (NATURAL_IDS.includes(sel.value)) ensureCtx();
           stopSample();
           if (player) player.voiceChanged(lang);
           buildPanelRows();
@@ -826,7 +834,9 @@ function loadPiper() {
         // The voices are deleted: a language that had picked one goes back
         // to its default instead of downloading it again unasked.
         prefs = Object.fromEntries(
-          Object.entries(readPrefs()).filter(([, id]) => id !== "piper"),
+          Object.entries(readPrefs()).filter(
+            ([, id]) => !NATURAL_IDS.includes(id),
+          ),
         );
         writePrefs(prefs);
       }

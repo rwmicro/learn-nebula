@@ -238,8 +238,11 @@ test.describe("Écouter", () => {
     const ids = await select
       .locator("option")
       .evaluateAll((os) => os.map((o) => o.value));
-    test.skip(ids.length < 2, "one voice only for the note's language");
-    const other = ids.find((id) => id !== ids[0]);
+    // Another installed voice: the downloadable ones (Piper, Kokoro, MMS)
+    // would fetch a model.
+    const current = await select.inputValue();
+    const other = ids.find((id) => id.startsWith("system:") && id !== current);
+    test.skip(!other, "one installed voice only for the note's language");
     await select.selectOption(other);
     const name = other.replace("system:", "");
     await expect(relay(page).locator(".ra-name")).toHaveText(name);
@@ -336,6 +339,42 @@ test.describe("Écouter, a note in two languages", () => {
     await expect(row.locator(".ra-hear")).toBeDisabled();
     // Nothing was downloaded behind the reader's back.
     expect(await page.evaluate(() => !!window.__gkPiper)).toBe(false);
+  });
+
+  test("a Kokoro voice picked in “Voix” reads with its own key", async ({
+    page,
+  }) => {
+    // The page side of the natural voices, replaced: no model is fetched.
+    await page.addInitScript(() => {
+      window.__natural = [];
+      window.__gkPiper = {
+        piperVoiceFor: () => "x",
+        loadPiperVoice: async () => 22050,
+        deletePiperVoices: async () => {},
+        readWithPiper: async (o) => {
+          window.__natural.push({ lang: o.lang, voice: o.voice ?? null });
+          setTimeout(() => {
+            o.onPlaying?.();
+            setTimeout(() => o.onEnd?.(), 30);
+          }, 10);
+          return { pause() {}, resume() {}, stop() {} };
+        },
+      };
+    });
+    await open(page, mandarin, { voices: VOICES, ms: 30 });
+    await listen(page).click();
+    await relay(page).locator(".ra-voix").click();
+    const select = page.locator('.ra-row[data-lang="fr"] select');
+    await expect(select.locator('option[value="kokoro"]')).toHaveText(
+      /Siwis \(Kokoro\)/,
+    );
+    await select.selectOption("kokoro");
+    await expect
+      .poll(() => page.evaluate(() => window.__natural.at(-1)))
+      .toEqual({ lang: "fr", voice: "kokoro:ff_siwis:fr" });
+    expect(
+      await page.evaluate(() => JSON.parse(localStorage.getItem("gk-voices"))),
+    ).toMatchObject({ fr: "kokoro" });
   });
 
   test("a language nobody can read here is skipped, and “Voix” says so", async ({

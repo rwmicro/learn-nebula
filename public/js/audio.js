@@ -71,7 +71,8 @@
     try {
       if (
         naturalOk &&
-        (stored("gk-piper") === "1" || stored("gk-voices").includes('"piper"'))
+        (stored("gk-piper") === "1" ||
+          /"(piper|kokoro|mms)"/.test(stored("gk-voices")))
       ) {
         window.__gkAudioCtx = new AudioContext();
         void window.__gkAudioCtx.resume().catch(() => {});

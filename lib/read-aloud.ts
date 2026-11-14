@@ -5,6 +5,7 @@
 // that feeds it is lib/read-aloud-dom.ts, the sequencing
 // lib/read-aloud-player.ts.
 import { joinSpeech, type SpeechPart } from "./speech-text";
+import { KOKORO_VOICES, MMS_VOICES, kokoroKey, mmsKey } from "./natural-voices";
 
 export interface LangInfo {
   /** French name, the fallback when Intl.DisplayNames has none. */
@@ -414,10 +415,17 @@ export function relayAt(
 
 export type VoiceEngine = "piper" | "system";
 
+/** The ids of the downloadable voices: the three engines of the worker
+ *  (public/js/natural-voice-worker.js), all under the engine "piper". */
+export const NATURAL_IDS = ["piper", "kokoro", "mms"];
+
 export interface VoiceOption {
-  /** Stable id, stored as the reader's choice: "piper", "system:Amélie". */
+  /** Stable id, stored as the reader's choice: "piper", "kokoro", "mms",
+   *  "system:Amélie". */
   id: string;
   engine: VoiceEngine;
+  /** A Kokoro or MMS voice: its key for the worker (lib/natural-voices.ts). */
+  key?: string;
   /** The voice's own name. */
   name: string;
 }
@@ -492,6 +500,23 @@ export function voiceOptions(
   const tag = speakTag(code).toLowerCase().split("-")[0];
   if (piperOk && tag && PIPER_NAMES[tag])
     out.push({ id: "piper", engine: "piper", name: PIPER_NAMES[tag] });
+  // Kokoro and MMS also read languages no installed voice does (Hakka has
+  // no tag to look a system voice up with): they go by the code itself.
+  const natural = (LANGS[code]?.speakAs || code).toLowerCase().split("-")[0];
+  if (piperOk && KOKORO_VOICES[natural])
+    out.push({
+      id: "kokoro",
+      engine: "piper",
+      name: `${KOKORO_VOICES[natural].name} (Kokoro)`,
+      key: kokoroKey(natural)!,
+    });
+  if (piperOk && MMS_VOICES[natural])
+    out.push({
+      id: "mms",
+      engine: "piper",
+      name: "MMS",
+      key: mmsKey(natural)!,
+    });
   const seen = new Set<string>();
   for (const v of systemVoicesFor(code, system)) {
     if (seen.has(v.name)) continue;

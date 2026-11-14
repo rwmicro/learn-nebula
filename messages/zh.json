@@ -2911,6 +2911,8 @@
     "skipped": "{langs}：这里没有能朗读该语言的语音，相关段落会被跳过。",
     "system": "设备语音",
     "natural": "自然语音，约 70 MB",
+    "naturalKokoro": "自然语音，约 90 MB，较慢",
+    "naturalMms": "合成语音，约 115 MB",
     "device": "设备语音",
     "pick": "选择语音",
     "voiceFor": "{lang}的语音",

@@ -194,8 +194,13 @@ image tag in `ci.yml` together with `@playwright/test`.
   language (`lib/read-aloud.ts`: `LANGS`, `voiceOptions`, `chooseVoice`,
   choices in localStorage `gk-voices`) and played in order by
   `lib/read-aloud-player.ts` (pure, fake engines in its tests). Engines:
-  SpeechSynthesis and Piper (`lib/piper-voice.ts`; its worker keeps two voices
-  in memory). While it reads, the relay (pause in a ring cut by language, who
+  SpeechSynthesis, and three downloadable ones in one worker
+  (`public/js/natural-voice-worker.js`, two voices in memory): Piper
+  (`lib/piper-voice.ts`, the default, the fastest), Kokoro (one 92 MB model,
+  eSpeak phonemes rewritten by `kokoroPhonemes`: en, fr, es, it, pt, hi) and
+  MMS (114 MB per language, letter by letter, CC BY-NC: Javanese, Hakka in
+  Pha̍k-fa-sṳ, Indonesian…), both in `lib/natural-voices.ts`. A language added
+  to Kokoro needs its eSpeak dictionary in `scripts/copy-piper.mjs`. While it reads, the relay (pause in a ring cut by language, who
   reads, "Voix", stop) replaces the section title in the reading bar, and
   "Demander sur cette note…" on a phone (`assets/css/note/read-aloud.css`). A
   language no voice can read is skipped, and "Voix" says so. Browser tests:

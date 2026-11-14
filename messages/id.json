@@ -2911,6 +2911,8 @@
     "skipped": "{langs}: tidak ada suara yang bisa membaca bahasa ini di sini, bagiannya dilewati.",
     "system": "suara perangkat",
     "natural": "suara alami, ≈ 70 MB",
+    "naturalKokoro": "suara alami, ≈ 90 MB, lebih lambat",
+    "naturalMms": "suara sintetis, ≈ 115 MB",
     "device": "Suara perangkat",
     "pick": "Pilih suara",
     "voiceFor": "Suara untuk {lang}",

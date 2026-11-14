@@ -380,13 +380,39 @@ describe("voices", () => {
       "system:Tingting",
     ]);
     expect(voiceOptions("id", sys, true).map((o) => o.id)).toEqual([
+      "mms",
       "system:Damayanti",
     ]);
+    expect(voiceOptions("id", sys, false).map((o) => o.id)).toEqual([
+      "system:Damayanti",
+    ]);
+    // Piper first (the fastest), then Kokoro.
+    expect(voiceOptions("fr", [], true).map((o) => o.id)).toEqual([
+      "piper",
+      "kokoro",
+    ]);
+    expect(voiceOptions("fr", [], true)[1]).toEqual({
+      id: "kokoro",
+      engine: "piper",
+      name: "Siwis (Kokoro)",
+      key: "kokoro:ff_siwis:fr",
+    });
     expect(voiceOptions("ary", [], true).map((o) => o.name)).toEqual([
       "Kareem",
     ]);
     expect(voiceOptions("nan", sys, true)).toEqual([]);
-    expect(voiceOptions("jv", sys, true)).toEqual([]);
+    // No installed voice reads Javanese or Hakka: MMS does, and Sambas
+    // Malay reads with the Malay model.
+    expect(voiceOptions("jv", sys, true)).toEqual([
+      { id: "mms", engine: "piper", name: "MMS", key: "mms:jav" },
+    ]);
+    expect(voiceOptions("hak", sys, true).map((o) => o.key)).toEqual([
+      "mms:hak",
+    ]);
+    expect(voiceOptions("x-sambas", sys, true).map((o) => o.key)).toEqual([
+      "mms:zlm",
+    ]);
+    expect(voiceOptions("jv", sys, false)).toEqual([]);
   });
   it("falls back to the device's own voice when the browser lists none", () => {
     expect(voiceOptions("fr", [], false, "Appareil")).toEqual([
@@ -399,7 +425,7 @@ describe("voices", () => {
     // No voice can read Teochew, listed or not.
     expect(voiceOptions("nan", [], true, "Appareil")).toEqual([]);
     // A list without the language: nothing, not another language's voice.
-    expect(voiceOptions("jv", sys, true, "Appareil")).toEqual([]);
+    expect(voiceOptions("jv", sys, false, "Appareil")).toEqual([]);
     expect(voiceOptions("fr", [], false)).toEqual([]);
   });
   it("lists a voice once even when the browser reports it twice", () => {

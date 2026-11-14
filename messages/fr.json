@@ -2911,6 +2911,8 @@
     "skipped": "{langs} : aucune voix ne sait lire cette langue ici, ses passages sont sautés.",
     "system": "voix de l’appareil",
     "natural": "voix naturelle, ≈ 70 Mo",
+    "naturalKokoro": "voix naturelle, ≈ 90 Mo, plus lente",
+    "naturalMms": "voix de synthèse, ≈ 115 Mo",
     "device": "Voix de l’appareil",
     "pick": "Choisir une voix",
     "voiceFor": "Voix pour {lang}",
