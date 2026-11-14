@@ -86,6 +86,8 @@ export interface DashboardTile {
   id: string;
   /** Short label under the number ("commentaires en attente"). */
   label: string;
+  /** The same for a count of exactly 1 ("commentaire en attente"). */
+  labelOne?: string;
   tab: TabId;
   /** Element id to jump to inside the tab: a card's <section id>, a
    *  <details> (opened on arrival) or a <button> (clicked on arrival). */
@@ -99,6 +101,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "pending",
     label: "commentaires en attente",
+    labelOne: "commentaire en attente",
     tab: "lecteurs",
     target: "admin-pending",
     useCount: ({ token, onUnauthorized }) =>
@@ -107,6 +110,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "weak-questions",
     label: "questions mal couvertes",
+    labelOne: "question mal couverte",
     tab: "lecteurs",
     target: QUESTIONS_WEAK_ID,
     useCount: ({ token, onUnauthorized }) =>
@@ -115,6 +119,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "search-misses",
     label: "recherches sans résultat",
+    labelOne: "recherche sans résultat",
     tab: "lecteurs",
     target: "admin-search-misses",
     useCount: ({ token, onUnauthorized }) =>
@@ -123,6 +128,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "reports",
     label: "passages signalés par des lecteurs",
+    labelOne: "passage signalé par un lecteur",
     tab: "contenu",
     target: REPORTS_ID,
     useCount: ({ token, onUnauthorized }) =>
@@ -131,6 +137,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "broken-links",
     label: "notes aux liens cassés",
+    labelOne: "note aux liens cassés",
     tab: "contenu",
     target: HEALTH_SECTION_IDS.brokenLinks,
     useCount: ({ token, onUnauthorized }) =>
@@ -139,6 +146,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "audio",
     label: "notes à l'audio manquant ou vide",
+    labelOne: "note à l'audio manquant ou vide",
     tab: "contenu",
     target: HEALTH_SECTION_IDS.audio,
     useCount: ({ token, onUnauthorized }) =>
@@ -147,6 +155,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "prereqs",
     label: "prérequis suggérés",
+    labelOne: "prérequis suggéré",
     tab: "contenu",
     target: "admin-prereqs",
     useCount: function usePrereqCount({ token, onUnauthorized }) {
@@ -158,6 +167,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "facts",
     label: "faits à vérifier",
+    labelOne: "fait à vérifier",
     tab: "contenu",
     target: "admin-facts",
     useCount: function useFactsCount({ token, onUnauthorized }) {
@@ -168,6 +178,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "flagged-accounts",
     label: "comptes à vérifier (pièces)",
+    labelOne: "compte à vérifier (pièces)",
     tab: "comptes",
     target: ACCOUNTS_FLAGGED_ID,
     useCount: ({ token, onUnauthorized }) => {
@@ -178,6 +189,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "usage",
     label: "plafonds de l'assistant bientôt atteints",
+    labelOne: "plafond de l'assistant bientôt atteint",
     tab: "activite",
     target: "admin-usage",
     useCount: ({ token, onUnauthorized }) => {
@@ -188,6 +200,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "client-errors",
     label: "erreurs chez les lecteurs",
+    labelOne: "erreur chez les lecteurs",
     tab: "site",
     target: CLIENT_ERRORS_ID,
     useCount: ({ token, onUnauthorized }) =>
@@ -196,6 +209,7 @@ export const DASHBOARD_TILES: DashboardTile[] = [
   {
     id: "behind",
     label: "commits de retard sur pensine",
+    labelOne: "commit de retard sur pensine",
     tab: "site",
     target: "admin-version",
     useCount: function useBehindCount({ token, onUnauthorized }) {
