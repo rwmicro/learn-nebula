@@ -82,7 +82,7 @@ export function Dashboard({
                 className={`admin-tile is-hot ${FOCUS_RING}`}
               >
                 <span className="admin-tile-value tabular-nums">{(c[t.id] ?? 0).toLocaleString("fr-FR")}</span>
-                <span className="admin-tile-label">{t.label}</span>
+                <span className="admin-tile-label">{c[t.id] === 1 && t.labelOne ? t.labelOne : t.label}</span>
               </a>
             </li>
           ))}

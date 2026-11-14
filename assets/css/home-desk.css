@@ -1,6 +1,9 @@
-/* The desktop home (components/home/HomeDesk.tsx), from 1024px: an almanac
- * under the masthead. Below 1024px .hd is hidden and the tablet layout that
- * follows it in <main> (intro, painting, recent notes, tree) stays.
+/* The desktop home (components/home/HomeDesk.tsx), from 640px: an almanac
+ * under the masthead, the phone dashboard below 640px. From 640 to 1023px
+ * (tablets, half a laptop screen) the same page on fewer columns (the block
+ * at the end). The old tablet layout that follows .hd in <main> (intro,
+ * painting, recent notes, tree) stays hidden; it is what no-JS crawlers and
+ * the tests' fixed vault still render below .hd.
  * One rule for surfaces: a border says "content", a family tint says
  * "somewhere to go"; no shadows but the framed picture's. */
 
@@ -13,7 +16,7 @@
   --hd-muted: color-mix(in srgb, var(--muted) 80%, var(--ink));
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 640px) {
   /* The home's other blocks: the tablet layout and the site footer, which
      the colophon replaces. */
   .home-intro,
@@ -291,7 +294,7 @@
 }
 
 /* Dark: a darker card, the green buttons with dark ink, the frame warmer. */
-@media (min-width: 1024px) {
+@media (min-width: 640px) {
   :root[data-theme="dark"] .hd { --hd-card: #141412; --hd-line: rgb(255 255 255 / .08); }
   :root[data-theme="dark"] .hd :is(.hd-go:not(.ghost), .hd-days i.on, .hd-ask .f button, .hd3-ways .main a) { color: #0d1a10 !important; }
   :root[data-theme="dark"] .hd2-cap .hd-go { color: #1d1a15 !important; }
@@ -300,7 +303,7 @@
   :root[data-theme="dark"] .hd-pc .levels a.on { color: #111; }
   :root[data-theme="dark"] .hd2-frame { border-color: #8f6a3f; box-shadow: inset 0 0 0 1px #e0c184, 0 16px 34px -20px rgb(0 0 0 / .7); }
 }
-@media (min-width: 1024px) and (prefers-color-scheme: dark) {
+@media (min-width: 640px) and (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .hd { --hd-card: #141412; --hd-line: rgb(255 255 255 / .08); }
   :root:not([data-theme="light"]) .hd :is(.hd-go:not(.ghost), .hd-days i.on, .hd-ask .f button, .hd3-ways .main a) { color: #0d1a10 !important; }
   :root:not([data-theme="light"]) .hd2-cap .hd-go { color: #1d1a15 !important; }
@@ -308,4 +311,21 @@
   :root:not([data-theme="light"]) .hd3-ways .main .hd-ic { background: rgb(13 26 16 / .12); color: #0d1a10; }
   :root:not([data-theme="light"]) .hd-pc .levels a.on { color: #111; }
   :root:not([data-theme="light"]) .hd2-frame { border-color: #8f6a3f; box-shadow: inset 0 0 0 1px #e0c184, 0 16px 34px -20px rgb(0 0 0 / .7); }
+}
+
+/* 640–1023px: the desktop home on fewer columns. Two-column rows stack, the
+   four ways in go two by two, the paths three across. */
+@media (min-width: 640px) and (max-width: 1023.98px) {
+  .hd { width: calc(100% - 40px); }
+  .hd-hello { grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+  .hd-row.r-75,
+  .hd-row.r-57,
+  .hd-row.hd6-som { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+  .hd3-ways { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hd-paths { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .hd-index { grid-template-columns: minmax(0, 1fr); }
+  .hd-colo { grid-template-columns: minmax(0, 1fr) auto; gap: 20px 32px; }
+  .hd-colo > :first-child { grid-column: 1 / -1; }
+  .hd-colo .hd-lic { text-align: left; }
+  .hd-h { flex-wrap: wrap; row-gap: 2px; }
 }
