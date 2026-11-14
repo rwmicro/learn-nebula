@@ -1,5 +1,6 @@
 /* /defis/ (components/progress/Defis.tsx): the day run and today's goals. One narrow
-   column, the same on a phone and on a desktop. */
+   column on a phone and a tablet; from 1024px the week across the top and
+   the day's and the month's goals side by side. */
 
 .defis {
   --defis-card: #fff;
@@ -286,4 +287,16 @@
   margin-top: 0.25rem;
   font: 400 0.8125rem/1.3 var(--font-ui);
   color: var(--ink-2);
+}
+
+@media (min-width: 1024px) {
+  .defis {
+    max-width: 60rem;
+  }
+  .defis-cols {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    gap: 1.75rem;
+    align-items: start;
+  }
 }
