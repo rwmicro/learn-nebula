@@ -2608,10 +2608,10 @@ body.rs-pip {
     padding-inline: 0;
   }
   /* Two columns on these two (defis.css, progression.css): wider. */
-  html body main.defis {
+  html body main.defis.defis {
     max-width: 60rem;
   }
-  html body main.progression {
+  html body main.progression.progression {
     max-width: 68rem;
   }
 }
