@@ -1003,7 +1003,10 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
                   setCorrectorEnabled(on);
                   setCorrector((c) => ({ ...c, on }));
                   if (on) {
-                    const off = onLoadProgress((p) => setCorrector((c) => ({ ...c, dl: Math.floor((p.loaded / Math.max(1, p.total)) * 100) })));
+                    const off = onLoadProgress(
+                      (p) => setCorrector((c) => ({ ...c, dl: Math.floor((p.loaded / Math.max(1, p.total)) * 100) })),
+                      CORRECTOR,
+                    );
                     void loadLocalModel(CORRECTOR).then(() => {
                       off();
                       setCorrector((c) => ({ ...c, dl: null }));

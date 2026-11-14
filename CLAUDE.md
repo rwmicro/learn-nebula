@@ -323,9 +323,18 @@ image tag in `ci.yml` together with `@playwright/test`.
   no LLM backend). **`SERVER_LLM_OFFERED = false`**: the server's own
   generation (`/api/ask`, `/api/ask/explain`, `/api/translate`) and its client
   paths are kept but never offered (no budget); flip the flag to bring them
-  back as the last fallback. Translation (`translate.js`): Translator API,
-  then the device model block by block in place (inline markup swapped for
-  `<tN>`/`<kN>` tags and restored), else the setup sheet. On-device speech
+  back as the last fallback. Translation: `translate.js` (note bundle) is the button, the menu
+  and the state; `translate-device.js` (`createTranslator`, fetched when the
+  menu opens) does the work: Translator API, else the device model, several
+  blocks per call (`lib/translate-plan.ts`: `planBatches`, `[n]` lines,
+  `parseBatch`; inline markup swapped for `<tN>`/`<kN>` tags and restored),
+  in place, kept in localStorage after each batch so "Arrêter" then
+  "Reprendre" goes on where it stopped. A block that fails is asked again
+  alone, then marked with a "Réessayer" note (a `<span>` inside a cell);
+  columns a table gives to another language are left alone; `dir="rtl"` for
+  ar/he/fa/ur. With no model: the download sheet (`gk:ai-setup`, `detail:
+  {for: "translate", after}`). Browser tests: `tests/translate.spec.js`
+  (fake `LanguageModel`). On-device speech
   check in the pronunciation coach (`lib/speech-match.ts`, `processLocally`).
 - **Installed app launch + top of page**: `scripts/build-splash.ts` draws
   the iOS launch screens (`public/splash/`, git-ignored, every iPhone/iPad

@@ -44,6 +44,7 @@ import {
   type Availability,
 } from "@/lib/browser-ai";
 import {
+  CORRECTOR,
   deleteLocalModel,
   loadLocalModel,
   localModelCached,
@@ -514,6 +515,10 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   // The weights are already on the device: a load reads them, it doesn't
   // download them again (the progress says so).
   const [fromCache, setFromCache] = useState(false);
+  // What is really in Cache Storage (not what a localStorage date says), for
+  // the settings page; and what the download sheet was opened for.
+  const [onDisk, setOnDisk] = useState({ main: false, corrector: false });
+  const [setupFor, setSetupFor] = useState<"translate" | null>(null);
   const [toast, setToast] = useState("");
   const [storage, setStorage] = useState<{ free: number; used: number } | null>(
     null,
@@ -618,6 +623,25 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   useEffect(() => {
     if (dl === "loading") void localModelCached().then(setFromCache);
   }, [dl]);
+  useEffect(() => {
+    if (!sheet) setSetupFor(null);
+  }, [sheet]);
+  const refreshOnDisk = useCallback(async () => {
+    const [main, corrector] = await Promise.all([localModelCached(), localModelCached(CORRECTOR)]);
+    setOnDisk({ main, corrector });
+  }, []);
+  useEffect(() => {
+    if (view === "settings") void refreshOnDisk();
+  }, [view, dl, refreshOnDisk]);
+  /** Chrome's error for a Nano set aside, said in the reader's words. */
+  function nanoWhy(why: string): string {
+    if (why === "echo") return tr("chat.nanoEcho");
+    if (/NotAllowed/i.test(why)) return tr("chat.nanoWhyRefused");
+    if (/Quota|space|storage/i.test(why)) return tr("chat.nanoWhySpace");
+    if (/NotSupported|language/i.test(why)) return tr("chat.nanoWhyLang");
+    if (/Network|download/i.test(why)) return tr("chat.nanoWhyDownload");
+    return tr("chat.nanoWhyOther", { why });
+  }
 
   /** The "couldn't answer" line, with the device model's own reason when it
    *  gave one (a load error, or the worker stopped, as for memory). */
@@ -626,9 +650,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       // Nano is now set aside for this tab: say why, and what comes next.
       const why = nanoSetAsideReason();
       if (!why) return tr("chat.errNoAnswer");
-      return `${tr("chat.errNoAnswer")}\n\n${tr("chat.nanoFailed", {
-        why: why === "echo" ? tr("chat.nanoEcho") : why,
-      })}`;
+      return `${tr("chat.errNoAnswer")}\n\n${tr("chat.nanoFailed", { why: nanoWhy(why) })}`;
     }
     const why = r === "local" ? localModelError() : "";
     return why ? `${tr("chat.errNoAnswer")}\n\n${tr("chat.errDevice", { why })}` : tr("chat.errNoAnswer");
@@ -936,10 +958,17 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       newConversation(d.mode === "socratic" || d.mode === "own" ? d.mode : "answer", null);
       if (q) sendRef.current(q);
     };
-    const onSetup = async () => {
+    // `detail.for: "translate"` words the sheet for a translation, and
+    // `detail.after` runs once the reader agreed to the download.
+    const onSetup = async (e: Event) => {
+      const d = (e as CustomEvent<{ for?: string; after?: () => void } | null>).detail;
       const r = await refreshRoute();
+      setSetupFor(d?.for === "translate" ? "translate" : null);
       if (r === "none") setSheet("unsupported");
-      else if (r === "download") openConfirm();
+      else if (r === "download") {
+        pendingRef.current = d?.after ?? null;
+        openConfirm();
+      } else d?.after?.();
     };
     window.addEventListener("gk:pin-chat", onPin);
     window.addEventListener("gk:explain", onExplain);
@@ -3059,9 +3088,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
                   {tr(`chat.nanoState.${nano}`)}
                   {nano === "aside" && (
                     <span>
-                      {nanoSetAsideReason() === "echo"
-                        ? tr("chat.nanoEcho")
-                        : nanoSetAsideReason()}
+                      {nanoWhy(nanoSetAsideReason())}
                     </span>
                   )}
                 </span>
@@ -3088,12 +3115,14 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             <span className="gc-li-tx">
               {tr(word === "phone" ? "chat.setUsePhone" : "chat.setUseDevice")}
               <span>
-                {downloadedOn
-                  ? tr("chat.setDownloaded", {
-                      date: fmtDay(downloadedOn, locale),
-                      name: model.name,
-                    })
-                  : tr("chat.setNotDownloaded", { name: model.name })}
+                {!onDisk.main
+                  ? tr("chat.setNotDownloaded", { name: model.name })
+                  : downloadedOn
+                    ? tr("chat.setDownloaded", {
+                        date: fmtDay(downloadedOn, locale),
+                        name: model.name,
+                      })
+                    : tr("chat.setOnDisk", { name: model.name })}
               </span>
             </span>
             <button
@@ -3111,16 +3140,26 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             />
           </div>
           <div className="gc-li">
-            <span className="gc-li-tx">{tr("chat.setSpace")}</span>
-            <em>{downloadedOn ? `${gb} Go` : "0 Go"}</em>
+            <span className="gc-li-tx">
+              {tr("chat.setSpace")}
+              {onDisk.corrector && (
+                <span>{tr("chat.setSpaceCorrector", { n: CORRECTOR.gb.toLocaleString(locale) })}</span>
+              )}
+            </span>
+            <em>
+              {tr("chat.setGb", {
+                n: ((onDisk.main ? model.gb : 0) + (onDisk.corrector ? CORRECTOR.gb : 0)).toLocaleString(locale),
+              })}
+            </em>
           </div>
-          {downloadedOn && (
+          {onDisk.main && (
             <HoldButton
               className="gc-li gc-red"
               hint={tr("hold.hint")}
               tooShort={tr("hold.tooShort")}
               onConfirm={async () => {
                 await deleteLocalModel();
+                void refreshOnDisk();
                 setRoute("download");
                 setDl("idle");
                 showToast(tr("chat.deleted"));
@@ -3165,7 +3204,9 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         {sheet === "confirm" && (
           <>
             <h2 className="gc-big2">{tr("chat.dlConfirmTitle")}</h2>
-            <p className="gc-lead">{tr("chat.dlConfirmText", { n: gb, name: model.name })}</p>
+            <p className="gc-lead">
+              {tr(setupFor ? "chat.dlConfirmTextTranslate" : "chat.dlConfirmText", { n: gb, name: model.name })}
+            </p>
             {freeBytes !== null && totalBytes > 0 && (
               <div className="gc-meter">
                 <div className="gc-meter-lbl">
@@ -3246,8 +3287,8 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         )}
         {sheet === "unsupported" && (
           <>
-            <h2 className="gc-big2">{tr("chat.noTitle")}</h2>
-            <p className="gc-lead">{tr("chat.noText")}</p>
+            <h2 className="gc-big2">{tr(setupFor ? "chat.noTitleTranslate" : "chat.noTitle")}</h2>
+            <p className="gc-lead">{tr(setupFor ? "chat.noTextTranslate" : "chat.noText")}</p>
             <div className="gc-facts">
               <div>
                 {Ic.check}
@@ -3271,12 +3312,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
               // Gemini Nano was there but failed in this tab: it can be
               // tried again, or this sheet would be the only way out.
               <p className="gc-fine gc-fine-left">
-                {tr("chat.nanoFailed", {
-                  why:
-                    nanoSetAsideReason() === "echo"
-                      ? tr("chat.nanoEcho")
-                      : nanoSetAsideReason(),
-                })}
+                {tr("chat.nanoFailed", { why: nanoWhy(nanoSetAsideReason()) })}
               </p>
             )}
             <div className="gc-btns">

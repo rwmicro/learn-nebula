@@ -13,7 +13,7 @@ import {
 } from "./read-aloud";
 
 /** The language of each column of `table`, from its header row. */
-function columnLangs(table: Element): (string | null)[] {
+export function columnLangs(table: Element): (string | null)[] {
   const head = table.querySelector("thead tr") ?? table.querySelector("tr");
   if (!head || !head.querySelector("th")) return [];
   const out: (string | null)[] = [];

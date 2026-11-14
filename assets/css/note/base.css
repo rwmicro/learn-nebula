@@ -1039,6 +1039,24 @@ h4:focus-within .anchor,
 .translate-menu-empty[hidden] {
   display: none;
 }
+/* What picking a language will ask for first (a model to download), or
+   that nothing here can translate. */
+.translate-menu-note {
+  margin: 0;
+  padding: 0.5rem 0.9rem 0.6rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  line-height: 1.3;
+  color: var(--muted-warm);
+}
+.translate-menu-note[hidden],
+.translate-menu.is-empty .translate-filter {
+  display: none;
+}
+.translate-menu.is-empty .translate-menu-note {
+  border-top: 0;
+}
 
 .translate-menu-item {
   display: block;

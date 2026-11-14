@@ -170,7 +170,7 @@ jobs:
       # This is where the WCAG contrast failure in .callout-warning would have
       # been caught — axe covers the whole page, not just what changed.
       - name: Browser tests (functional + accessibility)
-        run: pnpm exec playwright test tests/functional.spec.js tests/a11y.spec.js tests/parler.spec.js tests/echecs.spec.js tests/read-aloud.spec.js
+        run: pnpm exec playwright test tests/functional.spec.js tests/a11y.spec.js tests/parler.spec.js tests/echecs.spec.js tests/read-aloud.spec.js tests/translate.spec.js
 
       - name: Upload Playwright report on failure
         if: failure()

@@ -7,8 +7,8 @@
 // Messages in:  {type: "load", dtype, model}    download / compile only
 //               {type: "generate", id, system, messages, dtype, model, maxTokens}
 //               {type: "interrupt", id}
-// Messages out: {type: "progress", loaded, total} while the model downloads
-//               {type: "ready"} | {type: "load-error", message}
+// Messages out: {type: "progress", model, loaded, total} while it downloads
+//               {type: "ready", model} | {type: "load-error", model, message}
 //               {type: "text", id, text}         the answer so far
 //               {type: "done", id, text} | {type: "error", id, message}
 import {
@@ -63,7 +63,7 @@ function load(dtype, model) {
     device: "webgpu",
     progress_callback(p) {
       if (p.status === "progress_total" && p.total > 0) {
-        self.postMessage({ type: "progress", loaded: p.loaded, total: p.total });
+        self.postMessage({ type: "progress", model: id, loaded: p.loaded, total: p.total });
       }
     },
   }).catch((e) => {
@@ -82,9 +82,10 @@ self.addEventListener("message", (e) => {
     return;
   }
   if (msg.type === "load") {
-    load(msg.dtype === "q4" ? "q4" : "q4f16", msg.model).then(
-      () => self.postMessage({ type: "ready" }),
-      (err) => self.postMessage({ type: "load-error", message: String(err?.message || err) }),
+    const model = MODELS.has(msg.model) ? msg.model : DEFAULT_MODEL;
+    load(msg.dtype === "q4" ? "q4" : "q4f16", model).then(
+      () => self.postMessage({ type: "ready", model }),
+      (err) => self.postMessage({ type: "load-error", model, message: String(err?.message || err) }),
     );
     return;
   }
@@ -94,6 +95,9 @@ self.addEventListener("message", (e) => {
 
 async function generate(msg) {
   const { id } = msg;
+  // Ids only grow: an interrupt that came after its answer had ended would
+  // otherwise stay in the set for good.
+  for (const old of cancelled) if (old < id) cancelled.delete(old);
   try {
     const pipe = await load(msg.dtype === "q4" ? "q4" : "q4f16", msg.model);
     if (cancelled.delete(id)) return;

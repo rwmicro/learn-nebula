@@ -94,7 +94,20 @@
     "translateRetry": "Reintentar",
     "translateFinished": "Nota traducida · {total} secciones",
     "translateUndo": "Deshacer",
-    "translateLocalFailed": "El modelo no pudo traducir esta nota."
+    "translateLocalFailed": "El modelo no pudo traducir esta nota.",
+    "translatePreparing": "Preparando el modelo…",
+    "translateLeft": "unos {n} min",
+    "translateLeftSoon": "menos de un minuto",
+    "translatePartial": "Pasajes por traducir: {n}",
+    "translateNotKept": "Demasiado larga para guardarla: se rehará la próxima vez",
+    "translatePaused": "Traducción al {lang} en pausa",
+    "translatePausedSub": "{n} % ya traducido y guardado",
+    "translateResume": "Reanudar",
+    "translateDiscard": "Descartar",
+    "translateWhy": "Motivo dado por el dispositivo: {why}",
+    "translateWhyUnknown": "El modelo no devolvió nada. Inténtalo de nuevo o recarga la página.",
+    "translateNeedsModel": "Primero se te propondrá descargar un modelo de {n} GB.",
+    "translateUnavailable": "Nada en este dispositivo puede traducir esta nota por ahora."
   },
   "growth": {
     "tended": "retocada el",
@@ -2213,7 +2226,18 @@
     "keyAttach": "Adjuntar otra nota",
     "keyLine": "Salto de línea",
     "keyEsc": "Cerrar un menú, luego el chat",
-    "escKey": "Esc"
+    "escKey": "Esc",
+    "dlConfirmTextTranslate": "Para traducir esta nota en tu dispositivo hace falta un modelo pequeño ({name}, {n} GB). La traducción empezará en cuanto esté, y nada se envía a una IA en línea. También servirá al asistente.",
+    "noTitleTranslate": "La traducción no está disponible aquí",
+    "noTextTranslate": "Se hace en tu dispositivo, y este navegador aún no lo permite (hace falta WebGPU).",
+    "setOnDisk": "{name} · en este dispositivo",
+    "setSpaceCorrector": "de los cuales {n} GB para el corrector de Parler",
+    "setGb": "{n} GB",
+    "nanoWhyRefused": "Chrome se negó a iniciarlo",
+    "nanoWhySpace": "falta espacio para su modelo",
+    "nanoWhyLang": "no conoce este idioma",
+    "nanoWhyDownload": "su descarga no terminó",
+    "nanoWhyOther": "Chrome dice: {why}"
   },
   "pathName": {
     "active-directory-de-l-attaque-a-la-persistance": {

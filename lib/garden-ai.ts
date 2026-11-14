@@ -12,12 +12,19 @@
 import {
   echoesPrompt,
   nanoBroken,
+  openNanoSession,
   promptAvailable,
   promptOnDevice,
 } from "./browser-ai";
 import {
+  loadLocalModel,
+  localModelCached,
   localModelEnabled,
+  localModelError,
+  localModelLoaded,
+  localModelLoading,
   localModelSupported,
+  onLoadProgress,
   promptLocal,
   type ChatTurn,
 } from "./local-llm";
@@ -42,8 +49,14 @@ export async function aiRoute(lang: string, alsoLang = ""): Promise<AiRoute> {
       (!!alsoLang && alsoLang !== lang && (await promptAvailable(alsoLang))))
   )
     return "nano";
-  if (await localModelSupported())
-    return localModelEnabled() ? "local" : "download";
+  if (await localModelSupported()) {
+    if (!localModelEnabled()) return "download";
+    // Agreed to, but the files are not on the device (the download was cut
+    // short, or the browser cleared them): the reader is asked again rather
+    // than a gigabyte starting by itself, maybe on mobile data.
+    if (localModelLoaded() || localModelLoading() || (await localModelCached())) return "local";
+    return "download";
+  }
   return SERVER_LLM_OFFERED ? "server" : "none";
 }
 
@@ -98,4 +111,68 @@ export async function generateOnDevice(opts: {
     signal: opts.signal,
     onText: opts.onText,
   });
+}
+
+/** The device's model held ready for a series of unrelated prompts under
+ *  one system prompt: a note translated block by block. */
+export interface DeviceSeries {
+  /** The answer, or null when the model gave nothing for this prompt. An
+   *  abort rejects. */
+  run(prompt: string, opts?: { maxTokens?: number; signal?: AbortSignal }): Promise<string | null>;
+  close(): void;
+}
+
+/**
+ * Open it: Nano's session is created once (lib/browser-ai.ts), the
+ * downloaded model is loaded first, with `onLoad` following its download or
+ * its loading (0…1). Null when no model can start; `reason()` then says why
+ * when the device told.
+ */
+export async function openDeviceSeries(opts: {
+  route: "nano" | "local";
+  system: string;
+  lang: string;
+  fallbackLang?: string;
+  signal?: AbortSignal;
+  onLoad?: (fraction: number) => void;
+}): Promise<DeviceSeries | null> {
+  const localOk = async () => localModelEnabled() && (await localModelSupported());
+  const local = async (): Promise<DeviceSeries | null> => {
+    const off = onLoadProgress((p) => p.total > 0 && opts.onLoad?.(Math.min(1, p.loaded / p.total)));
+    const ok = await loadLocalModel();
+    off();
+    if (opts.signal?.aborted) throw new DOMException("Aborted", "AbortError");
+    if (!ok) return null;
+    return {
+      run: (prompt, o) => promptLocal({ system: opts.system, prompt, maxTokens: o?.maxTokens, signal: o?.signal }),
+      close() {},
+    };
+  };
+  if (opts.route === "local") return local();
+  const nano = await openNanoSession({
+    system: opts.system,
+    lang: opts.lang,
+    fallbackLang: opts.fallbackLang,
+    signal: opts.signal,
+    onDownload: opts.onLoad,
+  });
+  if (!nano) return (await localOk()) ? local() : null;
+  // Nano answers; what it can't (a block too long for its session), the
+  // downloaded model does when the reader has it.
+  let backup: DeviceSeries | null | undefined;
+  return {
+    async run(prompt, o) {
+      const out = await nano.prompt(prompt, o?.signal);
+      if (out !== null) return out;
+      if (backup === undefined) backup = (await localOk()) ? await local() : null;
+      return backup ? backup.run(prompt, o) : null;
+    },
+    close: () => nano.close(),
+  };
+}
+
+/** Why the downloaded model last failed, in the device's words ("" if it
+ *  didn't say). */
+export function deviceError(): string {
+  return localModelError();
 }
