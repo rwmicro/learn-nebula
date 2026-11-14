@@ -120,6 +120,9 @@ export default function Header({ doc }: { doc: Doc }) {
               // The home's own two: chess and the spoken partner.
               { href: "/echecs/", key: "desk.jouer", label: t("desk.jouer") },
               { href: "/parler/", key: "desk.parler", label: t("desk.parler") },
+              // As in the site bar (components/layout/SiteBar.tsx).
+              { href: "/progression/", key: "nav.progression", label: t("nav.progression") },
+              { href: "/defis/", key: "defis.title", label: t("defis.title") },
             ]}
           />
         </div>

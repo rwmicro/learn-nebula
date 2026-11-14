@@ -13,7 +13,7 @@ import { FLEURON } from "./deco-art";
 import katex from "katex";
 import type { Root, Element, ElementContent, RootContent } from "hast";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { rehypeShiki } from "./highlight";
 import { resolveRelativeNoteLink, resolveWikiLink } from "./content";
@@ -1040,6 +1040,17 @@ function pronPlayer(src: string, alt: string, id: number): Element {
   };
 }
 
+/** True when a served path (/vault/…) exists under public/ with 0 bytes.
+ *  A missing file is not "empty": tests and LFS-less builds lack many. */
+function isEmptyServedFile(src: string): boolean {
+  if (!src.startsWith("/")) return false;
+  try {
+    return statSync(join(process.cwd(), "public", decodeURI(src.split(/[?#]/)[0]))).size === 0;
+  } catch {
+    return false;
+  }
+}
+
 /** Point relative note assets (images, PDFs…) at the served copies in
  * public/vault; leave remote/absolute references untouched. Also upgrades
  * `<img>` whose src ends in a video extension to a `<video>` element so
@@ -1069,6 +1080,14 @@ function rehypeVaultAssets(dir: string) {
             typeof node.properties.alt === "string"
               ? node.properties.alt.trim()
               : "";
+          // A clip the TTS run left empty (0 bytes, vault-health's "empty"):
+          // a player that plays nothing reads as broken, so keep the word
+          // only, as plain text.
+          if (isEmptyServedFile(finalSrc)) {
+            const siblings = parent.children as unknown as Array<RootContent | ElementContent>;
+            siblings.splice(index, 1, ...(alt ? [{ type: "text", value: alt } as ElementContent] : []));
+            return [SKIP, index];
+          }
           const player = pronPlayer(finalSrc, alt, ++pronId);
           const siblings = parent.children as unknown as Array<
             RootContent | ElementContent

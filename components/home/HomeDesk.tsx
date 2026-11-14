@@ -30,7 +30,7 @@ import {
 } from "@/components/home/HomeDashboard";
 import { srcSet, ERAGNY_SIZES } from "@/lib/responsive-image";
 
-// The home on a desktop (from 1024px; home-desk.css shows it and hides the
+// The home on a desktop (from 640px; home-desk.css shows it and hides the
 // tablet layout that follows it in <main>): the phone dashboard's content set
 // out as an almanac under the masthead. A greeting and the search; the
 // picture of the path in progress, framed, with its next step (or, on a first
@@ -239,7 +239,7 @@ export function HomeDesk({
   useEffect(() => {
     const go = () => {
       const h = decodeURIComponent(location.hash.slice(1));
-      if (!matchMedia("(min-width: 1024px)").matches) return;
+      if (!matchMedia("(min-width: 640px)").matches) return;
       const el = h && document.getElementById(`hd-${h}`);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     };
