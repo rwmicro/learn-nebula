@@ -94,7 +94,20 @@
     "translateRetry": "إعادة المحاولة",
     "translateFinished": "تُرجمت الملاحظة · {total} أقسام",
     "translateUndo": "تراجع",
-    "translateLocalFailed": "تعذّر على النموذج ترجمة هذه الملاحظة."
+    "translateLocalFailed": "تعذّر على النموذج ترجمة هذه الملاحظة.",
+    "translatePreparing": "جارٍ تجهيز النموذج…",
+    "translateLeft": "نحو {n} د",
+    "translateLeftSoon": "أقل من دقيقة",
+    "translatePartial": "مقاطع لم تُترجم بعد: {n}",
+    "translateNotKept": "أطول من أن تُحفظ: ستُعاد في المرة القادمة",
+    "translatePaused": "الترجمة إلى {lang} متوقفة مؤقتًا",
+    "translatePausedSub": "{n}٪ مترجم ومحفوظ",
+    "translateResume": "متابعة",
+    "translateDiscard": "تخلٍّ",
+    "translateWhy": "السبب الذي ذكره الجهاز: {why}",
+    "translateWhyUnknown": "لم يُخرج النموذج شيئًا. حاول مجددًا أو أعد تحميل الصفحة.",
+    "translateNeedsModel": "سيُقترح عليك أولًا تنزيل نموذج بحجم {n} غيغابايت.",
+    "translateUnavailable": "لا شيء على هذا الجهاز يستطيع ترجمة هذه الملاحظة حاليًا."
   },
   "growth": {
     "tended": "آخر تحديث",
@@ -2213,7 +2226,18 @@
     "keyAttach": "إرفاق ملاحظة أخرى",
     "keyLine": "سطر جديد",
     "keyEsc": "أغلق القائمة ثم المحادثة",
-    "escKey": "Esc"
+    "escKey": "Esc",
+    "dlConfirmTextTranslate": "لترجمة هذه الملاحظة على جهازك يلزم نموذج صغير ({name}، {n} غيغابايت). تبدأ الترجمة فور توفره، ولا يُرسل شيء إلى ذكاء اصطناعي على الإنترنت. وسيستعمله المساعد أيضًا.",
+    "noTitleTranslate": "الترجمة غير متاحة هنا",
+    "noTextTranslate": "تتم على جهازك، وهذا المتصفح لا يسمح بذلك بعد (يلزم WebGPU).",
+    "setOnDisk": "{name} · على هذا الجهاز",
+    "setSpaceCorrector": "منها {n} غيغابايت لمصحّح Parler",
+    "setGb": "{n} غيغابايت",
+    "nanoWhyRefused": "رفض Chrome تشغيله",
+    "nanoWhySpace": "لا توجد مساحة كافية لنموذجه",
+    "nanoWhyLang": "لا يعرف هذه اللغة",
+    "nanoWhyDownload": "لم يكتمل تنزيله",
+    "nanoWhyOther": "يقول Chrome: {why}"
   },
   "pathName": {
     "active-directory-de-l-attaque-a-la-persistance": {
@@ -2900,5 +2924,26 @@
   "hold": {
     "hint": "اضغط مطولًا حتى يمتلئ الزر",
     "tooShort": "واصل الضغط حتى النهاية"
+  },
+  "readAloud": {
+    "voices": "الأصوات",
+    "panelTitle": "أصوات هذه الملاحظة",
+    "panelSub": "صوت لكل لغة. يُحفظ اختيارك للملاحظات الأخرى.",
+    "then": "ثم {lang} · {voice}",
+    "now": "يُقرأ الآن",
+    "none": "لا يوجد صوت على هذا الجهاز",
+    "skipped": "{langs}: لا يوجد صوت يقرأ هذه اللغة هنا، وتُتخطّى مقاطعها.",
+    "system": "صوت الجهاز",
+    "natural": "صوت طبيعي، ≈ 70 م.ب",
+    "naturalKokoro": "صوت طبيعي، ≈ 90 م.ب، أبطأ",
+    "naturalMms": "صوت اصطناعي، ≈ 115 م.ب",
+    "device": "صوت الجهاز",
+    "pick": "اختر صوتًا",
+    "voiceFor": "صوت {lang}",
+    "sample": "استمع إلى مقطع بصوت {voice}",
+    "stop": "إيقاف القراءة",
+    "close": "إغلاق",
+    "local": "كل شيء يُقرأ على هذا الجهاز: لا يُرسل أي نص إلى خادم.",
+    "unread": "يُتخطّى إلى أن تختار صوتًا"
   }
 }

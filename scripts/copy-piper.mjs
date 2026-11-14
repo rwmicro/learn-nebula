@@ -14,7 +14,18 @@ import { createRequire } from "node:module";
 // (the voices of /parler/'s German, Hindi and Turkish partners included:
 // without their dictionary eSpeak read a whole line as a fraction of a
 // second of noise). lib/piper-voice.test.ts keeps the two lists together.
-const DICTS = new Set(["fr", "en", "es", "ar", "cmn", "de", "hi", "tr"]);
+const DICTS = new Set([
+  "fr",
+  "en",
+  "es",
+  "ar",
+  "cmn",
+  "de",
+  "hi",
+  "tr",
+  "it",
+  "pt",
+]);
 const DEST = path.join(process.cwd(), "public", "piper");
 
 let dir;

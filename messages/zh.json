@@ -94,7 +94,20 @@
     "translateRetry": "重试",
     "translateFinished": "笔记已翻译 · {total} 节",
     "translateUndo": "撤销",
-    "translateLocalFailed": "模型无法翻译这篇笔记。"
+    "translateLocalFailed": "模型无法翻译这篇笔记。",
+    "translatePreparing": "正在准备模型…",
+    "translateLeft": "约 {n} 分钟",
+    "translateLeftSoon": "不到一分钟",
+    "translatePartial": "尚未翻译的段落：{n}",
+    "translateNotKept": "篇幅过长，无法保存：下次将重新翻译",
+    "translatePaused": "{lang}翻译已暂停",
+    "translatePausedSub": "已翻译并保存 {n}%",
+    "translateResume": "继续",
+    "translateDiscard": "放弃",
+    "translateWhy": "设备给出的原因：{why}",
+    "translateWhyUnknown": "模型没有输出。请重试，或刷新页面。",
+    "translateNeedsModel": "将先请你下载一个 {n} GB 的模型。",
+    "translateUnavailable": "目前此设备上没有可以翻译这篇笔记的工具。"
   },
   "growth": {
     "tended": "最近修订",
@@ -2213,7 +2226,18 @@
     "keyAttach": "附加其他笔记",
     "keyLine": "换行",
     "keyEsc": "关闭菜单，然后关闭聊天",
-    "escKey": "Esc"
+    "escKey": "Esc",
+    "dlConfirmTextTranslate": "要在你的设备上翻译这篇笔记，需要一个小模型（{name}，{n} GB）。模型就绪后立即开始翻译，不会向任何在线 AI 发送内容。助手也会用到它。",
+    "noTitleTranslate": "此处无法使用翻译",
+    "noTextTranslate": "翻译在你的设备上进行，而此浏览器尚不支持（需要 WebGPU）。",
+    "setOnDisk": "{name} · 已在此设备上",
+    "setSpaceCorrector": "其中 {n} GB 用于 Parler 的纠错模型",
+    "setGb": "{n} GB",
+    "nanoWhyRefused": "Chrome 拒绝启动它",
+    "nanoWhySpace": "没有足够空间存放它的模型",
+    "nanoWhyLang": "它不懂这种语言",
+    "nanoWhyDownload": "它的下载没有完成",
+    "nanoWhyOther": "Chrome 提示：{why}"
   },
   "pathName": {
     "active-directory-de-l-attaque-a-la-persistance": {
@@ -2900,5 +2924,26 @@
   "hold": {
     "hint": "按住直到按钮填满",
     "tooShort": "请一直按到底"
+  },
+  "readAloud": {
+    "voices": "语音",
+    "panelTitle": "本篇笔记的语音",
+    "panelSub": "每种语言一个语音。你的选择会保留到其他笔记。",
+    "then": "接着是{lang} · {voice}",
+    "now": "正在朗读",
+    "none": "此设备上没有语音",
+    "skipped": "{langs}：这里没有能朗读该语言的语音，相关段落会被跳过。",
+    "system": "设备语音",
+    "natural": "自然语音，约 70 MB",
+    "naturalKokoro": "自然语音，约 90 MB，较慢",
+    "naturalMms": "合成语音，约 115 MB",
+    "device": "设备语音",
+    "pick": "选择语音",
+    "voiceFor": "{lang}的语音",
+    "sample": "用 {voice} 试听",
+    "stop": "停止朗读",
+    "close": "关闭",
+    "local": "全部在此设备上朗读：不会向服务器发送任何文字。",
+    "unread": "选择语音前会被跳过"
   }
 }

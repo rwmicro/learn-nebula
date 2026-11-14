@@ -94,7 +94,20 @@
     "translateRetry": "Réessayer",
     "translateFinished": "Note traduite · {total} sections",
     "translateUndo": "Annuler",
-    "translateLocalFailed": "Le modèle n'a pas pu traduire cette note."
+    "translateLocalFailed": "Le modèle n'a pas pu traduire cette note.",
+    "translatePreparing": "Préparation du modèle…",
+    "translateLeft": "environ {n} min",
+    "translateLeftSoon": "moins d'une minute",
+    "translatePartial": "Passages restant à traduire : {n}",
+    "translateNotKept": "Trop longue pour être gardée : elle sera refaite la prochaine fois",
+    "translatePaused": "Traduction en {lang} en pause",
+    "translatePausedSub": "{n} % déjà traduits et gardés",
+    "translateResume": "Reprendre",
+    "translateDiscard": "Abandonner",
+    "translateWhy": "Raison donnée par l'appareil : {why}",
+    "translateWhyUnknown": "Le modèle n'a rien rendu. Réessaie, ou recharge la page.",
+    "translateNeedsModel": "Un modèle de {n} Go sera d'abord proposé au téléchargement.",
+    "translateUnavailable": "Rien sur cet appareil ne peut traduire cette note pour l'instant."
   },
   "growth": {
     "tended": "retouché le",
@@ -226,7 +239,7 @@
     "codeRepo": "Le code",
     "contentLabel": "Contenu",
     "codeLabel": "Code",
-    "engraving": "Gravure\u00a0:",
+    "engraving": "Gravure :",
     "threeTrees": "Les Trois Arbres",
     "engravingAlt": "Rembrandt, Les Trois Arbres, eau-forte, 1643"
   },
@@ -2213,7 +2226,18 @@
     "keyAttach": "Joindre une autre note",
     "keyLine": "Aller à la ligne",
     "keyEsc": "Fermer un menu, puis le chat",
-    "escKey": "Échap"
+    "escKey": "Échap",
+    "dlConfirmTextTranslate": "Pour traduire cette note sur ton appareil, il faut un petit modèle ({name}, {n} Go). La traduction commencera dès qu'il sera là, et rien n'est envoyé à une IA en ligne. Il servira aussi à l'assistant.",
+    "noTitleTranslate": "La traduction n'est pas disponible ici",
+    "noTextTranslate": "Elle se fait sur ton appareil, et ce navigateur ne le permet pas encore (il faut WebGPU).",
+    "setOnDisk": "{name} · sur cet appareil",
+    "setSpaceCorrector": "dont {n} Go pour le correcteur de Parler",
+    "setGb": "{n} Go",
+    "nanoWhyRefused": "Chrome a refusé de le lancer",
+    "nanoWhySpace": "il manque de la place pour son modèle",
+    "nanoWhyLang": "il ne connaît pas cette langue",
+    "nanoWhyDownload": "son téléchargement n'a pas abouti",
+    "nanoWhyOther": "Chrome dit : {why}"
   },
   "pathName": {
     "active-directory-de-l-attaque-a-la-persistance": {
@@ -2900,5 +2924,26 @@
   "hold": {
     "hint": "Garde appuyé jusqu’à ce que le bouton soit plein",
     "tooShort": "Garde appuyé jusqu’au bout"
+  },
+  "readAloud": {
+    "voices": "Voix",
+    "panelTitle": "Voix de cette note",
+    "panelSub": "Une voix par langue. Le choix est gardé pour les autres notes.",
+    "then": "puis {lang} · {voice}",
+    "now": "en cours",
+    "none": "aucune voix sur cet appareil",
+    "skipped": "{langs} : aucune voix ne sait lire cette langue ici, ses passages sont sautés.",
+    "system": "voix de l’appareil",
+    "natural": "voix naturelle, ≈ 70 Mo",
+    "naturalKokoro": "voix naturelle, ≈ 90 Mo, plus lente",
+    "naturalMms": "voix de synthèse, ≈ 115 Mo",
+    "device": "Voix de l’appareil",
+    "pick": "Choisir une voix",
+    "voiceFor": "Voix pour {lang}",
+    "sample": "Écouter un extrait avec {voice}",
+    "stop": "Arrêter la lecture",
+    "close": "Fermer",
+    "local": "Tout est lu sur cet appareil : aucun texte n’est envoyé à un serveur.",
+    "unread": "non lu tant qu’aucune voix n’est choisie"
   }
 }

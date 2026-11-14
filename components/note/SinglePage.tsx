@@ -15,6 +15,7 @@ import {
   getDisciplines,
 } from "@/lib/content";
 import { noteHistoryUrl } from "@/lib/site";
+import { langFromSlug } from "@/lib/read-aloud";
 import { pathStepHtml, pathStepOf } from "@/lib/path-step";
 import { extractPlain, renderMarkdown } from "@/lib/markdown";
 import { readingMinutes as minutesOfText } from "@/lib/path-extras";
@@ -131,6 +132,7 @@ export async function SinglePage({
   // this same attribute, so tagging a note also gets it read aloud correctly.
   const noteLang = fm.lang?.trim().toLowerCase() || detectedLang;
   const lang = noteLang !== "fr" ? noteLang : undefined;
+  const studiedLang = langFromSlug(doc.slug);
 
   const sibNav = note ? getSiblings(doc.slug) : null;
   const siblings = sibNav ? siblingNavHtml(sibNav) : "";
@@ -342,7 +344,9 @@ export async function SinglePage({
       : "") +
     prereqs +
     (note ? objectivesHtml(fm.objectifs) : "") +
-    `<div class="article-body">${html}</div>` +
+    // The language the note is about, for "Écouter": the Chinese characters
+    // of a Hakka note are read as Hakka (lib/read-aloud.ts).
+    `<div class="article-body"${studiedLang ? ` data-speech-lang="${studiedLang}"` : ""}>${html}</div>` +
     // The vignette that closes a note (lib/deco-art.ts).
     (note
       ? `<div class="note-colophon deco" data-pagefind-ignore>${CUL_DE_LAMPE}<small${i18nAttrs("noteActions.endOfNote", { min: readingMinutes })}>${escapeHtml(t("noteActions.endOfNote", { min: readingMinutes }))}</small></div>`

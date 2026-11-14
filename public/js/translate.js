@@ -1,27 +1,16 @@
-// Article translation widget. Renders a target-language menu next to the
-// "translate" button; picking a language hits /api/translate with the source
-// Markdown, swaps .article-body's HTML with the rendered translation, and
-// caches the result in localStorage keyed by {pathname, targetLang, content
-// hash}. A second pick (or hit on the same target) is instant.
-//
-// On-device first: where Chrome's built-in Translator API covers the pair
-// (desktop Chrome 138+), the note is translated in the browser, text node by
-// text node in the already-rendered HTML — no server call, no LLM cost, and
-// code, formulas and pronunciation words are left alone. A note under the
-// button says so and offers the server's (better) translation. Anywhere else,
-// or on any failure, the server path below runs as before.
-// Where the Translator API can't help, the device's own model writes the
-// translation (lib/garden-ai.ts: Gemini Nano, or the downloaded Qwen3.5), one
-// block of the rendered note at a time, in place: the card above the body
-// counts the sections, the block being translated is marked and the ones not
-// done yet stay greyed. With neither, the button opens the
-// download (or "not available here") sheet of components/chat/GardenChat.tsx. The
-// server's translation only runs while SERVER_LLM_OFFERED is on.
+// Article translation: the button, its language menu and the note's state.
+// The work itself is translate-device.bundle.js (public/js/translate-device.js,
+// fetched when the menu is first opened): Chrome's Translator API, else the
+// device's model (Gemini Nano or the downloaded one), in batches, in place,
+// kept in localStorage as it goes so a stopped translation resumes. With
+// nothing on the device the button opens the download (or "not available
+// here") sheet of components/chat/GardenChat.tsx. The server's translation
+// (/api/translate) only runs while SERVER_LLM_OFFERED is on.
 // LanguageDetector (lib/browser-ai.ts) also checks, when its model is already
 // there, whether the note is in a language other than the reader's, and
 // highlights the button if so.
 import { detectLanguage, promptAvailable } from "../../lib/browser-ai.ts";
-import { SERVER_LLM_OFFERED, deviceWord, localModelLangs } from "../../lib/garden-ai-flags.ts";
+import { SERVER_LLM_OFFERED, localModelLangs } from "../../lib/garden-ai-flags.ts";
 
 // The model side (lib/garden-ai.ts, lib/local-llm.ts) is its own bundle,
 // translate-device.bundle.js, fetched on the first translation that needs it:
@@ -122,7 +111,8 @@ function loadDevice() {
     );
     for (let i = localStorage.length - 1; i >= 0; i--) {
       const k = localStorage.key(i);
-      if (k && k.startsWith(prefix) && !fresh.has(k)) localStorage.removeItem(k);
+      // "<key>:local" marks a translation the device wrote: it goes with its key.
+      if (k && k.startsWith(prefix) && !fresh.has(k.replace(/:local$/, ""))) localStorage.removeItem(k);
     }
   } catch {
     /* ignore */
@@ -169,483 +159,112 @@ function loadDevice() {
       .querySelectorAll("button.pron-btn[data-pron-src]")
       .forEach((el) => repoint(el, "data-pron-src"));
   }
-  // --- on-device translation (Translator API) ------------------------------
-  const hasTranslator = "Translator" in self;
-  // Text inside these stays as written: code, maths, figures, the word a
-  // pronunciation clip says, and anything the author marked translate="no".
-  const KEEP =
-    "pre, code, kbd, samp, script, style, svg, math, .katex, .katex-display, " +
-    ".pron-label, .pron-tr, [translate='no'], .notranslate, .mermaid";
-
-  async function deviceTranslator(targetLang, onDownload) {
-    if (!hasTranslator || !sourceLang) return null;
-    const pair = { sourceLanguage: sourceLang, targetLanguage: targetLang };
-    try {
-      const a = await self.Translator.availability(pair);
-      if (a === "unavailable") return null;
-      return await self.Translator.create({
-        ...pair,
-        monitor(m) {
-          m.addEventListener("downloadprogress", (e) => onDownload(e.loaded));
-        },
-      });
-    } catch {
-      return null;
-    }
-  }
-
-  // Translate a copy of the original render, one text node at a time (the API
-  // takes plain text, so markup can't be handed to it), keeping each node's
-  // surrounding whitespace. Returns the HTML, or null on any failure.
-  async function translateOnDevice(targetLang) {
-    const translator = await deviceTranslator(targetLang, (f) => {
-      if (label) label.textContent = tt("noteActions.translateDownloading", { n: Math.round(f * 100) });
-    });
-    if (!translator) return null;
-    const box = document.createElement("div");
-    box.innerHTML = originalHtml;
-    const nodes = [];
-    const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT);
-    for (let n = walker.nextNode(); n; n = walker.nextNode()) {
-      if (!/\p{L}/u.test(n.data)) continue;
-      const parent = n.parentElement;
-      if (parent && parent.closest(KEEP)) continue;
-      nodes.push(n);
-    }
-    try {
-      for (let i = 0; i < nodes.length; i++) {
-        const n = nodes[i];
-        const m = /^(\s*)([\s\S]*?)(\s*)$/.exec(n.data);
-        const out = await translator.translate(m[2]);
-        n.data = m[1] + out + m[3];
-        if (label && i % 8 === 0)
-          label.textContent = tt("noteActions.translateProgress", {
-            n: Math.round((100 * (i + 1)) / nodes.length),
-          });
-      }
-      return box.innerHTML;
-    } catch {
-      return null;
-    } finally {
-      try {
-        if (translator.destroy) translator.destroy();
-      } catch {
-        /* ignore */
-      }
-    }
-  }
-
-  // "Traduit sur ton appareil · Meilleure traduction" / "Traduit par le
-  // serveur", just above the body (a <div>: the dropcap rule targets the
-  // body's first <p>). Removed with the translation.
+  // A line above the body: who translated (server), or why it failed.
   let viaNote = null;
-  function showVia(device, targetLang) {
-    if (viaNote) viaNote.remove();
-    viaNote = document.createElement("div");
-    viaNote.className = "translate-via";
-    viaNote.setAttribute("role", "note");
-    viaNote.setAttribute("data-pagefind-ignore", "");
-    const text = document.createElement("span");
-    const key = device ? "noteActions.translateViaDevice" : "noteActions.translateViaServer";
-    text.textContent = tt(key);
-    text.setAttribute("data-i18n", key);
-    viaNote.append(text);
-    if (device && SERVER_LLM_OFFERED) {
-      const better = document.createElement("button");
-      better.type = "button";
-      better.className = "translate-via-better";
-      better.textContent = tt("noteActions.translateBetter");
-      better.setAttribute("data-i18n", "noteActions.translateBetter");
-      better.addEventListener("click", () => {
-        if (!pending) translateOnServer(targetLang);
-      });
-      viaNote.append(" · ", better);
-    }
-    articleBody.before(viaNote);
-  }
   function hideVia() {
-    hidePill();
     if (viaNote) viaNote.remove();
     viaNote = null;
   }
-
-  // --- on-device translation (the device's model) --------------------------
-  // Leaf blocks of the rendered note, each sent to the model on its own. Inline
-  // markup is swapped for short tags (<t0>…</t0> keeps the text inside to
-  // translate, <k0></k0> stands for something kept as is: code, maths, a
-  // pronunciation word), so the model never sees long attributes, and the
-  // original elements are put back around its words.
-  const BLOCKS = "p, li, h1, h2, h3, h4, h5, h6, td, th, figcaption, dt, dd, summary";
-  function leafBlocks(root) {
-    return Array.from(root.querySelectorAll(BLOCKS)).filter(
-      (el) =>
-        !el.closest(KEEP) && !el.querySelector(BLOCKS) && /\p{L}/u.test(el.textContent || ""),
-    );
-  }
-  const escText = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  function encodeBlock(el) {
-    const shells = [];
-    const kept = [];
-    const walk = (node) => {
-      let out = "";
-      for (const c of node.childNodes) {
-        if (c.nodeType === 3) out += escText(c.data);
-        else if (c.nodeType === 1) {
-          if (c.matches(KEEP) || !/\p{L}/u.test(c.textContent || "")) {
-            out += `<k${kept.length}></k${kept.length}>`;
-            kept.push(c);
-          } else {
-            const i = shells.length;
-            shells.push(c);
-            out += `<t${i}>${walk(c)}</t${i}>`;
-          }
-        }
-      }
-      return out;
-    };
-    return { text: walk(el), shells, kept };
-  }
-  // The model's fragment back into nodes; null when a tag went missing or
-  // was made up (the block then stays as written).
-  function decodeBlock(text, shells, kept) {
-    const tpl = document.createElement("template");
-    tpl.innerHTML = text.replace(/^```\w*\s*|\s*```$/g, "").trim();
-    const seen = new Set();
-    let ok = true;
-    const build = (src, dest) => {
-      for (const c of Array.from(src.childNodes)) {
-        if (c.nodeType === 3) dest.append(c.data);
-        else if (c.nodeType === 1) {
-          const m = /^([tk])(\d+)$/.exec(c.localName);
-          const key = m && m[0];
-          const orig = m && (m[1] === "t" ? shells : kept)[Number(m[2])];
-          if (!orig || seen.has(key)) {
-            ok = false;
-            continue;
-          }
-          seen.add(key);
-          if (m[1] === "k") dest.append(orig.cloneNode(true));
-          else {
-            const shell = orig.cloneNode(false);
-            build(c, shell);
-            dest.append(shell);
-          }
-        }
-      }
-    };
-    const frag = document.createDocumentFragment();
-    build(tpl.content, frag);
-    if (!ok || seen.size !== shells.length + kept.length) return null;
-    if (!/\p{L}/u.test(frag.textContent || "")) return null;
-    return frag;
-  }
-
-  const langName = (code, ui) => {
-    try {
-      return new Intl.DisplayNames([ui], { type: "language" }).of(code) || code;
-    } catch {
-      return code;
-    }
-  };
-  const uiLocale = () =>
-    (window.__i18n && (window.__i18n.locale || window.__i18n.defaultLocale)) || "fr";
-  const VIA_LOCAL = ":local";
-  const onPhone = () => deviceWord() === "phone";
-  function setMainLang(lang) {
-    const main = document.getElementById("main");
-    if (!main) return;
-    if (lang) main.setAttribute("lang", lang);
-    else if (sourceLang === "en") main.setAttribute("lang", "en");
-    else main.removeAttribute("lang");
-  }
-
-  // The card above the body. While the model runs: "Traduction en amharique…",
-  // "Arrêter", a bar with one segment per section and "Section 3 sur 7"; once
-  // the card has scrolled away, a pill under the top bar keeps the count and
-  // the stop button. Then "Traduit en amharique" with an [amharique | Original]
-  // switch that swaps the two without translating again.
-  const GLOBE =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z"/></svg>';
-  const CHECK =
-    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.8"/></svg>';
-  let localAbort = null;
-  let pill = null;
-  let pillObserver = null;
-  let toast = null;
-  let toastTimer = null;
-  // The finished translation (for the switch) and what a "Réessayer" needs.
-  let translatedHtml = null;
-  let lastRun = null;
-
-  function cardShell(state, icon, title, sub) {
+  function showVia(text, alert) {
     hideVia();
     viaNote = document.createElement("div");
-    viaNote.className = "translate-local";
-    viaNote.dataset.state = state;
+    viaNote.className = "translate-via";
+    viaNote.setAttribute("role", alert ? "alert" : "note");
     viaNote.setAttribute("data-pagefind-ignore", "");
-    viaNote.innerHTML = `<div class="tl-row">${icon}<div class="tl-text"><b></b><span></span></div></div>`;
-    viaNote.querySelector("b").textContent = title;
-    viaNote.querySelector(".tl-text span").textContent = sub;
+    viaNote.textContent = text;
     articleBody.before(viaNote);
-    return viaNote;
   }
 
-  function showRunningCard(targetLang, total) {
-    const name = langName(targetLang, uiLocale());
-    const card = cardShell(
-      "running",
-      GLOBE,
-      tt("noteActions.translateRunning", { lang: name }),
-      tt(onPhone() ? "noteActions.translatePrivatePhone" : "noteActions.translatePrivateDevice"),
-    );
-    const stop = document.createElement("button");
-    stop.type = "button";
-    stop.className = "tl-stop";
-    stop.textContent = tt("noteActions.translateStop");
-    stop.addEventListener("click", restoreOriginal);
-    card.querySelector(".tl-row").append(stop);
-    const bar = document.createElement("div");
-    bar.className = "tl-bar";
-    bar.setAttribute("aria-hidden", "true");
-    for (let i = 0; i < total; i++) bar.append(document.createElement("i"));
-    const count = document.createElement("div");
-    count.className = "tl-count";
-    count.setAttribute("role", "status");
-    card.append(bar, count);
+  const labels = {
+    idle: "noteActions.translate",
+    loading: "noteActions.translateLoading",
+    translated: "noteActions.translateShowOriginal",
+  };
+  const arias = {
+    idle: "noteActions.translateAriaIdle",
+    loading: "noteActions.translateAriaLoading",
+    translated: "noteActions.translateAriaShowOriginal",
+  };
+  let pending = false;
+  let translator = null;
 
-    pill = document.createElement("div");
-    pill.className = "translate-pill";
-    pill.hidden = true;
-    pill.setAttribute("data-pagefind-ignore", "");
-    pill.innerHTML =
-      '<span class="tl-ring" aria-hidden="true"></span><span><b></b> · <span></span></span><button type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg></button>';
-    pill.querySelector("b").textContent = name;
-    const x = pill.querySelector("button");
-    x.setAttribute("aria-label", tt("noteActions.translateStop"));
-    x.addEventListener("click", restoreOriginal);
-    document.body.append(pill);
-    if ("IntersectionObserver" in window) {
-      pillObserver = new IntersectionObserver(([e]) => {
-        if (pill) pill.hidden = e.isIntersecting || e.boundingClientRect.top > 0;
+  function setState(state) {
+    btn.dataset.state = state;
+    if (label) label.textContent = tt(labels[state]);
+    btn.disabled = state === "loading";
+    btn.setAttribute("aria-label", tt(arias[state]));
+  }
+
+  // The note's own nodes are set aside while a translation is shown, and
+  // put back as they were: widgets, quizzes and players keep their state
+  // (writing `originalHtml` back would leave them dead).
+  let aside = null;
+  function stash() {
+    if (aside) return;
+    aside = document.createDocumentFragment();
+    aside.append(...articleBody.childNodes);
+  }
+  function unstash() {
+    if (!aside) return;
+    articleBody.replaceChildren(aside);
+    aside = null;
+  }
+
+  function restoreOriginal() {
+    if (translator) translator.clear();
+    hideVia();
+    unstash();
+    articleBody.removeAttribute("dir");
+    pending = false;
+    setState("idle");
+  }
+
+  async function device() {
+    if (translator) return translator;
+    const mod = await loadDevice();
+    if (mod)
+      translator = mod.createTranslator({
+        articleBody,
+        originalHtml,
+        sourceLang,
+        tt,
+        cacheKeyFor,
+        fixRelativeAssets,
+        stash,
+        unstash,
+        clearNote: hideVia,
+        setLabel: (text) => {
+          if (label) label.textContent = text;
+        },
+        restore: restoreOriginal,
+        pick,
       });
-      pillObserver.observe(card);
-    }
+    return translator;
   }
 
-  function setProgress(done, total) {
-    if (!viaNote || viaNote.dataset.state !== "running") return;
-    viaNote.querySelectorAll(".tl-bar i").forEach((seg, i) => {
-      seg.className = i < done ? "is-done" : i === done ? "is-now" : "";
-    });
-    const text = tt("noteActions.translateSection", { n: Math.min(done + 1, total), total });
-    viaNote.querySelector(".tl-count").textContent = text;
-    if (pill) {
-      pill.querySelector("b + span").textContent = text;
-      pill.style.setProperty("--p", `${Math.round((done / total) * 100)}%`);
-    }
-  }
-
-  function hidePill() {
-    if (pillObserver) pillObserver.disconnect();
-    pillObserver = null;
-    if (pill) pill.remove();
-    pill = null;
-  }
-
-  function showDoneCard(targetLang) {
-    hidePill();
-    const name = langName(targetLang, uiLocale());
-    const card = cardShell(
-      "done",
-      CHECK,
-      tt("noteActions.translateDone", { lang: name }),
-      tt(onPhone() ? "noteActions.translateKeptPhone" : "noteActions.translateKeptDevice"),
-    );
-    const sw = document.createElement("div");
-    sw.className = "tl-switch";
-    sw.setAttribute("role", "group");
-    let own = name;
-    try {
-      own = new Intl.DisplayNames([targetLang], { type: "language" }).of(targetLang) || name;
-    } catch {
-      /* keep the UI's name */
-    }
-    const toLang = document.createElement("button");
-    toLang.type = "button";
-    toLang.lang = targetLang;
-    toLang.textContent = own;
-    const toOrig = document.createElement("button");
-    toOrig.type = "button";
-    toOrig.textContent = tt("noteActions.translateOriginal");
-    const press = (translated) => {
-      toLang.setAttribute("aria-pressed", String(translated));
-      toOrig.setAttribute("aria-pressed", String(!translated));
-    };
-    press(true);
-    toLang.addEventListener("click", () => {
-      if (toLang.getAttribute("aria-pressed") === "true" || !translatedHtml) return;
-      articleBody.innerHTML = translatedHtml;
-      fixRelativeAssets(articleBody);
-      setMainLang(targetLang);
-      press(true);
-    });
-    toOrig.addEventListener("click", () => {
-      if (toOrig.getAttribute("aria-pressed") === "true") return;
-      translatedHtml = articleBody.innerHTML;
-      articleBody.innerHTML = originalHtml;
-      setMainLang(null);
-      press(false);
-    });
-    sw.append(toLang, toOrig);
-    card.append(sw);
-  }
-
-  // "Note traduite · 7 sections · Annuler", a few seconds above the bottom bar.
-  function showToast(total) {
-    hideToast();
-    toast = document.createElement("div");
-    toast.className = "translate-toast";
-    toast.setAttribute("role", "status");
-    toast.setAttribute("data-pagefind-ignore", "");
-    const text = document.createElement("span");
-    text.textContent = tt("noteActions.translateFinished", { total });
-    const undo = document.createElement("button");
-    undo.type = "button";
-    undo.textContent = tt("noteActions.translateUndo");
-    undo.addEventListener("click", restoreOriginal);
-    toast.append(text, undo);
-    document.body.append(toast);
-    toastTimer = setTimeout(hideToast, 5000);
-  }
-  function hideToast() {
-    if (toastTimer) clearTimeout(toastTimer);
-    toastTimer = null;
-    if (toast) toast.remove();
-    toast = null;
-  }
-
-  // The body as it is kept: without the "couldn't translate" notes, whose
-  // retry only works in the page that made them.
-  function saveLocal(targetLang) {
-    translatedHtml = articleBody.innerHTML;
-    const copy = articleBody.cloneNode(true);
-    copy.querySelectorAll(".translate-failed-note").forEach((n) => n.remove());
-    copy.querySelectorAll(".translate-failed").forEach((n) => n.classList.remove("translate-failed"));
-    try {
-      localStorage.setItem(cacheKeyFor(targetLang), copy.innerHTML);
-      localStorage.setItem(cacheKeyFor(targetLang) + VIA_LOCAL, "1");
-    } catch {
-      /* quota exceeded */
-    }
-  }
-
-  // One block through the model; false when it gave nothing back.
-  async function translateBlock(el, signal) {
-    const { device, route, system, targetLang } = lastRun;
-    const { text, shells, kept } = encodeBlock(el);
-    const out = await device.generateOnDevice({
-      route,
-      system,
-      prompt: text,
-      lang: targetLang,
-      maxTokens: Math.min(2048, Math.ceil(text.length / 2) + 64),
-      signal,
-    });
-    if (out == null) return false;
-    const frag = decodeBlock(out, shells, kept);
-    if (frag) el.replaceChildren(frag);
-    return true;
-  }
-
-  function markFailed(el) {
-    el.classList.add("translate-failed");
-    const note = document.createElement("div");
-    note.className = "translate-failed-note";
-    note.setAttribute("data-pagefind-ignore", "");
-    note.textContent = tt("noteActions.translateBlockFailed") + " · ";
-    const retry = document.createElement("button");
-    retry.type = "button";
-    retry.className = "translate-retry";
-    retry.textContent = tt("noteActions.translateRetry");
-    note.append(retry);
-    el.after(note);
-  }
-
-  articleBody.addEventListener("click", async (e) => {
-    const retry = e.target.closest(".translate-retry");
-    if (!retry || !lastRun || localAbort) return;
-    const note = retry.closest(".translate-failed-note");
-    const el = note && note.previousElementSibling;
-    if (!el) return;
-    retry.disabled = true;
-    el.classList.add("translate-now");
-    el.dataset.trLabel = tt("noteActions.translateCurrent");
-    let ok = false;
-    try {
-      ok = await translateBlock(el, new AbortController().signal);
-    } catch {
-      /* the model failed again */
-    }
-    el.classList.remove("translate-now");
-    delete el.dataset.trLabel;
-    if (!ok) {
-      retry.disabled = false;
-      return;
-    }
-    el.classList.remove("translate-failed");
-    if (el.classList.length === 0) el.removeAttribute("class");
-    note.remove();
-    saveLocal(lastRun.targetLang);
-  });
-
-  // Translate the note in place on the device's model. Resolves true when
-  // done, false when the model couldn't run; an abort ("Arrêter") rejects.
-  async function translateLocally(device, route, targetLang) {
-    articleBody.innerHTML = originalHtml;
-    fixRelativeAssets(articleBody);
-    const blocks = leafBlocks(articleBody);
-    if (!blocks.length) return false;
-    // Section of each block: how many h2 came before it.
-    const sec = [];
-    let n = 0;
-    for (const b of blocks) {
-      if (b.localName === "h2" && sec.length) n++;
-      sec.push(n);
-    }
-    const total = n + 1;
-    blocks.forEach((b) => b.classList.add("translate-pending"));
-    setMainLang(targetLang);
-    activeTarget = targetLang;
-    showRunningCard(targetLang, total);
-    setProgress(0, total);
-    const system = device.translateSystem(langName(sourceLang || "fr", "fr"), langName(targetLang, "fr"));
-    lastRun = { device, route, system, targetLang };
-    localAbort = new AbortController();
-    const signal = localAbort.signal;
-    const nowLabel = tt("noteActions.translateCurrent");
-    for (let i = 0; i < blocks.length; i++) {
-      const el = blocks[i];
-      el.classList.replace("translate-pending", "translate-now");
-      el.dataset.trLabel = nowLabel;
-      const ok = await translateBlock(el, signal);
-      if (signal.aborted) throw new DOMException("Aborted", "AbortError");
-      el.classList.remove("translate-now");
-      delete el.dataset.trLabel;
-      if (!ok) {
-        if (i === 0) {
-          localAbort = null;
-          return false;
-        }
-        markFailed(el);
+  /** Translate the note into `targetLang` (a menu pick, "Réessayer",
+   *  "Reprendre", or the download sheet once the model is there). */
+  async function pick(targetLang) {
+    if (!targetLang || pending) return;
+    pending = true;
+    hideVia();
+    setState("loading");
+    const tr = await device();
+    let result = tr ? "failed" : SERVER_LLM_OFFERED ? "server" : "none";
+    if (tr) {
+      try {
+        result = await tr.translate(targetLang);
+      } catch {
+        restoreOriginal();
       }
-      if (el.classList.length === 0) el.removeAttribute("class");
-      if (blocks[i + 1]) setProgress(sec[i + 1], total);
     }
-    localAbort = null;
-    saveLocal(targetLang);
-    showDoneCard(targetLang);
-    showToast(total);
-    return true;
+    if (result === "server" && SERVER_LLM_OFFERED) result = await translateOnServer(targetLang);
+    pending = false;
+    if (result === "done") return setState("translated");
+    if (result === "none" || result === "server") {
+      restoreOriginal();
+      showVia(tt("noteActions.translateUnavailable"), true);
+    } else if (btn.dataset.state === "loading") setState("idle");
   }
 
   // Light hint: if the note reads as another language than the reader's
@@ -668,61 +287,6 @@ function loadDevice() {
     }
     btn.title = tt("noteActions.translateSuggest", { lang: name });
   })();
-
-  const labels = {
-    get idle() {
-      return tt("noteActions.translate");
-    },
-    get loading() {
-      return tt("noteActions.translateLoading");
-    },
-    get slow() {
-      return tt("noteActions.translateSlow");
-    },
-    get translated() {
-      return tt("noteActions.translateShowOriginal");
-    },
-  };
-  let slowTimer = null;
-  let pending = false;
-  // Track which language we're currently displaying so revert knows what to
-  // do and so subsequent clicks (e.g. for cache) know the active target.
-  let activeTarget = null;
-
-  function setState(state) {
-    btn.dataset.state = state;
-    if (label) label.textContent = labels[state] || labels.idle;
-    btn.disabled = state === "loading";
-    btn.setAttribute(
-      "aria-label",
-      state === "translated"
-        ? tt("noteActions.translateAriaShowOriginal")
-        : state === "loading"
-          ? tt("noteActions.translateAriaLoading")
-          : tt("noteActions.translateAriaIdle"),
-    );
-  }
-
-  function applyTranslation(html, targetLang) {
-    hideVia();
-    articleBody.innerHTML = html;
-    fixRelativeAssets(articleBody);
-    setMainLang(targetLang);
-    activeTarget = targetLang;
-    setState("translated");
-  }
-
-  function restoreOriginal() {
-    if (localAbort) localAbort.abort();
-    localAbort = null;
-    hideVia();
-    hideToast();
-    articleBody.innerHTML = originalHtml;
-    setMainLang(null);
-    activeTarget = null;
-    translatedHtml = null;
-    setState("idle");
-  }
 
   // "No match" hint, revealed when the filter empties the list.
   const noMatch = document.createElement("p");
@@ -747,47 +311,56 @@ function loadDevice() {
       li.hidden = !hit;
       if (hit) visible++;
     });
-    noMatch.hidden = visible > 0;
+    noMatch.hidden = visible > 0 || menu.classList.contains("is-empty");
   }
 
   // Only the languages something on this device can translate into: the
-  // downloaded model's own (lib/garden-ai-flags.ts), then, once the menu is
-  // first opened, the ones Chrome's Translator or Gemini Nano say they cover.
+  // downloaded model's own (lib/garden-ai-flags.ts) when this device can run
+  // one, then the ones Chrome's Translator or Gemini Nano say they cover.
+  // Under the list, a line says what picking one will ask for first.
+  const menuNote = document.createElement("p");
+  menuNote.className = "translate-menu-note";
+  menuNote.hidden = true;
+  (noMatch || list).after(menuNote);
   function markSupport(li, ok) {
     if (ok) delete li.dataset.unsupported;
     else li.dataset.unsupported = "1";
     li.hidden = !ok;
   }
-  if (!SERVER_LLM_OFFERED) {
-    const model = new Set(localModelLangs());
-    list.querySelectorAll("li").forEach((li) => {
-      const it = li.querySelector(".translate-menu-item");
-      markSupport(li, !!it && model.has(it.dataset.targetLang));
-    });
-  }
+  const quick = (p) => Promise.race([p, new Promise((r) => setTimeout(r, 3000))]).catch(() => undefined);
   let supportChecked = false;
-  function checkSupport() {
+  async function checkSupport() {
     if (supportChecked || SERVER_LLM_OFFERED) return;
     supportChecked = true;
+    const tr = await device();
+    const st = tr ? await tr.state() : { state: "ready" };
+    const model = new Set(st.state === "none" ? [] : localModelLangs());
+    const hasTranslator = "Translator" in self && !!sourceLang;
     const hasNano = "LanguageModel" in self;
-    if (!hasTranslator && !hasNano) return;
-    list.querySelectorAll("li[data-unsupported]").forEach(async (li) => {
-      const lang = li.querySelector(".translate-menu-item").dataset.targetLang;
-      let ok = false;
-      if (hasTranslator && sourceLang) {
-        try {
-          const a = await self.Translator.availability({ sourceLanguage: sourceLang, targetLanguage: lang });
-          ok = a !== "unavailable";
-        } catch {
-          /* not this pair */
+    let shown = 0;
+    await Promise.all(
+      Array.from(list.querySelectorAll("li")).map(async (li) => {
+        const lang = li.querySelector(".translate-menu-item").dataset.targetLang;
+        let ok = model.has(lang);
+        if (!ok && hasTranslator) {
+          const a = await quick(self.Translator.availability({ sourceLanguage: sourceLang, targetLanguage: lang }));
+          ok = !!a && a !== "unavailable";
         }
-      }
-      if (!ok && hasNano) ok = await promptAvailable(lang);
-      if (ok) {
-        markSupport(li, true);
-        if (!menu.hidden) applyFilter();
-      }
-    });
+        if (!ok && hasNano) ok = await promptAvailable(lang);
+        markSupport(li, ok);
+        if (ok) shown++;
+      }),
+    );
+    const key =
+      !shown
+        ? "noteActions.translateUnavailable"
+        : st.state === "download"
+          ? "noteActions.translateNeedsModel"
+          : "";
+    menuNote.hidden = !key;
+    if (key) menuNote.textContent = tt(key, { n: String(st.gb || "").replace(".", ",") });
+    menu.classList.toggle("is-empty", !shown);
+    if (!menu.hidden) applyFilter();
   }
 
   function menuItems() {
@@ -871,133 +444,48 @@ function loadDevice() {
     else closeMenu();
   });
 
-  menu.addEventListener("click", async (e) => {
+  menu.addEventListener("click", (e) => {
     const item = e.target.closest(".translate-menu-item");
     if (!item) return;
     closeMenu();
-    const targetLang = item.dataset.targetLang;
-    if (!targetLang || pending) return;
-
-    // Cache hit → instant swap.
-    try {
-      const cached = localStorage.getItem(cacheKeyFor(targetLang));
-      if (cached) {
-        const local = localStorage.getItem(cacheKeyFor(targetLang) + VIA_LOCAL);
-        applyTranslation(cached, targetLang);
-        if (local) {
-          translatedHtml = articleBody.innerHTML;
-          showDoneCard(targetLang);
-        }
-        else if (hasTranslator && SERVER_LLM_OFFERED) showVia(false, targetLang);
-        return;
-      }
-    } catch {
-      /* ignore */
-    }
-
-    // The Translator API first, then the device's model, then (if offered)
-    // the server.
-    if (hasTranslator && sourceLang && sourceLang !== targetLang) {
-      pending = true;
-      setState("loading");
-      const html = await translateOnDevice(targetLang);
-      pending = false;
-      if (html) {
-        applyTranslation(html, targetLang);
-        showVia(true, targetLang);
-        return;
-      }
-      setState("idle");
-    }
-    pending = true;
-    const device = await loadDevice();
-    const route = device ? await device.aiRoute(targetLang) : SERVER_LLM_OFFERED ? "server" : "none";
-    pending = false;
-    if (device && (route === "nano" || route === "local")) {
-      pending = true;
-      setState("loading");
-      try {
-        const ok = await translateLocally(device, route, targetLang);
-        pending = false;
-        if (ok) setState("translated");
-        else {
-          restoreOriginal();
-          serverFailed(tt("noteActions.translateLocalFailed"));
-        }
-      } catch {
-        // "Arrêter" while it ran: restoreOriginal already did the rest.
-        pending = false;
-      }
-      return;
-    }
-    if (route === "server") {
-      translateOnServer(targetLang);
-      return;
-    }
-    // Nothing on this device yet: the chat's sheet offers the download, or
-    // says the assistant isn't available here.
-    window.dispatchEvent(new CustomEvent("gk:ai-setup"));
+    // The "Aa" panel of the reading bar would stay open over the text.
+    const panel = wrap.closest("details");
+    if (panel) panel.open = false;
+    pick(item.dataset.targetLang);
   });
 
-  // A failed server call leaves a device translation on screen as it was
-  // (the "Meilleure traduction" retry), else goes back to the idle button.
-  function serverFailed(message) {
-    if (activeTarget && viaNote) {
-      setState("translated");
-      viaNote.firstChild.removeAttribute("data-i18n");
-      viaNote.firstChild.textContent = message;
-      return;
-    }
-    setState("idle");
-    if (label) label.textContent = message;
-    // On a phone the button sits in the closed display sheet, its label
-    // hidden while idle, so the failure is also said above the text.
-    hideVia();
-    viaNote = document.createElement("div");
-    viaNote.className = "translate-via";
-    viaNote.setAttribute("role", "alert");
-    viaNote.setAttribute("data-pagefind-ignore", "");
-    viaNote.textContent = message;
-    articleBody.before(viaNote);
-  }
-
+  // The server's translation (kept, not offered: SERVER_LLM_OFFERED).
   async function translateOnServer(targetLang) {
-    pending = true;
-    setState("loading");
-    slowTimer = setTimeout(() => {
-      if (label && btn.dataset.state === "loading") label.textContent = labels.slow;
+    const slow = setTimeout(() => {
+      if (label && btn.dataset.state === "loading") label.textContent = tt("noteActions.translateSlow");
     }, 10000);
+    const failed = (message) => {
+      restoreOriginal();
+      showVia(message, true);
+      return "failed";
+    };
     try {
       const r = await fetch("/api/translate", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          markdown: source.markdown,
-          dir: source.dir,
-          sourceLang,
-          targetLang,
-        }),
+        body: JSON.stringify({ markdown: source.markdown, dir: source.dir, sourceLang, targetLang }),
       });
       const data = await r.json().catch(() => ({}));
-      if (!r.ok || !data.html) {
-        serverFailed(data.error || tt("noteActions.translateError"));
-        return;
-      }
+      if (!r.ok || !data.html) return failed(data.error || tt("noteActions.translateError"));
       try {
         localStorage.setItem(cacheKeyFor(targetLang), data.html);
       } catch {
         /* quota exceeded */
       }
-      applyTranslation(data.html, targetLang);
-      if (hasTranslator) showVia(false, targetLang);
+      stash();
+      articleBody.innerHTML = data.html;
+      fixRelativeAssets(articleBody);
+      showVia(tt("noteActions.translateViaServer"));
+      return "done";
     } catch {
-      serverFailed(tt("noteActions.translateNetworkError"));
+      return failed(tt("noteActions.translateNetworkError"));
     } finally {
-      pending = false;
-      if (slowTimer) {
-        clearTimeout(slowTimer);
-        slowTimer = null;
-      }
+      clearTimeout(slow);
     }
   }
 })();

@@ -94,7 +94,20 @@
     "translateRetry": "Coba lagi",
     "translateFinished": "Catatan diterjemahkan · {total} bagian",
     "translateUndo": "Batalkan",
-    "translateLocalFailed": "Model tidak dapat menerjemahkan catatan ini."
+    "translateLocalFailed": "Model tidak dapat menerjemahkan catatan ini.",
+    "translatePreparing": "Menyiapkan model…",
+    "translateLeft": "sekitar {n} mnt",
+    "translateLeftSoon": "kurang dari semenit",
+    "translatePartial": "Bagian yang belum diterjemahkan: {n}",
+    "translateNotKept": "Terlalu panjang untuk disimpan: akan dibuat ulang lain kali",
+    "translatePaused": "Terjemahan ke {lang} dijeda",
+    "translatePausedSub": "{n}% sudah diterjemahkan dan disimpan",
+    "translateResume": "Lanjutkan",
+    "translateDiscard": "Batalkan",
+    "translateWhy": "Alasan dari perangkat: {why}",
+    "translateWhyUnknown": "Model tidak menghasilkan apa pun. Coba lagi, atau muat ulang halaman.",
+    "translateNeedsModel": "Anda akan lebih dulu ditawari mengunduh model {n} GB.",
+    "translateUnavailable": "Belum ada yang bisa menerjemahkan catatan ini di perangkat ini."
   },
   "growth": {
     "tended": "terakhir dirawat",
@@ -2213,7 +2226,18 @@
     "keyAttach": "Lampirkan catatan lain",
     "keyLine": "Baris baru",
     "keyEsc": "Tutup menu, lalu obrolan",
-    "escKey": "Esc"
+    "escKey": "Esc",
+    "dlConfirmTextTranslate": "Untuk menerjemahkan catatan ini di perangkat Anda diperlukan model kecil ({name}, {n} GB). Terjemahan dimulai begitu model siap, dan tidak ada yang dikirim ke AI daring. Asisten juga akan memakainya.",
+    "noTitleTranslate": "Terjemahan tidak tersedia di sini",
+    "noTextTranslate": "Terjemahan dikerjakan di perangkat Anda, dan peramban ini belum mengizinkannya (perlu WebGPU).",
+    "setOnDisk": "{name} · di perangkat ini",
+    "setSpaceCorrector": "termasuk {n} GB untuk korektor Parler",
+    "setGb": "{n} GB",
+    "nanoWhyRefused": "Chrome menolak menjalankannya",
+    "nanoWhySpace": "ruang untuk modelnya tidak cukup",
+    "nanoWhyLang": "ia tidak mengenal bahasa ini",
+    "nanoWhyDownload": "unduhannya tidak selesai",
+    "nanoWhyOther": "Chrome berkata: {why}"
   },
   "pathName": {
     "active-directory-de-l-attaque-a-la-persistance": {
@@ -2900,5 +2924,26 @@
   "hold": {
     "hint": "Tahan sampai tombol penuh",
     "tooShort": "Tahan sampai selesai"
+  },
+  "readAloud": {
+    "voices": "Suara",
+    "panelTitle": "Suara catatan ini",
+    "panelSub": "Satu suara per bahasa. Pilihanmu disimpan untuk catatan lain.",
+    "then": "lalu {lang} · {voice}",
+    "now": "sedang dibacakan",
+    "none": "tidak ada suara di perangkat ini",
+    "skipped": "{langs}: tidak ada suara yang bisa membaca bahasa ini di sini, bagiannya dilewati.",
+    "system": "suara perangkat",
+    "natural": "suara alami, ≈ 70 MB",
+    "naturalKokoro": "suara alami, ≈ 90 MB, lebih lambat",
+    "naturalMms": "suara sintetis, ≈ 115 MB",
+    "device": "Suara perangkat",
+    "pick": "Pilih suara",
+    "voiceFor": "Suara untuk {lang}",
+    "sample": "Dengarkan cuplikan dengan {voice}",
+    "stop": "Hentikan pembacaan",
+    "close": "Tutup",
+    "local": "Semuanya dibacakan di perangkat ini: tidak ada teks yang dikirim ke server.",
+    "unread": "dilewati sampai suara dipilih"
   }
 }

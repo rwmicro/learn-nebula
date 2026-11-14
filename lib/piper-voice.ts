@@ -41,8 +41,8 @@ export function piperSupported(): boolean {
 
 type Out =
   | { type: "progress"; loaded: number; total: number }
-  | { type: "ready"; sampleRate: number }
-  | { type: "load-error"; message: string }
+  | { type: "ready"; path: string; sampleRate: number }
+  | { type: "load-error"; path: string; message: string }
   | { type: "audio"; id: number; pcm: Float32Array }
   | { type: "error"; id: number; message: string };
 
@@ -60,8 +60,10 @@ function getWorker(): Worker {
 export function loadPiperVoice(
   lang: string,
   onProgress?: (pct: number) => void,
+  /** Another voice than Piper's for `lang`: a key of lib/natural-voices.ts. */
+  voice?: string,
 ): Promise<number | null> {
-  const path = piperVoiceFor(lang);
+  const path = voice || piperVoiceFor(lang);
   if (!path || !piperSupported()) return Promise.resolve(null);
   // Ask to keep the site's storage, or Safari may evict the voice.
   void navigator.storage?.persist?.().catch(() => false);
@@ -81,8 +83,10 @@ export function loadPiperVoice(
       const m = e.data;
       if (m.type === "progress" && m.total > 0)
         onProgress?.(Math.floor((m.loaded / m.total) * 100));
-      else if (m.type === "ready") done(m.sampleRate);
-      else if (m.type === "load-error") done(null);
+      // Two voices can load at once (a note in two languages): each call
+      // waits for its own.
+      else if (m.type === "ready" && m.path === path) done(m.sampleRate);
+      else if (m.type === "load-error" && m.path === path) done(null);
     };
     const onErr = () => {
       // A worker that crashed is useless from here on.
@@ -134,12 +138,15 @@ export async function readWithPiper(opts: {
   /** Speed (1 = the voice's own): stretches the phonemes, so a slower line
    *  keeps the natural voice instead of falling back to the system one. */
   rate?: number;
+  /** A Kokoro or MMS voice (lib/natural-voices.ts) instead of Piper's. */
+  voice?: string;
   /** Leave `ctx` open on stop (a caller that reads many short lines through
    *  one context, like /parler/): only this reading's sounds stop. */
   keepContext?: boolean;
 }): Promise<PiperReading | null> {
   const { ctx, chunks } = opts;
-  const rate = await loadPiperVoice(opts.lang, opts.onProgress);
+  const path = opts.voice || piperVoiceFor(opts.lang);
+  const rate = await loadPiperVoice(opts.lang, opts.onProgress, opts.voice);
   if (!rate || !worker || ctx.state === "closed") return null;
   const w = worker;
   let stopped = false;
@@ -170,6 +177,9 @@ export async function readWithPiper(opts: {
         id,
         text: chunks[ids.get(id)!],
         rate: rateOf,
+        // The worker keeps two voices: a reading in two languages says
+        // which one each chunk is for.
+        path,
       });
     }
   };
