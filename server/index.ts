@@ -176,6 +176,11 @@ app.get("/posts/", (c) => c.redirect("/notes/", 301));
 // "tabbar.home" labels) before the refresh.
 app.get("/explorer", (c) => c.redirect("/notes/", 301));
 app.get("/explorer/", (c) => c.redirect("/notes/", 301));
+// /disciplines/ has no index either (each one is /disciplines/<slug>/): the
+// list of disciplines is /themes/. It answered the 404 page, with a React
+// hydration error (#418) on top.
+app.get("/disciplines", (c) => c.redirect("/themes/", 301));
+app.get("/disciplines/", (c) => c.redirect("/themes/", 301));
 
 // Static export. trailingSlash:true means URLs are "/foo/" → out/foo/index.html,
 // which serveStatic maps automatically.

@@ -1,4 +1,3 @@
-import { Newsreader } from "next/font/google";
 import { blackletter } from "@/components/layout/Header";
 import { t, i18nProps, i18nAttrProps, disciplineKey, pathName, pathNameProps, pathNameRef, splitPathName } from "@/lib/i18n";
 import type { ReadingPathView } from "@/lib/content";
@@ -12,6 +11,7 @@ import { deskLines, placeLines, timeBuckets, LANG_HELLO, type PlacedLine } from 
 import { ParcoursDeskHero, type HeroLevels } from "@/components/paths/ParcoursDeskHero";
 import { DeskFilter, DeskMarks, DeskMore, DeskDice } from "@/components/paths/ParcoursDeskBits";
 import { srcSet } from "@/lib/responsive-image";
+import { newsreader } from "@/components/ui/newsreader";
 
 // The desktop /parcours/ (from 1024px; parcours-desk.css shows it and hides
 // the list that follows it in <main>, which phones and tablets keep). A hero
@@ -20,17 +20,6 @@ import { srcSet } from "@/lib/responsive-image";
 // room per colour family: its picture on the wall, its paths as cards.
 // Everything here is built at fr and swapped at runtime like the rest
 // (data-i18n); the reader's progress is laid on by <DeskMarks> and the hero.
-
-// The home's editorial serif (app/page.tsx), here for the whole desktop page.
-const newsreader = Newsreader({
-  subsets: ["latin", "latin-ext"],
-  style: ["normal", "italic"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-  variable: "--gk-serif",
-  fallback: ["Georgia", "serif"],
-  preload: false,
-});
 
 const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const TILE_DISCIPLINES = new Set(["Languages & Dialects"]);

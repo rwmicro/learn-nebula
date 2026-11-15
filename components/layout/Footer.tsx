@@ -8,7 +8,9 @@ import { t } from "@/lib/i18n";
 // whose colour follows the reader's clock: aube, jour, estampe (the etching
 // itself, untouched, as the background), crépuscule, nuit. Each sky is a set
 // of tokens on footer[data-ciel] (assets/css/footer.css); SKY_SCRIPT below
-// picks it from the local hour before the footer paints. Design reviews:
+// picks it from the local hour before the footer paints, and holds back the
+// etching (gf-far: ~200 KB of masks, 370 KB for the midday plate) until the
+// footer comes within 1000px of the screen. Design reviews:
 // revues/footer-2026-11-10/ (v14).
 //
 // Built in the default locale (fr) like every other string, and swapped at
@@ -60,7 +62,7 @@ const GROUPS: { key: string; links: FootLink[] }[] = [
 // 5–8 h aube, 8–11 h jour, 11–15 h estampe, 15–17 h jour, 17–20 h
 // crépuscule, otherwise nuit. Runs inline right after the footer, so the
 // right sky is set before the first paint; re-checked every minute.
-const SKY_SCRIPT = `(function(){var f=document.getElementById("site-foot");if(!f)return;function s(){var h=new Date().getHours();f.dataset.ciel=h>=5&&h<8?"aube":h>=11&&h<15?"estampe":h>=8&&h<17?"jour":h>=17&&h<20?"crepuscule":"nuit"}s();setInterval(s,60000)})();`;
+const SKY_SCRIPT = `(function(){var f=document.getElementById("site-foot");if(!f)return;function s(){var h=new Date().getHours();f.dataset.ciel=h>=5&&h<8?"aube":h>=11&&h<15?"estampe":h>=8&&h<17?"jour":h>=17&&h<20?"crepuscule":"nuit"}s();setInterval(s,60000);if("IntersectionObserver"in window){f.classList.add("gf-far");var o=new IntersectionObserver(function(e){if(e.some(function(x){return x.isIntersecting})){f.classList.remove("gf-far");o.disconnect()}},{rootMargin:"1000px 0px"});o.observe(f)}})();`;
 
 export function Footer() {
   const year = new Date().getFullYear();
