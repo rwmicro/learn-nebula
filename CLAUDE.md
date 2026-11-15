@@ -185,6 +185,26 @@ image tag in `ci.yml` together with `@playwright/test`.
   nothing leaves the browser) and draws both waveforms. Playback goes through
   Web Audio, not a `blob:` URL, so no CSP `media-src` change is needed; the
   server's `Permissions-Policy` allows `microphone=(self)`.
+- **Écouter** (read aloud): `public/js/audio.js` (in the note bundle) only
+  shows the button and fetches `read-aloud.bundle.js` (`public/js/read-aloud.js`)
+  on the first hover/tap. The note is cut into passages, one language each
+  (`lib/read-aloud-dom.ts`: a `lang` attribute, a table whose header names
+  languages, else the script, with `data-speech-lang` on `.article-body`, the
+  language the note studies, from its slug), each read by the voice of its
+  language (`lib/read-aloud.ts`: `LANGS`, `voiceOptions`, `chooseVoice`,
+  choices in localStorage `gk-voices`) and played in order by
+  `lib/read-aloud-player.ts` (pure, fake engines in its tests). Engines:
+  SpeechSynthesis, and three downloadable ones in one worker
+  (`public/js/natural-voice-worker.js`, two voices in memory): Piper
+  (`lib/piper-voice.ts`, the default, the fastest), Kokoro (one 92 MB model,
+  eSpeak phonemes rewritten by `kokoroPhonemes`: en, fr, es, it, pt, hi) and
+  MMS (114 MB per language, letter by letter, CC BY-NC: Javanese, Hakka in
+  Pha̍k-fa-sṳ, Indonesian…), both in `lib/natural-voices.ts`. A language added
+  to Kokoro needs its eSpeak dictionary in `scripts/copy-piper.mjs`. While it reads, the relay (pause in a ring cut by language, who
+  reads, "Voix", stop) replaces the section title in the reading bar, and
+  "Demander sur cette note…" on a phone (`assets/css/note/read-aloud.css`). A
+  language no voice can read is skipped, and "Voix" says so. Browser tests:
+  `tests/read-aloud.spec.js` (fake SpeechSynthesis).
 - **Mermaid diagrams** are SVG rendered at build (`scripts/render-mermaid.mjs`,
   Chromium). `lib/mermaid-theme.js` then moves the rules every diagram of a
   type shares into one hashed `/_next/static/css/mermaid.<hash>.css`, with
@@ -303,9 +323,18 @@ image tag in `ci.yml` together with `@playwright/test`.
   no LLM backend). **`SERVER_LLM_OFFERED = false`**: the server's own
   generation (`/api/ask`, `/api/ask/explain`, `/api/translate`) and its client
   paths are kept but never offered (no budget); flip the flag to bring them
-  back as the last fallback. Translation (`translate.js`): Translator API,
-  then the device model block by block in place (inline markup swapped for
-  `<tN>`/`<kN>` tags and restored), else the setup sheet. On-device speech
+  back as the last fallback. Translation: `translate.js` (note bundle) is the button, the menu
+  and the state; `translate-device.js` (`createTranslator`, fetched when the
+  menu opens) does the work: Translator API, else the device model, several
+  blocks per call (`lib/translate-plan.ts`: `planBatches`, `[n]` lines,
+  `parseBatch`; inline markup swapped for `<tN>`/`<kN>` tags and restored),
+  in place, kept in localStorage after each batch so "Arrêter" then
+  "Reprendre" goes on where it stopped. A block that fails is asked again
+  alone, then marked with a "Réessayer" note (a `<span>` inside a cell);
+  columns a table gives to another language are left alone; `dir="rtl"` for
+  ar/he/fa/ur. With no model: the download sheet (`gk:ai-setup`, `detail:
+  {for: "translate", after}`). Browser tests: `tests/translate.spec.js`
+  (fake `LanguageModel`). On-device speech
   check in the pronunciation coach (`lib/speech-match.ts`, `processLocally`).
 - **Installed app launch + top of page**: `scripts/build-splash.ts` draws
   the iOS launch screens (`public/splash/`, git-ignored, every iPhone/iPad

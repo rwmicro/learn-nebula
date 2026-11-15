@@ -23,14 +23,23 @@ export function onIos(): boolean {
   return /iPhone|iPad|iPod/.test(nav.userAgent) || (nav.platform === "MacIntel" && nav.maxTouchPoints > 1);
 }
 
+/** A device that gets the small model (LFM2-700M, ~0.5 GB): iPhone and
+ *  iPad, where iOS ends a tab before the big one has loaded, and anything
+ *  that reports 4 GB of memory or less (an Android phone that would download
+ *  1.4 GB and then lose the tab while loading it). */
+export function smallDevice(): boolean {
+  const mem = (globalThis.navigator as (Navigator & { deviceMemory?: number }) | undefined)?.deviceMemory;
+  return onIos() || (typeof mem === "number" && mem <= 4);
+}
+
 /** The languages the downloaded model writes well enough to offer: Qwen3.5-2B
  *  everywhere (trained on about 200 languages; these are the ones the tests
- *  of 2026-11-04 and its model card back), LFM2-700M on iPhone and iPad
+ *  of 2026-11-04 and its model card back), LFM2-700M on a small device
  *  (lib/local-llm.ts).
  *  The translate menu offers only these, plus what Chrome's own Translator
  *  and Gemini Nano cover (public/js/translate.js). */
 const QWEN_LANGS = ["en", "ar", "zh", "fr", "de", "it", "ja", "ko", "pt", "es", "vi", "th", "id", "hi", "ru", "pl", "tr", "nl", "ms"];
 const LFM2_LANGS = ["en", "ar", "zh", "fr", "de", "ja", "ko", "es"];
 export function localModelLangs(): readonly string[] {
-  return onIos() ? LFM2_LANGS : QWEN_LANGS;
+  return smallDevice() ? LFM2_LANGS : QWEN_LANGS;
 }

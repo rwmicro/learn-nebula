@@ -1607,6 +1607,30 @@ li.translate-now::marker {
 .translate-failed-note::before {
   content: "⚠ ";
 }
+/* In a table cell or a list item the note stays inside the block (a <div>
+   between two rows isn't valid), on its own line. */
+span.translate-failed-note {
+  /* inline-block: the cell's wavy underline stops at its edge. */
+  display: inline-block;
+  width: 100%;
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+}
+.translate-failed {
+  text-decoration: underline wavy color-mix(in srgb, var(--danger) 55%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+.translate-failed .translate-failed-note {
+  text-decoration: none;
+}
+/* A narrow cell has no room for "En cours" above its word. */
+:is(td, th, dt).translate-now::before {
+  content: none;
+}
+:is(td, th).translate-now::after {
+  inset-inline-start: 0;
+}
 .translate-retry {
   font: inherit;
   font-weight: 700;
@@ -1661,6 +1685,32 @@ li.translate-now::marker {
   border: 1px solid color-mix(in srgb, var(--garden) 45%, transparent);
   background: var(--paper);
   color: var(--garden);
+}
+.tl-row {
+  flex-wrap: wrap;
+}
+.tl-text {
+  min-width: 12rem;
+}
+.tl-drop {
+  flex: none;
+  font: inherit;
+  cursor: pointer;
+  padding: 5px 6px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  text-decoration: underline;
+}
+.translate-local:is([data-state="partial"], [data-state="failed"]) {
+  background: color-mix(in srgb, var(--danger) 9%, var(--paper));
+}
+.translate-local:is([data-state="partial"], [data-state="failed"]) .tl-row > svg {
+  color: var(--danger);
+}
+.translate-local[data-state="paused"] {
+  background: var(--paper-2, var(--garden-wash));
+  border: 1px dashed color-mix(in srgb, var(--garden) 45%, transparent);
 }
 .tl-bar {
   display: flex;

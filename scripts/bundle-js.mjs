@@ -103,8 +103,10 @@ console.log(`bundle-js: bundled ${SCRIPTS.length} scripts → public/js/note.bun
 // diagram; mermaid-render is bundled for lib/mermaid-source.js.
 // translate-device: fetched by translate.js on the first translation the
 // Translator API can't do (the device model, lib/garden-ai.ts).
-// natural-voice: fetched by audio.js once the reader turns the natural voice on.
-for (const name of ["palette", "quiz", "glossary", "note-end", "study-tools", "widgets-data", "widgets-sci", "widgets-lang", "pronounce", "diagram-zoom", "mermaid-render", "translate-device", "natural-voice"]) {
+// natural-voice: fetched by read-aloud.js once the reader turns the natural voice on.
+// read-aloud: "Écouter" itself (passages by language, the relay, "Voix"),
+// fetched by audio.js the first time the reader goes for the button.
+for (const name of ["palette", "quiz", "glossary", "note-end", "study-tools", "widgets-data", "widgets-sci", "widgets-lang", "pronounce", "diagram-zoom", "mermaid-render", "translate-device", "natural-voice", "read-aloud"]) {
   await build({
     entryPoints: [join(JS_DIR, `${name}.js`)],
     outfile: join(JS_DIR, `${name}.bundle.js`),

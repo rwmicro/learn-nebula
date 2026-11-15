@@ -145,6 +145,7 @@ export function translateSystem(from: string, to: string): string {
     `Tu traduis un fragment HTML d'une note de ${from} vers ${to}.`,
     "- Garde EXACTEMENT les balises et leurs attributs ; traduis seulement le texte.",
     "- Ne traduis pas le code, les formules ni les mots cités dans une autre langue.",
+    "- Quand les lignes commencent par un repère [1], [2]… : traduis chaque ligne séparément, garde son repère au début, une ligne par repère, dans le même ordre, sans en ajouter ni en fusionner.",
     "- Réponds uniquement par le fragment traduit, sans commentaire ni bloc de code.",
   ].join("\n");
 }

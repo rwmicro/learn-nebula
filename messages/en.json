@@ -94,7 +94,20 @@
     "translateRetry": "Retry",
     "translateFinished": "Note translated · {total} sections",
     "translateUndo": "Undo",
-    "translateLocalFailed": "The model couldn't translate this note."
+    "translateLocalFailed": "The model couldn't translate this note.",
+    "translatePreparing": "Getting the model ready…",
+    "translateLeft": "about {n} min",
+    "translateLeftSoon": "less than a minute",
+    "translatePartial": "Passages still to translate: {n}",
+    "translateNotKept": "Too long to keep: it will be redone next time",
+    "translatePaused": "Translation into {lang} paused",
+    "translatePausedSub": "{n}% already translated and kept",
+    "translateResume": "Resume",
+    "translateDiscard": "Discard",
+    "translateWhy": "Reason given by the device: {why}",
+    "translateWhyUnknown": "The model returned nothing. Try again, or reload the page.",
+    "translateNeedsModel": "You will first be offered a {n} GB model to download.",
+    "translateUnavailable": "Nothing on this device can translate this note for now."
   },
   "growth": {
     "tended": "last tended",
@@ -2213,7 +2226,18 @@
     "keyAttach": "Attach another note",
     "keyLine": "New line",
     "keyEsc": "Close a menu, then the chat",
-    "escKey": "Esc"
+    "escKey": "Esc",
+    "dlConfirmTextTranslate": "Translating this note on your device needs a small model ({name}, {n} GB). The translation starts as soon as it is there, and nothing is sent to an online AI. The assistant will use it too.",
+    "noTitleTranslate": "Translation isn't available here",
+    "noTextTranslate": "It runs on your device, and this browser doesn't allow it yet (WebGPU is required).",
+    "setOnDisk": "{name} · on this device",
+    "setSpaceCorrector": "including {n} GB for the Parler corrector",
+    "setGb": "{n} GB",
+    "nanoWhyRefused": "Chrome refused to start it",
+    "nanoWhySpace": "there isn't enough room for its model",
+    "nanoWhyLang": "it doesn't know this language",
+    "nanoWhyDownload": "its download didn't finish",
+    "nanoWhyOther": "Chrome says: {why}"
   },
   "pathName": {
     "active-directory-de-l-attaque-a-la-persistance": {
@@ -2900,5 +2924,26 @@
   "hold": {
     "hint": "Keep pressing until the button is full",
     "tooShort": "Keep holding until the end"
+  },
+  "readAloud": {
+    "voices": "Voices",
+    "panelTitle": "Voices for this note",
+    "panelSub": "One voice per language. Your choice is kept for other notes.",
+    "then": "then {lang} · {voice}",
+    "now": "reading now",
+    "none": "no voice on this device",
+    "skipped": "{langs}: no voice can read this language here, its passages are skipped.",
+    "system": "device voice",
+    "natural": "natural voice, ≈ 70 MB",
+    "naturalKokoro": "natural voice, ≈ 90 MB, slower",
+    "naturalMms": "synthetic voice, ≈ 115 MB",
+    "device": "Device voice",
+    "pick": "Choose a voice",
+    "voiceFor": "Voice for {lang}",
+    "sample": "Hear a sample with {voice}",
+    "stop": "Stop reading",
+    "close": "Close",
+    "local": "Everything is read on this device: no text is sent to a server.",
+    "unread": "skipped until a voice is chosen"
   }
 }

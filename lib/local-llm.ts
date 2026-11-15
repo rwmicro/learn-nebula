@@ -15,7 +15,7 @@
 // Every function feature-detects and never throws, except promptLocal() on
 // an abort (AbortError, like fetch).
 
-import { onIos } from "./garden-ai-flags";
+import { onIos, smallDevice } from "./garden-ai-flags";
 
 const OPT_IN_KEY = "gk-local-llm";
 /** Day the download finished, "YYYY-MM-DD" (shown in the settings). */
@@ -34,7 +34,7 @@ const BIG: LocalModel = { id: "onnx-community/Qwen3.5-2B-ONNX", name: "Qwen3.5",
 const SMALL: LocalModel = { id: "onnx-community/LFM2-700M-ONNX", name: "LFM2", gb: 0.5, bytes: 500_000_000 };
 
 export function localModel(): LocalModel {
-  return onIos() ? SMALL : BIG;
+  return smallDevice() ? SMALL : BIG;
 }
 
 /** /parler/'s optional corrector: Qwen3.5-4B (~2.8 GB), the only model of
@@ -65,6 +65,8 @@ function variant(): Promise<"q4f16" | "q4" | null> {
       if (!adapter) return null;
       return adapter.features.has("shader-f16") ? "q4f16" : "q4";
     } catch {
+      // A passing failure (the GPU process restarting): asked again next time.
+      support = null;
       return null;
     }
   })();
@@ -95,12 +97,19 @@ export function setLocalModelEnabled(on: boolean): void {
   } catch {
     /* localStorage unavailable */
   }
-  if (!on) {
-    worker?.terminate();
-    worker = null;
-    loading.clear();
-    loaded.clear();
-  }
+  if (!on) stopWorker();
+}
+
+/** End the worker and settle what was waiting on it: a terminated worker
+ *  sends nothing more, so a load or an answer in progress would never end. */
+function stopWorker(): void {
+  worker?.terminate();
+  worker = null;
+  loading.clear();
+  loaded.clear();
+  lastProgress.clear();
+  for (const settle of [...waiting]) settle();
+  waiting.clear();
 }
 
 /** Opted in and able to run it. */
@@ -117,7 +126,19 @@ export function localModelDownloadedOn(): string {
   }
 }
 
-/** Delete the downloaded files and forget the opt-in. */
+async function deleteFiles(ids: string[]): Promise<void> {
+  try {
+    const cache = await caches.open(CACHE_NAME);
+    for (const r of await cache.keys())
+      if (ids.some((id) => r.url.includes(`/${id}/`))) await cache.delete(r);
+  } catch {
+    /* no Cache Storage */
+  }
+}
+
+/** Delete the assistant's downloaded files and forget the opt-in. The
+ *  corrector of /parler/ shares the cache and keeps its own files: it has
+ *  its own switch there (deleteCorrector). */
 export async function deleteLocalModel(): Promise<void> {
   setLocalModelEnabled(false);
   try {
@@ -125,11 +146,7 @@ export async function deleteLocalModel(): Promise<void> {
   } catch {
     /* localStorage unavailable */
   }
-  try {
-    await caches.delete(CACHE_NAME);
-  } catch {
-    /* no Cache Storage */
-  }
+  await deleteFiles([BIG.id, SMALL.id]);
 }
 
 /** Whether the model's weights are already in Cache Storage, so a load reads
@@ -167,9 +184,9 @@ export interface LoadProgress {
 }
 
 type Out =
-  | { type: "progress"; loaded: number; total: number }
-  | { type: "ready" }
-  | { type: "load-error"; message: string }
+  | { type: "progress"; model: string; loaded: number; total: number }
+  | { type: "ready"; model: string }
+  | { type: "load-error"; model: string; message: string }
   | { type: "text" | "done"; id: number; text: string }
   | { type: "error"; id: number; message: string };
 
@@ -178,8 +195,11 @@ let nextId = 1;
 /** Loads in progress and models loaded in this page, by model id. */
 const loading = new Map<string, Promise<boolean>>();
 const loaded = new Set<string>();
-let lastProgress: LoadProgress | null = null;
-const progressListeners = new Set<(p: LoadProgress) => void>();
+/** Download progress by model id, while it loads only. */
+const lastProgress = new Map<string, LoadProgress>();
+const progressListeners = new Set<{ model: string; cb: (p: LoadProgress) => void }>();
+/** Settles every promise waiting on the worker, for when it is stopped. */
+const waiting = new Set<() => void>();
 
 function getWorker(): Worker | null {
   if (worker) return worker;
@@ -190,8 +210,9 @@ function getWorker(): Worker | null {
   }
   worker.addEventListener("message", (e: MessageEvent<Out>) => {
     if (e.data?.type === "progress") {
-      lastProgress = { loaded: e.data.loaded, total: e.data.total };
-      for (const cb of progressListeners) cb(lastProgress);
+      const p = { loaded: e.data.loaded, total: e.data.total };
+      lastProgress.set(e.data.model, p);
+      for (const l of progressListeners) if (l.model === e.data.model) l.cb(p);
     }
   });
   return worker;
@@ -202,11 +223,19 @@ export function localModelLoaded(model: LocalModel = localModel()): boolean {
   return loaded.has(model.id);
 }
 
-/** Follow the download (or the loading from cache). Returns an unsubscribe. */
-export function onLoadProgress(cb: (p: LoadProgress) => void): () => void {
-  progressListeners.add(cb);
-  if (lastProgress) cb(lastProgress);
-  return () => progressListeners.delete(cb);
+/** Whether the model is being downloaded or loaded right now. */
+export function localModelLoading(model: LocalModel = localModel()): boolean {
+  return loading.has(model.id) && !loaded.has(model.id);
+}
+
+/** Follow one model's download (or its loading from cache). Returns an
+ *  unsubscribe. */
+export function onLoadProgress(cb: (p: LoadProgress) => void, model: LocalModel = localModel()): () => void {
+  const l = { model: model.id, cb };
+  progressListeners.add(l);
+  const last = lastProgress.get(model.id);
+  if (last) cb(last);
+  return () => progressListeners.delete(l);
 }
 
 /** Download (the first time) and load the model; resolves true once it can
@@ -217,40 +246,51 @@ export function loadLocalModel(model: LocalModel = localModel()): Promise<boolea
   if (pending) return pending;
   const p = (async () => {
     const dtype = await variant();
+    // Already on the device: this load downloads nothing, and is no date to
+    // remember as "downloaded on".
+    const had = dtype ? await localModelCached(model) : false;
     const w = dtype ? getWorker() : null;
     if (!w) return false;
     return new Promise<boolean>((resolve) => {
-      const onMsg = (e: MessageEvent<Out>) => {
-        if (e.data?.type === "ready" || e.data?.type === "load-error") {
-          w.removeEventListener("message", onMsg);
-          w.removeEventListener("error", onErr);
-          const ok = e.data.type === "ready";
-          if (ok) {
-            loaded.add(model.id);
-            lastError = "";
-            try {
-              if (model.id === localModel().id && !localStorage.getItem(DONE_KEY))
-                localStorage.setItem(DONE_KEY, new Date().toISOString().slice(0, 10));
-            } catch {
-              /* localStorage unavailable */
-            }
-          } else {
-            loading.delete(model.id);
-            if (e.data.type === "load-error") lastError = e.data.message;
-          }
-          resolve(ok);
-        }
-      };
-      const onErr = (ev: ErrorEvent) => {
+      const end = (ok: boolean) => {
         w.removeEventListener("message", onMsg);
         w.removeEventListener("error", onErr);
+        waiting.delete(stopped);
+        lastProgress.delete(model.id);
+        resolve(ok);
+      };
+      // The worker was stopped under this load (the reader turned the model
+      // off): nothing loaded.
+      const stopped = () => end(false);
+      const onMsg = (e: MessageEvent<Out>) => {
+        const m = e.data;
+        // The corrector can load beside the assistant: each load waits for
+        // its own model's word.
+        if ((m?.type !== "ready" && m?.type !== "load-error") || m.model !== model.id) return;
+        if (m.type === "ready") {
+          loaded.add(model.id);
+          lastError = "";
+          try {
+            if (!had && model.id === localModel().id)
+              localStorage.setItem(DONE_KEY, new Date().toISOString().slice(0, 10));
+          } catch {
+            /* localStorage unavailable */
+          }
+        } else {
+          loading.delete(model.id);
+          lastError = m.message;
+        }
+        end(m.type === "ready");
+      };
+      const onErr = (ev: ErrorEvent) => {
         lastError = ev.message || "worker stopped while loading";
         if (worker === w) worker = null;
         w.terminate();
         loading.clear();
         loaded.clear();
-        resolve(false);
+        end(false);
       };
+      waiting.add(stopped);
       w.addEventListener("message", onMsg);
       w.addEventListener("error", onErr);
       w.postMessage({ type: "load", dtype, model: model.id });
@@ -294,7 +334,14 @@ export async function promptLocal(opts: {
       w.removeEventListener("message", onMsg);
       w.removeEventListener("error", onErr);
       opts.signal?.removeEventListener("abort", onAbort);
+      waiting.delete(stopped);
     };
+    // The worker was stopped under this answer: what it wrote so far.
+    const stopped = () => {
+      finish();
+      resolve(out.trim() ? out : null);
+    };
+    waiting.add(stopped);
     const onMsg = (e: MessageEvent<Out>) => {
       const m = e.data;
       if (!("id" in m) || m.id !== id) return;
@@ -370,10 +417,5 @@ export function setCorrectorEnabled(on: boolean): void {
 /** Delete the corrector's files (the assistant's stay). */
 export async function deleteCorrector(): Promise<void> {
   setCorrectorEnabled(false);
-  try {
-    const cache = await caches.open(CACHE_NAME);
-    for (const r of await cache.keys()) if (r.url.includes(`/${CORRECTOR.id}/`)) await cache.delete(r);
-  } catch {
-    /* no Cache Storage */
-  }
+  await deleteFiles([CORRECTOR.id]);
 }

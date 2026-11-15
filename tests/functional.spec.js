@@ -297,8 +297,10 @@ test.describe("Widgets", () => {
     // glass's specular rim and Snell lens, lib/liquid-glass.ts; ≈ 101.5 KB
     // once that rim's light followed the tilt and the mouse; ≈ 105.5 KB
     // with the dock's gliding bubble and the highlighter's three colours
-    // and felt-tip stroke).
-    expect(bundle.length).toBeLessThan(106_500);
+    // and felt-tip stroke; ≈ 102.5 KB once "Écouter" kept only its loader
+    // here, audio.js, the reader itself being fetched on demand as
+    // read-aloud.bundle.js).
+    expect(bundle.length).toBeLessThan(103_500);
     // Those two load only where they are used (see below).
     expect(bundle).not.toContain("quiz-self-btn");
     expect(bundle).not.toContain("gloss-popover");

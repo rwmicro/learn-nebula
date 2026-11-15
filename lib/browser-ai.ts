@@ -33,6 +33,8 @@ interface LmSession {
   inputQuota?: number;
   inputUsage?: number;
   measureInputUsage?(input: string): Promise<number>;
+  /** A fresh session with the same system prompt and none of the turns. */
+  clone?(opts?: { signal?: AbortSignal }): Promise<LmSession>;
 }
 interface LmOptions {
   expectedInputs?: { type: "text"; languages: string[] }[];
@@ -140,6 +142,17 @@ export function echoesPrompt(out: string, system = ""): boolean {
   if (/^\s*System\s*:/.test(out)) return true;
   // The system prompt itself, copied back: a 60-character stretch of its
   // opening is far longer than any answer quotes by chance.
+  const sys = squash(system).slice(0, 60);
+  return sys.length >= 40 && squash(out).includes(sys);
+}
+
+/** The same check for a text that may itself start with "System:" (a note
+ *  being translated): only the debug banner and the copied system prompt. */
+function leaksPrompt(out: string, system: string): boolean {
+  const head = out.slice(0, 400);
+  if (/^\s*(?:cpu|gpu|npu) backend/i.test(head)) return true;
+  if (/TopK:\s*\d+\s*,\s*Temp(?:erature)?:/i.test(head)) return true;
+  if (/^\s*Fastest inference/i.test(head)) return true;
   const sys = squash(system).slice(0, 60);
   return sys.length >= 40 && squash(out).includes(sys);
 }
@@ -308,6 +321,81 @@ export async function promptOnDevice(opts: {
       /* already gone */
     }
   }
+}
+
+/** One Nano session for a series of unrelated prompts under the same system
+ *  prompt (a note translated block by block). */
+export interface NanoSeries {
+  /** The answer, or null when the model gave nothing usable for this
+   *  prompt (too long for the session, an echo, an error). An abort rejects. */
+  prompt(text: string, signal?: AbortSignal): Promise<string | null>;
+  close(): void;
+}
+
+/**
+ * Open that session: created once, then cloned for each prompt so the turns
+ * don't pile up in its context (promptOnDevice() creates and destroys one
+ * per call, which costs a model start each time). Null when Nano can't write
+ * `lang`. Unlike promptOnDevice(), a prompt that fails is only that prompt's
+ * failure: Nano is not set aside for the tab because one block of a note
+ * went wrong.
+ */
+export async function openNanoSession(opts: {
+  system: string;
+  lang: string;
+  fallbackLang?: string;
+  signal?: AbortSignal;
+  onDownload?: (fraction: number) => void;
+}): Promise<NanoSeries | null> {
+  const LM = g().LanguageModel as LmCtor | undefined;
+  if (!LM) return null;
+  const lang = await nanoLang([opts.lang, opts.fallbackLang ?? ""]);
+  if (!lang) return null;
+  const create = (signal?: AbortSignal) =>
+    LM.create({
+      ...lmOptions(lang),
+      initialPrompts: [{ role: "system", content: opts.system }],
+      signal,
+      monitor(m) {
+        if (opts.onDownload) m.addEventListener("downloadprogress", (e) => opts.onDownload!(e.loaded));
+      },
+    });
+  let base: LmSession;
+  try {
+    base = await create(opts.signal);
+  } catch (e) {
+    if ((e as Error)?.name === "AbortError") throw e;
+    return null;
+  }
+  return {
+    async prompt(text, signal) {
+      let session: LmSession | null = null;
+      let out = "";
+      try {
+        session = typeof base.clone === "function" ? await base.clone({ signal }) : await create(signal);
+        if ((await fits(session, text)) === false) return null;
+        for await (const chunk of session.promptStreaming(text, { signal }))
+          out = out.length > 20 && chunk.startsWith(out) ? chunk : out + chunk;
+        return out.trim() && !leaksPrompt(out, opts.system) ? out : null;
+      } catch (e) {
+        if ((e as Error)?.name === "AbortError") throw e;
+        return null;
+      } finally {
+        try {
+          session?.destroy();
+        } catch {
+          /* already gone */
+        }
+      }
+    },
+    close() {
+      try {
+        base.destroy();
+      } catch {
+        /* already gone */
+      }
+    },
+  };
 }
 
 /** Start Chrome's first download of Gemini Nano, from inside a click.
