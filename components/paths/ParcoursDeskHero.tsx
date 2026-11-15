@@ -206,7 +206,7 @@ export function ParcoursDeskHero({
               <a key={r.f} className="pcd-room-l" data-family={r.f} href={`#salle-${r.f}`}>
                 <span className="fr">
                   {/* eslint-disable-next-line @next/next/no-img-element -- static export */}
-                  <img src={`${r.src}.webp`} alt="" loading="lazy" decoding="async" style={{ objectPosition: `${r.focus} 50%` }} />
+                  <img src={`${r.src}.webp`} srcSet={srcSet(r.src, "webp")} sizes="160px" alt="" loading="lazy" decoding="async" style={{ objectPosition: `${r.focus} 50%` }} />
                 </span>
                 <small>{tr("pcd.room", { n: ["I", "II", "III", "IV", "V", "VI", "VII", "VIII"][i] })}</small>
                 <b>{tr(`pcd.roomShort_${r.f}`)}</b>
