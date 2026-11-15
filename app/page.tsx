@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Newsreader } from "next/font/google";
 import { getAllPosts, getDisciplines, getIndexDoc, getLanguageScopes, getPost, getReadingPaths, getRecentNotes, getWikiLinkEdges, INDEX_NOTE } from "@/lib/content";
 import { HomeMore } from "@/components/home/HomeMore";
 import { PARTNER_DATA, PARTNER_LANGS, VAULT_FOLDER } from "@/lib/partner-scenes";
@@ -29,23 +28,7 @@ import { areaChartSvg } from "@/lib/home-chart";
 import "@/assets/css/graphiques.css";
 import "@/assets/css/home-desk.css";
 import { srcSet, ERAGNY_SIZES } from "@/lib/responsive-image";
-
-// Editorial serif for the content zone. next/font self-hosts the files at build
-// time, so they are served from our own origin — no Google CDN request, and the
-// `font-src 'self'` CSP keeps holding. Exposed as the --gk-serif variable on
-// <main>; HomeContent reads it while the masthead keeps the site's Alegreya.
-const newsreader = Newsreader({
-  subsets: ["latin", "latin-ext"],
-  style: ["normal", "italic"],
-  weight: ["400", "500", "600"],
-  display: "swap",
-  variable: "--gk-serif",
-  fallback: ["Georgia", "serif"],
-  // The content-zone serif lives below the fold; preloading its 6 files just
-  // triggers "preloaded but not used" console warnings. The swap fallback covers
-  // the brief FOUT.
-  preload: false,
-});
+import { newsreader } from "@/components/ui/newsreader";
 
 // The home's own words rather than the index note's: that note is a short
 // personal preface (in English), a poor search snippet for a French site.
