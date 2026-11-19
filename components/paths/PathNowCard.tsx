@@ -200,7 +200,7 @@ export function PathNowCard({
           </div>
           <figure className="pnc-fig">
             <span className="pnc-frame">
-              <Pic art={art} sizes="300px" eager={eager} />
+              <Pic key={art.src} art={art} sizes="300px" eager={eager} />
             </span>
             <figcaption>
               <b>{art.title}</b>
