@@ -519,14 +519,50 @@ export interface Discipline {
   name: string;
   /** "Applied Sciences" or "Social Sciences". */
   top: string;
-  /** Notes grouped by their sub-folder under the discipline ("" = at its root). */
-  sections: { name: string; notes: ThemeNote[] }[];
+  /** Notes grouped by their sub-folder under the discipline ("" = at its root).
+   *  `notes` is every note of the section in page order; `groups` splits them
+   *  by the folders below it, so a section of 400 notes reads as its
+   *  sub-folders rather than one flat list. */
+  sections: { name: string; notes: ThemeNote[]; groups: DisciplineGroup[] }[];
   count: number;
   /** The discipline's most used tags that have a page, most used first. */
   tags: { slug: string; name: string; count: number }[];
   /** Slug prefix shared by its notes ("applied-sciences/biology/"), for
    *  counting read notes without listing every slug in the page. */
   prefix: string;
+}
+
+export interface DisciplineGroup {
+  /** The folders under the section, outermost first ([] = notes sitting
+   *  directly in the section's folder). */
+  path: string[];
+  notes: ThemeNote[];
+}
+
+/** Natural order of folder paths: a folder's own notes before its
+ *  sub-folders, then sub-folders A→Z. */
+function comparePaths(a: string[], b: string[]): number {
+  for (let i = 0; i < Math.min(a.length, b.length); i++) {
+    const c = a[i].localeCompare(b[i], "fr", { numeric: true });
+    if (c) return c;
+  }
+  return a.length - b.length;
+}
+
+/** A section's notes split by the folders below it, in page order. */
+export function groupByFolder(
+  entries: { path: string[]; note: ThemeNote }[],
+): DisciplineGroup[] {
+  const map = new Map<string, DisciplineGroup>();
+  for (const { path, note } of entries) {
+    const key = path.join("/");
+    const g = map.get(key) ?? { path, notes: [] };
+    g.notes.push(note);
+    map.set(key, g);
+  }
+  return [...map.values()]
+    .map((g) => ({ path: g.path, notes: g.notes.sort(byTitle) }))
+    .sort((a, b) => comparePaths(a.path, b.path));
 }
 
 function disciplineOf(rawPath: string): { top: string; name: string } | null {
@@ -605,7 +641,7 @@ export function getDisciplines(): Discipline[] {
     {
       top: string;
       folder: string;
-      sections: Map<string, ThemeNote[]>;
+      sections: Map<string, { path: string[]; note: ThemeNote }[]>;
       tags: Map<string, number>;
       prefix: string;
     }
@@ -623,7 +659,8 @@ export function getDisciplines(): Discipline[] {
     };
     const parts = d.rawPath.split("/");
     const section = parts.length > 3 ? parts[2] : "";
-    e.sections.set(section, [...(e.sections.get(section) ?? []), themeNote(d)]);
+    const entry = { path: parts.slice(3, -1), note: themeNote(d) };
+    e.sections.set(section, [...(e.sections.get(section) ?? []), entry]);
     for (const raw of d.frontmatter.tags ?? []) {
       const slug = tagKey(String(raw));
       if (withPage.has(slug)) e.tags.set(slug, (e.tags.get(slug) ?? 0) + 1);
@@ -633,7 +670,10 @@ export function getDisciplines(): Discipline[] {
   disciplinesCache = [...map.values()]
     .map((e) => {
       const sections = [...e.sections.entries()]
-        .map(([name, notes]) => ({ name, notes: notes.sort(byTitle) }))
+        .map(([name, entries]) => {
+          const groups = groupByFolder(entries);
+          return { name, notes: groups.flatMap((g) => g.notes), groups };
+        })
         // Root notes first, then sub-folders in natural order.
         .sort((a, b) =>
           a.name === "" ? -1 : b.name === "" ? 1 :

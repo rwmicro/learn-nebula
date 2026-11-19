@@ -1,5 +1,6 @@
 import { t, disciplineKey, i18nProps } from "@/lib/i18n";
-import type { Discipline, TagGroup, ThemeNote } from "@/lib/content";
+import type { Discipline, DisciplineGroup, TagGroup, ThemeNote } from "@/lib/content";
+import { tagSlug } from "@/lib/slug";
 import { ReadMarks } from "@/components/note/ReadMarks";
 import { ThemesFilter } from "@/components/explore/ThemesFilter";
 import { AppBack } from "@/components/layout/AppBack";
@@ -342,6 +343,7 @@ export function DisciplinePage({ discipline }: { discipline: Discipline }) {
           key={s.name}
           name={s.name}
           notes={s.notes}
+          groups={s.groups}
           showCount={discipline.sections.length > 1}
         />
       ))}
@@ -353,12 +355,18 @@ export function DisciplinePage({ discipline }: { discipline: Discipline }) {
 function NoteSection({
   name,
   notes,
+  groups,
   showCount,
 }: {
   name: string;
   notes: ThemeNote[];
+  /** The section's notes by the folders below it (a discipline page);
+   *  absent on a tag page, which lists `notes` as they are. */
+  groups?: DisciplineGroup[];
   showCount: boolean;
 }) {
+  const parts = groups && groups.some((g) => g.path.length) ? subFolders(groups) : null;
+  const id = (folder: string) => `f-${tagSlug(`${name} ${folder}`)}`;
   return (
     <section>
       <h2 className="themes-h2">
@@ -369,24 +377,111 @@ function NoteSection({
         )}
         {showCount && <span className="themes-count">{notes.length}</span>}
       </h2>
-      <ul className="themes-notes" data-read-marks>
-        {notes.map((n) => (
-          <li key={n.href} className={n.index ? "themes-note-index" : undefined}>
-            <a href={n.href}>{n.title}</a>
-            {n.minutes && (
-              <small className="themes-note-min" {...i18nProps("themes.minutes", { n: n.minutes })}>
-                {t("themes.minutes", { n: n.minutes })}
-              </small>
-            )}
-            {n.index && (
-              <span className="themes-index-badge" {...i18nProps("themes.indexBadge")}>
-                {t("themes.indexBadge")}
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
+      {!parts ? (
+        <NoteList notes={notes} />
+      ) : (
+        <>
+          {/* A contents of the sub-folders once there are enough of them to
+              scroll past: each jumps to its heading below. */}
+          {parts.folders.length >= 4 && (
+            <ul className="themes-folders">
+              {parts.folders.map((f) => (
+                <li key={f.name}>
+                  <a href={`#${id(f.name)}`}>{f.name}</a>
+                  <span className="themes-count">{f.count}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {parts.own.length > 0 && <NoteList notes={parts.own} />}
+          {parts.folders.map((f) => (
+            <div className="themes-folder" key={f.name}>
+              <h3 className="themes-h-folder" id={id(f.name)}>
+                {f.name}
+                <span className="themes-count">{f.count}</span>
+              </h3>
+              <SubFolderContents groups={f.groups} id={(sub) => id(`${f.name} ${sub}`)} />
+              {f.groups.map((g) => (
+                <div key={g.path.join("/")}>
+                  {g.path.length > 1 && (
+                    <h4 className="themes-h-sub" id={id(g.path.join(" "))}>
+                      {g.path.slice(1).join(" › ")}
+                    </h4>
+                  )}
+                  <NoteList notes={g.notes} />
+                </div>
+              ))}
+            </div>
+          ))}
+        </>
+      )}
     </section>
+  );
+}
+
+/** Under a large folder (Security: 330 notes in 15 sub-folders), the same
+ *  contents one level down, to its sub-folders' headings. */
+function SubFolderContents({ groups, id }: { groups: DisciplineGroup[]; id: (sub: string) => string }) {
+  const subs: { name: string; target: string; count: number }[] = [];
+  for (const g of groups) {
+    if (g.path.length < 2) continue;
+    const last = subs[subs.length - 1];
+    if (last && last.name === g.path[1]) last.count += g.notes.length;
+    else subs.push({ name: g.path[1], target: id(g.path.slice(1).join(" ")), count: g.notes.length });
+  }
+  if (subs.length < 4) return null;
+  return (
+    <ul className="themes-folders themes-folders--sub">
+      {subs.map((s) => (
+        <li key={s.name}>
+          <a href={`#${s.target}`}>{s.name}</a>
+          <span className="themes-count">{s.count}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** A section's groups by their first sub-folder: the notes sitting in the
+ *  section's own folder, then each sub-folder with everything under it. */
+function subFolders(groups: DisciplineGroup[]) {
+  const own: ThemeNote[] = [];
+  const folders: { name: string; count: number; groups: DisciplineGroup[] }[] = [];
+  for (const g of groups) {
+    if (!g.path.length) {
+      own.push(...g.notes);
+      continue;
+    }
+    let f = folders[folders.length - 1];
+    if (!f || f.name !== g.path[0]) {
+      f = { name: g.path[0], count: 0, groups: [] };
+      folders.push(f);
+    }
+    f.count += g.notes.length;
+    f.groups.push(g);
+  }
+  return { own, folders };
+}
+
+function NoteList({ notes }: { notes: ThemeNote[] }) {
+  return (
+    <ul className="themes-notes" data-read-marks>
+      {notes.map((n) => (
+        <li key={n.href} className={n.index ? "themes-note-index" : undefined}>
+          <a href={n.href}>{n.title}</a>
+          {n.minutes && (
+            <small className="themes-note-min" {...i18nProps("themes.minutes", { n: n.minutes })}>
+              {t("themes.minutes", { n: n.minutes })}
+            </small>
+          )}
+          {n.index && (
+            <span className="themes-index-badge" {...i18nProps("themes.indexBadge")}>
+              {t("themes.indexBadge")}
+            </span>
+          )}
+        </li>
+      ))}
+    </ul>
   );
 }
 
