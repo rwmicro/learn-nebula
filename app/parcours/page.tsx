@@ -10,6 +10,7 @@ import { pageMetadata } from "@/lib/seo";
 import "@/assets/css/themes.css";
 import "@/assets/css/parcours.css";
 import "@/assets/css/parcours-desk.css";
+import "@/assets/css/path-now.css";
 
 export const metadata: Metadata = pageMetadata({
   title: `Parcours de lecture · ${SITE_TITLE}`,

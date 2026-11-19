@@ -2945,5 +2945,13 @@
     "close": "Tutup",
     "local": "Semuanya dibacakan di perangkat ini: tidak ada teks yang dikirim ke server.",
     "unread": "dilewati sampai suara dipilih"
+  },
+  "pnc": {
+    "here": "Kamu di sini",
+    "sheet": "Ringkasan",
+    "plan": "Peta",
+    "show": "Tampilkan jalur ini",
+    "all": "Semua jalur",
+    "toRead": "dibaca berikutnya"
   }
 }
