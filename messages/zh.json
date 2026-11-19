@@ -2385,6 +2385,10 @@
       "title": "卡拜尔语",
       "sub": "从入门词汇到文化"
     },
+    "lfcs-administrer-un-serveur-linux": {
+      "title": "LFCS",
+      "sub": "管理 Linux 服务器"
+    },
     "linguistique-des-sons-au-sens": {
       "title": "语言学",
       "sub": "从语音到语义"
@@ -2458,6 +2462,10 @@
     "physique-du-lycee-a-la-prepa": {
       "title": "物理",
       "sub": "从高中到预科"
+    },
+    "pnpt-du-reseau-au-rapport-de-pentest": {
+      "title": "PNPT",
+      "sub": "从网络基础到渗透测试报告"
     },
     "probabilites-et-statistiques-au-lycee": {
       "title": "高中概率与统计"
