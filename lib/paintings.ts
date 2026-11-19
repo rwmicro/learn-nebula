@@ -65,6 +65,24 @@ const BY_DISCIPLINE: Record<string, Painting> = {
   sport: painting("sport", "Eadweard Muybridge", "Animal Locomotion", "planche de galop, 1887"),
 };
 
+/** Languages with a picture of their own, by the slug of their folder (a
+ *  note slug's third segment under "social-sciences/languages-dialects/"): a
+ *  document of the place the language is spoken rather than the family's
+ *  tablet. Files are public/images/disciplines/langues-<name>.{avif,webp}. */
+const BY_LANGUAGE: Record<string, Painting> = {
+  espagnol: painting("langues-espagnol", "Charles Clifford", "Cour des Lions, Alhambra de Grenade", "tirage albuminé, 1857-1858", false, "40%"),
+  "hakka-khek": painting("langues-hakka", "", "Aiguière à tête de phénix", "porcelaine, Guangdong, XIe siècle", false, "50%"),
+};
+
+/** The picture for a note's language, when it has one, else
+ *  {@link paintingFor}. The desktop path cards (home, /parcours/) and path
+ *  pages use it; the phone keeps the family's picture. */
+export function paintingForPath(family: PathFamily | null | undefined, noteSlug = ""): Painting {
+  const seg = noteSlug.split("/");
+  const lang = seg[1] === "languages-dialects" ? BY_LANGUAGE[seg[2] ?? ""] : undefined;
+  return lang ?? paintingFor(family, noteSlug);
+}
+
 /** The picture for a note's discipline, else its family's, else Pissarro's
  *  garden. */
 export function paintingFor(family: PathFamily | null | undefined, noteSlug = ""): Painting {
