@@ -59,6 +59,9 @@ export function DeskHead({ path, art }: { path: ReadingPathView; art: Painting }
       </div>
       <figure className="pdd-fig">
         <div className="pdd-frame">
+          {/* Above the fold: fetched first and decoded with the paint that
+              shows it, never a frame with an empty frame (async decoding
+              let the visual test catch it blank). */}
           <picture>
             <source type="image/avif" srcSet={srcSet(art.src, "avif")} sizes="400px" />
             <img
@@ -66,7 +69,7 @@ export function DeskHead({ path, art }: { path: ReadingPathView; art: Painting }
               srcSet={srcSet(art.src, "webp")}
               sizes="400px"
               alt=""
-              decoding="async"
+              fetchPriority="high"
               style={{ objectPosition: `${art.focus} 50%` }}
             />
           </picture>
