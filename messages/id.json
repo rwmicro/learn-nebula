@@ -2385,6 +2385,10 @@
       "title": "Bahasa Kabyle",
       "sub": "dari kata pertama hingga budaya"
     },
+    "lfcs-administrer-un-serveur-linux": {
+      "title": "LFCS",
+      "sub": "mengelola server Linux"
+    },
     "linguistique-des-sons-au-sens": {
       "title": "Linguistik",
       "sub": "dari bunyi hingga makna"
@@ -2458,6 +2462,10 @@
     "physique-du-lycee-a-la-prepa": {
       "title": "Fisika",
       "sub": "dari SMA hingga kelas persiapan"
+    },
+    "pnpt-du-reseau-au-rapport-de-pentest": {
+      "title": "PNPT",
+      "sub": "dari jaringan hingga laporan pentest"
     },
     "probabilites-et-statistiques-au-lycee": {
       "title": "Peluang dan statistika SMA"
