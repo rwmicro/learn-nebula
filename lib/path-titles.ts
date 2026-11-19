@@ -73,3 +73,30 @@ export function isMostlyLinear(nodes: { y: number }[]): boolean {
   const single = [...rows.values()].filter((c) => c === 1).length;
   return single / rows.size >= 0.9;
 }
+
+const ROMAN: [number, string][] = [
+  [10, "X"],
+  [9, "IX"],
+  [5, "V"],
+  [4, "IV"],
+  [1, "I"],
+];
+
+/** 1 → "I", 14 → "XIV": the desktop path page numbers its levels so
+ *  (levels never reach 40). */
+export function roman(n: number): string {
+  let out = "";
+  for (const [v, s] of ROMAN)
+    while (n >= v) {
+      out += s;
+      n -= v;
+    }
+  return out;
+}
+
+/** "Salutations (Salam)" → ["Salutations", "Salam"]: a note title whose end
+ *  is a translation in brackets; null otherwise. */
+export function splitTranslation(title: string): [string, string] | null {
+  const m = /^(.*\S)\s+\(([^()]+)\)$/.exec(title);
+  return m ? [m[1], m[2]] : null;
+}

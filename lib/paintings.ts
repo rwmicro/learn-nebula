@@ -71,6 +71,7 @@ const BY_DISCIPLINE: Record<string, Painting> = {
  *  tablet. Files are public/images/disciplines/langues-<name>.{avif,webp}. */
 const BY_LANGUAGE: Record<string, Painting> = {
   espagnol: painting("langues-espagnol", "Charles Clifford", "Cour des Lions, Alhambra de Grenade", "tirage albuminé, 1857-1858", false, "40%"),
+  indonesien: painting("langues-indonesien", "", "Sarong à motifs d’oiseaux", "batik sur coton, côte nord de Java, milieu du XIXe siècle", false, "40%"),
   "hakka-khek": painting("langues-hakka", "", "Aiguière à tête de phénix", "porcelaine, Guangdong, XIe siècle", false, "50%"),
 };
 

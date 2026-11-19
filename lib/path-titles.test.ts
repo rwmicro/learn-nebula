@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { isMostlyLinear, prereqsToShow, shortNoteTitles } from "./path-titles";
+import { isMostlyLinear, prereqsToShow, roman, shortNoteTitles, splitTranslation } from "./path-titles";
 
 const notes = (titles: string[]) =>
   titles.map((title, i) => ({ slug: `n${i}`, title }));
@@ -88,5 +88,23 @@ describe("isMostlyLinear", () => {
   });
   it("ignores tiny paths", () => {
     expect(isMostlyLinear(col([0, 1, 2]))).toBe(false);
+  });
+});
+
+describe("roman", () => {
+  it("writes level numbers in Roman numerals", () => {
+    expect([1, 4, 7, 9, 14, 16, 39].map(roman)).toEqual(["I", "IV", "VII", "IX", "XIV", "XVI", "XXXIX"]);
+  });
+});
+
+describe("splitTranslation", () => {
+  it("takes the bracketed translation off the end of a title", () => {
+    expect(splitTranslation("Salutations (Salam)")).toEqual(["Salutations", "Salam"]);
+    expect(splitTranslation("Directions et Positions (Arah dan Posisi)")).toEqual(["Directions et Positions", "Arah dan Posisi"]);
+  });
+  it("leaves other titles alone", () => {
+    expect(splitTranslation("Mots Essentiels")).toBeNull();
+    expect(splitTranslation("(Salam)")).toBeNull();
+    expect(splitTranslation("La loi (1905) et ses suites")).toBeNull();
   });
 });
