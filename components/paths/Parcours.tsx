@@ -32,7 +32,9 @@ import { fold } from "@/lib/palette-match";
 import { prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
 import { splitMinutes } from "@/lib/path-study";
 import { pathLevels } from "@/lib/path-levels";
-import { paintingFor, type Painting } from "@/lib/paintings";
+import { paintingFor, paintingForPath, type Painting } from "@/lib/paintings";
+import { DeskFrise, DeskHead, DeskLevelHead, NoteTitle } from "@/components/paths/ParcoursDetailDesk";
+import { ParcoursLevelsDesk } from "@/components/paths/ParcoursLevelsDesk";
 import { srcSet } from "@/lib/responsive-image";
 
 /** A family's painting (lib/paintings.ts), as the backdrop of a heading:
@@ -368,6 +370,8 @@ export function ParcoursPage({
     </figure>
   );
   const art = paintingFor(pathFamily(path.discipline), path.notes[0]?.slug);
+  const groups = levels.map((l) => path.notes.slice(l.from, l.to));
+  const levelNames = groups.map((notes) => levelName(notes, groups, path.discipline) ?? titleOf(notes[0].slug));
   return (
     <main
       id="main"
@@ -398,6 +402,9 @@ export function ParcoursPage({
       {path.description && (
         <p className="themes-intro parcours-desc">{path.description}</p>
       )}
+      {/* From 1100px: the title beside the path's own picture
+          (parcours-detail-desk.css hides the cover above). */}
+      <DeskHead path={path} art={paintingForPath(pathFamily(path.discipline), path.notes[0]?.slug)} />
       {/* From 1100px the side column, pinned while the levels scroll by:
           where the reader stands and the ways in (audit UI 2026-11-10). */}
       <div className="parcours-body">
@@ -432,6 +439,8 @@ export function ParcoursPage({
           extras={extras}
         />
         <OfflinePath slug={path.slug} hrefs={path.notes.map((n) => n.href)} />
+        {/* The desktop's ring shows this (ParcoursLevelsDesk fills it). */}
+        <span className="pdd-pct" data-pdd-pct aria-hidden="true" />
       </div>
 
       <ParcoursStudy
@@ -443,6 +452,16 @@ export function ParcoursPage({
       />
       </div>
       <div className="parcours-main">
+      {levels.length > 1 && (
+        <DeskFrise
+          levels={levels.map((lv, i) => ({
+            n: lv.n,
+            name: levelNames[i],
+            count: lv.to - lv.from,
+            minutes: groups[i].reduce((sum, n) => sum + minutesOf(n.slug), 0),
+          }))}
+        />
+      )}
 
       <PathRoad
         pathSlug={path.slug}
@@ -453,7 +472,7 @@ export function ParcoursPage({
           const notes = path.notes.slice(lv.from, lv.to);
           return {
             n: lv.n,
-            name: levelName(notes, levels.map((l) => path.notes.slice(l.from, l.to)), path.discipline) ?? titleOf(notes[0].slug),
+            name: levelNames[lv.n - 1],
             cible: levelCible(notes),
             notes: notes.map((n) => ({
               slug: n.slug,
@@ -526,6 +545,7 @@ export function ParcoursPage({
               open
             >
               <summary className="parcours-level-head">
+                <DeskLevelHead n={lv.n} total={levels.length} name={levelNames[lv.n - 1]} />
                 <span className="parcours-level-name" {...i18nProps("parcours.level", { n: lv.n })}>
                   {t("parcours.level", { n: lv.n })}
                 </span>
@@ -590,6 +610,7 @@ export function ParcoursPage({
         {t("reading.privacy")}
       </p>
       <ReadMarks />
+      <ParcoursLevelsDesk />
       </div>
       </div>
     </main>
@@ -673,7 +694,9 @@ function OrderItem({
         <span className="parcours-disc-n">{i + 1}</span>
       </span>
       <span className="parcours-li-main">
-        <a href={n.href}>{title}</a>
+        <a href={n.href}>
+          <NoteTitle title={title} />
+        </a>
         <span className="parcours-state" data-state-label hidden />
         {after.length > 0 && (
           <span className="parcours-after">

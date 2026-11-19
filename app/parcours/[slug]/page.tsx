@@ -7,6 +7,7 @@ import { SITE_TITLE } from "@/lib/site";
 import { pageMetadata } from "@/lib/seo";
 import "@/assets/css/themes.css";
 import "@/assets/css/parcours.css";
+import "@/assets/css/parcours-detail-desk.css";
 
 type Params = { params: Promise<{ slug: string }> };
 

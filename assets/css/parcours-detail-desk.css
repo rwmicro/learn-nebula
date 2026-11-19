@@ -1,0 +1,512 @@
+/* The path page from 1100px (components/paths/ParcoursDetailDesk.tsx,
+   ParcoursLevelsDesk.tsx): the title beside the path's picture and its
+   museum label, a row of the levels, the shown level as one panel, and the
+   side column as a ring of progress, the next note and the tools as links.
+   One accent, the path's family colour (--fam). Below 1100px none of this
+   applies: phones and tablets keep their page. */
+
+.pdd-head,
+.pdd-frise,
+.pdd-pct,
+.pdd-lv-k,
+.pdd-lv-name,
+.pdd-lv-nav {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  main.parcours-page--path {
+    /* The fill for text in white: the family's hue, darker in both themes. */
+    --pdd-deep: hsl(var(--fam-h, 150) var(--fam-s, 26%) 38%);
+    --pdd-ink: #fff;
+  }
+
+  /* --- head ---------------------------------------------------------------- */
+  main.parcours-page--path > .parcours-cover,
+  main.parcours-page--path > .parcours-desc {
+    display: none;
+  }
+  .pdd-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    gap: 3.5rem;
+    align-items: center;
+    margin: 0.6rem 0 0;
+    padding-bottom: 1.8rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .pdd-kicker {
+    margin: 0;
+    font: 500 0.8rem var(--font-caps);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fam, var(--garden));
+  }
+  .pdd-title {
+    margin: 0.7rem 0 1rem;
+    font: 500 4.2rem/0.95 var(--font-text);
+    letter-spacing: -0.02em;
+    color: var(--ink);
+  }
+  .pdd-title em {
+    display: block;
+    margin-top: 0.5rem;
+    font: italic 400 2.3rem/1.15 var(--font-text);
+    letter-spacing: 0;
+    color: var(--ink-soft);
+  }
+  .pdd-desc {
+    margin: 0;
+    max-width: 31em;
+    font: 400 1.15rem/1.55 var(--font-text);
+    color: var(--ink-soft);
+  }
+  .pdd-fig {
+    margin: 0;
+  }
+  .pdd-frame {
+    padding: 0.6rem;
+    background: var(--paper-raised);
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    box-shadow: 0 18px 40px rgb(0 0 0 / 0.1);
+  }
+  .pdd-frame img {
+    display: block;
+    width: 100%;
+    height: 14.5rem;
+    object-fit: cover;
+  }
+  .pdd-fig figcaption {
+    margin-top: 0.75rem;
+    padding-left: 0.65rem;
+    border-left: 2px solid var(--fam, var(--garden));
+    font: 400 0.82rem/1.4 var(--font-ui);
+    color: var(--muted);
+  }
+  .pdd-fig figcaption b {
+    display: block;
+    font: italic 500 0.9rem var(--font-text);
+    color: var(--ink-soft);
+  }
+
+  /* --- body: the panel on the left, the side column pinned on the right --- */
+  main.parcours-page--path .parcours-body {
+    margin-top: 0;
+    grid-template-columns: minmax(0, 1fr) 18rem;
+    column-gap: 3.2rem;
+  }
+
+  /* --- the row of levels (spans both columns) ------------------------------ */
+  main.parcours-page--path .parcours-main {
+    display: contents;
+  }
+  main.parcours-page--path .parcours-main > * {
+    grid-column: 1;
+    min-width: 0;
+  }
+  main.parcours-page--path .parcours-main > .pdd-frise {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  main.parcours-page--path .parcours-side {
+    grid-row: 2 / span 20;
+  }
+  .pdd-frise {
+    display: flex;
+    align-items: flex-start;
+    margin: 2.2rem 0 1.6rem;
+  }
+  .pdd-step {
+    display: flex;
+    flex: 1 1 0;
+    align-items: flex-start;
+    min-width: 0;
+  }
+  .pdd-step:first-child {
+    flex: 0 0 auto;
+  }
+  .pdd-ln {
+    flex: 1;
+    height: 2px;
+    /* From one disc's edge to the next: the stops are wider than their disc. */
+    margin: 21px calc((44px - 9.5rem) / 2) 0;
+    background: var(--rule);
+  }
+  .pdd-ln.is-on {
+    background: var(--fam, var(--garden));
+  }
+  .pdd-st {
+    position: relative;
+    z-index: 1;
+    flex: none;
+    width: 9.5rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    text-align: center;
+    cursor: pointer;
+  }
+  .pdd-c {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 0.55rem;
+    border-radius: 50%;
+    border: 2px solid var(--rule-strong);
+    background: var(--paper);
+    font: 600 0.95rem var(--font-caps);
+    color: var(--muted);
+    transition: box-shadow 0.15s;
+  }
+  .pdd-check {
+    display: none;
+    width: 16px;
+    height: 16px;
+  }
+  .pdd-ring {
+    display: none;
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    width: 56px;
+    height: 56px;
+    transform: rotate(-90deg);
+    fill: none;
+    stroke: var(--fam, var(--garden));
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: calc(var(--f, 0) * 100) 100;
+  }
+  .pdd-name {
+    display: block;
+    font: 500 1rem/1.2 var(--font-text);
+    color: var(--ink-soft);
+  }
+  .pdd-meta {
+    display: block;
+    margin-top: 0.2rem;
+    font: 400 0.8rem var(--font-ui);
+    color: var(--muted);
+  }
+  .pdd-st:hover .pdd-c {
+    box-shadow: 0 0 0 5px var(--fam-wash, var(--garden-wash));
+  }
+  .pdd-st:focus-visible {
+    outline: none;
+  }
+  .pdd-st:focus-visible .pdd-c {
+    outline: 2px solid var(--fam, var(--garden));
+    outline-offset: 3px;
+  }
+  .pdd-st.is-done .pdd-c {
+    background: var(--fam, var(--garden));
+    border-color: var(--fam, var(--garden));
+    color: var(--paper);
+  }
+  .pdd-st.is-done .pdd-num {
+    display: none;
+  }
+  .pdd-st.is-done .pdd-check {
+    display: block;
+  }
+  .pdd-st.is-now .pdd-c {
+    border-color: var(--fam, var(--garden));
+    color: var(--fam, var(--garden));
+    box-shadow: 0 0 0 5px var(--fam-wash, var(--garden-wash));
+  }
+  .pdd-st.is-now:not(.is-zero) .pdd-ring {
+    display: block;
+  }
+  .pdd-st.is-shown .pdd-name {
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .pdd-st.is-shown:not(.is-now):not(.is-done) .pdd-c {
+    border-color: var(--ink-soft);
+    color: var(--ink);
+  }
+
+  /* Nine levels and more: the others shrink to a numbered dot, named on
+     hover (title), so twenty levels still hold on one line. */
+  .pdd-frise.is-many .pdd-step {
+    flex: 1 1 auto;
+  }
+  .pdd-frise.is-many .pdd-step:first-child {
+    flex: 0 0 auto;
+  }
+  .pdd-frise.is-many .pdd-ln {
+    margin: 21px 0 0;
+    min-width: 0.6rem;
+  }
+  .pdd-frise.is-many .pdd-st {
+    width: 9.5rem;
+  }
+  .pdd-frise.is-many .pdd-st:not(.is-mini) {
+    margin: 0 calc((44px - 9.5rem) / 2);
+  }
+  .pdd-frise.is-many .pdd-step:first-child .pdd-st:not(.is-mini) {
+    margin-left: 0;
+  }
+  .pdd-frise.is-many .pdd-step:last-child .pdd-st:not(.is-mini) {
+    margin-right: 0;
+  }
+  .pdd-frise.is-many .pdd-st.is-mini {
+    width: 30px;
+  }
+  .pdd-st.is-mini .pdd-c {
+    width: 30px;
+    height: 30px;
+    margin-top: 7px;
+    border-width: 1.5px;
+    font-size: 0.68rem;
+  }
+  .pdd-st.is-mini .pdd-name,
+  .pdd-st.is-mini .pdd-meta {
+    display: none;
+  }
+  .pdd-st.is-mini.is-now .pdd-ring {
+    display: none;
+  }
+
+  /* --- the shown level, as a panel ----------------------------------------- */
+  main.parcours-page--path .parcours-levels > details.parcours-level:not(.pdd-shown) {
+    display: none;
+  }
+  main.parcours-page--path .parcours-levels > details.parcours-level.pdd-shown,
+  main.parcours-page--path .parcours-levels[data-levels="1"] > div {
+    margin: 0;
+    padding: 1.5rem 1.9rem 1.2rem;
+    border: 1px solid var(--rule);
+    border-radius: 18px;
+    background: var(--paper-raised);
+    box-shadow: none;
+  }
+  main.parcours-page--path .parcours-level.pdd-shown > summary.parcours-level-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "k nav" "name nav" "meta nav";
+    align-items: start;
+    gap: 0;
+    position: static;
+    padding: 0 0 0.6rem;
+    margin: 0;
+    background: none;
+    border: 0;
+    cursor: default;
+    list-style: none;
+  }
+  main.parcours-page--path .parcours-level.pdd-shown > summary::-webkit-details-marker,
+  main.parcours-page--path .parcours-level.pdd-shown > summary::marker,
+  main.parcours-page--path .parcours-level.pdd-shown > summary::after,
+  main.parcours-page--path .parcours-level.pdd-shown > summary::before {
+    display: none;
+    content: none;
+  }
+  main.parcours-page--path .parcours-level-head > .parcours-level-name,
+  main.parcours-page--path .parcours-level-head > .parcours-level-span {
+    display: none;
+  }
+  .pdd-lv-k {
+    display: block;
+    grid-area: k;
+    font: 500 0.78rem var(--font-caps);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fam, var(--garden));
+  }
+  .pdd-lv-name {
+    display: block;
+    grid-area: name;
+    margin: 0.15rem 0 0.1rem;
+    font: 600 1.65rem/1.2 var(--font-text);
+    color: var(--ink);
+  }
+  main.parcours-page--path .parcours-level.pdd-shown .parcours-level-meta {
+    grid-area: meta;
+    justify-self: start;
+    margin: 0;
+    font: 400 0.85rem var(--font-ui);
+    color: var(--muted);
+  }
+  .pdd-lv-nav {
+    display: flex;
+    grid-area: nav;
+    gap: 0.5rem;
+  }
+  .pdd-lv-nav button {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    color: var(--ink-soft);
+    cursor: pointer;
+  }
+  .pdd-lv-nav button:hover:not(:disabled) {
+    border-color: var(--fam, var(--garden));
+    color: var(--fam, var(--garden));
+  }
+  .pdd-lv-nav button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+  .pdd-lv-nav svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Note titles: the translation in brackets, set apart in italics. */
+  main.parcours-page--path .pdd-p {
+    display: none;
+  }
+  main.parcours-page--path .pdd-tr {
+    margin-left: 0.15em;
+    font-style: italic;
+    font-weight: 400;
+    color: var(--muted);
+  }
+
+  /* --- side column -------------------------------------------------------- */
+  main.parcours-page--path .parcours-side {
+    top: 5.5rem;
+    padding: 0;
+    border-top: 0;
+    background: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  main.parcours-page--path .parcours-side .parcours-status {
+    display: grid;
+    grid-template-columns: 74px minmax(0, 1fr);
+    column-gap: 1rem;
+    row-gap: 0.15rem;
+    align-items: center;
+  }
+  main.parcours-page--path .parcours-status > span:first-child {
+    grid-column: 2;
+    grid-row: 2;
+    align-self: start;
+    font: 400 0.82rem/1.35 var(--font-ui);
+    color: var(--muted);
+  }
+  main.parcours-page--path .parcours-status .parcours-progress {
+    display: contents;
+  }
+  main.parcours-page--path .parcours-status .parcours-bar {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 74px;
+    height: 74px;
+    margin: 0;
+    border-radius: 50%;
+    background: conic-gradient(var(--fam, var(--garden)) calc(var(--read, 0) * 1turn), var(--rule) 0);
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5.5px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 6px), #000 calc(100% - 5.5px));
+    overflow: hidden;
+  }
+  main.parcours-page--path .parcours-status .parcours-bar > * {
+    display: none;
+  }
+  .pdd-pct {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    place-items: center;
+    width: 74px;
+    height: 74px;
+    font: 600 1.05rem var(--font-ui);
+    color: var(--fam, var(--garden));
+  }
+  main.parcours-page--path .parcours-status .parcours-progress-text {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: end;
+    font: 600 1.3rem/1.15 var(--font-text);
+    color: var(--ink);
+  }
+  main.parcours-page--path .parcours-status .offline-path {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    margin: 0.5rem 0 0;
+  }
+
+  main.parcours-page--path .parcours-side .parcours-study {
+    margin: 0;
+  }
+  /* The next note: one filled button in the family's colour. */
+  main.parcours-page--path .parcours-side .parcours-tools {
+    gap: 0;
+  }
+  .themes-page.parcours-page--path .parcours-side a.parcours-cta {
+    margin-bottom: 0.8rem;
+    padding: 0.95rem 1.1rem;
+    border-radius: 14px;
+    background: var(--pdd-deep);
+    border-color: var(--pdd-deep);
+    color: var(--pdd-ink);
+    box-shadow: none;
+  }
+  .themes-page.parcours-page--path .parcours-side a.parcours-cta:hover {
+    filter: brightness(1.08);
+  }
+  main.parcours-page--path .parcours-side .parcours-cta-verb {
+    font: 500 0.78rem var(--font-ui);
+    letter-spacing: 0.04em;
+    opacity: 0.85;
+  }
+  main.parcours-page--path .parcours-side .parcours-cta-title {
+    font: 500 1.1rem/1.25 var(--font-text);
+  }
+  /* The other ways in: quiet rows, not buttons of the same weight. */
+  main.parcours-page--path .parcours-side .parcours-tools > .parcours-tool {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem;
+    width: 100%;
+    min-height: 0;
+    margin: 0;
+    padding: 0.65rem 0.15rem;
+    border: 0;
+    border-top: 1px solid var(--rule-soft);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    font: 500 0.95rem var(--font-ui);
+    color: var(--ink-soft);
+    text-align: start;
+  }
+  main.parcours-page--path .parcours-side .parcours-tools > .parcours-tool:hover:not(:disabled) {
+    color: var(--fam, var(--garden));
+  }
+  main.parcours-page--path .parcours-side .parcours-tools > .parcours-tool:disabled {
+    opacity: 1;
+    color: var(--muted);
+  }
+  main.parcours-page--path .parcours-side .parcours-tool-count,
+  main.parcours-page--path .parcours-side .parcours-tool-locked {
+    font: 400 0.8rem var(--font-ui);
+    color: var(--muted);
+    background: none;
+    padding: 0;
+  }
+  main.parcours-page--path .parcours-side .parcours-tools-note {
+    margin: 0.2rem 0 0;
+    font: 400 0.8rem/1.4 var(--font-ui);
+    color: var(--muted);
+  }
+}
