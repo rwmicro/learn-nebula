@@ -42,7 +42,8 @@ footer.gf[data-ciel="crepuscule"] {
 /* ——— frame: full width, whatever the page did to <body> (a 680px column on
    a note under 1080px) or to footer (margins on note pages) ——— */
 footer.gf {
-  --gf-land-h: clamp(21rem, 28vw, 26rem);
+  /* one height at every desktop width (the phone sets its own) */
+  --gf-land-h: 26rem;
   /* where a tile of the fields starts, from the right: the etching's
      width (1800/801 of its height) less a tile's (1440/801), so the first
      tile lies exactly on the etching's own left strip and adds nothing */
@@ -311,19 +312,19 @@ footer.gf[data-ciel="estampe"] {
   --gf-ink: #1b1712; --gf-ink-2: #3f372d; --gf-head: #6b5333; --gf-rule: transparent;
   --gf-label: #fbf9f4;
   --gf-stars: 1;
-  --gf-land-h: clamp(23rem, 30vw, 28rem);
-  /* the plate's own tones, row by row, carried on left of it */
-  background: linear-gradient(180deg, #6e6052 0%, #a4907a 20%, #9a8673 50%, #b3a08a 64%, #786859 71%, #2b2622 80%, #231d16 100%);
+  --gf-land-h: 28rem;
+  background: #231d16;
 }
-/* the plate, whole, as tall as the footer and anchored right; its left edge
-   fades into the tones above, so a wide screen is not a crop of it */
+/* the plate edge to edge, at the footer's fixed height: a wide screen
+   shows a band of it, around the trees, not all of it */
 footer.gf[data-ciel="estampe"]::before {
-  inset: auto 0 0 auto;
-  height: 125%;
-  aspect-ratio: 1600 / 1062;
-  background: url(/images/pied/estampe.webp) 0 0 / 100% 100% no-repeat;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 40%);
-  mask-image: linear-gradient(90deg, transparent, #000 40%);
+  inset: 0;
+  background: url(/images/pied/estampe.webp) 100% 62% / cover no-repeat;
+}
+/* where the band ends on the plate's pale fields, a shade under the
+   credits keeps them legible */
+footer.gf[data-ciel="estampe"] .gf-foot {
+  background: linear-gradient(180deg, transparent, rgb(27 22 16 / 0.78) 70%);
 }
 footer.gf[data-ciel="estampe"]::after,
 footer.gf[data-ciel="estampe"] .gf-veil,
@@ -453,13 +454,11 @@ body:has(.pcd-colo) .gf-quote {
   .gf-land i:nth-child(3) {
     display: none;
   }
+  html body > footer.site-foot.gf[data-ciel="estampe"] {
+    --gf-land-h: 24rem;
+  }
   footer.gf[data-ciel="estampe"]::before {
-    inset: 0;
-    height: auto;
-    aspect-ratio: auto;
-    background: url(/images/pied/estampe.webp) 72% 100% / cover no-repeat;
-    -webkit-mask-image: none;
-    mask-image: none;
+    background-position: 72% 100%;
   }
   footer.gf[data-ciel="estampe"] .gf-foot {
     background: none;
