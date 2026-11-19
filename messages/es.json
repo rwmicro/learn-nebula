@@ -2953,5 +2953,13 @@
     "close": "Cerrar",
     "local": "Todo se lee en este dispositivo: ningún texto se envía a un servidor.",
     "unread": "se omite hasta elegir una voz"
+  },
+  "pnc": {
+    "here": "Estás aquí",
+    "sheet": "Ficha",
+    "plan": "Plan",
+    "show": "Mostrar este recorrido",
+    "all": "Todos los recorridos",
+    "toRead": "por leer"
   }
 }

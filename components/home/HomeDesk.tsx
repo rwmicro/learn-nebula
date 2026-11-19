@@ -7,7 +7,8 @@ import { LazyGraph, useHomeData, useReadingStore } from "@/components/home/HomeC
 import { useReviewDue } from "@/components/account/AccountChip";
 import { FamilyIcon, glyphStroke as s } from "@/components/ui/FamilyIcon";
 import { localDay } from "@/lib/personal";
-import { ERAGNY, paintingFor } from "@/lib/paintings";
+import { ERAGNY } from "@/lib/paintings";
+import { PathNowCard } from "@/components/paths/PathNowCard";
 import { daysAgo } from "@/lib/note-quiz";
 import { dayKey, daysBetween } from "@/lib/srs";
 import { loadChats, type ChatMode, type Conversation } from "@/lib/chat-history";
@@ -19,7 +20,6 @@ import {
   DAILY_GOAL,
   LOCALE_TAG,
   mixFamilies,
-  pathShare,
   resumePath,
   thisWeek,
   usePersonal,
@@ -303,7 +303,6 @@ export function HomeDesk({
     }
     return sum;
   }, [data, store, week]);
-  const art = paintingFor(resume?.path.family, resume?.slug);
 
   // Talk card: the partner of the level last practised.
   const talkLang = talk.find((l) => l.id === talkPick.lang) ?? talk[0];
@@ -338,8 +337,6 @@ export function HomeDesk({
     </div>
   );
 
-  const pct = resume ? pathShare(resume.read, resume.total, resume.pct) : 0;
-
   return (
     <section className="hd" data-pagefind-ignore data-first={first ? "" : undefined} aria-label={tr("nav.home")}>
       <div className="hd-hello">
@@ -367,39 +364,9 @@ export function HomeDesk({
         </button>
       </div>
 
-      {resume ? (
-        <figure className="hd2-art" data-family={resume.path.family ?? undefined}>
-          <a className="hd2-frame" href={`/posts/${resume.slug}/#reprendre`} aria-label={tr("dash.continueAria", { title: resume.title })}>
-            <picture>
-              <source type="image/avif" srcSet={srcSet(art.src, "avif")} sizes="min(1070px, 92vw)" />
-              <img src={`${art.src}.webp`} srcSet={srcSet(art.src, "webp")} sizes="min(1070px, 92vw)" alt="" title={art.credit} decoding="async" fetchPriority="high" />
-            </picture>
-            <span className="hd-chip">
-              <span>
-                <FamilyIcon family={resume.path.family} />
-              </span>
-              {tr("dash.stepOf", { path: shortName(resume.path), n: resume.step, total: resume.total })}
-            </span>
-            <span className="hd2-cap">
-              <small>{tr("desk.nextStep", { m: resume.left })}</small>
-              <b>{resume.title}</b>
-              <span className="hd2-row">
-                <span className="hd2-prog">
-                  <i style={{ "--w": `${pct}%` } as CSSProperties} />
-                  {resume.step} / {resume.total}
-                </span>
-                <span className="hd-go">
-                  <Play />
-                  {tr("dash.resumeCta")}
-                </span>
-              </span>
-            </span>
-          </a>
-          <figcaption>
-            {art.by && `${art.by}, `}
-            <i>{art.title}</i>, {art.note}. — {tr("dash.quote")}
-          </figcaption>
-        </figure>
+      {resume && data ? (
+        // The path in progress, the same card as on /parcours/.
+        <PathNowCard data={data} store={store} fallback={resume.path.slug} eager />
       ) : (
         <figure className="hd2-art hd3-art">
           <div className="hd2-frame">

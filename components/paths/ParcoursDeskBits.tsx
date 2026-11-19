@@ -92,7 +92,7 @@ export function DeskFilter({ total, families }: { total: number; families: { id:
     document.getElementById(`pcd-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
   return (
-    <div className="pcd-filter" role="search">
+    <div className="pcd-filter" id="pcd-filter" role="search">
       <div className="pcd-in">
         <label className="pcd-q">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
