@@ -2957,5 +2957,13 @@
     "close": "Close",
     "local": "Everything is read on this device: no text is sent to a server.",
     "unread": "skipped until a voice is chosen"
+  },
+  "pnc": {
+    "here": "You are here",
+    "sheet": "Sheet",
+    "plan": "Map",
+    "show": "Show this path",
+    "all": "All paths",
+    "toRead": "up next"
   }
 }

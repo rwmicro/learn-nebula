@@ -16,6 +16,7 @@ import { disciplineKey } from "./i18n";
 import { extractPlain } from "./markdown";
 import { readingMinutes } from "./path-extras";
 import { pathFamily, type PathFamily } from "./path-family";
+import { namedLevels } from "@/components/paths/Parcours";
 
 /**
  * What the home page needs beyond its first paint: the full browse tree (every
@@ -30,7 +31,17 @@ export interface HomeData {
   graph: GraphData;
   /** For the phone dashboard's "Reprendre" card: every reading path with its
    *  notes in reading order as [slug, title, minutes]. */
-  paths: { slug: string; name: string; family: PathFamily | null; notes: [string, string, number][] }[];
+  paths: {
+    slug: string;
+    name: string;
+    family: PathFamily | null;
+    notes: [string, string, number][];
+    /** `parcours-description:`, for the desktop path card. */
+    d?: string;
+    /** Its levels as [n, name, from, to], when it is long enough to have
+     *  some (lib/path-levels.ts). */
+    lv?: [number, string, number, number][];
+  }[];
 }
 
 let cache: { data: HomeData; json: string; version: string } | null = null;
@@ -48,6 +59,11 @@ function load() {
         n.title,
         readingMinutes(extractPlain(getPost(n.slug).body)),
       ]),
+      ...(p.description ? { d: p.description } : {}),
+      ...(() => {
+        const lv = namedLevels(p, (slug) => getPost(slug).frontmatter.title);
+        return lv.length > 1 ? { lv: lv.map((l): [number, string, number, number] => [l.n, l.name, l.from, l.to]) } : {};
+      })(),
     })),
   };
   const json = JSON.stringify(data);

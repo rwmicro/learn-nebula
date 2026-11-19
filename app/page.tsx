@@ -27,6 +27,7 @@ import { enrichWidget } from "@/lib/widget-data";
 import { areaChartSvg } from "@/lib/home-chart";
 import "@/assets/css/graphiques.css";
 import "@/assets/css/home-desk.css";
+import "@/assets/css/path-now.css";
 import { srcSet, ERAGNY_SIZES } from "@/lib/responsive-image";
 import { newsreader } from "@/components/ui/newsreader";
 

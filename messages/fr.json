@@ -2957,5 +2957,13 @@
     "close": "Fermer",
     "local": "Tout est lu sur cet appareil : aucun texte n’est envoyé à un serveur.",
     "unread": "non lu tant qu’aucune voix n’est choisie"
+  },
+  "pnc": {
+    "here": "Tu en es là",
+    "sheet": "Fiche",
+    "plan": "Plan",
+    "show": "Afficher ce parcours",
+    "all": "Tous les parcours",
+    "toRead": "à lire"
   }
 }
