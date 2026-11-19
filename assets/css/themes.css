@@ -61,6 +61,38 @@
   margin: 1.25rem 0 0.5rem;
 }
 
+/* A discipline page's sub-folders (Software › Security › Certifications):
+   their contents under the section title, then a heading per folder, and a
+   lighter one for the folders under it. */
+.themes-folders {
+  list-style: none;
+  margin: 0.25rem 0 1.25rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.1rem;
+  line-height: 1.5;
+}
+.themes-h-folder {
+  scroll-margin-top: 5rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 2rem 0 0.4rem;
+}
+.themes-h-sub {
+  scroll-margin-top: 5rem;
+  font-family: var(--font-caps);
+  text-transform: lowercase;
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: var(--muted-warm);
+  margin: 1.4rem 0 0.3rem;
+}
+.themes-folders--sub {
+  margin: 0.1rem 0 0.5rem;
+  font-size: 0.95rem;
+}
+
 .themes-count {
   margin-left: 0.4em;
   font-size: 0.85em;

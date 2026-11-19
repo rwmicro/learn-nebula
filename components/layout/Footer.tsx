@@ -111,6 +111,7 @@ export function Footer() {
           >
             <i />
             <i />
+            <i />
           </div>
           <div className="gf-foot">
             <div className="gf-colo">
