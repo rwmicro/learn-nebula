@@ -41,6 +41,14 @@ footer.gf[data-ciel="crepuscule"] {
 
 /* ——— frame: full width, whatever the page did to <body> (a 680px column on
    a note under 1080px) or to footer (margins on note pages) ——— */
+footer.gf {
+  /* one height at every desktop width (the phone sets its own) */
+  --gf-land-h: 26rem;
+  /* where a tile of the fields starts, from the right: the etching's
+     width (1800/801 of its height) less a tile's (1440/801), so the first
+     tile lies exactly on the etching's own left strip and adds nothing */
+  --gf-sol-x: calc(var(--gf-land-h) * 360 / 801);
+}
 html body > footer.site-foot.gf {
   position: relative;
   left: 50%;
@@ -188,7 +196,13 @@ footer.gf a:focus-visible {
   outline-offset: 3px;
 }
 
-/* ——— the ground: the etching rises behind the last rows of links ——— */
+/* ——— the ground: the etching rises behind the last rows of links ———
+   Its height is capped (clamp below), not a share of the screen's width: at
+   44.5vw the land alone was 1,140px tall on a 2560px screen, the footer a
+   whole screen. The etching keeps its proportions at that height, anchored
+   right; on a screen wider than it, the plain fields of its left edge
+   (terre-sol / traits-sol: that strip and its mirror, so it tiles without a
+   seam) carry the ground on to the left, under the same colours. */
 .gf-ground {
   position: relative;
   margin-top: var(--gf-rise, -10rem);
@@ -196,22 +210,38 @@ footer.gf a:focus-visible {
 .gf-land {
   position: relative;
   z-index: 1;
-  height: var(--gf-land-h, max(25.8rem, 44.5vw));
+  height: var(--gf-land-h);
   pointer-events: none;
 }
 .gf-land i {
   position: absolute;
   inset: 0;
-  -webkit-mask: url(/images/pied/terre.webp) var(--gf-land-x, 74%) 100% / max(100%, 58rem) auto no-repeat;
-  mask: url(/images/pied/terre.webp) var(--gf-land-x, 74%) 100% / max(100%, 58rem) auto no-repeat;
+  -webkit-mask: url(/images/pied/terre.webp) var(--gf-land-x, 100%) 100% / auto 100% no-repeat;
+  mask: url(/images/pied/terre.webp) var(--gf-land-x, 100%) 100% / auto 100% no-repeat;
 }
 .gf-land i:first-child {
+  -webkit-mask:
+    url(/images/pied/terre.webp) var(--gf-land-x, 100%) 100% / auto 100% no-repeat,
+    url(/images/pied/terre-sol.webp) right var(--gf-sol-x) bottom 0 / auto 100% repeat-x;
+  mask:
+    url(/images/pied/terre.webp) var(--gf-land-x, 100%) 100% / auto 100% no-repeat,
+    url(/images/pied/terre-sol.webp) right var(--gf-sol-x) bottom 0 / auto 100% repeat-x;
   background: linear-gradient(180deg, var(--gf-sky-low) 0%, var(--gf-sky-low) 38%, var(--gf-land-hi) 56%, var(--gf-land-hi) 64%, var(--gf-land-lo) 86%, var(--gf-deep) 100%);
 }
 .gf-land i:nth-child(2) {
   background: var(--gf-land-ink);
   -webkit-mask-image: url(/images/pied/traits.webp);
   mask-image: url(/images/pied/traits.webp);
+}
+/* The fields' ink left of the etching, never over it: the hatching is
+   half-transparent, and two layers of it over each other would show as a
+   darker block. The tile ends on its mirrored strip, so its last column is
+   the etching's first. */
+.gf-land i:nth-child(3) {
+  right: calc(var(--gf-land-h) * 1800 / 801);
+  background: var(--gf-land-ink);
+  -webkit-mask: url(/images/pied/traits-sol.webp) 100% 100% / auto 100% repeat-x;
+  mask: url(/images/pied/traits-sol.webp) 100% 100% / auto 100% repeat-x;
 }
 /* Far from the screen (Footer.tsx SKY_SCRIPT): no mask or plate yet, so
    their files are not fetched on a page nobody scrolls to the end of. */
@@ -277,18 +307,24 @@ body:has(.note-dock) .gf-colo {
    no cut, no veil. The links and section titles sit on small white labels,
    so they read the same over the sky and over the trees; the rest is plain
    ink, the credits light on the plate's dark foreground. ——— */
+html body > footer.site-foot.gf[data-ciel="estampe"],
 footer.gf[data-ciel="estampe"] {
   --gf-ink: #1b1712; --gf-ink-2: #3f372d; --gf-head: #6b5333; --gf-rule: transparent;
   --gf-label: #fbf9f4;
   --gf-stars: 1;
-  --gf-land-h: max(24rem, 56vw);
+  --gf-land-h: 28rem;
   background: #231d16;
 }
-/* the plate, on a layer a little wider than the footer and always as tall
-   as it, so it is framed the same at every width and never ends early */
+/* the plate edge to edge, at the footer's fixed height: a wide screen
+   shows a band of it, around the trees, not all of it */
 footer.gf[data-ciel="estampe"]::before {
-  inset: 0 0 0 min(-28%, -2rem);
-  background: url(/images/pied/estampe.webp) 100% 6% / cover no-repeat;
+  inset: 0;
+  background: url(/images/pied/estampe.webp) 100% 62% / cover no-repeat;
+}
+/* where the band ends on the plate's pale fields, a shade under the
+   credits keeps them legible */
+footer.gf[data-ciel="estampe"] .gf-foot {
+  background: linear-gradient(180deg, transparent, rgb(27 22 16 / 0.78) 70%);
 }
 footer.gf[data-ciel="estampe"]::after,
 footer.gf[data-ciel="estampe"] .gf-veil,
@@ -410,8 +446,18 @@ body:has(.pcd-colo) .gf-quote {
   .gf-colo span.gf-wrap {
     white-space: normal;
   }
+  /* the etching is wider than the phone: no fields to carry on */
+  .gf-land i:first-child {
+    -webkit-mask: url(/images/pied/terre.webp) var(--gf-land-x) 100% / auto 100% no-repeat;
+    mask: url(/images/pied/terre.webp) var(--gf-land-x) 100% / auto 100% no-repeat;
+  }
+  .gf-land i:nth-child(3) {
+    display: none;
+  }
+  html body > footer.site-foot.gf[data-ciel="estampe"] {
+    --gf-land-h: 24rem;
+  }
   footer.gf[data-ciel="estampe"]::before {
-    inset: 0;
     background-position: 72% 100%;
   }
   footer.gf[data-ciel="estampe"] .gf-foot {

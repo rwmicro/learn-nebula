@@ -2389,6 +2389,10 @@
       "title": "Kabyle",
       "sub": "des premiers mots à la culture"
     },
+    "lfcs-administrer-un-serveur-linux": {
+      "title": "LFCS",
+      "sub": "administrer un serveur Linux"
+    },
     "linguistique-des-sons-au-sens": {
       "title": "Linguistique",
       "sub": "des sons au sens"
@@ -2462,6 +2466,10 @@
     "physique-du-lycee-a-la-prepa": {
       "title": "Physique",
       "sub": "du lycée à la prépa"
+    },
+    "pnpt-du-reseau-au-rapport-de-pentest": {
+      "title": "PNPT",
+      "sub": "du réseau au rapport de pentest"
     },
     "probabilites-et-statistiques-au-lycee": {
       "title": "Probabilités et statistiques au lycée"
