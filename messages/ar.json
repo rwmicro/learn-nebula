@@ -2385,6 +2385,10 @@
       "title": "القبائلية",
       "sub": "من الكلمات الأولى إلى الثقافة"
     },
+    "lfcs-administrer-un-serveur-linux": {
+      "title": "LFCS",
+      "sub": "إدارة خادم لينكس"
+    },
     "linguistique-des-sons-au-sens": {
       "title": "اللسانيات",
       "sub": "من الأصوات إلى المعنى"
@@ -2458,6 +2462,10 @@
     "physique-du-lycee-a-la-prepa": {
       "title": "الفيزياء",
       "sub": "من الثانوية إلى الأقسام التحضيرية"
+    },
+    "pnpt-du-reseau-au-rapport-de-pentest": {
+      "title": "PNPT",
+      "sub": "من الشبكات إلى تقرير اختبار الاختراق"
     },
     "probabilites-et-statistiques-au-lycee": {
       "title": "الاحتمالات والإحصاء في الثانوية"
