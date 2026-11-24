@@ -115,9 +115,7 @@
     "seedling": "pousse",
     "budding": "en croissance",
     "evergreen": "établie",
-    "stageAria": "Stade de maturité de la note",
-    "history": "historique",
-    "historyAria": "Toutes les versions de cette note, sur GitHub"
+    "stageAria": "Stade de maturité de la note"
   },
   "pronunciation": {
     "playAria": "Écouter la prononciation",

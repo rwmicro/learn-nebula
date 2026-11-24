@@ -115,9 +115,7 @@
     "seedling": "幼苗",
     "budding": "成长中",
     "evergreen": "成熟",
-    "stageAria": "笔记成熟度",
-    "history": "修改历史",
-    "historyAria": "这篇笔记的所有版本（GitHub）"
+    "stageAria": "笔记成熟度"
   },
   "pronunciation": {
     "playAria": "收听发音",
