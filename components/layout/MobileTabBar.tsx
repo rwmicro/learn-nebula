@@ -183,13 +183,13 @@ export function MobileTabBar() {
 
   // The liquid glass (lib/glass; the CSS glass until it draws).
   useEffect(() => {
-    const off = [liquidGlass(barRef.current, "bar"), liquidGlass(searchRef.current, "button")];
+    const off = [liquidGlass(barRef.current, "card"), liquidGlass(searchRef.current, "button")];
     return () => off.forEach((f) => f());
   }, []);
   const hasMini = !!playing;
   useEffect(() => {
     if (!hasMini || !miniRef.current) return;
-    return liquidGlass(miniRef.current, "bar");
+    return liquidGlass(miniRef.current, "card");
   }, [hasMini]);
 
   useEffect(() => {

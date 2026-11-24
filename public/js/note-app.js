@@ -479,14 +479,13 @@ import { liquidGlassLater as liquidGlass } from "../../lib/glass/load";
   });
 
   // The floating chrome is liquid glass (lib/glass) on phones, the only
-  // screens that show it: the toolbar and the section pill frosted, as they
-  // float over the text, the round buttons as buttons, the green "next"
-  // in its own colour.
+  // screens that show it: the toolbar and the section pill as the kit's
+  // card, the round buttons as its button, the green "next" tinted.
   let unglass = [];
   const glass = () => {
     if (phone.matches && !unglass.length) {
       unglass = [
-        ...$$(".na-bar, .na-pill", root).map((el) => liquidGlass(el, "dock")),
+        ...$$(".na-bar, .na-pill", root).map((el) => liquidGlass(el, "card")),
         ...$$(".na-gbtn", root).map((el) => liquidGlass(el, "button")),
         ...$$(".na-next", root).map((el) => liquidGlass(el, "tinted")),
       ];

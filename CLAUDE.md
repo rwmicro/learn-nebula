@@ -376,16 +376,16 @@ image tag in `ci.yml` together with `@playwright/test`.
   `lib/glass/LICENSE`): `engine.ts` (one WebGL2 context, the shader) and
   `dom-snapshot.ts` (paints the page behind into a texture) are copied
   verbatim, don't edit or "simplify" them; `layer.ts` is its
-  `glass-layer.tsx` without React (`attachGlass`), `site.ts` the site's looks
-  (`bar`, `dock`, `button`, `tinted`). It ships as its own
+  `glass-layer.tsx` without React (`attachGlass`), `site.ts` the looks, the
+  kit's own defaults untuned (`card` = GlassCard for the bars, `button` /
+  `tinted` = GlassButton). It ships as its own
   `/js/liquid-glass.bundle.js`, fetched by `lib/glass/load.ts`
   (`liquidGlassLater`) only with WebGL2 on a GPU (a software renderer:
   SwiftShader, llvmpipe… keeps the CSS glass, so CI and headless runs never
   draw it; localStorage `gk-glass=on` forces it for screenshots, `off`
   disables it) and no reduced transparency / more contrast; until its first frame (and without it) the element keeps the CSS
   `.glass` (phone/base.css), which `[data-glass-ready]` turns off. The
-  snapshot sees no pseudo-elements, masks or CSS filters, so a bar over text
-  frosts itself (`dock`). Dark tint: `--glass-tint` (base.css).
+  snapshot sees no pseudo-elements, masks or CSS filters.
 - Native CSS: anchor-positioned popovers (`lib/anchor-popover.ts`) for the
   link preview and glossary, `scroll-state` sticky bar and scroll-driven
   progress (JS fallbacks kept), `@starting-style`, `field-sizing`; Wake Lock

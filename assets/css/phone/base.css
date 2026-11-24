@@ -50,9 +50,6 @@
   --bar-bg: color-mix(in srgb, var(--paper) 80%, transparent);
 }
 :root[data-theme="dark"] {
-  /* The tint of the drawn glass (lib/glass): a warm smoke a little above the
-     paper, not the kit's black. Light pages keep its white. */
-  --glass-tint: rgb(48 46 43);
   --glass-bg: rgb(30 29 27 / 0.28);
   --glass-edge: rgb(255 255 255 / 0.16);
   --glass-inset:
@@ -72,7 +69,6 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
-    --glass-tint: rgb(48 46 43);
     --glass-bg: rgb(30 29 27 / 0.28);
     --glass-edge: rgb(255 255 255 / 0.16);
     --glass-inset:
@@ -140,6 +136,10 @@
    the rim ring here. */
 .glass[data-glass-ready]::before,
 .glass[data-glass-ready]::after {
+  display: none;
+}
+/* The kit's card shadow (lib/glass/site.ts) shows with its glass only. */
+[data-glass-host]:not([data-glass-ready]) > [data-glass-shadow] {
   display: none;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
