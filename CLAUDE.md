@@ -282,8 +282,6 @@ image tag in `ci.yml` together with `@playwright/test`.
   to `/api/report` (`error_reports`). Both show in /admin (Site / Contenu).
   Normalisation is `lib/feedback.ts` (tested). `app/error.tsx` and
   `app/admin/error.tsx` are the React error boundaries.
-- Under each note's title, "historique" links to the file's GitHub commits
-  (`noteHistoryUrl()` in `lib/site.ts`, from NOTES_REPO_URL/BRANCH/SUBDIR).
 
 ## Newer browser features (all feature-detected, hidden when absent)
 - **Passkeys** (`server/routes/passkey.ts`, `@simplewebauthn`, RP from

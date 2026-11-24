@@ -1278,14 +1278,6 @@ body[data-text-size="lg"] main ol li {
 .growth-tended time {
   font-style: italic;
 }
-.growth-history {
-  color: inherit;
-  text-decoration: underline dotted;
-  text-underline-offset: 0.2em;
-}
-.growth-history:hover {
-  color: var(--fg, inherit);
-}
 
 .note-header {
   font-size: 1.05rem;
