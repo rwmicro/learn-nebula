@@ -224,6 +224,14 @@ image tag in `ci.yml` together with `@playwright/test`.
   attributes; it only re-runs on load when a **non-default** locale is stored, so
   build-time output must already be correct for `fr` (e.g. `formatDateLong` uses
   `fr-FR`).
+  A first visit follows the browser/system language: the `<head>` bootstrap
+  inlines `detectLocale` (`lib/locale-detect.ts`, self-contained on purpose:
+  it ships as `toString()`) over `navigator.languages` + the Intl locale,
+  languages first, then the country ("jv-ID" → id), else `fr`; the result
+  (`__i18n.detected`) is never stored, a saved `locale` always wins, and
+  crawlers/automated browsers (`navigator.webdriver`) keep `fr`, so the
+  other Playwright specs and the screenshots stay French. Browser tests:
+  `tests/locale.spec.js` (it fakes `webdriver: false`).
   Reading path names come from the vault in French; their translations are
   `pathName.<slug>` (`title` / `sub`, the parts around " : ") in the bundles,
   read through `pathName()` / `pathNameProps()` / `pathNameRef()` (a `{ $t }`

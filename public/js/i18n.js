@@ -2,9 +2,11 @@
 //
 // The static HTML is built in the default locale (FR). Every translatable
 // element carries a `data-i18n` (text content) or `data-i18n-<attr>` marker
-// pointing at a dotted key. On load, this script reads the chosen locale
-// from localStorage and, if it differs from the default, walks the DOM and
-// swaps each marker's content/attribute against the alt-locale bundle.
+// pointing at a dotted key. On load, this script takes the locale the reader
+// chose (localStorage), else the one their browser/system asks for (detected
+// by the <head> bootstrap, lib/locale-detect.ts), and, if it differs from the
+// default, walks the DOM and swaps each marker's content/attribute against
+// the alt-locale bundle.
 //
 // Bundles are cached static files (/i18n/<locale>.<hash>.js). The bootstrap in
 // app/layout.tsx loads the default one and the stored one before any module
@@ -37,10 +39,13 @@
     try {
       const saved = localStorage.getItem("locale");
       if (saved && i18n.bundles[saved]) return saved;
-      // Stored but its file failed to load: stay on the default, keep the choice.
+      // Stored but its file failed to load: fall through, keep the choice.
     } catch {
       /* localStorage unavailable */
     }
+    // No choice yet: the browser/system language the <head> bootstrap
+    // detected (lib/locale-detect.ts), if its bundle is there.
+    if (i18n.detected && i18n.bundles[i18n.detected]) return i18n.detected;
     return i18n.defaultLocale;
   }
 
