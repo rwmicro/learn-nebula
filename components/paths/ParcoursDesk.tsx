@@ -1,9 +1,9 @@
 import { blackletter } from "@/components/layout/Header";
-import { t, i18nProps, i18nAttrProps, disciplineKey, pathName, pathNameProps, pathNameRef, splitPathName } from "@/lib/i18n";
+import { t, i18nProps, i18nAttrProps, disciplineKey, keyedProps, keyedText, pathDescKey, pathName, pathNameProps, pathNameRef, splitPathName, type I18nVar, type I18nVars } from "@/lib/i18n";
 import type { ReadingPathView } from "@/lib/content";
 import type { PathExtras } from "@/lib/path-extras";
 import { PATH_FAMILIES, pathFamily, type PathFamily } from "@/lib/path-family";
-import { paintingFor } from "@/lib/paintings";
+import { paintingFor, paintingKey, paintingText } from "@/lib/paintings";
 import { ART, levelArt } from "@/lib/road-art";
 import { splitMinutes } from "@/lib/path-study";
 import { fold } from "@/lib/palette-match";
@@ -25,17 +25,19 @@ const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
 const TILE_DISCIPLINES = new Set(["Languages & Dialects"]);
 
 /** "8 min", "1 h 05": text and its runtime key. */
-function dur(minutes: number): [string, Record<string, string>] {
+/** A duration: its French text, the props that swap it, and a `{ $t }`
+ *  placeholder value so it follows the locale inside a sentence too. */
+function dur(minutes: number): [string, Record<string, string>, I18nVar] {
   const { h, m } = splitMinutes(minutes);
   const [key, vars] = h ? (["parcours.hm", { h: String(h), mm: String(m).padStart(2, "0") }] as const) : (["parcours.min", { m: String(m) }] as const);
-  return [t(key, vars), i18nProps(key, vars)];
+  return [t(key, vars), i18nProps(key, vars), { $t: key, vars }];
 }
 function Dur({ minutes }: { minutes: number }) {
   const [text, props] = dur(minutes);
   return <span {...props}>{text}</span>;
 }
 /** A key with a duration in it: the duration's text goes in as a plain var. */
-function T({ k, v, as: As = "span", className }: { k: string; v?: Record<string, string | number>; as?: "span" | "b" | "i" | "small" | "h2" | "h3" | "p" | "em"; className?: string }) {
+function T({ k, v, as: As = "span", className }: { k: string; v?: I18nVars; as?: "span" | "b" | "i" | "small" | "h2" | "h3" | "p" | "em"; className?: string }) {
   return (
     <As className={className} {...i18nProps(k, v)}>
       {t(k, v)}
@@ -208,7 +210,7 @@ export function ParcoursDesk({
           const cards = list.filter((p) => !TILE_DISCIPLINES.has(p.discipline));
           const roomMinutes = list.reduce((s, p) => s + mins.get(p.slug)!, 0);
           const shown = f === "informatique" ? 8 : cards.length;
-          const [d] = dur(roomMinutes);
+          const [, , d] = dur(roomMinutes);
           return (
             <section key={f} className="pcd-room" data-family={f} id={`salle-${f}`} data-pcd-room>
               <aside className="pcd-wall">
@@ -222,7 +224,7 @@ export function ParcoursDesk({
                       <img src={`${art.src}.webp`} srcSet={srcSet(art.src, "webp")} sizes="160px" alt="" loading="lazy" decoding="async" style={{ objectPosition: `${art.focus} 50%` }} />
                     </picture>
                   </span>
-                  <figcaption>{art.credit}</figcaption>
+                  <figcaption {...keyedProps(paintingKey(art, "credit"))}>{paintingText(art, "credit")}</figcaption>
                 </figure>
               </aside>
               <div className="pcd-body">
@@ -310,7 +312,11 @@ function Card({ p, family, minutes, more }: { p: ReadingPathView; family: PathFa
       <span className="pcd-tx">
         <b {...pathNameProps(p, "title")}>{pathName(p, "title")}</b>
         {sub && <em {...pathNameProps(p, "sub")}>{sub}</em>}
-        {p.description && <span className="pcd-desc">{p.description}</span>}
+        {p.description && (
+          <span className="pcd-desc" {...keyedProps(pathDescKey(p.slug, p.description))}>
+            {keyedText(pathDescKey(p.slug, p.description), p.description)}
+          </span>
+        )}
         {(p.prev || p.next) && (
           <span className="pcd-chain">
             {p.prev && <span {...i18nProps("parcours.followsFrom", { name: pathNameRef(p.prev, "title") })}>{t("parcours.followsFrom", { name: pathNameRef(p.prev, "title") })}</span>}
@@ -345,11 +351,20 @@ function Metro({ lines, height, paths }: { lines: PlacedLine[]; height: number; 
         const name = l.mixed && l.family ? t(`parcours.family.${l.family}`) : disc ? t(disc) : l.discipline;
         const first = bySlug.get(l.stations[0].slug)!;
         const last = bySlug.get(l.stations[n - 1].slug)!;
-        const [d] = dur(l.minutes);
+        const [dText, , d] = dur(l.minutes);
         const long = n >= 6;
         return (
           <g key={l.stations[0].slug} data-family={l.family ?? undefined} data-pcd-line>
-            <text x={l.tx} y={l.ty} className="ttl" {...i18nProps("pcd.line", { l: name.charAt(0).toUpperCase(), name })}>
+            <text
+              x={l.tx}
+              y={l.ty}
+              className="ttl"
+              {...i18nProps("pcd.line", {
+                l: name.charAt(0).toUpperCase(),
+                // The line keeps its French letter; its name follows the locale.
+                name: l.mixed && l.family ? { $t: `parcours.family.${l.family}` } : disc ? { $t: disc } : l.discipline,
+              })}
+            >
               {t("pcd.line", { l: name.charAt(0).toUpperCase(), name })}
             </text>
             {long && (
@@ -360,7 +375,7 @@ function Metro({ lines, height, paths }: { lines: PlacedLine[]; height: number; 
                 textAnchor="end"
                 {...i18nProps("pcd.lineMeta", { n, d, a: pathNameRef(first, "title"), b: pathNameRef(last, "title") })}
               >
-                {t("pcd.lineMeta", { n, d, a: pathName(first, "title"), b: pathName(last, "title") })}
+                {t("pcd.lineMeta", { n, d: dText, a: pathName(first, "title"), b: pathName(last, "title") })}
               </text>
             )}
             <line x1={l.x0} y1={l.y} x2={l.x1} y2={l.y} className="ln" />

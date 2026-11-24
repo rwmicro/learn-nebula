@@ -992,7 +992,7 @@ export interface NextUp {
   step?: { n: number; total: number } | null;
   /** The note's discipline, and some of its notes to pick an unread one from
    *  (in reading order, starting after this note). */
-  discipline: { name: string; href: string; notes: { slug: string; title: string }[] } | null;
+  discipline: { name: I18nVar; href: string; notes: { slug: string; title: string }[] } | null;
 }
 
 /** "Et ensuite ?", right after the text: one clear way on. The unread pick is

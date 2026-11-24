@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { t, pathName, splitPathName } from "@/lib/i18n";
+import { t, levelNameIn, pathName, splitPathName } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { useHomeData } from "@/components/home/HomeContent";
 import { resumePath, useRetention } from "@/components/home/HomeDashboard";
-import { ERAGNY, paintingFor, type Painting } from "@/lib/paintings";
+import { ERAGNY, paintingByline, paintingFor, paintingText, type Painting } from "@/lib/paintings";
 import { splitMinutes } from "@/lib/path-study";
 import type { PathFamily } from "@/lib/path-family";
 import { useStore } from "@/components/paths/ParcoursDeskBits";
@@ -33,11 +33,12 @@ function Pic({ art, hero = false, className, eager = false }: { art: Painting; h
   const src = hero && art.hero ? art.hero : art.src;
   // The hero fills the screen; otherwise the picture sits in a card.
   const sizes = hero ? "100vw" : "(max-width: 1100px) 50vw, 420px";
+  const locale = useLocale();
   return (
     <picture className={className}>
       <source type="image/avif" srcSet={srcSet(src, "avif")} sizes={sizes} />
       { }
-      <img src={`${src}.webp`} srcSet={srcSet(src, "webp")} sizes={sizes} alt="" title={art.credit} decoding="async" style={hero ? undefined : { objectPosition: `${art.focus} 50%` }} {...(eager ? { fetchPriority: "high" as const } : { loading: "lazy" as const })} />
+      <img src={`${src}.webp`} srcSet={srcSet(src, "webp")} sizes={sizes} alt="" title={paintingText(art, "credit", locale)} decoding="async" style={hero ? undefined : { objectPosition: `${art.focus} 50%` }} {...(eager ? { fetchPriority: "high" as const } : { loading: "lazy" as const })} />
     </picture>
   );
 }
@@ -107,10 +108,8 @@ export function ParcoursDeskHero({
         <div className="pcd-veil" />
         {logo}
         <figure className="pcd-cartel">
-          <b>{ERAGNY.title}</b>
-          <span>
-            {ERAGNY.by}, {ERAGNY.note}
-          </span>
+          <b>{paintingText(ERAGNY, "title", locale)}</b>
+          <span>{paintingByline(ERAGNY, locale)}</span>
         </figure>
         <div className="pcd-main">
           <p className="pcd-k">
@@ -231,7 +230,7 @@ export function ParcoursDeskHero({
                 <b>{tr(fading.length === 1 ? "pcd.fade1" : "pcd.fade", { n: fading.length })}</b>
                 {fading
                   .slice(0, 2)
-                  .map((l) => l.name)
+                  .map((l) => levelNameIn(l.name, locale))
                   .join(", ")}
               </span>
               <a href={`/parcours/${fading[0].x.slug}/`}>{tr("pcd.review")}</a>

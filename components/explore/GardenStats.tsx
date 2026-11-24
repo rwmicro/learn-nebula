@@ -1,4 +1,4 @@
-import { t, folderKey, i18nProps } from "@/lib/i18n";
+import { t, folderKey, i18nProps, type I18nVar } from "@/lib/i18n";
 import { formatDateLong } from "@/lib/content";
 import type { GardenStats as Stats, MonthCount } from "@/lib/garden-stats";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -218,11 +218,10 @@ function GrowthChart({ months, narrow = false }: { months: MonthCount[]; narrow?
 }
 
 /** "2026-02" → "février 2026" (build-time text is French, like every date). */
-function monthLabel(month: string): string {
+function monthLabel(month: string): I18nVar {
   const [y, m] = month.split("-").map(Number);
-  return new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: "UTC" }).format(
-    new Date(Date.UTC(y, m - 1, 1)),
-  );
+  // A message per month ("février {y}"), so the runtime swap follows the locale.
+  return { $t: `months.m${m}`, vars: { y } };
 }
 
 /** A round axis top just above `v` (1 / 2 / 2.5 / 5 × 10ⁿ). */

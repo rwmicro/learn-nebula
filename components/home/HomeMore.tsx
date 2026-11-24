@@ -1,4 +1,4 @@
-import { t } from "@/lib/i18n";
+import { t, i18nAttrProps } from "@/lib/i18n";
 import { AUTHOR } from "@/lib/site";
 
 // The end of the phone home (app.css shows it below 640px only): ways to
@@ -39,7 +39,7 @@ export function HomeMore({ notes, paths, languages }: { notes: number; paths: nu
   const nf = new Intl.NumberFormat("fr-FR");
   const year = new Date().getFullYear();
   return (
-    <section className="home-more" data-pagefind-ignore aria-label={t("dash.explore")}>
+    <section className="home-more" data-pagefind-ignore aria-label={t("dash.explore")} {...i18nAttrProps("aria-label", "dash.explore")}>
       <h2 className="dash-h" {...L("dash.explore")}>
         {t("dash.explore")}
       </h2>

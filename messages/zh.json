@@ -2246,124 +2246,155 @@
   "pathName": {
     "active-directory-de-l-attaque-a-la-persistance": {
       "title": "Active Directory",
-      "sub": "从攻击到持久化"
+      "sub": "从攻击到持久化",
+      "desc": "目录服务基础、枚举、Kerberos、ACL 与持久化，然后是身份与认证。"
     },
     "algorithmique-complexite-structures-et-graphes": {
       "title": "算法",
-      "sub": "复杂度、数据结构与图"
+      "sub": "复杂度、数据结构与图",
+      "desc": "从复杂度度量到数据结构，然后是排序、动态规划与图算法。"
     },
     "allemand-des-premiers-mots-a-la-culture": {
       "title": "德语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "德语发音、问候、语法与语体，然后是词汇、日常对话与德语区文化。"
     },
     "analyse-au-lycee": {
-      "title": "高中数学分析"
+      "title": "高中数学分析",
+      "desc": "数与代数运算、函数与二次函数，然后是导数、数列、极限、指数函数与积分。"
     },
     "anglais-des-premiers-mots-a-la-culture": {
       "title": "英语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "发音与基本句子、时态与情态动词，然后是语体、习语与口音（RP、伦敦东区腔）。"
     },
     "anthropologie-de-la-discipline-au-terrain": {
       "title": "人类学",
-      "sub": "从学科到田野"
+      "sub": "从学科到田野",
+      "desc": "人类学是什么及其历史，主要学派与人物（博厄斯、马林诺夫斯基、米德、列维-斯特劳斯、格尔茨），然后是民族志田野调查与人类起源。"
     },
     "apprendre-les-langues-la-boite-a-outils": {
       "title": "学习语言",
-      "sub": "工具箱"
+      "sub": "工具箱",
+      "desc": "对学习者有用的语言学概念、国际音标、语系与类型学、法语中的假朋友，然后是多语者的学习策略。"
     },
     "arabe-libanais-des-premiers-mots-a-la-culture": {
       "title": "黎巴嫩阿拉伯语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "发音与问候，基础语法（代词、动词、否定），日常词汇，然后是进阶表达、俚语与黎巴嫩文化。"
     },
     "arabe-standard-de-l-alphabet-aux-medias": {
       "title": "标准阿拉伯语",
-      "sub": "从字母到媒体"
+      "sub": "从字母到媒体",
+      "desc": "现代标准阿拉伯语：字母与发音、基本句子、语法与词汇、媒体语体，然后是双层语言现象及其历史。"
     },
     "architecture-logicielle-des-principes-aux-microservices": {
       "title": "软件架构",
-      "sub": "从原则到微服务"
+      "sub": "从原则到微服务",
+      "desc": "从 SOLID 原则到 UML 与设计模式，然后是架构风格与微服务。"
     },
     "arts-de-la-renaissance-au-surrealisme": {
       "title": "艺术",
-      "sub": "从文艺复兴到超现实主义"
+      "sub": "从文艺复兴到超现实主义",
+      "desc": "欣赏艺术作品的基本概念，然后是达·芬奇、米开朗琪罗和伦勃朗，以及现代的突破：印象派、立体主义、超现实主义。"
     },
     "aws-fondations-reseau-calcul-et-serverless": {
       "title": "AWS",
-      "sub": "基础、网络、计算与无服务器"
+      "sub": "基础、网络、计算与无服务器",
+      "desc": "从 AWS 概览到 IAM、S3 和 VPC，然后是 EC2 和 Lambda。"
     },
     "azeri-des-premiers-mots-a-la-culture": {
       "title": "阿塞拜疆语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "阿塞拜疆语的字母与发音、问候、语法与语体，然后是词汇、对话与阿塞拜疆文化。"
     },
     "bases-de-donnees-du-relationnel-a-l-optimisation": {
       "title": "数据库",
-      "sub": "从关系模型到优化"
+      "sub": "从关系模型到优化",
+      "desc": "从关系模型到 SQL、优化与索引，然后是 NoSQL 数据库。"
     },
     "biologie-de-la-molecule-a-l-evolution": {
       "title": "生物学",
-      "sub": "从分子到进化"
+      "sub": "从分子到进化",
+      "desc": "从生物化学和细胞到遗传学与进化，然后是生态学、人体生理学、免疫学和神经科学。"
     },
     "chimie-premiers-pas-et-histoire": {
       "title": "化学",
-      "sub": "入门与历史"
+      "sub": "入门与历史",
+      "desc": "化学研究什么，从炼金术到现代化学的历史，以及伟大的化学家。"
     },
     "cinema-de-l-invention-au-contemporain": {
       "title": "电影",
-      "sub": "从发明到当代"
+      "sub": "从发明到当代",
+      "desc": "从卢米埃尔兄弟到当代电影：默片、好莱坞黄金时代、新浪潮、电影语言与各国电影。"
     },
     "cloud-securiser-aws-azure-et-gcp": {
       "title": "云",
-      "sub": "保护 AWS、Azure 与 GCP"
+      "sub": "保护 AWS、Azure 与 GCP",
+      "desc": "三大云平台中的责任模型、身份、网络与 Kubernetes。"
     },
     "communication-des-modeles-a-la-rhetorique": {
       "title": "传播学",
-      "sub": "从模型到修辞"
+      "sub": "从模型到修辞",
+      "desc": "传播的模型，然后是它的形式（人际、非语言、跨文化、口头）、修辞学、话语分析与操纵。"
     },
     "cryptographie-appliquee": {
-      "title": "应用密码学"
+      "title": "应用密码学",
+      "desc": "编码与信息的表示，然后是加密、哈希、PKI、TLS 与应用密码学。"
     },
     "devsecops-conteneurs-ci-cd-et-securite": {
       "title": "DevSecOps",
-      "sub": "容器、CI/CD 与安全"
+      "sub": "容器、CI/CD 与安全",
+      "desc": "从 Docker 到 Kubernetes 及其安全加固，然后是 GitLab CI/CD 与 DevSecOps 流水线。"
     },
     "dfir-reponse-a-incident-et-forensique": {
       "title": "DFIR",
-      "sub": "事件响应与取证"
+      "sub": "事件响应与取证",
+      "desc": "事件响应、磁盘与内存取证、网络分析与应对手册。"
     },
     "droit-des-bases-aux-grands-systemes-juridiques": {
       "title": "法学",
-      "sub": "从基础到主要法系"
+      "sub": "从基础到主要法系",
+      "desc": "法律基础、法律渊源与机构、主要法系（大陆法、普通法、伊斯兰教法），然后是公法与私法的各个分支。"
     },
     "echecs-des-regles-aux-finales": {
       "title": "国际象棋",
-      "sub": "从规则到残局"
+      "sub": "从规则到残局",
+      "desc": "四个 Elo 等级段：规则与开局、中局战术、兵与车的残局，然后是战略与王翼攻击。"
     },
     "ecologie-des-ecosystemes-au-climat": {
       "title": "生态学",
-      "sub": "从生态系统到气候"
+      "sub": "从生态系统到气候",
+      "desc": "生态学原理与生态系统、生物多样性及其威胁，然后是气候变化与减缓方案。"
     },
     "economie-de-la-monnaie-aux-comportements": {
       "title": "经济学",
-      "sub": "从货币到行为"
+      "sub": "从货币到行为",
+      "desc": "货币史、面对地球极限的资本主义，然后是行为经济学与博弈论。"
     },
     "espagnol-des-premiers-mots-a-la-culture": {
       "title": "西班牙语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "西班牙语发音、问候、语法与语体，然后是词汇、日常对话与西语世界文化。"
     },
     "geometrie-au-lycee": {
-      "title": "高中几何"
+      "title": "高中几何",
+      "desc": "平面几何、复数、立体几何及其公式，然后迈出欧几里得之外的第一步。"
     },
     "gouvernance-conformite-risques-et-menaces": {
       "title": "治理",
-      "sub": "合规、风险与威胁"
+      "sub": "合规、风险与威胁",
+      "desc": "合规与 NIS2、威胁建模、EBIOS RM、安全 SDLC 与供应链安全。"
     },
     "hakka-des-premiers-mots-a-la-culture": {
       "title": "客家话",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "西加里曼丹客家话的声调与发音、问候与基本句子，然后是分主题词汇、语法与客家文化。"
     },
     "hindi-des-premiers-mots-a-la-culture": {
       "title": "印地语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "天城文与发音、问候、语法与语体（tū、tum、āp），然后是词汇、对话与印度文化。"
     },
     "histoire-de-l-antiquite-au-xxe-siecle": {
       "title": "历史",
@@ -2371,174 +2402,218 @@
     },
     "histoire-du-monde-empires-et-nations": {
       "title": "世界史",
-      "sub": "帝国与民族"
+      "sub": "帝国与民族",
+      "desc": "什么是历史、什么是帝国，然后是蒙古帝国与俄罗斯、中国、日本和印度、大西洋奴隶贸易与美国、库尔德人与叙利亚、吉布提、巴布亚新几内亚和德涅斯特河沿岸。"
     },
     "indonesien-de-l-alphabet-a-la-culture": {
       "title": "印尼语",
-      "sub": "从字母到文化"
+      "sub": "从字母到文化",
+      "desc": "阅读、问候、造出第一批句子，然后是日常词汇、词缀、语体与印度尼西亚文化。"
     },
     "informatique-de-la-machine-au-systeme": {
       "title": "计算机科学",
-      "sub": "从机器到系统"
+      "sub": "从机器到系统",
+      "desc": "从二进制到处理器和汇编，然后是操作系统（进程、内存、文件）、Linux、Windows 和 Shell。"
     },
     "java-du-langage-a-spring-boot": {
       "title": "Java",
-      "sub": "从语言到 Spring Boot"
+      "sub": "从语言到 Spring Boot",
+      "desc": "语言及其基础，然后是泛型和 lambda，最后是 JDBC 和 Spring Boot。"
     },
     "kabyle-des-premiers-mots-a-la-culture": {
       "title": "卡拜尔语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "卡拜尔语的字母与发音、问候与实用句子、语法与语体，然后是卡拜尔人的起源与身份认同。"
     },
     "lfcs-administrer-un-serveur-linux": {
       "title": "LFCS",
-      "sub": "管理 Linux 服务器"
+      "sub": "管理 Linux 服务器",
+      "desc": "基本命令、系统运维（进程、服务、内核、软件包）、存储（LVM、RAID、加密）、用户与安全，然后是网络及其服务。"
     },
     "linguistique-des-sons-au-sens": {
       "title": "语言学",
-      "sub": "从语音到语义"
+      "sub": "从语音到语义",
+      "desc": "从语音到文字、形态学与句法，然后是语义、语言的历史与语系、心理语言学与社会语言学。"
     },
     "litterature-les-grandes-periodes": {
       "title": "文学",
-      "sub": "重要时期"
+      "sub": "重要时期",
+      "desc": "文学的重要时期，从古代到中世纪和启蒙时代，然后是浪漫主义、现实主义以及 20 和 21 世纪的写作。"
     },
     "machine-learning-des-bases-aux-llm": {
       "title": "机器学习",
-      "sub": "从基础到大语言模型"
+      "sub": "从基础到大语言模型",
+      "desc": "机器学习基础，从监督学习到 Transformer、大语言模型及其安全。"
     },
     "malais-des-premiers-mots-a-la-culture": {
       "title": "马来语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "马来语发音、问候、词汇与对话，然后是语法、语体（anda、awak、kamu）与马来西亚文化。"
     },
     "malware-development-des-fondations-windows-a-l-evasion": {
       "title": "恶意软件开发",
-      "sub": "从 Windows 基础到规避"
+      "sub": "从 Windows 基础到规避",
+      "desc": "从 Windows 基础（架构、PE、API）到载荷、注入与绕过防护。"
     },
     "mandarin-des-premiers-mots-a-la-culture": {
       "title": "普通话",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "拼音与声调、问候、语法与汉字，然后是量词、词汇、对话与中国文化。"
     },
     "mathematiques-en-prepa-de-sup-a-spe": {
       "title": "预科数学",
-      "sub": "从一年级到二年级"
+      "sub": "从一年级到二年级",
+      "desc": "逻辑与集合、一年级的分析与线性代数，然后是矩阵约化、级数、拓扑与二年级的概率。"
     },
     "medecine-du-corps-humain-a-la-recherche": {
       "title": "医学",
-      "sub": "从人体到研究"
+      "sub": "从人体到研究",
+      "desc": "解剖与生理、检查与诊断、遗传学、免疫学与药理学，然后是医学研究与医学面临的问题。"
     },
     "musique-de-la-theorie-aux-grandes-periodes": {
       "title": "音乐",
-      "sub": "从乐理到重要时期"
+      "sub": "从乐理到重要时期",
+      "desc": "乐理、声学、乐器与配器，然后是从古代到当代的音乐史。"
     },
     "mythologies-du-monde": {
-      "title": "世界神话"
+      "title": "世界神话",
+      "desc": "神话是什么、有什么用，然后是希腊、罗马、埃及、北欧、印度及其他传统的神话。"
     },
     "osint-de-la-methode-au-rapport": {
       "title": "OSINT",
-      "sub": "从方法到报告"
+      "sub": "从方法到报告",
+      "desc": "情报循环、来源与工具、技术与用例，然后是防护与报告。"
     },
     "ouighour-des-premiers-mots-a-la-culture": {
       "title": "维吾尔语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "字母与元音和谐、问候与语体，然后是黏着、格、动词与句法、词汇与维吾尔文化。"
     },
     "pentest-de-la-methodologie-a-l-execution": {
       "title": "渗透测试",
-      "sub": "从方法论到实施"
+      "sub": "从方法论到实施",
+      "desc": "范围界定与 ROE、侦察、初始访问、持久化、横向移动、数据外泄与规避。"
     },
     "philosophie-contemporaine-de-bergson-a-habermas": {
       "title": "当代哲学",
-      "sub": "从柏格森到哈贝马斯"
+      "sub": "从柏格森到哈贝马斯",
+      "desc": "柏格森与胡塞尔、海德格尔的现象学，存在主义（萨特、波伏娃、加缪），从罗素到波普尔的分析哲学，然后是阿伦特、西蒙娜·薇依、福柯、德里达、罗尔斯与哈贝马斯。"
     },
     "philosophie-courants-et-ecoles": {
       "title": "哲学",
-      "sub": "思潮与学派"
+      "sub": "思潮与学派",
+      "desc": "按彼此回应的顺序介绍主要思想流派：斯多葛主义、中世纪哲学、理性主义与经验主义、德国唯心主义、马克思主义、功利主义与普遍主义伦理学、现象学、存在主义、分析哲学、结构主义与后现代主义。"
     },
     "philosophie-de-l-antiquite-aux-modernes": {
       "title": "哲学",
-      "sub": "从古代到近代"
+      "sub": "从古代到近代",
+      "desc": "从前苏格拉底哲学家到苏格拉底、柏拉图和亚里士多德，古代智慧（犬儒派、斯多葛派），中世纪哲学，从马基雅维利到卢梭的政治思想，理性主义者与经验主义者，康德，以及 19 世纪的思想。"
     },
     "philosophie-en-culture-generale": {
-      "title": "通识哲学"
+      "title": "通识哲学",
+      "desc": "西方哲学年表、五大问题（知识、真理、自由、幸福、正义）、必须了解的流派、哲学与艺术、科学、政治和技术的关系，以及亚洲的智慧（佛陀、孔子、老子）。"
     },
     "philosophie-les-grandes-branches": {
       "title": "哲学",
-      "sub": "主要分支"
+      "sub": "主要分支",
+      "desc": "哲学各分支的概览，然后逐一详述：逻辑学、认识论、形而上学、心灵哲学、语言哲学、宗教哲学、政治哲学与美学。"
     },
     "physique-du-lycee-a-la-prepa": {
       "title": "物理",
-      "sub": "从高中到预科"
+      "sub": "从高中到预科",
+      "desc": "高中阶段的牛顿力学、电学与波，然后是大学阶段的电磁学、热力学、光学、相对论与量子物理。"
     },
     "pnpt-du-reseau-au-rapport-de-pentest": {
       "title": "PNPT",
-      "sub": "从网络基础到渗透测试报告"
+      "sub": "从网络基础到渗透测试报告",
+      "desc": "网络、Linux 和 Windows 基础，侦察、利用与提权，Active Directory，然后是外部渗透测试、报告与向客户汇报。"
     },
     "probabilites-et-statistiques-au-lycee": {
-      "title": "高中概率与统计"
+      "title": "高中概率与统计",
+      "desc": "描述统计、计数与概率、用于模拟的算法，然后是组合数学、图论、数论与推断统计。"
     },
     "psychologie-biais-emotions-et-personnalite": {
       "title": "心理学",
-      "sub": "偏差、情绪与人格"
+      "sub": "偏差、情绪与人格",
+      "desc": "心理学研究什么，认知偏差（框架效应、确认偏差、光环效应、自利偏差），情绪与欲望，然后是人格，从荣格到九型人格。"
     },
     "religions-du-monde": {
-      "title": "世界宗教"
+      "title": "世界宗教",
+      "desc": "世界宗教及其历史概览：印度教、佛教、犹太教、基督教、伊斯兰教及其分支，然后是亚洲与非洲的传统。"
     },
     "reseau-des-modeles-osi-aux-attaques": {
       "title": "网络",
-      "sub": "从 OSI 模型到攻击"
+      "sub": "从 OSI 模型到攻击",
+      "desc": "OSI 与 TCP/IP 模型、寻址与协议，然后是网络攻击及其检测。"
     },
     "roumain-des-premiers-mots-a-la-culture": {
       "title": "罗马尼亚语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "罗马尼亚语发音、问候、语法基础与敬称（tu / dumneavoastră），然后是词汇与罗马尼亚文化。"
     },
     "sambas-des-premiers-mots-a-la-culture": {
       "title": "三发马来语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "三发马来语的来源、基本句子与语体、核心词汇、代词、直到谚语的十七个主题词表，以及词典。"
     },
     "savoir-demontrer-en-mathematiques": {
-      "title": "学会数学证明"
+      "title": "学会数学证明",
+      "desc": "证明的方法、如何说明一个命题为真、必须掌握的经典证明以及反复出现的错误。"
     },
     "securite-des-plateformes-ot-embarque-et-mobile": {
       "title": "平台安全",
-      "sub": "OT、嵌入式与移动"
+      "sub": "OT、嵌入式与移动",
+      "desc": "从物理访问到固件，然后是工业系统、嵌入式、汽车、医疗与航天。"
     },
     "securite-web-des-vecteurs-d-attaque-aux-failles-avancees": {
       "title": "Web 安全",
-      "sub": "从攻击向量到高级漏洞"
+      "sub": "从攻击向量到高级漏洞",
+      "desc": "Web 攻击向量、注入与认证漏洞，然后是高级利用。"
     },
     "securite-wifi-de-la-reconnaissance-au-wpa3": {
       "title": "WiFi 安全",
-      "sub": "从侦察到 WPA3"
+      "sub": "从侦察到 WPA3",
+      "desc": "802.11 基础、侦察与嗅探、WPA2/WPS/WPA3 与邪恶双胞胎攻击，然后是检测与防御。"
     },
     "soc-des-logs-a-la-detection": {
       "title": "SOC",
-      "sub": "从日志到检测"
+      "sub": "从日志到检测",
+      "desc": "SOC 术语、日志与 SIEM，然后是检测、威胁狩猎与威胁情报。"
     },
     "sociologie-des-fondateurs-aux-grandes-thematiques": {
       "title": "社会学",
-      "sub": "从奠基者到重要主题"
+      "sub": "从奠基者到重要主题",
+      "desc": "奠基者（涂尔干、马克思、韦伯）及其概念、研究方法与互动论、布迪厄，然后是越轨、社会阶级与社会流动。"
     },
     "sport-de-la-physiologie-a-la-musculation": {
       "title": "运动",
-      "sub": "从生理学到力量训练"
+      "sub": "从生理学到力量训练",
+      "desc": "运动生理学与训练原则，然后是按肌群划分的力量训练、运动营养与恢复。"
     },
     "tamoul-des-premiers-mots-a-la-culture": {
       "title": "泰米尔语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "泰米尔字母、问候、语法与双层语言现象，然后是词汇、日常对话与泰米尔文化。"
     },
     "theatre-de-l-histoire-a-la-scene": {
       "title": "戏剧",
-      "sub": "从历史到舞台"
+      "sub": "从历史到舞台",
+      "desc": "戏剧史、戏剧体裁与演出，然后是表演、导演、重要理论家与当代戏剧。"
     },
     "tok-pisin-des-premiers-mots-a-la-culture": {
       "title": "托克皮辛语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "托克皮辛语发音、问候、句子与语体、这门语言本身，然后是词汇与巴布亚新几内亚文化。"
     },
     "turc-des-premiers-mots-a-la-culture": {
       "title": "土耳其语",
-      "sub": "从入门词汇到文化"
+      "sub": "从入门词汇到文化",
+      "desc": "土耳其语的字母与发音、问候、语法基础与称呼（sen / siz），然后是词汇与文化。"
     },
     "web-http-api-et-front-end": {
       "title": "Web",
-      "sub": "HTTP、API 与前端"
+      "sub": "HTTP、API 与前端",
+      "desc": "从 HTTP 到 REST API，然后是 Node.js/Express 和 React，以及端到端的 TLS 证书。"
     }
   },
   "parler": {
@@ -2699,7 +2774,17 @@
     "heroKicker": "口语 · 大声对话的伙伴",
     "exprOfDay": "每日一句",
     "thisWeek": "你的对话，近 7 天",
-    "thisWeekN": "{n} 个场景"
+    "thisWeekN": "{n} 个场景",
+    "soonLang": {
+      "roumain": "罗马尼亚语",
+      "malais": "马来语",
+      "azeri": "阿塞拜疆语",
+      "tamoul": "泰米尔语",
+      "kabyle": "卡拜尔语",
+      "ouighour": "维吾尔语",
+      "hakka": "客家话",
+      "tokpisin": "托克皮辛语"
+    }
   },
   "desk": {
     "nextStep": "下一步 · 还剩 {m} 分钟",
@@ -2965,5 +3050,237 @@
     "show": "显示这条路径",
     "all": "全部路径",
     "toRead": "待读"
+  },
+  "levelName": {
+    "activedirectory": "Active Directory",
+    "activedirectoryetidentityetauth": "Active Directory、身份与认证",
+    "activedirectoryetoffensive": "Active Directory 与攻击",
+    "algebreetfonctionsanalyse": "代数、函数与分析",
+    "algorithmique": "算法",
+    "anatomie": "解剖学",
+    "anthropologuesetbranches": "人类学家与分支",
+    "anthropologuesetterrains": "人类学家与田野",
+    "apprentissageetllm": "学习与大语言模型",
+    "approfondissementsetprepasup": "拓展与预科一年级",
+    "arabestandardetphonologie": "标准阿拉伯语与音系",
+    "architecturelogicielle": "软件架构",
+    "aristote384322avjc": "亚里士多德（前384—前322）",
+    "artistesetmouvements": "艺术家与流派",
+    "attaqueswpa2enterprise": "WPA2-Enterprise 攻击",
+    "autourdesoi": "身边的世界",
+    "autresetegyptienne": "埃及及其他",
+    "aws": "AWS",
+    "baruchspinoza16321677": "巴鲁赫·斯宾诺莎（1632—1677）",
+    "basesdedonnees": "数据库",
+    "benoitcoquardetconcepts": "伯努瓦·科卡尔与概念",
+    "biaisetpsychologues": "偏差与心理学家",
+    "bouddhismeetjainisme": "佛教与耆那教",
+    "branches": "分支",
+    "branchesetconcepts": "分支与概念",
+    "branchesetfamillesdelangues": "分支与语系",
+    "changementclimatiqueetbiodiversite": "气候变化与生物多样性",
+    "cloudetgrcetgouvernance": "云、GRC 与治理",
+    "commandesessentielles": "基本命令",
+    "concepts": "概念",
+    "conceptsetcourants": "概念与流派",
+    "conceptsetfondateurs": "概念与奠基者",
+    "conceptsetthematiques": "概念与主题",
+    "conceptslinguistiquesglossairedereference": "语言学概念：参考词汇表",
+    "confirme": "进阶",
+    "cryptographie": "密码学",
+    "cultureetcommunication": "文化与交流",
+    "cultureetgrammaire": "文化与语法",
+    "datascienceetmachinelearning": "数据科学与机器学习",
+    "debutant": "入门",
+    "dfiretdefensive": "DFIR 与防御",
+    "dockeretgitlab": "Docker 与 GitLab",
+    "domaines": "领域",
+    "domainesethuman": "领域与人为因素",
+    "ecosystemesetconservation": "生态系统与保护",
+    "emmanuelkant17241804": "伊曼努尔·康德（1724—1804）",
+    "existentialisme": "存在主义",
+    "exploitation": "漏洞利用",
+    "exploitationdusysteme": "系统运维",
+    "fileuploadvulnerabilities": "文件上传漏洞",
+    "fondamentaux": "基础",
+    "fondamentaux80211": "802.11 基础",
+    "formerdesmots": "构词",
+    "fortjoueur": "强手",
+    "france": "法国",
+    "franceetthematiques": "法国与主题",
+    "friseschronologiquesetlescourantsphilosophiques": "年表与哲学流派",
+    "fundamentals": "基础",
+    "fundamentalsetnetworking": "基础与网络",
+    "fundamentalsetnetworksecurity": "基础与网络安全",
+    "generics": "泛型",
+    "genresetmouvements": "体裁与流派",
+    "genresettheorie": "体裁与理论",
+    "geometrieetalgebre": "几何与代数",
+    "grammaireetcommunication": "语法与交流",
+    "grammaireetvocabulaire": "语法与词汇",
+    "grcetgouvernance": "GRC 与治理",
+    "hardwareetassembleur": "硬件与汇编",
+    "hardwareetsystemesdexploitation": "硬件与操作系统",
+    "histoiredelamonnaie": "货币史",
+    "histoireetantiquite": "历史与古代",
+    "httprequestsmuggling": "HTTP 请求走私",
+    "humanetdomaines": "人为因素与领域",
+    "ilesetcultures": "岛屿与文化",
+    "introductionalachimie": "化学入门",
+    "islametchristianisme": "伊斯兰教与基督教",
+    "islametthemes": "伊斯兰教与主题",
+    "japonetrussia": "日本与俄罗斯",
+    "java": "Java",
+    "jdbc": "JDBC",
+    "joueurdeclub": "俱乐部棋手",
+    "lequotidien": "日常生活",
+    "lesgrandesquestionsetphilosophieetautresdomaines": "大问题与其他领域中的哲学",
+    "lespresocratiquesvievesieclesavjc": "前苏格拉底哲学家（公元前6—前5世纪）",
+    "linguistesetbranches": "语言学家与分支",
+    "machinelearningetdeeplearning": "机器学习与深度学习",
+    "malwaredevelopment": "恶意软件开发",
+    "malwaredevelopmentetreverseengineering": "恶意软件开发与逆向工程",
+    "mathsup": "预科一年级数学",
+    "mathsupetmathspe": "预科一、二年级数学",
+    "mecanique": "力学",
+    "mecaniqueetelectricite": "力学与电学",
+    "methodesdedemonstration": "证明方法",
+    "methodologieetoffensive": "方法论与攻击",
+    "moyenageetdjibouti": "中世纪与吉布提",
+    "moyenageetempireottoman": "中世纪与奥斯曼帝国",
+    "musculationetnutrition": "力量训练与营养",
+    "networksecurityetrouting": "网络安全与路由",
+    "offensiveetmethodologie": "攻击与方法论",
+    "offensiveettools": "攻击与工具",
+    "osint": "OSINT",
+    "parlercommeonparle": "地道口语",
+    "pentestexterneetrapport": "外部渗透测试与报告",
+    "periodes": "时期",
+    "periodesetouvrages": "时期与作品",
+    "philosophes": "哲学家",
+    "philosophesetconcepts": "哲学家与概念",
+    "philosophieetautresdomainesetlesgrandesquestions": "其他领域中的哲学与大问题",
+    "philosophieetautresdomainesetphilosophes": "其他领域中的哲学与哲学家",
+    "phonologieetcommunication": "音系与交流",
+    "physiologieetentrainement": "生理与训练",
+    "platformsecurity": "平台安全",
+    "platformsecurityetreverseengineering": "平台安全与逆向工程",
+    "premierspas": "起步",
+    "prepaspeetapprofondissements": "预科二年级与拓展",
+    "prepaspeetmecanique": "预科二年级与力学",
+    "probabilitesstatsetapprofondissements": "概率统计与拓展",
+    "questionsettemps": "疑问与时态",
+    "reconnaissance": "侦察",
+    "reseauetservices": "网络与服务",
+    "reverseengineeringetmalwaredevelopment": "逆向工程与恶意软件开发",
+    "riskanalysisetapplicationsecurity": "风险分析与应用安全",
+    "routingetnetworksecurity": "路由与网络安全",
+    "socanalysis": "SOC 分析",
+    "socanalysisetdefensive": "SOC 分析与防御",
+    "socanalysisetmethodologie": "SOC 分析与方法论",
+    "socialengineeringetoffensive": "社会工程与攻击",
+    "stockage": "存储",
+    "stoicisme": "斯多葛主义",
+    "synthese": "总结",
+    "systemesdexploitationethardware": "操作系统与硬件",
+    "systemesjuridiquesetbranches": "法系与分支",
+    "thematiquesetconcepts": "主题与概念",
+    "themesetreligionstraditionnelles": "主题与传统宗教",
+    "theorieetperiodes": "理论与时期",
+    "theoriesetconcepts": "理论与概念",
+    "theoriesettypes": "理论与类型",
+    "utilisateursetsecurite": "用户与安全",
+    "vecteursdattaqueweb": "Web 攻击向量",
+    "vocabulaireetcommunication": "词汇与交流",
+    "vocabulaireetgrammaire": "词汇与语法",
+    "vocabulaireetressources": "词汇与资源",
+    "web": "Web",
+    "webcachepoisoningetcachedeception": "Web 缓存投毒与缓存欺骗",
+    "ww2ethistoire": "二战与历史",
+    "xxesiecleetww2": "20世纪与二战"
+  },
+  "painting": {
+    "eragny": {
+      "title": "埃拉尼的菜园",
+      "credit": "Camille Pissarro，埃拉尼的菜园，1897"
+    },
+    "sciences": {
+      "title": "行星钟",
+      "note": "巴黎，1790年",
+      "credit": "Louis Thouverez，行星钟，巴黎，1790年"
+    },
+    "informatique": {
+      "note": "Windows 可执行文件的头几个字节",
+      "credit": "MZ… This program cannot be run in DOS mode，Windows 可执行文件的头几个字节"
+    },
+    "pensee": {
+      "title": "伊壁鸠鲁头像",
+      "note": "大理石，公元2世纪罗马复制品",
+      "credit": "伊壁鸠鲁头像，大理石，公元2世纪罗马复制品"
+    },
+    "societe": {
+      "title": "堪察加民族分布图",
+      "credit": "Carl von Ditmar，堪察加民族分布图，1853"
+    },
+    "arts": {
+      "title": "勒佩勒蒂耶街歌剧院的舞蹈休息室",
+      "credit": "Edgar Degas，勒佩勒蒂耶街歌剧院的舞蹈休息室，1872"
+    },
+    "langues": {
+      "title": "原始楔形文字泥板",
+      "note": "美索不达米亚，约公元前3100—前2900年",
+      "credit": "原始楔形文字泥板，美索不达米亚，约公元前3100—前2900年"
+    },
+    "jeux": {
+      "note": "手工上色木版画，1483年",
+      "credit": "Das Schachzabelbuch，手工上色木版画，1483年"
+    },
+    "biologie": {
+      "title": "自然界的艺术形态",
+      "note": "图版8，1904年",
+      "credit": "Ernst Haeckel，自然界的艺术形态，图版8，1904年"
+    },
+    "economie": {
+      "title": "赫拉克勒斯头像银质四德拉克马",
+      "note": "公元前315—前308年",
+      "credit": "赫拉克勒斯头像银质四德拉克马，公元前315—前308年"
+    },
+    "medecine": {
+      "note": "巴塞尔，1555年",
+      "credit": "André Vésale，De humani corporis fabrica，巴塞尔，1555年"
+    },
+    "sport": {
+      "note": "奔马图版，1887年",
+      "credit": "Eadweard Muybridge，Animal Locomotion，奔马图版，1887年"
+    },
+    "langues-espagnol": {
+      "title": "格拉纳达阿尔罕布拉宫狮子院",
+      "note": "蛋白印相，1857—1858年",
+      "credit": "Charles Clifford，格拉纳达阿尔罕布拉宫狮子院，蛋白印相，1857—1858年"
+    },
+    "langues-indonesien": {
+      "title": "鸟纹纱笼",
+      "note": "棉布蜡染，爪哇北岸，19世纪中叶",
+      "credit": "鸟纹纱笼，棉布蜡染，爪哇北岸，19世纪中叶"
+    },
+    "langues-hakka": {
+      "title": "凤首壶",
+      "note": "瓷器，广东，11世纪",
+      "credit": "凤首壶，瓷器，广东，11世纪"
+    }
+  },
+  "months": {
+    "m1": "{y}年1月",
+    "m2": "{y}年2月",
+    "m3": "{y}年3月",
+    "m4": "{y}年4月",
+    "m5": "{y}年5月",
+    "m6": "{y}年6月",
+    "m7": "{y}年7月",
+    "m8": "{y}年8月",
+    "m9": "{y}年9月",
+    "m10": "{y}年10月",
+    "m11": "{y}年11月",
+    "m12": "{y}年12月"
   }
 }

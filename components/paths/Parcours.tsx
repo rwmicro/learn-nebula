@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import {
   t,
   disciplineKey,
-  folderKey,
   i18nProps,
   i18nAttrProps,
   LOCALES,
@@ -11,9 +10,11 @@ import {
   pathNameProps,
   pathNameRef,
   splitPathName,
+  keyedProps,
+  keyedText,
+  pathDescKey,
 } from "@/lib/i18n";
 import { ART, FAMILY_ART, artStrip, levelArt } from "@/lib/road-art";
-import { splitRank } from "@/lib/folder-label";
 import { OfflinePath } from "@/components/paths/OfflinePath";
 import type { ReadingPathView } from "@/lib/content";
 import {
@@ -32,13 +33,25 @@ import { fold } from "@/lib/palette-match";
 import { prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
 import { splitMinutes } from "@/lib/path-study";
 import { pathLevels } from "@/lib/path-levels";
-import { paintingFor, paintingForPath, type Painting } from "@/lib/paintings";
+import { levelName, namedLevels } from "@/lib/level-names";
+
+export { namedLevels };
+import { paintingFor, paintingForPath, paintingKey, paintingText, type Painting } from "@/lib/paintings";
 import { DeskFrise, DeskHead, DeskLevelHead, NoteTitle } from "@/components/paths/ParcoursDetailDesk";
 import { ParcoursLevelsDesk } from "@/components/paths/ParcoursLevelsDesk";
 import { srcSet } from "@/lib/responsive-image";
 
 /** A family's painting (lib/paintings.ts), as the backdrop of a heading:
  *  decorative, its credit carried by the caption next to it. */
+/** A picture's credit line, following the locale. */
+function ArtCredit({ art }: { art: Painting }) {
+  return (
+    <small className="parcours-art-credit" {...keyedProps(paintingKey(art, "credit"))}>
+      {paintingText(art, "credit")}
+    </small>
+  );
+}
+
 function Art({ art, eager = false }: { art: Painting; eager?: boolean }) {
   return (
     <picture className="parcours-art">
@@ -152,7 +165,7 @@ export function ParcoursIndex({
                   {t(countKey(list.length), { n: list.length })}
                 </span>
               </h2>
-              {family && <small className="parcours-art-credit">{paintingFor(family).credit}</small>}
+              {family && <ArtCredit art={paintingFor(family)} />}
             </div>
             {tiles.length > 0 && (
               <div className="parcours-tiles-block" data-path-block>
@@ -238,7 +251,9 @@ export function ParcoursIndex({
                             </span>
                           )}
                           {p.description && (
-                            <span className="parcours-card-desc">{p.description}</span>
+                            <span className="parcours-card-desc" {...keyedProps(pathDescKey(p.slug, p.description))}>
+                              {keyedText(pathDescKey(p.slug, p.description), p.description)}
+                            </span>
                           )}
                           {/* Paths that follow one another (`suite:`): the
                               link both ways, as one quiet line. */}
@@ -329,7 +344,7 @@ export function ParcoursPage({
   const levels = pathLevels(path.notes);
   const figure = (
     <figure className="parcours-figure">
-      <PathZoom label={t("parcours.graphAria")}>
+      <PathZoom labelKey="parcours.graphAria">
         <ArrowDefs />
         <PathSvg path={path} layout={layout} variant="wide" quiz={hasQuiz} />
         <PathSvg
@@ -397,10 +412,12 @@ export function ParcoursPage({
         <h1 className="themes-title" {...pathNameProps(path)}>
           {pathName(path)}
         </h1>
-        <small className="parcours-art-credit">{art.credit}</small>
+        <ArtCredit art={art} />
       </header>
       {path.description && (
-        <p className="themes-intro parcours-desc">{path.description}</p>
+        <p className="themes-intro parcours-desc" {...keyedProps(pathDescKey(path.slug, path.description))}>
+          {keyedText(pathDescKey(path.slug, path.description), path.description)}
+        </p>
       )}
       {/* From 1100px: the title beside the path's own picture
           (parcours-detail-desk.css hides the cover above). */}
@@ -617,60 +634,12 @@ export function ParcoursPage({
   );
 }
 
-/** A level's name for the phone road: the folders its notes sit in, by
- *  their French label ("History" → "Histoire", "02-Communication" →
- *  "Communication"), two at most; null when every level would get the same
- *  name (a path from one folder). */
-/** A path's levels with their names, as the road names them (the home's
- *  "À rafraîchir" lists them too). */
-export function namedLevels(
-  path: ReadingPathView,
-  titleOf: (slug: string) => string,
-): { n: number; name: string; from: number; to: number }[] {
-  const levels = pathLevels(path.notes);
-  const groups = levels.map((l) => path.notes.slice(l.from, l.to));
-  return levels.map((lv, i) => ({
-    n: lv.n,
-    name: levelName(groups[i], groups, path.discipline) ?? titleOf(groups[i][0].slug),
-    from: lv.from,
-    to: lv.to,
-  }));
-}
-
 /** What a level reaches: the `cible:` of its last note that has one. */
 function levelCible(notes: ReadingPathView["notes"]): string | undefined {
   for (let i = notes.length - 1; i >= 0; i--) if (notes[i].cible) return notes[i].cible;
   return undefined;
 }
 
-function levelName(
-  notes: ReadingPathView["notes"],
-  all: ReadingPathView["notes"][],
-  discipline?: string | null,
-): string | null {
-  // Named by hand: `niveau:` on one of its notes.
-  const named = notes.find((n) => n.niveau)?.niveau;
-  if (named) return named;
-  const label = (folder: string) => {
-    const key = folderKey(folder);
-    return key ? t(key) : splitRank(folder).label;
-  };
-  // The path's own discipline ("Histoire" on the history path) says nothing
-  // about a level: "Antiquité", not "Histoire et antiquité".
-  const skip = discipline ? label(discipline) : "";
-  const folders = (ns: ReadingPathView["notes"]) => [
-    ...new Set(ns.map((n) => label(n.folder)).filter((f) => f && f !== skip)),
-  ];
-  const names = all.map((ns) => folders(ns).slice(0, 2).join(" et ").toLowerCase());
-  if (all.length > 1 && new Set(names).size === 1) return null;
-  const mine = folders(notes);
-  const name = mine
-    .slice(0, 2)
-    // "et antiquité", but "et XXe siècle", "et WW2": an acronym keeps its case.
-    .map((f, i) => (i ? (/^\p{Lu}\p{Ll}/u.test(f) ? f.charAt(0).toLowerCase() + f.slice(1) : f) : f.charAt(0).toUpperCase() + f.slice(1)))
-    .join(" et ");
-  return name || null;
-}
 
 /** One note of the "Dans l'ordre" list: its disc (number, or a check once
  *  read — ParcoursStudy sets the state classes on the <li>), its link and

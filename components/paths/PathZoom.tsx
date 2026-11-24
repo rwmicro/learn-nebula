@@ -14,7 +14,7 @@ import { centreOn, clampView, fits, fitScale, openingScale, reveal, zoomAt, type
  * the keyboard on the focused viewport (+ − 0, arrows). Tabbing to a note pans
  * it into view. Opens at natural size on the note to read next.
  */
-export function PathZoom({ children, label }: { children: ReactNode; label: string }) {
+export function PathZoom({ children, labelKey }: { children: ReactNode; labelKey: string }) {
   const locale = useLocale();
   const tr = (k: string) => t(k, undefined, locale);
   const vpRef = useRef<HTMLDivElement>(null);
@@ -247,7 +247,7 @@ export function PathZoom({ children, label }: { children: ReactNode; label: stri
         ref={vpRef}
         className="pz-viewport parcours-graph"
         role="group"
-        aria-label={label}
+        aria-label={tr(labelKey)}
         aria-describedby={on ? "pz-hint" : undefined}
         tabIndex={on ? 0 : undefined}
         style={on && box ? { height: `${box.vh}px` } : undefined}

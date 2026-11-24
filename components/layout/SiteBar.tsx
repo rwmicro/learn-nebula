@@ -1,5 +1,5 @@
 import { MENU } from "@/lib/site";
-import { t, i18nAttrs } from "@/lib/i18n";
+import { t, i18nAttrs, i18nAttrProps } from "@/lib/i18n";
 import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
 import { SiteNavLinks } from "@/components/layout/SiteNavLinks";
 import { AccountChip, ReviewPill } from "@/components/account/AccountChip";
@@ -58,7 +58,7 @@ export function SiteBar() {
           <b className="site-bar-page" aria-hidden="true" />
         </a>
         <EditionDate iso={editionIso} className="site-bar-date" />
-        <nav className="site-bar-nav" aria-label={t("siteBar.navAria")}>
+        <nav className="site-bar-nav" aria-label={t("siteBar.navAria")} {...i18nAttrProps("aria-label", "siteBar.navAria")}>
           <SiteNavLinks links={links} />
         </nav>
         <div className="site-bar-tools">
@@ -74,7 +74,7 @@ export function SiteBar() {
               avatar once signed in (components/layout/MeButton.tsx). */}
           <MeButton label={t("siteBar.me")} />
           <details className="site-bar-menu">
-            <summary aria-label={t("nav.menu")}>
+            <summary aria-label={t("nav.menu")} {...i18nAttrProps("aria-label", "nav.menu")}>
               <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
                 <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
               </svg>
