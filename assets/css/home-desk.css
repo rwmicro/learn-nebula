@@ -297,6 +297,12 @@
   .hd-lic .cc { display: inline-block; padding: 2px 8px; border: 1px solid var(--rule-strong); border-radius: 999px; font-weight: 600; color: var(--ink-2); }
 }
 
+/* From 1024px the masthead's rules run exactly as wide as the column below
+   (its own 1rem padding on each side), rather than stopping short of it. */
+@media (min-width: 1024px) {
+  body:has(.hd) .home-masthead { max-width: calc(min(1180px, 100% - 64px) + 2rem); }
+}
+
 /* Dark: a darker card, the green buttons with dark ink, the frame warmer. */
 @media (min-width: 640px) {
   :root[data-theme="dark"] .hd { --hd-card: #141412; --hd-line: rgb(255 255 255 / .08); }
