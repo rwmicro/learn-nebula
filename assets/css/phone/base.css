@@ -15,9 +15,8 @@
   --gk-safe-b: env(safe-area-inset-bottom, 0px);
   --glass-bg: rgb(255 255 255 / 0.2);
   --glass-edge: rgb(255 255 255 / 0.75);
-  /* The glass's own light (inside the edge) and its drop shadow, apart: a
-     refracting glass (lib/liquid-glass.ts) keeps its drop shadow on another
-     element. */
+  /* The glass's own light (inside the edge) and its drop shadow, apart: the
+     tab bar keeps its drop shadows on other elements. */
   --glass-inset:
     inset 0 1.5px 0 rgb(255 255 255 / 0.9), inset 0 -1px 1px rgb(255 255 255 / 0.35),
     inset 0 0 12px rgb(255 255 255 / 0.12);
@@ -51,6 +50,9 @@
   --bar-bg: color-mix(in srgb, var(--paper) 80%, transparent);
 }
 :root[data-theme="dark"] {
+  /* The tint of the drawn glass (lib/glass): a warm smoke a little above the
+     paper, not the kit's black. Light pages keep its white. */
+  --glass-tint: rgb(48 46 43);
   --glass-bg: rgb(30 29 27 / 0.28);
   --glass-edge: rgb(255 255 255 / 0.16);
   --glass-inset:
@@ -59,7 +61,6 @@
   --glass-drop: 0 10px 30px rgb(0 0 0 / 0.45);
   --glass-shadow: var(--glass-inset), var(--glass-drop);
   --glass-rim-o: 0.4;
-  --glass-spec-o: 0.55;
   --glass-sheen: linear-gradient(
     135deg,
     rgb(255 255 255 / 0.18),
@@ -71,6 +72,7 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) {
+    --glass-tint: rgb(48 46 43);
     --glass-bg: rgb(30 29 27 / 0.28);
     --glass-edge: rgb(255 255 255 / 0.16);
     --glass-inset:
@@ -79,7 +81,6 @@
     --glass-drop: 0 10px 30px rgb(0 0 0 / 0.45);
     --glass-shadow: var(--glass-inset), var(--glass-drop);
     --glass-rim-o: 0.4;
-  --glass-spec-o: 0.55;
     --glass-sheen: linear-gradient(
       135deg,
       rgb(255 255 255 / 0.18),
@@ -132,16 +133,14 @@
     linear-gradient(#000 0 0);
   pointer-events: none;
 }
-/* The light the rim catches, drawn for the element's shape and size
-   (lib/liquid-glass.ts specularMap): replaces the gradient ring where it is
-   attached. Plain images (one per light direction, swapped as the light
-   follows the tilt or the mouse), so it costs Safari no filter. */
-.glass.has-spec::after {
-  padding: 0;
-  background: var(--glass-spec) 0 0 / 100% 100% no-repeat;
-  opacity: var(--glass-spec-o, 1);
-  -webkit-mask: none;
-  mask: none;
+/* Drawn by lib/glass (the liquid-glass kit's WebGL2 shader: the page behind
+   bent at the rim, frost, tint, rim line and drop shadow, all on its canvas):
+   from its first frame the CSS glass steps aside. Its fill, border, shadow
+   and backdrop filter go by the kit's own rule (GLASS_CSS); the sheen and
+   the rim ring here. */
+.glass[data-glass-ready]::before,
+.glass[data-glass-ready]::after {
+  display: none;
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass {
@@ -150,8 +149,8 @@
 }
 /* Less transparency, or more contrast, asked for: every glass surface turns
    to plain paper (the tokens, so the bars that only borrow them follow),
-   and with more contrast it gets a real edge and loses its sheen. The lens
-   (lib/liquid-glass.ts) isn't attached in either case. */
+   and with more contrast it gets a real edge and loses its sheen. The drawn
+   glass (lib/glass) isn't attached in either case. */
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   :root:root {
     --glass-bg: var(--paper-raised);

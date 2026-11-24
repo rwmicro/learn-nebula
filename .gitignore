@@ -31,6 +31,7 @@
 /public/js/local-llm.worker.js
 /public/js/natural-voice.bundle.js
 /public/js/read-aloud.bundle.js
+/public/js/liquid-glass.bundle.js
 /public/js/natural-voice.worker.js
 /public/ort/
 /public/piper/

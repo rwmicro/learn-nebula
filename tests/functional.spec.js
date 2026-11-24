@@ -295,7 +295,8 @@ test.describe("Widgets", () => {
     // natural-voice.bundle.js and natural-voice.worker.js; ≈ 98 KB once
     // the switch said when the voice failed to load; ≈ 100 KB with the
     // glass's specular rim and Snell lens, lib/liquid-glass.ts; ≈ 101.5 KB
-    // once that rim's light followed the tilt and the mouse; ≈ 105.5 KB
+    // once that rim's light followed the tilt and the mouse (both gone since:
+    // the glass is drawn by lib/glass, its own liquid-glass.bundle.js); ≈ 105.5 KB
     // with the dock's gliding bubble and the highlighter's three colours
     // and felt-tip stroke; ≈ 102.5 KB once "Écouter" kept only its loader
     // here, audio.js, the reader itself being fetched on demand as

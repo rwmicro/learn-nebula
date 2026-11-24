@@ -45,7 +45,6 @@
     --glass-filter: blur(4px) saturate(1.15) brightness(1.15);
     --glass-edge: rgb(255 255 255 / 0.3);
     --glass-rim-o: 0.75;
-    --glass-spec-o: 0.8;
     --glass-on: rgb(255 255 255 / 0.13);
   }
   @media (prefers-color-scheme: dark) {
@@ -54,7 +53,6 @@
       --glass-filter: blur(4px) saturate(1.15) brightness(1.15);
       --glass-edge: rgb(255 255 255 / 0.3);
       --glass-rim-o: 0.75;
-      --glass-spec-o: 0.8;
       --glass-on: rgb(255 255 255 / 0.13);
     }
   }
@@ -261,8 +259,9 @@
     outline-offset: 2px;
   }
 
-  /* Drop shadows on their own elements (see lib/liquid-glass.ts), under the
-     glass they follow; the glass keeps only its inner light. */
+  /* Drop shadows on their own elements, under the glass they follow; the
+     glass keeps only its inner light. Once lib/glass draws a piece, its
+     canvas casts the shadow and the element's own goes. */
   .tabbar .glass {
     box-shadow: var(--glass-inset);
   }
@@ -282,11 +281,10 @@
     right: 0;
     width: 3.85rem;
   }
-  /* While a finger slides, the pill grows past the bar: Chromium would shift
-     the bending by that much, so the bar is plain glass for the moment. */
-  .tabbar-bar.has-lens.is-sliding {
-    -webkit-backdrop-filter: var(--glass-filter) !important;
-    backdrop-filter: var(--glass-filter) !important;
+  .tabbar:has(.tabbar-bar[data-glass-ready]) .tabbar-shadow-bar,
+  .tabbar:has(.tabbar-search[data-glass-ready]) .tabbar-shadow-search,
+  .tabbar:has(.tabbar-mini[data-glass-ready]) .tabbar-shadow-mini {
+    display: none;
   }
   /* The sliding lens magnifies the tabs under it: a copy of the row, held
      in place under the moving pill and scaled with it. */
