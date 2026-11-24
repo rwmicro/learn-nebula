@@ -28,5 +28,5 @@ export function srcSet(src: string, ext: "avif" | "webp"): string {
 
 /** The welcome painting's `sizes`, the same in its three places on the home
  *  (phone card, tablet intro, desktop band) so the browser downloads one file
- *  for all three: full width on a phone, the 1070 px column elsewhere. */
-export const ERAGNY_SIZES = "(max-width: 639px) 100vw, min(1070px, 92vw)";
+ *  for all three: full width on a phone, the 1180 px column elsewhere. */
+export const ERAGNY_SIZES = "(max-width: 639px) 100vw, min(1180px, 92vw)";

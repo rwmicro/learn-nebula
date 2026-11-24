@@ -32,7 +32,7 @@
     --hd-line: color-mix(in srgb, var(--ink) 9%, transparent);
     --serif: var(--gk-serif), "Newsreader", Georgia, serif;
     display: block;
-    width: min(1070px, 100% - 64px);
+    width: min(1180px, 100% - 64px);
     margin: 0 auto;
     color: var(--ink);
     font-family: var(--font-text);
@@ -90,6 +90,10 @@
   .hd2-prog i::before { content: ""; display: block; height: 100%; width: var(--w); background: #f6f0e3; }
   .hd2-cap .hd-go { background: #f6f0e3; color: #1d1a15 !important; }
   .hd2-art figcaption { margin-top: 8px; text-align: center; font: 400 14px var(--font-text); color: var(--hd-muted-warm); }
+
+  /* The path in progress sits on the week bar otherwise: the same gap as
+     between the cards of a row. */
+  .hd > .pnc { margin-bottom: 28px; }
 
   /* The week */
   .hd2-week { display: flex; align-items: center; gap: 26px; padding: 16px 24px; margin-bottom: 40px; }
