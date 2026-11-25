@@ -485,8 +485,8 @@ import { liquidGlassLater as liquidGlass } from "../../lib/glass/load";
   const glass = () => {
     if (phone.matches && !unglass.length) {
       unglass = [
-        ...$$(".na-bar, .na-pill", root).map((el) => liquidGlass(el, "bar")),
-        ...$$(".na-gbtn", root).map((el) => liquidGlass(el, "button")),
+        ...$$(".na-bar, .na-pill", root).map((el) => liquidGlass(el, "reading")),
+        ...$$(".na-gbtn", root).map((el) => liquidGlass(el, "readingButton")),
         ...$$(".na-next", root).map((el) => liquidGlass(el, "tinted")),
       ];
     } else if (!phone.matches && unglass.length) {

@@ -213,7 +213,7 @@ import { scrollProgress } from "../../lib/reading-progress";
   const wide = matchMedia("(min-width: 640px)");
   let detach = null;
   const lens = () => {
-    if (wide.matches && !detach) detach = liquidGlass(bar, "bar");
+    if (wide.matches && !detach) detach = liquidGlass(bar, "reading");
     else if (!wide.matches && detach) {
       detach();
       detach = null;

@@ -19,13 +19,19 @@ import { attachGlass, type GlassOptions } from "./layer";
 
 /** The looks, by what the glass is. */
 export const GLASS_LOOKS = {
-  /** A bar or a pill holding controls or a title (tab bar, mini player,
-   *  reading bar, phone note toolbar and section pill, the title pill at the
-   *  top): clear glass that holds still. */
+  /** A bar holding controls (tab bar, mini player): clear glass that holds
+   *  still. */
   bar: { tint: 0.2, swell: false, pull: false },
-  /** A round button on its own (search, back): the kit's
-   *  GlassButton, clear; it swells when pressed. */
+  /** A round button on its own (search): the kit's GlassButton, clear; it
+   *  swells when pressed. */
   button: { tint: 0.2, pull: false },
+  /** A bar or a pill over running text (the note's reading bar, the phone
+   *  note toolbar and section pill, the title pill at the top): clear, the
+   *  lines behind mixed with its labels whatever the tint, so it frosts
+   *  them (6 px) and covers 40%. */
+  reading: { tint: 0.4, blur: 6, swell: false, pull: false },
+  /** A round button over running text (the phone note's own buttons). */
+  readingButton: { tint: 0.4, blur: 6, pull: false },
   /** A button with a fill of its own (the green "next note"): GlassButton,
    *  tinted (the glass takes the host's background colour). */
   tinted: { material: "tinted", pull: false },
