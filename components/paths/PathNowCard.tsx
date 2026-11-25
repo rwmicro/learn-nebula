@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
-import { t, pathName, splitPathName } from "@/lib/i18n";
+import { t, pathDescIn, pathName, splitPathName } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import type { HomeData } from "@/lib/home-data";
 import type { ReadingStore } from "@/lib/reading-progress";
-import { paintingForPath, type Painting } from "@/lib/paintings";
+import { paintingByline, paintingForPath, paintingText, type Painting } from "@/lib/paintings";
 import { srcSet } from "@/lib/responsive-image";
 import { splitMinutes } from "@/lib/path-study";
 
@@ -57,6 +57,7 @@ const Check = () => (
 );
 
 function Pic({ art, sizes, eager }: { art: Painting; sizes: string; eager?: boolean }) {
+  const locale = useLocale();
   return (
     <picture>
       <source type="image/avif" srcSet={srcSet(art.src, "avif")} sizes={sizes} />
@@ -65,7 +66,7 @@ function Pic({ art, sizes, eager }: { art: Painting; sizes: string; eager?: bool
         srcSet={srcSet(art.src, "webp")}
         sizes={sizes}
         alt=""
-        title={art.credit}
+        title={paintingText(art, "credit", locale)}
         decoding="async"
         style={{ objectPosition: `${art.focus} 50%` }}
         {...(eager ? { fetchPriority: "high" as const } : { loading: "lazy" as const })}
@@ -181,7 +182,7 @@ export function PathNowCard({
               <a href={`/posts/${slug}/#reprendre`}>{stepTitle(title, p)}</a>
             </h2>
             {pathName(p, "sub", locale) && <p className="pnc-sub">{pathName(p, "sub", locale)}</p>}
-            {p.d && <p className="pnc-desc">{p.d}</p>}
+            {p.d && <p className="pnc-desc">{pathDescIn(p.slug, p.d, locale)}</p>}
             <div className="pnc-cta">
               <a className="pnc-btn main" href={`/posts/${slug}/#reprendre`}>
                 <Play />
@@ -203,8 +204,8 @@ export function PathNowCard({
               <Pic key={art.src} art={art} sizes="300px" eager={eager} />
             </span>
             <figcaption>
-              <b>{art.title}</b>
-              {[art.by, art.note].filter(Boolean).join(", ")}
+              <b>{paintingText(art, "title", locale)}</b>
+              {paintingByline(art, locale)}
             </figcaption>
           </figure>
         </div>

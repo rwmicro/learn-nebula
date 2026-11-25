@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { t, disciplineKey, pathName } from "@/lib/i18n";
+import { t, disciplineKey, levelNameIn, pathName } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { useHomeData, useReadingStore } from "@/components/home/HomeContent";
 import { useReviewDue } from "@/components/account/AccountChip";
@@ -10,7 +10,7 @@ import { calendarDays, currentRun, loadActivity, localDay } from "@/lib/personal
 import { loadStore, type ReadingStore } from "@/lib/reading-progress";
 import type { HomeData } from "@/lib/home-data";
 import type { PathFamily } from "@/lib/path-family";
-import { ERAGNY, paintingFor } from "@/lib/paintings";
+import { ERAGNY, paintingFor, paintingText } from "@/lib/paintings";
 import { daysAgo, loadAllNoteDecks, NOTE_PREFIX, retentionBySlug, type Retention } from "@/lib/note-quiz";
 import { dayKey, daysBetween } from "@/lib/srs";
 import { HomeChess, type HomeChessData } from "@/components/home/HomeChess";
@@ -340,7 +340,7 @@ export function HomeDashboard({
           <a className="dash-art" href={`/posts/${resume.slug}/#reprendre`} tabIndex={-1} aria-hidden="true">
             <picture className={art === ERAGNY ? undefined : "is-family"}>
               <source type="image/avif" srcSet={srcSet(art.src, "avif")} sizes="100vw" />
-              <img src={`${art.src}.webp`} srcSet={srcSet(art.src, "webp")} sizes="100vw" alt="" title={art.credit} decoding="async" />
+              <img src={`${art.src}.webp`} srcSet={srcSet(art.src, "webp")} sizes="100vw" alt="" title={paintingText(art, "credit", locale)} decoding="async" />
             </picture>
             <span className="dash-chip">
               <span className="dash-chip-dot">
@@ -535,7 +535,7 @@ export function HomeDashboard({
                     </svg>
                   </span>
                   <span className="dash-fade-text">
-                    <b>{lv.name}</b>
+                    <b>{levelNameIn(lv.name, locale)}</b>
                     <small>
                       {shortName(p)} · {tr("parcours.level", { n: lv.n }).toLowerCase()}
                       {last ? ` · ${daysAgo(daysBetween(last, todayKey), locale)}` : ""}

@@ -119,11 +119,11 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
                         {e.year < 0 && <small {...i18nProps("frise.bceShort")}>{t("frise.bceShort")}</small>}
                       </span>
                       <span className="frise-year">
-                        {formatYear(e.year)}
+                        <Year year={e.year} />
                         {e.yearEnd !== undefined && (
                           <>
                             –<wbr />
-                            {formatYear(e.yearEnd)}
+                            <Year year={e.yearEnd} />
                           </>
                         )}
                         {span > 0 && (
@@ -150,9 +150,13 @@ export function Frise({ entries, before }: { entries: TimelineEntry[]; before?: 
                               {" · "}
                             </>
                           )}
-                          {e.yearEnd !== undefined
-                            ? `${formatYear(e.year)} – ${formatYear(e.yearEnd)}`
-                            : (e.period ?? formatYear(e.year))}
+                          {e.yearEnd !== undefined ? (
+                            <>
+                              <Year year={e.year} /> – <Year year={e.yearEnd} />
+                            </>
+                          ) : (
+                            (e.period ?? <Year year={e.year} />)
+                          )}
                         </span>
                         {span > 0 && (
                           <span className="frise-bar" aria-hidden="true">
@@ -198,8 +202,11 @@ function roman(n: number): string {
   return out;
 }
 
-function formatYear(year: number): string {
-  return year < 0 ? t("frise.bce", { year: Math.abs(year) }) : String(year);
+/** A year, "300 av. J.-C." before year one, following the locale. */
+function Year({ year }: { year: number }) {
+  if (year >= 0) return <>{year}</>;
+  const vars = { year: Math.abs(year) };
+  return <span {...i18nProps("frise.bce", vars)}>{t("frise.bce", vars)}</span>;
 }
 
 /** "La Révolution française (1789-1799)" → "La Révolution française", and

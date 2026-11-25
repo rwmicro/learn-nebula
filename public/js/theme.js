@@ -60,8 +60,21 @@
     });
   }
 
+  // The browser chrome (theme-color, layout.tsx) only knows the OS scheme.
+  // A pinned choice paints both <meta>s with the page's own --paper, so
+  // "Noir" gets a black bar and "Papier" a warm one; "auto" restores them.
+  function syncChrome() {
+    const pinned = pref() !== "auto";
+    const paper = pinned ? getComputedStyle(root).getPropertyValue("--paper").trim() : "";
+    document.querySelectorAll('meta[name="theme-color"]').forEach(function (m) {
+      if (!m.hasAttribute("data-os-color")) m.setAttribute("data-os-color", m.getAttribute("content") || "");
+      m.setAttribute("content", paper || m.getAttribute("data-os-color"));
+    });
+  }
+
   function announce() {
     sync();
+    syncChrome();
     syncMenu();
     document.dispatchEvent(new CustomEvent("theme:change", { detail: { theme: pref() } }));
   }
@@ -226,4 +239,5 @@
   window.__theme = { set: set, pref: pref };
 
   sync();
+  syncChrome();
 })();
