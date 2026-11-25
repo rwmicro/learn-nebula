@@ -17,7 +17,7 @@ export function TopBarScroll() {
       if (phone.matches && !off.length) {
         const q = (sel: string) => document.querySelector<HTMLElement>(sel);
         off = [
-          liquidGlassLater(q("body:not(:has(.na-chrome)) .site-bar .site-bar-brand"), "reading"),
+          liquidGlassLater(q("body:not(:has(.na-chrome)) .site-bar .site-bar-brand"), "bar"),
         ];
       } else if (!phone.matches && off.length) {
         off.forEach((f) => f());
