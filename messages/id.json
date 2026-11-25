@@ -1142,7 +1142,8 @@
     "step": "Langkah {n} dari {total}"
   },
   "condensed": {
-    "left": "{min} menit lagi"
+    "left": "{min} menit lagi",
+    "chapters": "Bab"
   },
   "toTop": {
     "aria": "Kembali ke atas catatan"

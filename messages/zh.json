@@ -1142,7 +1142,8 @@
     "step": "第 {n} 步，共 {total} 步"
   },
   "condensed": {
-    "left": "还剩 {min} 分钟"
+    "left": "还剩 {min} 分钟",
+    "chapters": "章节"
   },
   "toTop": {
     "aria": "回到笔记顶部"

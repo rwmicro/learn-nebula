@@ -1142,7 +1142,8 @@
     "step": "Paso {n} de {total}"
   },
   "condensed": {
-    "left": "quedan {min} min"
+    "left": "quedan {min} min",
+    "chapters": "Capítulos"
   },
   "toTop": {
     "aria": "Volver arriba de la nota"

@@ -22,6 +22,7 @@ import {
   dropcapHtml,
   escapeHtml,
   noteHeaderHtml,
+  noteChapters,
   buildToc,
   siblingNavHtml,
   backlinksHtml,
@@ -301,6 +302,7 @@ export async function SinglePage({
           headerDate,
           disc ? { href: `/disciplines/${disc.slug}/`, depth: 1 } : null,
           family,
+          noteChapters(html),
         )
       : "") +
     (note ? buildToc(html, fm.tags, localGraph) : "") +

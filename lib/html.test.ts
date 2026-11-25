@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { escapeHtml, encodeSlug, growthHtml, localGraphHtml } from "./html";
+import { escapeHtml, encodeSlug, growthHtml, localGraphHtml, noteChapters, noteChaptersHtml } from "./html";
 
 describe("escapeHtml", () => {
   it("escapes the four HTML-significant characters", () => {
@@ -100,5 +100,36 @@ describe("localGraphHtml", () => {
     });
     expect(html).not.toContain("<img");
     expect(html).toContain("&lt;img");
+  });
+});
+
+describe("noteChapters", () => {
+  const html =
+    `<h2 id="vue" class="sec-n">Vue d’ensemble<a class="anchor" href="#vue">#</a></h2><p>…</p>` +
+    `<h3 id="detail">Détail</h3>` +
+    `<h2 class="sec-n" id="abr">Les religions <em>abrahamiques</em></h2>` +
+    `<h2>Sans id</h2>`;
+
+  it("lists the h2 that carry an id, without their anchor or tags", () => {
+    expect(noteChapters(html)).toEqual([
+      { id: "vue", text: "Vue d’ensemble" },
+      { id: "abr", text: "Les religions abrahamiques" },
+    ]);
+  });
+
+  it("leaves no tag behind when stripping one rebuilds another", () => {
+    const [, b] = noteChapters(`<h2 id="a">Un</h2><h2 id="b"><scr<i>ipt>x</h2>`);
+    expect(b.text).not.toContain("<");
+  });
+
+  it("gives nothing for a note with a single section", () => {
+    expect(noteChapters(`<h2 id="a">Un</h2><h3 id="b">Deux</h3>`)).toEqual([]);
+  });
+
+  it("renders one link per chapter, and no strip under two", () => {
+    const strip = noteChaptersHtml(noteChapters(html));
+    expect(strip.match(/<a href="#/g)).toHaveLength(2);
+    expect(strip).toContain(`data-chapter="abr"`);
+    expect(noteChaptersHtml([{ id: "a", text: "Un" }])).toBe("");
   });
 });
