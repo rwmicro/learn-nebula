@@ -384,14 +384,19 @@ image tag in `ci.yml` together with `@playwright/test`.
   put. Keep page-wide listeners off `beforeunload`/`unload` (bfcache): use
   `pagehide`.
 - **Liquid glass** (`lib/glass/`): the floating chrome (phone tab bar, its
-  search button and mini player, the note's reading bar, the phone note
+  search button and mini player, the title pill at the top on phones
+  (`TopBarScroll.tsx`), the note's reading bar, the phone note
   toolbar) is drawn by the kit of bilalgursen/liquid-glass (MIT,
   `lib/glass/LICENSE`): `engine.ts` (one WebGL2 context, the shader) and
   `dom-snapshot.ts` (paints the page behind into a texture) are copied
   verbatim, don't edit or "simplify" them; `layer.ts` is its
-  `glass-layer.tsx` without React (`attachGlass`), `site.ts` the looks, the
-  kit's own defaults untuned (`card` = GlassCard for the bars, `button` /
-  `tinted` = GlassButton). It ships as its own
+  `glass-layer.tsx` without React (`attachGlass`), `site.ts` the looks: the
+  kit's clear glass with a 20% tint, not its 60% (smoked black in dark)
+  (`bar` holds still, `button` swells, `tinted` for a filled button), and
+  frosted over running text (`reading`, `readingButton`: 6 px blur, 40%; note
+  bars, title pill), where clear glass at any tint left the lines readable
+  through the labels. Not GlassCard on the bars:
+  its 70% tint and 5 px frost read as flat paper on an iPhone. It ships as its own
   `/js/liquid-glass.bundle.js`, fetched by `lib/glass/load.ts`
   (`liquidGlassLater`) only with WebGL2 on a GPU (a software renderer:
   SwiftShader, llvmpipe… keeps the CSS glass, so CI and headless runs never
