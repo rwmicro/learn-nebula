@@ -112,7 +112,7 @@ const BANNERS = {
   "liquid-glass":
     "/* Liquid Glass UI, https://github.com/bilalgursen/liquid-glass — MIT License, Copyright (c) 2026 Bilal Abdullah Gürşen (lib/glass/LICENSE). */",
 };
-for (const name of ["palette", "quiz", "glossary", "note-end", "study-tools", "widgets-data", "widgets-sci", "widgets-lang", "pronounce", "diagram-zoom", "mermaid-render", "translate-device", "natural-voice", "read-aloud", "liquid-glass"]) {
+for (const name of ["palette", "quiz", "glossary", "note-end", "study-tools", "widgets-data", "widgets-sci", "widgets-lang", "widgets-cyber", "pronounce", "diagram-zoom", "mermaid-render", "translate-device", "natural-voice", "read-aloud", "liquid-glass"]) {
   await build({
     entryPoints: [join(JS_DIR, `${name}.js`)],
     outfile: join(JS_DIR, `${name}.bundle.js`),
