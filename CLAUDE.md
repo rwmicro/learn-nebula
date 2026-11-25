@@ -354,7 +354,10 @@ image tag in `ci.yml` together with `@playwright/test`.
   size of `lib/splash.ts`, light + dark) linked by `appleWebApp.startupImage`;
   Android composes its own from the manifest. `public/js/tulip-pull.js`
   grows a tulip ("Aube" print, `.gk-bloom` in `global.css`) above the page
-  while Safari rubber-bands it (negative `scrollY`); nothing elsewhere.
+  while Safari rubber-bands it (negative `scrollY`, or the root's top below
+  the screen's), in a band fixed to the top of the screen as tall as the gap:
+  iOS never paints what lies above the document. `?tulipe=debug` shows what
+  the browser reports during the gesture; nothing elsewhere.
 - **`/api/search`**: embedding-only nearest notes for the palette's "Proches
   par le sens" group (`server/routes/search.ts`, needs RAG).
 - **Parler** (`/parler/`, `components/play/LanguagePartner.tsx`, CSS

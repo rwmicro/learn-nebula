@@ -1,10 +1,14 @@
 // A tulip that grows above the page when it is pulled past the top.
 //
 // Only where the browser itself rubber-bands and reports it: Safari on iPhone,
-// iPad and Mac gives a negative scrollY while the page is pulled down, and
-// paints what lies above the document. The band sits there (absolute, just
-// above the page's top edge), built on the first pull; everywhere else the
-// script never draws anything and costs one passive scroll listener.
+// iPad and Mac moves the page down while it is pulled past the top (a
+// negative scrollY, or the root's top edge below the screen's). The band is
+// fixed to the top of the screen and exactly as tall as that gap: iOS paints
+// nothing that lies above the document, so a band placed there stays
+// invisible. Built on the first pull; everywhere else the script never draws
+// anything and costs two passive listeners.
+//
+// ?tulipe=debug shows what the browser reports during the gesture.
 //
 // The look is the "Aube" print of the linocut logo: warm paper with ink
 // streaks in light, the logo's night sky in dark (colours in global.css,
@@ -192,10 +196,12 @@
     document.body.appendChild(band);
   }
   function draw(pull) {
-    var px = Math.round(Math.min(pull, BAND));
-    if (px === last) return;
+    var px = Math.round(pull);
+    if (px === last || (px === 0 && !band)) return;
     last = px;
     if (!band) build();
+    band.style.height = px + "px";
+    band.style.visibility = px > 0 ? "visible" : "hidden";
     var p = Math.min(1, px / MAX);
     svg.style.height = Math.max(0, Math.min(px, MAX) * 0.92) + "px";
     plant.innerHTML = tulip(p);
@@ -210,22 +216,81 @@
     }
     if (p < 0.9) done = false;
   }
+  // How far the page is pulled down: a negative scrollY where the browser
+  // reports one, else the root's top edge sitting below the screen's top.
+  function pullNow() {
+    var y = -window.scrollY,
+      top = document.documentElement.getBoundingClientRect().top;
+    return Math.max(0, y, top);
+  }
+  var touching = false,
+    dbg = /[?&]tulipe=debug\b/.test(location.search) ? debugBox() : null,
+    touchY0 = 0,
+    touchDy = 0;
+  function debugBox() {
+    var el = document.createElement("pre");
+    el.style.cssText =
+      "position:fixed;left:8px;bottom:120px;z-index:99999;margin:0;padding:6px 8px;" +
+      "font:12px/1.3 ui-monospace,monospace;background:rgba(0,0,0,.75);color:#fff;" +
+      "border-radius:6px;pointer-events:none;white-space:pre";
+    document.body.appendChild(el);
+    return el;
+  }
+  function report() {
+    if (!dbg) return;
+    var vv = window.visualViewport;
+    dbg.textContent =
+      "scrollY " +
+      window.scrollY.toFixed(1) +
+      "\nroot top " +
+      document.documentElement.getBoundingClientRect().top.toFixed(1) +
+      "\nbody top " +
+      document.body.getBoundingClientRect().top.toFixed(1) +
+      "\nvv offsetTop " +
+      (vv ? vv.offsetTop.toFixed(1) : "-") +
+      "\ntouch dy " +
+      touchDy.toFixed(0) +
+      "\npull " +
+      pullNow().toFixed(1);
+  }
   // Scroll events thin out during the bounce on some versions: once a pull
   // starts, follow it frame by frame until the page is back in place.
   function loop() {
-    var y = window.scrollY;
-    draw(y < 0 ? -y : 0);
-    if (y < 0) requestAnimationFrame(loop);
+    var pull = pullNow();
+    draw(pull);
+    report();
+    if (pull > 0 || touching) requestAnimationFrame(loop);
     else looping = false;
   }
+  function kick() {
+    if (!looping && (pullNow() > 0 || (touching && window.scrollY <= 0))) {
+      looping = true;
+      requestAnimationFrame(loop);
+    }
+  }
+  window.addEventListener("scroll", kick, { passive: true });
   window.addEventListener(
-    "scroll",
-    function () {
-      if (window.scrollY < 0 && !looping) {
-        looping = true;
-        requestAnimationFrame(loop);
-      }
+    "touchstart",
+    function (e) {
+      touching = window.scrollY <= 0;
+      touchY0 = e.touches[0] ? e.touches[0].clientY : 0;
+      touchDy = 0;
+      kick();
     },
     { passive: true },
   );
+  window.addEventListener(
+    "touchmove",
+    function (e) {
+      if (e.touches[0]) touchDy = e.touches[0].clientY - touchY0;
+      kick();
+    },
+    { passive: true },
+  );
+  function release() {
+    touching = false;
+  }
+  window.addEventListener("touchend", release, { passive: true });
+  window.addEventListener("touchcancel", release, { passive: true });
+  if (dbg) report();
 })();
