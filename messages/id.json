@@ -2370,10 +2370,18 @@
       "sub": "dari uang hingga perilaku",
       "desc": "Sejarah uang, kapitalisme di hadapan batas-batas planet, lalu ekonomi perilaku dan teori permainan."
     },
+    "geologie-du-relief-a-l-histoire-de-la-vie": {
+      "title": "Geologi",
+      "sub": "dari bentang alam hingga sejarah kehidupan"
+    },
     "espagnol-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Spanyol",
       "sub": "dari kata pertama hingga budaya",
       "desc": "Melafalkan bahasa Spanyol, menyapa, tata bahasa dan ragam bahasa, lalu kosakata, dialog sehari-hari dan budaya berbahasa Spanyol."
+    },
+    "exposition-internet-inventorier-reperer-reduire": {
+      "title": "Paparan internet",
+      "sub": "inventarisasi, temukan, kurangi"
     },
     "geometrie-au-lycee": {
       "title": "Geometri SMA",

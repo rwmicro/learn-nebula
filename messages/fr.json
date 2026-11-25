@@ -2370,10 +2370,18 @@
       "sub": "de la monnaie aux comportements",
       "desc": "L'histoire de la monnaie, le capitalisme face aux limites de la planète, puis l'économie comportementale et la théorie des jeux."
     },
+    "geologie-du-relief-a-l-histoire-de-la-vie": {
+      "title": "Géologie",
+      "sub": "du relief à l'histoire de la vie"
+    },
     "espagnol-des-premiers-mots-a-la-culture": {
       "title": "Espagnol",
       "sub": "des premiers mots à la culture",
       "desc": "Prononcer l'espagnol, saluer, poser la grammaire et les registres, puis le vocabulaire, les dialogues du quotidien et la culture hispanophone."
+    },
+    "exposition-internet-inventorier-reperer-reduire": {
+      "title": "Exposition internet",
+      "sub": "inventorier, repérer, réduire"
     },
     "geometrie-au-lycee": {
       "title": "Géométrie au lycée",

@@ -2370,10 +2370,18 @@
       "sub": "from money to behaviour",
       "desc": "The history of money, capitalism and the planet's limits, then behavioural economics and game theory."
     },
+    "geologie-du-relief-a-l-histoire-de-la-vie": {
+      "title": "Geology",
+      "sub": "from landforms to the history of life"
+    },
     "espagnol-des-premiers-mots-a-la-culture": {
       "title": "Spanish",
       "sub": "from first words to culture",
       "desc": "Pronouncing Spanish, greetings, grammar and registers, then vocabulary, everyday dialogues and Spanish-speaking culture."
+    },
+    "exposition-internet-inventorier-reperer-reduire": {
+      "title": "Internet exposure",
+      "sub": "inventory, discover, reduce"
     },
     "geometrie-au-lycee": {
       "title": "High school geometry",

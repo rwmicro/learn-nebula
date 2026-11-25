@@ -2370,10 +2370,18 @@
       "sub": "del dinero a los comportamientos",
       "desc": "La historia del dinero, el capitalismo frente a los límites del planeta, luego la economía conductual y la teoría de juegos."
     },
+    "geologie-du-relief-a-l-histoire-de-la-vie": {
+      "title": "Geología",
+      "sub": "del relieve a la historia de la vida"
+    },
     "espagnol-des-premiers-mots-a-la-culture": {
       "title": "Español",
       "sub": "de las primeras palabras a la cultura",
       "desc": "Pronunciar el español, saludar, la gramática y los registros, luego el vocabulario, los diálogos cotidianos y la cultura hispanohablante."
+    },
+    "exposition-internet-inventorier-reperer-reduire": {
+      "title": "Exposición en internet",
+      "sub": "inventariar, detectar, reducir"
     },
     "geometrie-au-lycee": {
       "title": "Geometría en bachillerato",
