@@ -9,6 +9,7 @@ import {
 } from "@/lib/site";
 import { DEFAULT_LOCALE, t } from "@/lib/i18n";
 import { i18nAssetUrls } from "@/lib/i18n-assets";
+import { detectLocale, isAutomatedBrowser } from "@/lib/locale-detect";
 import { jsAsset } from "@/lib/js-assets";
 import { splashImages } from "@/lib/splash";
 import { getLanguageScopes } from "@/lib/content";
@@ -54,9 +55,20 @@ window.__i18n.hash = function (s) {
 window.__i18n.getActiveLocale = function () {
   return window.__i18n.locale || window.__i18n.defaultLocale;
 };
+/* The reader's language: the one they picked (localStorage "locale"), else
+   the first their browser/system names that the site has (lib/locale-detect.ts,
+   inlined below), never stored. Crawlers and automated browsers keep French. */
 (function () {
-  var i = window.__i18n, a = i.assets, l = null;
+  var i = window.__i18n, a = i.assets, l = null, n = navigator;
   try { l = localStorage.getItem("locale"); } catch (e) {}
+  if (!l || !a[l]) {
+    l = null;
+    if (!(${isAutomatedBrowser.toString()})(n)) {
+      var sys = null;
+      try { sys = Intl.DateTimeFormat().resolvedOptions().locale; } catch (e) {}
+      l = i.detected = (${detectLocale.toString()})([].concat(n.languages && n.languages.length ? n.languages : [n.language], [sys]), Object.keys(a), i.defaultLocale);
+    }
+  }
   document.write('<script src="' + a[i.defaultLocale] + '"><\\/script>');
   if (l && l !== i.defaultLocale && a[l]) document.write('<script src="' + a[l] + '"><\\/script>');
 })();`;
