@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { t } from "@/lib/i18n";
+import { t, keyedText, knownKey, textSlug } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { addQuestion, loadNoteDeck, saveNoteDeck } from "@/lib/note-quiz";
 import { aiRoute, generateOnDevice, type AiRoute } from "@/lib/garden-ai";
@@ -880,7 +880,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
             <optgroup label={tr("parler.soon")}>
               {SOON_LANGS.map((name) => (
                 <option key={name} value={`soon-${name}`} disabled>
-                  {name}
+                  {keyedText(knownKey(`parler.soonLang.${textSlug(name)}`), name, locale)}
                 </option>
               ))}
             </optgroup>

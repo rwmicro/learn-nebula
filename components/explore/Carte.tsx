@@ -52,11 +52,17 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
               const c = byId.get(g.id);
               if (!c) return <path key={g.id} d={g.d} className="carte-land" />;
               return (
-                <a key={g.id} href={`#pays-${c.iso3}`} aria-label={`${c.name} : ${c.notes.length}`}>
+                <a
+                  key={g.id}
+                  href={`#pays-${c.iso3}`}
+                  aria-label={`${c.name} : ${c.notes.length}`}
+                  {...regionProps(c.iso3, "aria-label", ` : ${c.notes.length}`)}
+                >
                   <path
                     d={g.d}
                     className={`carte-land carte-c${carteClass(c.notes.length)}`}
                     data-name={c.name}
+                    {...regionProps(c.iso3, "data-name")}
                     data-n={c.notes.length}
                   />
                 </a>
@@ -119,7 +125,7 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
           >
             <details id={`pays-${c.iso3}`} className="carte-country">
               <summary>
-                <span className="carte-country-name">{c.name}</span>
+                <span className="carte-country-name" {...regionProps(c.iso3)}>{c.name}</span>
                 <span className="carte-bar" aria-hidden="true">
                   <i style={{ width: `${Math.max(2, (100 * c.notes.length) / countries[0].notes.length).toFixed(1)}%` }} />
                 </span>
@@ -147,3 +153,16 @@ export function Carte({ countries }: { countries: CarteCountry[] }) {
   );
 }
 
+
+
+/** The markers public/js/i18n.js reads to name a country in the reader's
+ *  language (Intl.DisplayNames), in the text or in `attr`. */
+function regionProps(iso3: string, attr?: string, tail?: string): Record<string, string> {
+  const iso2 = ISO2.get(iso3);
+  if (!iso2) return {};
+  return {
+    "data-i18n-region": iso2,
+    ...(attr ? { "data-i18n-region-attr": attr } : {}),
+    ...(tail ? { "data-i18n-region-tail": tail } : {}),
+  };
+}

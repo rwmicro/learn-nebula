@@ -2244,105 +2244,131 @@
   "pathName": {
     "active-directory-de-l-attaque-a-la-persistance": {
       "title": "Active Directory",
-      "sub": "from attack to persistence"
+      "sub": "from attack to persistence",
+      "desc": "Directory fundamentals, enumeration, Kerberos, ACLs and persistence, then identity and authentication."
     },
     "algorithmique-complexite-structures-et-graphes": {
       "title": "Algorithms",
-      "sub": "complexity, data structures and graphs"
+      "sub": "complexity, data structures and graphs",
+      "desc": "From measuring complexity to data structures, then sorting, dynamic programming and graph algorithms."
     },
     "allemand-des-premiers-mots-a-la-culture": {
       "title": "German",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "Pronouncing German, greetings, grammar and registers, then vocabulary, everyday dialogues and German-speaking culture."
     },
     "analyse-au-lycee": {
-      "title": "High school calculus"
+      "title": "High school calculus",
+      "desc": "Numbers and algebra, functions and quadratics, then derivatives, sequences, limits, the exponential and integrals."
     },
     "anglais-des-premiers-mots-a-la-culture": {
       "title": "English",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "Pronunciation and essential phrases, tenses and modals, then registers, idioms and accents (RP, Cockney)."
     },
     "anthropologie-de-la-discipline-au-terrain": {
       "title": "Anthropology",
-      "sub": "from the discipline to the field"
+      "sub": "from the discipline to the field",
+      "desc": "What anthropology is and its history, its great schools and figures (Boas, Malinowski, Mead, Lévi-Strauss, Geertz), then ethnographic fieldwork and human origins."
     },
     "apprendre-les-langues-la-boite-a-outils": {
       "title": "Learning languages",
-      "sub": "the toolbox"
+      "sub": "the toolbox",
+      "desc": "The linguistics a learner can use, the International Phonetic Alphabet, language families and typology, French false friends, then polyglots' strategies."
     },
     "arabe-libanais-des-premiers-mots-a-la-culture": {
       "title": "Lebanese Arabic",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "Pronunciation and greetings, basic grammar (pronouns, verbs, negation), everyday vocabulary, then advanced phrasing, slang and Lebanese culture."
     },
     "arabe-standard-de-l-alphabet-aux-medias": {
       "title": "Standard Arabic",
-      "sub": "from the alphabet to the media"
+      "sub": "from the alphabet to the media",
+      "desc": "Modern Standard Arabic: the alphabet and pronunciation, essential phrases, grammar and vocabulary, the language of the media, then diglossia and its history."
     },
     "architecture-logicielle-des-principes-aux-microservices": {
       "title": "Software architecture",
-      "sub": "from principles to microservices"
+      "sub": "from principles to microservices",
+      "desc": "From SOLID principles to UML and design patterns, then architectural styles and microservices."
     },
     "arts-de-la-renaissance-au-surrealisme": {
       "title": "Arts",
-      "sub": "from the Renaissance to Surrealism"
+      "sub": "from the Renaissance to Surrealism",
+      "desc": "The ideas for looking at a work of art, then Leonardo, Michelangelo and Rembrandt, and the modern breaks: Impressionism, Cubism, Surrealism."
     },
     "aws-fondations-reseau-calcul-et-serverless": {
       "title": "AWS",
-      "sub": "foundations, networking, compute and serverless"
+      "sub": "foundations, networking, compute and serverless",
+      "desc": "From the AWS overview to IAM, S3 and VPC, then EC2 and Lambda."
     },
     "azeri-des-premiers-mots-a-la-culture": {
       "title": "Azerbaijani",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "The alphabet and pronunciation of Azerbaijani, greetings, grammar and registers, then vocabulary, dialogues and the culture of Azerbaijan."
     },
     "bases-de-donnees-du-relationnel-a-l-optimisation": {
       "title": "Databases",
-      "sub": "from relational to optimization"
+      "sub": "from relational to optimization",
+      "desc": "From the relational model to SQL, optimisation and indexing, then NoSQL databases."
     },
     "biologie-de-la-molecule-a-l-evolution": {
       "title": "Biology",
-      "sub": "from the molecule to evolution"
+      "sub": "from the molecule to evolution",
+      "desc": "From biochemistry and the cell to genetics and evolution, then ecology, human physiology, immunology and neuroscience."
     },
     "chimie-premiers-pas-et-histoire": {
       "title": "Chemistry",
-      "sub": "first steps and history"
+      "sub": "first steps and history",
+      "desc": "What chemistry studies, its history from alchemy to modern chemistry, and the great chemists."
     },
     "cinema-de-l-invention-au-contemporain": {
       "title": "Cinema",
-      "sub": "from its invention to today"
+      "sub": "from its invention to today",
+      "desc": "From the Lumière brothers to contemporary film: silent cinema, Hollywood's golden age, the new waves, the language of film and national cinemas."
     },
     "cloud-securiser-aws-azure-et-gcp": {
       "title": "Cloud",
-      "sub": "securing AWS, Azure and GCP"
+      "sub": "securing AWS, Azure and GCP",
+      "desc": "Shared responsibility models, identity, networking and Kubernetes in the three big clouds."
     },
     "communication-des-modeles-a-la-rhetorique": {
       "title": "Communication",
-      "sub": "from models to rhetoric"
+      "sub": "from models to rhetoric",
+      "desc": "The models of communication, then its forms (interpersonal, non-verbal, intercultural, oral), rhetoric, discourse analysis and manipulation."
     },
     "cryptographie-appliquee": {
-      "title": "Applied cryptography"
+      "title": "Applied cryptography",
+      "desc": "Encodings and how information is represented, then encryption, hashing, PKI, TLS and applied cryptography."
     },
     "devsecops-conteneurs-ci-cd-et-securite": {
       "title": "DevSecOps",
-      "sub": "containers, CI/CD and security"
+      "sub": "containers, CI/CD and security",
+      "desc": "From Docker to Kubernetes and securing them, then GitLab CI/CD and the DevSecOps pipeline."
     },
     "dfir-reponse-a-incident-et-forensique": {
       "title": "DFIR",
-      "sub": "incident response and forensics"
+      "sub": "incident response and forensics",
+      "desc": "Incident response, disk and memory forensics, network analysis and playbooks."
     },
     "droit-des-bases-aux-grands-systemes-juridiques": {
       "title": "Law",
-      "sub": "from the basics to the major legal systems"
+      "sub": "from the basics to the major legal systems",
+      "desc": "The basics of law, its sources and institutions, the major legal systems (civil law, common law, sharia), then the branches of public and private law."
     },
     "echecs-des-regles-aux-finales": {
       "title": "Chess",
-      "sub": "from the rules to endgames"
+      "sub": "from the rules to endgames",
+      "desc": "Four Elo rating tiers: the rules and openings, middlegame tactics, pawn and rook endgames, then strategy and the king attack."
     },
     "ecologie-des-ecosystemes-au-climat": {
       "title": "Ecology",
-      "sub": "from ecosystems to climate"
+      "sub": "from ecosystems to climate",
+      "desc": "The principles of ecology and ecosystems, biodiversity and its threats, then climate change and the solutions to mitigate it."
     },
     "economie-de-la-monnaie-aux-comportements": {
       "title": "Economics",
-      "sub": "from money to behaviour"
+      "sub": "from money to behaviour",
+      "desc": "The history of money, capitalism and the planet's limits, then behavioural economics and game theory."
     },
     "geologie-du-relief-a-l-histoire-de-la-vie": {
       "title": "Geology",
@@ -2350,26 +2376,32 @@
     },
     "espagnol-des-premiers-mots-a-la-culture": {
       "title": "Spanish",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "Pronouncing Spanish, greetings, grammar and registers, then vocabulary, everyday dialogues and Spanish-speaking culture."
     },
     "exposition-internet-inventorier-reperer-reduire": {
       "title": "Internet exposure",
-      "sub": "inventory, discover, reduce"
+      "sub": "inventory, discover, reduce",
+      "desc": "Know what you own, see it as an attacker does with Shodan, Censys, masscan, nmap and nuclei, then reduce and monitor what stays exposed, practising on your own lab."
     },
     "geometrie-au-lycee": {
-      "title": "High school geometry"
+      "title": "High school geometry",
+      "desc": "Plane geometry, complex numbers, solid geometry and its formulas, then a first step beyond Euclid."
     },
     "gouvernance-conformite-risques-et-menaces": {
       "title": "Governance",
-      "sub": "compliance, risk and threats"
+      "sub": "compliance, risk and threats",
+      "desc": "Compliance and NIS2, threat modelling, EBIOS RM, secure SDLC and supply-chain security."
     },
     "hakka-des-premiers-mots-a-la-culture": {
       "title": "Hakka",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "The tones and pronunciation of West Kalimantan Hakka, greetings and basic phrases, then vocabulary by theme, grammar and Hakka culture."
     },
     "hindi-des-premiers-mots-a-la-culture": {
       "title": "Hindi",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "Devanagari script and pronunciation, greetings, grammar and registers (tū, tum, āp), then vocabulary, dialogues and the culture of India."
     },
     "histoire-de-l-antiquite-au-xxe-siecle": {
       "title": "History",
@@ -2377,174 +2409,218 @@
     },
     "histoire-du-monde-empires-et-nations": {
       "title": "World history",
-      "sub": "empires and nations"
+      "sub": "empires and nations",
+      "desc": "What history is and what an empire is, then the Mongol Empire and Russia, China, Japan and India, the Atlantic slave trade and the United States, the Kurds and Syria, Djibouti, Papua New Guinea and Transnistria."
     },
     "indonesien-de-l-alphabet-a-la-culture": {
       "title": "Indonesian",
-      "sub": "from the alphabet to culture"
+      "sub": "from the alphabet to culture",
+      "desc": "Reading, greeting, building your first sentences, then everyday vocabulary, affixes, registers and Indonesian culture."
     },
     "informatique-de-la-machine-au-systeme": {
       "title": "Computer science",
-      "sub": "from the machine to the system"
+      "sub": "from the machine to the system",
+      "desc": "From binary to the processor and assembly, then the operating system (processes, memory, files), Linux, Windows and the shell."
     },
     "java-du-langage-a-spring-boot": {
       "title": "Java",
-      "sub": "from the language to Spring Boot"
+      "sub": "from the language to Spring Boot",
+      "desc": "The language and its basics, then generics and lambdas, and finally JDBC and Spring Boot."
     },
     "kabyle-des-premiers-mots-a-la-culture": {
       "title": "Kabyle",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "The alphabet and pronunciation of Kabyle, greetings and useful phrases, grammar and registers, then Kabyle origins and identity."
     },
     "lfcs-administrer-un-serveur-linux": {
       "title": "LFCS",
-      "sub": "administering a Linux server"
+      "sub": "administering a Linux server",
+      "desc": "The basic commands, running the system (processes, services, kernel, packages), storage (LVM, RAID, encryption), users and security, then networking and its services."
     },
     "linguistique-des-sons-au-sens": {
       "title": "Linguistics",
-      "sub": "from sounds to meaning"
+      "sub": "from sounds to meaning",
+      "desc": "From sounds to writing, morphology and syntax, then meaning, the history and families of languages, psycho- and sociolinguistics."
     },
     "litterature-les-grandes-periodes": {
       "title": "Literature",
-      "sub": "the great periods"
+      "sub": "the great periods",
+      "desc": "The great periods of literature, from Antiquity to the Middle Ages and the Enlightenment, then Romanticism, Realism and the writing of the 20th and 21st centuries."
     },
     "machine-learning-des-bases-aux-llm": {
       "title": "Machine learning",
-      "sub": "from the basics to LLMs"
+      "sub": "from the basics to LLMs",
+      "desc": "The basics of machine learning, from supervised learning to transformers, LLMs and their security."
     },
     "malais-des-premiers-mots-a-la-culture": {
       "title": "Malay",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "Pronouncing Malay, greetings, vocabulary and dialogues, then grammar, registers (anda, awak, kamu) and the culture of Malaysia."
     },
     "malware-development-des-fondations-windows-a-l-evasion": {
       "title": "Malware development",
-      "sub": "from Windows foundations to evasion"
+      "sub": "from Windows foundations to evasion",
+      "desc": "From Windows foundations (architecture, PE, API) to the payload, injection and bypassing protections."
     },
     "mandarin-des-premiers-mots-a-la-culture": {
       "title": "Mandarin",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "Pinyin and tones, greetings, grammar and characters, then measure words, vocabulary, dialogues and Chinese culture."
     },
     "mathematiques-en-prepa-de-sup-a-spe": {
       "title": "Mathematics in prépa",
-      "sub": "first and second year"
+      "sub": "first and second year",
+      "desc": "Logic and sets, first-year analysis and linear algebra, then diagonalisation, series, topology and second-year probability."
     },
     "medecine-du-corps-humain-a-la-recherche": {
       "title": "Medicine",
-      "sub": "from the human body to research"
+      "sub": "from the human body to research",
+      "desc": "Anatomy and physiology, tests and diagnosis, genetics, immunology and pharmacology, then research and the issues facing medicine."
     },
     "musique-de-la-theorie-aux-grandes-periodes": {
       "title": "Music",
-      "sub": "from theory to the great periods"
+      "sub": "from theory to the great periods",
+      "desc": "Music theory, acoustics, instruments and orchestration, then the history of music, from Antiquity to contemporary music."
     },
     "mythologies-du-monde": {
-      "title": "World mythologies"
+      "title": "World mythologies",
+      "desc": "What a myth is and what it is for, then Greek, Roman, Egyptian, Norse, Indian and other mythologies."
     },
     "osint-de-la-methode-au-rapport": {
       "title": "OSINT",
-      "sub": "from method to report"
+      "sub": "from method to report",
+      "desc": "The intelligence cycle, sources and tools, techniques and use cases, then protection and reporting."
     },
     "ouighour-des-premiers-mots-a-la-culture": {
       "title": "Uyghur",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "The alphabet and vowel harmony, greetings and registers, then agglutination, cases, the verb and syntax, vocabulary and Uyghur culture."
     },
     "pentest-de-la-methodologie-a-l-execution": {
       "title": "Pentesting",
-      "sub": "from methodology to execution"
+      "sub": "from methodology to execution",
+      "desc": "Scoping and ROE, reconnaissance, initial access, persistence, lateral movement, exfiltration and evasion."
     },
     "philosophie-contemporaine-de-bergson-a-habermas": {
       "title": "Contemporary philosophy",
-      "sub": "from Bergson to Habermas"
+      "sub": "from Bergson to Habermas",
+      "desc": "Bergson and the phenomenology of Husserl and Heidegger, existentialism (Sartre, Beauvoir, Camus), analytic philosophy from Russell to Popper, then Arendt, Simone Weil, Foucault, Derrida, Rawls and Habermas."
     },
     "philosophie-courants-et-ecoles": {
       "title": "Philosophy",
-      "sub": "movements and schools"
+      "sub": "movements and schools",
+      "desc": "The great schools of thought in the order they answer one another: Stoicism, medieval philosophy, rationalism and empiricism, German idealism, Marxism, utilitarian and universalist ethics, phenomenology, existentialism, analytic philosophy, structuralism and postmodernism."
     },
     "philosophie-de-l-antiquite-aux-modernes": {
       "title": "Philosophy",
-      "sub": "from Antiquity to the moderns"
+      "sub": "from Antiquity to the moderns",
+      "desc": "From the Presocratics to Socrates, Plato and Aristotle, the ancient wisdoms (Cynics, Stoics), medieval philosophy, political thought from Machiavelli to Rousseau, rationalists and empiricists, Kant, and 19th-century thought."
     },
     "philosophie-en-culture-generale": {
-      "title": "Philosophy for general culture"
+      "title": "Philosophy for general culture",
+      "desc": "The timeline of Western philosophy, five big questions (knowledge, truth, freedom, happiness, justice), the schools to know, philosophy facing art, science, politics and technology, and the wisdom of Asia (Buddha, Confucius, Laozi)."
     },
     "philosophie-les-grandes-branches": {
       "title": "Philosophy",
-      "sub": "the main branches"
+      "sub": "the main branches",
+      "desc": "An overview of the branches of philosophy, then each in detail: logic, epistemology, metaphysics, philosophy of mind, of language, of religion, political philosophy and aesthetics."
     },
     "physique-du-lycee-a-la-prepa": {
       "title": "Physics",
-      "sub": "from high school to prépa"
+      "sub": "from high school to prépa",
+      "desc": "Newtonian mechanics, electricity and waves at high-school level, then electromagnetism, thermodynamics, optics, relativity and quantum physics at university level."
     },
     "pnpt-du-reseau-au-rapport-de-pentest": {
       "title": "PNPT",
-      "sub": "from networking to the pentest report"
+      "sub": "from networking to the pentest report",
+      "desc": "Networking, Linux and Windows basics, reconnaissance, exploitation and privilege escalation, Active Directory, then the external pentest, the report and the client debrief."
     },
     "probabilites-et-statistiques-au-lycee": {
-      "title": "High school probability and statistics"
+      "title": "High school probability and statistics",
+      "desc": "Descriptive statistics, counting and probability, algorithms for simulation, then combinatorics, graph theory, number theory and inferential statistics."
     },
     "psychologie-biais-emotions-et-personnalite": {
       "title": "Psychology",
-      "sub": "biases, emotions and personality"
+      "sub": "biases, emotions and personality",
+      "desc": "What psychology studies, cognitive biases (framing, confirmation, halo, self-serving), emotions and desires, then personality, from Jung to the Enneagram."
     },
     "religions-du-monde": {
-      "title": "World religions"
+      "title": "World religions",
+      "desc": "An overview of the world's religions and their history: Hinduism, Buddhism, Judaism, Christianity, Islam and their branches, then the traditions of Asia and Africa."
     },
     "reseau-des-modeles-osi-aux-attaques": {
       "title": "Networking",
-      "sub": "from the OSI model to attacks"
+      "sub": "from the OSI model to attacks",
+      "desc": "The OSI and TCP/IP models, addressing and protocols, then network attacks and how to detect them."
     },
     "roumain-des-premiers-mots-a-la-culture": {
       "title": "Romanian",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "Pronouncing Romanian, greetings, grammar basics and formal address (tu / dumneavoastră), then vocabulary and Romanian culture."
     },
     "sambas-des-premiers-mots-a-la-culture": {
       "title": "Sambas Malay",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "Where Sambas Malay comes from, essential phrases and registers, core vocabulary, pronouns, seventeen themed word lists up to proverbs, and the dictionary."
     },
     "savoir-demontrer-en-mathematiques": {
-      "title": "Writing proofs in mathematics"
+      "title": "Writing proofs in mathematics",
+      "desc": "Methods of proof, how to show a statement is true, the classic proofs to know and the mistakes that keep coming back."
     },
     "securite-des-plateformes-ot-embarque-et-mobile": {
       "title": "Platform security",
-      "sub": "OT, embedded and mobile"
+      "sub": "OT, embedded and mobile",
+      "desc": "From physical access to firmware, then industrial systems, embedded, automotive, medical and space."
     },
     "securite-web-des-vecteurs-d-attaque-aux-failles-avancees": {
       "title": "Web security",
-      "sub": "from attack vectors to advanced flaws"
+      "sub": "from attack vectors to advanced flaws",
+      "desc": "Web attack vectors, injections and authentication flaws, then advanced exploitation."
     },
     "securite-wifi-de-la-reconnaissance-au-wpa3": {
       "title": "WiFi security",
-      "sub": "from reconnaissance to WPA3"
+      "sub": "from reconnaissance to WPA3",
+      "desc": "802.11 fundamentals, reconnaissance and sniffing, WPA2/WPS/WPA3 and evil twin attacks, then detection and defence."
     },
     "soc-des-logs-a-la-detection": {
       "title": "SOC",
-      "sub": "from logs to detection"
+      "sub": "from logs to detection",
+      "desc": "SOC vocabulary, logs and SIEM, then detection, threat hunting and threat intelligence."
     },
     "sociologie-des-fondateurs-aux-grandes-thematiques": {
       "title": "Sociology",
-      "sub": "from the founders to the major themes"
+      "sub": "from the founders to the major themes",
+      "desc": "The founders (Durkheim, Marx, Weber) and their concepts, methods and interactionism, Bourdieu, then deviance, social class and mobility."
     },
     "sport-de-la-physiologie-a-la-musculation": {
       "title": "Sport",
-      "sub": "from physiology to strength training"
+      "sub": "from physiology to strength training",
+      "desc": "The physiology of exercise and the principles of training, then strength training by muscle group, sports nutrition and recovery."
     },
     "tamoul-des-premiers-mots-a-la-culture": {
       "title": "Tamil",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "The Tamil alphabet, greetings, grammar and diglossia, then vocabulary, everyday dialogues and Tamil culture."
     },
     "theatre-de-l-histoire-a-la-scene": {
       "title": "Theatre",
-      "sub": "from history to the stage"
+      "sub": "from history to the stage",
+      "desc": "The history of theatre, its genres and staging, then acting, directing, the great theorists and contemporary theatre."
     },
     "tok-pisin-des-premiers-mots-a-la-culture": {
       "title": "Tok Pisin",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "Pronouncing Tok Pisin, greetings, phrases and registers, the language itself, then vocabulary and the culture of Papua New Guinea."
     },
     "turc-des-premiers-mots-a-la-culture": {
       "title": "Turkish",
-      "sub": "from first words to culture"
+      "sub": "from first words to culture",
+      "desc": "The alphabet and pronunciation of Turkish, greetings, grammar basics and informal address (sen / siz), then vocabulary and culture."
     },
     "web-http-api-et-front-end": {
       "title": "Web",
-      "sub": "HTTP, APIs and front end"
+      "sub": "HTTP, APIs and front end",
+      "desc": "From HTTP to REST APIs, then Node.js/Express and React, with TLS certificates end to end."
     }
   },
   "parler": {
@@ -2705,7 +2781,17 @@
     "heroKicker": "Speak · a partner, out loud",
     "exprOfDay": "Expression of the day",
     "thisWeek": "Your talks, last 7 days",
-    "thisWeekN": "{n} scenes"
+    "thisWeekN": "{n} scenes",
+    "soonLang": {
+      "roumain": "Romanian",
+      "malais": "Malay",
+      "azeri": "Azerbaijani",
+      "tamoul": "Tamil",
+      "kabyle": "Kabyle",
+      "ouighour": "Uyghur",
+      "hakka": "Hakka",
+      "tokpisin": "Tok Pisin"
+    }
   },
   "desk": {
     "nextStep": "Next step · {m} min left",
@@ -2971,5 +3057,258 @@
     "show": "Show this path",
     "all": "All paths",
     "toRead": "up next"
+  },
+  "levelName": {
+    "activedirectory": "Active Directory",
+    "activedirectoryetidentityetauth": "Active Directory, identity and auth",
+    "activedirectoryetoffensive": "Active Directory and offensive security",
+    "algebreetfonctionsanalyse": "Algebra, functions and analysis",
+    "algorithmique": "Algorithms",
+    "anatomie": "Anatomy",
+    "anthropologuesetbranches": "Anthropologists and branches",
+    "anthropologuesetterrains": "Anthropologists and fieldwork",
+    "apprentissageetllm": "Learning and LLMs",
+    "apprentissageetmachinelearning": "Learning and machine learning",
+    "approfondissementsetprepaspe": "Going further and second-year prépa",
+    "approfondissementsetprepasup": "Going further and first-year prépa",
+    "arabestandardetphonologie": "Standard Arabic and phonology",
+    "architectureetartistes": "Architecture and artists",
+    "architecturelogicielle": "Software architecture",
+    "aristote384322avjc": "Aristotle (384–322 BCE)",
+    "artistesetmouvements": "Artists and movements",
+    "attaqueswpa2enterprise": "WPA2-Enterprise attacks",
+    "autourdesoi": "Around you",
+    "autresetegyptienne": "Egyptian and others",
+    "aws": "AWS",
+    "baruchspinoza16321677": "Baruch Spinoza (1632–1677)",
+    "basesdedonnees": "Databases",
+    "benoitcoquardetconcepts": "Benoît Coquard and concepts",
+    "biaisetpsychologues": "Biases and psychologists",
+    "biodiversiteetconservation": "Biodiversity and conservation",
+    "bouddhismeetjainisme": "Buddhism and Jainism",
+    "branches": "Branches",
+    "branchesetconcepts": "Branches and concepts",
+    "branchesetfamillesdelangues": "Branches and language families",
+    "changementclimatiqueetbiodiversite": "Climate change and biodiversity",
+    "cloudetgrcetgouvernance": "Cloud, GRC and governance",
+    "commandesessentielles": "Essential commands",
+    "communication": "Communication",
+    "concepts": "Concepts",
+    "conceptsetcourants": "Concepts and schools",
+    "conceptsetfondateurs": "Concepts and founders",
+    "conceptsetthematiques": "Concepts and themes",
+    "conceptslinguistiquesglossairedereference": "Linguistic concepts: reference glossary",
+    "confirme": "Advanced",
+    "cryptographie": "Cryptography",
+    "cultureetcommunication": "Culture and communication",
+    "cultureetgrammaire": "Culture and grammar",
+    "datascienceetmachinelearning": "Data science and machine learning",
+    "debutant": "Beginner",
+    "deeplearningetmachinelearning": "Deep learning and machine learning",
+    "dfiretdefensive": "DFIR and defensive security",
+    "dockeretgitlab": "Docker and GitLab",
+    "dockeretsoftware": "Docker and software",
+    "domaines": "Fields",
+    "domainesethuman": "Fields and human factors",
+    "ecosystemesetconservation": "Ecosystems and conservation",
+    "emmanuelkant17241804": "Immanuel Kant (1724–1804)",
+    "existentialisme": "Existentialism",
+    "exploitation": "Exploitation",
+    "exploitationdusysteme": "Running the system",
+    "fileuploadvulnerabilities": "File upload vulnerabilities",
+    "fonctionsanalyseetprobabilitesstats": "Functions & analysis, probability & statistics",
+    "fondamentaux": "Fundamentals",
+    "fondamentaux80211": "802.11 fundamentals",
+    "formerdesmots": "Building words",
+    "fortjoueur": "Strong player",
+    "france": "France",
+    "franceetthematiques": "France and themes",
+    "friseschronologiquesetlescourantsphilosophiques": "Timelines and philosophical schools",
+    "fundamentals": "Fundamentals",
+    "fundamentalsetnetworking": "Fundamentals and networking",
+    "fundamentalsetnetworksecurity": "Fundamentals and network security",
+    "generics": "Generics",
+    "genresetmouvements": "Genres and movements",
+    "genresettheorie": "Genres and theory",
+    "geometrieetalgebre": "Geometry and algebra",
+    "grammaireetcommunication": "Grammar and communication",
+    "grammaireetvocabulaire": "Grammar and vocabulary",
+    "grcetgouvernance": "GRC and governance",
+    "hardwareetassembleur": "Hardware and assembly",
+    "hardwareetsystemesdexploitation": "Hardware and operating systems",
+    "histoiredelamonnaie": "History of money",
+    "histoireetantiquite": "History and Antiquity",
+    "httprequestsmuggling": "HTTP request smuggling",
+    "humanetdomaines": "Human factors and fields",
+    "ilesetcultures": "Islands and cultures",
+    "introductionalachimie": "Introduction to chemistry",
+    "inventorier": "Inventory",
+    "islametchristianisme": "Islam and Christianity",
+    "islametthemes": "Islam and themes",
+    "japonetrussia": "Japan and Russia",
+    "java": "Java",
+    "jdbc": "JDBC",
+    "joueurdeclub": "Club player",
+    "kubernetesetdocker": "Kubernetes and Docker",
+    "lequotidien": "Everyday life",
+    "lesgrandesquestionsetphilosophieetautresdomaines": "The big questions and philosophy in other fields",
+    "lespresocratiquesvievesieclesavjc": "The Presocratics (6th–5th centuries BCE)",
+    "linguistesetbranches": "Linguists and branches",
+    "machinelearningetdeeplearning": "Machine learning and deep learning",
+    "malwaredevelopment": "Malware development",
+    "malwaredevelopmentetreverseengineering": "Malware development and reverse engineering",
+    "mathspe": "Second-year prépa maths",
+    "mathspeetmathsup": "Second and first year of prépa maths",
+    "mathsup": "First-year prépa maths",
+    "mathsupetmathspe": "First- and second-year prépa maths",
+    "mecanique": "Mechanics",
+    "mecaniqueetelectricite": "Mechanics and electricity",
+    "mecaniqueetprepasup": "Mechanics and first-year prépa",
+    "methodesdedemonstration": "Methods of proof",
+    "methodologieetoffensive": "Methodology and offensive security",
+    "moyenageetdjibouti": "Middle Ages and Djibouti",
+    "moyenageetempireottoman": "Middle Ages and the Ottoman Empire",
+    "musculationetnutrition": "Strength training and nutrition",
+    "networksecurityetrouting": "Network security and routing",
+    "offensiveetmethodologie": "Offensive security and methodology",
+    "offensiveettools": "Offensive security and tools",
+    "osint": "OSINT",
+    "parlercommeonparle": "Talking like people talk",
+    "pentestexterneetrapport": "External pentest and report",
+    "periodes": "Periods",
+    "periodesetouvrages": "Periods and works",
+    "philosophes": "Philosophers",
+    "philosophesetconcepts": "Philosophers and concepts",
+    "philosophieetautresdomainesetlesgrandesquestions": "Philosophy in other fields and the big questions",
+    "philosophieetautresdomainesetphilosophes": "Philosophy in other fields and philosophers",
+    "phonologieetcommunication": "Phonology and communication",
+    "phonologieetouighour": "Phonology and Uyghur",
+    "physiologieetentrainement": "Physiology and training",
+    "platformsecurity": "Platform security",
+    "platformsecurityetreverseengineering": "Platform security and reverse engineering",
+    "premierspas": "First steps",
+    "prepaspeetapprofondissements": "Second-year prépa and going further",
+    "prepaspeetmecanique": "Second-year prépa and mechanics",
+    "prepasupetprepaspe": "First- and second-year prépa",
+    "probabilitesstatsetapprofondissements": "Probability, statistics and going further",
+    "pythonetalgorithmique": "Python and algorithms",
+    "questionsettemps": "Questions and tenses",
+    "reconnaissance": "Reconnaissance",
+    "reduireetsurveiller": "Reduce and monitor",
+    "reperer": "Discover",
+    "reseauetservices": "Networking and services",
+    "reverseengineeringetmalwaredevelopment": "Reverse engineering and malware development",
+    "riskanalysisetapplicationsecurity": "Risk analysis and application security",
+    "routingetnetworksecurity": "Routing and network security",
+    "socanalysis": "SOC analysis",
+    "socanalysisetdefensive": "SOC analysis and defensive security",
+    "socanalysisetmethodologie": "SOC analysis and methodology",
+    "socialengineeringetoffensive": "Social engineering and offensive security",
+    "stockage": "Storage",
+    "stoicisme": "Stoicism",
+    "synthese": "Wrap-up",
+    "systemesdexploitationethardware": "Operating systems and hardware",
+    "systemesjuridiquesetbranches": "Legal systems and branches",
+    "thematiquesetconcepts": "Themes and concepts",
+    "themesetreligionstraditionnelles": "Themes and traditional religions",
+    "theorieetperiodes": "Theory and periods",
+    "theoriesetconcepts": "Theories and concepts",
+    "theoriesettypes": "Theories and types",
+    "ungraphique": "A chart",
+    "ungraphiqueetconcepts": "A chart and concepts",
+    "utilisateursetsecurite": "Users and security",
+    "vecteursdattaqueweb": "Web attack vectors",
+    "vocabulaireetcommunication": "Vocabulary and communication",
+    "vocabulaireetgrammaire": "Vocabulary and grammar",
+    "vocabulaireetressources": "Vocabulary and resources",
+    "web": "Web",
+    "webcachepoisoningetcachedeception": "Web cache poisoning and cache deception",
+    "webetframermotion": "Web and Framer Motion",
+    "ww2ethistoire": "WWII and history",
+    "xxesiecleetww2": "20th century and WWII"
+  },
+  "painting": {
+    "eragny": {
+      "title": "The Kitchen Garden at Éragny",
+      "credit": "Camille Pissarro, The Kitchen Garden at Éragny, 1897"
+    },
+    "sciences": {
+      "title": "Planetary clock",
+      "note": "Paris, 1790",
+      "credit": "Louis Thouverez, Planetary clock, Paris, 1790"
+    },
+    "informatique": {
+      "note": "the first bytes of a Windows executable",
+      "credit": "MZ… This program cannot be run in DOS mode, the first bytes of a Windows executable"
+    },
+    "pensee": {
+      "title": "Head of Epicurus",
+      "note": "marble, Roman copy from the 2nd century",
+      "credit": "Head of Epicurus, marble, Roman copy from the 2nd century"
+    },
+    "societe": {
+      "title": "Ethnographic map of Kamchatka",
+      "credit": "Carl von Ditmar, Ethnographic map of Kamchatka, 1853"
+    },
+    "arts": {
+      "title": "The Dance Foyer at the Opera on the rue Le Peletier",
+      "credit": "Edgar Degas, The Dance Foyer at the Opera on the rue Le Peletier, 1872"
+    },
+    "langues": {
+      "title": "Proto-cuneiform tablet",
+      "note": "Mesopotamia, c. 3100–2900 BCE",
+      "credit": "Proto-cuneiform tablet, Mesopotamia, c. 3100–2900 BCE"
+    },
+    "jeux": {
+      "note": "hand-coloured woodcut, 1483",
+      "credit": "Das Schachzabelbuch, hand-coloured woodcut, 1483"
+    },
+    "biologie": {
+      "title": "Art Forms in Nature",
+      "note": "plate 8, 1904",
+      "credit": "Ernst Haeckel, Art Forms in Nature, plate 8, 1904"
+    },
+    "economie": {
+      "title": "Silver tetradrachm with the head of Heracles",
+      "note": "315–308 BCE",
+      "credit": "Silver tetradrachm with the head of Heracles, 315–308 BCE"
+    },
+    "medecine": {
+      "note": "Basel, 1555",
+      "credit": "André Vésale, De humani corporis fabrica, Basel, 1555"
+    },
+    "sport": {
+      "note": "galloping plate, 1887",
+      "credit": "Eadweard Muybridge, Animal Locomotion, galloping plate, 1887"
+    },
+    "langues-espagnol": {
+      "title": "Court of the Lions, Alhambra, Granada",
+      "note": "albumen print, 1857–1858",
+      "credit": "Charles Clifford, Court of the Lions, Alhambra, Granada, albumen print, 1857–1858"
+    },
+    "langues-indonesien": {
+      "title": "Sarong with bird motifs",
+      "note": "batik on cotton, north coast of Java, mid-19th century",
+      "credit": "Sarong with bird motifs, batik on cotton, north coast of Java, mid-19th century"
+    },
+    "langues-hakka": {
+      "title": "Ewer with a phoenix head",
+      "note": "porcelain, Guangdong, 11th century",
+      "credit": "Ewer with a phoenix head, porcelain, Guangdong, 11th century"
+    }
+  },
+  "months": {
+    "m1": "January {y}",
+    "m2": "February {y}",
+    "m3": "March {y}",
+    "m4": "April {y}",
+    "m5": "May {y}",
+    "m6": "June {y}",
+    "m7": "July {y}",
+    "m8": "August {y}",
+    "m9": "September {y}",
+    "m10": "October {y}",
+    "m11": "November {y}",
+    "m12": "December {y}"
   }
 }

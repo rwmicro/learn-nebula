@@ -172,3 +172,58 @@ export function pathNameAttrs(p: PathRef, part: "full" | "title" | "sub" = "full
     .map(([k, v]) => ` ${k}="${v.replace(/&/g, "&amp;").replace(/"/g, "&quot;")}"`)
     .join("");
 }
+
+/** The key of a reading path's description, `pathName.<slug>.desc` (the
+ *  vault writes it in French, `description:` beside `parcours:`), or null
+ *  when the bundles have none for `text` (it then shows as the vault wrote it). */
+export function pathDescKey(slug: string, text: string): string | null {
+  const key = `pathName.${slug}.desc`;
+  // Only while the French entry still spells the vault's text: a description
+  // edited in pensine shows as written until its translations catch up.
+  return lookup(BUNDLES[DEFAULT_LOCALE], key) === text ? key : null;
+}
+
+/** A vault text's slot in a bundle section: letters and digits only,
+ *  accents dropped ("Culture et grammaire" → "cultureetgrammaire"). */
+export function textSlug(text: string): string {
+  return text
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+}
+
+/** The `levelName.*` key of a reading path's level name, as
+ *  components/paths/Parcours.tsx names it in French (a `niveau:` line, or its
+ *  notes' folders: "Phonologie et communication"), or null when the bundles
+ *  don't translate it. lib/path-names.test.ts fails on a level without one. */
+export function levelNameKey(name: string): string | null {
+  const k = textSlug(name);
+  const key = `levelName.${k}`;
+  return k && lookup(BUNDLES[DEFAULT_LOCALE], key) === name ? key : null;
+}
+
+/** A vault text in `locale` through its key, or the text itself. */
+export function keyedText(key: string | null, text: string, locale: Locale = DEFAULT_LOCALE): string {
+  return key ? t(key, undefined, locale) : text;
+}
+
+/** `key` when the default bundle holds it, else null. */
+export function knownKey(key: string): string | null {
+  return lookup(BUNDLES[DEFAULT_LOCALE], key) != null ? key : null;
+}
+
+/** data-i18n props for a keyed vault text; none without a key. */
+export function keyedProps(key: string | null): Record<string, string> {
+  return key ? i18nProps(key) : {};
+}
+
+/** A reading path's level name in `locale` (see {@link levelNameKey}). */
+export function levelNameIn(name: string, locale: Locale = DEFAULT_LOCALE): string {
+  return keyedText(levelNameKey(name), name, locale);
+}
+
+/** A reading path's description in `locale` (see {@link pathDescKey}). */
+export function pathDescIn(slug: string, text: string, locale: Locale = DEFAULT_LOCALE): string {
+  return keyedText(pathDescKey(slug, text), text, locale);
+}

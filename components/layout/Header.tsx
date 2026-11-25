@@ -1,6 +1,6 @@
 import { UnifrakturMaguntia } from "next/font/google";
 import type { Doc } from "@/lib/content";
-import { t } from "@/lib/i18n";
+import { t, i18nAttrProps } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/layout/LangSwitcher";
 import { EditionDate } from "@/components/ui/EditionDate";
 import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
@@ -39,6 +39,7 @@ export default function Header({ doc }: { doc: Doc }) {
         type="checkbox"
         className="peer sr-only"
         aria-label={t("nav.menu")}
+        {...i18nAttrProps("aria-label", "nav.menu")}
       />
 
       {/* 1. utility bar: language "editions" + the light/dark toggle (same
@@ -66,6 +67,7 @@ export default function Header({ doc }: { doc: Doc }) {
         <label
           htmlFor="gk-menu"
           aria-label={t("nav.menu")}
+        {...i18nAttrProps("aria-label", "nav.menu")}
           className="gk-menu-btn inline-flex size-[1.9rem] cursor-pointer items-center justify-center rounded-full border border-rule-strong bg-paper text-ink-soft hover:border-ink hover:bg-wash hover:text-ink sm:hidden"
         >
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true" className="gk-ic-open">
@@ -108,6 +110,7 @@ export default function Header({ doc }: { doc: Doc }) {
           popover on mobile, revealed by the hamburger pill just above (#6). */}
       <nav
         aria-label={t("home.footerNavAria")}
+        {...i18nAttrProps("aria-label", "home.footerNavAria")}
         className="max-sm:order-2 relative hidden peer-checked:block sm:block"
       >
         {/* The same links as the site bar on every other page

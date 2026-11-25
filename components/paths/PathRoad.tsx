@@ -1,7 +1,7 @@
 "use client";
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { t, pathName as localPathName } from "@/lib/i18n";
+import { t, levelNameIn, pathName as localPathName, type Locale } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
 import {
@@ -192,7 +192,7 @@ export function PathRoad({
               {tr("road.levelOf", { n: curLevel.n, total: levels.length })} · {tr("road.min", { n: curMinutes })}
               {curLevel.cible && ` · ${tr("parcours.cible", { c: curLevel.cible })}`}
             </small>
-            <b>{curLevel.name}</b>
+            <b>{levelNameIn(curLevel.name, locale)}</b>
             <span className="road-bar-p" aria-hidden="true">
               <i style={{ width: `${(100 * curDone) / curLevel.notes.length}%` }} />
             </span>
@@ -241,7 +241,7 @@ export function PathRoad({
               <div className="road-div">
                 <span className="road-div-art" dangerouslySetInnerHTML={{ __html: artStrip(art) }} />
                 <p className="road-div-h">
-                  {tr("parcours.level", { n: lv.n })} · {lv.name}
+                  {tr("parcours.level", { n: lv.n })} · {levelNameIn(lv.name, locale)}
                 </p>
                 <p className="road-div-sub">
                   {tr("road.levelSub", { n: lv.notes.length, m: lvMinutes })}
@@ -471,7 +471,7 @@ function RefreshSheet({
           {tr("road.sheetKick")}
         </p>
         <h2 id="road-sheet-h">
-          {tr("parcours.level", { n: level.n })} · {level.name}
+          {tr("parcours.level", { n: level.n })} · {levelNameIn(level.name, locale as Locale)}
         </h2>
         <p className="road-sheet-lead">
           {last && `${tr("road.sheetLast", { ago: daysAgo(daysBetween(last, dayKey()), locale) })} `}

@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { LOCALES, DEFAULT_LOCALE, pathName, pathNameKeys, pathNameRef, splitPathName, t } from "./i18n";
+import { LOCALES, DEFAULT_LOCALE, levelNameIn, levelNameKey, pathDescIn, pathDescKey, pathName, pathNameKeys, pathNameRef, splitPathName, t } from "./i18n";
 
 // Reading paths are named in the vault, in French (`parcours:` in a note's
 // frontmatter, lib/content.ts getReadingPaths()). Their translations live in
@@ -10,7 +10,7 @@ import { LOCALES, DEFAULT_LOCALE, pathName, pathNameKeys, pathNameRef, splitPath
 // before and after " : "). A path missing there shows its French name in
 // every locale, which is how every path title stayed French until now.
 
-type Entry = { title: string; sub?: string };
+type Entry = { title: string; sub?: string; desc?: string };
 const bundle = (locale: string): Record<string, Entry> =>
   JSON.parse(fs.readFileSync(path.join(process.cwd(), "messages", `${locale}.json`), "utf8")).pathName ?? {};
 
@@ -61,6 +61,37 @@ describe("path name translations", () => {
   });
 });
 
+const levelBundle = (locale: string): Record<string, string> =>
+  JSON.parse(fs.readFileSync(path.join(process.cwd(), "messages", `${locale}.json`), "utf8")).levelName ?? {};
+
+describe("path descriptions and level names", () => {
+  for (const locale of LOCALES.filter((l) => l !== DEFAULT_LOCALE)) {
+    it(`${locale} translates every description and level name`, () => {
+      const own = bundle(locale);
+      const descs = Object.entries(fr)
+        .filter(([, f]) => f.desc)
+        .filter(([slug, f]) => !own[slug]?.desc?.trim() || own[slug].desc === f.desc)
+        .map(([slug]) => slug);
+      expect(descs).toEqual([]);
+      const lv = levelBundle(locale);
+      expect(Object.keys(levelBundle(DEFAULT_LOCALE)).filter((k) => !lv[k]?.trim())).toEqual([]);
+    });
+  }
+
+  it("resolves them in a locale, and keeps a text the bundles don't spell", () => {
+    const slug = "hakka-des-premiers-mots-a-la-culture";
+    const desc = fr[slug].desc!;
+    expect(pathDescKey(slug, desc)).toBe(`pathName.${slug}.desc`);
+    expect(pathDescIn(slug, desc, "id")).toMatch(/Kalimantan Barat/);
+    // Edited in the vault since: the vault's French shows in every locale.
+    expect(pathDescKey(slug, `${desc} Et plus.`)).toBeNull();
+    expect(pathDescIn(slug, "Autre texte.", "id")).toBe("Autre texte.");
+    expect(levelNameKey("Phonologie et communication")).toBe("levelName.phonologieetcommunication");
+    expect(levelNameIn("Phonologie et communication", "id")).toBe("Fonologi dan komunikasi");
+    expect(levelNameIn("Un niveau inconnu", "en")).toBe("Un niveau inconnu");
+  });
+});
+
 /** Every reading path of the vault under `root` (a folder holding
  *  content/posts), checked against the French bundle: its slug has an entry,
  *  and the entry spells the vault's name. */
@@ -81,12 +112,37 @@ async function untranslatedPaths(root: string): Promise<string[]> {
   }
 }
 
+/** The descriptions and level names of the vault under `root` that the
+ *  bundles don't translate (an edited `description:` or `niveau:`, or a
+ *  level named after a new folder). */
+async function untranslatedTexts(root: string): Promise<string[]> {
+  vi.resetModules();
+  const cwd = vi.spyOn(process, "cwd").mockReturnValue(root);
+  try {
+    const { getReadingPaths, getPost } = await import("./content");
+    const { namedLevels } = await import("./level-names");
+    const out: string[] = [];
+    for (const p of getReadingPaths()) {
+      if (p.description && !pathDescKey(p.slug, p.description)) out.push(`${p.slug}: description « ${p.description} »`);
+      for (const l of namedLevels(p, (s) => getPost(s).frontmatter.title)) {
+        // A level named after its first note's title is content, not a name.
+        if (l.name === getPost(p.notes[l.from].slug).frontmatter.title) continue;
+        if (!levelNameKey(l.name)) out.push(`${p.slug}: niveau « ${l.name} »`);
+      }
+    }
+    return out;
+  } finally {
+    cwd.mockRestore();
+  }
+}
+
 describe("every reading path has a translated name", () => {
   it("in the fixture vault", async () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), "path-names-"));
     fs.mkdirSync(path.join(root, "content"));
     fs.symlinkSync(path.join(process.cwd(), "tests", "fixtures", "vault"), path.join(root, "content", "posts"));
     expect(await untranslatedPaths(root)).toEqual([]);
+    expect(await untranslatedTexts(root)).toEqual([]);
   });
 
   // The real vault, once fetched (predev / build). CI runs this file again
@@ -96,5 +152,6 @@ describe("every reading path has a translated name", () => {
   it.skipIf(!fs.existsSync(posts) && !process.env.REQUIRE_VAULT)("in the fetched vault (content/posts)", async () => {
     expect(fs.existsSync(posts)).toBe(true);
     expect(await untranslatedPaths(process.cwd())).toEqual([]);
+    expect(await untranslatedTexts(process.cwd())).toEqual([]);
   });
 });

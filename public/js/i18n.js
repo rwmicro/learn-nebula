@@ -108,6 +108,29 @@
     }
     // Dates: reformat using Intl in the active locale.
     const locale = i18n.locale || i18n.defaultLocale;
+    // Country names (/carte/): `data-i18n-region="DZ"` names the country in
+    // the active locale through Intl, in the text or, with
+    // `data-i18n-region-attr`, in that attribute (plus `-tail`, as " : 9").
+    let regions = null;
+    try {
+      regions = new Intl.DisplayNames([BCP47[locale] || locale], { type: "region" });
+    } catch {
+      /* no Intl.DisplayNames: the French names stay */
+    }
+    if (regions) {
+      root.querySelectorAll("[data-i18n-region]").forEach(function (el) {
+        let name = null;
+        try {
+          name = regions.of(el.getAttribute("data-i18n-region"));
+        } catch {
+          /* unknown code */
+        }
+        if (!name) return;
+        const attr = el.getAttribute("data-i18n-region-attr");
+        if (attr) el.setAttribute(attr, name + (el.getAttribute("data-i18n-region-tail") || ""));
+        else el.textContent = name;
+      });
+    }
     root.querySelectorAll("[data-i18n-date]").forEach(function (el) {
       const iso = el.getAttribute("datetime");
       if (!iso) return;
