@@ -69,32 +69,6 @@
     --sheet-scrim: rgb(0 0 0 / 0.55);
   }
 }
-/* Two more papers (settings "Papier" / "Noir", /js/theme.js): the light
-   theme on a warm book paper, the dark one on pure black. <html data-paper>
-   only ever comes with the matching data-theme, so the ink tokens above stay
-   right and only the surfaces change. After the dark blocks, same weight. */
-:root[data-paper="paper"] {
-  --paper: #f6f0e3;
-  --paper-raised: #faf6ec;
-  --wash: #f0e9da;
-  --wash-2: #e8dfcc;
-  --rule-soft: #ebe3d2;
-  --rule: #e0d6c2;
-  --rule-strong: #c9bea8;
-  --link-wash: #ebeef0;
-  --garden-wash: #e7ebdc;
-}
-:root[data-paper="black"] {
-  --paper: #000;
-  --paper-raised: #121212;
-  --wash: #0c0c0c;
-  --wash-2: #1a1a1a;
-  --rule-soft: #1a1a1a;
-  --rule: #262626;
-  --rule-strong: #3a3a3a;
-  --link-wash: #0f1823;
-  --garden-wash: #101a13;
-}
 :is(.na-grab, .gc-grab, .ap-grab, .road-sheet-grip) {
   display: block;
   flex: none;
@@ -394,6 +368,43 @@
     --mark-soft: color-mix(in srgb, var(--mark) 24%, transparent);
     --island-pad: 0.8rem 1rem;
   }
+}
+
+/* Two more papers (settings "Papier" / "Noir", /js/theme.js): the light
+   theme on a warm book paper, the dark one on pure black. <html data-paper>
+   only ever comes with the matching data-theme, so the ink tokens above stay
+   right and only the surfaces change. Same weight as the light/dark blocks
+   above (0,2,0), so they MUST stay after them: placed earlier, the dark
+   palette won and "Noir" looked exactly like "Sombre" (and "Papier" like
+   "Clair"). */
+:root[data-paper="paper"] {
+  --paper: #f6f0e3;
+  --paper-raised: #faf6ec;
+  --wash: #f0e9da;
+  --wash-2: #e8dfcc;
+  --rule-soft: #ebe3d2;
+  --rule: #e0d6c2;
+  --rule-strong: #c9bea8;
+  --link-wash: #ebeef0;
+  --garden-wash: #e7ebdc;
+}
+:root[data-paper="black"] {
+  /* OLED: the page is true black (pixels off); faint fills, raised panels,
+     hovers and rules sit just above it so they still read.
+     Ink, link and the green accent are the dark theme's: on #000 every text
+     token gains contrast (--ink 17.2:1, --muted 7.8:1). Neutral greys, no
+     warm tint, which shows as brown on an OLED screen. */
+  --paper: #000;
+  --paper-raised: #0e0e0e;
+  --wash: #0a0a0a;
+  --wash-2: #161616;
+  --rule-soft: #161616;
+  --rule: #242424;
+  --rule-strong: #3a3a3a;
+  --link-wash: #0c1622;
+  --link-soft: #22384f;
+  --garden-wash: #0d1a11;
+  --garden-deep: #24402d;
 }
 
 /* ===========================================================================
