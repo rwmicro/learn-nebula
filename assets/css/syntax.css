@@ -39,3 +39,13 @@
     background-color: var(--shiki-dark-bg) !important;
   }
 }
+
+/* "Noir" (data-paper="black", the OLED paper): code blocks drop
+   modus-vivendi's #1c1b19 for the black page's own fills, keeping the token
+   colours. After the dark rules above, same weight, so it wins. */
+:root[data-paper="black"] .chroma {
+  background-color: var(--wash) !important;
+}
+:root[data-paper="black"] .chroma span {
+  background-color: transparent !important;
+}
