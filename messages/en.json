@@ -115,9 +115,7 @@
     "seedling": "seedling",
     "budding": "budding",
     "evergreen": "evergreen",
-    "stageAria": "Note growth stage",
-    "history": "history",
-    "historyAria": "Every version of this note, on GitHub"
+    "stageAria": "Note growth stage"
   },
   "pronunciation": {
     "playAria": "Listen to the pronunciation",

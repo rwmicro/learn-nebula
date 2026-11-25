@@ -224,6 +224,14 @@ image tag in `ci.yml` together with `@playwright/test`.
   attributes; it only re-runs on load when a **non-default** locale is stored, so
   build-time output must already be correct for `fr` (e.g. `formatDateLong` uses
   `fr-FR`).
+  A first visit follows the browser/system language: the `<head>` bootstrap
+  inlines `detectLocale` (`lib/locale-detect.ts`, self-contained on purpose:
+  it ships as `toString()`) over `navigator.languages` + the Intl locale,
+  languages first, then the country ("jv-ID" → id), else `fr`; the result
+  (`__i18n.detected`) is never stored, a saved `locale` always wins, and
+  crawlers/automated browsers (`navigator.webdriver`) keep `fr`, so the
+  other Playwright specs and the screenshots stay French. Browser tests:
+  `tests/locale.spec.js` (it fakes `webdriver: false`).
   Reading path names come from the vault in French; their translations are
   `pathName.<slug>` (`title` / `sub`, the parts around " : ") in the bundles,
   read through `pathName()` / `pathNameProps()` / `pathNameRef()` (a `{ $t }`
@@ -282,8 +290,6 @@ image tag in `ci.yml` together with `@playwright/test`.
   to `/api/report` (`error_reports`). Both show in /admin (Site / Contenu).
   Normalisation is `lib/feedback.ts` (tested). `app/error.tsx` and
   `app/admin/error.tsx` are the React error boundaries.
-- Under each note's title, "historique" links to the file's GitHub commits
-  (`noteHistoryUrl()` in `lib/site.ts`, from NOTES_REPO_URL/BRANCH/SUBDIR).
 
 ## Newer browser features (all feature-detected, hidden when absent)
 - **Passkeys** (`server/routes/passkey.ts`, `@simplewebauthn`, RP from
@@ -370,6 +376,22 @@ image tag in `ci.yml` together with `@playwright/test`.
   (`.tabbar` / `.na-toolbar`), its pill and `.site-bar` are named so they stay
   put. Keep page-wide listeners off `beforeunload`/`unload` (bfcache): use
   `pagehide`.
+- **Liquid glass** (`lib/glass/`): the floating chrome (phone tab bar, its
+  search button and mini player, the note's reading bar, the phone note
+  toolbar) is drawn by the kit of bilalgursen/liquid-glass (MIT,
+  `lib/glass/LICENSE`): `engine.ts` (one WebGL2 context, the shader) and
+  `dom-snapshot.ts` (paints the page behind into a texture) are copied
+  verbatim, don't edit or "simplify" them; `layer.ts` is its
+  `glass-layer.tsx` without React (`attachGlass`), `site.ts` the looks, the
+  kit's own defaults untuned (`card` = GlassCard for the bars, `button` /
+  `tinted` = GlassButton). It ships as its own
+  `/js/liquid-glass.bundle.js`, fetched by `lib/glass/load.ts`
+  (`liquidGlassLater`) only with WebGL2 on a GPU (a software renderer:
+  SwiftShader, llvmpipe… keeps the CSS glass, so CI and headless runs never
+  draw it; localStorage `gk-glass=on` forces it for screenshots, `off`
+  disables it) and no reduced transparency / more contrast; until its first frame (and without it) the element keeps the CSS
+  `.glass` (phone/base.css), which `[data-glass-ready]` turns off. The
+  snapshot sees no pseudo-elements, masks or CSS filters.
 - Native CSS: anchor-positioned popovers (`lib/anchor-popover.ts`) for the
   link preview and glossary, `scroll-state` sticky bar and scroll-driven
   progress (JS fallbacks kept), `@starting-style`, `field-sizing`; Wake Lock

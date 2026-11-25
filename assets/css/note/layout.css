@@ -87,15 +87,14 @@ main[data-family],
   text-transform: uppercase;
 }
 
-/* One line under the title: date · time · stage · tended · history · Lue. */
+/* One line under the title: date · time · stage · tended · Lue. */
 .note-meta .note-growth {
   margin: 0;
   font-size: inherit;
 }
 @media (max-width: 639.98px) {
-  /* Phones: the "historique" link alone under the title read like a
-     category label. It joins the growth line, after the date and reading
-     time, as on wider screens: "28 février 2026 · 8 min · historique". */
+  /* Phones: the growth line joins the date and reading time on one line,
+     as on wider screens: "28 février 2026 · 8 min · pousse". */
   .note-meta > .read-badge {
     display: none !important;
   }
@@ -136,18 +135,6 @@ main[data-family],
   }
   .note-meta > :first-child::before {
     content: none !important;
-  }
-  /* Same size and dotted underline as the rest of the line (`main a` made
-     it larger), and its "·" kept out of the underline. */
-  .note-meta .growth-history {
-    font: inherit;
-    color: inherit;
-    text-decoration: underline dotted;
-    text-decoration-color: var(--rule-strong);
-    text-underline-offset: 0.2em;
-  }
-  .note-meta .growth-history::before {
-    display: inline-block;
   }
 }
 
@@ -251,10 +238,6 @@ main[data-family],
   .note-meta .growth-tended time {
     font-style: normal;
   }
-  .note-meta .growth-history {
-    text-decoration: underline;
-    text-decoration-color: var(--rule-strong);
-  }
 
   /* --- The bar ------------------------------------------------------------- */
   .note-dock {
@@ -269,8 +252,8 @@ main[data-family],
     margin-inline: auto;
     border-radius: var(--radius-pill);
   }
-  /* The drop shadow on its own layer: a refracting glass is shifted by its
-     own outer shadow in Chromium (lib/liquid-glass.ts). */
+  /* The drop shadow on its own layer, for the CSS glass; the glass of
+     lib/glass casts its own once it draws. */
   .note-dock::before {
     content: "";
     position: absolute;
@@ -402,11 +385,8 @@ main[data-family],
     top: auto;
     bottom: calc(100% + 0.3rem);
   }
-  /* An open menu hangs outside the bar, and Chromium would shift the bending
-     by that much: plain glass meanwhile. */
-  .note-dock-bar.has-lens:has(.note-more[open]) {
-    -webkit-backdrop-filter: var(--glass-filter) !important;
-    backdrop-filter: var(--glass-filter) !important;
+  .note-dock:has(> .note-dock-bar[data-glass-ready])::before {
+    display: none;
   }
   .note-dock-bar .dock-ask {
     margin-inline-start: 0.3rem;

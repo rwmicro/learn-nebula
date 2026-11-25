@@ -32,7 +32,7 @@
     --hd-line: color-mix(in srgb, var(--ink) 9%, transparent);
     --serif: var(--gk-serif), "Newsreader", Georgia, serif;
     display: block;
-    width: min(1070px, 100% - 64px);
+    width: min(1180px, 100% - 64px);
     margin: 0 auto;
     color: var(--ink);
     font-family: var(--font-text);
@@ -90,6 +90,10 @@
   .hd2-prog i::before { content: ""; display: block; height: 100%; width: var(--w); background: #f6f0e3; }
   .hd2-cap .hd-go { background: #f6f0e3; color: #1d1a15 !important; }
   .hd2-art figcaption { margin-top: 8px; text-align: center; font: 400 14px var(--font-text); color: var(--hd-muted-warm); }
+
+  /* The path in progress sits on the week bar otherwise: the same gap as
+     between the cards of a row. */
+  .hd > .pnc { margin-bottom: 28px; }
 
   /* The week */
   .hd2-week { display: flex; align-items: center; gap: 26px; padding: 16px 24px; margin-bottom: 40px; }
@@ -291,6 +295,12 @@
   .hd-lic { margin: 0; font: 400 13px/1.6 var(--font-ui); color: var(--hd-muted); text-align: right; }
   .hd-lic a:hover { color: var(--garden); }
   .hd-lic .cc { display: inline-block; padding: 2px 8px; border: 1px solid var(--rule-strong); border-radius: 999px; font-weight: 600; color: var(--ink-2); }
+}
+
+/* From 1024px the masthead's rules run exactly as wide as the column below
+   (its own 1rem padding on each side), rather than stopping short of it. */
+@media (min-width: 1024px) {
+  body:has(.hd) .home-masthead { max-width: calc(min(1180px, 100% - 64px) + 2rem); }
 }
 
 /* Dark: a darker card, the green buttons with dark ink, the frame warmer. */

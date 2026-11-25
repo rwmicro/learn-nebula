@@ -14,7 +14,6 @@ import {
   getReadingPaths,
   getDisciplines,
 } from "@/lib/content";
-import { noteHistoryUrl } from "@/lib/site";
 import { langFromSlug } from "@/lib/read-aloud";
 import { pathStepHtml, pathStepOf } from "@/lib/path-step";
 import { extractPlain, renderMarkdown } from "@/lib/markdown";
@@ -322,7 +321,7 @@ export async function SinglePage({
     // history, and "Lue" once the reader has finished it (/js/reading-state.js).
     (note
       ? `<div class="note-meta" data-pagefind-ignore>${subtitle}${readingTime}` +
-        growthHtml(fm.stage, fm.date, fm.updated, noteHistoryUrl(doc.rawPath)) +
+        growthHtml(fm.stage, fm.date, fm.updated) +
         readBadgeHtml() +
         `</div>`
       : "") +

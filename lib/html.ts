@@ -312,14 +312,13 @@ export function growthHtml(
   stage: NoteStage | undefined,
   planted: Date | undefined,
   tended: Date | undefined,
-  historyUrl?: string,
 ): string {
   const sameDay =
     planted &&
     tended &&
     planted.toISOString().slice(0, 10) === tended.toISOString().slice(0, 10);
   const showTended = tended && !sameDay;
-  if (!stage && !showTended && !historyUrl) return "";
+  if (!stage && !showTended) return "";
 
   const badge = stage
     ? `<span class="growth-stage growth-${stage}"` +
@@ -338,15 +337,8 @@ export function growthHtml(
       `</span>`
     : "";
 
-  // Every past version of the note, on GitHub (the vault is public).
-  const historyHtml = historyUrl
-    ? `<a class="growth-history" href="${escapeHtml(historyUrl)}" rel="noopener" target="_blank"` +
-      ` title="${escapeHtml(t("growth.historyAria"))}"${i18nAttr("title", "growth.historyAria")}>` +
-      `<span${i18nAttrs("growth.history")}>${escapeHtml(t("growth.history"))}</span></a>`
-    : "";
-
   const sep = `<span class="growth-sep" aria-hidden="true">·</span>`;
-  const parts = [badge, tendedHtml, historyHtml].filter(Boolean).join(sep);
+  const parts = [badge, tendedHtml].filter(Boolean).join(sep);
   return `<div class="note-growth" data-pagefind-ignore>${parts}</div>`;
 }
 

@@ -4,6 +4,8 @@
 // the note's own controls (.audio-btn, .lesson-btn, .bookmark-btn,
 // .text-size-btn, .wide-text-btn, .focus-btn, .translate-wrap), which the
 // phone layout hides, so every feature keeps a single implementation.
+import { liquidGlassLater as liquidGlass } from "../../lib/glass/load";
+
 (function () {
   const root = document.querySelector(".na-chrome");
   const main = document.getElementById("main");
@@ -475,4 +477,23 @@
     current = -2;
     update();
   });
+
+  // The floating chrome is liquid glass (lib/glass) on phones, the only
+  // screens that show it: the toolbar and the section pill as the kit's
+  // card, the round buttons as its button, the green "next" tinted.
+  let unglass = [];
+  const glass = () => {
+    if (phone.matches && !unglass.length) {
+      unglass = [
+        ...$$(".na-bar, .na-pill", root).map((el) => liquidGlass(el, "card")),
+        ...$$(".na-gbtn", root).map((el) => liquidGlass(el, "button")),
+        ...$$(".na-next", root).map((el) => liquidGlass(el, "tinted")),
+      ];
+    } else if (!phone.matches && unglass.length) {
+      unglass.forEach((off) => off());
+      unglass = [];
+    }
+  };
+  glass();
+  if (phone.addEventListener) phone.addEventListener("change", glass);
 })();
