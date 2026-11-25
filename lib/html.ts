@@ -476,14 +476,16 @@ export function noteChapters(html: string): NoteChapter[] {
   while ((m = re.exec(html)) !== null) {
     const id = m[1].match(/\bid="([^"]+)"/);
     if (!id) continue;
-    // Tags dropped, then any "<" or ">" left over (a tag split by the
-    // removal, "<scr<b>ipt") escaped: the text goes back into HTML.
-    const text = m[2]
-      .replace(/<a class="anchor"[\s\S]*?<\/a>/g, "")
-      .replace(/<[^>]*>/g, "")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .trim();
+    // Tags dropped until none is left (removing one can join two halves of
+    // another, "<scr<b>ipt>"), then any stray "<" or ">" escaped: the text
+    // goes back into HTML.
+    let text = m[2].replace(/<a class="anchor"[\s\S]*?<\/a>/g, "");
+    let prev: string;
+    do {
+      prev = text;
+      text = text.replace(/<[^<>]*>/g, "");
+    } while (text !== prev);
+    text = text.replace(/</g, "&lt;").replace(/>/g, "&gt;").trim();
     if (text) out.push({ id: id[1], text });
   }
   return out.length >= 2 ? out : [];
