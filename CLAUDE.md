@@ -176,6 +176,13 @@ image tag in `ci.yml` together with `@playwright/test`.
   **`/parcours/<slug>/fiche/`** (printable revision sheet: definitions,
   `[!important]` key points via `lib/path-sheet.ts`, quiz questions, answers on
   the last page) are pure build-time pages.
+- **Cyber widgets** (pack `cyber`, `public/js/cyber/*.js` → `widgets-cyber.bundle.js`,
+  CSS `assets/css/widgets-cyber.css`): `echange` (protocol step by step),
+  `pare-feu`, `cors`, `nat`, `tunnel-ssh`, `jwt` (real HS256 via Web Crypto),
+  `chemin-ad`, `kill-chain`, `cassage`. Every rule they show is a pure function
+  in `lib/cyber.ts` (tested). Lists come as numbered keys (`m1`, `r1`, `e1`…)
+  because `widgetProps` keeps one value per key, and no widget prop is called
+  `cible` (the goal-condition key).
 - **Widget goals**: a widget block can carry `objectif`, `cible`, `indice`,
   `bravo`, `erreur` lines (syntax in pensine's `sources/CLAUDE.md`); builders in
   `public/js/widgets.js` publish their values through `ctx.report()` and
