@@ -1142,7 +1142,8 @@
     "step": "الخطوة {n} من {total}"
   },
   "condensed": {
-    "left": "متبقٍ {min} د"
+    "left": "متبقٍ {min} د",
+    "chapters": "الفصول"
   },
   "toTop": {
     "aria": "العودة إلى أعلى الملاحظة"

@@ -391,6 +391,7 @@ export function noteHeaderHtml(
   date?: { iso: string; formatted: string },
   discipline?: { href: string; depth: number } | null,
   family?: PathFamily | null,
+  chapters: NoteChapter[] = [],
 ): string {
   // Each folder segment links to the home browse tree opened at that folder
   // (/#<folderAnchor>), so the breadcrumb doubles as navigation back up the
@@ -452,8 +453,52 @@ export function noteHeaderHtml(
     `<span class="note-header-now" hidden aria-hidden="true"><span class="note-header-section"></span><span class="note-header-left"></span></span>` +
     `</div>` +
     asideToggleHtml() +
+    noteChaptersHtml(chapters) +
     `</div>` +
     `</div>`
+  );
+}
+
+export interface NoteChapter {
+  id: string;
+  text: string;
+}
+
+/** The note's sections (its h2 with an id), for the chapter strip of the
+ * condensed header. Only when there are two or more: that is when
+ * rehypeOutline numbers them (`.sec-n`), and the strip repeats those
+ * numerals. Ids and text are already escaped HTML (as in buildToc); tags and
+ * anchors go. */
+export function noteChapters(html: string): NoteChapter[] {
+  const out: NoteChapter[] = [];
+  const re = /<h2\b([^>]*)>([\s\S]*?)<\/h2>/g;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const id = m[1].match(/\bid="([^"]+)"/);
+    if (!id) continue;
+    const text = m[2]
+      .replace(/<a class="anchor"[\s\S]*?<\/a>/g, "")
+      .replace(/<[^>]+>/g, "")
+      .trim();
+    if (text) out.push({ id: id[1], text });
+  }
+  return out.length >= 2 ? out : [];
+}
+
+/** The chapter strip under the condensed header's title row (piste E of the
+ * 2026-11-25 header mockups): one link per section, numbered i., ii.… by a
+ * CSS counter like the margin numerals. public/js/reader-tools.js marks the
+ * one being read (aria-current), the ones before it (data-done), fills the
+ * current one's underline with how far into it the reader is (--ch-p) and
+ * keeps it in view by scrolling the strip, never the page. */
+export function noteChaptersHtml(chapters: NoteChapter[]): string {
+  if (chapters.length < 2) return "";
+  return (
+    `<nav class="note-chapters" aria-label="${escapeHtml(t("condensed.chapters"))}"${i18nAttr("aria-label", "condensed.chapters")}>` +
+    `<ol>${chapters
+      .map((c) => `<li><a href="#${c.id}" data-chapter="${c.id}">${c.text}</a></li>`)
+      .join("")}</ol>` +
+    `</nav>`
   );
 }
 

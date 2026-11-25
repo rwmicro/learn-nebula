@@ -297,6 +297,166 @@
   display: none;
 }
 
+/* From 640px (phones have lib/note-app.ts's own chrome): one row on the text
+   column, discipline chip · title · time left, and under it the chapter
+   strip (lib/html.ts noteChaptersHtml; piste E of the 2026-11-25 mockups).
+   The strip names the section being read, so the row drops it. */
+@media (min-width: 640px) {
+  .note-header-condensed {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+    background: color-mix(in srgb, var(--paper) 92%, transparent);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid var(--rule);
+    box-shadow: none;
+  }
+  .note-header-condensed .note-header-stack {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.75rem;
+    width: min(100% - 2rem, var(--col, 680px));
+    margin: 0 auto;
+    padding: 0.6rem 0 0.5rem;
+  }
+  .note-header-condensed .note-header-disc {
+    flex: none;
+    font-size: 0.66rem;
+    padding: 0.32rem 0.55rem;
+    border-radius: var(--radius-pill);
+    background: var(--garden-wash);
+  }
+  .note-header-condensed .note-header-stack .note-header-meta {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .note-header-condensed .note-header-title {
+    font-size: 1.12rem;
+  }
+  .note-header-condensed .note-header-now {
+    flex: none;
+    max-width: 45%;
+    font-family: var(--font-ui);
+    font-style: normal;
+    font-size: 0.85rem;
+  }
+  .note-header-condensed:has(.note-chapters) .note-header-section {
+    display: none;
+  }
+  .note-header-condensed:has(.note-chapters) .note-header-now .note-header-left::before {
+    content: none;
+  }
+  .note-header-condensed:has(.note-chapters) .note-header-stack {
+    padding-bottom: 0.15rem;
+  }
+}
+
+.note-chapters {
+  display: none;
+}
+@media (min-width: 640px) {
+  .note-chapters {
+    display: block;
+    overflow-x: auto;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    /* The strip starts on the text column, runs to the screen's edge, and
+       fades out there when there is more. */
+    padding-inline: max(1rem, calc((100% - var(--col, 680px)) / 2)) 1rem;
+    scroll-padding-inline: max(1rem, calc((100% - var(--col, 680px)) / 2));
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 3rem), transparent);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 3rem), transparent);
+  }
+  .note-chapters::-webkit-scrollbar {
+    display: none;
+  }
+  .note-chapters ol {
+    display: flex;
+    gap: 0.15rem;
+    list-style: none;
+    margin: 0 0 0 -0.7rem;
+    padding: 0;
+    counter-reset: chapter;
+    width: max-content;
+  }
+  .note-chapters li {
+    counter-increment: chapter;
+    margin: 0;
+    padding: 0;
+  }
+  .note-chapters li::before {
+    content: none;
+  }
+  .note-chapters a {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.4rem 0.7rem 0.55rem;
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+    color: var(--muted);
+    text-decoration: none;
+    border-radius: 0.6rem 0.6rem 0 0;
+  }
+  .note-chapters a::before {
+    content: counter(chapter, lower-roman);
+    font-family: var(--font-caps);
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    color: var(--muted);
+    opacity: 0.75;
+  }
+  .note-chapters a:hover,
+  .note-chapters a:focus-visible {
+    color: var(--ink);
+    background: var(--garden-wash);
+    outline: none;
+  }
+  .note-chapters a[data-done] {
+    color: color-mix(in srgb, var(--muted) 75%, transparent);
+  }
+  .note-chapters a[data-done]::before {
+    color: var(--garden);
+    opacity: 1;
+  }
+  .note-chapters a[aria-current] {
+    color: var(--ink);
+  }
+  .note-chapters a[aria-current]::before {
+    color: var(--fam-ink, var(--garden));
+    opacity: 1;
+  }
+  /* The current chapter's underline: a track, filled with how far into the
+     section the reader is (--ch-p, reader-tools.js). */
+  .note-chapters a[aria-current]::after {
+    content: "";
+    position: absolute;
+    left: 0.7rem;
+    right: 0.7rem;
+    bottom: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--garden) calc(var(--ch-p, 0) * 100%), var(--rule-strong) 0);
+  }
+  /* A link from the strip lands below the bar, not under it. */
+  .article-body h2[id] {
+    scroll-margin-top: 6.5rem;
+  }
+}
+/* With the contents rail beside the text (layout.css, from 1100px) the strip
+   would list the same sections twice. */
+@media screen and (min-width: 1100px) {
+  body:not([data-wide-text="wide"]):not([data-wide-text="widest"]):not([data-focus="true"]) .note-chapters {
+    display: none;
+  }
+}
+
 /* "Remonter": a round button bottom-right, its ring = share of the note read. */
 .to-top {
   position: fixed;

@@ -1142,7 +1142,8 @@
     "step": "Step {n} of {total}"
   },
   "condensed": {
-    "left": "{min} min left"
+    "left": "{min} min left",
+    "chapters": "Chapters"
   },
   "toTop": {
     "aria": "Back to the top of the note"

@@ -1142,7 +1142,8 @@
     "step": "Étape {n} sur {total}"
   },
   "condensed": {
-    "left": "encore {min} min"
+    "left": "encore {min} min",
+    "chapters": "Chapitres"
   },
   "toTop": {
     "aria": "Remonter en haut de la note"

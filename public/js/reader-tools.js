@@ -4,8 +4,8 @@
 // - phones and tablets: the floating buttons at the bottom ("Étape suivante",
 //   "Remonter", "Demander à l'IA") slide away while the reader scrolls down
 //   and come back on the way up or at the end of the note;
-// - the condensed header (mobile) shows the section being read and the time
-//   left ("encore 6 min");
+// - the condensed header (from 640px) shows the time left ("encore 6 min") and
+//   the chapter being read, in its chapter strip when the note has sections;
 // - "Et ensuite ?" (lib/html.ts nextUpHtml): picks the first note of the
 //   discipline this browser hasn't read yet;
 // - "À lire plus tard" and the focus mode buttons of the note-actions row,
@@ -70,6 +70,53 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
     return cur ? cur.textContent.replace(/#\s*$/, "").trim() : "";
   }
 
+  // --- condensed header: chapter strip (lib/html.ts noteChaptersHtml) -------
+  const strip = document.querySelector(".note-chapters");
+  const chLinks = strip ? Array.from(strip.querySelectorAll("a[data-chapter]")) : [];
+  const chHeads = chLinks.map((a) => document.getElementById(a.getAttribute("data-chapter")));
+  let chAt = -2;
+  let chFill = "";
+
+  // Index of the section being read (-1 above the first one) and how far into
+  // it the reader is, 0..1, measured on a line just under the bar (two rows
+  // tall here), past where a link of the strip lands (scroll-margin-top 6.5rem,
+  // reading-tools.css), so the chapter one picks is the one marked.
+  const CH_LINE = 130;
+  function chapterState() {
+    let i = -1;
+    const tops = chHeads.map((h) => (h ? h.getBoundingClientRect().top : Infinity));
+    for (let k = 0; k < tops.length; k++) {
+      if (tops[k] < CH_LINE) i = k;
+      else break;
+    }
+    if (i < 0) return { i, p: 0 };
+    const end = i + 1 < tops.length ? tops[i + 1] : body.getBoundingClientRect().bottom;
+    const span = end - tops[i];
+    return { i, p: span > 0 ? Math.min(1, Math.max(0, (CH_LINE - tops[i]) / span)) : 1 };
+  }
+
+  function paintChapters(st) {
+    if (st.i !== chAt) {
+      chAt = st.i;
+      chLinks.forEach((a, k) => {
+        if (k === st.i) a.setAttribute("aria-current", "location");
+        else a.removeAttribute("aria-current");
+        a.toggleAttribute("data-done", k < st.i);
+      });
+      // Keep the current chapter in view: scroll the strip, not the page.
+      const a = chLinks[st.i];
+      if (a && strip.scrollWidth > strip.clientWidth) {
+        const left = a.offsetLeft - (strip.clientWidth - a.offsetWidth) / 2;
+        strip.scrollTo({ left: Math.max(0, left), behavior: reduce() ? "instant" : "smooth" });
+      }
+    }
+    const fill = st.p.toFixed(3);
+    if (fill !== chFill && chLinks[st.i]) {
+      chFill = fill;
+      chLinks[st.i].style.setProperty("--ch-p", fill);
+    }
+  }
+
   // Every scroll frame, so: all the measuring first, then only the writes
   // that change something. Setting the same text again still replaces the
   // text node and dirties the layout of the whole (long) note, which the
@@ -81,6 +128,7 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
     const r = body.getBoundingClientRect();
     const p = scrollProgress(r.top, r.height, window.innerHeight);
     const sec = now ? currentSection() : "";
+    const ch = chLinks.length ? chapterState() : null;
     const hideTop = window.scrollY < window.innerHeight * 0.9;
     if (top.hidden !== hideTop) top.hidden = hideTop;
     const dash = (C * (1 - p)).toFixed(2);
@@ -93,6 +141,7 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
       const hideNow = !sec && !leftText;
       if (now.hidden !== hideNow) now.hidden = hideNow;
     }
+    if (ch) paintChapters(ch);
   }
   function onScroll() {
     if (queued) return;
