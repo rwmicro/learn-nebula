@@ -252,8 +252,8 @@ main[data-family],
     margin-inline: auto;
     border-radius: var(--radius-pill);
   }
-  /* The drop shadow on its own layer: a refracting glass is shifted by its
-     own outer shadow in Chromium (lib/liquid-glass.ts). */
+  /* The drop shadow on its own layer, for the CSS glass; the glass of
+     lib/glass casts its own once it draws. */
   .note-dock::before {
     content: "";
     position: absolute;
@@ -385,11 +385,8 @@ main[data-family],
     top: auto;
     bottom: calc(100% + 0.3rem);
   }
-  /* An open menu hangs outside the bar, and Chromium would shift the bending
-     by that much: plain glass meanwhile. */
-  .note-dock-bar.has-lens:has(.note-more[open]) {
-    -webkit-backdrop-filter: var(--glass-filter) !important;
-    backdrop-filter: var(--glass-filter) !important;
+  .note-dock:has(> .note-dock-bar[data-glass-ready])::before {
+    display: none;
   }
   .note-dock-bar .dock-ask {
     margin-inline-start: 0.3rem;

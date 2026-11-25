@@ -6,7 +6,7 @@ import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { useReviewDue } from "@/components/account/AccountChip";
 import { FamilyIcon } from "@/components/ui/FamilyIcon";
-import { attachLens } from "@/lib/liquid-glass";
+import { liquidGlassLater as liquidGlass } from "@/lib/glass/load";
 import { CHANGE_EVENT, NOW_KEY, STORAGE_KEY, loadNow, loadStore, nowPlaying } from "@/lib/reading-progress";
 import type { PathFamily } from "@/lib/path-family";
 
@@ -31,9 +31,10 @@ import type { PathFamily } from "@/lib/path-family";
 // button that resumes it. Scrolling back up (or a tap on the shrunk tab)
 // brings the whole bar back.
 //
-// The glass is app.css `.glass`; on Chromium its rim also bends what passes
-// under it (lib/liquid-glass.ts), which is why the drop shadows live on
-// their own elements here (.tabbar-shadow).
+// The glass is drawn by lib/glass (the liquid-glass kit's WebGL2 shader,
+// which bends the page passing under the rim, in every browser); until its
+// first frame, or without WebGL2, it is app.css `.glass` with its drop
+// shadows on their own elements here (.tabbar-shadow).
 
 type Tab = { key: string; href: string; icon: React.ReactNode; match: (p: string) => boolean };
 
@@ -180,18 +181,15 @@ export function MobileTabBar() {
   const searchRef = useRef<HTMLButtonElement>(null);
   const miniRef = useRef<HTMLAnchorElement>(null);
 
-  // The refracting rim (Chromium; elsewhere the CSS glass alone).
+  // The liquid glass (lib/glass; the CSS glass until it draws).
   useEffect(() => {
-    const off = [
-      barRef.current && attachLens(barRef.current, { depth: 34, chroma: 0.12, saturate: 1.15 }),
-      searchRef.current && attachLens(searchRef.current, { depth: 30, chroma: 0.12, saturate: 1.15 }),
-    ];
-    return () => off.forEach((f) => f?.());
+    const off = [liquidGlass(barRef.current, "card"), liquidGlass(searchRef.current, "button")];
+    return () => off.forEach((f) => f());
   }, []);
   const hasMini = !!playing;
   useEffect(() => {
     if (!hasMini || !miniRef.current) return;
-    return attachLens(miniRef.current, { depth: 30, chroma: 0.12, saturate: 1.15 });
+    return liquidGlass(miniRef.current, "card");
   }, [hasMini]);
 
   useEffect(() => {

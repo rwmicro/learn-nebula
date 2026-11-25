@@ -1,10 +1,10 @@
 // The note's reading bar from 640px up (lib/html.ts noteDockHtml, main.css
 // `.note-dock`): liquid glass floating at the bottom, its rim bending what
-// scrolls under it on Chromium (lib/liquid-glass.ts). One bar, the same
+// scrolls under it (lib/glass, the liquid-glass kit's WebGL2 shader). One bar, the same
 // whichever way the reader scrolls: contents, the progress ring and the
 // section being read, the reading tools, the next note and the assistant.
 // Phones have their own toolbar (note-app.js) and never see this one.
-import { attachLens } from "../../lib/liquid-glass";
+import { liquidGlassLater as liquidGlass } from "../../lib/glass/load";
 import { scrollProgress } from "../../lib/reading-progress";
 
 (function () {
@@ -209,11 +209,11 @@ import { scrollProgress } from "../../lib/reading-progress";
   bar.addEventListener("pointerleave", () => hideTip());
   bar.addEventListener("toggle", () => hideTip(true), true);
 
-  // Phones never show the bar: only give it a lens where it is visible.
+  // Phones never show the bar: only make it glass where it is visible.
   const wide = matchMedia("(min-width: 640px)");
   let detach = null;
   const lens = () => {
-    if (wide.matches && !detach) detach = attachLens(bar, { depth: 30, chroma: 0.12 });
+    if (wide.matches && !detach) detach = liquidGlass(bar, "card");
     else if (!wide.matches && detach) {
       detach();
       detach = null;
