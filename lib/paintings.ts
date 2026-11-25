@@ -1,4 +1,5 @@
 import type { PathFamily } from "./path-family";
+import { DEFAULT_LOCALE, knownKey, t, type Locale } from "./i18n";
 
 // The picture behind the "Aujourd'hui" card (phone and desktop home) and the
 // /parcours/ hero: one per colour family, so the card says which discipline
@@ -88,4 +89,22 @@ export function paintingForPath(family: PathFamily | null | undefined, noteSlug 
  *  garden. */
 export function paintingFor(family: PathFamily | null | undefined, noteSlug = ""): Painting {
   return BY_DISCIPLINE[noteSlug.split("/")[1] ?? ""] ?? (family ? BY_FAMILY[family] : ERAGNY);
+}
+
+/** The bundle keys of a picture's caption, `painting.<file>.title|note|credit`
+ *  (the captions are written in French above), or null for a part the
+ *  bundles don't translate. */
+export function paintingKey(art: Painting, part: "title" | "note" | "credit"): string | null {
+  return knownKey(`painting.${art.src.slice(art.src.lastIndexOf("/") + 1)}.${part}`);
+}
+
+/** A caption part in `locale`, falling back to the French above. */
+export function paintingText(art: Painting, part: "title" | "note" | "credit", locale: Locale = DEFAULT_LOCALE): string {
+  const key = paintingKey(art, part);
+  return key ? t(key, undefined, locale) : art[part];
+}
+
+/** "By, note" under the title in italics, in `locale`. */
+export function paintingByline(art: Painting, locale: Locale = DEFAULT_LOCALE): string {
+  return [art.by, paintingText(art, "note", locale)].filter(Boolean).join(", ");
 }

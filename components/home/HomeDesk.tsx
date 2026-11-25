@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { t, disciplineKey, pathName } from "@/lib/i18n";
+import { t, disciplineKey, levelNameIn, pathName } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { LazyGraph, useHomeData, useReadingStore } from "@/components/home/HomeContent";
 import { useReviewDue } from "@/components/account/AccountChip";
 import { FamilyIcon, glyphStroke as s } from "@/components/ui/FamilyIcon";
 import { localDay } from "@/lib/personal";
-import { ERAGNY } from "@/lib/paintings";
+import { ERAGNY, paintingText } from "@/lib/paintings";
 import { PathNowCard } from "@/components/paths/PathNowCard";
 import { daysAgo } from "@/lib/note-quiz";
 import { dayKey, daysBetween } from "@/lib/srs";
@@ -381,7 +381,7 @@ export function HomeDesk({
             </span>
           </div>
           <figcaption>
-            {ERAGNY.by}, <i>{ERAGNY.title}</i>, {ERAGNY.note}. —{" "}
+            {ERAGNY.by}, <i>{paintingText(ERAGNY, "title", locale)}</i>, {paintingText(ERAGNY, "note", locale)}. —{" "}
             <span lang="en">The Gardener</span>.
           </figcaption>
         </figure>
@@ -558,7 +558,7 @@ export function HomeDesk({
                         <Refresh />
                       </span>
                       <span className="tx">
-                        <b>{lv.name}</b>
+                        <b>{levelNameIn(lv.name, locale)}</b>
                         <small>
                           {shortName(p)} · {tr("parcours.level", { n: lv.n }).toLowerCase()}
                           {last ? ` · ${daysAgo(daysBetween(last, todayKey), locale)}` : ""}

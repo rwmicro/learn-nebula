@@ -426,6 +426,14 @@ body:has(.pcd-colo) .gf-quote {
     display: inline-block;
     padding: 0.35rem 0;
   }
+  /* The footer closes the page down to the screen's edge: its credits
+     already keep the tab bar's room (.gf-colo below), so the body's own
+     padding for the bar (phone/tabbar.css, note/reading-tools.css) would
+     only add a band of the page's background under the dark land, behind
+     the floating bar. Pages that hide the footer on a phone keep it. */
+  body:has(> footer.site-foot.gf):not(:has(.home-more, .pt-talk, .admin-console, .graph-page)) {
+    padding-bottom: 0;
+  }
   /* The credits under the land, clear of the tab bar. */
   .gf-foot {
     position: relative;
@@ -437,6 +445,11 @@ body:has(.pcd-colo) .gf-quote {
   .gf-colo {
     font-size: 0.86rem;
     padding: 1.1rem max(20px, env(safe-area-inset-right, 0px)) calc(var(--gk-tabbar-h, 5.5rem) + 1rem) max(20px, env(safe-area-inset-left, 0px));
+  }
+  /* On a note, "Demander sur cette note…" floats over the toolbar too: the
+     room the body's padding used to give (note/reading-tools.css). */
+  body:has(.gk-pinned-trigger) .gf-colo {
+    padding-bottom: calc(var(--gk-tabbar-h, 5.5rem) + 5.5rem);
   }
   .gf-colo-in {
     display: block;

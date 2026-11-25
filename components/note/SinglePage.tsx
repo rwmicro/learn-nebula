@@ -53,7 +53,7 @@ import {
   type NextUp,
   objectivesHtml,
 } from "@/lib/html";
-import { t, i18nAttrs, i18nAttr, pathName, pathNameAttrs, pathNameKeys, pathNameRef } from "@/lib/i18n";
+import { t, i18nAttrs, i18nAttr, folderKey, pathName, pathNameAttrs, pathNameKeys, pathNameRef } from "@/lib/i18n";
 import { citeHtml } from "@/lib/cite";
 import { JsonLd } from "@/components/layout/JsonLd";
 import { NoteFeatureScripts } from "@/components/note/NoteScripts";
@@ -235,7 +235,7 @@ export async function SinglePage({
     step: step?.next ? { n: step.index + 2, total: step.path.notes.length } : null,
     discipline: disc
       ? {
-          name: folderLabel(doc.rawPath.split("/")[1] ?? ""),
+          name: ((f) => (folderKey(f) ? { $t: folderKey(f)! } : folderLabel(f)))(doc.rawPath.split("/")[1] ?? ""),
           href: `/disciplines/${disc.slug}/`,
           notes: [...discNotes.slice(here + 1), ...discNotes.slice(0, Math.max(0, here))].slice(0, 24),
         }

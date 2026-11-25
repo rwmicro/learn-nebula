@@ -1,6 +1,6 @@
-import { t, i18nProps, i18nAttrProps, disciplineKey, pathName, pathNameProps, type I18nVars } from "@/lib/i18n";
+import { t, i18nProps, i18nAttrProps, disciplineKey, keyedProps, keyedText, levelNameKey, pathDescKey, pathName, pathNameProps, type I18nVars } from "@/lib/i18n";
 import type { ReadingPathView } from "@/lib/content";
-import type { Painting } from "@/lib/paintings";
+import { paintingKey, paintingText, type Painting } from "@/lib/paintings";
 import { srcSet } from "@/lib/responsive-image";
 import { splitMinutes } from "@/lib/path-study";
 import { roman, splitTranslation } from "@/lib/path-titles";
@@ -55,7 +55,11 @@ export function DeskHead({ path, art }: { path: ReadingPathView; art: Painting }
             <em {...pathNameProps(path, "sub")}>{sub}</em>
           )}
         </h1>
-        {path.description && <p className="pdd-desc">{path.description}</p>}
+        {path.description && (
+          <p className="pdd-desc" {...keyedProps(pathDescKey(path.slug, path.description))}>
+            {keyedText(pathDescKey(path.slug, path.description), path.description)}
+          </p>
+        )}
       </div>
       <figure className="pdd-fig">
         <div className="pdd-frame">
@@ -75,8 +79,7 @@ export function DeskHead({ path, art }: { path: ReadingPathView; art: Painting }
           </picture>
         </div>
         <figcaption>
-          <b>{art.title}</b>
-          {[art.by, art.note].filter(Boolean).join(", ")}
+          <ArtCaption art={art} />
         </figcaption>
       </figure>
     </header>
@@ -111,7 +114,13 @@ export function DeskFrise({ levels }: { levels: DeskLevel[] }) {
       {levels.map((lv, i) => (
         <span key={lv.n} className="pdd-step">
           {i > 0 && <i className="pdd-ln" aria-hidden="true" />}
-          <button type="button" className="pdd-st" data-pdd-stop={lv.n} title={lv.name}>
+          <button
+            type="button"
+            className="pdd-st"
+            data-pdd-stop={lv.n}
+            title={keyedText(levelNameKey(lv.name), lv.name)}
+            {...(levelNameKey(lv.name) ? i18nAttrProps("title", levelNameKey(lv.name)!) : {})}
+          >
             <span className="pdd-c" aria-hidden="true">
               <span className="pdd-num">{roman(lv.n)}</span>
               {CHECK}
@@ -119,7 +128,7 @@ export function DeskFrise({ levels }: { levels: DeskLevel[] }) {
                 <circle cx="28" cy="28" r="25" pathLength={100} />
               </svg>
             </span>
-            <span className="pdd-name">{lv.name}</span>
+            <span className="pdd-name" {...keyedProps(levelNameKey(lv.name))}>{keyedText(levelNameKey(lv.name), lv.name)}</span>
             <span className="pdd-meta">
               <span data-pdd-count>0/{lv.count}</span> · <Minutes minutes={lv.minutes} />
             </span>
@@ -139,7 +148,7 @@ export function DeskLevelHead({ n, total, name }: { n: number; total: number; na
       <span className="pdd-lv-k" {...i18nProps("parcours.levelOf", vars)}>
         {t("parcours.levelOf", vars)}
       </span>
-      <span className="pdd-lv-name">{name}</span>
+      <span className="pdd-lv-name" {...keyedProps(levelNameKey(name))}>{keyedText(levelNameKey(name), name)}</span>
       <span className="pdd-lv-nav">
         <button
           type="button"
@@ -158,6 +167,18 @@ export function DeskLevelHead({ n, total, name }: { n: number; total: number; na
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" /></svg>
         </button>
       </span>
+    </>
+  );
+}
+
+/** A picture's caption: its title in bold, then who made it and the note,
+ *  each part following the locale (lib/paintings.ts). */
+export function ArtCaption({ art }: { art: Painting }) {
+  return (
+    <>
+      <b {...keyedProps(paintingKey(art, "title"))}>{paintingText(art, "title")}</b>
+      {art.by && `${art.by}${art.note ? ", " : ""}`}
+      {art.note && <span {...keyedProps(paintingKey(art, "note"))}>{paintingText(art, "note")}</span>}
     </>
   );
 }

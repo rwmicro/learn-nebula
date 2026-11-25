@@ -1,11 +1,11 @@
 // The widget packs added after public/js/widgets.js: data figures (Our World
-// in Data, Insee, Lichess, Wikidata), sciences, and languages. Same vault
+// in Data, Insee, Lichess, Wikidata), sciences, languages and security. Same vault
 // syntax as the older widgets (```widget:<name> + `key: value` lines), same
 // mount point (rehypeWidgets in lib/markdown.ts), but each pack is its own
 // bundle, fetched by public/js/widgets-loader.js only when the page has one
 // of its widgets.
 
-export type WidgetPack = "data" | "sci" | "lang";
+export type WidgetPack = "data" | "sci" | "lang" | "cyber";
 
 export const EXTRA_WIDGETS: Record<string, { pack: WidgetPack; fallback: string }> = {
   // --- data: build-time data from OWID / Insee / Lichess / Wikidata
@@ -53,6 +53,16 @@ export const EXTRA_WIDGETS: Record<string, { pack: WidgetPack; fallback: string 
   "arbre-langues": { pack: "lang", fallback: "Arbre des familles de langues du jardin (nécessite JavaScript)." },
   conjugaison: { pack: "lang", fallback: "Conjugaison d'un verbe, terminaisons en couleur (nécessite JavaScript)." },
   "faux-amis": { pack: "lang", fallback: "Quiz de faux amis (nécessite JavaScript)." },
+  // --- cyber: networks, web and Active Directory security (models in lib/cyber.ts)
+  echange: { pack: "cyber", fallback: "Échange d'un protocole, message par message (nécessite JavaScript)." },
+  "pare-feu": { pack: "cyber", fallback: "Un paquet face à une chaîne de règles de pare-feu (nécessite JavaScript)." },
+  cors: { pack: "cyber", fallback: "Simulateur CORS : en-têtes échangés et réponse lisible ou non (nécessite JavaScript)." },
+  nat: { pack: "cyber", fallback: "Table de traduction NAT/PAT d'un routeur (nécessite JavaScript)." },
+  "tunnel-ssh": { pack: "cyber", fallback: "Tunnels SSH -L, -R et -D sur un même réseau (nécessite JavaScript)." },
+  jwt: { pack: "cyber", fallback: "Atelier JWT : signature, alg none et secret faible (nécessite JavaScript)." },
+  "chemin-ad": { pack: "cyber", fallback: "Chemin d'attaque Active Directory, à la BloodHound (nécessite JavaScript)." },
+  "kill-chain": { pack: "cyber", fallback: "Chaîne d'une attaque et défenses qui la bloquent ou la voient (nécessite JavaScript)." },
+  cassage: { pack: "cyber", fallback: "Temps de cassage d'un mot de passe selon le hachage (nécessite JavaScript)." },
 };
 
 /** Bundle file a pack ships in (scripts/bundle-js.mjs builds them). */
@@ -60,4 +70,5 @@ export const PACK_BUNDLE: Record<WidgetPack, string> = {
   data: "/js/widgets-data.bundle.js",
   sci: "/js/widgets-sci.bundle.js",
   lang: "/js/widgets-lang.bundle.js",
+  cyber: "/js/widgets-cyber.bundle.js",
 };

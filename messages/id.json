@@ -2244,105 +2244,131 @@
   "pathName": {
     "active-directory-de-l-attaque-a-la-persistance": {
       "title": "Active Directory",
-      "sub": "dari serangan hingga persistensi"
+      "sub": "dari serangan hingga persistensi",
+      "desc": "Dasar-dasar direktori, enumerasi, Kerberos, ACL dan persistensi, lalu identitas dan autentikasi."
     },
     "algorithmique-complexite-structures-et-graphes": {
       "title": "Algoritma",
-      "sub": "kompleksitas, struktur data, dan graf"
+      "sub": "kompleksitas, struktur data, dan graf",
+      "desc": "Dari pengukuran kompleksitas ke struktur data, lalu pengurutan, pemrograman dinamis dan algoritma graf."
     },
     "allemand-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Jerman",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Melafalkan bahasa Jerman, menyapa, tata bahasa dan ragam bahasa, lalu kosakata, dialog sehari-hari dan budaya berbahasa Jerman."
     },
     "analyse-au-lycee": {
-      "title": "Kalkulus SMA"
+      "title": "Kalkulus SMA",
+      "desc": "Bilangan dan aljabar, fungsi dan persamaan kuadrat, lalu turunan, barisan, limit, fungsi eksponensial dan integral."
     },
     "anglais-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Inggris",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Pelafalan dan frasa penting, kala dan modal, lalu ragam bahasa, idiom dan aksen (RP, Cockney)."
     },
     "anthropologie-de-la-discipline-au-terrain": {
       "title": "Antropologi",
-      "sub": "dari disiplin ilmu hingga lapangan"
+      "sub": "dari disiplin ilmu hingga lapangan",
+      "desc": "Apa itu antropologi dan sejarahnya, aliran dan tokoh besarnya (Boas, Malinowski, Mead, Lévi-Strauss, Geertz), lalu kerja lapangan etnografi dan asal-usul manusia."
     },
     "apprendre-les-langues-la-boite-a-outils": {
       "title": "Belajar bahasa",
-      "sub": "kotak perkakas"
+      "sub": "kotak perkakas",
+      "desc": "Konsep linguistik yang berguna bagi pelajar, Alfabet Fonetik Internasional, rumpun bahasa dan tipologinya, kata-kata yang menjebak dalam bahasa Prancis, lalu strategi para poliglot."
     },
     "arabe-libanais-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Arab Lebanon",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Melafalkan dan menyapa, tata bahasa dasar (kata ganti, kata kerja, negasi), kosakata sehari-hari, lalu ungkapan lanjutan, bahasa gaul dan budaya Lebanon."
     },
     "arabe-standard-de-l-alphabet-aux-medias": {
       "title": "Bahasa Arab standar",
-      "sub": "dari abjad hingga media"
+      "sub": "dari abjad hingga media",
+      "desc": "Bahasa Arab Standar Modern: alfabet dan pelafalan, frasa penting, tata bahasa dan kosakata, ragam bahasa media, lalu diglosia dan sejarahnya."
     },
     "architecture-logicielle-des-principes-aux-microservices": {
       "title": "Arsitektur perangkat lunak",
-      "sub": "dari prinsip hingga layanan mikro"
+      "sub": "dari prinsip hingga layanan mikro",
+      "desc": "Dari prinsip SOLID ke UML dan design pattern, lalu gaya arsitektur dan microservice."
     },
     "arts-de-la-renaissance-au-surrealisme": {
       "title": "Seni",
-      "sub": "dari Renaisans hingga Surealisme"
+      "sub": "dari Renaisans hingga Surealisme",
+      "desc": "Konsep-konsep untuk memandang sebuah karya, lalu Leonardo, Michelangelo dan Rembrandt, serta terobosan modern: impresionisme, kubisme, surealisme."
     },
     "aws-fondations-reseau-calcul-et-serverless": {
       "title": "AWS",
-      "sub": "dasar, jaringan, komputasi, dan serverless"
+      "sub": "dasar, jaringan, komputasi, dan serverless",
+      "desc": "Dari gambaran umum AWS ke IAM, S3 dan VPC, lalu EC2 dan Lambda."
     },
     "azeri-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Azerbaijan",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Alfabet dan pelafalan bahasa Azerbaijan, salam, tata bahasa dan ragam bahasa, lalu kosakata, dialog dan budaya Azerbaijan."
     },
     "bases-de-donnees-du-relationnel-a-l-optimisation": {
       "title": "Basis data",
-      "sub": "dari relasional hingga optimasi"
+      "sub": "dari relasional hingga optimasi",
+      "desc": "Dari model relasional ke SQL, optimasi dan pengindeksan, lalu basis data NoSQL."
     },
     "biologie-de-la-molecule-a-l-evolution": {
       "title": "Biologi",
-      "sub": "dari molekul hingga evolusi"
+      "sub": "dari molekul hingga evolusi",
+      "desc": "Dari biokimia dan sel ke genetika dan evolusi, lalu ekologi, fisiologi manusia, imunologi dan ilmu saraf."
     },
     "chimie-premiers-pas-et-histoire": {
       "title": "Kimia",
-      "sub": "langkah pertama dan sejarah"
+      "sub": "langkah pertama dan sejarah",
+      "desc": "Apa yang dipelajari kimia, sejarahnya dari alkimia hingga kimia modern, dan para kimiawan besar."
     },
     "cinema-de-l-invention-au-contemporain": {
       "title": "Sinema",
-      "sub": "dari penemuannya hingga masa kini"
+      "sub": "dari penemuannya hingga masa kini",
+      "desc": "Dari Lumière bersaudara hingga sinema kontemporer: film bisu, masa keemasan Hollywood, gelombang baru, bahasa sinema dan sinema nasional."
     },
     "cloud-securiser-aws-azure-et-gcp": {
       "title": "Cloud",
-      "sub": "mengamankan AWS, Azure, dan GCP"
+      "sub": "mengamankan AWS, Azure, dan GCP",
+      "desc": "Model tanggung jawab, identitas, jaringan dan Kubernetes di tiga cloud besar."
     },
     "communication-des-modeles-a-la-rhetorique": {
       "title": "Komunikasi",
-      "sub": "dari model hingga retorika"
+      "sub": "dari model hingga retorika",
+      "desc": "Model-model komunikasi, lalu bentuk-bentuknya (antarpribadi, nonverbal, antarbudaya, lisan), retorika, analisis wacana dan manipulasi."
     },
     "cryptographie-appliquee": {
-      "title": "Kriptografi terapan"
+      "title": "Kriptografi terapan",
+      "desc": "Pengodean dan representasi informasi, lalu enkripsi, hashing, PKI, TLS dan kriptografi terapan."
     },
     "devsecops-conteneurs-ci-cd-et-securite": {
       "title": "DevSecOps",
-      "sub": "kontainer, CI/CD, dan keamanan"
+      "sub": "kontainer, CI/CD, dan keamanan",
+      "desc": "Dari Docker ke Kubernetes dan pengamanannya, lalu GitLab CI/CD dan pipeline DevSecOps."
     },
     "dfir-reponse-a-incident-et-forensique": {
       "title": "DFIR",
-      "sub": "respons insiden dan forensik"
+      "sub": "respons insiden dan forensik",
+      "desc": "Respons insiden, forensik disk dan memori, analisis jaringan dan playbook."
     },
     "droit-des-bases-aux-grands-systemes-juridiques": {
       "title": "Hukum",
-      "sub": "dari dasar hingga sistem hukum besar"
+      "sub": "dari dasar hingga sistem hukum besar",
+      "desc": "Dasar-dasar hukum, sumber dan lembaganya, sistem hukum besar (civil law, common law, syariah), lalu cabang-cabang hukum publik dan privat."
     },
     "echecs-des-regles-aux-finales": {
       "title": "Catur",
-      "sub": "dari aturan hingga babak akhir"
+      "sub": "dari aturan hingga babak akhir",
+      "desc": "Empat jenjang peringkat Elo: aturan dan pembukaan, taktik babak tengah, akhir permainan pion dan benteng, lalu strategi dan serangan ke raja."
     },
     "ecologie-des-ecosystemes-au-climat": {
       "title": "Ekologi",
-      "sub": "dari ekosistem hingga iklim"
+      "sub": "dari ekosistem hingga iklim",
+      "desc": "Prinsip-prinsip ekologi dan ekosistem, keanekaragaman hayati dan ancamannya, lalu perubahan iklim dan solusi untuk meredamnya."
     },
     "economie-de-la-monnaie-aux-comportements": {
       "title": "Ekonomi",
-      "sub": "dari uang hingga perilaku"
+      "sub": "dari uang hingga perilaku",
+      "desc": "Sejarah uang, kapitalisme di hadapan batas-batas planet, lalu ekonomi perilaku dan teori permainan."
     },
     "geologie-du-relief-a-l-histoire-de-la-vie": {
       "title": "Geologi",
@@ -2350,26 +2376,32 @@
     },
     "espagnol-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Spanyol",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Melafalkan bahasa Spanyol, menyapa, tata bahasa dan ragam bahasa, lalu kosakata, dialog sehari-hari dan budaya berbahasa Spanyol."
     },
     "exposition-internet-inventorier-reperer-reduire": {
       "title": "Paparan internet",
-      "sub": "inventarisasi, temukan, kurangi"
+      "sub": "inventarisasi, temukan, kurangi",
+      "desc": "Ketahui apa yang Anda miliki, lihat seperti penyerang dengan Shodan, Censys, masscan, nmap, dan nuclei, lalu kurangi dan pantau apa yang masih terekspos, sambil berlatih di lab sendiri."
     },
     "geometrie-au-lycee": {
-      "title": "Geometri SMA"
+      "title": "Geometri SMA",
+      "desc": "Geometri bidang, bilangan kompleks, geometri ruang dan rumus-rumusnya, lalu langkah pertama di luar Euklides."
     },
     "gouvernance-conformite-risques-et-menaces": {
       "title": "Tata kelola",
-      "sub": "kepatuhan, risiko, dan ancaman"
+      "sub": "kepatuhan, risiko, dan ancaman",
+      "desc": "Kepatuhan dan NIS2, pemodelan ancaman, EBIOS RM, secure SDLC dan keamanan rantai pasok."
     },
     "hakka-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Hakka",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Nada dan pelafalan bahasa Hakka Kalimantan Barat, salam dan frasa dasar, lalu kosakata per tema, tata bahasa dan budaya Hakka."
     },
     "hindi-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Hindi",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Aksara Dewanagari dan pelafalan, salam, tata bahasa dan ragam bahasa (tū, tum, āp), lalu kosakata, dialog dan budaya India."
     },
     "histoire-de-l-antiquite-au-xxe-siecle": {
       "title": "Sejarah",
@@ -2377,174 +2409,218 @@
     },
     "histoire-du-monde-empires-et-nations": {
       "title": "Sejarah dunia",
-      "sub": "kekaisaran dan bangsa"
+      "sub": "kekaisaran dan bangsa",
+      "desc": "Apa itu sejarah dan apa itu kekaisaran, lalu Kekaisaran Mongol dan Rusia, Tiongkok, Jepang dan India, perdagangan budak Atlantik dan Amerika Serikat, bangsa Kurdi dan Suriah, Djibouti, Papua Nugini dan Transnistria."
     },
     "indonesien-de-l-alphabet-a-la-culture": {
       "title": "Bahasa Indonesia",
-      "sub": "dari abjad hingga budaya"
+      "sub": "dari abjad hingga budaya",
+      "desc": "Membaca, menyapa, menyusun kalimat pertama, lalu kosakata sehari-hari, imbuhan, ragam bahasa dan budaya Indonesia."
     },
     "informatique-de-la-machine-au-systeme": {
       "title": "Ilmu komputer",
-      "sub": "dari mesin hingga sistem"
+      "sub": "dari mesin hingga sistem",
+      "desc": "Dari biner ke prosesor dan assembly, lalu sistem operasi (proses, memori, berkas), Linux, Windows dan shell."
     },
     "java-du-langage-a-spring-boot": {
       "title": "Java",
-      "sub": "dari bahasa hingga Spring Boot"
+      "sub": "dari bahasa hingga Spring Boot",
+      "desc": "Bahasanya dan dasar-dasarnya, lalu generics dan lambda, dan akhirnya JDBC dan Spring Boot."
     },
     "kabyle-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Kabyle",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Alfabet dan pelafalan bahasa Kabyle, salam dan frasa berguna, tata bahasa dan ragam bahasa, lalu asal-usul dan identitas Kabyle."
     },
     "lfcs-administrer-un-serveur-linux": {
       "title": "LFCS",
-      "sub": "mengelola server Linux"
+      "sub": "mengelola server Linux",
+      "desc": "Perintah dasar, pengoperasian sistem (proses, layanan, kernel, paket), penyimpanan (LVM, RAID, enkripsi), pengguna dan keamanan, lalu jaringan dan layanannya."
     },
     "linguistique-des-sons-au-sens": {
       "title": "Linguistik",
-      "sub": "dari bunyi hingga makna"
+      "sub": "dari bunyi hingga makna",
+      "desc": "Dari bunyi ke tulisan, morfologi dan sintaksis, lalu makna, sejarah dan rumpun bahasa, psikolinguistik dan sosiolinguistik."
     },
     "litterature-les-grandes-periodes": {
       "title": "Sastra",
-      "sub": "periode-periode besar"
+      "sub": "periode-periode besar",
+      "desc": "Periode-periode besar sastra, dari Zaman Kuno ke Abad Pertengahan dan Abad Pencerahan, lalu romantisisme, realisme dan karya abad ke-20 dan ke-21."
     },
     "machine-learning-des-bases-aux-llm": {
       "title": "Machine learning",
-      "sub": "dari dasar hingga LLM"
+      "sub": "dari dasar hingga LLM",
+      "desc": "Dasar-dasar machine learning, dari pembelajaran terawasi ke transformer, LLM dan keamanannya."
     },
     "malais-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Melayu",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Melafalkan bahasa Melayu, menyapa, kosakata dan dialog, lalu tata bahasa, ragam bahasa (anda, awak, kamu) dan budaya Malaysia."
     },
     "malware-development-des-fondations-windows-a-l-evasion": {
       "title": "Pengembangan malware",
-      "sub": "dari dasar Windows hingga penghindaran deteksi"
+      "sub": "dari dasar Windows hingga penghindaran deteksi",
+      "desc": "Dari fondasi Windows (arsitektur, PE, API) ke payload, injeksi dan penghindaran proteksi."
     },
     "mandarin-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Mandarin",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Pinyin dan nada, salam, tata bahasa dan aksara, lalu kata penggolong, kosakata, dialog dan budaya Tionghoa."
     },
     "mathematiques-en-prepa-de-sup-a-spe": {
       "title": "Matematika kelas persiapan",
-      "sub": "tahun pertama dan kedua"
+      "sub": "tahun pertama dan kedua",
+      "desc": "Logika dan himpunan, analisis dan aljabar linear tahun pertama, lalu diagonalisasi, deret, topologi dan peluang tahun kedua."
     },
     "medecine-du-corps-humain-a-la-recherche": {
       "title": "Kedokteran",
-      "sub": "dari tubuh manusia hingga riset"
+      "sub": "dari tubuh manusia hingga riset",
+      "desc": "Anatomi dan fisiologi, pemeriksaan dan diagnosis, genetika, imunologi dan farmakologi, lalu riset dan tantangan dunia kedokteran."
     },
     "musique-de-la-theorie-aux-grandes-periodes": {
       "title": "Musik",
-      "sub": "dari teori hingga periode-periode besar"
+      "sub": "dari teori hingga periode-periode besar",
+      "desc": "Teori musik, akustik, alat musik dan orkestrasi, lalu sejarah musik, dari Zaman Kuno hingga musik kontemporer."
     },
     "mythologies-du-monde": {
-      "title": "Mitologi dunia"
+      "title": "Mitologi dunia",
+      "desc": "Apa itu mitos dan apa gunanya, lalu mitologi Yunani, Romawi, Mesir, Nordik, India dan tradisi lainnya."
     },
     "osint-de-la-methode-au-rapport": {
       "title": "OSINT",
-      "sub": "dari metode hingga laporan"
+      "sub": "dari metode hingga laporan",
+      "desc": "Siklus intelijen, sumber dan alat, teknik dan kasus penggunaan, lalu perlindungan dan pelaporan."
     },
     "ouighour-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Uighur",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Alfabet dan harmoni vokal, salam dan ragam bahasa, lalu aglutinasi, kasus, kata kerja dan sintaksis, kosakata dan budaya Uighur."
     },
     "pentest-de-la-methodologie-a-l-execution": {
       "title": "Pentesting",
-      "sub": "dari metodologi hingga pelaksanaan"
+      "sub": "dari metodologi hingga pelaksanaan",
+      "desc": "Penentuan cakupan dan ROE, pengintaian, akses awal, persistensi, pergerakan lateral, eksfiltrasi dan penghindaran."
     },
     "philosophie-contemporaine-de-bergson-a-habermas": {
       "title": "Filsafat kontemporer",
-      "sub": "dari Bergson hingga Habermas"
+      "sub": "dari Bergson hingga Habermas",
+      "desc": "Bergson dan fenomenologi Husserl dan Heidegger, eksistensialisme (Sartre, Beauvoir, Camus), filsafat analitik dari Russell hingga Popper, lalu Arendt, Simone Weil, Foucault, Derrida, Rawls dan Habermas."
     },
     "philosophie-courants-et-ecoles": {
       "title": "Filsafat",
-      "sub": "aliran dan mazhab"
+      "sub": "aliran dan mazhab",
+      "desc": "Aliran-aliran pemikiran besar dalam urutan saling menanggapi: stoisisme, filsafat abad pertengahan, rasionalisme dan empirisme, idealisme Jerman, marxisme, etika utilitarian dan universalis, fenomenologi, eksistensialisme, filsafat analitik, strukturalisme dan postmodernisme."
     },
     "philosophie-de-l-antiquite-aux-modernes": {
       "title": "Filsafat",
-      "sub": "dari Zaman Kuno hingga para pemikir modern"
+      "sub": "dari Zaman Kuno hingga para pemikir modern",
+      "desc": "Dari para pra-Sokratik ke Sokrates, Plato dan Aristoteles, kearifan kuno (kaum Sinis, Stoa), filsafat abad pertengahan, pemikiran politik dari Machiavelli hingga Rousseau, kaum rasionalis dan empiris, Kant, dan pemikiran abad ke-19."
     },
     "philosophie-en-culture-generale": {
-      "title": "Filsafat untuk pengetahuan umum"
+      "title": "Filsafat untuk pengetahuan umum",
+      "desc": "Linimasa filsafat Barat, lima pertanyaan besar (pengetahuan, kebenaran, kebebasan, kebahagiaan, keadilan), aliran yang perlu diketahui, filsafat di hadapan seni, sains, politik dan teknik, dan kearifan Asia (Buddha, Konfusius, Laozi)."
     },
     "philosophie-les-grandes-branches": {
       "title": "Filsafat",
-      "sub": "cabang-cabang utama"
+      "sub": "cabang-cabang utama",
+      "desc": "Gambaran umum cabang-cabang filsafat, lalu masing-masing secara rinci: logika, epistemologi, metafisika, filsafat pikiran, bahasa, agama, filsafat politik dan estetika."
     },
     "physique-du-lycee-a-la-prepa": {
       "title": "Fisika",
-      "sub": "dari SMA hingga kelas persiapan"
+      "sub": "dari SMA hingga kelas persiapan",
+      "desc": "Mekanika Newton, listrik dan gelombang tingkat SMA, lalu elektromagnetisme, termodinamika, optika, relativitas dan fisika kuantum tingkat perguruan tinggi."
     },
     "pnpt-du-reseau-au-rapport-de-pentest": {
       "title": "PNPT",
-      "sub": "dari jaringan hingga laporan pentest"
+      "sub": "dari jaringan hingga laporan pentest",
+      "desc": "Dasar jaringan, Linux dan Windows, pengintaian, eksploitasi dan eskalasi hak akses, Active Directory, lalu pentest eksternal, laporan dan presentasi hasil kepada klien."
     },
     "probabilites-et-statistiques-au-lycee": {
-      "title": "Peluang dan statistika SMA"
+      "title": "Peluang dan statistika SMA",
+      "desc": "Statistika deskriptif, pencacahan dan peluang, algoritma untuk simulasi, lalu kombinatorika, teori graf, teori bilangan dan statistika inferensial."
     },
     "psychologie-biais-emotions-et-personnalite": {
       "title": "Psikologi",
-      "sub": "bias, emosi, dan kepribadian"
+      "sub": "bias, emosi, dan kepribadian",
+      "desc": "Apa yang dipelajari psikologi, bias kognitif (pembingkaian, konfirmasi, efek halo, bias melayani diri), emosi dan hasrat, lalu kepribadian, dari Jung hingga enneagram."
     },
     "religions-du-monde": {
-      "title": "Agama-agama dunia"
+      "title": "Agama-agama dunia",
+      "desc": "Panorama agama-agama dunia dan sejarahnya: Hindu, Buddha, Yahudi, Kristen, Islam dan cabang-cabangnya, lalu tradisi Asia dan Afrika."
     },
     "reseau-des-modeles-osi-aux-attaques": {
       "title": "Jaringan",
-      "sub": "dari model OSI hingga serangan"
+      "sub": "dari model OSI hingga serangan",
+      "desc": "Model OSI dan TCP/IP, pengalamatan dan protokol, lalu serangan jaringan dan cara mendeteksinya."
     },
     "roumain-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Rumania",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Melafalkan bahasa Rumania, menyapa, dasar-dasar tata bahasa dan sapaan hormat (tu / dumneavoastră), lalu kosakata dan budaya Rumania."
     },
     "sambas-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Melayu Sambas",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Asal-usul bahasa Melayu Sambas, frasa penting dan ragam bahasa, kosakata inti, kata ganti, tujuh belas daftar kata bertema hingga peribahasa, dan kamusnya."
     },
     "savoir-demontrer-en-mathematiques": {
-      "title": "Menulis pembuktian dalam matematika"
+      "title": "Menulis pembuktian dalam matematika",
+      "desc": "Metode pembuktian, cara menunjukkan bahwa suatu pernyataan benar, pembuktian klasik yang perlu diketahui dan kesalahan yang sering muncul."
     },
     "securite-des-plateformes-ot-embarque-et-mobile": {
       "title": "Keamanan platform",
-      "sub": "OT, sistem tertanam, dan seluler"
+      "sub": "OT, sistem tertanam, dan seluler",
+      "desc": "Dari akses fisik ke firmware, lalu sistem industri, sistem tertanam, otomotif, medis dan antariksa."
     },
     "securite-web-des-vecteurs-d-attaque-aux-failles-avancees": {
       "title": "Keamanan web",
-      "sub": "dari vektor serangan hingga celah tingkat lanjut"
+      "sub": "dari vektor serangan hingga celah tingkat lanjut",
+      "desc": "Vektor serangan web, injeksi dan celah autentikasi, lalu eksploitasi tingkat lanjut."
     },
     "securite-wifi-de-la-reconnaissance-au-wpa3": {
       "title": "Keamanan WiFi",
-      "sub": "dari pengintaian hingga WPA3"
+      "sub": "dari pengintaian hingga WPA3",
+      "desc": "Dasar-dasar 802.11, pengintaian dan sniffing, serangan WPA2/WPS/WPA3 dan evil twin, lalu deteksi dan pertahanan."
     },
     "soc-des-logs-a-la-detection": {
       "title": "SOC",
-      "sub": "dari log hingga deteksi"
+      "sub": "dari log hingga deteksi",
+      "desc": "Kosakata SOC, log dan SIEM, lalu deteksi, threat hunting dan threat intelligence."
     },
     "sociologie-des-fondateurs-aux-grandes-thematiques": {
       "title": "Sosiologi",
-      "sub": "dari para pendiri hingga tema-tema besar"
+      "sub": "dari para pendiri hingga tema-tema besar",
+      "desc": "Para pendiri (Durkheim, Marx, Weber) dan konsep-konsepnya, metode dan interaksionisme, Bourdieu, lalu penyimpangan, kelas dan mobilitas sosial."
     },
     "sport-de-la-physiologie-a-la-musculation": {
       "title": "Olahraga",
-      "sub": "dari fisiologi hingga latihan beban"
+      "sub": "dari fisiologi hingga latihan beban",
+      "desc": "Fisiologi latihan fisik dan prinsip-prinsip latihan, lalu latihan beban per kelompok otot, nutrisi olahraga dan pemulihan."
     },
     "tamoul-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Tamil",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Alfabet Tamil, salam, tata bahasa dan diglosia, lalu kosakata, dialog sehari-hari dan budaya Tamil."
     },
     "theatre-de-l-histoire-a-la-scene": {
       "title": "Teater",
-      "sub": "dari sejarah hingga panggung"
+      "sub": "dari sejarah hingga panggung",
+      "desc": "Sejarah teater, genre dan pementasannya, lalu seni peran, penyutradaraan, para teoretikus besar dan teater kontemporer."
     },
     "tok-pisin-des-premiers-mots-a-la-culture": {
       "title": "Tok Pisin",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Melafalkan Tok Pisin, menyapa, frasa dan ragam bahasa, tentang bahasanya sendiri, lalu kosakata dan budaya Papua Nugini."
     },
     "turc-des-premiers-mots-a-la-culture": {
       "title": "Bahasa Turki",
-      "sub": "dari kata pertama hingga budaya"
+      "sub": "dari kata pertama hingga budaya",
+      "desc": "Alfabet dan pelafalan bahasa Turki, salam, dasar-dasar tata bahasa dan sapaan akrab (sen / siz), lalu kosakata dan budaya."
     },
     "web-http-api-et-front-end": {
       "title": "Web",
-      "sub": "HTTP, API, dan front end"
+      "sub": "HTTP, API, dan front end",
+      "desc": "Dari HTTP ke REST API, lalu Node.js/Express dan React, dengan sertifikat TLS dari ujung ke ujung."
     }
   },
   "parler": {
@@ -2705,7 +2781,17 @@
     "heroKicker": "Bicara · teman bicara bersuara",
     "exprOfDay": "Ungkapan hari ini",
     "thisWeek": "Percakapanmu, 7 hari",
-    "thisWeekN": "{n} adegan"
+    "thisWeekN": "{n} adegan",
+    "soonLang": {
+      "roumain": "Bahasa Rumania",
+      "malais": "Bahasa Melayu",
+      "azeri": "Bahasa Azerbaijan",
+      "tamoul": "Bahasa Tamil",
+      "kabyle": "Bahasa Kabyle",
+      "ouighour": "Bahasa Uighur",
+      "hakka": "Bahasa Hakka",
+      "tokpisin": "Tok Pisin"
+    }
   },
   "desk": {
     "nextStep": "Langkah berikutnya · sisa {m} menit",
@@ -2971,5 +3057,258 @@
     "show": "Tampilkan jalur ini",
     "all": "Semua jalur",
     "toRead": "dibaca berikutnya"
+  },
+  "levelName": {
+    "activedirectory": "Active Directory",
+    "activedirectoryetidentityetauth": "Active Directory, identitas, dan autentikasi",
+    "activedirectoryetoffensive": "Active Directory dan keamanan ofensif",
+    "algebreetfonctionsanalyse": "Aljabar, fungsi, dan analisis",
+    "algorithmique": "Algoritma",
+    "anatomie": "Anatomi",
+    "anthropologuesetbranches": "Antropolog dan cabang ilmu",
+    "anthropologuesetterrains": "Antropolog dan kerja lapangan",
+    "apprentissageetllm": "Pembelajaran dan LLM",
+    "apprentissageetmachinelearning": "Pembelajaran dan machine learning",
+    "approfondissementsetprepaspe": "Pendalaman dan prépa tahun kedua",
+    "approfondissementsetprepasup": "Pendalaman dan prépa tahun pertama",
+    "arabestandardetphonologie": "Bahasa Arab Standar dan fonologi",
+    "architectureetartistes": "Arsitektur dan seniman",
+    "architecturelogicielle": "Arsitektur perangkat lunak",
+    "aristote384322avjc": "Aristoteles (384–322 SM)",
+    "artistesetmouvements": "Seniman dan aliran",
+    "attaqueswpa2enterprise": "Serangan WPA2-Enterprise",
+    "autourdesoi": "Di sekitarmu",
+    "autresetegyptienne": "Mesir dan lainnya",
+    "aws": "AWS",
+    "baruchspinoza16321677": "Baruch Spinoza (1632–1677)",
+    "basesdedonnees": "Basis data",
+    "benoitcoquardetconcepts": "Benoît Coquard dan konsep",
+    "biaisetpsychologues": "Bias dan psikolog",
+    "biodiversiteetconservation": "Keanekaragaman hayati dan konservasi",
+    "bouddhismeetjainisme": "Buddhisme dan Jainisme",
+    "branches": "Cabang",
+    "branchesetconcepts": "Cabang dan konsep",
+    "branchesetfamillesdelangues": "Cabang dan rumpun bahasa",
+    "changementclimatiqueetbiodiversite": "Perubahan iklim dan keanekaragaman hayati",
+    "cloudetgrcetgouvernance": "Cloud, GRC, dan tata kelola",
+    "commandesessentielles": "Perintah penting",
+    "communication": "Komunikasi",
+    "concepts": "Konsep",
+    "conceptsetcourants": "Konsep dan aliran",
+    "conceptsetfondateurs": "Konsep dan pendiri",
+    "conceptsetthematiques": "Konsep dan tema",
+    "conceptslinguistiquesglossairedereference": "Konsep linguistik: glosarium rujukan",
+    "confirme": "Mahir",
+    "cryptographie": "Kriptografi",
+    "cultureetcommunication": "Budaya dan komunikasi",
+    "cultureetgrammaire": "Budaya dan tata bahasa",
+    "datascienceetmachinelearning": "Sains data dan machine learning",
+    "debutant": "Pemula",
+    "deeplearningetmachinelearning": "Deep learning dan machine learning",
+    "dfiretdefensive": "DFIR dan keamanan defensif",
+    "dockeretgitlab": "Docker dan GitLab",
+    "dockeretsoftware": "Docker dan perangkat lunak",
+    "domaines": "Bidang",
+    "domainesethuman": "Bidang dan faktor manusia",
+    "ecosystemesetconservation": "Ekosistem dan konservasi",
+    "emmanuelkant17241804": "Immanuel Kant (1724–1804)",
+    "existentialisme": "Eksistensialisme",
+    "exploitation": "Eksploitasi",
+    "exploitationdusysteme": "Pengoperasian sistem",
+    "fileuploadvulnerabilities": "Kerentanan unggah berkas",
+    "fonctionsanalyseetprobabilitesstats": "Fungsi & analisis, peluang & statistik",
+    "fondamentaux": "Dasar-dasar",
+    "fondamentaux80211": "Dasar-dasar 802.11",
+    "formerdesmots": "Membentuk kata",
+    "fortjoueur": "Pemain kuat",
+    "france": "Prancis",
+    "franceetthematiques": "Prancis dan tema",
+    "friseschronologiquesetlescourantsphilosophiques": "Linimasa dan aliran filsafat",
+    "fundamentals": "Dasar-dasar",
+    "fundamentalsetnetworking": "Dasar-dasar dan jaringan",
+    "fundamentalsetnetworksecurity": "Dasar-dasar dan keamanan jaringan",
+    "generics": "Generics",
+    "genresetmouvements": "Genre dan aliran",
+    "genresettheorie": "Genre dan teori",
+    "geometrieetalgebre": "Geometri dan aljabar",
+    "grammaireetcommunication": "Tata bahasa dan komunikasi",
+    "grammaireetvocabulaire": "Tata bahasa dan kosakata",
+    "grcetgouvernance": "GRC dan tata kelola",
+    "hardwareetassembleur": "Perangkat keras dan assembly",
+    "hardwareetsystemesdexploitation": "Perangkat keras dan sistem operasi",
+    "histoiredelamonnaie": "Sejarah uang",
+    "histoireetantiquite": "Sejarah dan Zaman Kuno",
+    "httprequestsmuggling": "HTTP request smuggling",
+    "humanetdomaines": "Faktor manusia dan bidang",
+    "ilesetcultures": "Pulau dan budaya",
+    "introductionalachimie": "Pengantar kimia",
+    "inventorier": "Inventarisasi",
+    "islametchristianisme": "Islam dan Kristen",
+    "islametthemes": "Islam dan tema",
+    "japonetrussia": "Jepang dan Rusia",
+    "java": "Java",
+    "jdbc": "JDBC",
+    "joueurdeclub": "Pemain klub",
+    "kubernetesetdocker": "Kubernetes dan Docker",
+    "lequotidien": "Kehidupan sehari-hari",
+    "lesgrandesquestionsetphilosophieetautresdomaines": "Pertanyaan besar dan filsafat di bidang lain",
+    "lespresocratiquesvievesieclesavjc": "Para pra-Sokratik (abad ke-6–5 SM)",
+    "linguistesetbranches": "Ahli bahasa dan cabang ilmu",
+    "machinelearningetdeeplearning": "Machine learning dan deep learning",
+    "malwaredevelopment": "Pengembangan malware",
+    "malwaredevelopmentetreverseengineering": "Pengembangan malware dan rekayasa balik",
+    "mathspe": "Matematika prépa tahun kedua",
+    "mathspeetmathsup": "Matematika prépa tahun kedua dan pertama",
+    "mathsup": "Matematika prépa tahun pertama",
+    "mathsupetmathspe": "Matematika prépa tahun pertama dan kedua",
+    "mecanique": "Mekanika",
+    "mecaniqueetelectricite": "Mekanika dan listrik",
+    "mecaniqueetprepasup": "Mekanika dan prépa tahun pertama",
+    "methodesdedemonstration": "Metode pembuktian",
+    "methodologieetoffensive": "Metodologi dan keamanan ofensif",
+    "moyenageetdjibouti": "Abad Pertengahan dan Djibouti",
+    "moyenageetempireottoman": "Abad Pertengahan dan Kesultanan Utsmaniyah",
+    "musculationetnutrition": "Latihan beban dan nutrisi",
+    "networksecurityetrouting": "Keamanan jaringan dan routing",
+    "offensiveetmethodologie": "Keamanan ofensif dan metodologi",
+    "offensiveettools": "Keamanan ofensif dan alat",
+    "osint": "OSINT",
+    "parlercommeonparle": "Berbicara seperti orang berbicara",
+    "pentestexterneetrapport": "Pentest eksternal dan laporan",
+    "periodes": "Periode",
+    "periodesetouvrages": "Periode dan karya",
+    "philosophes": "Para filsuf",
+    "philosophesetconcepts": "Filsuf dan konsep",
+    "philosophieetautresdomainesetlesgrandesquestions": "Filsafat di bidang lain dan pertanyaan besar",
+    "philosophieetautresdomainesetphilosophes": "Filsafat di bidang lain dan para filsuf",
+    "phonologieetcommunication": "Fonologi dan komunikasi",
+    "phonologieetouighour": "Fonologi dan bahasa Uighur",
+    "physiologieetentrainement": "Fisiologi dan latihan",
+    "platformsecurity": "Keamanan platform",
+    "platformsecurityetreverseengineering": "Keamanan platform dan rekayasa balik",
+    "premierspas": "Langkah pertama",
+    "prepaspeetapprofondissements": "Prépa tahun kedua dan pendalaman",
+    "prepaspeetmecanique": "Prépa tahun kedua dan mekanika",
+    "prepasupetprepaspe": "Prépa tahun pertama dan kedua",
+    "probabilitesstatsetapprofondissements": "Peluang, statistika, dan pendalaman",
+    "pythonetalgorithmique": "Python dan algoritme",
+    "questionsettemps": "Pertanyaan dan kala",
+    "reconnaissance": "Pengintaian",
+    "reduireetsurveiller": "Mengurangi dan memantau",
+    "reperer": "Menemukan",
+    "reseauetservices": "Jaringan dan layanan",
+    "reverseengineeringetmalwaredevelopment": "Rekayasa balik dan pengembangan malware",
+    "riskanalysisetapplicationsecurity": "Analisis risiko dan keamanan aplikasi",
+    "routingetnetworksecurity": "Routing dan keamanan jaringan",
+    "socanalysis": "Analisis SOC",
+    "socanalysisetdefensive": "Analisis SOC dan keamanan defensif",
+    "socanalysisetmethodologie": "Analisis SOC dan metodologi",
+    "socialengineeringetoffensive": "Rekayasa sosial dan keamanan ofensif",
+    "stockage": "Penyimpanan",
+    "stoicisme": "Stoisisme",
+    "synthese": "Rangkuman",
+    "systemesdexploitationethardware": "Sistem operasi dan perangkat keras",
+    "systemesjuridiquesetbranches": "Sistem hukum dan cabang",
+    "thematiquesetconcepts": "Tema dan konsep",
+    "themesetreligionstraditionnelles": "Tema dan agama tradisional",
+    "theorieetperiodes": "Teori dan periode",
+    "theoriesetconcepts": "Teori dan konsep",
+    "theoriesettypes": "Teori dan jenis",
+    "ungraphique": "Sebuah grafik",
+    "ungraphiqueetconcepts": "Sebuah grafik dan konsep",
+    "utilisateursetsecurite": "Pengguna dan keamanan",
+    "vecteursdattaqueweb": "Vektor serangan web",
+    "vocabulaireetcommunication": "Kosakata dan komunikasi",
+    "vocabulaireetgrammaire": "Kosakata dan tata bahasa",
+    "vocabulaireetressources": "Kosakata dan sumber belajar",
+    "web": "Web",
+    "webcachepoisoningetcachedeception": "Web cache poisoning dan cache deception",
+    "webetframermotion": "Web dan Framer Motion",
+    "ww2ethistoire": "Perang Dunia II dan sejarah",
+    "xxesiecleetww2": "Abad ke-20 dan Perang Dunia II"
+  },
+  "painting": {
+    "eragny": {
+      "title": "Kebun Sayur di Éragny",
+      "credit": "Camille Pissarro, Kebun Sayur di Éragny, 1897"
+    },
+    "sciences": {
+      "title": "Jam planet",
+      "note": "Paris, 1790",
+      "credit": "Louis Thouverez, Jam planet, Paris, 1790"
+    },
+    "informatique": {
+      "note": "byte-byte pertama sebuah berkas eksekusi Windows",
+      "credit": "MZ… This program cannot be run in DOS mode, byte-byte pertama sebuah berkas eksekusi Windows"
+    },
+    "pensee": {
+      "title": "Kepala Epikuros",
+      "note": "marmer, salinan Romawi abad ke-2",
+      "credit": "Kepala Epikuros, marmer, salinan Romawi abad ke-2"
+    },
+    "societe": {
+      "title": "Peta etnografi Kamchatka",
+      "credit": "Carl von Ditmar, Peta etnografi Kamchatka, 1853"
+    },
+    "arts": {
+      "title": "Ruang Tari di Opera Rue Le Peletier",
+      "credit": "Edgar Degas, Ruang Tari di Opera Rue Le Peletier, 1872"
+    },
+    "langues": {
+      "title": "Lempeng proto-kuneiform",
+      "note": "Mesopotamia, sekitar 3100–2900 SM",
+      "credit": "Lempeng proto-kuneiform, Mesopotamia, sekitar 3100–2900 SM"
+    },
+    "jeux": {
+      "note": "cukil kayu berwarna, 1483",
+      "credit": "Das Schachzabelbuch, cukil kayu berwarna, 1483"
+    },
+    "biologie": {
+      "title": "Bentuk-Bentuk Seni di Alam",
+      "note": "lembar 8, 1904",
+      "credit": "Ernst Haeckel, Bentuk-Bentuk Seni di Alam, lembar 8, 1904"
+    },
+    "economie": {
+      "title": "Tetradrakhma perak berkepala Herakles",
+      "note": "315–308 SM",
+      "credit": "Tetradrakhma perak berkepala Herakles, 315–308 SM"
+    },
+    "medecine": {
+      "note": "Basel, 1555",
+      "credit": "André Vésale, De humani corporis fabrica, Basel, 1555"
+    },
+    "sport": {
+      "note": "lembar derap, 1887",
+      "credit": "Eadweard Muybridge, Animal Locomotion, lembar derap, 1887"
+    },
+    "langues-espagnol": {
+      "title": "Pelataran Singa, Alhambra, Granada",
+      "note": "cetakan albumen, 1857–1858",
+      "credit": "Charles Clifford, Pelataran Singa, Alhambra, Granada, cetakan albumen, 1857–1858"
+    },
+    "langues-indonesien": {
+      "title": "Sarung bermotif burung",
+      "note": "batik pada katun, pesisir utara Jawa, pertengahan abad ke-19",
+      "credit": "Sarung bermotif burung, batik pada katun, pesisir utara Jawa, pertengahan abad ke-19"
+    },
+    "langues-hakka": {
+      "title": "Kendi berkepala burung phoenix",
+      "note": "porselen, Guangdong, abad ke-11",
+      "credit": "Kendi berkepala burung phoenix, porselen, Guangdong, abad ke-11"
+    }
+  },
+  "months": {
+    "m1": "Januari {y}",
+    "m2": "Februari {y}",
+    "m3": "Maret {y}",
+    "m4": "April {y}",
+    "m5": "Mei {y}",
+    "m6": "Juni {y}",
+    "m7": "Juli {y}",
+    "m8": "Agustus {y}",
+    "m9": "September {y}",
+    "m10": "Oktober {y}",
+    "m11": "November {y}",
+    "m12": "Desember {y}"
   }
 }
