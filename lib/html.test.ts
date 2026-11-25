@@ -117,6 +117,11 @@ describe("noteChapters", () => {
     ]);
   });
 
+  it("leaves no tag behind when stripping one rebuilds another", () => {
+    const [, b] = noteChapters(`<h2 id="a">Un</h2><h2 id="b"><scr<i>ipt>x</h2>`);
+    expect(b.text).not.toContain("<");
+  });
+
   it("gives nothing for a note with a single section", () => {
     expect(noteChapters(`<h2 id="a">Un</h2><h3 id="b">Deux</h3>`)).toEqual([]);
   });
