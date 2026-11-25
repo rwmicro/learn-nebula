@@ -138,10 +138,6 @@
 .glass[data-glass-ready]::after {
   display: none;
 }
-/* The kit's card shadow (lib/glass/site.ts) shows with its glass only. */
-[data-glass-host]:not([data-glass-ready]) > [data-glass-shadow] {
-  display: none;
-}
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass {
     background: var(--paper-raised);

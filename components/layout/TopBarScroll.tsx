@@ -1,13 +1,39 @@
 "use client";
 
 import { useEffect } from "react";
+import { liquidGlassLater } from "@/lib/glass/load";
 
 // Phones (app.css): the site bar is no bar at all, only the "Moi" avatar as a
 // round glass button. Once the page's large title has scrolled away, a glass
 // pill with the leaf and that title comes in at the top left, over a soft
 // fade of the paper. This marks <html data-topbar="scrolled"> and copies the
 // title (re-read after a language switch) into the pill.
+// On phones those floating pieces (the avatar, the home's language button,
+// the title pill) are liquid glass, drawn by lib/glass like the tab bar.
 export function TopBarScroll() {
+  useEffect(() => {
+    const phone = matchMedia("(max-width: 639.98px)");
+    let off: (() => void)[] = [];
+    const glass = () => {
+      if (phone.matches && !off.length) {
+        const q = (sel: string) => document.querySelector<HTMLElement>(sel);
+        off = [
+          liquidGlassLater(q(".site-bar .site-bar-me"), "button"),
+          liquidGlassLater(q(".site-bar .site-bar-lang > span > button"), "button"),
+          liquidGlassLater(q("body:not(:has(.na-chrome)) .site-bar .site-bar-brand"), "bar"),
+        ];
+      } else if (!phone.matches && off.length) {
+        off.forEach((f) => f());
+        off = [];
+      }
+    };
+    glass();
+    phone.addEventListener("change", glass);
+    return () => {
+      phone.removeEventListener("change", glass);
+      off.forEach((f) => f());
+    };
+  }, []);
   useEffect(() => {
     const pill = document.querySelector<HTMLElement>(".site-bar-page");
     const title = () => document.querySelector<HTMLElement>("main h1");
