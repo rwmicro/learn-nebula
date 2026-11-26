@@ -6,6 +6,7 @@ import { useLocale } from "@/lib/client/use-locale";
 import { CHANGE_EVENT, loadStore, type ReadingStore } from "@/lib/reading-progress";
 import { fold } from "@/lib/palette-match";
 import type { PathFamily } from "@/lib/path-family";
+import { scrollMotion } from "@/lib/client/scroll-motion";
 
 // The desktop /parcours/'s small client parts (components/paths/ParcoursDesk.tsx
 // renders the page): the reader's progress laid on the cards and the lines,
@@ -89,7 +90,7 @@ export function DeskFilter({ total, families }: { total: number; families: { id:
   }, [family, tokens]);
   const jump = (id: string) => {
     setSeg(id);
-    document.getElementById(`pcd-${id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById(`pcd-${id}`)?.scrollIntoView({ behavior: scrollMotion(), block: "start" });
   };
   return (
     <div className="pcd-filter" id="pcd-filter" role="search">

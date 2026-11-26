@@ -29,6 +29,7 @@ import {
   type DashRecent,
 } from "@/components/home/HomeDashboard";
 import { srcSet, ERAGNY_SIZES } from "@/lib/responsive-image";
+import { scrollMotion } from "@/lib/client/scroll-motion";
 
 // The home on a desktop (from 640px; home-desk.css shows it and hides the
 // tablet layout that follows it in <main>): the phone dashboard's content set
@@ -241,7 +242,7 @@ export function HomeDesk({
       const h = decodeURIComponent(location.hash.slice(1));
       if (!matchMedia("(min-width: 640px)").matches) return;
       const el = h && document.getElementById(`hd-${h}`);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (el) el.scrollIntoView({ behavior: scrollMotion(), block: "start" });
     };
     go();
     window.addEventListener("hashchange", go);

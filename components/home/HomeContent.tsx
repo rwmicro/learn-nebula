@@ -18,6 +18,7 @@ import {
   slugFromHref,
   type ReadingStore,
 } from "@/lib/reading-progress";
+import { scrollMotion } from "@/lib/client/scroll-motion";
 
 type PaletteWindow = Window & { __palette?: { open: (q?: string) => void } };
 
@@ -250,7 +251,7 @@ export function HomeContent({
     // opened ancestors, so retry across a few frames before giving up.
     const scrollToAnchor = (h: string, tries = 0) => {
       const el = document.getElementById(h);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (el) el.scrollIntoView({ behavior: scrollMotion(), block: "start" });
       else if (tries < 12)
         requestAnimationFrame(() => scrollToAnchor(h, tries + 1));
     };

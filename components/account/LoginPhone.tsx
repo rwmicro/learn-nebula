@@ -63,7 +63,7 @@ export function LoginPhone({ cfg, expired, tr }: { cfg: AuthConfig; expired: boo
       setSentAt(Date.now());
       setNow(Date.now());
       setResent(again);
-      window.scrollTo(0, 0);
+      window.scrollTo({ top: 0, behavior: "instant" });
     } else setState(r);
   }
 
