@@ -185,7 +185,7 @@ button.gc-ib:hover {
 .gc-modes button {
   flex: none;
   padding: 6px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--wash-2);
   font-weight: 600;
   font-size: 0.84rem;
@@ -1681,7 +1681,7 @@ span.translate-failed-note {
   flex: none;
   font-weight: 600;
   padding: 5px 13px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: 1px solid color-mix(in srgb, var(--garden) 45%, transparent);
   background: var(--paper);
   color: var(--garden);
@@ -1742,14 +1742,14 @@ span.translate-failed-note {
   display: flex;
   margin-top: 10px;
   padding: 3px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--paper);
 }
 .tl-switch button {
   flex: 1;
   padding: 5px 8px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: none;
   font-weight: 600;
   font-size: 0.85rem;
@@ -1773,7 +1773,7 @@ span.translate-failed-note {
   gap: 9px;
   max-width: calc(100vw - 2rem);
   padding: 5px 5px 5px 12px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--paper-raised);
   box-shadow: 0 6px 24px rgb(0 0 0 / 0.12);
   font:
@@ -1829,7 +1829,7 @@ span.translate-failed-note {
   align-items: center;
   gap: 12px;
   padding: 9px 9px 9px 16px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--ink);
   color: var(--paper);
   font:
@@ -1842,7 +1842,7 @@ span.translate-failed-note {
 .translate-toast button {
   border: 0;
   padding: 3px 8px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: none;
   font-weight: 700;
   color: color-mix(in srgb, var(--garden) 55%, var(--paper));

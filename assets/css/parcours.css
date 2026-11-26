@@ -1740,7 +1740,7 @@ a.parcours-tool {
 .parcours-done::backdrop {
   background: color-mix(in srgb, var(--ink) 35%, transparent);
 }
-/* Same diamond medal as the lesson end (main.css .lesson-medal), which this
+/* Same diamond medal as the lesson end (note/*.css .lesson-medal), which this
    page does not load. */
 .parcours-medal {
   width: 4rem;

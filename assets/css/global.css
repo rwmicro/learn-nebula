@@ -92,12 +92,14 @@
 }
 
 /* Primary buttons on phones (start a review, sign in, keep the streak…):
-   one height, a pill, the garden green. --btn-h-sm inside cards and the chat. */
+   one height, a pill, the garden green. --btn-h-sm inside cards and the chat.
+   700, not 600: Alegreya Sans ships 400/500/700 only (fonts.css), so a 600
+   was already drawn at 700. */
 :root {
   --btn-h: 3.25rem;
   --btn-h-sm: 2.875rem;
-  --btn-radius: 999px;
-  --btn-font: 600 1.0625rem var(--font-ui);
+  --btn-radius: var(--radius-pill);
+  --btn-font: 700 1.0625rem var(--font-ui);
   --btn-bg: var(--garden-fill);
   --btn-ink: var(--garden-fill-ink);
 }
@@ -194,7 +196,7 @@
  * Palette — light (default) and dark. Every colour on the site goes through
  * these tokens; the rest of the CSS never hard-codes a grey. The theme follows
  * the OS (prefers-color-scheme) unless the reader picked one with the toggle
- * (components/ThemeToggle, public/js/theme.js), which sets data-theme on
+ * ("Affichage" in components/layout/AppSettings.tsx, public/js/theme.js), which sets data-theme on
  * <html> before first paint (layout.tsx). `.keep-light` pins a subtree to the
  * light palette in dark mode — for artwork drawn with a fixed light theme
  * (a mermaid diagram the browser rendered, Anki cards) that would be illegible re-inked.
@@ -252,12 +254,12 @@
   --growth-1: #4e7a36; /* 4.92:1 */
   --growth-2: #3f6b4a; /* 6.00:1 — the site's --garden */
   --growth-3: #2f5d3a; /* 7.45:1 */
-  /* Callout hues (main.css .callout-*). */
+  /* Callout hues (note/*.css .callout-*). */
   --callout-blue: #2d6cc0;
   --callout-teal: #009b8f;
   --callout-green: #2e8b3d;
   --callout-orange: #b8740f;
-  --callout-amber: #8f6600; /* see .callout-warning in main.css */
+  --callout-amber: #8f6600; /* see .callout-warning in note/*.css */
   --callout-red: #b3322f;
   --callout-violet: #6b4fbb;
   --callout-grey: #6b6b6b;
@@ -410,7 +412,7 @@
 /* ===========================================================================
  * Page frame — loaded on EVERY route. Deliberately minimal: no bare element
  * typography (h1, a, p, table, code…). The article typography + note widgets
- * live in main.css (note pages + 404 only); the /graph page in graph.css.
+ * live in note/*.css (note pages + 404 only); the /graph page in graph.css.
  * ======================================================================== */
 html {
   /* % (not px) so the user's browser font-size preference is respected;
@@ -430,7 +432,7 @@ body {
   counter-reset: margin-counter;
   /* Alegreya's default figures are old-style: in a counter, "0 cartes" reads
      as "o cartes". Interface numbers are lining; running text in a note
-     keeps its old-style figures (main.css, `main p`). */
+     keeps its old-style figures (note/*.css, `main p`). */
   font-variant-numeric: lining-nums;
 }
 
@@ -441,8 +443,8 @@ body {
 }
 
 /* Growth-stage badge — the digital-garden convention that a note is published
-   as a seedling and matures in public. Lives here, not in main.css: it appears
-   on note pages *and* in the home "latest growth" list, and main.css only loads
+   as a seedling and matures in public. Lives here, not in note/*.css: it appears
+   on note pages *and* in the home "latest growth" list, and note/*.css only loads
    on /posts/*. Coloured sprout-green → settled ink rather than given icons. */
 .growth-stage {
   display: inline-flex;
@@ -610,7 +612,7 @@ body {
   border-color: var(--garden-fill-hover);
 }
 /* Phones: a round sprout button instead of the pill, on one row with
-   "Étape suivante" / "Remonter" (main.css, path-step.css). The label stays
+   "Étape suivante" / "Remonter" (note/*.css, path-step.css). The label stays
    for screen readers. */
 @media (max-width: 639.98px) {
   .gk-pinned-trigger {
@@ -715,7 +717,7 @@ footer {
 }
 
 /* Image lightbox (public/js/lightbox.js). Loaded site-wide from layout.tsx, so
-   these live in global.css (not main.css, which is note-only) — otherwise the
+   these live in global.css (not note/*.css, which is note-only) — otherwise the
    overlay is unstyled off /posts/* and the image renders inline at the bottom.
    Styled like the rest of the site (warm cream, hairlines, the one garden-green
    accent, Alegreya) rather than a generic dark-glass viewer — a print set down
@@ -843,7 +845,7 @@ footer {
 
 /* ---------------------------------------------------------------------------
  * Pronunciation player — site-wide like the lightbox above, not scoped to
- * main.css, because it renders in two places: notes (rehypeVaultAssets in
+ * note/*.css, because it renders in two places: notes (rehypeVaultAssets in
  * lib/markdown.ts, from `![word](clip.mp3)`) and Anki flashcards
  * (rewriteMedia in scripts/build-anki.mjs, from `[sound:clip.mp3]`). Wired up
  * client-side by /js/pronounce.js. An icon-only pill so it sits inline in
@@ -919,7 +921,7 @@ footer {
   animation: pron-pulse 1s ease-in-out infinite;
 }
 
-/* Error: the failure red used by callout-failure/danger/bug in main.css. */
+/* Error: the failure red used by callout-failure/danger/bug in note/*.css. */
 .pron-btn[data-state="error"] {
   color: var(--danger);
 }
@@ -1065,7 +1067,7 @@ footer {
   container-type: inline-size;
   /* No negative top here: outside the note pages body has no top margin
      below 1650px, so a pull-up pushed the bar off the top of the screen.
-     main.css restores the pull-up against its own 4rem body margin. */
+     note/*.css restores the pull-up against its own 4rem body margin. */
   margin: 0 2rem 1.4rem;
   font-family: var(--font-ui);
   border-bottom: 1px solid var(--rule);
@@ -1290,7 +1292,7 @@ body:has(.home-masthead) .site-bar {
   display: none;
 }
 @media (min-width: 640px) {
-  /* One width and one place on every page (the notes' in main.css, from
+  /* One width and one place on every page (the notes' in note/*.css, from
      their own centred column): the bar used to follow each page's own
      container, full width on Parcours, 1040px centred on Cartes, so the
      whole menu jumped sideways from one page to the next. */
@@ -1670,7 +1672,7 @@ body:has(.home-masthead) .site-bar {
   align-items: center;
   flex: none;
   margin-block: -0.3em;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--fam-wash, var(--wash-2));
   transition: box-shadow 0.15s;
 }
@@ -2368,7 +2370,7 @@ body:has(.home-masthead) .site-bar {
    ======================================================================== */
 
 /* Balanced headings and card titles site-wide; zero specificity, so a page's
-   own text-wrap still wins. Note pages add theirs in main.css. */
+   own text-wrap still wins. Note pages add theirs in note/*.css. */
 :where(h1, h2, h3, h4, .recent-notes-title, .parcours-card-title, .parcours-tile-name, .app-large-title, .rv-title) {
   text-wrap: balance;
 }

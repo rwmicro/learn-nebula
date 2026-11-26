@@ -235,7 +235,7 @@
   scale: 1.12;
   z-index: 1;
 }
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   .pt-hello {
     gap: 0.45rem 0.3rem;
     margin: -0.4rem 0 0;
@@ -1065,7 +1065,7 @@ label.pt-h {
 
 /* On a phone the bottom keeps room for the talk: a compact coach, and a
    smaller mic while the keyboard is open. */
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   .pt-hint {
     gap: 0.3rem;
     padding: 0.6rem 0.8rem;
@@ -1167,7 +1167,7 @@ label.pt-h {
 /* Phones: the setup was a long column of full-width cards (four partners,
    seven scenes), with the start button at its very end. The cards go two by
    two, and the start button stays at hand above the tab bar. */
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   .parler {
     padding-bottom: 1rem;
   }
@@ -1578,7 +1578,7 @@ label.pt-h {
     gap: 0.4rem;
     height: 2.1rem;
     padding: 0 0.9rem;
-    border-radius: 999px;
+    border-radius: var(--radius-pill);
     border: 1px solid var(--rule-strong);
     background: none;
     color: var(--ink-soft);

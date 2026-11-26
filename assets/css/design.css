@@ -115,7 +115,7 @@ main.ds {
   align-items: center;
   height: var(--chip-h);
   padding: var(--chip-pad);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--chip-bg);
   font: var(--chip-font);
 }

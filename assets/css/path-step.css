@@ -2,7 +2,7 @@
    · Étape 4/20", previous / next note in the path, other paths. When the note
    also has prerequisites, the "À lire avant" block (.prereq, note-paths.css)
    sits inside it as a second row and loses its own frame. Loaded with
-   main.css on /posts/* only. */
+   note/*.css on /posts/* only. */
 
 .path-step {
   margin: 1.1rem 0 1.6rem;
@@ -61,7 +61,7 @@ main .path-step-path {
   margin: 0;
   padding: 0.05rem 0.55rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--paper-raised);
   font: inherit;
   font-size: 0.95rem;
@@ -374,7 +374,7 @@ main .path-sheet-list .is-here a {
   flex: none;
   margin-inline-start: auto;
   padding: 0.1rem 0.5rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--garden-fill);
   color: var(--garden-fill-ink);
   font-size: 0.75rem;
@@ -468,7 +468,7 @@ main .path-sheet-btn:focus-visible {
 /* "Étape suivante" (public/js/path-dock.js): pinned bottom left on phones and
    tablets once the path bar has scrolled away, on the same row as the
    "Demander à l'IA" button on the right ("Remonter" steps aside meanwhile,
-   main.css). A ring with the note's reading progress and its step, the next
+   note/*.css). A ring with the note's reading progress and its step, the next
    title, an arrow in the garden green. */
 .path-dock {
   display: none;
@@ -618,7 +618,7 @@ html.lesson-open .path-dock {
    The path's name over "Parcours · Étape 2/10", the steps as dashes, then
    ← and "suivante →" (titles in the links' title and to screen readers).
    From 1100px, it is a card at the top of the right-hand column
-   (main.css `.note-side`). */
+   (note/*.css `.note-side`). */
 .path-step-dashes {
   display: none;
 }

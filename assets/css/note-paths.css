@@ -1,8 +1,8 @@
 /* Note pages: prerequisites ("À lire avant", .prereq), the notes that build
    on this one ("Pour aller plus loin", .further) and the reader's own read
    state (.read-badge, .read-state; /js/reading-state.js). Loaded with
-   main.css on /posts/* only. `main p` / `main ul li` set article sizes in
-   main.css, so these rules restate theirs. */
+   note/*.css on /posts/* only. `main p` / `main ul li` set article sizes in
+   note/*.css, so these rules restate theirs. */
 
 /* --- À lire avant ---------------------------------------------------------- */
 .prereq {

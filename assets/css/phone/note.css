@@ -135,7 +135,7 @@
   body:has(.na-has-cover) main {
     padding-top: 0;
   }
-  /* "Texte élargi": the text runs closer to the edges. main.css's narrow
+  /* "Texte élargi": the text runs closer to the edges. note/*.css's narrow
      wide-text rule pads the body by 1.2rem, which would leave the column
      narrower than with the option off. */
   body[data-wide-text]:not([data-wide-text="normal"]):has(.na-chrome) {

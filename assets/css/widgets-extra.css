@@ -2,7 +2,7 @@
    Styles shared by the packs of lib/widgets-extra.ts (data, sciences,
    languages) and the data pack's own pieces: OWID charts, prices in euros,
    the « En quelques chiffres » callout. The base grammar (.w-root, .w-btn,
-   .w-table, .w-range…) is main.css's; this file only adds to it. Pack-specific
+   .w-table, .w-range…) is note/*.css's; this file only adds to it. Pack-specific
    rules live in widgets-sci.css and widgets-lang.css. Note pages only. */
 
 /* Categorical series colours, fixed order (public/js/widget-kit.js SERIES).
@@ -477,7 +477,7 @@ button.prix[aria-expanded="true"] {
   }
 }
 
-/* main.css gives lists in .article-body their bullets and indent back
+/* note/*.css gives lists in .article-body their bullets and indent back
    (0,1,1); the widgets' own lists are not prose lists. */
 .article-body .widget :is(.w-legend, .w-rank, .w-moves, .w-ouv-rows) {
   list-style: none;
@@ -858,7 +858,7 @@ button.prix[aria-expanded="true"] {
    maquettes Martin chose: a figure between two hairlines instead of a box,
    a serif title over sans-serif chart text, pill buttons in small caps with
    the garden green as the active colour. Scoped to .widget.is-live so it
-   outranks main.css's base grammar without editing it. */
+   outranks note/*.css's base grammar without editing it. */
 .widget.is-live {
   --w-sans: "Alegreya Sans", "Alegreya Sans Fallback", system-ui, sans-serif;
   --w-on-accent: var(--paper);

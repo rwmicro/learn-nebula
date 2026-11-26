@@ -1,6 +1,6 @@
 /* Styles for the full-bleed interactive graph page (/graph), loaded only there.
    The canvas overlays the body's centred column; a back link sits top-left.
-   Self-contained (sets its own colours/decoration) since main.css's element
+   Self-contained (sets its own colours/decoration) since note/*.css's element
    rules are no longer global. */
 .graph-page {
   position: fixed;

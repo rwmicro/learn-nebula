@@ -12,7 +12,7 @@ body:has(.flashcards-main) {
 }
 
 /* Note-questions review (/cartes/revision/, components/note/NoteReview.tsx): the
-   saved question/answer HTML comes from the note pages, without main.css. */
+   saved question/answer HTML comes from the note pages, without note/*.css. */
 .note-review-q > :first-child,
 .note-review-a > :first-child {
   margin-top: 0;
@@ -309,7 +309,7 @@ body:has(.flashcards-main) {
   margin: 1rem auto 0;
   padding: 2px;
   border: 1px solid var(--rule);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--paper);
   font: 500 0.875rem var(--font-ui);
   color: var(--ink-2);

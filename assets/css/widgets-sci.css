@@ -1,5 +1,5 @@
 /* Widget pack "sci" (lib/widgets-extra.ts). Note pages only.
-   Builds on main.css's .w-* grammar and widgets-extra.css's chart classes;
+   Builds on note/*.css's .w-* grammar and widgets-extra.css's chart classes;
    every colour is a theme token so light and dark both work. */
 
 /* ------------------------------------------------------------ shared */
@@ -847,7 +847,7 @@
 }
 
 /* List items inside these widgets: not the article's paragraph rhythm
-   (main.css `main ul li`) nor its bullets. */
+   (note/*.css `main ul li`) nor its bullets. */
 .w-root[class*="sci-"] li {
   font-size: inherit;
   line-height: 1.4;

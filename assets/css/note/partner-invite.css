@@ -73,7 +73,7 @@
   flex-basis: 100%;
   margin: 0;
 }
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   .partner-invite-actions {
     flex-basis: 100%;
   }

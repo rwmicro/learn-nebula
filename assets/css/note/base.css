@@ -1976,7 +1976,7 @@ a.theme-pill:focus-visible {
   margin-inline-start: -0.5rem;
   padding: 0 0.5rem;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: none;
   font: 500 0.9rem var(--font-ui);
   color: var(--muted);

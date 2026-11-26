@@ -1,6 +1,6 @@
 /* Widget pack "lang" (lib/widgets-extra.ts). Note pages only.
    Builders in public/js/lang/*.js; the base grammar (.w-root, .w-btn,
-   .w-table…) is main.css's. Prefix .l- for this pack. Colours: theme tokens
+   .w-table…) is note/*.css's. Prefix .l- for this pack. Colours: theme tokens
    only, so light and dark both work. */
 
 /* Scripts other than Latin: a face that has the glyphs, at a size that reads. */

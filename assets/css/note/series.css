@@ -54,7 +54,7 @@
 }
 .ex-launch-pills > span {
   padding: 0.3rem 0.75rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: color-mix(in srgb, var(--c) 12%, transparent);
   color: color-mix(in srgb, var(--c) 80%, var(--ink));
   font: 600 0.85rem var(--font-ui);

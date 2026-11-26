@@ -612,7 +612,7 @@
   min-width: min(100%, 20rem);
   justify-self: center;
 }
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   /* Edge to edge, whatever the page's own side padding. */
   .chess-main {
     width: 100vw;
@@ -743,7 +743,7 @@
   mix-blend-mode: difference;
   filter: invert(1);
 }
-@media (max-width: 639px) {
+@media (max-width: 639.98px) {
   .chess-boardwrap {
     flex-direction: column;
     gap: 0;
