@@ -34,7 +34,13 @@ import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/client/use-locale";
 import { hasMath, markdownToHtml } from "@/lib/markdown-lite";
 import { escapeHtml } from "@/lib/escape";
-import { readAskStream } from "@/lib/ask-stream";
+import {
+  askContext,
+  askServerAnswer,
+  chatHistory,
+  lastPassage,
+  preferredLang,
+} from "@/lib/client/chat-ask";
 import {
   detectLanguage,
   nanoAvailability,
@@ -55,7 +61,6 @@ import {
   onLoadProgress,
   setLocalModelEnabled,
   storageFree,
-  type ChatTurn,
   type LoadProgress,
 } from "@/lib/client/local-llm";
 import {
@@ -251,6 +256,9 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const sendRef = useRef<
     (text: string, opts?: { passage?: string; mode?: ChatMode }) => void
   >(() => {});
+  const resumeRef = useRef<(c: Conversation) => void>(() => {});
+  /** The selection « + » offers, read when the menu opens. */
+  const [selShown, setSelShown] = useState("");
   const word = deviceWord();
 
 
@@ -261,6 +269,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   // --- the download --------------------------------------------------------
   // The clock behind "time left": restarted with each new download.
+  const [secsLeftRaw, setSecsLeftRaw] = useState<number | null>(null);
   const dlClock = useRef<{ clock: DownloadClock | null; last: number }>({ clock: null, last: 0 });
   useEffect(
     () =>
@@ -269,6 +278,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         c.clock = tickDownload(c.clock, c.last, p.loaded, Date.now());
         c.last = p.loaded;
         setProgress(p);
+        setSecsLeftRaw(downloadSecondsLeft(c.clock, p.loaded, p.total, Date.now()));
       }),
     [],
   );
@@ -544,7 +554,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       void openChat().then((ok) => {
         if (!ok) return;
         const c = s ? loadChats(s).find((x) => x.id === reopen) : undefined;
-        if (c) resume(c);
+        if (c) resumeRef.current(c);
         else newConversation();
       });
     }
@@ -706,24 +716,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     if (el && busy) el.scrollTop = el.scrollHeight;
   }, [conv, busy, status]);
 
-  function preferredLang(): string {
-    try {
-      const saved = localStorage.getItem("locale");
-      if (saved) return saved.slice(0, 2);
-    } catch {
-      /* ignore */
-    }
-    return (navigator.language || "fr").slice(0, 2).toLowerCase();
-  }
-
   // --- asking --------------------------------------------------------------
-  function history(c: Conversation): ChatTurn[] {
-    return c.messages
-      .filter((m) => m.text.trim())
-      .slice(-6)
-      .map((m) => ({ role: m.role, content: m.text.slice(0, 1500) }));
-  }
-
   async function send(
     text: string,
     opts: {
@@ -768,7 +761,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         : question
           ? chatTitle(question, tr("chat.explainTitle"))
           : tr("chat.explainTitle"));
-    const prior = history(c0);
+    const prior = chatHistory(c0.messages);
     if (!opts.regenerate) {
       updateConv((c) => ({
         ...c,
@@ -817,40 +810,30 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     if (mode === "own") {
       system = explainSystemDevice(lang);
       prompt = explainUser(
-        pass || lastPassage(c0),
+        pass || lastPassage(c0.messages),
         question,
         c0.note?.title ?? "",
       );
     } else {
       // Retrieval on the server, writing here.
       try {
-        const resp = await fetch("/api/ask/context", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
+        const ctx = await askContext(
+          {
             question: question || tr("chat.explainDefault"),
-            selection: pass || undefined,
-            locale: preferredLang(),
-            scope: c0.scope || undefined,
-            lang: lang || undefined,
-            socratic: mode === "socratic" || undefined,
-          }),
-          signal: ctrl.signal,
-        });
-        if (!resp.ok) {
+            selection: pass,
+            scope: c0.scope,
+            lang,
+            socratic: mode === "socratic",
+          },
+          ctrl.signal,
+        );
+        if (!ctx.ok) {
           setLast({
-            text: tr(resp.status === 429 ? "chat.errRate" : "chat.errContext"),
+            text: tr(ctx.status === 429 ? "chat.errRate" : "chat.errContext"),
           });
           return finish(ctrl, false);
         }
-        const ctx = (await resp.json()) as {
-          system: string;
-          user: string;
-          sources: ChatSource[];
-        };
-        const sources = (ctx.sources ?? []).filter(
-          (s) => s && s.url && /^\/(?!\/)/.test(s.url),
-        );
+        const sources = ctx.sources;
         system = ctx.system;
         prompt = ctx.user;
         setLast({ sources });
@@ -877,7 +860,26 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       system += `\n${SOCRATIC_RULES}`;
 
     if (r === "server" && SERVER_LLM_OFFERED) {
-      await askServer(ctrl, question, pass, lang, mode, setLast);
+      await askServerAnswer(
+        {
+          mode,
+          question,
+          passage: pass,
+          noteTitle: c0.note?.title,
+          scope: c0.scope,
+          lang,
+        },
+        ctrl.signal,
+        {
+          sources: (s) => setLast({ sources: s }),
+          text: (t2) => {
+            setStatus("");
+            setLast({ text: t2 });
+          },
+          error: () => setLast({ text: tr("chat.errNoAnswer") }),
+          partialError: tr("chat.errNoAnswer"),
+        },
+      );
       return finish(ctrl, true);
     }
     if (r === "local" && !localModelLoaded()) {
@@ -921,74 +923,12 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       finish(ctrl, false);
     }
   }
-  sendRef.current = (text, opts) => void send(text, opts);
-
-  function lastPassage(c: Conversation): string {
-    for (let i = c.messages.length - 1; i >= 0; i--)
-      if (c.messages[i].passage) return c.messages[i].passage!;
-    return "";
-  }
 
   function finish(ctrl: AbortController, save: boolean) {
     setBusy(false);
     setStatus("");
     if (abortRef.current === ctrl) abortRef.current = null;
     updateConv((c) => ({ ...c, updated: Date.now() }), save);
-  }
-
-  // The server's own LLM (Claude / an OpenAI-compatible backend). Not
-  // offered while SERVER_LLM_OFFERED is false; kept for when it is.
-  async function askServer(
-    ctrl: AbortController,
-    question: string,
-    pass: string,
-    lang: string,
-    mode: ChatMode,
-    setLast: (p: Partial<ChatMessage>) => void,
-  ) {
-    try {
-      const resp = await fetch(
-        mode === "own" ? "/api/ask/explain" : "/api/ask",
-        {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(
-            mode === "own"
-              ? {
-                  passage: pass,
-                  explanation: question,
-                  title: convRef.current.note?.title,
-                  lang: lang || undefined,
-                }
-              : {
-                  question,
-                  selection: pass || undefined,
-                  locale: preferredLang(),
-                  scope: convRef.current.scope || undefined,
-                  lang: lang || undefined,
-                  socratic: mode === "socratic" || undefined,
-                },
-          ),
-          signal: ctrl.signal,
-        },
-      );
-      if (!resp.ok || !resp.body)
-        return setLast({ text: tr("chat.errNoAnswer") });
-      await readAskStream(resp.body, {
-        onSources: (s) =>
-          setLast({
-            sources: s.filter((x) => x?.url && x.title) as ChatSource[],
-          }),
-        onChunk: (t2) => {
-          setStatus("");
-          setLast({ text: t2 });
-        },
-        partialError: tr("chat.errNoAnswer"),
-      });
-    } catch (e) {
-      if ((e as Error)?.name !== "AbortError")
-        setLast({ text: tr("chat.errNoAnswer") });
-    }
   }
 
   function stop() {
@@ -1401,7 +1341,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   }
 
   // --- keyboard -------------------------------------------------------------
-  onKeyRef.current = (e: KeyboardEvent) => {
+  function onKey(e: KeyboardEvent) {
     if (e.defaultPrevented) return;
     const mod = e.ctrlKey || e.metaKey;
     const k = e.key.toLowerCase();
@@ -1445,7 +1385,13 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       if (isDocked()) (document.activeElement as HTMLElement | null)?.blur();
       else if (wide) closeChat();
     }
-  };
+  }
+  // The window listeners call the latest closures through these refs.
+  useEffect(() => {
+    sendRef.current = (text, opts) => void send(text, opts);
+    resumeRef.current = resume;
+    onKeyRef.current = onKey;
+  });
 
   // --- rendering -----------------------------------------------------------
   const model = localModel();
@@ -1474,10 +1420,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       : 0;
   const loadingOnly =
     fromCache || pct >= 100 || (!!progress && progress.total < model.bytes / 2);
-  const secsLeft =
-    progress && !loadingOnly
-      ? downloadSecondsLeft(dlClock.current.clock, progress.loaded, progress.total, Date.now())
-      : null;
+  const secsLeft = progress && !loadingOnly ? secsLeftRaw : null;
   const progressCard = (
     <DownloadProgress
       tr={tr}
@@ -1730,7 +1673,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             <button
               type="button"
               onClick={() => {
-                setPassage(lastPassage(conv));
+                setPassage(lastPassage(conv.messages));
                 requestAnimationFrame(() => inputRef.current?.focus());
               }}
             >
@@ -1739,7 +1682,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             <button
               type="button"
               onClick={() => {
-                const p = lastPassage(conv);
+                const p = lastPassage(conv.messages);
                 updateConv((c) => ({ ...c, mode: "socratic" }));
                 send(tr("chat.socStart"), { passage: p, mode: "socratic" });
               }}
@@ -1762,7 +1705,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       tr={tr}
       mode={conv.mode}
       busy={busy}
-      ownAvailable={!!(passage || lastPassage(conv))}
+      ownAvailable={!!(passage || lastPassage(conv.messages))}
       onMode={(m) => updateConv((c) => ({ ...c, mode: m }))}
     />
   );
@@ -1777,6 +1720,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       open={menu === "attach"}
       onToggle={() => {
         setAttachNotes(false);
+        setSelShown(lastSel.current);
         setMenu(menu === "attach" ? null : "attach");
       }}
     />
@@ -1789,7 +1733,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       notes={noteIndex}
       found={notesFound}
       onPage={!!page}
-      selection={lastSel.current}
+      selection={selShown}
       onQuery={setNoteQuery}
       onAttachNote={(n) => void attachNote(n)}
       onAttachSection={attachSection}
