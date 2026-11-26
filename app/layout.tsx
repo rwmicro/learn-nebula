@@ -22,6 +22,9 @@ import "../assets/css/fonts.css";
 // Global frame only (Tailwind + @theme + html/body/main margins). Article
 // typography lives in note/*.css, loaded per-route on note pages / 404.
 import "../assets/css/global.css";
+// What used to be its second half: the frame, site bar, lightbox, theme
+// menu, pronunciation, account… one file per area (assets/css/site/).
+import "../assets/css/site";
 // Command palette + its trigger buttons, and the view-transition rules.
 import "../assets/css/palette.css";
 // Phone "app" layer: the glass tab bar, the sticky top bar, safe areas and

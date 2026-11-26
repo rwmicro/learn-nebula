@@ -3,7 +3,7 @@ import { BODY_COLORS, defaultLook, type Look } from "@/lib/avatar";
 /**
  * The account's profile picture: "le petit jardinier", a round sprout with a
  * leaf on its head, drawn in SVG from a Look (lib/avatar.ts). It breathes,
- * blinks and sways its leaf (CSS in global.css, `.avatar*`), and stands still
+ * blinks and sways its leaf (CSS in assets/css/site/account.css, `.avatar*`), and stands still
  * for readers who ask for reduced motion. Pure markup, so it renders on the
  * server and in client components alike.
  */

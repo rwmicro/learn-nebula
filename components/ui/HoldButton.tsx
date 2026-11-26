@@ -13,7 +13,7 @@ const DRAIN_MS = 400;
  * it empties and its label says what to do (`tooShort`) for a moment. Replaces a `confirm()`
  * or a word to type: the press is the confirmation, the same on a phone, a
  * mouse or a keyboard. The fill is a layer of the button's own text colour
- * (global.css `.hold-btn`), so it suits any button it is given the class of.
+ * (assets/css/site/hold-button.css `.hold-btn`), so it suits any button it is given the class of.
  */
 export function HoldButton({
   className = "",

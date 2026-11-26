@@ -1,0 +1,129 @@
+/* Site-wide, after global.css (assets/css/site/index.ts): the image lightbox
+   (public/js/lightbox.js). */
+
+/* Image lightbox (public/js/lightbox.js). Loaded site-wide from layout.tsx, so
+   these live in global.css (not note/*.css, which is note-only) — otherwise the
+   overlay is unstyled off /posts/* and the image renders inline at the bottom.
+   Styled like the rest of the site (warm cream, hairlines, the one garden-green
+   accent, Alegreya) rather than a generic dark-glass viewer — a print set down
+   on a dark table, with a museum wall-label plate underneath, not a glowing
+   tech overlay. The backdrop stays near-black (any lighter and photos lose
+   contrast), but tinted with the site's own ink (#1a1a1a) instead of pure
+   black so it still reads as "this site", not a bolted-on widget. No thick
+   picture-frame border here (unlike .home-frame): most lightbox images are
+   diagrams/screenshots, and a wooden gallery frame around a UML chart would
+   look absurd — a thin hairline + soft shadow works for anything. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-bar);
+  background: rgba(26, 26, 26, 0.96);
+}
+
+.lightbox[hidden] {
+  display: none;
+}
+
+.lb-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 3rem 4rem;
+  box-sizing: border-box;
+  overflow: hidden;
+  cursor: zoom-out;
+}
+
+.lb-img {
+  max-width: 92vw;
+  max-height: 88vh;
+  margin: 0;
+  /* Literal, not var(--paper): the viewer is dark in both themes, and a
+     transparent diagram needs a light sheet under it to stay legible. */
+  background: #fcfcfc;
+  border: 1px solid rgba(252, 252, 252, 0.25);
+  border-radius: var(--radius-sm); /* same value as .home-frame — the one other framed image */
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  cursor: zoom-in;
+  touch-action: none;
+}
+
+.lb-btn {
+  position: absolute;
+  background: rgba(26, 26, 26, 0.3);
+  border: 1px solid rgba(252, 252, 252, 0.35);
+  color: #fcfcfc;
+  border-radius: 50%;
+  cursor: pointer;
+  line-height: 1;
+  font-family: var(--font-ui);
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.lb-btn:hover {
+  background: rgba(252, 252, 252, 0.14);
+  border-color: rgba(252, 252, 252, 0.6);
+}
+
+.lb-btn:focus-visible {
+  outline: 2px solid var(--garden); /* same focus ring as the rest of the site */
+  outline-offset: 2px;
+}
+
+.lb-close {
+  top: 1rem;
+  right: 1rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  font-size: 1.8rem;
+}
+
+.lb-prev,
+.lb-next {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2.8rem;
+  height: 4rem;
+  font-size: 2.4rem;
+}
+
+.lb-prev {
+  left: 0.6rem;
+}
+.lb-next {
+  right: 0.6rem;
+}
+
+/* A wall-label plate, not a dark gradient scrim: solid cream, hairline top
+   rule, serif italic caption — the same register as the home hero's
+   "Camille Pissarro, Le Jardin potager…" line under its framed image. */
+.lb-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  gap: 0.9rem;
+  align-items: baseline;
+  padding: 0.7rem 1.2rem;
+  color: var(--ink-2);
+  background: var(--paper);
+  border-top: 1px solid var(--rule);
+  font-family: var(--font-text);
+  font-size: 1.05rem;
+}
+
+.lb-count {
+  flex: none;
+  color: var(--faint);
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+}
+.lb-caption {
+  flex: 1;
+  font-style: italic;
+}

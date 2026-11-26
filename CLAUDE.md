@@ -258,7 +258,9 @@ image tag in `ci.yml` together with `@playwright/test`.
   on a path without one (CI reruns it on the fetched vault after the build).
 - **CSS scoping**: `assets/css/global.css` (Tailwind `@theme` + everywhere; the
   `--color-garden` CTA token and the shared `--title-page`, `--measure-*`,
-  `--sheet-*`, `--chip-*`, `--btn-*` tokens live here), `note/` (note pages
+  `--sheet-*`, `--chip-*`, `--btn-*` tokens live here, plus the palettes),
+  `site/` (site-wide rules by area, right after it: frame, lightbox, site
+  bar, theme menu, account, pronunciation, tulip…), `note/` (note pages
   `/posts/*` only, one file per area, imported in cascade order by
   `note/index.ts`), `phone/` (the phone layer, site-wide, same pattern),
   `graph.css` (graph page). Add a file to an `index.ts`, never through CSS

@@ -1,0 +1,401 @@
+/* Site-wide, after global.css (assets/css/site/index.ts): the site bar
+   (components/layout/SiteBar.tsx) and the language editions. */
+
+/* ---------------------------------------------------------------------------
+   Site bar (components/layout/SiteBar.tsx): the one menu, the same on every page.
+   The home's masthead carries the same links, so the bar steps aside there. */
+.site-bar {
+  /* Sized by its own width, not the viewport: in a narrow window the links
+     fold into the menu (@container below). */
+  container-type: inline-size;
+  /* No negative top here: outside the note pages body has no top margin
+     below 1650px, so a pull-up pushed the bar off the top of the screen.
+     note/*.css restores the pull-up against its own 4rem body margin. */
+  margin: 0 2rem 1.4rem;
+  font-family: var(--font-ui);
+  border-bottom: 1px solid var(--rule);
+  /* container-type (and the transform from 640px) makes the bar a stacking
+     context of its own: without a z-index the page below it (a parcours
+     cover, isolated) painted over its dropdowns, the language menu cut off
+     at the cover's top. Above the page, under sheets and the phone bars. */
+  position: relative;
+  z-index: 50;
+}
+body:has(.home-masthead) .site-bar {
+  display: none;
+}
+.site-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem 1.2rem;
+  min-height: 2.6rem;
+  padding: 0.25rem 0;
+}
+.site-bar-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--ink);
+  font-family: var(--font-caps);
+  font-weight: 700;
+  font-size: 1.05rem;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.site-bar-brand:hover {
+  background: transparent;
+  color: var(--garden);
+}
+/* The linocut logo (components/layout/SiteBar.tsx): one print per theme, following
+   the toggle and, unpinned, the OS — same rule as the palette above. */
+.site-bar-logo {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+.site-bar-logo--dark,
+:root[data-theme="dark"] .site-bar-logo--light {
+  display: none;
+}
+:root[data-theme="dark"] .site-bar-logo--dark {
+  display: block;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .site-bar-logo--light {
+    display: none;
+  }
+  :root:not([data-theme="light"]) .site-bar-logo--dark {
+    display: block;
+  }
+}
+.site-bar-nav ul,
+.site-bar-menu-panel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.site-bar-nav ul {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0;
+}
+/* The same dots as on the home's masthead. */
+.site-bar-nav li + li::before {
+  content: "·";
+  margin-inline: 0.7rem;
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+.site-bar-nav li,
+.site-bar-menu-panel li {
+  margin: 0;
+}
+.site-bar-nav a,
+.site-bar-menu-panel a,
+.home-nav a {
+  color: var(--ink-soft);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-decoration: none;
+  text-underline-offset: 4px;
+}
+.site-bar-nav a:hover,
+.site-bar-menu-panel a:hover,
+.home-nav a:hover {
+  background: transparent;
+  color: var(--ink);
+  text-decoration: underline;
+}
+.site-bar-nav a[aria-current="page"],
+.site-bar-menu-panel a[aria-current="page"],
+.home-nav a[aria-current="page"] {
+  color: var(--garden);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+}
+/* The bar's own links in sentence case, as the reading pages' sans; the
+   home's masthead keeps its tracked capitals. */
+.site-bar-nav a {
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.site-bar-nav a[aria-current="page"] {
+  color: var(--ink);
+  text-decoration-color: var(--garden);
+  text-underline-offset: 0.45rem;
+}
+/* Search as a field where there is room, an icon where there isn't. */
+.site-bar .palette-btn[data-palette-open] {
+  min-width: 11rem;
+  padding-block: 0.3rem;
+  background: var(--wash);
+  border-color: var(--rule);
+}
+.site-bar .palette-kbd {
+  margin-inline-start: auto;
+}
+.home-nav ul {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.home-nav li {
+  margin: 0;
+}
+@media (min-width: 640px) {
+  .home-nav ul {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.25rem 0;
+  }
+  /* A dot between the masthead's links, as between the language editions. */
+  .home-nav li + li::before {
+    content: "·";
+    margin-inline: 1.1rem;
+    color: var(--ink-soft);
+    font-weight: 700;
+  }
+  .home-nav a {
+    font-size: var(--text-small);
+    color: var(--ink);
+  }
+}
+.site-bar-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-inline-start: auto;
+}
+.site-bar-menu {
+  display: none;
+  position: relative;
+}
+.site-bar-menu summary {
+  list-style: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+.site-bar-menu summary::-webkit-details-marker {
+  display: none;
+}
+.site-bar-menu[open] summary,
+.site-bar-menu summary:hover {
+  background: var(--wash-2);
+  color: var(--ink);
+}
+.site-bar-menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  z-index: 60;
+  min-width: 12rem;
+  padding: 0.6rem 1.1rem;
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.12);
+}
+.site-bar-menu-panel li + li {
+  margin-top: 0.55rem;
+}
+/* The language editions (components/layout/LangSwitcher.tsx): the one under
+   the pointer or the keyboard takes the current one's highlighter yellow.
+   Plain :hover, as Tailwind's `hover:` waits for `@media (hover: hover)`. */
+.lang-opt:hover,
+.lang-opt:focus-visible {
+  background: var(--mark);
+  color: #1a1a1a;
+  text-decoration: underline;
+}
+@media (max-width: 1080px) {
+  .site-bar {
+    margin: 0 1.2rem 1.2rem;
+  }
+}
+/* The page's title beside the name is the phone's scrolled pill (app.css,
+   TopBarScroll.tsx). On wider screens it glued onto "Garden of Knowledge"
+   and read as one long title, pushing the links to mid-screen. */
+.site-bar-page {
+  display: none;
+}
+@media (min-width: 640px) {
+  /* One width and one place on every page (the notes' in note/*.css, from
+     their own centred column): the bar used to follow each page's own
+     container, full width on Parcours, 1040px centred on Cartes, so the
+     whole menu jumped sideways from one page to the next. */
+  body:not(:has(.na-chrome)) .site-bar {
+    position: relative;
+    left: 50%;
+    width: min(75rem, calc(100vw - 4rem));
+    margin-inline: 0;
+    transform: translateX(-50%);
+  }
+  /* The bar already holds "Accueil": the pages' own "← Accueil" above the
+     title said it twice. Back links to anywhere else stay. */
+  body:not(:has(.na-chrome)) main :is(.old-back, [class$="-back"])[href="/"] {
+    display: none;
+  }
+}
+@media (min-width: 640px) and (max-width: 1080px) {
+  body:not(:has(.na-chrome)) .site-bar {
+    width: calc(100vw - 2.4rem);
+  }
+}
+/* "Garden of Knowledge" on one line plus search, theme, account and menu
+   don't fit a phone's width: stack the name on two smaller lines ("Garden of"
+   / "Knowledge") so every page still says whose site it is. Only on the
+   narrowest phones, or beside the review reminder, does the logo alone
+   stay, the name left to screen readers. */
+@container (max-width: 480px) {
+  .site-bar-brand span {
+    max-width: 5.5em;
+    font-size: 0.86rem;
+    line-height: 1.05;
+    white-space: normal;
+    text-wrap: balance;
+  }
+  /* A review reminder takes the room the name needed. */
+  .site-bar-inner:has(.review-pill) .site-bar-brand span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@container (max-width: 330px) {
+  .site-bar-brand span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+@container (max-width: 900px) {
+  .site-bar-nav {
+    display: none;
+  }
+  .site-bar .palette-btn[data-palette-open] {
+    min-width: 0;
+    background: var(--paper);
+    border-color: var(--rule-strong);
+  }
+  .site-bar .palette-btn-label {
+    display: none;
+  }
+  .site-bar-menu {
+    display: block;
+  }
+}
+/* Tablets, and a desktop bar beside a signed-in reader's tools (cards due,
+   coins): one row would wrap the links under the tools. Two floors
+   instead, the name and the tools on top, the links centred below, in the
+   masthead's small capitals. Parcours lays its own bar over the hero
+   (parcours-desk.css) and keeps one row. */
+@container (min-width: 680px) and (max-width: 1099px) {
+  :root:not(:has(.pcd)) .site-bar-inner {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  :root:not(:has(.pcd)) .site-bar-nav {
+    display: block;
+    order: 3;
+    flex: 1 0 100%;
+    padding: 0.4rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  /* Eight links don't fit one row under ~1000px (Défis fell off the edge
+     at 820px): they wrap onto a second centred line instead. */
+  :root:not(:has(.pcd)) .site-bar-nav ul {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.15rem 1.4rem;
+  }
+  :root:not(:has(.pcd)) .site-bar-nav li + li::before {
+    content: none;
+  }
+  :root:not(:has(.pcd)) .site-bar-nav li + li {
+    margin-inline-start: 0;
+  }
+  :root:not(:has(.pcd)) .site-bar-nav a {
+    font-family: var(--font-caps);
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    white-space: nowrap;
+  }
+  :root:not(:has(.pcd)) .site-bar-menu {
+    display: none;
+  }
+  /* The name in the masthead's blackletter, as on the home and from 1024px
+     (it was small capitals only on tablets). */
+  .site-bar-brand .site-bar-name {
+    font-family: var(--bl), Georgia, serif;
+    font-weight: 400;
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+}
+@container (min-width: 1100px) and (max-width: 1399px) {
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) {
+    flex-wrap: wrap;
+    row-gap: 0;
+  }
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) .site-bar-nav {
+    order: 3;
+    flex: 1 0 100%;
+    padding: 0.4rem 0;
+    border-top: 1px solid var(--rule);
+  }
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) .site-bar-nav ul {
+    justify-content: center;
+    flex-wrap: nowrap;
+  }
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) .site-bar-nav li + li::before {
+    content: none;
+  }
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) .site-bar-nav li + li {
+    margin-inline-start: 1.8rem;
+  }
+  :root:not(:has(.pcd)) .site-bar-inner:has(.account-chip, .review-pill) .site-bar-nav a {
+    font-family: var(--font-caps);
+    font-size: 0.86rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: lowercase;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 639.98px) {
+  .site-bar {
+    margin: 0 0.9rem 1rem;
+  }
+  .site-bar .palette-kbd {
+    display: none;
+  }
+}
+@media print {
+  .site-bar {
+    display: none;
+  }
+}
