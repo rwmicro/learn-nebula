@@ -134,7 +134,7 @@
   border-radius: var(--radius-sm);
   background: var(--wash);
   color: var(--ink);
-  font: 0.875rem ui-monospace, SFMono-Regular, Menlo, monospace;
+  font: 0.875rem var(--font-mono);
 }
 .duo-qr {
   align-self: center;

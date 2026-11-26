@@ -19,13 +19,13 @@
     left: max(0.85rem, env(safe-area-inset-left, 0px));
     right: max(0.85rem, env(safe-area-inset-right, 0px));
     bottom: calc(0.9rem + var(--gk-safe-b) * 0.6);
-    z-index: 1000;
+    z-index: var(--z-bar);
     display: flex;
     align-items: center;
     gap: 0.6rem;
     font-family: var(--font-ui);
     transition:
-      transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 0.32s var(--ease-out),
       opacity 0.25s;
   }
   /* The bar's glass, after Apple Music's: a neutral grey pane that takes
@@ -515,7 +515,7 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 900;
+    z-index: var(--z-sticky);
     margin: 0;
     padding: calc(0.5rem + env(safe-area-inset-top, 0px)) 0.875rem 0;
     background: none;
@@ -611,7 +611,7 @@
     transform: translate(-50%, -0.4rem);
     transition:
       opacity 0.25s,
-      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform 0.3s var(--ease-out);
     pointer-events: none;
   }
   :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar-brand {
@@ -672,7 +672,7 @@
   html .gk-pinned-trigger,
   html .to-top {
     bottom: calc(1rem + var(--gk-tabbar-h));
-    transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: bottom 0.32s var(--ease-out);
   }
   html .coin-toast {
     bottom: calc(1.4rem + var(--gk-tabbar-h));
@@ -683,7 +683,7 @@
   }
   html .path-dock:not([hidden]) {
     bottom: calc(0.75rem + var(--gk-tabbar-h));
-    transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: bottom 0.32s var(--ease-out);
   }
   html .parcours-dock:not([hidden]) {
     bottom: var(--gk-tabbar-h);

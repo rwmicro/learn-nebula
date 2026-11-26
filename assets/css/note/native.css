@@ -51,7 +51,7 @@ h4,
   .note-header-stuck {
     position: sticky;
     top: 0;
-    z-index: 900;
+    z-index: var(--z-sticky);
     height: 0;
     container-type: scroll-state;
   }

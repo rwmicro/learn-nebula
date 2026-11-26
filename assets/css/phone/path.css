@@ -40,7 +40,7 @@
   main.parcours-page--path .offline-path-btn {
     position: fixed;
     top: calc(0.5rem + env(safe-area-inset-top, 0px));
-    z-index: 901;
+    z-index: calc(var(--z-sticky) + 1);
     display: flex;
     align-items: center;
     justify-content: center;

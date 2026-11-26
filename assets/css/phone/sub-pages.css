@@ -319,7 +319,7 @@ main.nf-page .nf-title {
     content: "";
     position: fixed;
     inset: 0 0 auto;
-    z-index: 900;
+    z-index: var(--z-sticky);
     height: calc(4rem + env(safe-area-inset-top, 0px));
     background: linear-gradient(var(--paper) 55%, transparent);
     pointer-events: none;

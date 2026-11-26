@@ -1085,7 +1085,7 @@ button.prix[aria-expanded="true"] {
   min-width: 52px;
   padding: 0 14px;
   border: 1.5px solid var(--rule-strong);
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   box-shadow: 0 3px 0 var(--rule-strong);
   background: var(--paper-raised, var(--paper));
   color: var(--ink-2);

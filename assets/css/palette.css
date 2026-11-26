@@ -64,7 +64,7 @@ html.palette-open {
 .palette {
   position: fixed;
   inset: 0;
-  z-index: 3000;
+  z-index: var(--z-top);
   display: flex;
   justify-content: center;
   align-items: flex-start;

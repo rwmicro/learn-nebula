@@ -97,7 +97,7 @@
   .pcd .pcd-btn.ghost { color: #fff; }
 
   /* "Tes parcours" */
-  .pcd-mine { right: 48px; bottom: 170px; width: 330px; padding: 18px; border-radius: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .pcd-mine { right: 48px; bottom: 170px; width: 330px; padding: 18px; border-radius: var(--radius-lg); display: flex; flex-direction: column; gap: 8px; }
   .pcd-mine-h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
   .pcd-mine-h span { font: italic 400 14px var(--serif); opacity: .7; }
   .pcd-m { display: flex; align-items: center; gap: 12px; padding: 7px; border-radius: 12px; color: #fff; }
@@ -153,7 +153,7 @@
   .pcd .pcd-pick button { height: 36px; display: inline-flex; align-items: center; padding: 0 15px; border-radius: var(--radius-pill); font: 500 15px var(--font-ui); color: #fff; }
   .pcd .pcd-pick button[aria-pressed="true"] { background: #f6efe0 !important; color: #1d1812; border-color: #f6efe0 !important; }
   .pcd .pcd-pick button[aria-pressed="true"]::after { opacity: 0; }
-  .pcd-sug { right: 48px; bottom: 250px; width: 340px; padding: 18px; border-radius: 20px; display: flex; flex-direction: column; gap: 4px; }
+  .pcd-sug { right: 48px; bottom: 250px; width: 340px; padding: 18px; border-radius: var(--radius-lg); display: flex; flex-direction: column; gap: 4px; }
   .pcd-pk { margin-bottom: 6px; }
   .pcd-sug .fr { display: block; height: 120px; border: 6px solid #8a6238; box-shadow: inset 0 0 0 1px #d6ad6e; border-radius: 2px; overflow: hidden; margin-bottom: 10px; }
   .pcd-sug .fr img { object-position: 50% 30%; }
@@ -198,7 +198,7 @@
   .pcd-now-h small { display: block; font: 700 12.5px var(--font-caps); letter-spacing: .18em; text-transform: uppercase; color: var(--muted-warm); }
   .pcd-now-h h1 { margin: 6px 0 0; font: 500 32px/1.1 var(--font-text); display: inline; }
   .pcd-now-h p { display: inline; margin: 0 0 0 12px; font: italic 400 17px var(--font-text); color: var(--muted); }
-  .pcd-now-fade { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 14px; background: var(--wash); }
+  .pcd-now-fade { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: var(--radius-md); background: var(--wash); }
   .pcd-now-fade > svg { width: 20px; height: 20px; color: #c98a2b; flex: none; }
   .pcd-now-fade > span { flex: 1; min-width: 0; display: flex; flex-direction: column; font: 400 12.5px var(--font-ui); color: var(--muted); }
   .pcd-now-fade b { font: 600 14px var(--font-ui); color: var(--ink); }
@@ -325,9 +325,9 @@
   .pcd-card.done { background: var(--paper); }
   .pcd-seal { display: none; position: absolute; top: 14px; right: 14px; width: 46px; height: 46px; border-radius: 50%; place-items: center; font: 600 12px var(--font-caps); letter-spacing: .12em; text-transform: uppercase; color: #fff; background: radial-gradient(circle at 35% 30%, #c9503e, #8e2b20); box-shadow: 0 0 0 3px var(--paper), 0 0 0 4px #8e2b20; transform: rotate(-12deg); }
   .pcd-card.done .pcd-seal { display: grid; }
-  .pcd .pcd-more { display: flex; justify-content: center; gap: 6px; width: 100%; margin-top: 14px; padding: 13px; border: 1px dashed var(--rule-strong); border-radius: 14px; font: 600 15px var(--font-ui); color: var(--fam); }
+  .pcd .pcd-more { display: flex; justify-content: center; gap: 6px; width: 100%; margin-top: 14px; padding: 13px; border: 1px dashed var(--rule-strong); border-radius: var(--radius-md); font: 600 15px var(--font-ui); color: var(--fam); }
   .pcd-langs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
-  .pcd-lang { position: relative; display: flex; flex-direction: column; padding: 16px 16px 14px; border-radius: 14px; border: 1px solid var(--rule); color: var(--ink); overflow: hidden; }
+  .pcd-lang { position: relative; display: flex; flex-direction: column; padding: 16px 16px 14px; border-radius: var(--radius-md); border: 1px solid var(--rule); color: var(--ink); overflow: hidden; }
   .pcd-lang:hover { border-color: color-mix(in srgb, var(--fam) 45%, var(--rule)); }
   .pcd-lang .g { font: 400 30px/1.15 var(--serif); color: var(--fam); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: start; }
   .pcd-lang .g.ar { font-family: "Noto Naskh Arabic", var(--serif); }

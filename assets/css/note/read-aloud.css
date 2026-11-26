@@ -189,7 +189,7 @@
   body:has(.na-chrome) .ra-strip {
     display: flex;
     position: fixed;
-    z-index: 1001;
+    z-index: calc(var(--z-bar) + 1);
     left: max(0.85rem, env(safe-area-inset-left, 0px));
     right: max(0.85rem, env(safe-area-inset-right, 0px));
     bottom: calc(0.9rem + var(--gk-safe-b, 0px) * 0.6 + 3.85rem + 0.55rem);

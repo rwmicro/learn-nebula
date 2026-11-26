@@ -455,7 +455,7 @@ body:has(.admin-panel.is-console) footer {
 .admin-tabbtn-key,
 .admin-side-help kbd,
 .admin-help kbd {
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.68rem;
   color: var(--faint);
 }
@@ -849,7 +849,7 @@ body:has(.admin-panel.is-console) footer {
   border: 1px solid var(--rule-strong);
   border-bottom-width: 2px;
   border-radius: var(--radius-xs);
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-size: 0.95em;
   line-height: 1.35;
   text-align: center;
@@ -865,7 +865,7 @@ body:has(.admin-panel.is-console) footer {
 }
 .admin-textarea {
   resize: vertical;
-  font-family: ui-monospace, monospace;
+  font-family: var(--font-mono);
   color: var(--ink);
 }
 

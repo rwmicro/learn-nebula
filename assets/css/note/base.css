@@ -1508,7 +1508,7 @@ a.theme-pill:focus-visible {
   left: 0;
   right: 0;
   height: 3px;
-  z-index: 950;
+  z-index: var(--z-float);
   background: var(--garden);
   transform-origin: 0 50%;
   transform: scaleX(var(--progress, 0));
@@ -1641,7 +1641,7 @@ a.theme-pill:focus-visible {
    above the article but below the assistant bar (z-index 1001). */
 .note-popover {
   position: absolute;
-  z-index: 900;
+  z-index: var(--z-sticky);
   width: min(26rem, calc(100vw - 2rem));
   padding: 0.6rem 0.75rem;
   background: var(--paper);
@@ -2195,7 +2195,7 @@ a.theme-pill:focus-visible {
     background: var(--paper);
     border-left: 1px solid var(--rule-strong);
     box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
-    z-index: 1200;
+    z-index: var(--z-drawer);
     overflow-y: auto;
   }
   body[data-aside-open="true"] .note-aside {
@@ -2249,7 +2249,7 @@ a.theme-pill:focus-visible {
     top: 0;
     left: 0;
     right: 0;
-    z-index: 900;
+    z-index: var(--z-sticky);
     padding: 0.5rem 0.9rem;
     background: var(--paper);
     border-bottom: 1px solid var(--rule-strong);

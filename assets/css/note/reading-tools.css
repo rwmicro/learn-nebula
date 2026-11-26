@@ -462,7 +462,7 @@
   position: fixed;
   right: 1.1rem;
   bottom: 1.1rem;
-  z-index: 950;
+  z-index: var(--z-float);
   display: grid;
   place-items: center;
   width: 2.9rem;
@@ -785,7 +785,7 @@ html.lesson-open {
 .lesson {
   position: fixed;
   inset: 0;
-  z-index: 1500;
+  z-index: var(--z-modal);
   display: flex;
   flex-direction: column;
   background: var(--paper);
@@ -1177,7 +1177,7 @@ mark.hl--new {
 }
 .hl-card {
   position: absolute;
-  z-index: 1200;
+  z-index: var(--z-drawer);
   padding: 0.7rem;
   background: var(--paper-raised);
   border: 1px solid var(--rule-strong);

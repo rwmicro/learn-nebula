@@ -29,6 +29,40 @@
   --font-caps: "Alegreya SC", "Alegreya SC Fallback", serif;
 }
 
+/* Mono for code, keys and numbers in tables. On Chromium/Linux the named
+   faces are absent and it falls to the system monospace, as before. */
+:root {
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+
+/* Motion: --ease-out decelerates (sheets, panels, most entrances). */
+:root {
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Stacking layers, low to high. Use the name, or calc(name ± n) to sit just
+   above or below a neighbour of the same layer. Below 900 (in-page: 1 to 80)
+   values stay local to their component.
+     sticky  900   stuck headers, the phone top bars, popovers
+     float   950   reading progress, « haut de page », pills
+     bar    1000   tab bar, note toolbar, lightbox, the chat trigger
+     scrim  1100   the veil under a sheet; sheet 1101 just above it
+     drawer 1200   the note's aside, highlight card, toasts
+     chat   1400   the garden chat (its « côte à côte » frame one below)
+     modal  1500   pronunciation coach, lesson mode
+     top    3000   the command palette, the coin toast */
+:root {
+  --z-sticky: 900;
+  --z-float: 950;
+  --z-bar: 1000;
+  --z-scrim: 1100;
+  --z-sheet: 1101;
+  --z-drawer: 1200;
+  --z-chat: 1400;
+  --z-modal: 1500;
+  --z-top: 3000;
+}
+
 /* Page titles — the one <h1> size of every page but the notes (which keep
    their own reading typography) and the parcours cover (white on a picture).
    Use as `font: var(--title-page); letter-spacing: var(--title-page-tracking)`.
@@ -57,9 +91,7 @@
   --sheet-shadow: 0 -10px 40px rgb(0 0 0 / 0.18);
   --sheet-scrim: rgb(0 0 0 / 0.32);
   --sheet-max-h: 90dvh;
-  --sheet-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --z-scrim: 1100;
-  --z-sheet: 1101;
+  --sheet-ease: var(--ease-out);
 }
 :root[data-theme="dark"] {
   --sheet-scrim: rgb(0 0 0 / 0.55);
@@ -589,7 +621,7 @@ body {
   position: fixed;
   right: 1rem;
   bottom: 1rem;
-  z-index: 1001;
+  z-index: calc(var(--z-bar) + 1);
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -731,7 +763,7 @@ footer {
 .lightbox {
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: var(--z-bar);
   background: rgba(26, 26, 26, 0.96);
 }
 
@@ -1540,7 +1572,7 @@ body:has(.home-masthead) .site-bar {
   position: fixed;
   left: 50%;
   bottom: 1.4rem;
-  z-index: 3000;
+  z-index: var(--z-top);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1767,7 +1799,7 @@ body:has(.home-masthead) .site-bar {
 .pron-scrim {
   position: fixed;
   inset: 0;
-  z-index: 1499;
+  z-index: calc(var(--z-modal) - 1);
   background: var(--pron-scrim);
   touch-action: none;
   animation: pron-fade 0.2s ease-out;
@@ -1791,7 +1823,7 @@ body:has(.home-masthead) .site-bar {
   --pron-model: var(--fam, var(--link));
   --pron-grid: var(--rule-strong);
   position: fixed;
-  z-index: 1500;
+  z-index: var(--z-modal);
   left: 0;
   right: 0;
   bottom: 0;
@@ -1808,7 +1840,7 @@ body:has(.home-masthead) .site-bar {
   font-family: var(--font-ui);
   font-size: 16px;
   line-height: 1.3;
-  animation: pron-sheet 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  animation: pron-sheet 0.28s var(--ease-out);
   transition: transform 0.22s ease-in;
 }
 .pron-coach.is-drag {
@@ -1950,7 +1982,7 @@ body:has(.home-masthead) .site-bar {
 .pron-coach-trk {
   margin: 14px 16px 0;
   padding: 12px 14px 10px;
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   background: var(--pron-trk);
 }
 .pron-coach-lane + .pron-coach-lane {

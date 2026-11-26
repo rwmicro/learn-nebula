@@ -849,14 +849,14 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     position: fixed;
     top: calc(0.5rem + env(safe-area-inset-top, 0px));
     right: 0.875rem;
-    z-index: 901;
+    z-index: calc(var(--z-sticky) + 1);
   }
   .ap-top {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    z-index: 901;
+    z-index: calc(var(--z-sticky) + 1);
     display: flex;
     align-items: center;
     gap: 0.5rem;
@@ -1692,7 +1692,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 1001;
+    z-index: calc(var(--z-bar) + 1);
     padding: 0.75rem 1rem calc(1rem + var(--gk-safe-b, 0px));
     background: var(--dash-card);
     border-top: 0.5px solid var(--rule);
@@ -1797,7 +1797,7 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
     background: var(--dash-card);
     box-shadow: var(--sheet-shadow);
     text-align: center;
-    animation: ap-rise 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+    animation: ap-rise 0.28s var(--ease-out);
   }
   @keyframes ap-fade {
     from {

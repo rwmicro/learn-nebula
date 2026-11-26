@@ -2031,7 +2031,7 @@ a.parcours-tool {
     min-height: 4.5rem;
     margin: 1.4rem 0 0.6rem;
     padding: 0.7rem 0.95rem 0.6rem;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
   }
   /* The phone's section heading over the painting: white, the count beside
      the name rather than across the band; no credit (it is in the image's

@@ -218,7 +218,7 @@ mark.l-diff {
   margin-bottom: 0.45rem;
 }
 .l-suf {
-  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: var(--text-meta);
 }
 .l-blocks {
@@ -242,7 +242,7 @@ mark.l-diff {
 }
 .l-block em {
   font-style: normal;
-  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: var(--text-micro);
   color: var(--muted);
 }

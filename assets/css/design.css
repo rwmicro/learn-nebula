@@ -27,7 +27,7 @@ main.ds {
   color: var(--ink-2);
 }
 .ds code {
-  font: 500 0.8125rem ui-monospace, monospace;
+  font: 500 0.8125rem var(--font-mono);
   color: var(--ink);
 }
 .ds-swatches,
