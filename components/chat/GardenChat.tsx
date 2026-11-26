@@ -76,9 +76,7 @@ import {
 } from "@/lib/ask-prompts";
 import {
   chatTitle,
-  deleteChat,
   loadChats,
-  saveChat,
   type ChatMessage,
   type ChatMode,
   type ChatSource,
@@ -120,6 +118,8 @@ import { Ic } from "@/components/chat/chat-icons";
 import { ChatHistory } from "@/components/chat/ChatHistory";
 import { ChatRail } from "@/components/chat/ChatRail";
 import { ChatSettings } from "@/components/chat/ChatSettings";
+import { useConversations } from "@/components/chat/use-conversations";
+import { AttachButton, AttachMenu, Composer, ModeTabs } from "@/components/chat/ChatComposer";
 import { DownloadOffer, DownloadProgress } from "@/components/chat/ChatDownload";
 import {
   DL_LATER_KEY,
@@ -160,10 +160,8 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"chat" | "history" | "settings">("chat");
   const [page, setPage] = useState<PageNote | null>(null);
-  const [conv, setConv] = useState<Conversation>(() =>
-    emptyConv(null, "", "answer"),
-  );
-  const [chats, setChats] = useState<Conversation[]>([]);
+  const { conv, setConv, convRef, chats, setChats, store, persist, updateConv, removeChat } =
+    useConversations();
   const [input, setInput] = useState("");
   // Passage waiting to be asked about (selection menu), shown above the field.
   const [passage, setPassage] = useState("");
@@ -246,7 +244,6 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   /** A source to light up once the frame shows its note. */
   const pendingFlash = useRef<{ path: string; hash: string; excerpt?: string } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const convRef = useRef(conv);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   // A question asked before the reader agreed to the download, sent after.
@@ -256,29 +253,6 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   >(() => {});
   const word = deviceWord();
 
-  useEffect(() => {
-    convRef.current = conv;
-  }, [conv]);
-
-  const store = () =>
-    typeof localStorage === "undefined" ? null : localStorage;
-
-  function persist(c: Conversation) {
-    const s = store();
-    if (!s || !c.messages.length) return;
-    try {
-      setChats(saveChat(s, c));
-    } catch {
-      /* storage blocked */
-    }
-  }
-
-  function updateConv(fn: (c: Conversation) => Conversation, save = false) {
-    const next = fn(convRef.current);
-    convRef.current = next;
-    setConv(next);
-    if (save) persist(next);
-  }
 
   function showToast(text: string) {
     setToast(text);
@@ -1253,8 +1227,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   function deleteCurrent() {
     setMenu(null);
-    const s2 = store();
-    if (s2) setChats(deleteChat(s2, convRef.current.id));
+    removeChat(convRef.current.id);
     newConversation();
     showToast(tr("chat.convDeleted"));
   }
@@ -1785,27 +1758,13 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   }
 
   const modes = (
-    <div className="gc-modes" role="tablist" aria-label={tr("chat.modesAria")}>
-      {(
-        [
-          ["answer", "chat.modeAnswer"],
-          ["socratic", "chat.modeSocratic"],
-          ["own", "chat.modeOwn"],
-        ] as const
-      ).map(([m, k]) => (
-        <button
-          key={m}
-          type="button"
-          role="tab"
-          aria-selected={conv.mode === m}
-          className={conv.mode === m ? "on" : ""}
-          disabled={busy || (m === "own" && !passage && !lastPassage(conv))}
-          onClick={() => updateConv((c) => ({ ...c, mode: m }))}
-        >
-          {tr(k)}
-        </button>
-      ))}
-    </div>
+    <ModeTabs
+      tr={tr}
+      mode={conv.mode}
+      busy={busy}
+      ownAvailable={!!(passage || lastPassage(conv))}
+      onMode={(m) => updateConv((c) => ({ ...c, mode: m }))}
+    />
   );
 
   const canSend = !!(input.trim() || (passage && conv.mode !== "own"));
@@ -1813,207 +1772,70 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     ? searchNotes(noteIndex, noteQuery, page?.url ?? "")
     : [];
   const plusBtn = (
-    <button
-      type="button"
-      className={menu === "attach" ? "gc-plus gc-menu-btn on" : "gc-plus gc-menu-btn"}
-      aria-label={tr("chat.attach")}
-      title={tr("chat.attach")}
-      aria-expanded={menu === "attach"}
-      // Keep the page's selection: no focus change on press.
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={() => {
+    <AttachButton
+      tr={tr}
+      open={menu === "attach"}
+      onToggle={() => {
         setAttachNotes(false);
         setMenu(menu === "attach" ? null : "attach");
       }}
-    >
-      {Ic.plus}
-    </button>
+    />
   );
   const attachMenu = menu === "attach" && (
-    <div className="gc-menu gc-attach" role="menu">
-      {attachNotes ? (
-        <>
-          <input
-            className="gc-menu-find"
-            autoFocus
-            value={noteQuery}
-            placeholder={tr("chat.attachFind")}
-            aria-label={tr("chat.attachFind")}
-            onChange={(e) => setNoteQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && notesFound[0]) {
-                e.preventDefault();
-                void attachNote(notesFound[0]);
-              }
-            }}
-          />
-          <div className="gc-menu-list">
-            {noteIndex === null ? (
-              <p className="gc-menu-empty">…</p>
-            ) : notesFound.length ? (
-              notesFound.map((n) => (
-                <button
-                  key={n.href}
-                  type="button"
-                  role="menuitem"
-                  onClick={() => void attachNote(n)}
-                >
-                  {Ic.doc}
-                  <span>
-                    {n.title}
-                    {n.folder && <small>{n.folder}</small>}
-                  </span>
-                </button>
-              ))
-            ) : (
-              <p className="gc-menu-empty">{tr("chat.attachNone")}</p>
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          <p>{tr("chat.attach")}</p>
-          {page && (
-            <button
-              type="button"
-              role="menuitem"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={attachSection}
-            >
-              {Ic.sec}
-              <span>{tr("chat.attachSection")}</span>
-            </button>
-          )}
-          <button
-            type="button"
-            role="menuitem"
-            disabled={!lastSel.current}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={attachSelection}
-          >
-            {Ic.sel}
-            <span>
-              {tr("chat.attachSelection")}
-              {lastSel.current && (
-                <small>
-                  « {lastSel.current.length > 50 ? `${lastSel.current.slice(0, 50)}…` : lastSel.current} »
-                </small>
-              )}
-            </span>
-          </button>
-          <button type="button" role="menuitem" onClick={openNotePicker}>
-            {Ic.doc}
-            <span>{tr("chat.attachNote")}</span>
-            <kbd>@</kbd>
-          </button>
-        </>
-      )}
-    </div>
+    <AttachMenu
+      tr={tr}
+      picking={attachNotes}
+      query={noteQuery}
+      notes={noteIndex}
+      found={notesFound}
+      onPage={!!page}
+      selection={lastSel.current}
+      onQuery={setNoteQuery}
+      onAttachNote={(n) => void attachNote(n)}
+      onAttachSection={attachSection}
+      onAttachSelection={attachSelection}
+      onPickNote={openNotePicker}
+    />
   );
   const composer = (
-    <form
-      className={started ? "gc-comp gc-comp-pill" : "gc-comp"}
-      onSubmit={(e) => {
-        e.preventDefault();
+    <Composer
+      tr={tr}
+      inputRef={inputRef}
+      started={started}
+      busy={busy}
+      canSend={canSend}
+      mode={conv.mode}
+      input={input}
+      passage={passage}
+      passageFrom={passageFrom}
+      noteTitle={conv.note ? noteTitle : ""}
+      canDictate={canDictate}
+      listening={listening}
+      attachButton={plusBtn}
+      attachMenu={attachMenu}
+      onInput={setInput}
+      onSubmit={() => {
         if (busy) return stop();
         if (canSend) send(input);
       }}
-    >
-      {attachMenu}
-      {passage && (
-        <div className="gc-pin">
-          <span>
-            {passageFrom && <b className="gc-pin-from">{passageFrom}</b>}
-            {passage.length > 140 ? `${passage.slice(0, 140)}…` : passage}
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              setPassage("");
-              setPassageFrom("");
-            }}
-            aria-label={tr("chat.removePassage")}
-          >
-            ×
-          </button>
-        </div>
-      )}
-      {started && plusBtn}
-      <textarea
-        ref={inputRef}
-        rows={1}
-        value={input}
-        maxLength={1000}
-        onChange={(e) => {
-          // « @ » alone: pick a note to attach.
-          if (e.target.value === "@" && !input) {
-            setInput("");
-            setMenu("attach");
-            openNotePicker();
-            return;
-          }
-          setInput(e.target.value);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowUp" && !input && started && !busy) {
-            const last = msgs.map((m) => m.role).lastIndexOf("user");
-            if (last >= 0) {
-              e.preventDefault();
-              startEdit(last);
-            }
-            return;
-          }
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            e.currentTarget.form?.requestSubmit();
-          }
-        }}
-        placeholder={tr(
-          conv.mode === "own"
-            ? "chat.placeholderOwn"
-            : started
-              ? "chat.placeholderShort"
-              : "chat.placeholder",
-        )}
-        aria-label={tr("chat.placeholderShort")}
-      />
-      <div className="gc-comp-row">
-        {!started && plusBtn}
-        {!started && noteTitle && conv.note && (
-          <span className="gc-ctx">
-            {Ic.doc}
-            <span>{noteTitle}</span>
-            <button
-              type="button"
-              aria-label={tr("chat.removeNote")}
-              onClick={() =>
-                updateConv((c) => ({ ...c, note: null, scope: "" }))
-              }
-            >
-              ×
-            </button>
-          </span>
-        )}
-        <span className="gc-sp" />
-        {canDictate && (
-          <button
-            type="button"
-            className={listening ? "gc-mic on" : "gc-mic"}
-            onClick={dictate}
-            aria-label={tr("chat.dictate")}
-          >
-            {Ic.mic}
-          </button>
-        )}
-        <button
-          type="submit"
-          className={busy ? "gc-stop" : canSend ? "gc-send" : "gc-send off"}
-          aria-label={tr(busy ? "chat.stop" : "chat.send")}
-        >
-          {busy ? <i /> : Ic.up}
-        </button>
-      </div>
-    </form>
+      onAt={() => {
+        setInput("");
+        setMenu("attach");
+        openNotePicker();
+      }}
+      onEditLast={() => {
+        const last = msgs.map((m) => m.role).lastIndexOf("user");
+        if (last < 0) return false;
+        startEdit(last);
+        return true;
+      }}
+      onClearPassage={() => {
+        setPassage("");
+        setPassageFrom("");
+      }}
+      onRemoveNote={() => updateConv((c) => ({ ...c, note: null, scope: "" }))}
+      onDictate={dictate}
+    />
   );
 
   const dlCard = (
@@ -2454,8 +2276,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   const railChats = searchChats(chats, railQuery);
   const deleteChatOf = (c: Conversation, fromRail: boolean) => {
-    const s2 = store();
-    if (s2) setChats(deleteChat(s2, c.id));
+    removeChat(c.id);
     if (fromRail && c.id === conv.id) newConversation();
   };
   const openSettings = () => {
