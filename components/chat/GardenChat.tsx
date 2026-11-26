@@ -4,9 +4,9 @@
 // the manner of the ChatGPT / Claude apps — full screen on a phone, a tall
 // panel on the right from 640px. Mounted site-wide in the root layout.
 //
-// Every answer is written on the reader's device (lib/garden-ai.ts): Chrome's
+// Every answer is written on the reader's device (lib/client/garden-ai.ts): Chrome's
 // Gemini Nano when it covers the language, else Qwen3.5-2B downloaded once
-// after the reader agrees (lib/local-llm.ts). The server only retrieves the
+// after the reader agrees (lib/client/local-llm.ts). The server only retrieves the
 // passages and builds the prompt (/api/ask/context). Its own LLM is not
 // offered (SERVER_LLM_OFFERED); without a model the chat says so.
 //
@@ -21,7 +21,7 @@
 //
 // From 640px, desktop tools: the history as a column with a search (☰), a
 // panel the reader can widen (drag its edge, or « Élargir »), « Côte à côte »
-// (the page beside the chat, never under it: lib/chat-dock.ts), the ⋯ menu
+// (the page beside the chat, never under it: lib/client/chat-dock.ts), the ⋯ menu
 // (rename, pin, Markdown export, delete), keyboard shortcuts (Ctrl/⌘ J,
 // Ctrl/⌘ ⇧ O, Ctrl/⌘ \, Échap, ↑). Everywhere: formulas drawn by KaTeX
 // (loaded on demand), the answer's « [n] » as source pastilles that show their
@@ -31,7 +31,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { hasMath, markdownToHtml } from "@/lib/markdown-lite";
 import { escapeHtml } from "@/lib/escape";
 import { readAskStream } from "@/lib/ask-stream";
@@ -42,7 +42,7 @@ import {
   resetNano,
   warmNano,
   type Availability,
-} from "@/lib/browser-ai";
+} from "@/lib/client/browser-ai";
 import {
   CORRECTOR,
   deleteLocalModel,
@@ -57,14 +57,14 @@ import {
   storageFree,
   type ChatTurn,
   type LoadProgress,
-} from "@/lib/local-llm";
+} from "@/lib/client/local-llm";
 import {
   SERVER_LLM_OFFERED,
   aiRoute,
   deviceWord,
   generateOnDevice,
   type AiRoute,
-} from "@/lib/garden-ai";
+} from "@/lib/client/garden-ai";
 import {
   SOCRATIC_RULES,
   cardSystem,
@@ -116,9 +116,9 @@ import {
   pageWindow,
   undock,
   visibleSection,
-} from "@/lib/chat-dock";
-// Type-only: erased at build, so lib/content.ts (node:fs) never reaches the bundle.
-import type { ScopeOption } from "@/lib/content";
+} from "@/lib/client/chat-dock";
+// Type-only: erased at build, so lib/node/content.ts (node:fs) never reaches the bundle.
+import type { ScopeOption } from "@/lib/node/content";
 import { HoldButton } from "@/components/ui/HoldButton";
 import { ThinkingSprout } from "@/components/chat/ThinkingSprout";
 
@@ -391,7 +391,7 @@ interface PageNote extends ChatNote {
 
 function readPage(): PageNote | null {
   if (typeof window === "undefined") return null;
-  // Beside the chat, the page is in the frame (lib/chat-dock.ts).
+  // Beside the chat, the page is in the frame (lib/client/chat-dock.ts).
   const win = pageWindow();
   const document = win.document;
   const location = win.location;
@@ -556,7 +556,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     below: boolean;
   } | null>(null);
   const [, setMathTick] = useState(0);
-  // The frame's page (« côte à côte »): its chat only forwards (lib/chat-dock.ts).
+  // The frame's page (« côte à côte »): its chat only forwards (lib/client/chat-dock.ts).
   const [passive, setPassive] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -725,7 +725,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     lsSet(LAYOUT_KEY, l);
   }
 
-  /** The page beside the chat, in a frame its exact width (lib/chat-dock.ts). */
+  /** The page beside the chat, in a frame its exact width (lib/client/chat-dock.ts). */
   function enterDock() {
     if (isDocked() || !canDock()) return;
     dock({
@@ -913,7 +913,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     mq.addEventListener("change", onMq);
     // No aiRoute() here: it asks for a WebGPU adapter, which can wake the GPU
     // on every page view. It runs when the chat (or its download sheet)
-    // first opens; lib/local-llm.ts keeps the answer for the session.
+    // first opens; lib/client/local-llm.ts keeps the answer for the session.
 
     const passageOf = (e: Event) =>
       String((e as CustomEvent<{ text?: string }>).detail?.text ?? "")

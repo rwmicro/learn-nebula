@@ -24,7 +24,7 @@ export const MAX_MESSAGE_BYTES = 16 * 1024;
 /** Concurrent rooms on the instance (memory guard). */
 export const MAX_ROOMS = 500;
 
-/** A note slug as lib/content.ts's slugifyPath writes it. */
+/** A note slug as lib/node/content.ts's slugifyPath writes it. */
 const REF_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/;
 /** 24 base32 characters = 120 random bits. */
 const CODE_RE = /^[a-z2-7]{24}$/;

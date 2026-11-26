@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { renderMarkdown } from "./markdown";
+import { renderMarkdown } from "./node/markdown";
 import { answerMarks, bankWords, glossValue, parseTimeline, periodYear, roundSizes, sameSentence, keyLine } from "./exercises";
 
 const data = (html: string) => {

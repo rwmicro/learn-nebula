@@ -1,5 +1,5 @@
 // Generates responsive AVIF/WebP variants for the vault's raster images and
-// writes content/vault-images.json, which lib/vault-assets.ts reads so
+// writes content/vault-images.json, which lib/node/vault-assets.ts reads so
 // rehypeVaultAssets can emit a <picture> with a srcset — and, just as valuable,
 // intrinsic width/height on the <img> so an image no longer shifts the page
 // when it loads.
@@ -54,7 +54,7 @@ const ENCODERS = {
 // note embeds — earlier drafts, scratch exports — and encoding three AVIF and
 // three WebP sizes for each of those is build time and image weight spent on
 // bytes nobody requests. Matching on the bare basename is the same rule
-// lib/vault-assets.ts's resolveVaultAssetByName uses for Obsidian wikilinks, so
+// lib/node/vault-assets.ts's resolveVaultAssetByName uses for Obsidian wikilinks, so
 // a reference by any spelling (`![[x.png]]`, `![](sub/x.png)`, an <img src>)
 // puts the name in this set.
 //

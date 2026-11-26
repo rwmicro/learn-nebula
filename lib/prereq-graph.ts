@@ -1,7 +1,7 @@
 // Prerequisite graph (frontmatter `prerequis:`) — the pure part: parsing the
 // field, ordering a set of notes so every prerequisite comes before the notes
 // that need it, and cutting the graph into reading paths. No fs, no content
-// index: lib/content.ts resolves the targets and feeds slugs in, so this file
+// index: lib/node/content.ts resolves the targets and feeds slugs in, so this file
 // is unit-testable on its own (lib/prereq-graph.test.ts).
 
 /** One prerequisite relation, [prerequisite, dependent]: read `[0]` before `[1]`. */

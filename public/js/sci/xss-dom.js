@@ -11,7 +11,7 @@ import {
   analyser,
   attributDangereux,
   compterElements,
-} from "../../../lib/sci-xss.ts";
+} from "../../../lib/client/sci-xss.ts";
 
 const PRESETS = [
   ["Texte", "chaussures de randonnée"],

@@ -1,6 +1,6 @@
 /**
  * Small exercises written in a note, beside the `[!quiz]` cards
- * (lib/markdown.ts hands these callouts over; public/js/exercises.js plays
+ * (lib/node/markdown.ts hands these callouts over; public/js/exercises.js plays
  * them, inside quiz.bundle.js):
  *
  * - `> [!traduire] Je m'appelle Andi.` then the translation on the next line,

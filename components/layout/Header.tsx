@@ -1,9 +1,9 @@
 import { UnifrakturMaguntia } from "next/font/google";
-import type { Doc } from "@/lib/content";
+import type { Doc } from "@/lib/node/content";
 import { t, i18nAttrProps } from "@/lib/i18n";
 import { LangSwitcher } from "@/components/layout/LangSwitcher";
 import { EditionDate } from "@/components/ui/EditionDate";
-import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
+import { paletteButtonHtml, themeToggleHtml } from "@/lib/node/html";
 import { MENU } from "@/lib/site";
 import { SiteNavLinks } from "@/components/layout/SiteNavLinks";
 import { AccountChip, ReviewPill } from "@/components/account/AccountChip";

@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { addDays, dayKey, forecast, type CardState } from "@/lib/srs";
-import { deckSettings, loadSettings } from "@/lib/srs-settings";
+import { deckSettings, loadSettings } from "@/lib/client/srs-settings";
 import { dueQuestions, loadAllNoteDecks } from "@/lib/note-quiz";
-import { deckMastery, isStarted, loadDeckProgress, quickCounts, storageOk } from "@/lib/review-item";
+import { deckMastery, isStarted, loadDeckProgress, quickCounts, storageOk } from "@/lib/client/review-item";
 import { loadLog, successRate, type ReviewLog } from "@/lib/srs-log";
 import { calendarDays, currentRun, loadActivity } from "@/lib/personal";
 import { loadStore } from "@/lib/reading-progress";

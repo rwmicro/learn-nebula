@@ -3,7 +3,7 @@
 import { SCENES } from "@/lib/deco-art";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { dayKey } from "@/lib/srs";
 import { encodeQr, qrPath } from "@/lib/qr";
 import {
@@ -28,7 +28,7 @@ import {
   type DuoError,
   type DuoRoom,
   type IceInfo,
-} from "@/lib/duo-rtc";
+} from "@/lib/client/duo-rtc";
 import { AppBack } from "@/components/layout/AppBack";
 
 // /duel/#<code> — two readers, two browsers, in direct contact (WebRTC):

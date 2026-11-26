@@ -3,13 +3,13 @@
 import { useEffect, useState } from "react";
 import { CircularGraph } from "@/components/explore/CircularGraph";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
-import type { GraphData } from "@/lib/graph-data";
+import { useLocale } from "@/lib/client/use-locale";
+import type { GraphData } from "@/lib/node/graph-data";
 
 /** The phone layer's breakpoint (global.css): the graph is not offered there. */
 const PHONE = "(max-width: 639.98px)";
 
-/** /graph/ fetches its data (/graph-data.json, lib/home-data.ts) instead of
+/** /graph/ fetches its data (/graph-data.json, lib/node/home-data.ts) instead of
  *  inlining it: 2.4 MB of RSC payload in the page before. The version query
  *  is the build's content hash, as on the home page.
  *

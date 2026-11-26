@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { citeBibtex, citeText } from "./cite";
-import { carteClass } from "./carte";
+import { carteClass } from "./node/carte";
 
 const note = { slug: "social-sciences/history/france/la-commune", title: "La Commune", author: ["Martin"], date: new Date("2026-03-02") };
 const today = new Date("2026-10-11T00:00:00Z");

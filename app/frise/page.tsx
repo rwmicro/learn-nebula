@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getFriseCurve, getTimelineWithWikidata } from "@/lib/frise-data";
+import { getFriseCurve, getTimelineWithWikidata } from "@/lib/node/frise-data";
 import { Frise } from "@/components/explore/Frise";
 import { FriseCourbe } from "@/components/explore/FriseCourbe";
 import { SITE_TITLE } from "@/lib/site";

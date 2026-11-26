@@ -1,4 +1,4 @@
-import { homeDataJson } from "@/lib/home-data";
+import { homeDataJson } from "@/lib/node/home-data";
 
 export const dynamic = "force-static";
 

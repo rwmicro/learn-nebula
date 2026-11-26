@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { dayKey, type Grade } from "@/lib/srs";
 import {
   countSaved,
@@ -14,7 +14,7 @@ import {
   saveNoteDeck,
   type NoteDeck,
 } from "@/lib/note-quiz";
-import { loadSettings } from "@/lib/srs-settings";
+import { loadSettings } from "@/lib/client/srs-settings";
 import { ReviewSession, type Graded, type ReviewItem } from "@/components/review/ReviewSession";
 import { AppBack } from "@/components/layout/AppBack";
 import { EmptyActions } from "@/components/home/EmptyActions";

@@ -846,7 +846,7 @@ footer {
 /* ---------------------------------------------------------------------------
  * Pronunciation player — site-wide like the lightbox above, not scoped to
  * note/*.css, because it renders in two places: notes (rehypeVaultAssets in
- * lib/markdown.ts, from `![word](clip.mp3)`) and Anki flashcards
+ * lib/node/markdown.ts, from `![word](clip.mp3)`) and Anki flashcards
  * (rewriteMedia in scripts/build-anki.mjs, from `[sound:clip.mp3]`). Wired up
  * client-side by /js/pronounce.js. An icon-only pill so it sits inline in
  * running prose, a vocabulary table cell, or a card field; the optional label
@@ -929,7 +929,7 @@ footer {
 /* The site footer (components/layout/Footer.tsx) has its own stylesheet,
    footer.css. */
 
-/* Theme button (themeToggleHtml in lib/html.ts, /js/theme.js), opens .theme-menu:
+/* Theme button (themeToggleHtml in lib/node/html.ts, /js/theme.js), opens .theme-menu:
    an icon-only button in the masthead utility bar and the note nav. The icon
    shown is picked from <html data-theme> here, so it is right on first paint. */
 .theme-toggle {

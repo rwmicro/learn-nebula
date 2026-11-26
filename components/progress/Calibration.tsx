@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { CALIBRATION_KEY, calibrationSummary, parseCalibration } from "@/lib/study-tools";
 
 /** Below the stats: how often the reader is right when they said they were

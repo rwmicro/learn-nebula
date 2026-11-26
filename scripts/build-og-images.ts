@@ -1,19 +1,19 @@
 // Draws a share card (1200×630 PNG) for every note into public/og/, used as
 // its Open Graph / Twitter image when the note has no image of its own
-// (lib/seo.ts). Same faces and colours as the site: Alegreya on the paper
+// (lib/node/seo.ts). Same faces and colours as the site: Alegreya on the paper
 // tone, the garden green for the sprout and the rule. Run with tsx, after
 // fetch-notes and before `next build` (the pages check the files exist).
 //
-// Files are named by a hash of what they show (lib/og.ts), so a rebuild only
+// Files are named by a hash of what they show (lib/node/og.ts), so a rebuild only
 // draws new or renamed notes; stale files are removed.
 
 import fs from "node:fs";
 import path from "node:path";
 import { createElement as h, type ReactElement } from "react";
 import { ImageResponse } from "next/og";
-import { getAllPosts, INDEX_NOTE } from "../lib/content";
+import { getAllPosts, INDEX_NOTE } from "../lib/node/content";
 import { folderKey, t } from "../lib/i18n";
-import { OG_DIR, ogCardFor, ogFileName, type OgCard } from "../lib/og";
+import { OG_DIR, ogCardFor, ogFileName, type OgCard } from "../lib/node/og";
 import { SITE_TITLE, SITE_URL } from "../lib/site";
 
 const FONT_DIR = path.join(process.cwd(), "assets", "og");

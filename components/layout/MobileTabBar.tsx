@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { useReviewDue } from "@/components/account/AccountChip";
 import { FamilyIcon } from "@/components/ui/FamilyIcon";
-import { liquidGlassLater as liquidGlass } from "@/lib/glass/load";
+import { liquidGlassLater as liquidGlass } from "@/lib/client/glass/load";
 import { CHANGE_EVENT, NOW_KEY, STORAGE_KEY, loadNow, loadStore, nowPlaying } from "@/lib/reading-progress";
 import type { PathFamily } from "@/lib/path-family";
 
@@ -16,7 +16,7 @@ import type { PathFamily } from "@/lib/path-family";
 // /js/palette.js through data-palette-open). Phones only (global.css
 // `.tabbar`, under 640px); the site bar keeps the menu on wider screens.
 //
-// A note has its own bottom toolbar instead (lib/note-app.ts), at the same
+// A note has its own bottom toolbar instead (lib/node/note-app.ts), at the same
 // height, so the other floating buttons (assistant, "Remonter"…) keep their
 // place above it (app.css, --gk-tabbar-h).
 //
@@ -31,7 +31,7 @@ import type { PathFamily } from "@/lib/path-family";
 // button that resumes it. Scrolling back up (or a tap on the shrunk tab)
 // brings the whole bar back.
 //
-// The glass is drawn by lib/glass (the liquid-glass kit's WebGL2 shader,
+// The glass is drawn by lib/client/glass (the liquid-glass kit's WebGL2 shader,
 // which bends the page passing under the rim, in every browser); until its
 // first frame, or without WebGL2, it is app.css `.glass` with its drop
 // shadows on their own elements here (.tabbar-shadow).
@@ -181,7 +181,7 @@ export function MobileTabBar() {
   const searchRef = useRef<HTMLButtonElement>(null);
   const miniRef = useRef<HTMLAnchorElement>(null);
 
-  // The liquid glass (lib/glass; the CSS glass until it draws).
+  // The liquid glass (lib/client/glass; the CSS glass until it draws).
   useEffect(() => {
     const off = [liquidGlass(barRef.current, "bar"), liquidGlass(searchRef.current, "button")];
     return () => off.forEach((f) => f());

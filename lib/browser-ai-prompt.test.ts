@@ -1,10 +1,10 @@
 // promptOnDevice() / aiRoute() against a fake Chrome Prompt API: the cases
 // that ended on "no answer" with a working Gemini Nano.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { nanoBroken, nanoSetAsideReason, promptOnDevice, resetNano } from "./browser-ai";
-import { aiRoute } from "./garden-ai";
+import { nanoBroken, nanoSetAsideReason, promptOnDevice, resetNano } from "./client/browser-ai";
+import { aiRoute } from "./client/garden-ai";
 
-vi.mock("./local-llm", () => ({
+vi.mock("./client/local-llm", () => ({
   localModelEnabled: () => false,
   localModelSupported: async () => false,
   promptLocal: async () => null,

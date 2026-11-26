@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { getCarte } from "@/lib/carte";
+import { getCarte } from "@/lib/node/carte";
 import { Carte } from "@/components/explore/Carte";
 import { SITE_TITLE } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import "@/assets/css/carte.css";
 
 export const metadata: Metadata = pageMetadata({

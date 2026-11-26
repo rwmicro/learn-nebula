@@ -260,7 +260,7 @@
   }
 
   /* Drop shadows on their own elements, under the glass they follow; the
-     glass keeps only its inner light. Once lib/glass draws a piece, its
+     glass keeps only its inner light. Once lib/client/glass draws a piece, its
      canvas casts the shadow and the element's own goes. */
   .tabbar .glass {
     box-shadow: var(--glass-inset);

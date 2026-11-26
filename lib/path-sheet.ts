@@ -1,7 +1,7 @@
 // "Fiche de révision" of a reading path (/parcours/<slug>/fiche/): for each
 // note, in reading order, its definitions, its key ideas and its questions —
 // the answers gathered at the end. Built at build time from the Markdown
-// (definitions, key ideas) and the rendered quiz cards (lib/path-extras.ts).
+// (definitions, key ideas) and the rendered quiz cards (lib/node/path-extras.ts).
 // The Markdown side is pure and unit-tested in lib/path-sheet.test.ts.
 
 import { definitionTerm, definitionText, extractDefinitions, isDefinitionTitle } from "./glossary";

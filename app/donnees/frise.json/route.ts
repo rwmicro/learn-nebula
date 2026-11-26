@@ -1,6 +1,6 @@
 // /donnees/frise.json: every dated note (frontmatter `year`, or its Wikidata
 // item), the data behind /frise/. Documented on /donnees/.
-import { getTimelineWithWikidata } from "@/lib/frise-data";
+import { getTimelineWithWikidata } from "@/lib/node/frise-data";
 
 export const dynamic = "force-static";
 

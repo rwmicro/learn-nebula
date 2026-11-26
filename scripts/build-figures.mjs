@@ -1,7 +1,7 @@
 // Builds the isometric figures (figures/<name>/figure.mjs) into public/figures/.
 //
 // A note embeds one with a ```iso:<name>``` block. rehypeIsoFigures
-// (lib/markdown.ts) inlines the static plate written here, so the drawing is
+// (lib/node/markdown.ts) inlines the static plate written here, so the drawing is
 // in the HTML from the first paint and readable without JavaScript; the note
 // bundle (public/js/iso-figures.js) then imports /figures/<name>.js and calls
 // its mount(root) to make it move.

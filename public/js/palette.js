@@ -40,7 +40,7 @@ import {
 import { pathFamily } from "../../lib/path-family";
 import { SCENES } from "../../lib/deco-art";
 import { isRead, loadStore, slugFromHref } from "../../lib/reading-progress";
-import { downloadExport } from "../../lib/progress-transfer";
+import { downloadExport } from "../../lib/client/progress-storage";
 import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "../../lib/search-miss";
 
 (function () {

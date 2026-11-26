@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { listBookmarks, loadBookmarks, BOOKMARKS_KEY } from "@/lib/personal";
 
 /** Home: the latest notes kept "à lire plus tard" (lib/personal.ts), next to

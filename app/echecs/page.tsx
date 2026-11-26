@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { ChessPlay } from "@/components/play/ChessPlay";
-import { getAllPosts } from "@/lib/content";
+import { getAllPosts } from "@/lib/node/content";
 import { CHESS_NOTES, type ChessTopic } from "@/lib/chess-play";
 import { t } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import "@/assets/css/echecs.css";
 import { PageHeader } from "@/components/ui/PageHeader";
 

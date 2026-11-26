@@ -64,7 +64,7 @@ main video {
 
 /* ---------------------------------------------------------------- widgets
    Interactive figures built by public/js/widgets.js from ```widget: blocks
-   (rehypeWidgets in lib/markdown.ts). Same visual grammar as the rest of the
+   (rehypeWidgets in lib/node/markdown.ts). Same visual grammar as the rest of the
    article: page-coloured surfaces, 1px hairlines, square corners, #003366 as
    the only accent. Before hydration — and without JS — the figure holds just
    .widget-fallback, so it reads as a normal line of text. */

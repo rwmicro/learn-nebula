@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { dayKey } from "@/lib/srs";
-import { deckSettings, loadSettings } from "@/lib/srs-settings";
+import { deckSettings, loadSettings } from "@/lib/client/srs-settings";
 import { dueQuestions, loadAllNoteDecks } from "@/lib/note-quiz";
-import { isStarted, loadDeckProgress, quickCounts, storageOk } from "@/lib/review-item";
-import type { AnkiDeck } from "@/lib/anki";
+import { isStarted, loadDeckProgress, quickCounts, storageOk } from "@/lib/client/review-item";
+import type { AnkiDeck } from "@/lib/node/anki";
 
 type Counts = Record<string, { due: number; fresh: number; paused: boolean; started: boolean }>;
 

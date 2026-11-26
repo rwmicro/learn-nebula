@@ -101,21 +101,21 @@ image tag in `ci.yml` together with `@playwright/test`.
 - **Pages**: `app/page.tsx` (home), `app/posts/[...slug]/page.tsx` (notes via
   `components/note/SinglePage.tsx`), `app/graph/`, `app/cartes/` (Anki). Note `<main>`
   is built as an HTML string (`dangerouslySetInnerHTML`). The dropcap goes to
-  the `.dropcap` paragraph `rehypeOutline` (`lib/markdown.ts`) marks — the one
+  the `.dropcap` paragraph `rehypeOutline` (`lib/node/markdown.ts`) marks — the one
   the note opens on, never a bold-only `.lead-in` or past a list; the same
   plugin lifts `###`-only notes to `##` and numbers sections (`.sec-n`). From
   640px the reading tools are a liquid-glass bar at the bottom
   (`noteDockHtml`, `public/js/note-dock.js`) (one bar, the same whichever way one scrolls);
-  phones keep `lib/note-app.ts`'s own toolbar. The text is one centred column
+  phones keep `lib/node/note-app.ts`'s own toolbar. The text is one centred column
   at every width (the aside is a drawer, sidenotes inline); from 1100px it has
   the contents on its left (`toc.js` rail: sections, the current one's
   lead-ins, progress) and `noteSideHtml` on its right (path card, cited
   notes, backlinks, questions), unless "élargir" or focus is on.
-- **Content/build libs**: `lib/content.ts` (loading, tree, slugs, wikilinks,
-  backlinks, `getPdfAssets`, `getHomeTree`, `IGNORE_DIRS`), `lib/markdown.ts`
+- **Content/build libs**: `lib/node/content.ts` (loading, tree, slugs, wikilinks,
+  backlinks, `getPdfAssets`, `getHomeTree`, `IGNORE_DIRS`), `lib/node/markdown.ts`
   (unified pipeline: callouts, manim, YouTube facade, vault assets, sidenotes),
-  `lib/graph-data.ts` (`buildGraph`; `theme` = level-2 discipline), `lib/html.ts`
-  (note HTML fragments), `lib/site.ts` (config + CSP), `lib/seo.ts`/`lib/jsonld.ts`.
+  `lib/node/graph-data.ts` (`buildGraph`; `theme` = level-2 discipline), `lib/node/html.ts`
+  (note HTML fragments), `lib/site.ts` (config + CSP), `lib/node/seo.ts`/`lib/jsonld.ts`.
 - **Search** is the command palette, `public/js/palette.js` (⌘K / Ctrl K, "/",
   or the home's search field): note titles (`/notes-index.json`), disciplines,
   tags, PDFs and Anki decks (`/palette-extra.json`), and note bodies via
@@ -149,8 +149,10 @@ image tag in `ci.yml` together with `@playwright/test`.
   decided server-side only, from the stored-vs-merged diff (`accounts.ts`,
   pure + tested; SQL in `account-store.ts`) into an append-only `coin_events`
   ledger. Mutating account routes require a same-site `Origin`
-  (`session.ts`). `server/tsconfig.json` includes the DOM lib because
-  `progress-transfer.ts` carries browser glue.
+  (`session.ts`). `progress-transfer.ts` is the format and merge
+  rules only; its browser glue (storage, download) is
+  `lib/client/progress-storage.ts`. `server/tsconfig.json` still includes the
+  DOM lib (fetch typings in the server tests, `personal.ts`).
 - **`/admin/`** (`components/admin/AdminPanel.tsx`, `robots: {index:false}`): owner-only
   console, not linked from the public nav. Sections, cards and dashboard tiles
   are declared in `components/admin/config.tsx`; data is shared through
@@ -164,13 +166,13 @@ image tag in `ci.yml` together with `@playwright/test`.
 - **Retrieval scope**: `/api/ask` takes an optional `scope` — a slugified folder
   path validated by `scopePrefix()` (`server/rag.ts`), which filters the cosine
   search to chunks whose URL starts with `/posts/<scope>/`. It feeds the
-  assistant's language picker (`getLanguageScopes()` in `lib/content.ts` lists
+  assistant's language picker (`getLanguageScopes()` in `lib/node/content.ts` lists
   the `Languages - Dialects` sub-folders at build), so a question about one
   language stops retrieving chunks from the seventeen others. The slug charset
   is what makes it safe to echo the folder name into the system prompt.
 - **Share images**: `scripts/build-og-images.ts` (tsx, before `next build`)
   draws a 1200×630 card per note into `public/og/` (git-ignored; fonts in
-  `assets/og/`). Files are named by a hash of what they show (`lib/og.ts`), so
+  `assets/og/`). Files are named by a hash of what they show (`lib/node/og.ts`), so
   rebuilds only draw new/renamed notes. Note pages use the card only when the
   file exists and the note has no image of its own. Never fails the build.
 - **`/jardin/`** (vault in numbers, `lib/garden-stats.ts`, server-only SVG) and
@@ -210,7 +212,7 @@ image tag in `ci.yml` together with `@playwright/test`.
   `lib/read-aloud-player.ts` (pure, fake engines in its tests). Engines:
   SpeechSynthesis, and three downloadable ones in one worker
   (`public/js/natural-voice-worker.js`, two voices in memory): Piper
-  (`lib/piper-voice.ts`, the default, the fastest), Kokoro (one 92 MB model,
+  (`lib/client/piper-voice.ts`, the default, the fastest), Kokoro (one 92 MB model,
   eSpeak phonemes rewritten by `kokoroPhonemes`: en, fr, es, it, pt, hi) and
   MMS (114 MB per language, letter by letter, CC BY-NC: Javanese, Hakka in
   Pha̍k-fa-sṳ, Indonesian…), both in `lib/natural-voices.ts`. A language added
@@ -264,10 +266,19 @@ image tag in `ci.yml` together with `@playwright/test`.
   (`scripts/bundle-js.mjs`) into `note.bundle.js`, loaded once via
   `components/note/NoteScripts.tsx` (the `SCRIPTS` array lists them). Only
   `i18n.js`/`lightbox.js`/`theme.js`/`palette.bundle.js`… load site-wide from
-  `layout.tsx`, through `jsAsset()` (`lib/js-assets.ts`): hashed copies under
+  `layout.tsx`, through `jsAsset()` (`lib/node/js-assets.ts`): hashed copies under
   `/js/h/`, immutable.
   Shared client logic lives in `lib/*.ts` imported by **both** the vanilla bundle
   and React — e.g. `lib/ask-stream.ts` (the NDJSON parser).
+- **`lib/` layout**, by where the code runs: `lib/node/` needs Node (fs, the
+  vault: content, markdown, html, seo, og…; build, server components,
+  `server/`), `lib/client/` needs a browser (hooks, storage, WebGPU, the
+  glass kit), and `lib/*` at the root is shared and runs anywhere (pure
+  logic, formats, i18n, SRS…). ESLint (`no-restricted-imports`) refuses a
+  shared module importing either side, browser code importing `lib/node/`,
+  and Node code importing `lib/client/`; `scripts/check-public-js.mjs` does
+  the same for `public/js`. Type-only imports and tests cross freely. Put a
+  new module in the narrowest folder it can live in.
 - **ESLint**: flat config (`eslint-config-next` 16). `react-hooks/set-state-in-effect`
   is intentionally a warning (false positives for the client-only init this
   static export uses).
@@ -309,7 +320,7 @@ image tag in `ci.yml` together with `@playwright/test`.
 - **Passkeys** (`server/routes/passkey.ts`, `@simplewebauthn`, RP from
   PUBLIC_URL/SITE_URL) beside the magic link; **Web Push reminders**
   (`server/push*.ts`, VAPID_*; Declarative Web Push payload, handled in
-  `public/sw.js`); app badge = cards due (`lib/app-badge.ts`).
+  `public/sw.js`); app badge = cards due (`lib/client/app-badge.ts`).
 - **Garden chat** (`components/chat/GardenChat.tsx`, `assets/css/chat.css`,
   mounted site-wide in `layout.tsx`): the one assistant. Full screen on
   phones, a right panel from 640px. Opened by the note's "Demander sur cette
@@ -326,15 +337,15 @@ image tag in `ci.yml` together with `@playwright/test`.
   shortcuts (Ctrl/⌘ J, Ctrl/⌘ ⇧ O, Ctrl/⌘ \\). **"Côte à côte"** (the default from
   1100px, until the reader picks "par-dessus") shows the page
   in a same-origin iframe exactly as wide as the room left of the chat
-  (`lib/chat-dock.ts`), so every layout rule behaves as on a screen that size;
+  (`lib/client/chat-dock.ts`), so every layout rule behaves as on a screen that size;
   the page's own chat in the frame only forwards its events up. That is why
   the server sends `X-Frame-Options: SAMEORIGIN` / `frame-ancestors 'self'`
   (never `DENY`/`'none'`). Answers render formulas with KaTeX (lazy-loaded)
   and the prompt numbers its excerpts so `[n]` becomes a source pastille
   (`markdownToHtml`'s `math`/`cite` hooks; pure helpers in `lib/chat-tools.ts`).
-- **Everything is generated on the device** (`lib/garden-ai.ts` `aiRoute()`):
-  Chrome's Gemini Nano (`lib/browser-ai.ts`) when it covers the language, else
-  the opt-in downloaded Qwen3.5-2B (`lib/local-llm.ts`: Transformers.js on
+- **Everything is generated on the device** (`lib/client/garden-ai.ts` `aiRoute()`):
+  Chrome's Gemini Nano (`lib/client/browser-ai.ts`) when it covers the language, else
+  the opt-in downloaded Qwen3.5-2B (`lib/client/local-llm.ts`: Transformers.js on
   WebGPU in a module worker, `public/js/local-llm-worker.js` →
   `local-llm.worker.js`, ort runtime self-hosted in `public/ort/` by
   `scripts/copy-ort.mjs`, weights from Hugging Face, hence `https://*.hf.co` in
@@ -371,14 +382,14 @@ image tag in `ci.yml` together with `@playwright/test`.
   `assets/css/parler.css`): a spoken partner per language, like /echecs/'s
   bot. Scenes, partners and expressions are data (`lib/partner-scenes.ts`);
   prompts, reply parsing, the word diff and progress are pure and tested
-  (`lib/partner.ts`); recognition and voices in `lib/partner-voice.ts`.
+  (`lib/partner.ts`); recognition and voices in `lib/client/partner-voice.ts`.
   The reader's line is never corrected by the partner's prompt (small models
   don't, measured 0/45): it is diffed against the scene's closest expression
   (`closestExpr`/`wordDiff`), and on a desktop with WebGPU and ≥ 8 GB an
   opt-in second model (`CORRECTOR`, Qwen3.5-4B, in the same worker beside
   the main one) rewrites it in its own prompt (`CORRIGE/POURQUOI`). Cards
   go to the language's "Situations" note deck.
-- **Duel / tandem** (`/duel/`, `components/play/Duel.tsx`, `lib/duo-rtc.ts`):
+- **Duel / tandem** (`/duel/`, `components/play/Duel.tsx`, `lib/client/duo-rtc.ts`):
   WebSocket signaling at `/api/room/:code` (`server/rooms.ts`, @hono/node-ws,
   two peers, nothing stored), RTCDataChannel / audio, optional Cloudflare
   TURN via TURN_KEY_ID/TURN_KEY_API_TOKEN. The duel only appears on notes with
@@ -393,11 +404,11 @@ image tag in `ci.yml` together with `@playwright/test`.
   (`.tabbar` / `.na-toolbar`), its pill and `.site-bar` are named so they stay
   put. Keep page-wide listeners off `beforeunload`/`unload` (bfcache): use
   `pagehide`.
-- **Liquid glass** (`lib/glass/`): the floating chrome (phone tab bar, its
+- **Liquid glass** (`lib/client/glass/`): the floating chrome (phone tab bar, its
   search button and mini player, the title pill at the top on phones
   (`TopBarScroll.tsx`), the note's reading bar, the phone note
   toolbar) is drawn by the kit of bilalgursen/liquid-glass (MIT,
-  `lib/glass/LICENSE`): `engine.ts` (one WebGL2 context, the shader) and
+  `lib/client/glass/LICENSE`): `engine.ts` (one WebGL2 context, the shader) and
   `dom-snapshot.ts` (paints the page behind into a texture) are copied
   verbatim, don't edit or "simplify" them; `layer.ts` is its
   `glass-layer.tsx` without React (`attachGlass`), `site.ts` the looks: the
@@ -406,17 +417,17 @@ image tag in `ci.yml` together with `@playwright/test`.
   glass was tried: text and colourful cards behind bled through the labels.
   Not GlassCard on the bars:
   its 70% tint and 5 px frost read as flat paper on an iPhone. It ships as its own
-  `/js/liquid-glass.bundle.js`, fetched by `lib/glass/load.ts`
+  `/js/liquid-glass.bundle.js`, fetched by `lib/client/glass/load.ts`
   (`liquidGlassLater`) only with WebGL2 on a GPU (a software renderer:
   SwiftShader, llvmpipe… keeps the CSS glass, so CI and headless runs never
   draw it; localStorage `gk-glass=on` forces it for screenshots, `off`
   disables it) and no reduced transparency / more contrast; until its first frame (and without it) the element keeps the CSS
   `.glass` (phone/base.css), which `[data-glass-ready]` turns off. The
   snapshot sees no pseudo-elements, masks or CSS filters.
-- Native CSS: anchor-positioned popovers (`lib/anchor-popover.ts`) for the
+- Native CSS: anchor-positioned popovers (`lib/client/anchor-popover.ts`) for the
   link preview and glossary, `scroll-state` sticky bar and scroll-driven
   progress (JS fallbacks kept), `@starting-style`, `field-sizing`; Wake Lock
-  (`lib/wake-lock.ts`) in review and lesson mode; Document PiP review
+  (`lib/client/wake-lock.ts`) in review and lesson mode; Document PiP review
   (`components/review/ReviewPip.tsx`).
 
 ## CI

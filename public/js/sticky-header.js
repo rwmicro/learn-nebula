@@ -5,7 +5,7 @@
 // condensed bar down from the top. Cheaper than a scroll listener and
 // throttles naturally.
 // Where the browser has `scroll-state(stuck)` container queries, the CSS does
-// it alone (lib/html.ts wraps the bar in a sticky .note-header-stuck; the
+// it alone (lib/node/html.ts wraps the bar in a sticky .note-header-stuck; the
 // bar is visibility:hidden until stuck, so no inert is needed) and this
 // observer is skipped.
 import { scrollProgress } from "../../lib/reading-progress";

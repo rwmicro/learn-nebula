@@ -5,17 +5,17 @@
 //   resolved to its page and to its file on GitHub.
 //
 // The checklist lives in the vault, which scripts/fetch-notes.mjs copies whole
-// (sources/ included — lib/content.ts only hides it from the site via
+// (sources/ included — lib/node/content.ts only hides it from the site via
 // IGNORE_DIRS) into content/posts/; the persistent clone under .cache/pensine
 // is the fallback. Missing file → an empty report, never a failed build.
 //
 // Like data/prereq-suggestions.json, written to data/ (NOT out/) and served
 // only through the admin-gated GET /api/admin/facts. Run with tsx so links
-// resolve with the site's own lib/content.ts. Parsing: lib/facts-to-check.ts.
+// resolve with the site's own lib/node/content.ts. Parsing: lib/facts-to-check.ts.
 
 import fs from "node:fs";
 import path from "node:path";
-import { getAllPosts, resolveWikiLink } from "../lib/content";
+import { getAllPosts, resolveWikiLink } from "../lib/node/content";
 import { groupOpenFacts, parseFactsChecklist } from "../lib/facts-to-check";
 
 const ROOT = process.cwd();

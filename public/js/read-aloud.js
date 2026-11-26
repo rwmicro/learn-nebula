@@ -4,7 +4,7 @@
 // the Chinese in it, a vocabulary table one language per column),
 // lib/read-aloud.ts picks a voice per language, lib/read-aloud-player.ts
 // plays them in order. Two engines: the system voices (SpeechSynthesis) and
-// the natural voice (lib/piper-voice.ts, fetched on demand as
+// the natural voice (lib/client/piper-voice.ts, fetched on demand as
 // natural-voice.bundle.js), turned on by the "Voix naturelle" switch or
 // picked for one language in "Voix".
 //

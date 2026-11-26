@@ -1070,7 +1070,7 @@ html:has(.palette--phone .palette-input:focus) .palette--phone .palette-field {
 
 /* The bars stay put while the page changes under them. Named, they leave the
    root cross-fade: the phone's bottom bar (the tab bar, or a note's toolbar —
-   same place, same capsule, lib/note-app.ts) and the wider screens' site bar
+   same place, same capsule, lib/node/note-app.ts) and the wider screens' site bar
    only fade their own content, and the tab bar's pill glides from the old
    tab to the new one, as in a native app. The pill is in the exported HTML
    at its tab (components/layout/MobileTabBar.tsx), so the new page has it from its

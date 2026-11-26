@@ -1,7 +1,7 @@
 // arbre-langues: the family tree of the garden's languages, following
 // Familles-Linguistiques.md (names from meme-mot). A language with a
 // folder in the vault is marked and links to its theme page; which folders
-// exist is read at build (lib/widget-data.ts arbreLangues), so a new language
+// exist is read at build (lib/node/widget-data.ts arbreLangues), so a new language
 // folder shows up without touching this file.
 //
 // Props (from the build): have: [{ label: folder name, href|null }]

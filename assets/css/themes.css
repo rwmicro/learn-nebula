@@ -289,7 +289,7 @@
   }
 }
 
-/* A folder's map note, listed first (lib/content.ts isIndexNote). */
+/* A folder's map note, listed first (lib/node/content.ts isIndexNote). */
 .themes-index-badge {
   margin-left: 0.5rem;
   padding: 0.05rem 0.5rem;

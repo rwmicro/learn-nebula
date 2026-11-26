@@ -1,5 +1,5 @@
 import { t, disciplineKey, i18nProps } from "@/lib/i18n";
-import type { Discipline, DisciplineGroup, TagGroup, ThemeNote } from "@/lib/content";
+import type { Discipline, DisciplineGroup, TagGroup, ThemeNote } from "@/lib/node/content";
 import { tagSlug } from "@/lib/slug";
 import { ReadMarks } from "@/components/note/ReadMarks";
 import { ThemesFilter } from "@/components/explore/ThemesFilter";
@@ -11,7 +11,7 @@ import type { CSSProperties } from "react";
  * The /themes/ pages: an index of disciplines and tags, one page per tag
  * shared by several notes, one per discipline (second-level folder). Plain
  * server-rendered lists in the /frise/ style; the data comes from
- * getTags()/getDisciplines() in lib/content.ts.
+ * getTags()/getDisciplines() in lib/node/content.ts.
  */
 
 const TOPS = [

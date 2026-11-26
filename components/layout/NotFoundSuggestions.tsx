@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { pathTerms, suggestNotes, type NoteIndexEntry } from "@/lib/note-suggest";
 import { disciplineKey, type Locale } from "@/lib/i18n";
 import { familyOfFolder } from "@/lib/path-family";

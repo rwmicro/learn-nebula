@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { Avatar } from "@/components/account/Avatar";
-import { readHint } from "@/lib/account-client";
+import { readHint } from "@/lib/client/account-client";
 import { defaultLook, type Look } from "@/lib/avatar";
 
 /**
  * "Moi" on a phone (app.css shows it below 640px): the round button at the
  * top right that opens /progression/. The reader's avatar once signed in
- * (the account hint this browser keeps, lib/account-client.ts), the
+ * (the account hint this browser keeps, lib/client/account-client.ts), the
  * silhouette otherwise. Rendered in the site bar and the home's masthead.
  */
 export function MeButton({ label }: { label: string }) {

@@ -2,12 +2,12 @@
 
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { t, pathDescIn, pathName, splitPathName } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
-import type { HomeData } from "@/lib/home-data";
+import { useLocale } from "@/lib/client/use-locale";
+import type { HomeData } from "@/lib/node/home-data";
 import type { ReadingStore } from "@/lib/reading-progress";
 import { paintingByline, paintingForPath, paintingText, type Painting } from "@/lib/paintings";
 import { srcSet } from "@/lib/responsive-image";
-import { splitMinutes } from "@/lib/path-study";
+import { splitMinutes } from "@/lib/client/path-study";
 
 /**
  * The path in progress, on the desktop home and /parcours/ (returning reader

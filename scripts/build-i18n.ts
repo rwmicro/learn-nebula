@@ -1,11 +1,11 @@
 // Writes the UI message bundles to public/i18n/<locale>.<hash>.js (see
-// lib/i18n-assets.ts). Stale bundles from earlier builds are removed, so the
+// lib/node/i18n-assets.ts). Stale bundles from earlier builds are removed, so the
 // export ships exactly the six the pages reference.
 
 import fs from "node:fs";
 import path from "node:path";
 import { LOCALES } from "../lib/i18n";
-import { bundleScript, i18nAssetName } from "../lib/i18n-assets";
+import { bundleScript, i18nAssetName } from "../lib/node/i18n-assets";
 
 const DIR = path.join(process.cwd(), "public", "i18n");
 fs.mkdirSync(DIR, { recursive: true });

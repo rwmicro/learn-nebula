@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
-import { getAllPosts, getPost, getReadingPaths, INDEX_NOTE } from "@/lib/content";
+import { getAllPosts, getPost, getReadingPaths, INDEX_NOTE } from "@/lib/node/content";
 import { ParcoursIndex, namedLevels } from "@/components/paths/Parcours";
 import { ParcoursDesk } from "@/components/paths/ParcoursDesk";
 import type { HeroLevels } from "@/components/paths/ParcoursDeskHero";
-import { pathExtras, type PathExtras } from "@/lib/path-extras";
-import { homeDataVersion } from "@/lib/home-data";
+import { pathExtras, type PathExtras } from "@/lib/node/path-extras";
+import { homeDataVersion } from "@/lib/node/home-data";
 import { SITE_TITLE } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import "@/assets/css/themes.css";
 import "@/assets/css/parcours.css";
 import "@/assets/css/parcours-desk.css";

@@ -2,7 +2,7 @@
 //
 // A ```widget:<name> block in the vault becomes
 //   <figure class="widget" data-widget="<name>" data-props='{...}'>
-// (see rehypeWidgets in lib/markdown.ts). This script replaces the fallback
+// (see rehypeWidgets in lib/node/markdown.ts). This script replaces the fallback
 // paragraph inside each figure with the real thing.
 //
 // Everything here is plain DOM: the note HTML is static-exported, so there is
@@ -2843,7 +2843,7 @@
   //
   // A widget block may set goals to reach, Brilliant-style: a task, the state
   // that solves it, an optional hint, and messages for the usual mistakes.
-  // Props are flat `key: value` lines (widgetProps in lib/markdown.ts), so
+  // Props are flat `key: value` lines (widgetProps in lib/node/markdown.ts), so
   // the 2nd, 3rd… goal take a suffix:
   //
   //   objectif: Le service compta a 50 postes. Trouvez le préfixe le plus long.

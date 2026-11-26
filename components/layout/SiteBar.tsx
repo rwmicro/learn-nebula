@@ -1,6 +1,6 @@
 import { MENU } from "@/lib/site";
 import { t, i18nAttrs, i18nAttrProps } from "@/lib/i18n";
-import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
+import { paletteButtonHtml, themeToggleHtml } from "@/lib/node/html";
 import { SiteNavLinks } from "@/components/layout/SiteNavLinks";
 import { AccountChip, ReviewPill } from "@/components/account/AccountChip";
 import { MeButton } from "@/components/layout/MeButton";

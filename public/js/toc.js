@@ -1,7 +1,7 @@
 // Table of contents: the left-margin rail on wide screens, and the
 // scrollspy that highlights the section currently in view.
 //
-// The TOC is rendered once, inside .note-aside (lib/html.ts buildToc). Above
+// The TOC is rendered once, inside .note-aside (lib/node/html.ts buildToc). Above
 // 1500px that aside is the fixed right-hand column; below it, a drawer behind
 // the "sommaire" toggle — which left a 1280-1500px screen with the article
 // centred in a 680px column and two thirds of the width empty. So a copy of

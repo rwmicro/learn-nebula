@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import { autofillSignIn, cancelPasskey } from "@/lib/passkey-client";
-import { readHint, writeHint } from "@/lib/account-client";
+import { autofillSignIn, cancelPasskey } from "@/lib/client/passkey-client";
+import { readHint, writeHint } from "@/lib/client/account-client";
 import { nextParam } from "@/components/account/use-turnstile";
 
 /**

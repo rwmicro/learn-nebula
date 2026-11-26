@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { Chess, type Square } from "chess.js";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { recordActivity } from "@/lib/personal";
 import { addQuestion, loadNoteDeck, saveNoteDeck } from "@/lib/note-quiz";
 import {

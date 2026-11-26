@@ -1,8 +1,8 @@
 import { t, i18nProps, disciplineKey } from "@/lib/i18n";
-import type { AnkiDeck } from "@/lib/anki";
+import type { AnkiDeck } from "@/lib/node/anki";
 import { NoteQuestionsEntry } from "@/components/note/NoteQuestionsEntry";
 import { CartesToday, DeckDue, StartedDecks } from "@/components/review/CartesToday";
-import { homeFolderLabel } from "@/lib/content";
+import { homeFolderLabel } from "@/lib/node/content";
 import { CartesPhone, type PhoneDeck } from "@/components/review/CartesPhone";
 import { CartesDesk } from "@/components/review/CartesDesk";
 import { familyOfFolder } from "@/lib/path-family";
@@ -10,7 +10,7 @@ import { fold } from "@/lib/palette-match";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
- * /cartes/ — every Anki deck (lib/anki.ts's manifest), grouped under the vault
+ * /cartes/ — every Anki deck (lib/node/anki.ts's manifest), grouped under the vault
  * folder its .apkg sat in, so a deck reads next to the notes it drills (the
  * label keeps only the telling part: "Arabe › Libanais", not "Social
  * Sciences › Languages - Dialects › Arabe › Libanais › Anki"). Decks the

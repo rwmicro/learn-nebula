@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
-import { liquidGlassLater } from "@/lib/glass/load";
+import { liquidGlassLater } from "@/lib/client/glass/load";
 
 // Phones (app.css): the site bar is no bar at all, only the "Moi" avatar as a
 // round glass button. Once the page's large title has scrolled away, a glass
 // pill with the leaf and that title comes in at the top left, over a soft
 // fade of the paper. This marks <html data-topbar="scrolled"> and copies the
 // title (re-read after a language switch) into the pill.
-// On phones the title pill is liquid glass, drawn by lib/glass like the tab bar.
+// On phones the title pill is liquid glass, drawn by lib/client/glass like the tab bar.
 export function TopBarScroll() {
   useEffect(() => {
     const phone = matchMedia("(max-width: 639.98px)");

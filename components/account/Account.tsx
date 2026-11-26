@@ -7,7 +7,7 @@ import { ActivityCalendar } from "@/components/progress/ActivityCalendar";
 import { HoldButton } from "@/components/ui/HoldButton";
 import { Milestones } from "@/components/progress/Milestones";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import {
   authConfig,
   fetchMe,
@@ -18,9 +18,9 @@ import {
   writeHint,
   type AuthConfig,
   type Me,
-} from "@/lib/account-client";
+} from "@/lib/client/account-client";
 import { ITEMS, MAX_FREEZES, STREAK_FREEZE, sanitizeLook, type Look, type Slot } from "@/lib/avatar";
-import { usePhone } from "@/lib/use-phone";
+import { usePhone } from "@/lib/client/use-phone";
 import {
   dayLabel,
   groupLedger,
@@ -37,7 +37,7 @@ import { AccountPhone } from "@/components/account/AccountPhone";
 import { LoginPhone } from "@/components/account/LoginPhone";
 import { Passkeys, Reminders } from "@/components/account/Security";
 import { usePasskeyAutofill } from "@/components/account/use-passkey-autofill";
-import { autoRegisterAfterLogin } from "@/lib/passkey-client";
+import { autoRegisterAfterLogin } from "@/lib/client/passkey-client";
 
 const SLOTS: Slot[] = ["body", "hat", "accessory", "background"];
 

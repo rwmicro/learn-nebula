@@ -2,8 +2,8 @@
  * Note page, October 2026 (revues/page-note-redesign-2026-10-23.md): the
  * family's colour leads the line above the title, one line of metadata under
  * it, the outline made legible (lead-ins, numbered sections), and the reading
- * tools in a liquid-glass bar at the bottom (lib/html.ts noteDockHtml,
- * public/js/note-dock.js). Phones keep lib/note-app.ts's layout (app.css).
+ * tools in a liquid-glass bar at the bottom (lib/node/html.ts noteDockHtml,
+ * public/js/note-dock.js). Phones keep lib/node/note-app.ts's layout (app.css).
  * ======================================================================== */
 main {
   --fam-ink: var(--ink);
@@ -37,7 +37,7 @@ main[data-family],
 
 /* Sections: a hairline above each, numbered i., ii.… in the family colour
    when the note has two or more and doesn't number them itself
-   (rehypeOutline, lib/markdown.ts). */
+   (rehypeOutline, lib/node/markdown.ts). */
 .article-body {
   counter-reset: sec;
 }
@@ -253,7 +253,7 @@ main[data-family],
     border-radius: var(--radius-pill);
   }
   /* The drop shadow on its own layer, for the CSS glass; the glass of
-     lib/glass casts its own once it draws. */
+     lib/client/glass casts its own once it draws. */
   .note-dock::before {
     content: "";
     position: absolute;
@@ -541,7 +541,7 @@ body[data-focus="true"] .note-meta {
    The contents on the left (.toc-rail, public/js/toc.js), the text in the
    middle (≤ 680px, about 66 characters), and on the right the path card,
    what the note cites and what links to it, and its questions
-   (.note-side, lib/html.ts noteSideHtml). Below 1100px, or with "élargir"
+   (.note-side, lib/node/html.ts noteSideHtml). Below 1100px, or with "élargir"
    or focus on, the path card is the strip under the title and the rest
    waits at the end of the note. */
 .note-side {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 
 // The chess half of the phone home's "Jouer et pratiquer" row
 // (components/home/HomeDashboard.tsx, beside HomeTalk): a board in miniature

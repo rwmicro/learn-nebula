@@ -4,7 +4,7 @@ import { GrowLoader } from "@/components/ui/GrowLoader";
 import { HoldButton } from "@/components/ui/HoldButton";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import {
   RETENTIONS,
   buildQueue,
@@ -27,7 +27,7 @@ import {
   withDeck,
   type DeckSettings,
   type SrsSettings,
-} from "@/lib/srs-settings";
+} from "@/lib/client/srs-settings";
 import {
   canReverse,
   faces,
@@ -45,7 +45,7 @@ import {
   storageOk,
   type Graded,
   type ReviewItem,
-} from "@/lib/review-item";
+} from "@/lib/client/review-item";
 import { ReviewSession } from "@/components/review/ReviewSession";
 import { btn, quiet } from "@/components/review/srs-ui";
 import { DeckFace } from "@/components/review/DeckFace";
@@ -66,7 +66,7 @@ type Mode = "review" | "browse";
  * /cartes/<slug>/ — one Anki deck: today's review (spaced repetition,
  * lib/srs.ts, through components/review/ReviewSession.tsx) or a free flip-through,
  * the deck's settings (new cards per day, sub-deck, tag, direction, typed
- * answer, audio, pause; lib/srs-settings.ts) and its leeches. Progress is
+ * answer, audio, pause; lib/client/srs-settings.ts) and its leeches. Progress is
  * per deck in localStorage (`srs:<slug>`); without storage the page falls
  * back to the plain flip-through.
  */

@@ -129,7 +129,7 @@
     linear-gradient(#000 0 0);
   pointer-events: none;
 }
-/* Drawn by lib/glass (the liquid-glass kit's WebGL2 shader: the page behind
+/* Drawn by lib/client/glass (the liquid-glass kit's WebGL2 shader: the page behind
    bent at the rim, frost, tint, rim line and drop shadow, all on its canvas):
    from its first frame the CSS glass steps aside. Its fill, border, shadow
    and backdrop filter go by the kit's own rule (GLASS_CSS); the sheen and
@@ -146,7 +146,7 @@
 /* Less transparency, or more contrast, asked for: every glass surface turns
    to plain paper (the tokens, so the bars that only borrow them follow),
    and with more contrast it gets a real edge and loses its sheen. The drawn
-   glass (lib/glass) isn't attached in either case. */
+   glass (lib/client/glass) isn't attached in either case. */
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   :root:root {
     --glass-bg: var(--paper-raised);

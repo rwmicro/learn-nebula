@@ -1,4 +1,4 @@
-import { formatDateLong, type RecentNote } from "@/lib/content";
+import { formatDateLong, type RecentNote } from "@/lib/node/content";
 import { t, i18nProps, i18nAttrProps } from "@/lib/i18n";
 
 /**

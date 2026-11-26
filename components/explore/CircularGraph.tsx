@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type WheelEvent as ReactWheelEvent, type MouseEvent as ReactMouseEvent } from "react";
 import { stratify, cluster, type HierarchyNode } from "d3-hierarchy";
-import type { GraphData, GraphNode } from "@/lib/graph-data";
+import type { GraphData, GraphNode } from "@/lib/node/graph-data";
 import { folderKey, t, pathName as localPathName } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { CHANGE_EVENT, loadStore, type ReadingStore } from "@/lib/reading-progress";
-import { readingView } from "@/lib/graph-reading";
+import { readingView } from "@/lib/client/graph-reading";
 import { AppBack } from "@/components/layout/AppBack";
 import { FAMILIES, buildClusters, type FamilyKey } from "@/lib/graph-families";
 

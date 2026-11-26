@@ -306,7 +306,7 @@ html.ne-open {
 }
 
 /* Phone: a table whose rows start with a pronounced word (the alphabets,
-   lib/markdown.ts's pron cells) reads as a list rather than a grid that
+   lib/node/markdown.ts's pron cells) reads as a list rather than a grid that
    scrolls sideways: the word in a tinted square on the left, the listen
    and practise buttons on the right, the other columns stacked between. */
 @media (max-width: 639.98px) {
@@ -477,7 +477,7 @@ html.ne-open {
 }
 
 /* End of a note on phones: one "Note lue" card, comments and "Citer" folded
-   into rows (lib/html.ts, lib/cite.ts), and the next note alone (the folder
+   into rows (lib/node/html.ts, lib/cite.ts), and the next note alone (the folder
    list under the comments goes; "Et ensuite ?" already leads on). */
 .fold-toggle,
 .fold-row,

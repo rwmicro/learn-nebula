@@ -3,11 +3,11 @@
  * (components/review/Flashcards.tsx) and the combined session (TodayReview.tsx).
  *
  * The JSON comes from scripts/build-anki.mjs. On top of it this file decides
- * which cards the reader's deck settings (lib/srs-settings.ts) put in play —
+ * which cards the reader's deck settings (lib/client/srs-settings.ts) put in play —
  * sub-deck, tag, direction — and under which id each one is scheduled.
  */
 import { cardId, migrateIds, type Progress } from "./srs";
-import type { DeckSettings } from "./srs-settings";
+import type { DeckSettings } from "./client/srs-settings";
 
 export interface DeckCard {
   /** Anki note guid + template ordinal (older builds: absent). */

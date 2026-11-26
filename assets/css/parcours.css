@@ -3,7 +3,7 @@
    lists it reuses. Every colour is a palette token (global.css), so the
    inline SVG follows light/dark like the rest of the page.
 
-   Note states (components/paths/ParcoursStudy.tsx, lib/path-study.ts): non lue
+   Note states (components/paths/ParcoursStudy.tsx, lib/client/path-study.ts): non lue
    (plain), lue (green wash + check), connue (green wash, dashed frame +
    dashed check — close to lue), maîtrisée (solid green + star); plus "next"
    (blue frame) and the target (violet ring). */

@@ -1,4 +1,4 @@
-// Click-to-load YouTube facade (#16). lib/markdown.ts renders a
+// Click-to-load YouTube facade (#16). lib/node/markdown.ts renders a
 // `.yt-embed[data-yt-id]` with the video thumbnail + a play button; only when
 // the reader clicks do we swap in a youtube-nocookie iframe (no Google frame or
 // cookie loads up front). Progressive enhancement: with JS off, the facade's

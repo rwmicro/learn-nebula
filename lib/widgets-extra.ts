@@ -1,7 +1,7 @@
 // The widget packs added after public/js/widgets.js: data figures (Our World
 // in Data, Insee, Lichess, Wikidata), sciences, languages and security. Same vault
 // syntax as the older widgets (```widget:<name> + `key: value` lines), same
-// mount point (rehypeWidgets in lib/markdown.ts), but each pack is its own
+// mount point (rehypeWidgets in lib/node/markdown.ts), but each pack is its own
 // bundle, fetched by public/js/widgets-loader.js only when the page has one
 // of its widgets.
 

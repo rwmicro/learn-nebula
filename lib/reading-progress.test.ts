@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { HomeTreeNode } from "./content";
+import type { HomeTreeNode } from "./node/content";
 import {
   MAX_ENTRIES,
   STORAGE_KEY,

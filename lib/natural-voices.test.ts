@@ -10,7 +10,7 @@ import {
   mmsKey,
   parseMmsTokens,
 } from "./natural-voices";
-import { PIPER_VOICES } from "./piper-voice";
+import { PIPER_VOICES } from "./client/piper-voice";
 
 describe("voice keys", () => {
   it("names a Kokoro voice with its eSpeak voice", () => {

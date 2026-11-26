@@ -424,7 +424,7 @@ a:hover {
   text-decoration-color: currentColor;
 }
 
-/* Note figures — a standalone image in a note (lib/markdown.ts's rehypeFigures)
+/* Note figures — a standalone image in a note (lib/node/markdown.ts's rehypeFigures)
    rather than an <img> loose in a <p>. Museum-plate caption: centred under the
    image, hairline above, serif italic — the register of the Pissarro caption on
    the home page and of the lightbox's caption plate.
@@ -1676,7 +1676,7 @@ a.theme-pill:focus-visible {
 }
 
 /* Local graph: the note's immediate [[wikilink]] neighbourhood, drawn as a
-   static SVG at build time (lib/html.ts). Lives in the aside under the TOC, so
+   static SVG at build time (lib/node/html.ts). Lives in the aside under the TOC, so
    it takes that column's treatment — the same hairline rule as .toc — rather
    than the full-width border the end-of-article apparatus uses. */
 .local-graph {
@@ -1700,7 +1700,7 @@ a.theme-pill:focus-visible {
   height: auto;
   /* Not `overflow: visible`: a long label spilling past the viewBox would give
      the scrollable aside a horizontal scrollbar. Titles are truncated to fit
-     instead (LG_MAX_CHARS in lib/html.ts). */
+     instead (LG_MAX_CHARS in lib/node/html.ts). */
 }
 .lg-edge {
   stroke: var(--rule-strong);
@@ -2414,7 +2414,7 @@ a.theme-pill:focus-visible {
   }
 }
 
-/* Obsidian-style callouts (built by rehypeCallouts in lib/markdown.ts).
+/* Obsidian-style callouts (built by rehypeCallouts in lib/node/markdown.ts).
    Square, with the hue as a straight rule on the left and no frame: a rule
    on a rounded box bends into a bracket. */
 .callout {

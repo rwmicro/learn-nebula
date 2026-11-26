@@ -39,4 +39,4 @@ Les pages de prévisualisation sont autonomes : on les vérifie avec les scripts
 
 ## Sur le site
 
-`rehypeIsoFigures` (`lib/markdown.ts`) remplace le bloc par la carte de `public/figures/<nom>.html`, dans un `<div class="iso iso-mount">` : le dessin est dans la page dès le premier affichage. `public/js/iso-figures.js` (dans le bundle des notes) aligne le thème de la figure sur celui du site, puis importe `/figures/<nom>.js` et appelle `mount`. Un nom inconnu ou une figure qui n'a pas pu être construite laisse une ligne de repli.
+`rehypeIsoFigures` (`lib/node/markdown.ts`) remplace le bloc par la carte de `public/figures/<nom>.html`, dans un `<div class="iso iso-mount">` : le dessin est dans la page dès le premier affichage. `public/js/iso-figures.js` (dans le bundle des notes) aligne le thème de la figure sur celui du site, puis importe `/figures/<nom>.js` et appelle `mount`. Un nom inconnu ou une figure qui n'a pas pu être construite laisse une ligne de repli.

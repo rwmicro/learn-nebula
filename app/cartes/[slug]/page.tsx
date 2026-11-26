@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAnkiManifest, getAnkiDeck } from "@/lib/anki";
+import { getAnkiManifest, getAnkiDeck } from "@/lib/node/anki";
 import { Flashcards } from "@/components/review/Flashcards";
 import { phoneDeck } from "@/components/review/CartesIndex";
 import { SITE_TITLE } from "@/lib/site";

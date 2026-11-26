@@ -1,4 +1,4 @@
-// The natural reading voice's page side (lib/piper-voice.ts), its own bundle:
+// The natural reading voice's page side (lib/client/piper-voice.ts), its own bundle:
 // audio.js fetches natural-voice.bundle.js only once the reader has turned the
 // voice on.
 import {
@@ -6,7 +6,7 @@ import {
   loadPiperVoice,
   piperVoiceFor,
   readWithPiper,
-} from "../../lib/piper-voice";
+} from "../../lib/client/piper-voice";
 
 window.__gkPiper = {
   deletePiperVoices,

@@ -33,7 +33,7 @@ export function choice(options, value, onPick, label) {
 
 /**
  * Served URL of a vault asset given by its vault-relative path, the way
- * lib/vault-assets.ts resolves it: `/vault/` + the path, each segment
+ * lib/node/vault-assets.ts resolves it: `/vault/` + the path, each segment
  * URI-encoded (scripts/copy-vault-images.mjs copies the files there). An
  * absolute URL or a path already starting with "/" is kept as is.
  */
@@ -46,7 +46,7 @@ export function vaultUrl(p) {
 
 /**
  * Pronunciation button with the same markup as the note's `.pron` players
- * (lib/markdown.ts pronPlayer), so /js/pronounce.js — loaded site-wide and
+ * (lib/node/markdown.ts pronPlayer), so /js/pronounce.js — loaded site-wide and
  * delegated on document — plays it with no extra code.
  */
 export function pronButton(url, label) {

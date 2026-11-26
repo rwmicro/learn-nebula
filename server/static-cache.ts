@@ -147,13 +147,13 @@ export function isFresh(
  * it lapses the ETag above makes the recheck a 304, not a re-download.
  *
  * `/i18n/**` are the UI message bundles, named `<locale>.<content hash>.js`
- * (lib/i18n-assets.ts), and `/js/h/**` the page scripts, `<name>.<content
- * hash>.js` (lib/js-assets.ts), so they are immutable too, as are the
+ * (lib/node/i18n-assets.ts), and `/js/h/**` the page scripts, `<name>.<content
+ * hash>.js` (lib/node/js-assets.ts), so they are immutable too, as are the
  * hash-named engine files under `/engine/`.
  *
  * So are the files Pagefind names after their content (`/pagefind/fragment/`,
  * `/pagefind/index/`, `/pagefind/filter/`, `pagefind.<lang>_<hash>.pf_meta`)
- * and the share cards under `/og/` (named by lib/og.ts from what they draw).
+ * and the share cards under `/og/` (named by lib/node/og.ts from what they draw).
  * `pagefind.js`, `pagefind-entry.json` and `wasm.<lang>.pagefind` keep fixed
  * names across builds, so they fall through to the default below.
  *

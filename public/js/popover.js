@@ -13,9 +13,9 @@
 // asks the Pi for one more (small, brotli) page.
 //
 // Where the browser has CSS anchor positioning, the card is a popover="hint"
-// anchored to the link (lib/anchor-popover.ts): it follows the link and turns
+// anchored to the link (lib/client/anchor-popover.ts): it follows the link and turns
 // over near the edges by itself. Elsewhere place() below positions it.
-import { anchoredCard, anchoredPopoverMode } from "../../lib/anchor-popover";
+import { anchoredCard, anchoredPopoverMode } from "../../lib/client/anchor-popover";
 
 (function () {
   // Pointer-driven affordance: on touch a tap should just follow the link, and

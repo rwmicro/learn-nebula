@@ -297,9 +297,9 @@
   display: none;
 }
 
-/* From 640px (phones have lib/note-app.ts's own chrome): one row on the text
+/* From 640px (phones have lib/node/note-app.ts's own chrome): one row on the text
    column, discipline chip · title · time left, and under it the chapter
-   strip (lib/html.ts noteChaptersHtml; piste E of the 2026-11-25 mockups).
+   strip (lib/node/html.ts noteChaptersHtml; piste E of the 2026-11-25 mockups).
    The strip names the section being read, so the row drops it. */
 @media (min-width: 640px) {
   .note-header-condensed {
@@ -674,7 +674,7 @@ body:has(.gc) .to-top {
   }
 }
 
-/* "Affichage ▾" (lib/html.ts noteMoreHtml): size, width, focus and
+/* "Affichage ▾" (lib/node/html.ts noteMoreHtml): size, width, focus and
  * "Traduire" in a small panel under the row, each on its own line. */
 .note-more {
   position: relative;
@@ -855,7 +855,7 @@ html.lesson-open {
 .lesson-stage > :first-child {
   margin-top: 0;
 }
-/* The dropcap rule (lib/html.ts) matches the stage too: keep it for the
+/* The dropcap rule (lib/node/html.ts) matches the stage too: keep it for the
    note's opening step only. */
 .lesson-stage[data-later] > p.dropcap::first-letter {
   float: none;
@@ -1379,7 +1379,7 @@ mark.hl--new {
   }
 }
 
-/* ```iso:<name>``` figures (lib/markdown.ts rehypeIsoFigures). The plate's own
+/* ```iso:<name>``` figures (lib/node/markdown.ts rehypeIsoFigures). The plate's own
    look is the kit's /figures/iso.css; here it only takes the column's width
    and a margin that matches the other figures. */
 .iso-mount {

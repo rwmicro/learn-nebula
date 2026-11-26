@@ -1,7 +1,7 @@
 // Widget pack "data" (lib/widgets-extra.ts): Our World in Data charts, the
 // Insee price converter and inline prices, Lichess opening stats, Wikidata
 // language sheets. Their numbers arrive in data-props, prepared at build by
-// lib/widget-data.ts. Bundled by scripts/bundle-js.mjs into
+// lib/node/widget-data.ts. Bundled by scripts/bundle-js.mjs into
 // widgets-data.bundle.js, fetched by widgets-loader.js only when needed.
 import { mount } from "./widget-kit.js";
 import { owid } from "./data/owid.js";

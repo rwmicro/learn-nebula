@@ -1,10 +1,10 @@
-// The note's reading bar from 640px up (lib/html.ts noteDockHtml, note/*.css
+// The note's reading bar from 640px up (lib/node/html.ts noteDockHtml, note/*.css
 // `.note-dock`): liquid glass floating at the bottom, its rim bending what
-// scrolls under it (lib/glass, the liquid-glass kit's WebGL2 shader). One bar, the same
+// scrolls under it (lib/client/glass, the liquid-glass kit's WebGL2 shader). One bar, the same
 // whichever way the reader scrolls: contents, the progress ring and the
 // section being read, the reading tools, the next note and the assistant.
 // Phones have their own toolbar (note-app.js) and never see this one.
-import { liquidGlassLater as liquidGlass } from "../../lib/glass/load";
+import { liquidGlassLater as liquidGlass } from "../../lib/client/glass/load";
 import { scrollProgress } from "../../lib/reading-progress";
 
 (function () {

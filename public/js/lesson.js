@@ -23,7 +23,7 @@ import {
   markRead,
   saveStore,
 } from "../../lib/reading-progress";
-import { keepAwake } from "../../lib/wake-lock";
+import { keepAwake } from "../../lib/client/wake-lock";
 
 (function () {
   const body = document.querySelector(".article-body");
@@ -102,7 +102,7 @@ import { keepAwake } from "../../lib/wake-lock";
     const place = crumbs.length ? crumbs[crumbs.length - 1].textContent.trim() : "";
     const title = (document.querySelector(".note-header h1, h1")?.textContent || "").trim();
     const kicker = [place, title].filter(Boolean).join(" · ");
-    // The screen stays on for the lesson's length (lib/wake-lock.ts).
+    // The screen stays on for the lesson's length (lib/client/wake-lock.ts).
     const sleep = keepAwake();
     const root = document.createElement("div");
     root.className = series ? "lesson lesson--series" : "lesson";

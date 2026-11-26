@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getReadingPaths } from "@/lib/content";
+import { getReadingPaths } from "@/lib/node/content";
 import { ParcoursPage } from "@/components/paths/Parcours";
-import { pathExtras } from "@/lib/path-extras";
+import { pathExtras } from "@/lib/node/path-extras";
 import { SITE_TITLE } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import "@/assets/css/themes.css";
 import "@/assets/css/parcours.css";
 import "@/assets/css/parcours-detail-desk.css";

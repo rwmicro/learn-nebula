@@ -2,7 +2,7 @@
 // (global.css): it follows prefers-color-scheme unless <html data-theme> pins
 // one. The inline script in app/layout.tsx applies the stored choice before
 // first paint; this file only wires the toggle buttons (masthead + note nav,
-// markup from themeToggleHtml in lib/html.ts) and keeps their labels in sync.
+// markup from themeToggleHtml in lib/node/html.ts) and keeps their labels in sync.
 // Loaded site-wide from layout.tsx. Fires `theme:change` on document so canvas
 // drawings (the graph) can re-read the palette.
 (function () {

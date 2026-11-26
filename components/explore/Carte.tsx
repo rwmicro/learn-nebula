@@ -1,5 +1,5 @@
 import { t, i18nProps } from "@/lib/i18n";
-import { CARTE_BINS, carteClass, WORLD, type CarteCountry } from "@/lib/carte";
+import { CARTE_BINS, carteClass, WORLD, type CarteCountry } from "@/lib/node/carte";
 import { CarteHover } from "@/components/explore/CarteHover";
 import { COUNTRIES } from "@/lib/countries";
 import { REGION_ORDER, regionOf, type Region } from "@/lib/regions";
@@ -10,7 +10,7 @@ const ISO2 = new Map(COUNTRIES.map(([iso3, iso2]) => [iso3, iso2]));
 
 /**
  * /carte/: the world, each country shaded by how many notes of the garden
- * are about it (lib/carte.ts), drawn at build from a pre-projected map. A
+ * are about it (lib/node/carte.ts), drawn at build from a pre-projected map. A
  * country with notes is a link to its entry in the list under the map, which
  * is also the map's table view: no JavaScript is needed to read it. The
  * tooltip and the opening of the entry are CarteHover's.

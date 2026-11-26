@@ -281,7 +281,7 @@ askRoute.post("/", async (c) => {
 });
 
 // The same retrieval and prompt, without generating: the browser runs its own
-// model (lib/local-llm.ts) on them, so this works with no LLM backend at all.
+// model (lib/client/local-llm.ts) on them, so this works with no LLM backend at all.
 askRoute.post("/context", async (c) => {
   const p = await prepareAsk(c);
   if ("res" in p) return p.res;

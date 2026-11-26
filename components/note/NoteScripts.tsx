@@ -1,5 +1,5 @@
 import Script from "next/script";
-import { jsAsset } from "@/lib/js-assets";
+import { jsAsset } from "@/lib/node/js-assets";
 
 /**
  * Vanilla enhancers that only make sense on a note page (they hook into elements

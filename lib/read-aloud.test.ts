@@ -22,7 +22,7 @@ import {
   type VoiceOption,
 } from "./read-aloud";
 import { PIPER_NAMES } from "./read-aloud";
-import { PIPER_VOICES } from "./piper-voice";
+import { PIPER_VOICES } from "./client/piper-voice";
 
 const texts = (ps: { lang: string; text: string }[]) =>
   ps.map((p) => `${p.lang}:${p.text}`);

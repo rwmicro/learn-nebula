@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { getAllPosts, getPost, INDEX_NOTE } from "@/lib/content";
-import { buildMetadata, metaDescription, noteImage } from "@/lib/seo";
+import { getAllPosts, getPost, INDEX_NOTE } from "@/lib/node/content";
+import { buildMetadata, metaDescription, noteImage } from "@/lib/node/seo";
 import { SITE_URL, AUTHOR, absoluteURL } from "@/lib/site";
 import { graph, breadcrumbJsonLd } from "@/lib/jsonld";
 import { SinglePage } from "@/components/note/SinglePage";
-import { ogCardFor, ogImagePath } from "@/lib/og";
+import { ogCardFor, ogImagePath } from "@/lib/node/og";
 import { NoteScripts } from "@/components/note/NoteScripts";
 // Article typography + note-widget styles, scoped to this route only.
 import "@/assets/css/note";

@@ -2420,7 +2420,7 @@ html.gc-resizing .gc-frame {
   }
 }
 
-/* « Côte à côte »: the page in a frame left of the chat (lib/chat-dock.ts);
+/* « Côte à côte »: the page in a frame left of the chat (lib/client/chat-dock.ts);
    the top document stays underneath, hidden. */
 html.gc-docked {
   overflow: hidden;

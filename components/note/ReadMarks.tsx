@@ -17,7 +17,7 @@ import {
   loadStudyStates,
   progressCounts,
   type ProgressCounts,
-} from "@/lib/path-study";
+} from "@/lib/client/path-study";
 
 /**
  * Read state on server-rendered lists (the /themes/ and /disciplines/ note
@@ -29,7 +29,7 @@ import {
  * - `[data-read-progress][data-prefix][data-total]` — the same, counting the
  *   read notes under a slug prefix (a discipline) instead of a slug list;
  * - `[data-path-progress]` (reading paths) — the same with the path states
- *   of lib/path-study.ts: "12 lues · 4 maîtrisées / 20", known notes too,
+ *   of lib/client/path-study.ts: "12 lues · 4 maîtrisées / 20", known notes too,
  *   and the state of each dot of the path's thumbnail.
  *
  * The path graph itself (states, next note, target…) is

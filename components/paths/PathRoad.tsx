@@ -2,7 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { t, levelNameIn, pathName as localPathName, type Locale } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
 import {
   QUIZ_EVENT,
@@ -11,7 +11,7 @@ import {
   isStudyKey,
   loadStudyStates,
   type NoteState,
-} from "@/lib/path-study";
+} from "@/lib/client/path-study";
 import { daysAgo, loadAllNoteDecks, retentionBySlug, type Retention } from "@/lib/note-quiz";
 import { dayKey, daysBetween } from "@/lib/srs";
 import { ART, artStrip, levelArt } from "@/lib/road-art";

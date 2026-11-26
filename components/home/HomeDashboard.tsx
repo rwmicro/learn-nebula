@@ -2,13 +2,13 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { t, disciplineKey, levelNameIn, pathName } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { useHomeData, useReadingStore } from "@/components/home/HomeContent";
 import { useReviewDue } from "@/components/account/AccountChip";
 import { FamilyIcon, glyphStroke as s } from "@/components/ui/FamilyIcon";
 import { calendarDays, currentRun, loadActivity, localDay } from "@/lib/personal";
 import { loadStore, type ReadingStore } from "@/lib/reading-progress";
-import type { HomeData } from "@/lib/home-data";
+import type { HomeData } from "@/lib/node/home-data";
 import type { PathFamily } from "@/lib/path-family";
 import { ERAGNY, paintingFor, paintingText } from "@/lib/paintings";
 import { daysAgo, loadAllNoteDecks, NOTE_PREFIX, retentionBySlug, type Retention } from "@/lib/note-quiz";

@@ -2,20 +2,20 @@
 //
 //   data/content-manifest.json — { notes: string[], decks: string[] }
 //
-// the real note slugs (lib/content.ts) and Anki deck slugs (lib/anki.ts). The
+// the real note slugs (lib/node/content.ts) and Anki deck slugs (lib/node/anki.ts). The
 // Node server checks a progress-sync read/review against it before paying coins
 // (server/content-manifest.ts), so a client can't mint coins by syncing
 // progress for notes, questions or cards that don't exist.
 //
 // Written to data/ (baked into the image next to rag-chunks.json), NOT to out/:
 // it never needs to be served. Run with tsx so it resolves slugs through the
-// site's own lib/content.ts — the same slugs the pages and the reading/SRS
+// site's own lib/node/content.ts — the same slugs the pages and the reading/SRS
 // storage keys use. Must run after fetch-notes and build-anki.
 
 import fs from "node:fs";
 import path from "node:path";
-import { getPostSlugs } from "../lib/content";
-import { getAnkiManifest } from "../lib/anki";
+import { getPostSlugs } from "../lib/node/content";
+import { getAnkiManifest } from "../lib/node/anki";
 
 const OUT = path.join(process.cwd(), "data", "content-manifest.json");
 

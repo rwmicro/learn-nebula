@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { addDays, dayKey, forecast, isLeech, type CardState } from "@/lib/srs";
 import { loadLog, successRate } from "@/lib/srs-log";
 import { loadAllNoteDecks } from "@/lib/note-quiz";
-import { loadDeckProgress, storageOk } from "@/lib/review-item";
-import type { AnkiDeck } from "@/lib/anki";
+import { loadDeckProgress, storageOk } from "@/lib/client/review-item";
+import type { AnkiDeck } from "@/lib/node/anki";
 
 interface Stats {
   rate: { reviews: number; ok: number };

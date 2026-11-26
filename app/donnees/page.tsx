@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { t, i18nProps } from "@/lib/i18n";
-import { DATA_FILES, DATA_SOURCES, getFigures } from "@/lib/donnees";
+import { DATA_FILES, DATA_SOURCES, getFigures } from "@/lib/node/donnees";
 import { SITE_TITLE } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import "@/assets/css/donnees.css";
 import { PageHeader } from "@/components/ui/PageHeader";
 

@@ -1,4 +1,4 @@
-/* Note pages: the reading-path step bar (lib/path-step.ts) — "Parcours : <nom>
+/* Note pages: the reading-path step bar (lib/node/path-step.ts) — "Parcours : <nom>
    · Étape 4/20", previous / next note in the path, other paths. When the note
    also has prerequisites, the "À lire avant" block (.prereq, note-paths.css)
    sits inside it as a second row and loses its own frame. Loaded with
@@ -209,7 +209,7 @@ main .path-step a:focus-visible,
   }
 }
 
-/* The steps panel (lib/path-step.ts pathSheetHtml, public/js/path-sheet.js):
+/* The steps panel (lib/node/path-step.ts pathSheetHtml, public/js/path-sheet.js):
    a card in the middle of the screen, a sheet from the bottom on phones. */
 .path-sheet {
   margin: auto;

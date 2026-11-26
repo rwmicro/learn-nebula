@@ -708,7 +708,7 @@
 }
 
 /* A note's ornaments (lib/deco-art.ts): a fleuron between two sections
-   (rehypeOutline, lib/markdown.ts) and the vignette that closes it. */
+   (rehypeOutline, lib/node/markdown.ts) and the vignette that closes it. */
 .sec-fleuron {
   width: 7.5rem;
   margin: 2rem auto 1.5rem;

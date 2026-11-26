@@ -1,5 +1,5 @@
 /* --- Note page (phone): cover, section pill, toolbar, display sheet --------
-   Markup from lib/note-app.ts, behaviour in public/js/note-app.js. From 640px
+   Markup from lib/node/note-app.ts, behaviour in public/js/note-app.js. From 640px
    up none of it shows and the note keeps its editorial layout. */
 .na-chrome,
 .na-crumbs,

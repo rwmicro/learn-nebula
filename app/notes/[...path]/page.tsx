@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getFolderPages, type FolderRef } from "@/lib/notes-browse";
+import { getFolderPages, type FolderRef } from "@/lib/node/notes-browse";
 import { splitRank } from "@/lib/folder-label";
 import { t, pathName, pathNameProps } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";

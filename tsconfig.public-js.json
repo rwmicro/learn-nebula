@@ -13,5 +13,11 @@
     "types": []
   },
   "include": ["types/public-js-globals.d.ts", "public/js/**/*.js"],
-  "exclude": ["public/js/**/*.bundle.js", "public/js/h/**", "public/js/data/**"]
+  "exclude": [
+    "public/js/**/*.bundle.js",
+    "public/js/*.worker.js",
+    "public/js/*.min.js",
+    "public/js/h/**",
+    "public/js/data/**"
+  ]
 }

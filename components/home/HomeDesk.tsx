@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { t, disciplineKey, levelNameIn, pathName } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { LazyGraph, useHomeData, useReadingStore } from "@/components/home/HomeContent";
 import { useReviewDue } from "@/components/account/AccountChip";
 import { FamilyIcon, glyphStroke as s } from "@/components/ui/FamilyIcon";

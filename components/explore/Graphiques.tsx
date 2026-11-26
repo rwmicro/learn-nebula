@@ -1,9 +1,9 @@
-import { formatDateLong } from "@/lib/content";
+import { formatDateLong } from "@/lib/node/content";
 import { t, i18nProps } from "@/lib/i18n";
-import type { Graphique } from "@/lib/graphiques";
+import type { Graphique } from "@/lib/node/graphiques";
 
 /**
- * Home: the latest "un graphique, trois paragraphes" notes (lib/graphiques.ts),
+ * Home: the latest "un graphique, trois paragraphes" notes (lib/node/graphiques.ts),
  * a title and the first sentence each, and their RSS feed. Absent while the
  * vault has none.
  */

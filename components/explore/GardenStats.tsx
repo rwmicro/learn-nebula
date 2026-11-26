@@ -1,5 +1,5 @@
 import { t, folderKey, i18nProps, type I18nVar } from "@/lib/i18n";
-import { formatDateLong } from "@/lib/content";
+import { formatDateLong } from "@/lib/node/content";
 import type { GardenStats as Stats, MonthCount } from "@/lib/garden-stats";
 import { PageHeader } from "@/components/ui/PageHeader";
 

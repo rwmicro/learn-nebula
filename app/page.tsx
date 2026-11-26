@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { getAllPosts, getDisciplines, getIndexDoc, getLanguageScopes, getPost, getReadingPaths, getRecentNotes, getWikiLinkEdges, INDEX_NOTE } from "@/lib/content";
+import { getAllPosts, getDisciplines, getIndexDoc, getLanguageScopes, getPost, getReadingPaths, getRecentNotes, getWikiLinkEdges, INDEX_NOTE } from "@/lib/node/content";
 import { HomeMore } from "@/components/home/HomeMore";
 import { PARTNER_DATA, PARTNER_LANGS, VAULT_FOLDER } from "@/lib/partner-scenes";
-import { homeDataVersion, homeTreeShell } from "@/lib/home-data";
+import { homeDataVersion, homeTreeShell } from "@/lib/node/home-data";
 import { t } from "@/lib/i18n";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import { SITE_TITLE } from "@/lib/site";
 import { JsonLd } from "@/components/layout/JsonLd";
 import { graph, personJsonLd, websiteJsonLd } from "@/lib/jsonld";
@@ -12,18 +12,18 @@ import Header from "@/components/layout/Header";
 import { HomeContent } from "@/components/home/HomeContent";
 import { RecentNotes } from "@/components/home/RecentNotes";
 import { Graphiques } from "@/components/explore/Graphiques";
-import { getGraphiques } from "@/lib/graphiques";
+import { getGraphiques } from "@/lib/node/graphiques";
 import { namedLevels } from "@/components/paths/Parcours";
 import { HomeDashboard, type DashDayNote, type DashPath, type DashRecent } from "@/components/home/HomeDashboard";
 import type { HomeWordLang } from "@/components/home/HomeWord";
-import { extractPlain } from "@/lib/markdown";
+import { extractPlain } from "@/lib/node/markdown";
 import { openingParagraph, vocabFromMarkdown } from "@/lib/home-picks";
-import { resolveVaultAsset } from "@/lib/vault-assets";
-import { readingMinutes } from "@/lib/path-extras";
+import { resolveVaultAsset } from "@/lib/node/vault-assets";
+import { readingMinutes } from "@/lib/node/path-extras";
 import { familyOfPrefix, pathFamily } from "@/lib/path-family";
 import { LEVELS } from "@/lib/chess-play";
 import { HomeDesk, type DeskChart, type DeskDomain } from "@/components/home/HomeDesk";
-import { enrichWidget } from "@/lib/widget-data";
+import { enrichWidget } from "@/lib/node/widget-data";
 import { areaChartSvg } from "@/lib/home-chart";
 import "@/assets/css/graphiques.css";
 import "@/assets/css/home-desk.css";
@@ -279,7 +279,7 @@ export default async function HomePage() {
         <RecentNotes notes={getRecentNotes()} />
         <Graphiques items={getGraphiques(3)} />
         {/* The full tree and the folder-graph preview
-            arrive as /home-data.json (lib/home-data.ts); the shell covers the
+            arrive as /home-data.json (lib/node/home-data.ts); the shell covers the
             first paint. */}
         <HomeContent
           shell={homeTreeShell()}

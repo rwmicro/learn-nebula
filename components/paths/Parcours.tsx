@@ -16,7 +16,7 @@ import {
 } from "@/lib/i18n";
 import { ART, FAMILY_ART, artStrip, levelArt } from "@/lib/road-art";
 import { OfflinePath } from "@/components/paths/OfflinePath";
-import type { ReadingPathView } from "@/lib/content";
+import type { ReadingPathView } from "@/lib/node/content";
 import {
   edgePath,
   layoutPrereqGraph,
@@ -26,12 +26,12 @@ import { ReadMarks } from "@/components/note/ReadMarks";
 import { PathZoom } from "@/components/paths/PathZoom";
 import { PathRoad } from "@/components/paths/PathRoad";
 import { ParcoursStudy, type StudyNoteView } from "@/components/paths/ParcoursStudy";
-import type { PathExtras } from "@/lib/path-extras";
+import type { PathExtras } from "@/lib/node/path-extras";
 import { PATH_FAMILIES, pathFamily, type PathFamily } from "@/lib/path-family";
 import { ParcoursBrowse, type BrowsePath } from "@/components/paths/ParcoursBrowse";
 import { fold } from "@/lib/palette-match";
 import { prereqsToShow, shortNoteTitles } from "@/lib/path-titles";
-import { splitMinutes } from "@/lib/path-study";
+import { splitMinutes } from "@/lib/client/path-study";
 import { pathLevels } from "@/lib/path-levels";
 import { levelName, namedLevels } from "@/lib/level-names";
 

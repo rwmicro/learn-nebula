@@ -3,10 +3,10 @@
 import { SCENES } from "@/lib/deco-art";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { calendarDays, currentRun, loadActivity, localDay } from "@/lib/personal";
 import { loadStore, nowPlaying, NOW_KEY, parseNow } from "@/lib/reading-progress";
-import { authConfig, readHint } from "@/lib/account-client";
+import { authConfig, readHint } from "@/lib/client/account-client";
 import { LANG_OPTIONS } from "@/components/layout/LangSwitcher";
 import { themePref, THEMES, type ThemeChoice } from "@/components/layout/AppSettings";
 import { Avatar } from "@/components/account/Avatar";

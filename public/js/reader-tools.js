@@ -6,7 +6,7 @@
 //   and come back on the way up or at the end of the note;
 // - the condensed header (from 640px) shows the time left ("encore 6 min") and
 //   the chapter being read, in its chapter strip when the note has sections;
-// - "Et ensuite ?" (lib/html.ts nextUpHtml): picks the first note of the
+// - "Et ensuite ?" (lib/node/html.ts nextUpHtml): picks the first note of the
 //   discipline this browser hasn't read yet;
 // - "À lire plus tard" and the focus mode buttons of the note-actions row,
 //   and its "Affichage" menu;
@@ -70,7 +70,7 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
     return cur ? cur.textContent.replace(/#\s*$/, "").trim() : "";
   }
 
-  // --- condensed header: chapter strip (lib/html.ts noteChaptersHtml) -------
+  // --- condensed header: chapter strip (lib/node/html.ts noteChaptersHtml) -------
   const strip = document.querySelector(".note-chapters");
   const chLinks = strip ? Array.from(strip.querySelectorAll("a[data-chapter]")) : [];
   const chHeads = chLinks.map((a) => document.getElementById(a.getAttribute("data-chapter")));

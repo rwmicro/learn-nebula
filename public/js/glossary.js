@@ -7,9 +7,9 @@
 // on touch, the first tap shows the card and a second tap follows the link.
 // Everything is set with textContent; the definition is already plain text.
 // With CSS anchor positioning the card is a popover anchored to the term
-// (lib/anchor-popover.ts): "hint" on hover screens, "manual" on touch, where
+// (lib/client/anchor-popover.ts): "hint" on hover screens, "manual" on touch, where
 // the two-tap logic below does its own dismissing. Elsewhere place() runs.
-import { anchoredCard, anchoredPopoverMode } from "../../lib/anchor-popover";
+import { anchoredCard, anchoredPopoverMode } from "../../lib/client/anchor-popover";
 
 (function () {
   if (!document.querySelector(".article-body")) return;

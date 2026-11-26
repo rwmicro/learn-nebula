@@ -2,7 +2,7 @@
 // pinned bottom left once the path bar at the top has scrolled away — a
 // ring with this note's reading progress and its step ("4/35"), the next
 // note's title and time, one tap to go on. Built from the path bar
-// (lib/path-step.ts), so it exists only where that bar does.
+// (lib/node/path-step.ts), so it exists only where that bar does.
 import { scrollProgress } from "../../lib/reading-progress";
 
 (function () {

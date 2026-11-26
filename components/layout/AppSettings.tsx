@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { LANG_OPTIONS } from "@/components/layout/LangSwitcher";
 
 // "Moi" on a phone (/progression/, the avatar of the top bar): the theme and

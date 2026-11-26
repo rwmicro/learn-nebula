@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import {
   calendarDays,
   currentRun,
