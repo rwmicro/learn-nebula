@@ -6,17 +6,19 @@
 // behind each one into a texture and bends it at the rim, in every browser
 // with WebGL2 (Safari included, where the old SVG lens never drew).
 //
-// Every piece is the kit's glass (GlassLayer: the rim bending the page,
-// colour split, light and shadow) frosted like iOS: what it covers is
-// blurred (6 px) under a 40% tint. Clear glass (no blur, 20% tint) was tried:
-// over a note the lines behind mixed with the labels, and elsewhere the
-// colourful cards under the tab bar bled through as pink, cyan and purple
-// blobs. The rim mirrors nothing of the page either (`mirror: 0`), so it
-// stays white or dark instead of taking a card's colour. A bar holds still
-// under the finger (it holds controls of its own); a button swells when
-// pressed. The kit's GlassCard (70% tint, 5 px frost, a radial bend) read as
-// flat paper. Until the first frame, and for good without WebGL2, the
-// element keeps the CSS glass of phone/base.css `.glass`.
+// Every piece is the kit's clear glass (GlassLayer: the rim bending the page,
+// colour split, light and shadow), as natural as it stays legible: a 15% tint
+// (30% for the black tint of dark glass, or white labels wash out over a pale
+// card) and a light 1.5 px softening of what it covers, so the page shows
+// through, colours included, while the lines of text behind no longer read
+// as sharp as the labels. The frosted look (6 px, 40%) read as grey plastic,
+// and fully clear glass (no blur) let the text behind fight the labels. The
+// rim mirrors half of what lies around it (`mirror: 0.5`): a hint of a card's
+// colour, not a blob. A bar holds still under the finger (it holds controls
+// of its own); a button swells when pressed. The kit's GlassCard (70% tint,
+// 5 px frost, a radial bend) read as flat paper. Until the first frame, and
+// for good without WebGL2, the element keeps the CSS glass of
+// phone/base.css `.glass`.
 
 import { attachGlass, type GlassOptions } from "./layer";
 
@@ -24,11 +26,11 @@ import { attachGlass, type GlassOptions } from "./layer";
 export const GLASS_LOOKS = {
   /** A bar or a pill (tab bar, mini player, the note's reading bar, the
    *  phone note toolbar and section pill, the title pill at the top):
-   *  frosted glass that holds still. */
-  bar: { tint: 0.4, blur: 6, swell: false, pull: false, optics: { mirror: 0 } },
+   *  clear glass that holds still. */
+  bar: { tint: 0.15, blur: 1.5, swell: false, pull: false, optics: { mirror: 0.5, dark: { tint: 0.3 } } },
   /** A round button on its own (search, the phone note's buttons): the same
    *  glass; it swells when pressed. */
-  button: { tint: 0.4, blur: 6, pull: false, optics: { mirror: 0 } },
+  button: { tint: 0.15, blur: 1.5, pull: false, optics: { mirror: 0.5, dark: { tint: 0.3 } } },
   /** A button with a fill of its own (the green "next note"): GlassButton,
    *  tinted (the glass takes the host's background colour). */
   tinted: { material: "tinted", pull: false },
