@@ -1088,9 +1088,11 @@
     "freezes": "streak freezes",
     "daysOne": "day in a row",
     "freezesOne": "streak freeze",
-    "next": "{n} more days to the {m}-day streak: +{bonus} coins",
-    "nextOne": "{n} more day to the {m}-day streak: +{bonus} coins",
-    "nextAria": "Progress towards the {m}-day streak"
+    "nextAria": "Progress towards the {m}-day streak",
+    "goal": "{m}-day streak: +{bonus} coins",
+    "start": "Read a note or review a card today to start your streak.",
+    "freezeWhat": "What is a streak freeze?",
+    "freezeHelp": "A freeze protects your streak: a missed day uses one up instead of breaking it. Buy them in the shop, at most {max} in reserve."
   },
   "shop": {
     "title": "Shop",
@@ -1930,12 +1932,14 @@
     "bestRun": "{n}-day run",
     "right": "{n} questions right",
     "disciplines": "{n} disciplines explored",
-    "next": "{have} of {next} for the next one",
     "all": "All reached",
     "reached": "{n} milestone(s) reached",
     "read1": "First note read",
     "closest": "Closest",
-    "count": "{n} of {total}"
+    "count": "{n} of {total}",
+    "already": "Already: {what}",
+    "stepsLabel": "Steps",
+    "steps": "Steps: {list}. {n} reached."
   },
   "chess": {
     "title": "Play chess",

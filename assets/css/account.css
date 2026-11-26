@@ -64,9 +64,10 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   flex-direction: column;
   gap: 1.2rem;
 }
-/* Wide screen: the hero and the wardrobe take the full width, the other
-   cards pair up in DOM order (shop | calendar, ledger | settings). A card
-   left alone on its row (no ledger yet) takes the full width again. */
+/* Wide screen: the hero takes the full width, the other cards pair up in
+   DOM order (jalons | wardrobe, shop | calendar, ledger | settings). A card
+   left alone on its row (no jalons or no ledger yet) takes the full width
+   again. */
 @media (min-width: 1000px) {
   .acct {
     display: grid;
@@ -77,8 +78,15 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   .acct > .acct-card--wide {
     grid-column: 1 / -1;
   }
-  .acct:not(:has(.acct-card--ledger)) > .acct-card--settings {
+  .acct:not(:has(.acct-card--ledger)) > .acct-card--settings,
+  .acct:not(:has(.acct-card--jalons)) > .acct-card--wardrobe {
     grid-column: 1 / -1;
+  }
+  /* Jalons and wardrobe side by side: the same height, so the row reads as
+     one band. */
+  .acct > .acct-card--jalons,
+  .acct > .acct-card--wardrobe {
+    align-self: stretch;
   }
 }
 .acct-loading,
@@ -171,15 +179,71 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   font-size: 0.78rem;
   font-weight: 600;
 }
-/* Next streak bonus: a sentence and a thin bar from the previous milestone. */
+/* "?" after "gel de série": opens a sentence under the band. */
+.acct-stat-k {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.acct-info {
+  display: inline-grid;
+  place-items: center;
+  width: 1.05rem;
+  height: 1.05rem;
+  padding: 0;
+  border: 1px solid var(--rule-strong);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font: 600 0.68rem/1 var(--font-ui);
+  cursor: pointer;
+}
+.acct-info:hover,
+.acct-info[aria-expanded="true"] {
+  border-color: var(--garden);
+  color: var(--garden);
+}
+/* A larger target than the drawn circle, for a finger. */
+.acct-info {
+  position: relative;
+}
+.acct-info::after {
+  content: "";
+  position: absolute;
+  inset: -0.6rem;
+}
+.acct-help {
+  max-width: 30rem;
+  margin: 0.6rem 0 0;
+  padding: 0.55rem 0.8rem;
+  border-radius: var(--radius-sm);
+  background: var(--garden-wash);
+  color: var(--ink-soft);
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+/* Next streak bonus: what it is, how far, and a thin bar from the previous
+   one (the band above already says the run). No run yet: one sentence. */
 .acct-next {
   margin: 0.9rem 0 0;
   max-width: 28rem;
 }
 .acct-next p {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
   margin: 0 0 0.35rem;
   font-size: 0.9rem;
   color: var(--ink-soft);
+}
+.acct-next-n {
+  flex: none;
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+p.acct-next--start {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
 }
 .acct-next-bar {
   height: 6px;
@@ -1947,8 +2011,10 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 }
 /* --- end passkeys and review reminder --- */
 
-/* Jalons (components/progress/Milestones.tsx): one row per kind, the thresholds
-   reached as filled marks, the next one as an empty mark and a thin bar. */
+/* Jalons (components/progress/Milestones.tsx): one row per kind, titled by
+   the milestone ahead with its count and a thin bar; under it, the one
+   already reached and every threshold as a number (filled: reached,
+   outlined: next, faint: later). */
 .jalons-h {
   margin: 0 0 0.6rem;
 }
@@ -1961,9 +2027,9 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
 }
 .jalons-list li {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.75rem;
-  padding: 0.6rem 0;
+  padding: 0.7rem 0;
 }
 .jalons-list li + li {
   border-top: 0.5px solid var(--rule);
@@ -1990,21 +2056,27 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   flex: 1;
   min-width: 0;
 }
-.jalons-tx b {
-  display: block;
+.jalons-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.jalons-top b {
+  min-width: 0;
   font-weight: 600;
   line-height: 1.25;
 }
-.jalons-tx small {
-  display: block;
-  color: var(--muted);
-  font: 400 0.84rem/1.3 var(--font-ui);
+.jalons-count {
+  flex: none;
+  color: var(--ink-soft);
+  font: 600 0.84rem/1.3 var(--font-ui);
   font-variant-numeric: lining-nums tabular-nums;
 }
 .jalons-bar {
   display: block;
   height: 4px;
-  margin-top: 0.35rem;
+  margin-top: 0.4rem;
   border-radius: var(--radius-xs);
   background: var(--wash-2, var(--rule));
   overflow: hidden;
@@ -2014,20 +2086,53 @@ main.acct-page:has(.acct-card--off, .acct-loading) {
   height: 100%;
   background: var(--garden);
 }
-.jalons-marks {
-  flex: none;
+.jalons-foot {
   display: flex;
-  gap: 0.25rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem 0.75rem;
+  margin-top: 0.4rem;
 }
-.jalons-marks i {
-  width: 0.6rem;
-  height: 0.6rem;
-  border-radius: 50%;
-  border: 1.5px solid var(--rule-strong);
+.jalons-foot small {
+  color: var(--muted);
+  font: 400 0.82rem/1.3 var(--font-ui);
 }
-.jalons-marks i.on {
+.jalons-steps {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  margin-inline-start: auto;
+}
+.jalons-steps-k {
+  margin-inline-end: 0.2rem;
+  color: var(--muted);
+  font: 500 0.7rem/1 var(--font-ui);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.jalons-steps i {
+  min-width: 1.5rem;
+  padding: 0.12rem 0.35rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  color: var(--muted);
+  font: 500 0.72rem/1.2 var(--font-ui);
+  font-style: normal;
+  font-variant-numeric: lining-nums tabular-nums;
+  text-align: center;
+  opacity: 0.7;
+}
+.jalons-steps i.on {
   border-color: var(--garden);
   background: var(--garden);
+  color: var(--paper);
+  opacity: 1;
+}
+.jalons-steps i.next {
+  border-color: var(--garden);
+  color: var(--garden);
+  opacity: 1;
 }
 
 /* The magic link sent: a letterbox with its flag up (lib/deco-art.ts). */
