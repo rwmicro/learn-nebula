@@ -96,10 +96,14 @@ export function joinNotePath(dir: string, href: string): string {
 
 /** Readable body length: HTML comments dropped, whitespace collapsed. */
 export function bodyTextLength(body: string): number {
-  return body
-    .replace(/<!--[\s\S]*?-->/g, "")
-    .replace(/\s+/g, " ")
-    .trim().length;
+  // Only counted, never rendered; repeated so a comment cut in two by
+  // another ("<!-<!-- -->-") goes as well.
+  let text = body;
+  for (let prev = ""; prev !== text; ) {
+    prev = text;
+    text = text.replace(/<!--[\s\S]*?-->/g, "");
+  }
+  return text.replace(/\s+/g, " ").trim().length;
 }
 
 /** Required frontmatter keys that are absent or blank. */
