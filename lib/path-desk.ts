@@ -159,3 +159,76 @@ export const LANG_HELLO: Record<string, [string, string?]> = {
   "Tok Pisin": ["Gude"],
   Turc: ["Merhaba"],
 };
+
+export interface ShelfBook {
+  slug: string;
+  family: PathFamily | null;
+  notes: number;
+}
+
+/** A book's share of its shelf (the CSS flex-grow of its spine): its notes,
+ *  plus a little so a three-note path still has a spine one can point at. */
+export const shelfWeight = (notes: number) => notes + 8;
+
+/**
+ * The first-visit shelf (components/paths/ParcoursShelf.tsx): the books in
+ * family order; inside a family, the stations of its lines first (longest
+ * line first, in line order), then the other paths, most notes first. A line
+ * is drawn over its books only when it placed every one of them itself (a
+ * line sharing stations with a longer one is left to the "Lignes" section)
+ * and they stand on one shelf: the shelves are cut near equal weight, never
+ * inside a drawn line.
+ */
+export function shelfLayout(
+  books: ShelfBook[],
+  lines: DeskLine[],
+  families: (PathFamily | null)[],
+  shelves = 2,
+): { rows: string[][]; lines: number[] } {
+  const by = new Map(books.map((b) => [b.slug, b]));
+  const order: string[] = [];
+  const placed = new Set<string>();
+  const runs: { line: number; from: number; to: number }[] = [];
+  for (const fam of families) {
+    lines.forEach((l, i) => {
+      if (l.family !== fam) return;
+      const own = l.stations.map((s) => s.slug).filter((s) => by.has(s) && by.get(s)!.family === fam);
+      const fresh = own.filter((s) => !placed.has(s));
+      if (fresh.length === own.length && own.length === l.stations.length) runs.push({ line: i, from: order.length, to: order.length + own.length });
+      for (const s of fresh) {
+        placed.add(s);
+        order.push(s);
+      }
+    });
+    books
+      .filter((b) => b.family === fam && !placed.has(b.slug))
+      .sort((a, b) => b.notes - a.notes || a.slug.localeCompare(b.slug))
+      .forEach((b) => {
+        placed.add(b.slug);
+        order.push(b.slug);
+      });
+  }
+  const w = order.map((s) => shelfWeight(by.get(s)!.notes));
+  const total = w.reduce((a, b) => a + b, 0);
+  const inside = (cut: number) => runs.some((r) => cut > r.from && cut < r.to);
+  const cuts: number[] = [];
+  for (let k = 1; k < shelves; k++) {
+    const goal = (total * k) / shelves;
+    let best = -1;
+    let acc = 0;
+    let bestGap = Infinity;
+    for (let c = 1; c < order.length; c++) {
+      acc += w[c - 1];
+      if (inside(c) || cuts.includes(c)) continue;
+      if (Math.abs(acc - goal) < bestGap) {
+        bestGap = Math.abs(acc - goal);
+        best = c;
+      }
+    }
+    if (best > 0) cuts.push(best);
+  }
+  cuts.sort((a, b) => a - b);
+  const bounds = [0, ...cuts, order.length];
+  const rows = bounds.slice(1).map((end, i) => order.slice(bounds[i], end));
+  return { rows, lines: runs.map((r) => r.line) };
+}
