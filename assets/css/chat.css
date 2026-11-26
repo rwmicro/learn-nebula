@@ -117,7 +117,7 @@ button.gc-ib:hover {
   gap: 4px;
   max-width: 100%;
   padding: 6px 10px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font-weight: 600;
   font-size: 1.05rem;
 }
@@ -142,7 +142,7 @@ button.gc-ib:hover {
   max-height: 60vh;
   overflow-y: auto;
   padding: 6px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: var(--gc-card);
   border: 0.5px solid var(--rule-strong);
   box-shadow: 0 12px 34px rgb(0 0 0 / 0.16);
@@ -160,7 +160,7 @@ button.gc-ib:hover {
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 .gc-scope button[aria-selected="true"] {
   background: var(--garden-wash);
@@ -258,7 +258,7 @@ button.gc-ib:hover {
   width: 200px;
   text-align: left;
   padding: 12px 14px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   /* Raised like the site's other cards (Réviser, Notes, "À lire avant"). */
   background: var(--dash-card);
   border: 0.5px solid var(--dash-edge);
@@ -310,7 +310,7 @@ button.gc-ib:hover {
   width: 100%;
   text-align: left;
   padding: 11px 14px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: var(--wash);
   border: 0.5px solid var(--rule) !important;
   margin-bottom: 8px;
@@ -350,7 +350,7 @@ button.gc-ib:hover {
   margin: 8px 12px calc(12px + env(safe-area-inset-bottom, 0px));
   background: var(--gc-card);
   border: 0.5px solid var(--rule-strong);
-  border-radius: 24px;
+  border-radius: var(--radius-xl);
   padding: 12px 10px 10px 16px;
   box-shadow: 0 4px 18px rgb(0 0 0 / 0.07);
 }
@@ -381,7 +381,7 @@ button.gc-ib:hover {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  border-radius: 26px;
+  border-radius: var(--radius-xl);
   padding: 8px 9px 8px 16px;
 }
 .gc-comp-pill textarea {
@@ -408,7 +408,7 @@ button.gc-ib:hover {
   height: 34px;
   max-width: 70%;
   padding: 0 8px 0 10px;
-  border-radius: 17px;
+  border-radius: var(--radius-lg);
   background: var(--wash-2);
   font-weight: 500;
   font-size: 0.86rem;
@@ -472,7 +472,7 @@ button.gc-ib:hover {
 .gc-stop i {
   width: 11px;
   height: 11px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--paper);
 }
 .gc-pin {
@@ -691,7 +691,7 @@ button.gc-ib:hover {
   gap: 6px;
   height: 26px;
   padding: 0 10px;
-  border-radius: 13px;
+  border-radius: var(--radius-md);
   background: var(--garden-wash);
   color: var(--garden);
   font-weight: 600;
@@ -708,7 +708,7 @@ button.gc-ib:hover {
   gap: 8px;
   height: 32px;
   padding: 0 12px 0 6px !important;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: var(--wash-2) !important;
   font-weight: 600;
   font-size: 0.84rem;
@@ -744,7 +744,7 @@ button.gc-ib:hover {
   height: 36px;
   display: grid;
   place-items: center;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: var(--muted-warm) !important;
 }
 .gc-acts button:hover {
@@ -768,7 +768,7 @@ button.gc-ib:hover {
 }
 .gc .gc-chips button {
   padding: 8px 13px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   border: 0.5px solid var(--rule-strong);
   font-weight: 600;
   font-size: 0.88rem;
@@ -855,7 +855,7 @@ button.gc-ib:hover {
 .gc-dl-ic {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--garden-wash);
   color: var(--garden);
   display: grid;
@@ -952,7 +952,7 @@ button.gc-ib:hover {
   gap: 14px;
   margin: 4px 0 14px;
   border: 0.5px solid var(--rule-strong);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   padding: 12px 14px;
   background: var(--gc-card);
 }
@@ -1127,7 +1127,7 @@ button.gc-ib:hover {
 }
 .gc-meter-trk {
   height: 10px;
-  border-radius: 5px;
+  border-radius: var(--radius-xs);
   background: var(--wash-2);
   overflow: hidden;
   display: flex;
@@ -1294,7 +1294,7 @@ button.gc-ib:hover {
 }
 .gc-nb {
   margin: 0 18px 12px;
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--gc-card);
   border: 0.5px solid var(--rule);
   overflow: hidden;
@@ -1308,7 +1308,7 @@ button.gc-ib:hover {
 .gc-av {
   width: 34px;
   height: 34px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   display: grid;
   place-items: center;
   color: #fff;
@@ -1401,7 +1401,7 @@ button.gc-ib:hover {
   margin: 0 18px;
   background: var(--gc-card);
   border: 0.5px solid var(--rule);
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   overflow: hidden;
 }
 .gc-li {
@@ -1435,7 +1435,7 @@ button.gc-ib:hover {
 .gc .gc-tg {
   width: 50px;
   height: 30px;
-  border-radius: 15px;
+  border-radius: var(--radius-md);
   background: var(--rule-strong);
   position: relative;
   flex: none;
@@ -1481,7 +1481,7 @@ button.gc-ib:hover {
     justify-content: flex-start;
     gap: 10px;
     padding: 0 12px 0 14px;
-    border-radius: 1.5rem;
+    border-radius: var(--radius-lg);
     background: color-mix(
       in srgb,
       var(--paper-raised, var(--paper)) 88%,
@@ -1554,7 +1554,7 @@ button.gc-ib:hover {
 .translate-now {
   position: relative;
   color: var(--ink);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: linear-gradient(
       90deg,
       transparent,
@@ -1582,7 +1582,7 @@ button.gc-ib:hover {
   top: 0.25em;
   bottom: 0.25em;
   width: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--garden);
 }
 li.translate-now::marker {
@@ -1644,7 +1644,7 @@ span.translate-failed-note {
 .translate-local {
   margin: 0 0 1.4rem;
   padding: 12px 14px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: var(--garden-wash);
   font-family: var(--font-ui);
   font-size: 0.9rem;
@@ -1720,7 +1720,7 @@ span.translate-failed-note {
 .tl-bar i {
   flex: 1;
   height: 5px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: color-mix(in srgb, var(--garden) 18%, transparent);
   transition: background-color 0.3s;
 }
@@ -1900,7 +1900,7 @@ button.gc-ib.on {
   max-width: 22rem;
   height: 36px;
   padding: 0 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   border: 0.5px solid var(--rule-strong);
   background: var(--gc-card);
   color: var(--ink);
@@ -1916,7 +1916,7 @@ button.gc-ib.on {
   min-width: 15.5rem;
   max-width: calc(100% - 20px);
   padding: 6px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: var(--gc-card);
   border: 0.5px solid var(--rule-strong);
   box-shadow: 0 12px 34px rgb(0 0 0 / 0.16);
@@ -1947,7 +1947,7 @@ button.gc-ib.on {
   width: 100%;
   text-align: left;
   padding: 8px 10px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: var(--ink);
 }
 .gc-menu button:hover:not(:disabled),
@@ -1982,7 +1982,7 @@ button.gc-ib.on {
   font: 600 0.72rem/1 var(--gc-sans);
   color: var(--muted-warm);
   background: var(--wash-2);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 4px 6px;
   white-space: nowrap;
 }
@@ -2000,7 +2000,7 @@ button.gc-ib.on {
   height: 36px;
   padding: 0 12px;
   margin-bottom: 4px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   border: 0;
   background: var(--wash-2);
   color: var(--ink);
@@ -2072,7 +2072,7 @@ button.gc-ib.on {
   flex: none;
   display: grid;
   place-items: center;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: var(--muted-warm);
   opacity: 0;
   transition: opacity 0.15s;
@@ -2148,7 +2148,7 @@ button.gc-ib.on {
   width: 19rem;
   max-width: calc(100% - 24px);
   padding: 12px 14px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: var(--gc-card);
   border: 0.5px solid var(--rule-strong);
   box-shadow: 0 12px 34px rgb(0 0 0 / 0.16);
@@ -2237,7 +2237,7 @@ button.gc-ib.on {
   gap: 8px;
   height: 40px;
   padding: 0 10px 0 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--gc-card);
   border: 0.5px solid var(--rule-strong);
   font-weight: 600;
@@ -2258,7 +2258,7 @@ button.gc-ib.on {
   gap: 8px;
   height: 36px;
   padding: 0 12px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--wash-2);
   color: var(--muted-warm);
 }
@@ -2294,7 +2294,7 @@ button.gc-ib.on {
 .gc-rail-i {
   display: flex;
   align-items: center;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
 }
 .gc-rail-i:hover {
   background: var(--wash-2);
@@ -2352,7 +2352,7 @@ button.gc-ib.on {
   align-items: center;
   gap: 8px;
   padding: 8px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
   color: var(--ink-2);
 }

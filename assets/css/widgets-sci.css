@@ -1024,7 +1024,7 @@
   width: 0.75em;
   height: 0.75em;
   margin-right: 0.35em;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   vertical-align: -0.05em;
 }
 .algo-key.is-cmp::before {

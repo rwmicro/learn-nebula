@@ -87,7 +87,7 @@
    the account's, the parcours chest: one corner, one shadow, one veil, one
    grip, one height, above everything else on the page. */
 :root {
-  --sheet-radius: 1.5rem;
+  --sheet-radius: var(--radius-lg);
   --sheet-shadow: 0 -10px 40px rgb(0 0 0 / 0.18);
   --sheet-scrim: rgb(0 0 0 / 0.32);
   --sheet-max-h: 90dvh;
@@ -108,7 +108,7 @@
   width: 2.375rem;
   height: 0.3125rem;
   margin: 0 auto 0.875rem;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--rule-strong);
 }
 
@@ -174,6 +174,8 @@
                  widgets, diagrams, menus, panels.
      lg    20px  floating sheets on top of the page: dialogs, the palette, the
                  assistant window, the parcours dock, end-of-lesson screens.
+     xl    28px  the phone's floating bars (tab bar, note toolbar, composer)
+                 and its big cards (today, flashcard, next note).
      pill  999px chips, badges, segmented pills, rounded progress tracks.
    Circles (dots, avatars, icon-only round buttons) use 50%; deliberate 0 is
    kept only for things that are squares by nature (chessboard cells), that
@@ -191,6 +193,7 @@
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
+  --radius-xl: 28px;
   --radius-pill: 999px;
 }
 
@@ -1835,7 +1838,7 @@ body:has(.home-masthead) .site-bar {
   padding: 8px 0 calc(1.4rem + env(safe-area-inset-bottom, 0px));
   background: var(--paper-raised);
   color: var(--ink);
-  border-radius: 28px 28px 0 0;
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   box-shadow: 0 -10px 40px rgb(0 0 0 / 0.18);
   font-family: var(--font-ui);
   font-size: 16px;
@@ -1866,7 +1869,7 @@ body:has(.home-masthead) .site-bar {
 @media (min-width: 640px) {
   .pron-coach {
     bottom: 1.25rem;
-    border-radius: 28px;
+    border-radius: var(--radius-xl);
     padding-bottom: 1.4rem;
     border: 1px solid var(--rule);
   }
@@ -1900,7 +1903,7 @@ body:has(.home-masthead) .site-bar {
   width: 38px;
   height: 5px;
   margin: 0 auto;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--rule-strong);
 }
 /* .pron-coach-x: also .glass (app.css), which sets position: relative. */
@@ -2007,7 +2010,7 @@ body:has(.home-masthead) .site-bar {
 .pron-coach-lh i {
   width: 9px;
   height: 9px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--pron-model);
 }
 [data-k="me"] .pron-coach-lh i {
@@ -2069,7 +2072,7 @@ body:has(.home-masthead) .site-bar {
   display: grid;
   place-items: center;
   border: 1.5px dashed var(--rule-strong);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font:
     italic 400 14px "Alegreya",
     "Alegreya Fallback",
@@ -2260,7 +2263,7 @@ body:has(.home-masthead) .site-bar {
   height: 32px;
   padding: 0;
   padding-inline: 9px 13px;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   font-size: 14px;
   font-weight: 700;
   background: color-mix(in srgb, var(--warn) 14%, var(--paper-raised));
@@ -2308,7 +2311,7 @@ body:has(.home-masthead) .site-bar {
   min-width: 0;
   height: 44px;
   padding: 0 10px;
-  border-radius: 22px;
+  border-radius: var(--radius-lg);
   font-size: 15px;
   background: var(--fam-wash, var(--link-wash));
   color: var(--pron-model);
@@ -2326,7 +2329,7 @@ body:has(.home-masthead) .site-bar {
   width: calc(100% - 32px);
   height: 52px;
   margin: 10px 16px 0;
-  border-radius: 26px;
+  border-radius: var(--radius-xl);
   gap: 8px;
   font-size: 17px;
   background: var(--garden-fill);

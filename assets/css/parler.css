@@ -197,7 +197,7 @@
   position: relative;
   padding: 0.3rem 0.75rem;
   border: 1px solid var(--rule);
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   background: var(--paper-raised);
   color: var(--muted);
   font: 500 0.9rem/1.3 var(--font-text);
@@ -287,7 +287,7 @@ label.pt-h {
   height: 2.75rem;
   padding: 0 2.5rem 0 1rem;
   border: 1px solid var(--rule-strong);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
   background: var(--paper-raised);
   color: var(--ink);
   font: 500 1rem var(--font-ui);
@@ -558,7 +558,7 @@ label.pt-h {
 .pt-bubble {
   margin: 0;
   padding: 0.7rem 0.95rem;
-  border-radius: 1.1rem 1.1rem 1.1rem 0.3rem;
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-xs);
   background: var(--paper-raised);
   border: 1px solid var(--rule);
   font: 1.15rem/1.45 var(--font-text);
@@ -566,7 +566,7 @@ label.pt-h {
 }
 .is-me .pt-bubble {
   border-color: transparent;
-  border-radius: 1.1rem 1.1rem 0.3rem 1.1rem;
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-xs) var(--radius-lg);
   background: var(--garden-wash);
 }
 .pt-bubble.is-live {
@@ -577,7 +577,7 @@ label.pt-h {
 .pt-word {
   padding: 0;
   border: 0;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: none;
   color: inherit;
   font: inherit;
@@ -676,14 +676,14 @@ label.pt-h {
   color: var(--pt-bad);
   text-decoration: line-through 2px;
   background: var(--pt-bad-wash);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 .pt-ins {
   color: var(--pt-good);
   text-decoration: none;
   font-weight: 600;
   background: var(--pt-good-wash);
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   padding: 0 0.15em;
 }
 .pt-why,
@@ -749,7 +749,7 @@ label.pt-h {
 }
 .pt-hint-steps span {
   height: 0.22rem;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--rule);
 }
 .pt-hint-steps .is-on {
@@ -886,7 +886,7 @@ label.pt-h {
 }
 .pt-bar {
   height: 0.45rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   background: var(--rule);
   overflow: hidden;
 }
@@ -1223,7 +1223,7 @@ label.pt-h {
     gap: 0.4rem;
     margin: 1.5rem -0.5rem 0;
     padding: 0.6rem 0.5rem 0.5rem;
-    border-radius: 1.25rem;
+    border-radius: var(--radius-lg);
     background: color-mix(in srgb, var(--paper) 88%, transparent);
     -webkit-backdrop-filter: blur(12px) saturate(1.6);
     backdrop-filter: blur(12px) saturate(1.6);
@@ -1349,7 +1349,7 @@ label.pt-h {
     flex-direction: column;
     max-width: 22rem;
     padding: 0.85rem 1.1rem 0.75rem;
-    border-radius: 1.25rem;
+    border-radius: var(--radius-lg);
     font: 400 1.3rem/1.35 var(--font-text);
     box-shadow: 0 8px 24px rgb(0 0 0 / 0.08);
   }
@@ -1362,7 +1362,7 @@ label.pt-h {
     align-self: flex-start;
     margin-inline-start: 3.2rem;
     border: 1px solid var(--rule);
-    border-end-start-radius: 0.4rem;
+    border-end-start-radius: var(--radius-sm);
     background: var(--paper);
     color: var(--ink);
   }
@@ -1373,7 +1373,7 @@ label.pt-h {
   }
   .pt-bub.is-me {
     align-self: flex-end;
-    border-end-end-radius: 0.4rem;
+    border-end-end-radius: var(--radius-sm);
     background: var(--pt-lang);
     color: #fff;
     font-style: italic;
@@ -1390,7 +1390,7 @@ label.pt-h {
   }
   .pt-wave i {
     width: 3px;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     background: currentColor;
     opacity: 0.75;
   }
@@ -1426,7 +1426,7 @@ label.pt-h {
     align-items: flex-start;
     gap: 0.15rem;
     padding: 0.85rem 0.8rem 0.75rem;
-    border-radius: 0.8rem;
+    border-radius: var(--radius-md);
     border: 1px solid var(--rule);
     background: var(--paper-raised);
     color: var(--ink);
@@ -1534,7 +1534,7 @@ label.pt-h {
   .pt-card {
     display: block;
     padding: 1.2rem 1.35rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     border: 1px solid var(--rule);
     background: var(--paper-raised);
   }
@@ -1567,7 +1567,7 @@ label.pt-h {
   .pt-expr-tr {
     margin: 0.35rem 0 0.9rem;
     padding: 0.55rem 0.8rem;
-    border-radius: 0.6rem;
+    border-radius: var(--radius-sm);
     border-inline-start: 3px solid var(--pt-lang);
     background: var(--wash);
     font: 400 1rem/1.4 var(--font-text);
@@ -1608,7 +1608,7 @@ label.pt-h {
   .pt-dots i {
     width: 100%;
     height: 2rem;
-    border-radius: 0.4rem;
+    border-radius: var(--radius-sm);
     background: var(--wash-2);
   }
   .pt-dots .is-1 i {

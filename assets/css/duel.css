@@ -196,7 +196,7 @@
 }
 .duo-clock {
   height: 4px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--garden);
   transform-origin: left;
   animation: duo-clock linear forwards;

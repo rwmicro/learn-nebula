@@ -118,7 +118,7 @@
     gap: 1rem;
     padding: 0.7rem 1rem;
     border: 1px solid var(--rule-strong);
-    border-radius: 0.75rem;
+    border-radius: var(--radius-md);
     background: var(--paper);
     color: var(--ink);
     text-decoration: none;
@@ -180,7 +180,7 @@
     top: 50%;
     width: min(25rem, 92%);
     height: 15.5rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     border: 1px solid var(--rule-strong);
     background: var(--paper);
     box-shadow: 0 1px 0 var(--rule), 0 14px 30px rgb(0 0 0 / 0.1);
@@ -255,7 +255,7 @@
   }
   .cdk-card {
     padding: 1.25rem 1.4rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     border: 1px solid var(--rule);
     background: var(--paper-raised);
   }
@@ -288,7 +288,7 @@
   }
   .cdk-heat i {
     aspect-ratio: 1;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     background: var(--wash-2);
   }
   .cdk-heat .l1 {
@@ -353,7 +353,7 @@
   }
   .cdk-week i {
     width: 100%;
-    border-radius: 4px 4px 2px 2px;
+    border-radius: var(--radius-xs) var(--radius-xs) var(--radius-xs) var(--radius-xs);
     background: color-mix(in srgb, var(--cdk-new) 45%, transparent);
   }
   .cdk-week .is-today i {
@@ -462,12 +462,12 @@
     grid-row: 1 / 4;
     grid-column: 1;
     margin-top: 2.1rem;
-    border-radius: 0 0.7rem 0.9rem 0.9rem;
+    border-radius: 0 var(--radius-sm) var(--radius-md) var(--radius-md);
     background: var(--back);
     box-shadow: 0 14px 28px -20px var(--cdk-shadow);
   }
   [dir="rtl"] .cdk-back {
-    border-radius: 0.7rem 0 0.9rem 0.9rem;
+    border-radius: var(--radius-sm) 0 var(--radius-md) var(--radius-md);
   }
   .cdk-tab {
     position: absolute;
@@ -478,7 +478,7 @@
     gap: 0.45rem;
     height: 2.1rem;
     padding-inline: 0.7rem 1.2rem;
-    border-radius: 0.7rem 0.7rem 0 0;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
     background: var(--back);
     font: 600 0.72rem var(--font-caps);
     letter-spacing: 0.16em;
@@ -525,7 +525,7 @@
     height: 6rem;
     margin-top: calc(var(--i) * 0.28rem);
     padding: 0.55rem 0.7rem 0;
-    border-radius: 0.3rem 0.3rem 0 0;
+    border-radius: var(--radius-xs) var(--radius-xs) 0 0;
     rotate: var(--r);
     background:
       linear-gradient(var(--cdk-card-top), var(--cdk-card-top)) 0 2.55rem / 100% 1.5px no-repeat,
@@ -618,7 +618,7 @@
     grid-template-areas: "label label" "count count" "prog go";
     gap: 0.9rem 1rem;
     padding: 1.1rem 1.2rem 1rem;
-    border-radius: 0.25rem 0.25rem 0.9rem 0.9rem;
+    border-radius: var(--radius-xs) var(--radius-xs) var(--radius-md) var(--radius-md);
     background:
       radial-gradient(120% 60% at 10% 0%, rgb(255 255 255 / 0.14), transparent 60%),
       var(--front);
@@ -658,7 +658,7 @@
     flex-direction: column;
     max-width: 100%;
     padding: 0.55rem 0.9rem 0.6rem;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     background: var(--cdk-card);
     color: var(--cdk-card-ink);
     rotate: -0.6deg;
@@ -704,7 +704,7 @@
     position: absolute;
     inset-block: -1px;
     inset-inline-start: 0;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     background: var(--cdk-folder-ink);
   }
   .cdk-pct {
@@ -805,7 +805,7 @@
     overflow: auto;
     border: 1px solid var(--rule);
     border-top: 6px solid var(--fam-c);
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     background: var(--paper-raised);
     color: var(--ink);
     box-shadow: 0 24px 60px rgb(0 0 0 / 0.25);
@@ -859,7 +859,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.7rem 0.75rem;
-    border-radius: 0.6rem;
+    border-radius: var(--radius-sm);
   }
   .cdk .cdk-pick a:is(:hover, :focus-visible) {
     background: color-mix(in srgb, var(--fam-c) 12%, transparent);
@@ -888,7 +888,7 @@
     align-items: center;
     gap: 1rem;
     padding: 0.9rem 1.1rem;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     border: 1px solid var(--rule);
     background: var(--paper-raised);
   }
@@ -901,7 +901,7 @@
     place-items: center;
     width: 2.6rem;
     height: 2.6rem;
-    border-radius: 0.65rem;
+    border-radius: var(--radius-sm);
     background: var(--wash-2);
     color: var(--garden);
   }

@@ -402,7 +402,7 @@
     white-space: nowrap;
     color: var(--muted);
     text-decoration: none;
-    border-radius: 0.6rem 0.6rem 0 0;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   }
   .note-chapters a::before {
     content: counter(chapter, lower-roman);
@@ -441,7 +441,7 @@
     right: 0.7rem;
     bottom: 0;
     height: 2px;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     background: linear-gradient(90deg, var(--garden) calc(var(--ch-p, 0) * 100%), var(--rule-strong) 0);
   }
   /* A link from the strip lands below the bar, not under it. */

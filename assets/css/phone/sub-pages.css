@@ -118,14 +118,14 @@
   /* The empty screen as one tinted card: icon, title, why, two buttons. */
   :is(section, .review-empty):has(> .review-empty-actions) {
     border: 0 !important;
-    border-radius: 1.25rem !important;
+    border-radius: var(--radius-lg) !important;
     background: color-mix(in srgb, var(--ink) 5%, transparent) !important;
     padding: 1.75rem 1.25rem !important;
     gap: 0.75rem !important;
   }
   .review-done {
     border: 0 !important;
-    border-radius: 1.25rem !important;
+    border-radius: var(--radius-lg) !important;
     background: color-mix(in srgb, var(--ink) 5%, transparent) !important;
     padding: 1.25rem 1.25rem 1.75rem !important;
     gap: 0.75rem !important;
@@ -205,7 +205,7 @@ main.nf-page .nf-title {
   gap: 0.6rem;
   min-height: 2.9rem;
   padding: 0.5rem 1rem;
-  border-radius: 0.9rem;
+  border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--ink) 7%, transparent);
   color: var(--ink-2);
   font: 1rem var(--font-ui);
@@ -231,7 +231,7 @@ main.nf-page .nf-title {
   list-style: none !important;
   padding: 0 !important;
   border: 0.5px solid var(--rule);
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   background: var(--paper-raised);
   overflow: hidden;
 }
@@ -253,7 +253,7 @@ main.nf-page .nf-title {
   grid-row: span 2;
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 0.6rem;
+  border-radius: var(--radius-sm);
   background:
     radial-gradient(circle, var(--fam, var(--muted)) 0 0.3rem, transparent 0.32rem),
     var(--fam-wash, color-mix(in srgb, var(--ink) 7%, transparent));
@@ -406,7 +406,7 @@ main.nf-page .nf-title {
 .road-sheet-box {
   padding: 0.85rem 0.9rem 0.7rem;
   border: 1px solid var(--rule);
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   background: var(--wash-2);
 }
 .road-sheet-box > p:first-child {
@@ -426,7 +426,7 @@ main.nf-page .nf-title {
 .road-sheet-cells i {
   flex: 1;
   height: 0.6rem;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 .road-sheet-cells .ok,
 .road-sheet-legend .ok::before {
@@ -451,7 +451,7 @@ main.nf-page .nf-title {
   width: 0.6rem;
   height: 0.6rem;
   margin-right: 0.35rem;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 .road-sheet-notes {
   margin: 0.6rem 0 1rem;
@@ -498,7 +498,7 @@ main.nf-page .nf-title {
 .road-sheet-go {
   min-height: 3.2rem;
   border: 0;
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   background: var(--garden-fill);
   box-shadow: 0 4px 0 color-mix(in srgb, var(--garden-fill) 70%, #000);
   color: #fff;
@@ -527,7 +527,7 @@ main.nf-page .nf-title {
   margin: 1.5rem 1rem 0.5rem;
   padding: 1rem 1rem 1.1rem;
   border: 0.5px solid var(--dash-edge);
-  border-radius: 1.25rem;
+  border-radius: var(--radius-lg);
   background: var(--dash-card);
   box-shadow: var(--dash-shadow);
 }
@@ -576,7 +576,7 @@ main.nf-page .nf-title {
   place-items: center;
   width: 2.25rem;
   height: 2.25rem;
-  border-radius: 0.7rem;
+  border-radius: var(--radius-sm);
   background: var(--fam-wash, var(--wash-2));
   color: var(--fam, var(--garden));
 }
@@ -615,7 +615,7 @@ main.nf-page .nf-title {
   display: grid;
   place-items: center;
   min-height: 3rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   background: var(--garden-fill);
   box-shadow: 0 4px 0 color-mix(in srgb, var(--garden-fill) 70%, #000);
   color: #fff;
@@ -643,7 +643,7 @@ main.nf-page .nf-title {
     margin: 0 1rem;
     padding: 1rem 1.25rem 1.25rem;
     border: 0.5px solid var(--rule);
-    border-radius: 1.375rem;
+    border-radius: var(--radius-lg);
     background: var(--paper-raised);
     text-align: center;
   }
@@ -713,12 +713,12 @@ main.nf-page .nf-title {
     height: 0.3125rem;
     margin-top: 0.4375rem;
     overflow: hidden;
-    border-radius: 0.25rem;
+    border-radius: var(--radius-xs);
   }
   .rv-bar i {
     flex-basis: 0;
     min-width: 0;
-    border-radius: 0.25rem;
+    border-radius: var(--radius-xs);
   }
   .rv-bar i:nth-child(1) {
     background: var(--fam, var(--garden));

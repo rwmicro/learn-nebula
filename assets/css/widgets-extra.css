@@ -596,7 +596,7 @@ button.prix[aria-expanded="true"] {
   grid-template-rows: repeat(8, 1fr);
   width: 100%;
   aspect-ratio: 1;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   box-shadow:
     0 1px 2px rgb(0 0 0 / 0.08),
@@ -990,7 +990,7 @@ button.prix[aria-expanded="true"] {
   aspect-ratio: 1;
   margin: 0 auto;
   border: 0;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   box-shadow: 0 0 0 1.5px var(--rule);
 }
@@ -1260,7 +1260,7 @@ button.prix[aria-expanded="true"] {
   margin: 1rem 0 0;
   padding: 0.75rem 1rem;
   border: 1.5px solid var(--rule);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--paper-raised, var(--paper));
   font: 400 clamp(1.06rem, 1rem + 0.3vw, 1.15rem) / 1.42 var(--font-text);
 }
@@ -1401,7 +1401,7 @@ button.prix[aria-expanded="true"] {
     min-width: 22px;
     height: 22px;
     padding: 0 6px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     border: 1px solid var(--rule-strong);
     border-bottom-width: 2.5px;
     background: var(--paper-raised, var(--paper));

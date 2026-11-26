@@ -696,7 +696,7 @@ html.lesson-open .path-dock {
   .path-step-dashes i {
     flex: 1;
     height: 5px;
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
     background: var(--rule-strong);
   }
   .path-step-dashes i.d {
@@ -709,7 +709,7 @@ html.lesson-open .path-dock {
   }
   .path-step-dashes.is-bar {
     height: 5px;
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
     background: var(--rule-strong);
     overflow: hidden;
   }

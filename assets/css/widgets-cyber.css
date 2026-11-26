@@ -381,7 +381,7 @@
 }
 .cy-chg {
   padding: 0 0.2rem;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   color: var(--link);
   background: var(--link-wash);
   font-weight: 700;
@@ -718,13 +718,13 @@
 .cy-ck-bar {
   height: 0.7rem;
   overflow: hidden;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--wash-2);
 }
 .cy-ck-bar i {
   display: block;
   height: 100%;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--link);
   transition: width 0.25s;
 }

@@ -60,7 +60,7 @@
   }
   main .prereq-list {
     display: block;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     background: var(--dash-card);
     box-shadow: var(--dash-shadow);
     overflow: hidden;
@@ -94,7 +94,7 @@
     flex: none;
     width: 1.85rem;
     height: 1.85rem;
-    border-radius: 0.55rem;
+    border-radius: var(--radius-sm);
     background:
       url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='1.8' stroke-linejoin='round'%3E%3Crect x='4' y='3' width='16' height='18' rx='2'/%3E%3Cpath d='M8 8h8M8 12h8M8 16h5'/%3E%3C/svg%3E")
         center / 1.05rem no-repeat,
@@ -242,7 +242,7 @@
     align-items: center;
     padding: 0 0.75rem;
     margin: 0;
-    border-radius: 0.875rem;
+    border-radius: var(--radius-md);
     font: 600 0.78rem var(--font-ui);
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -341,7 +341,7 @@
     align-items: center;
     height: 2.875rem;
     padding: 0 0.375rem;
-    border-radius: 1.44rem;
+    border-radius: var(--radius-lg);
   }
   .na-gpill button {
     display: grid;
@@ -388,7 +388,7 @@
     gap: 0.5rem;
     height: 2.75rem;
     padding: 0 0.25rem 0 0.4rem;
-    border-radius: 1.375rem;
+    border-radius: var(--radius-lg);
     color: var(--ink);
     font-size: 0.94rem;
   }
@@ -445,7 +445,7 @@
     flex: 0 1 1.375rem;
     min-width: 0.4rem;
     height: 0.25rem;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     background: var(--rule-strong);
     transition: background-color 0.25s;
   }
@@ -514,7 +514,7 @@
     grid-template-columns: repeat(4, 1fr);
     height: 3.85rem;
     padding: 0.25rem;
-    border-radius: 2rem;
+    border-radius: var(--radius-xl);
   }
   .na-tool {
     display: flex;
@@ -523,7 +523,7 @@
     justify-content: center;
     gap: 0.125rem;
     min-width: 0;
-    border-radius: 1.7rem;
+    border-radius: var(--radius-xl);
     color: var(--ink);
     font-size: 0.69rem;
     font-weight: 600;
@@ -652,7 +652,7 @@
   }
   .na-grp {
     margin-bottom: 0.75rem;
-    border-radius: 0.875rem;
+    border-radius: var(--radius-md);
     background: var(--wash-2);
     overflow: hidden;
   }
@@ -681,12 +681,12 @@
   }
   .na-size input::-webkit-slider-runnable-track {
     height: 4px;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     background: linear-gradient(90deg, var(--garden) calc(var(--v) * 100%), var(--rule-strong) 0);
   }
   .na-size input::-moz-range-track {
     height: 4px;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     background: linear-gradient(90deg, var(--garden) calc(var(--v) * 100%), var(--rule-strong) 0);
   }
   .na-size input::-webkit-slider-thumb {
@@ -714,12 +714,12 @@
     grid-auto-columns: 1fr;
     margin-bottom: 0.75rem;
     padding: 3px;
-    border-radius: 0.6875rem;
+    border-radius: var(--radius-sm);
     background: var(--wash-2);
   }
   .na-chrome .na-seg button {
     height: 2.125rem;
-    border-radius: 0.5625rem;
+    border-radius: var(--radius-sm);
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--ink-2);
@@ -770,7 +770,7 @@
     margin-left: auto;
     width: 3.125rem;
     height: 1.875rem;
-    border-radius: 0.9375rem;
+    border-radius: var(--radius-md);
     background: var(--rule-strong);
     transition: background-color 0.2s;
   }
@@ -868,7 +868,7 @@
     margin: 0 0 0.4rem;
     padding: 0 0.75rem;
     border: 0.5px solid var(--rule-strong);
-    border-radius: 0.6rem;
+    border-radius: var(--radius-sm);
     background: var(--dash-card);
     font: 400 1rem var(--font-ui);
   }
@@ -898,7 +898,7 @@
     bottom: calc(5.6rem + var(--gk-safe-b));
     z-index: var(--z-drawer);
     padding: 0.5rem 1rem;
-    border-radius: 1.25rem;
+    border-radius: var(--radius-lg);
     font-size: 0.94rem;
     color: var(--ink);
     opacity: 0;
