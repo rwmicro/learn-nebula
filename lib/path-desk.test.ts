@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { deskLines, placeLines, timeBuckets, type DeskLinePath } from "./path-desk";
+import { deskLines, placeLines, shelfLayout, timeBuckets, type DeskLinePath, type ShelfBook } from "./path-desk";
 
 const p = (slug: string, name: string, extra: Partial<DeskLinePath> = {}): DeskLinePath => ({
   slug,
@@ -60,5 +60,40 @@ describe("timeBuckets", () => {
     expect(quick.map((x) => x.minutes)).toEqual([5, 12, 20, 30]);
     expect(long.map((x) => x.minutes)).toEqual([500, 400, 300, 200]);
     expect(hour.map((x) => x.minutes)).toEqual([45, 58, 62, 70]);
+  });
+});
+
+describe("shelfLayout", () => {
+  const b = (slug: string, family: ShelfBook["family"], notes: number): ShelfBook => ({ slug, family, notes });
+  const line = (family: ShelfBook["family"], slugs: string[]) => ({
+    family,
+    discipline: "x",
+    mixed: false,
+    minutes: 0,
+    stations: slugs.map((slug) => ({ slug, label: slug, sub: false })),
+  });
+
+  it("puts a family's line first, in order, then its other books by notes", () => {
+    const { rows, lines } = shelfLayout(
+      [b("big", "pensee", 50), b("l2", "pensee", 3), b("l1", "pensee", 3), b("small", "pensee", 5), b("s", "sciences", 4)],
+      [line("pensee", ["l1", "l2"])],
+      ["sciences", "pensee"],
+      1,
+    );
+    expect(rows).toEqual([["s", "l1", "l2", "big", "small"]]);
+    expect(lines).toEqual([0]);
+  });
+
+  it("draws only the line that placed all its books, and never cuts it", () => {
+    const books = [b("a", "informatique", 10), b("b", "informatique", 10), b("c", "informatique", 10), b("d", "informatique", 10), b("x", "informatique", 10), b("z", "langues", 40)];
+    const { rows, lines } = shelfLayout(
+      books,
+      [line("informatique", ["a", "b", "c", "d"]), line("informatique", ["x", "c", "d"])],
+      ["informatique", "langues"],
+    );
+    expect(lines).toEqual([0]);
+    expect(rows.flat()).toEqual(["a", "b", "c", "d", "x", "z"]);
+    expect(rows.find((r) => r.includes("a"))).toEqual(expect.arrayContaining(["a", "b", "c", "d"]));
+    expect(rows).toHaveLength(2);
   });
 });

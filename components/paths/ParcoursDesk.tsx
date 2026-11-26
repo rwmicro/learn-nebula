@@ -1,4 +1,3 @@
-import { blackletter } from "@/components/layout/Header";
 import { t, i18nProps, i18nAttrProps, disciplineKey, keyedProps, keyedText, pathDescKey, pathName, pathNameProps, pathNameRef, splitPathName, type I18nVar, type I18nVars } from "@/lib/i18n";
 import type { ReadingPathView } from "@/lib/node/content";
 import type { PathExtras } from "@/lib/node/path-extras";
@@ -7,8 +6,9 @@ import { paintingFor, paintingKey, paintingText } from "@/lib/paintings";
 import { ART, levelArt } from "@/lib/road-art";
 import { splitMinutes } from "@/lib/client/path-study";
 import { fold } from "@/lib/palette-match";
-import { deskLines, placeLines, timeBuckets, LANG_HELLO, type PlacedLine } from "@/lib/path-desk";
+import { deskLines, placeLines, shelfLayout, timeBuckets, LANG_HELLO, type PlacedLine } from "@/lib/path-desk";
 import { ParcoursDeskHero, type HeroLevels } from "@/components/paths/ParcoursDeskHero";
+import { ParcoursShelf, type ShelfBookView, type ShelfLineView } from "@/components/paths/ParcoursShelf";
 import { DeskFilter, DeskMarks, DeskMore, DeskDice } from "@/components/paths/ParcoursDeskBits";
 import { srcSet } from "@/lib/responsive-image";
 import { newsreader } from "@/components/ui/newsreader";
@@ -78,12 +78,11 @@ export function ParcoursDesk({
   const rooms = PATH_FAMILIES.map((f) => ({ f, list: paths.filter((p) => fam(p) === f) })).filter((r) => r.list.length);
   const totalMinutes = [...mins.values()].reduce((a, b) => a + b, 0);
 
-  const { lines, height } = placeLines(
-    deskLines(
-      paths.map((p) => ({ slug: p.slug, name: p.name, discipline: p.discipline, family: fam(p), minutes: mins.get(p.slug)!, prev: p.prev?.slug, next: p.next?.slug })),
-      ["langues"],
-    ),
+  const chains = deskLines(
+    paths.map((p) => ({ slug: p.slug, name: p.name, discipline: p.discipline, family: fam(p), minutes: mins.get(p.slug)!, prev: p.prev?.slug, next: p.next?.slug })),
+    ["langues"],
   );
+  const { lines, height } = placeLines(chains);
   // A short name ("Sociologie") unless another path shares it ("Philosophie").
   const titleCount = new Map<string, number>();
   for (const p of paths) titleCount.set(splitPathName(p.name)[0], (titleCount.get(splitPathName(p.name)[0]) ?? 0) + 1);
@@ -92,19 +91,30 @@ export function ParcoursDesk({
   const buckets = timeBuckets(timed);
   const nRooms = rooms.length;
 
-  // Sections are numbered; the first visit adds "how it works" before them
-  // (the hero swaps the numbers through data-pcd-n).
-  const rooms8 = rooms.map(({ f, list }) => ({ f, count: list.length, src: paintingFor(f).src, focus: paintingFor(f).focus }));
+  // First visit: every path a book on the shelf, the lines drawn over theirs.
+  const books: ShelfBookView[] = paths.map((p) => ({
+    slug: p.slug,
+    name: p.name,
+    family: fam(p),
+    notes: p.notes.length,
+    minutes: mins.get(p.slug)!,
+    first: `/posts/${p.notes[0].slug}/`,
+    search: searchText(p),
+  }));
+  const shelf = shelfLayout(books, chains, [...PATH_FAMILIES, null]);
+  const shelfLines: ShelfLineView[] = shelf.lines.map((i) => ({
+    slugs: chains[i].stations.map((s) => s.slug),
+    family: chains[i].family,
+    discipline: chains[i].mixed ? null : chains[i].discipline,
+    minutes: chains[i].minutes,
+  }));
 
   return (
     <div className={`pcd ${newsreader.variable}`} data-first="" data-pagefind-ignore>
-      <ParcoursDeskHero
-        rooms={rooms8}
-        levels={levels}
-        counts={{ paths: paths.length, rooms: nRooms }}
-        dataVersion={dataVersion}
-        logoClass={blackletter.className}
-      />
+      <ParcoursDeskHero levels={levels} counts={{ paths: paths.length, rooms: nRooms }} dataVersion={dataVersion} />
+      <div className="pcd-first-only">
+        <ParcoursShelf books={books} rows={shelf.rows} lines={shelfLines} counts={{ paths: paths.length, rooms: nRooms }} />
+      </div>
 
       <DeskFilter
         total={paths.length}
