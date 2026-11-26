@@ -354,6 +354,10 @@ image tag in `ci.yml` together with `@playwright/test`.
   (never `DENY`/`'none'`). Answers render formulas with KaTeX (lazy-loaded)
   and the prompt numbers its excerpts so `[n]` becomes a source pastille
   (`markdownToHtml`'s `math`/`cite` hooks; pure helpers in `lib/chat-tools.ts`).
+  Its screens are pieces with props (`ChatRail`, `ChatHistory`,
+  `ChatSettings`, `ChatDownload`; icons in `chat-icons.tsx`, React-free
+  helpers in `chat-helpers.ts`); the state stays in `GardenChat`. Browser
+  tests: `tests/chat.spec.js` (fake `LanguageModel`, stubbed `/api/ask/context`).
 - **Everything is generated on the device** (`lib/client/garden-ai.ts` `aiRoute()`):
   Chrome's Gemini Nano (`lib/client/browser-ai.ts`) when it covers the language, else
   the opt-in downloaded Qwen3.5-2B (`lib/client/local-llm.ts`: Transformers.js on
