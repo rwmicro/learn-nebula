@@ -73,6 +73,7 @@ import {
   type Speaking,
 } from "@/lib/client/partner-voice";
 import { normaliseSpoken } from "@/lib/speech-match";
+import { scrollMotion } from "@/lib/client/scroll-motion";
 
 // /parler/: a voice partner per language, on the model of /echecs/'s bot.
 // Four moments:
@@ -380,7 +381,7 @@ export function LanguagePartner({ notes }: { notes: Partial<Record<PartnerLang, 
 
   useEffect(() => {
     turnsRef.current = turns;
-    log.current?.lastElementChild?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    log.current?.lastElementChild?.scrollIntoView({ block: "nearest", behavior: scrollMotion() });
   }, [turns]);
 
   useEffect(

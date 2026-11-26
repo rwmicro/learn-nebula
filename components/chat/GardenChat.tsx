@@ -154,6 +154,7 @@ import {
   type Sheet,
   type SpeechRec,
 } from "@/components/chat/chat-helpers";
+import { scrollMotion } from "@/lib/client/scroll-motion";
 
 
 export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
@@ -1521,7 +1522,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
                   e.preventDefault();
                   pageDoc()
                     .getElementById(section.id)
-                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                    ?.scrollIntoView({ behavior: scrollMotion(), block: "start" });
                 }}
               >
                 {tr("chat.ownReread", { section: section.title })}

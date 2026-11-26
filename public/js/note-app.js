@@ -5,6 +5,7 @@
 // .text-size-btn, .wide-text-btn, .focus-btn, .translate-wrap), which the
 // phone layout hides, so every feature keeps a single implementation.
 import { liquidGlassLater as liquidGlass } from "../../lib/client/glass/load";
+import { scrollMotion } from "../../lib/client/scroll-motion";
 
 (function () {
   const root = document.querySelector(".na-chrome");
@@ -57,7 +58,7 @@ import { liquidGlassLater as liquidGlass } from "../../lib/client/glass/load";
   const heads = $$(".article-body > h2", main).filter((h) => headText(h));
   const dots = heads.map((h, i) => {
     const d = document.createElement("i");
-    d.addEventListener("click", () => h.scrollIntoView({ behavior: "smooth", block: "start" }));
+    d.addEventListener("click", () => h.scrollIntoView({ behavior: scrollMotion(), block: "start" }));
     d.dataset.i = String(i);
     d.title = headText(h);
     dotsEl?.appendChild(d);
@@ -144,7 +145,7 @@ import { liquidGlassLater as liquidGlass } from "../../lib/client/glass/load";
     const go = (h) => (e) => {
       e.preventDefault();
       setSheet(false);
-      setTimeout(() => h.scrollIntoView({ behavior: "smooth", block: "start" }), 120);
+      setTimeout(() => h.scrollIntoView({ behavior: scrollMotion(), block: "start" }), 120);
     };
     heads.forEach((h, i) => {
       const li = document.createElement("li");

@@ -61,7 +61,7 @@ function useScreen(): [Screen, (s: Screen) => void, () => void] {
   const go = useCallback((s: Screen) => {
     history.pushState({ acct: s }, "", s === "profil" ? location.pathname : `#${s}`);
     setScreen(s);
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
   const back = useCallback(() => {
     if ((history.state as { acct?: string } | null)?.acct) history.back();
@@ -69,7 +69,7 @@ function useScreen(): [Screen, (s: Screen) => void, () => void] {
       history.replaceState(null, "", location.pathname);
       setScreen("profil");
     }
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
   useEffect(() => {
     const onPop = () => setScreen(screenOf(location.hash));

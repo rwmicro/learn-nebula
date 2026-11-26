@@ -17,6 +17,7 @@ import { byProximity, longestRun, type MilestoneRow } from "@/lib/milestones";
 import { familyOfPrefix } from "@/lib/path-family";
 import { useReviewDue } from "@/components/account/AccountChip";
 import { ago } from "@/components/account/shared";
+import { scrollMotion } from "@/lib/client/scroll-motion";
 
 // "Moi" on a phone (phone/moi.css shows it below 640px, and hides there the
 // desktop page's title, summary and settings it stands in for). One card
@@ -476,7 +477,7 @@ export function MoiPhone() {
             // The export / import / link cards stay folded under this row
             // (app.css) until asked for.
             document.querySelector("main.progression")?.classList.add("moi-transfer-open");
-            document.querySelector(".progression-actions")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            document.querySelector(".progression-actions")?.scrollIntoView({ behavior: scrollMotion(), block: "start" });
           }}
         >
           <i className="moi-set-ico" aria-hidden="true">

@@ -14,6 +14,19 @@ html {
   /* border: #008000 solid 25px; */
 }
 
+/* Links to an anchor (the contents, « Sommaire », #… cross-references, the
+   back button to one) glide instead of jumping, unless the reader asked for
+   reduced motion. Headings keep their own scroll-margin-top under the bars
+   (note/reading-tools.css, phone/note.css). A script that wants the page to
+   jump passes `behavior: "instant"`; one that wants it to glide asks
+   scrollMotion() (lib/client/scroll-motion.ts), which honours the same
+   preference. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   margin: 2rem auto;
   font-family: var(--font-text);

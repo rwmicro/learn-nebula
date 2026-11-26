@@ -39,6 +39,7 @@ import {
 } from "@/lib/chess-play";
 import { ChessBoard, PieceIcon } from "./ChessBoard";
 import { Engine, FULL_STRENGTH } from "./chess-engine";
+import { scrollMotion } from "@/lib/client/scroll-motion";
 
 // /echecs/: a game against Stockfish (components/play/chess-engine.ts, in the
 // browser). Three moments:
@@ -431,8 +432,8 @@ export function ChessPlay({ notes }: { notes: Notes }) {
     // the tab bar: start with the board's top row at the top instead.
     requestAnimationFrame(() => {
       const main = document.querySelector(".chess-main");
-      if (main && window.innerWidth < 640) main.scrollIntoView({ block: "start" });
-      else window.scrollTo({ top: 0 });
+      if (main && window.innerWidth < 640) main.scrollIntoView({ block: "start", behavior: "instant" });
+      else window.scrollTo({ top: 0, behavior: "instant" });
     });
     if (g.turn() !== opts.color) void engineMove();
     else void evaluate();
@@ -1035,7 +1036,7 @@ export function ChessPlay({ notes }: { notes: Notes }) {
               onReview={() => {
                 setEndShown(false);
                 void runReview();
-                requestAnimationFrame(() => document.querySelector(".chess-result")?.scrollIntoView({ block: "center", behavior: "smooth" }));
+                requestAnimationFrame(() => document.querySelector(".chess-result")?.scrollIntoView({ block: "center", behavior: scrollMotion() }));
               }}
               onAgain={() => begin({ level, color, start: START, sans: [], unrated: false })}
             />

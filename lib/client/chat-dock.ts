@@ -16,6 +16,8 @@
 // The server allows same-origin framing only (X-Frame-Options SAMEORIGIN,
 // frame-ancestors 'self', server/index.ts).
 
+import { scrollMotion } from "./scroll-motion";
+
 export const DOCK_MIN_WIDTH = 1100;
 const FRAME_CLASS = "gc-frame";
 
@@ -93,7 +95,7 @@ export function readingAnchor(doc: Document, win: Window): string {
 function scrollToAnchor(doc: Document, id: string) {
   if (!id) return;
   const el = doc.getElementById(id);
-  el?.scrollIntoView({ block: "start" });
+  el?.scrollIntoView({ block: "start", behavior: "instant" });
 }
 
 interface DockHooks {
@@ -132,7 +134,7 @@ export function dock(hooks: DockHooks): void {
       first = false;
       if (anchor) scrollToAnchor(d, anchor);
       else if (ratio > 0)
-        w.scrollTo(0, ratio * (d.documentElement.scrollHeight - w.innerHeight));
+        w.scrollTo({ top: ratio * (d.documentElement.scrollHeight - w.innerHeight), behavior: "instant" });
     }
     // Keep the address bar and the tab's title on the page being read.
     try {
@@ -241,7 +243,7 @@ export function flashPassage(
     }
   }
   if (!el) return false;
-  el.scrollIntoView({ block: "center", behavior: "smooth" });
+  el.scrollIntoView({ block: "center", behavior: scrollMotion() });
   el.classList.remove("gk-flash");
   void (el as HTMLElement).offsetWidth;
   el.classList.add("gk-flash");
