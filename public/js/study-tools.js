@@ -396,7 +396,8 @@ import {
 
   // --- a highlight as a cloze card ---------------------------------------------
   window.addEventListener("gk:cloze", (e) => {
-    const d = e.detail || {};
+    const d = e.detail;
+    if (!d) return;
     const mark = d.mark;
     const quote = (d.quote || "").trim();
     const block = mark && mark.closest("p, li, td, blockquote");
@@ -407,7 +408,9 @@ import {
     const cloze = clozeOf(one, quote);
     const reply = (key) => d.done && d.done(key);
     if (!cloze) return reply("study.clozeNone");
-    const esc = I().escapeHtml || ((s) => s);
+    const esc =
+      I().escapeHtml ||
+      ((s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]));
     const h = sectionOf(mark);
     const ok = addCard(`c-${hash(quote + one)}`, {
       q: `<p>${esc(cloze)}</p>`,

@@ -275,6 +275,12 @@ image tag in `ci.yml` together with `@playwright/test`.
   `/js/h/`, immutable.
   Shared client logic lives in `lib/*.ts` imported by **both** the vanilla bundle
   and React — e.g. `lib/ask-stream.ts` (the NDJSON parser).
+- **Site events** (`gk:*`, `theme:change`, `i18n:change`) are how the note
+  scripts, React and `lib/client` talk without importing each other. Each one
+  is listed in `lib/events.ts` (`SITE_EVENTS`: meaning, sender; `GkEventDetail`:
+  its `detail`, merged into `WindowEventMap` by `types/gk-events.d.ts`, so
+  listeners are typed in TS and in `public/js`). `lib/events.test.ts` fails on
+  a name used in the code but not listed, or listed but unused.
 - **`lib/` layout**, by where the code runs: `lib/node/` needs Node (fs, the
   vault: content, markdown, html, seo, og…; build, server components,
   `server/`), `lib/client/` needs a browser (hooks, storage, WebGPU, the

@@ -12,7 +12,8 @@
     "plugins": [],
     "types": []
   },
-  "include": ["types/public-js-globals.d.ts", "public/js/**/*.js"],
+  "include": ["types/public-js-globals.d.ts",
+    "types/gk-events.d.ts", "public/js/**/*.js"],
   "exclude": [
     "public/js/**/*.bundle.js",
     "public/js/*.worker.js",
