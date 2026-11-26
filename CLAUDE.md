@@ -433,10 +433,10 @@ image tag in `ci.yml` together with `@playwright/test`.
   `dom-snapshot.ts` (paints the page behind into a texture) are copied
   verbatim, don't edit or "simplify" them; `layer.ts` is its
   `glass-layer.tsx` without React (`attachGlass`), `site.ts` the looks: the
-  kit's glass frosted like iOS everywhere (6 px blur, 40% tint, `mirror: 0`;
-  `bar` holds still, `button` swells, `tinted` for a filled button). Clear
-  glass was tried: text and colourful cards behind bled through the labels.
-  Not GlassCard on the bars:
+  kit's clear glass, natural (15% tint, 30% when dark, a 1.5 px softening,
+  `mirror: 0.5`; `bar` holds still, `button` swells, `tinted` for a filled
+  button). The frosted look (6 px, 40%) read as grey plastic; no blur at all
+  let the text behind fight the labels. Not GlassCard on the bars:
   its 70% tint and 5 px frost read as flat paper on an iPhone. It ships as its own
   `/js/liquid-glass.bundle.js`, fetched by `lib/client/glass/load.ts`
   (`liquidGlassLater`) only with WebGL2 on a GPU (a software renderer:
