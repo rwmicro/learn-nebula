@@ -23,7 +23,8 @@
       else n.setAttribute(k, attrs[k]);
     }
     for (const c of children || []) {
-      n.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+      // Anything that is not a node (a string, an error's message…) goes in as text.
+      n.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
     }
     return n;
   }

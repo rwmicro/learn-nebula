@@ -290,7 +290,10 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
     dlg.className = "report-dlg";
     dlg.setAttribute("aria-labelledby", "report-dlg-title");
     dlg.setAttribute("data-pagefind-ignore", "");
-    const esc = window.__i18n && window.__i18n.escapeHtml ? window.__i18n.escapeHtml : (s) => s;
+    // Own escape, never an identity fallback: the passage is reader-selected
+    // text from the page and goes into innerHTML below.
+    const esc = (s) =>
+      String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
     dlg.innerHTML =
       `<form method="dialog" class="report-form">` +
       `<h2 id="report-dlg-title" class="report-title">${esc(tt("report.title"))}</h2>` +
