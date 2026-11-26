@@ -169,23 +169,23 @@ import { anchoredCard, anchoredPopoverMode } from "../../lib/client/anchor-popov
 
   function scheduleClose() {
     clearTimeout(closeTimer);
-    closeTimer = setTimeout(() => {
+    closeTimer = window.setTimeout(() => {
       activeLink = null;
       hideCard();
     }, CLOSE_DELAY);
   }
 
   function onEnter(e) {
-    const link = e.target.closest ? e.target.closest("a") : null;
+    const link = /** @type {Element} */ (e.target).closest ? /** @type {Element} */ (e.target).closest("a") : null;
     if (!previewable(link)) return;
     clearTimeout(closeTimer);
     clearTimeout(openTimer);
     activeLink = link;
-    openTimer = setTimeout(() => open(link), OPEN_DELAY);
+    openTimer = window.setTimeout(() => open(link), OPEN_DELAY);
   }
 
   function onLeave(e) {
-    const link = e.target.closest ? e.target.closest("a") : null;
+    const link = /** @type {Element} */ (e.target).closest ? /** @type {Element} */ (e.target).closest("a") : null;
     if (!link || link !== activeLink) return;
     clearTimeout(openTimer);
     scheduleClose();

@@ -22,7 +22,7 @@
   }
 
   box.addEventListener("click", (ev) => {
-    const btn = ev.target.closest("button[data-copy]");
+    const btn = /** @type {Element} */ (ev.target).closest("button[data-copy]");
     if (!btn) return;
     const src = document.getElementById(btn.getAttribute("data-copy"));
     if (!src) return;

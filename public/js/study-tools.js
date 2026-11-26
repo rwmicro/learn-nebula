@@ -434,6 +434,6 @@ import {
   setTimeout(paintDots, 1500);
   window.addEventListener("gk:quiz-change", paintDots);
   document.addEventListener("click", (e) => {
-    if (e.target instanceof Element && e.target.closest(".quiz-self-btn, .quiz-choice")) setTimeout(paintDots, 0);
+    if (e.target instanceof Element && /** @type {Element} */ (e.target).closest(".quiz-self-btn, .quiz-choice")) setTimeout(paintDots, 0);
   });
 })();

@@ -33,7 +33,7 @@
   }
 
   function onClick(e) {
-    var btn = e.target.closest(".yt-embed-btn");
+    var btn = /** @type {Element} */ (e.target).closest(".yt-embed-btn");
     if (!btn) return;
     var embed = btn.closest(".yt-embed");
     if (embed) activate(embed);

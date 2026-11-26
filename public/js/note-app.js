@@ -342,7 +342,7 @@ import { liquidGlassLater as liquidGlass } from "../../lib/client/glass/load";
     sheet.addEventListener(
       "touchstart",
       (e) => {
-        if (!e.target.closest(".na-grab, .na-sheet-h")) return;
+        if (!/** @type {Element} */ (e.target).closest(".na-grab, .na-sheet-h")) return;
         startY = e.touches[0].clientY;
       },
       { passive: true },
@@ -470,7 +470,7 @@ import { liquidGlassLater as liquidGlass } from "../../lib/client/glass/load";
   // Picking a language closes the sheet so the translated note shows.
   if (wrap)
     wrap.addEventListener("click", (e) => {
-      if (phone.matches && e.target.closest(".translate-menu-item")) setSheet(false);
+      if (phone.matches && /** @type {Element} */ (e.target).closest(".translate-menu-item")) setSheet(false);
     });
 
   document.addEventListener("i18n:change", () => {

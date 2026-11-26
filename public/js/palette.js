@@ -315,7 +315,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     if (q === textQuery && disc === textQueryDisc && !textPending) return;
     textPending = true;
     const seq = ++textSeq;
-    textTimer = setTimeout(async () => {
+    textTimer = window.setTimeout(async () => {
       try {
         if (!pf) {
           try {
@@ -386,7 +386,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
       return;
     }
     if (q === senseQuery) return;
-    senseTimer = setTimeout(async () => {
+    senseTimer = window.setTimeout(async () => {
       const ctrl = new AbortController();
       senseCtrl = ctrl;
       let results = null;
@@ -1135,7 +1135,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
   function watchMiss(q, empty) {
     clearTimeout(missTimer);
     if (!empty) return;
-    missTimer = setTimeout(() => {
+    missTimer = window.setTimeout(() => {
       if (isOpen() && input.value.trim() === q && !shown.length) reportSearchMiss(q, "home");
     }, SEARCH_MISS_SETTLE_MS);
   }
@@ -1253,11 +1253,11 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
       }
     });
     list.addEventListener("mousemove", (e) => {
-      const o = e.target instanceof Element && e.target.closest(".palette-opt");
+      const o = e.target instanceof Element && /** @type {Element} */ (e.target).closest(".palette-opt");
       if (o && Number(o.getAttribute("data-i")) !== active) setActive(Number(o.getAttribute("data-i")), false);
     });
     list.addEventListener("click", (e) => {
-      const o = e.target instanceof Element && e.target.closest(".palette-opt");
+      const o = e.target instanceof Element && /** @type {Element} */ (e.target).closest(".palette-opt");
       if (o) run(shown[Number(o.getAttribute("data-i"))], e.metaKey || e.ctrlKey);
     });
     el.addEventListener("click", (e) => {
@@ -1299,7 +1299,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     );
     // Keep focus inside if something steals it (e.g. a click on padding).
     el.addEventListener("mousedown", (e) => {
-      if (e.target instanceof Element && !e.target.closest("input, button, .palette-opt")) e.preventDefault();
+      if (e.target instanceof Element && !/** @type {Element} */ (e.target).closest("input, button, .palette-opt")) e.preventDefault();
     });
   }
 
@@ -1431,7 +1431,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
       `<div class="kbd-help-body"></div></div>`;
     doc.body.appendChild(help);
     help.addEventListener("click", (e) => {
-      if (e.target instanceof Element && e.target.closest("[data-help-close]")) closeHelp();
+      if (e.target instanceof Element && /** @type {Element} */ (e.target).closest("[data-help-close]")) closeHelp();
     });
     help.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
@@ -1493,7 +1493,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     }
   });
   doc.addEventListener("click", (e) => {
-    const btn = e.target instanceof Element && e.target.closest("[data-palette-open]");
+    const btn = e.target instanceof Element && /** @type {Element} */ (e.target).closest("[data-palette-open]");
     if (btn) {
       e.preventDefault();
       open("");

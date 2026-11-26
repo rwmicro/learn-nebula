@@ -166,15 +166,15 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
 
   function schedule(delay) {
     clearTimeout(timer);
-    timer = setTimeout(check, delay);
+    timer = window.setTimeout(check, delay);
   }
 
   document.addEventListener("pointerdown", (e) => {
     lastPointer = e.pointerType || "mouse";
-    if (!menu.contains(e.target)) hide();
+    if (!menu.contains(/** @type {Node} */ (e.target))) hide();
   });
   document.addEventListener("pointerup", (e) => {
-    if (menu.contains(e.target)) return;
+    if (menu.contains(/** @type {Node} */ (e.target))) return;
     schedule(10);
   });
   // Touch handles and keyboard (Shift+arrows) only report through
@@ -204,10 +204,10 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
       return;
     }
     // role="toolbar": arrow keys move between its buttons.
-    if (menu.contains(e.target) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+    if (menu.contains(/** @type {Node} */ (e.target)) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
       e.preventDefault();
       const btns = [explain, ownBtn, hlBtn, copyBtn, reportBtn];
-      const i = btns.indexOf(e.target);
+      const i = btns.indexOf(/** @type {HTMLButtonElement} */ (e.target));
       const d = e.key === "ArrowRight" ? 1 : btns.length - 1;
       btns[(Math.max(0, i) + d) % btns.length].focus();
     }
@@ -271,7 +271,7 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
       live.textContent = "";
       setTimeout(() => (live.textContent = tt(key)), 30);
       clearTimeout(resetTimer);
-      resetTimer = setTimeout(hide, 1400);
+      resetTimer = window.setTimeout(hide, 1400);
     };
     copying = true;
     copy(url)

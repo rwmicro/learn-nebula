@@ -117,7 +117,7 @@ document.addEventListener("gk:widget-goal", () => recordActivity("c"));
       });
     }
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(savePosition, 1500);
+    saveTimer = window.setTimeout(savePosition, 1500);
   }
   window.addEventListener("scroll", onScroll, { passive: true });
   // Short notes never scroll: re-check once the minimum dwell has passed.
@@ -206,7 +206,7 @@ document.addEventListener("gk:widget-goal", () => recordActivity("c"));
   }
 
   box.addEventListener("click", (e) => {
-    const btn = e.target instanceof Element && e.target.closest("[data-act]");
+    const btn = e.target instanceof Element && /** @type {Element} */ (e.target).closest("[data-act]");
     if (!btn) return;
     const act = btn.getAttribute("data-act");
     if (act === "read") {

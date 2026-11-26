@@ -73,21 +73,21 @@
   document.addEventListener("click", (e) => {
     if (cardOpen()) {
       const rail = railOf();
-      const onToggle = Array.from(toggles).some((t) => t.contains(e.target));
+      const onToggle = Array.from(toggles).some((t) => t.contains(/** @type {Node} */ (e.target)));
       // A link in the card scrolls to its section: the card makes way.
       if (
         onToggle ||
-        (rail && rail.contains(e.target) && !e.target.closest("a"))
+        (rail && rail.contains(/** @type {Node} */ (e.target)) && !/** @type {Element} */ (e.target).closest("a"))
       )
         return;
       setCard(false);
       return;
     }
     if (document.body.dataset.asideOpen !== "true") return;
-    if (aside.contains(e.target)) return;
+    if (aside.contains(/** @type {Node} */ (e.target))) return;
     let onToggle = false;
     toggles.forEach((t) => {
-      if (t.contains(e.target)) onToggle = true;
+      if (t.contains(/** @type {Node} */ (e.target))) onToggle = true;
     });
     if (onToggle) return;
     setOpen(false);
@@ -105,7 +105,7 @@
   // Tapping a TOC link should also dismiss the drawer so the page can scroll
   // smoothly to the heading without the panel covering it.
   aside.addEventListener("click", (e) => {
-    const a = e.target.closest(".toc a");
+    const a = /** @type {Element} */ (e.target).closest(".toc a");
     if (a) setOpen(false);
   });
 })();

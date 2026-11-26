@@ -93,11 +93,11 @@ import { anchoredCard, anchoredPopoverMode } from "../../lib/client/anchor-popov
 
   function scheduleClose() {
     clearTimeout(closeTimer);
-    closeTimer = setTimeout(close, CLOSE_DELAY);
+    closeTimer = window.setTimeout(close, CLOSE_DELAY);
   }
 
   const term = (e) =>
-    e.target instanceof Element ? e.target.closest(".article-body a.gloss") : null;
+    e.target instanceof Element ? /** @type {Element} */ (e.target).closest(".article-body a.gloss") : null;
 
   if (canHover) {
     document.addEventListener("mouseover", (e) => {
@@ -105,7 +105,7 @@ import { anchoredCard, anchoredPopoverMode } from "../../lib/client/anchor-popov
       if (!el) return;
       clearTimeout(closeTimer);
       clearTimeout(openTimer);
-      openTimer = setTimeout(() => open(el), OPEN_DELAY);
+      openTimer = window.setTimeout(() => open(el), OPEN_DELAY);
     });
     document.addEventListener("mouseout", (e) => {
       const el = term(e);
@@ -132,7 +132,7 @@ import { anchoredCard, anchoredPopoverMode } from "../../lib/client/anchor-popov
         if (openAtDown) return;
         e.preventDefault();
         open(el);
-      } else if (isShown() && !card.contains(e.target)) close();
+      } else if (isShown() && !card.contains(/** @type {Node} */ (e.target))) close();
     });
   }
   document.addEventListener("focusin", (e) => {

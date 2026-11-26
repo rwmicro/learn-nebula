@@ -105,7 +105,7 @@ export function tri(props, fig, ctx) {
     }
     btnRun.textContent = "Pause";
     const vitesse = Math.max(1, Math.round(frames.length / 220));
-    timer = setInterval(() => {
+    timer = window.setInterval(() => {
       avance(vitesse);
       if (k >= frames.length - 1) stop();
     }, 40);

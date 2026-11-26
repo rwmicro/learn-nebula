@@ -87,7 +87,7 @@ import { matchSpoken, speechLangFor } from "../../lib/speech-match.ts";
   }
 
   document.addEventListener("click", (e) => {
-    const btn = e.target.closest(".pron-btn");
+    const btn = /** @type {Element} */ (e.target).closest(".pron-btn");
     if (!btn) return;
     const src = btn.dataset.pronSrc;
     if (!src) return;
@@ -843,8 +843,8 @@ import { matchSpoken, speechLangFor } from "../../lib/speech-match.ts";
     let drag = null;
     root.addEventListener("pointerdown", (e) => {
       if (
-        e.target.closest("button") ||
-        !e.target.closest(".pron-coach-grab, .pron-coach-hd")
+        /** @type {Element} */ (e.target).closest("button") ||
+        !/** @type {Element} */ (e.target).closest(".pron-coach-grab, .pron-coach-hd")
       )
         return;
       drag = { y: e.clientY, t: e.timeStamp, dy: 0 };
@@ -871,7 +871,7 @@ import { matchSpoken, speechLangFor } from "../../lib/speech-match.ts";
     scrim.addEventListener("click", () => close());
 
     root.addEventListener("click", (e) => {
-      const a = e.target.closest("[data-a]");
+      const a = /** @type {Element} */ (e.target).closest("[data-a]");
       if (!a) return;
       const act = a.dataset.a;
       if (act === "x") close();
@@ -896,7 +896,7 @@ import { matchSpoken, speechLangFor } from "../../lib/speech-match.ts";
   }
 
   document.addEventListener("click", (e) => {
-    const mic = e.target.closest(".pron-mic");
+    const mic = /** @type {Element} */ (e.target).closest(".pron-mic");
     if (mic) openCoach(mic);
   });
 })();

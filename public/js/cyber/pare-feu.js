@@ -182,8 +182,8 @@ export function pareFeu(props, fig, ctx) {
       paint(v, i);
       if (i < last) {
         i++;
-        timer = setTimeout(tick, 320);
-      } else timer = setTimeout(finish, 320);
+        timer = window.setTimeout(tick, 320);
+      } else timer = window.setTimeout(finish, 320);
     };
     tick();
   }

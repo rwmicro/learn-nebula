@@ -51,7 +51,7 @@
     document.body.appendChild(dlg);
 
     dlg.addEventListener("click", (e) => {
-      const b = e.target.closest("[data-act]");
+      const b = /** @type {Element} */ (e.target).closest("[data-act]");
       if (!b) return;
       const r = stage.getBoundingClientRect();
       if (b.dataset.act === "close") dlg.close();
@@ -224,7 +224,7 @@
     // the diagram itself carries (mermaid `click … href`). A drag that scrolls
     // the figure sideways fires no click, so scrolling keeps working.
     figure.addEventListener("click", (e) => {
-      if (e.target.closest("a")) return;
+      if (/** @type {Element} */ (e.target).closest("a")) return;
       if (window.getSelection && String(window.getSelection())) return;
       open(figure);
     });

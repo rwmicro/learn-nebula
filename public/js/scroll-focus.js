@@ -44,7 +44,7 @@
     "resize",
     () => {
       clearTimeout(t);
-      t = setTimeout(sync, 150);
+      t = window.setTimeout(sync, 150);
     },
     { passive: true },
   );
@@ -53,7 +53,7 @@
   if ("ResizeObserver" in window) {
     const ro = new ResizeObserver(() => {
       clearTimeout(t);
-      t = setTimeout(sync, 50);
+      t = window.setTimeout(sync, 50);
     });
     for (const el of document.querySelectorAll(SELECTOR)) ro.observe(el);
   }

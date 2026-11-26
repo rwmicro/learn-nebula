@@ -332,7 +332,7 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
   const more = document.querySelector(".note-more");
   if (more) {
     document.addEventListener("click", (e) => {
-      if (more.open && e.target instanceof Node && !more.contains(e.target)) more.open = false;
+      if (more.open && e.target instanceof Node && !more.contains(/** @type {Node} */ (e.target))) more.open = false;
     });
     more.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && more.open) {

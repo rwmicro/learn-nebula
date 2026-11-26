@@ -795,7 +795,7 @@ export function createTranslator(ctx) {
 
   // "Réessayer" under a passage: the same run, over what is still marked.
   articleBody.addEventListener("click", (e) => {
-    if (e.target.closest(".translate-retry") && shown) ctx.pick(shown);
+    if (/** @type {Element} */ (e.target).closest(".translate-retry") && shown) ctx.pick(shown);
   });
 
   return { translate, clear, state, showing: () => shown };

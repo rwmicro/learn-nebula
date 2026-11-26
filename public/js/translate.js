@@ -409,7 +409,7 @@ function loadDevice() {
   // Outside click / escape close the menu.
   document.addEventListener("click", (e) => {
     if (menu.hidden) return;
-    if (!wrap.contains(e.target)) closeMenu();
+    if (!wrap.contains(/** @type {Node} */ (e.target))) closeMenu();
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !menu.hidden) closeMenu(true);
@@ -445,7 +445,7 @@ function loadDevice() {
   });
 
   menu.addEventListener("click", (e) => {
-    const item = e.target.closest(".translate-menu-item");
+    const item = /** @type {Element} */ (e.target).closest(".translate-menu-item");
     if (!item) return;
     closeMenu();
     // The "Aa" panel of the reading bar would stay open over the text.

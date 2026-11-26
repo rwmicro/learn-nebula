@@ -268,7 +268,7 @@ export function wirePrix() {
     span.replaceWith(btn);
   }
   document.addEventListener("click", (e) => {
-    if (open && !open.pop.contains(e.target)) close();
+    if (open && !open.pop.contains(/** @type {Node} */ (e.target))) close();
   });
   document.addEventListener("keydown", (e) => e.key === "Escape" && close());
 }

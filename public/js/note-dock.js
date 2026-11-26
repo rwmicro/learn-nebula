@@ -182,7 +182,7 @@ import { scrollProgress } from "../../lib/reading-progress";
     };
     clearTimeout(tipWait);
     if (tipOn) place();
-    else tipWait = setTimeout(place, 350);
+    else tipWait = window.setTimeout(place, 350);
   }
   function hideTip(now) {
     clearTimeout(tipWait);
@@ -192,7 +192,7 @@ import { scrollProgress } from "../../lib/reading-progress";
       tipOn = false;
     };
     if (now === true) off();
-    else tipLeave = setTimeout(off, 300);
+    else tipLeave = window.setTimeout(off, 300);
   }
   const hover = matchMedia("(hover: hover)");
   for (const el of bar.querySelectorAll("button, a, summary")) {
