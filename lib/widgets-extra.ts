@@ -5,7 +5,7 @@
 // bundle, fetched by public/js/widgets-loader.js only when the page has one
 // of its widgets.
 
-export type WidgetPack = "data" | "sci" | "lang" | "cyber";
+export type WidgetPack = "data" | "sci" | "lang" | "cyber" | "calcul";
 
 export const EXTRA_WIDGETS: Record<string, { pack: WidgetPack; fallback: string }> = {
   // --- data: build-time data from OWID / Insee / Lichess / Wikidata
@@ -63,6 +63,13 @@ export const EXTRA_WIDGETS: Record<string, { pack: WidgetPack; fallback: string 
   "chemin-ad": { pack: "cyber", fallback: "Chemin d'attaque Active Directory, à la BloodHound (nécessite JavaScript)." },
   "kill-chain": { pack: "cyber", fallback: "Chaîne d'une attaque et défenses qui la bloquent ou la voient (nécessite JavaScript)." },
   cassage: { pack: "cyber", fallback: "Temps de cassage d'un mot de passe selon le hachage (nécessite JavaScript)." },
+  // --- calcul: arithmetic of public-key crypto and of LLMs (models in lib/calcul.ts)
+  "puissances-mod": { pack: "calcul", fallback: "Puissances modulaires sur une horloge, ordre et logarithme discret (nécessite JavaScript)." },
+  rsa: { pack: "calcul", fallback: "RSA pas à pas sur de petits nombres premiers (nécessite JavaScript)." },
+  "courbe-elliptique": { pack: "calcul", fallback: "Addition de points sur une courbe elliptique, réelle ou sur un corps fini (nécessite JavaScript)." },
+  anniversaire: { pack: "calcul", fallback: "Paradoxe des anniversaires et collisions de hachage (nécessite JavaScript)." },
+  "moe-routeur": { pack: "calcul", fallback: "Routage d'un mélange d'experts et équilibrage de la charge (nécessite JavaScript)." },
+  "memoire-llm": { pack: "calcul", fallback: "Mémoire d'un LLM : poids, cache KV et fine-tuning (nécessite JavaScript)." },
 };
 
 /** Bundle file a pack ships in (scripts/bundle-js.mjs builds them). */
@@ -71,4 +78,5 @@ export const PACK_BUNDLE: Record<WidgetPack, string> = {
   sci: "/js/widgets-sci.bundle.js",
   lang: "/js/widgets-lang.bundle.js",
   cyber: "/js/widgets-cyber.bundle.js",
+  calcul: "/js/widgets-calcul.bundle.js",
 };
