@@ -213,3 +213,6 @@ export function relTime(ms: number, locale: string): string {
     return d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
   return d.toLocaleDateString(locale, { day: "numeric", month: "short" });
 }
+
+/** GardenChat's translate function, passed to its pieces. */
+export type Tr = (k: string, vars?: Record<string, string | number>) => string;

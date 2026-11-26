@@ -77,7 +77,6 @@ import {
 import {
   chatTitle,
   deleteChat,
-  groupByNote,
   loadChats,
   saveChat,
   type ChatMessage,
@@ -96,7 +95,6 @@ import {
   downloadSecondsLeft,
   exportFileName,
   nextSection,
-  railGroups,
   searchChats,
   searchNotes,
   tickDownload,
@@ -117,9 +115,12 @@ import {
 } from "@/lib/client/chat-dock";
 // Type-only: erased at build, so lib/node/content.ts (node:fs) never reaches the bundle.
 import type { ScopeOption } from "@/lib/node/content";
-import { HoldButton } from "@/components/ui/HoldButton";
 import { ThinkingSprout } from "@/components/chat/ThinkingSprout";
 import { Ic } from "@/components/chat/chat-icons";
+import { ChatHistory } from "@/components/chat/ChatHistory";
+import { ChatRail } from "@/components/chat/ChatRail";
+import { ChatSettings } from "@/components/chat/ChatSettings";
+import { DownloadOffer, DownloadProgress } from "@/components/chat/ChatDownload";
 import {
   DL_LATER_KEY,
   LAYOUT_KEY,
@@ -130,9 +131,7 @@ import {
   WIDTH_KEY,
   avColor,
   emptyConv,
-  fmtDay,
   fmtGb,
-  fmtMb,
   katexMath,
   katexReady,
   loadKatex,
@@ -1506,77 +1505,22 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     progress && !loadingOnly
       ? downloadSecondsLeft(dlClock.current.clock, progress.loaded, progress.total, Date.now())
       : null;
-  // The download as a ring of 60 dots (chat.css .gc-ring), one lit for each
-  // sixtieth that has arrived, every fifth a little larger, like a dial.
-  const RING_DOTS = 60;
-  const lit = Math.round((pct / 100) * RING_DOTS);
   const progressCard = (
-    <div className="gc-prog">
-      <div
-        className="gc-ring"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={pct}
-        aria-label={tr(loadingOnly ? "chat.dlLoading" : "chat.dlProgress")}
-      >
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          {Array.from({ length: RING_DOTS }, (_, i) => {
-            const a = -Math.PI / 2 + (i / RING_DOTS) * Math.PI * 2;
-            return (
-              <circle
-                key={i}
-                className={i < lit ? "is-on" : undefined}
-                cx={(50 + 42 * Math.cos(a)).toFixed(2)}
-                cy={(50 + 42 * Math.sin(a)).toFixed(2)}
-                r={i % 5 === 0 ? 2.6 : 1.9}
-              />
-            );
-          })}
-        </svg>
-        <span className="gc-ring-pct">{pct} %</span>
-      </div>
-      <div className="gc-prog-tx">
-        <b>{tr(loadingOnly ? "chat.dlLoading" : "chat.dlProgress")}</b>
-        <dl className="gc-prog-st">
-          <div>
-            <dt>{tr("chat.dlGot")}</dt>
-            <dd>
-              {progress
-                ? tr("chat.dlBytes", {
-                    a: fmtMb(progress.loaded, locale),
-                    b: fmtMb(progress.total, locale),
-                  })
-                : "…"}
-            </dd>
-          </div>
-          {!loadingOnly && (
-            <div>
-              <dt>{tr("chat.dlLeft")}</dt>
-              <dd>
-                {secsLeft === null
-                  ? "…"
-                  : secsLeft >= 60
-                    ? tr("chat.dlLeftMin", { n: Math.ceil(secsLeft / 60) })
-                    : tr("chat.dlLeftSec", { n: Math.max(1, secsLeft) })}
-              </dd>
-            </div>
-          )}
-        </dl>
-        <button
-          type="button"
-          onClick={() => {
-            stop();
-            setLocalModelEnabled(false);
-            setDl("idle");
-            setWaitingModel(false);
-            setRoute("download");
-          }}
-        >
-          {tr("chat.dlCancel")}
-        </button>
-      </div>
-    </div>
+    <DownloadProgress
+      tr={tr}
+      locale={locale}
+      progress={progress}
+      pct={pct}
+      loadingOnly={loadingOnly}
+      secsLeft={secsLeft}
+      onCancel={() => {
+        stop();
+        setLocalModelEnabled(false);
+        setDl("idle");
+        setWaitingModel(false);
+        setRoute("download");
+      }}
+    />
   );
 
   const deviceBadge = (via?: ChatMessage["via"]) => (
@@ -2073,52 +2017,20 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   );
 
   const dlCard = (
-    <div className="gc-dl">
-      <div className="gc-dl-hd">
-        <span className="gc-dl-ic">{Ic.chip}</span>
-        <div>
-          <b>
-            {tr(word === "phone" ? "chat.dlTitlePhone" : "chat.dlTitleDevice")}
-          </b>
-          <p>{tr("chat.dlText")}</p>
-        </div>
-      </div>
-      <div className="gc-facts">
-        <div>
-          {Ic.dl}
-          <span>
-            <strong>{gb} Go</strong> {tr("chat.dlOnce")}
-          </span>
-        </div>
-        <div>
-          {Ic.wifi}
-          <span>{tr("chat.dlWifi")}</span>
-        </div>
-        <div>
-          {Ic.disk}
-          <span>{tr("chat.dlKeep")}</span>
-        </div>
-      </div>
-      <div className="gc-btns">
-        <button type="button" className="gc-btn pri" onClick={openConfirm}>
-          {tr("chat.dlGo", { n: gb })}
-        </button>
-        <button
-          type="button"
-          className="gc-btn lnk"
-          onClick={() => {
-            setDlLater(true);
-            try {
-              sessionStorage.setItem(DL_LATER_KEY, "1");
-            } catch {
-              /* ignore */
-            }
-          }}
-        >
-          {tr("chat.dlLater")}
-        </button>
-      </div>
-    </div>
+    <DownloadOffer
+      tr={tr}
+      phone={word === "phone"}
+      gb={gb}
+      onGo={openConfirm}
+      onLater={() => {
+        setDlLater(true);
+        try {
+          sessionStorage.setItem(DL_LATER_KEY, "1");
+        } catch {
+          /* ignore */
+        }
+      }}
+    />
   );
 
   const home = (
@@ -2541,82 +2453,32 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   );
 
   const railChats = searchChats(chats, railQuery);
+  const deleteChatOf = (c: Conversation, fromRail: boolean) => {
+    const s2 = store();
+    if (s2) setChats(deleteChat(s2, c.id));
+    if (fromRail && c.id === conv.id) newConversation();
+  };
+  const openSettings = () => {
+    setView("settings");
+    void refreshNano();
+  };
   const railView = (
-    <aside className="gc-rail" aria-label={tr("chat.historyTitle")}>
-      <button
-        type="button"
-        className="gc-rail-new"
-        title={`${tr("chat.new")} (${modKey} ⇧ O)`}
-        onClick={() => {
-          newConversation();
-          focusComposer();
-        }}
-      >
-        {Ic.edit}
-        <span>{tr("chat.new")}</span>
-      </button>
-      <label className="gc-rail-find">
-        {Ic.search}
-        <input
-          type="search"
-          value={railQuery}
-          placeholder={tr("chat.railFind")}
-          aria-label={tr("chat.railFind")}
-          onChange={(e) => setRailQuery(e.target.value)}
-        />
-      </label>
-      <div className="gc-rail-list">
-        {railGroups(railChats, page?.url ?? null).map((g) => (
-          <div key={g.key}>
-            <div className="gc-rail-h">{tr(`chat.rail_${g.key}`)}</div>
-            {g.chats.map((c) => (
-              <div
-                key={c.id}
-                className={c.id === conv.id ? "gc-rail-i on" : "gc-rail-i"}
-              >
-                <button type="button" onClick={() => resume(c)} title={c.title}>
-                  <i
-                    style={{
-                      background: avColor(c.note?.discipline ?? c.note?.title ?? ""),
-                    }}
-                  />
-                  <span>{c.title}</span>
-                </button>
-                <button
-                  type="button"
-                  className="gc-rail-del"
-                  aria-label={tr("chat.delete")}
-                  title={tr("chat.delete")}
-                  onClick={() => {
-                    const s2 = store();
-                    if (s2) setChats(deleteChat(s2, c.id));
-                    if (c.id === conv.id) newConversation();
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        ))}
-        {!railChats.length && (
-          <p className="gc-rail-empty">
-            {tr(railQuery.trim() ? "chat.railNone" : "chat.historyEmpty")}
-          </p>
-        )}
-      </div>
-      <button
-        type="button"
-        className="gc-rail-set"
-        onClick={() => {
-          setView("settings");
-          void refreshNano();
-        }}
-      >
-        {Ic.gear}
-        <span>{tr("chat.settings")}</span>
-      </button>
-    </aside>
+    <ChatRail
+      tr={tr}
+      modKey={modKey}
+      chats={railChats}
+      query={railQuery}
+      currentId={conv.id}
+      pageUrl={page?.url ?? null}
+      onQuery={setRailQuery}
+      onNew={() => {
+        newConversation();
+        focusComposer();
+      }}
+      onResume={resume}
+      onDelete={(c) => deleteChatOf(c, true)}
+      onSettings={openSettings}
+    />
   );
 
   const citeSrc = cite ? msgs[cite.i]?.sources?.[cite.n - 1] : undefined;
@@ -2653,212 +2515,52 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     </div>
   );
 
-  const groups = groupByNote(chats);
   const historyView = (
-    <>
-      <div className="gc-top">
-        <button
-          type="button"
-          className="gc-ib"
-          onClick={() => setView("chat")}
-          aria-label={tr("chat.back")}
-        >
-          {Ic.back}
-        </button>
-        <div className="gc-ttl" />
-        <button
-          type="button"
-          className="gc-ib"
-          onClick={() => {
-            setView("settings");
-            void refreshNano();
-          }}
-          aria-label={tr("chat.settings")}
-          title={tr("chat.settings")}
-        >
-          {Ic.gear}
-        </button>
-      </div>
-      <div className="gc-scroll">
-        <h2 className="gc-big">{tr("chat.historyTitle")}</h2>
-        {!groups.length && (
-          <p className="gc-empty">{tr("chat.historyEmpty")}</p>
-        )}
-        {groups.map((g) => (
-          <div className="gc-nb" key={g.note?.url ?? "all"}>
-            <div className="gc-nb-hd">
-              <span
-                className="gc-av"
-                style={{
-                  background: g.note
-                    ? avColor(g.note.discipline ?? g.note.title)
-                    : "#3f6b4a",
-                }}
-              >
-                {(g.note?.title ?? tr("chat.wholeGarden"))
-                  .slice(0, 1)
-                  .toUpperCase()}
-              </span>
-              <span className="gc-nb-t">
-                <b>{g.note?.title ?? tr("chat.wholeGarden")}</b>
-                <span>
-                  {g.note
-                    ? (g.note.discipline ?? "")
-                    : tr("chat.wholeGardenSub")}
-                </span>
-              </span>
-              {g.note && (
-                <a href={g.note.url} onClick={closeChat}>
-                  {tr("chat.openNote")}
-                </a>
-              )}
-            </div>
-            {g.chats.map((c) => (
-              <div className="gc-nb-q" key={c.id}>
-                <button type="button" onClick={() => resume(c)}>
-                  {c.title}
-                </button>
-                <time>{relTime(c.updated, locale)}</time>
-                <button
-                  type="button"
-                  className="gc-del"
-                  aria-label={tr("chat.delete")}
-                  onClick={() => {
-                    const s = store();
-                    if (s) setChats(deleteChat(s, c.id));
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </>
+    <ChatHistory
+      tr={tr}
+      locale={locale}
+      chats={chats}
+      onBack={() => setView("chat")}
+      onSettings={openSettings}
+      onOpenNote={closeChat}
+      onResume={resume}
+      onDelete={(c) => deleteChatOf(c, false)}
+    />
   );
 
   const downloadedOn = localModelDownloadedOn();
   const settingsView = (
-    <>
-      <div className="gc-top">
-        <button
-          type="button"
-          className="gc-ib"
-          onClick={() => setView("history")}
-          aria-label={tr("chat.back")}
-        >
-          {Ic.back}
-        </button>
-        <div className="gc-ttl" />
-        <span className="gc-ib" />
-      </div>
-      <div className="gc-scroll gc-set">
-        <h2 className="gc-big">{tr("chat.setTitle")}</h2>
-        {route === "nano" && (
-          <p className="gc-fine gc-fine-left">{tr("chat.setNano")}</p>
-        )}
-        {nano && (
-          <>
-            <div className="gc-grp">Gemini Nano (Chrome)</div>
-            <div className="gc-box">
-              <div className="gc-li">
-                <span className="gc-li-tx">
-                  {tr(`chat.nanoState.${nano}`)}
-                  {nano === "aside" && (
-                    <span>
-                      {nanoWhy(nanoSetAsideReason())}
-                    </span>
-                  )}
-                </span>
-                {nano === "aside" && (
-                  <button
-                    type="button"
-                    className="gc-btn sec"
-                    onClick={async () => {
-                      resetNano();
-                      await refreshNano();
-                      await refreshRoute();
-                    }}
-                  >
-                    {tr("chat.nanoRetry")}
-                  </button>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-        <div className="gc-grp">{tr("chat.setModel")}</div>
-        <div className="gc-box">
-          <div className="gc-li">
-            <span className="gc-li-tx">
-              {tr(word === "phone" ? "chat.setUsePhone" : "chat.setUseDevice")}
-              <span>
-                {!onDisk.main
-                  ? tr("chat.setNotDownloaded", { name: model.name })
-                  : downloadedOn
-                    ? tr("chat.setDownloaded", {
-                        date: fmtDay(downloadedOn, locale),
-                        name: model.name,
-                      })
-                    : tr("chat.setOnDisk", { name: model.name })}
-              </span>
-            </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={route === "local"}
-              className={route === "local" ? "gc-tg on" : "gc-tg"}
-              onClick={() => {
-                if (route === "local") {
-                  setLocalModelEnabled(false);
-                  setRoute("download");
-                  setDl("idle");
-                } else if (route === "download") openConfirm();
-              }}
-            />
-          </div>
-          <div className="gc-li">
-            <span className="gc-li-tx">
-              {tr("chat.setSpace")}
-              {onDisk.corrector && (
-                <span>{tr("chat.setSpaceCorrector", { n: CORRECTOR.gb.toLocaleString(locale) })}</span>
-              )}
-            </span>
-            <em>
-              {tr("chat.setGb", {
-                n: ((onDisk.main ? model.gb : 0) + (onDisk.corrector ? CORRECTOR.gb : 0)).toLocaleString(locale),
-              })}
-            </em>
-          </div>
-          {onDisk.main && (
-            <HoldButton
-              className="gc-li gc-red"
-              hint={tr("hold.hint")}
-              tooShort={tr("hold.tooShort")}
-              onConfirm={async () => {
-                await deleteLocalModel();
-                void refreshOnDisk();
-                setRoute("download");
-                setDl("idle");
-                showToast(tr("chat.deleted"));
-              }}
-            >
-              {tr("chat.setDelete", { n: gb })}
-            </HoldButton>
-          )}
-        </div>
-        <div className="gc-grp">{tr("chat.setFail")}</div>
-        <div className="gc-box">
-          <div className="gc-li">
-            <span className="gc-li-tx">
-              {tr("chat.setFailA")}
-              <span>{tr("chat.setFailB")}</span>
-            </span>
-          </div>
-        </div>
-      </div>
-    </>
+    <ChatSettings
+      tr={tr}
+      locale={locale}
+      route={route}
+      nano={nano}
+      nanoWhy={nanoWhy}
+      phone={word === "phone"}
+      model={model}
+      onDisk={onDisk}
+      downloadedOn={downloadedOn}
+      onBack={() => setView("history")}
+      onRetryNano={async () => {
+        resetNano();
+        await refreshNano();
+        await refreshRoute();
+      }}
+      onToggleLocal={() => {
+        if (route === "local") {
+          setLocalModelEnabled(false);
+          setRoute("download");
+          setDl("idle");
+        } else if (route === "download") openConfirm();
+      }}
+      onDelete={async () => {
+        await deleteLocalModel();
+        void refreshOnDisk();
+        setRoute("download");
+        setDl("idle");
+        showToast(tr("chat.deleted"));
+      }}
+    />
   );
 
   const freeBytes = storage?.free ?? null;
