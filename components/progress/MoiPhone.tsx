@@ -1,7 +1,7 @@
 "use client";
 
 import { SCENES } from "@/lib/deco-art";
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { t } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { calendarDays, currentRun, loadActivity, localDay } from "@/lib/personal";
@@ -10,21 +10,23 @@ import { authConfig, readHint } from "@/lib/account-client";
 import { LANG_OPTIONS } from "@/components/layout/LangSwitcher";
 import { themePref, THEMES, type ThemeChoice } from "@/components/layout/AppSettings";
 import { Avatar } from "@/components/account/Avatar";
-import type { Look } from "@/lib/avatar";
-import { Milestones } from "@/components/progress/Milestones";
-import { longestRun } from "@/lib/milestones";
+import { defaultLook, type Look } from "@/lib/avatar";
+import { gatherMilestones } from "@/components/progress/Milestones";
+import { GardenBed, Growing, MilestoneBadges, type PotDay } from "@/components/progress/MoiGarden";
+import { byProximity, longestRun, type MilestoneRow } from "@/lib/milestones";
+import { familyOfPrefix } from "@/lib/path-family";
+import { useReviewDue } from "@/components/account/AccountChip";
 import { ago } from "@/components/account/shared";
 
-/** The reader closed the "Garder ma progression" card (this browser). */
-const KEEP_HIDDEN_KEY = "gkKeepHidden";
-
-// "Moi" on a phone (app.css shows it below 640px, and hides there the
-// desktop page's title, summary and settings it stands in for): who keeps
-// this garden (a guest card offering an account, or the account), this week
-// (its days, the run, three numbers, what to read next), twelve weeks of
-// activity as a calendar, the milestones closest first, then the settings
-// rows whose native picker opens on tap. Read from this browser, after
-// hydration.
+// "Moi" on a phone (phone/moi.css shows it below 640px, and hides there the
+// desktop page's title, summary and settings it stands in for). One card
+// holds the garden: this week as seven pots with the run above them, the
+// reader's gardener beside them (their look once signed in), who keeps the
+// garden (guest, or the account and its last sync) and four totals. Then a
+// sentence on the week, what to do today (the note to water the day's pot
+// with, the cards due), the milestones as badges, twelve weeks of activity
+// as a bed of flowers, the notes read per family, and the settings rows
+// whose native picker opens on tap. Read from this browser, after hydration.
 
 type Theme = ThemeChoice;
 type Days = Record<string, { r: number; c: number }>;
@@ -50,15 +52,17 @@ export function MoiPhone() {
   const [days, setDays] = useState<Days>({});
   const [week, setWeek] = useState({ read: 0, started: 0 });
   const [open, setOpen] = useState(0);
+  const [readSlugs, setReadSlugs] = useState<string[]>([]);
+  const [jalons, setJalons] = useState<MilestoneRow[] | null>(null);
   const [next, setNext] = useState<ReturnType<typeof nowPlaying>>(null);
   const [account, setAccount] = useState<"off" | "out" | "in">("off");
   const [look, setLook] = useState<Look | undefined>(undefined);
   const [hint, setHint] = useState<{ coins?: number; sync?: number }>({});
-  const [keepHidden, setKeepHidden] = useState(true);
   const [theme, setTheme] = useState<Theme>("auto");
   // Nothing recorded in this browser yet: one invitation stands in for the
-  // four zero tiles and the empty calendar.
+  // week's sentence, the totals and the empty flowers.
   const [fresh, setFresh] = useState(false);
+  const due = useReviewDue();
 
   useEffect(() => {
     const load = () => {
@@ -77,8 +81,10 @@ export function MoiPhone() {
         }
         setWeek({ read, started });
         setOpen(Object.values(store).filter((e) => e.r == null).length);
+        setReadSlugs(Object.keys(store).filter((s) => store[s].r != null));
         setNext(nowPlaying(parseNow(localStorage.getItem(NOW_KEY)), store));
         setFresh(Object.keys(store).length === 0 && Object.keys(loadActivity()).length === 0);
+        setJalons(gatherMilestones());
       } catch {
         /* storage blocked: zeros */
       }
@@ -92,11 +98,6 @@ export function MoiPhone() {
       setHint({ coins: h.coins, sync: h.sync });
       setAccount((a) => (a === "off" ? a : h.in ? "in" : "out"));
     };
-    try {
-      setKeepHidden(localStorage.getItem(KEEP_HIDDEN_KEY) === "1");
-    } catch {
-      setKeepHidden(false);
-    }
     void authConfig().then((c) => {
       if (!c.enabled) return;
       const h = readHint();
@@ -128,19 +129,25 @@ export function MoiPhone() {
   const today = localDay(anchor);
   const since = weekStart(anchor);
   const active = (d: string) => !!days[d] && (days[d].r > 0 || days[d].c > 0);
-  const cards = Object.entries(days)
-    .filter(([d]) => d >= since)
-    .reduce((n, [, v]) => n + v.c, 0);
 
-  // This week, Monday first: active days filled, today ringed.
-  const weekDays = useMemo(() => {
+  // This week, Monday first, as pots: a day with a note read grows a tulip,
+  // a day of cards only a sprout; today waits for its water.
+  const pots = useMemo<PotDay[]>(() => {
     const start = new Date(`${since}T12:00:00`);
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date(start);
       d.setDate(start.getDate() + i);
-      return { day: localDay(d), letter: d.toLocaleDateString(locale, { weekday: "narrow" }) };
+      const day = localDay(d);
+      return {
+        day,
+        letter: d.toLocaleDateString(locale, { weekday: "narrow" }),
+        read: (days[day]?.r ?? 0) > 0,
+        cards: (days[day]?.c ?? 0) > 0,
+        today: day === today,
+        past: day < today,
+      };
     });
-  }, [locale, since]);
+  }, [locale, since, days, today]);
 
   // Twelve weeks as columns, Monday to Sunday down each; the current week
   // runs to today. A month's name heads the first week that starts in it.
@@ -159,26 +166,53 @@ export function MoiPhone() {
         lastMonth = d.getMonth();
       }
       const n = (days[day]?.r ?? 0) * 3 + (days[day]?.c ?? 0);
-      cells.push({ day, level: n === 0 ? 0 : n < 5 ? 1 : n < 20 ? 2 : 3, future: day > today });
+      cells.push({
+        day,
+        level: n === 0 ? 0 : n < 5 ? 1 : n < 20 ? 2 : 3,
+        future: day > today,
+      });
     }
-    // Rows are weekdays: cell (week w, day d) is cells[w * 7 + d].
-    const grid = Array.from({ length: 7 }, (_, d) => Array.from({ length: 12 }, (_, w) => cells[w * 7 + d]));
-    return { months, grid, first: cells[0].day };
+    return { months, cells, first: cells[0].day };
   }, [days, locale, today, since, now]);
   const activeDays = Object.keys(days).filter((d) => d >= heat.first && active(d)).length;
+  const allActive = Object.keys(days).filter(active).length;
+  const cardsAll = Object.values(days).reduce((n, v) => n + v.c, 0);
+  const jalonsReached = jalons?.reduce((n, r) => n + r.reached.length, 0) ?? 0;
+  const jalonsTotal = jalons?.reduce((n, r) => n + r.reached.length + (r.next === null ? 0 : 1), 0) ?? 0;
+
+  // Notes read per colour family (lib/path-family.ts), the largest first.
+  const growing = useMemo(() => {
+    const by = new Map<string, number>();
+    for (const s of readSlugs) {
+      const f = familyOfPrefix(s);
+      if (f) by.set(f, (by.get(f) ?? 0) + 1);
+    }
+    return [...by]
+      .map(([family, n]) => ({ family, n }))
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 4);
+  }, [readSlugs]);
 
   const langLabel = LANG_OPTIONS.find((o) => o.code === locale)?.label ?? locale;
-  // The line under the week's numbers: what to do today for the run, and
-  // the note to pick up (or the paths when there is none).
-  const nextLine = active(today) ? "moi.nextMore" : run > 0 ? "moi.nextKeep" : "moi.nextRestart";
-  const hide = () => {
-    setKeepHidden(true);
-    try {
-      localStorage.setItem(KEEP_HIDDEN_KEY, "1");
-    } catch {
-      /* hidden for this visit only */
-    }
+  const watered = active(today);
+  // "Cette semaine, 1 note lue jusqu'au bout et 4 commencées." with the
+  // counts in bold, then where today's pot stands.
+  const rich = (s: string, parts: Record<string, ReactNode>) => s.split(/\{(\w+)\}/).map((x, i) => (i % 2 ? <b key={i}>{parts[x]}</b> : x));
+  const weekLine =
+    week.read || week.started
+      ? rich(tr("moi.say"), {
+          read: tr(week.read === 1 ? "moi.sayRead1" : "moi.sayReadN", {
+            n: week.read,
+          }),
+          started: tr(week.started === 1 ? "moi.sayStarted1" : "moi.sayStartedN", { n: week.started }),
+        })
+      : tr("moi.sayNone");
+  const potLine = watered ? "moi.potDone" : run > 0 ? "moi.potWait" : "moi.potFirst";
+  const gardenerLook = {
+    ...(account === "in" && look ? look : defaultLook()),
+    background: "none",
   };
+  const dueMin = due ? Math.max(1, Math.round(due.n / 3)) : 0;
 
   return (
     <div className="moi" data-pagefind-ignore>
@@ -187,74 +221,105 @@ export function MoiPhone() {
           <p className="moi-kick">{tr("moi.kicker")}</p>
           <h1>{tr("moi.title")}</h1>
         </div>
-        <a className="moi-gear" href="#moi-reglages" aria-label={tr("settings.title")}>
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="3" />
-            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
-          </svg>
-        </a>
+        <div className="moi-top-r">
+          {account === "in" && hint.coins != null && (
+            <a className="moi-coins" href="/compte/#pieces" aria-label={`${hint.coins} ${tr("coins.unit")}`}>
+              <i aria-hidden="true" />
+              {hint.coins}
+            </a>
+          )}
+          <a className="moi-gear" href="#moi-reglages" aria-label={tr("settings.title")}>
+            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
+            </svg>
+          </a>
+        </div>
       </header>
 
-      {account === "out" && !keepHidden && (
-        <div className="moi-card moi-keep">
-          <div className="moi-who">
-            <span className="moi-keep-av" aria-hidden="true">
-              <Avatar size={60} still />
-              <span className="moi-keep-badge">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="5" y="11" width="14" height="10" rx="2" />
-                  <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+      <section className="moi-card moi-plot">
+        <div className="moi-bed">
+          <GardenBed
+            days={pots}
+            label={tr("moi.bedAria", {
+              n: pots.filter((p) => p.read || p.cards).length,
+            })}
+          />
+          {best > 0 && (
+            <a className="moi-run" href="/defis/">
+              <b>
+                {run}
+                <svg className="moi-flame" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.7 2-4.5 0 2 1 3 2 3 0-4 1-6.5 1-8.5z" />
+                </svg>
+              </b>
+              <small>
+                {tr("dash.streak")}
+                {best > run && <> · {tr("moi.record", { n: best })}</>}
+              </small>
+            </a>
+          )}
+          {account === "in" ? (
+            <a className="moi-gardener" href="/compte/#jardinier" aria-label={tr("moi.wardrobe")}>
+              <Avatar look={gardenerLook} size={96} />
+              <span className="moi-gardener-edit" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M4 20h4L19 9l-4-4L4 16z" />
                 </svg>
               </span>
-            </span>
-            <span className="moi-keep-tx">
-              <b>{tr("moi.guestTitle")}</b>
-              <small>{open > 0 ? tr("moi.guestText", { n: open }) : tr("moi.guestTextEmpty")}</small>
-            </span>
-          </div>
-          <div className="moi-keep-row">
-            <a href="/compte/" className="moi-keep-go">
-              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="5" width="18" height="14" rx="2" />
-                <path d="m3 7 9 6 9-6" />
-              </svg>
-              {tr("moi.keepTitle")}
             </a>
-            <button type="button" className="moi-keep-later" onClick={hide}>
-              {tr("moi.later")}
-            </button>
-          </div>
-          <p className="moi-keep-note">
-            <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 3 4 6v6c0 4.5 3.4 8 8 9 4.6-1 8-4.5 8-9V6z" />
-            </svg>
-            {tr("moi.keepText")}
-          </p>
-        </div>
-      )}
-      {account === "in" && (
-        <a className="moi-card moi-keep moi-keep--in" href="/compte/">
-          <span className="moi-keep-av" aria-hidden="true">
-            <Avatar look={look} size={60} still />
-            <span className="moi-keep-badge moi-keep-badge--ok">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-                <path d="m5 12.5 4.5 4.5L19 7.5" />
-              </svg>
+          ) : (
+            <span className="moi-gardener">
+              <Avatar look={gardenerLook} size={96} />
             </span>
+          )}
+        </div>
+        <div className="moi-who">
+          <span className="moi-who-tx">
+            <b>{tr(account === "out" ? "moi.guestTitle" : "moi.gardener")}</b>
+            <small>
+              {account === "in" && <i className="moi-ok" aria-hidden="true" />}
+              {account === "in"
+                ? hint.sync
+                  ? `${tr("compte.synced")} · ${ago(hint.sync, locale)}`
+                  : tr("moi.accountText")
+                : open > 0
+                  ? tr("moi.guestText", { n: open })
+                  : tr("moi.guestTextEmpty")}
+            </small>
           </span>
-          <span className="moi-keep-tx">
-            <b>{tr("moi.accountTitle")}</b>
-            <small>{hint.sync ? `${tr("compte.synced")} · ${ago(hint.sync, locale)}` : tr("moi.accountText")}</small>
-            {hint.coins != null && (
-              <span className="moi-coins">
-                <i aria-hidden="true" />
-                {hint.coins} {tr("coins.unit")}
-              </span>
-            )}
-          </span>
-          <Chevron />
-        </a>
-      )}
+          {account === "in" && (
+            <a className="moi-who-go" href="/compte/#jardinier">
+              {tr("moi.wardrobe")}
+            </a>
+          )}
+          {account === "out" && (
+            <a className="moi-who-go moi-who-go--in" href="/compte/">
+              {tr("moi.signIn")}
+            </a>
+          )}
+        </div>
+        {!fresh && (
+          <div className="moi-stats">
+            <div>
+              <b>{readSlugs.length}</b>
+              <small>{tr("progression.statRead")}</small>
+            </div>
+            <a href="/cartes/">
+              <b>{cardsAll}</b>
+              <small>{tr("moi.cards")}</small>
+            </a>
+            <div>
+              <b>{allActive}</b>
+              <small>{tr("moi.statDays")}</small>
+            </div>
+            <div>
+              <b>{jalonsReached}</b>
+              <small>{tr("moi.statJalons")}</small>
+            </div>
+          </div>
+        )}
+      </section>
 
       {fresh ? (
         <div className="moi-fresh">
@@ -268,97 +333,78 @@ export function MoiPhone() {
         </div>
       ) : (
         <>
-          <div className="moi-row-h">
-            <h2 className="moi-h">{tr("moi.week")}</h2>
-            <a className="moi-row-link" href="/defis/">
-              {tr("defis.title")}
-            </a>
-          </div>
-          <div className="moi-card moi-week">
-            <div className="moi-week-top">
-              <ol className="moi-days">
-                {weekDays.map((d) => (
-                  <li key={d.day} className={[active(d.day) && "on", d.day === today && "now"].filter(Boolean).join(" ") || undefined}>
-                    <i aria-hidden="true" />
-                    {d.letter}
-                  </li>
-                ))}
-              </ol>
-              <a className="moi-run" href="/defis/">
-                <b>
-                  <svg className="moi-flame" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.7 2-4.5 0 2 1 3 2 3 0-4 1-6.5 1-8.5z" />
-                  </svg>
-                  {run}
-                </b>
-                <small>
-                  {tr("dash.streak")}
-                  {best > run && <span>{tr("moi.record", { n: best })}</span>}
-                </small>
-              </a>
-            </div>
-            <div className="moi-stats">
-              <div>
-                <b className={week.read ? undefined : "zero"}>{week.read}</b>
-                <small>{tr("progression.statRead")}</small>
-              </div>
-              <div>
-                <b className={week.started ? undefined : "zero"}>{week.started}</b>
-                <small>{tr("moi.started")}</small>
-              </div>
-              <a href="/cartes/">
-                <b className={cards ? undefined : "zero"}>{cards}</b>
-                <small>{tr("moi.cards")}</small>
-              </a>
-            </div>
-            <a className="moi-next" href={next ? `/posts/${next.note.s}/` : "/parcours/"}>
-              <span className="moi-next-ico" aria-hidden="true">
+          <p className="moi-say">
+            {weekLine} {tr(potLine)}
+          </p>
+          <a className="moi-do" href={next ? `/posts/${next.note.s}/` : "/parcours/"}>
+            <span className="moi-do-ico" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 14h11l3-4h2M7 14v5h7v-5M15 10V6" />
+              </svg>
+            </span>
+            <span className="moi-do-tx">
+              <b>{tr(watered ? "moi.nextMore" : "moi.water")}</b>
+              <small>{next ? `${next.note.title} · ${tr("moi.minutes", { n: next.left })}` : tr("progression.welcomePaths")}</small>
+            </span>
+            <span className="moi-do-btn">{tr(next ? "moi.read" : "moi.choose")}</span>
+          </a>
+          {due && (
+            <a className="moi-do moi-do--due" href={due.href}>
+              <span className="moi-do-ico" aria-hidden="true">
                 <svg viewBox="0 0 24 24">
-                  <path d="M12 2s5 4.5 5 10a5 5 0 0 1-10 0c0-2.2 1.2-3.7 2-4.5 0 2 1 3 2 3 0-4 1-6.5 1-8.5z" />
+                  <rect x="4" y="8" width="11" height="12" rx="2" />
+                  <path d="M9 8V6a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-3" />
                 </svg>
               </span>
-              <span className="moi-next-tx">
-                <b>{tr(nextLine)}</b>
-                <small>{next ? `« ${next.note.title} » · ${tr("moi.minutes", { n: next.left })}` : tr("progression.welcomePaths")}</small>
+              <span className="moi-do-tx">
+                <b>{tr(due.n === 1 ? "moi.due1" : "moi.dueN", { n: due.n })}</b>
+                <small>{tr("moi.dueMin", { n: dueMin })}</small>
               </span>
-              <Chevron />
+              <span className="moi-do-btn">{tr("moi.review")}</span>
             </a>
-          </div>
+          )}
+
+          {jalons && (
+            <section aria-labelledby="moi-jalons">
+              <div className="moi-row-h">
+                <h2 className="moi-h" id="moi-jalons">
+                  {tr("jalons.title")}
+                </h2>
+                <span>{tr("jalons.count", { n: jalonsReached, total: jalonsTotal })}</span>
+              </div>
+              <MilestoneBadges rows={byProximity(jalons)} tr={tr} />
+            </section>
+          )}
 
           <div className="moi-row-h">
-            <h2 className="moi-h">{tr("moi.activity")}</h2>
+            <h2 className="moi-h">{tr("moi.seasons")}</h2>
             <span>{tr("moi.weeks", { n: 12 })}</span>
           </div>
           <div className="moi-card moi-cal">
-            <div className="moi-heat" role="img" aria-label={tr("moi.activityAria", { n: activeDays })}>
-              <span />
+            <div className="moi-heat-ms" aria-hidden="true">
               {heat.months.map((m, w) => (
-                <span key={`m${w}`} className="moi-heat-m">
-                  {m}
-                </span>
-              ))}
-              {heat.grid.map((row, d) => (
-                <Fragment key={d}>
-                  <span className="moi-heat-d">{d % 2 === 0 && d < 6 ? weekDays[d].letter : ""}</span>
-                  {row.map((c) => (
-                    <i key={c.day} className={[c.future ? "f" : c.level ? `l${c.level}` : "", c.day === today ? "t" : ""].filter(Boolean).join(" ") || undefined} />
-                  ))}
-                </Fragment>
+                <span key={`m${w}`}>{m}</span>
               ))}
             </div>
-            <div className="moi-cal-foot">
-              <span>{tr("moi.activeDays", { n: activeDays })}</span>
-              <span className="moi-legend" aria-hidden="true">
-                {tr("moi.less")}
-                <i />
-                <i className="l1" />
-                <i className="l2" />
-                <i className="l3" />
-                {tr("moi.more")}
-              </span>
+            <div className="moi-heat" role="img" aria-label={tr("moi.activityAria", { n: activeDays })}>
+              {heat.cells.map((c) => (
+                <i key={c.day} className={[c.future ? "f" : c.level ? `l${c.level}` : "", c.day === today ? "t" : ""].filter(Boolean).join(" ") || undefined} />
+              ))}
             </div>
+            <p className="moi-cal-foot">{tr("moi.bloomDays", { n: activeDays })}</p>
           </div>
-          <Milestones variant="moi" />
+
+          {growing.length > 0 && (
+            <>
+              <div className="moi-row-h">
+                <h2 className="moi-h">{tr("moi.growing")}</h2>
+                <a className="moi-row-link" href="/disciplines/">
+                  {tr("moi.disciplines")}
+                </a>
+              </div>
+              <Growing rows={growing} tr={tr} />
+            </>
+          )}
         </>
       )}
 
@@ -366,9 +412,7 @@ export function MoiPhone() {
         {tr("settings.title")}
       </h2>
       <div className="moi-card moi-list">
-        {/* "Plus tard" folds the invitation away for good: signing in stays
-            one row away here. */}
-        {account === "out" && keepHidden && (
+        {account !== "off" && (
           <a className="moi-set moi-set--btn" href="/compte/">
             <i className="moi-set-ico" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -377,8 +421,8 @@ export function MoiPhone() {
               </svg>
             </i>
             <span>
-              {tr("moi.signIn")}
-              <small>{tr("moi.signInSub")}</small>
+              {tr(account === "in" ? "moi.accountTitle" : "moi.signIn")}
+              <small>{tr(account === "in" ? "moi.accountText" : "moi.signInSub")}</small>
             </span>
             <Chevron />
           </a>
