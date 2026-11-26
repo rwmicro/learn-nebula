@@ -1,5 +1,5 @@
 // Retrieval-practice cards in the note body (`> [!quiz] Question`, rendered by
-// lib/node/markdown.ts as .callout-quiz with a hidden .quiz-answer).
+// lib/node/markdown/callouts.ts as .callout-quiz with a hidden .quiz-answer).
 // - "Afficher la réponse" toggles the answer (aria-expanded on the button);
 // - once revealed, the reader grades themselves ("Je savais" / "Pas encore")
 //   and can add the question to their spaced-repetition reviews, stored with

@@ -1,6 +1,6 @@
 // Brings the isometric figures (```iso:<name>``` blocks) to life.
 //
-// rehypeIsoFigures (lib/node/markdown.ts) already put each figure's static plate in
+// rehypeIsoFigures (lib/node/markdown/widgets.ts) already put each figure's static plate in
 // the page, inside <div class="iso iso-mount" data-iso="<name>">, so the
 // drawing is there from the first paint. This script does two things, and only
 // on a page that has one:

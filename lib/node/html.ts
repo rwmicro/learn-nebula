@@ -62,7 +62,7 @@ export function themeToggleHtml(): string {
 /**
  * Dropcap setup for note pages: the ::first-letter rule plus, when enabled and
  * the first letter is A–Z, the matching Goudy font. The letter goes to the
- * paragraph lib/node/markdown.ts (rehypeOutline) marked `.dropcap` — the one the
+ * paragraph lib/node/markdown/outline.ts (rehypeOutline) marked `.dropcap` — the one the
  * note opens on — and to nothing when the note opens on a list or a lead-in.
  * `html` is the rendered body, read for that paragraph's first letter.
  */
@@ -549,7 +549,7 @@ export function buildToc(
   // opening tag — so a heading that ever carries a class (e.g. raw HTML in a
   // note) isn't silently dropped from the TOC. Headings without an id can't be
   // anchor targets and are skipped.
-  // Lead-ins under a section (rehypeOutline, lib/node/markdown.ts) come in as
+  // Lead-ins under a section (rehypeOutline, lib/node/markdown/outline.ts) come in as
   // `sub` entries: the left rail lists them under the section being read.
   const re = /<h([23])\b([^>]*)>([\s\S]*?)<\/h\1>|<p class="lead-in" (id="[^"]+")>([\s\S]*?)<\/p>/g;
   const items: { level: string; id: string; text: string }[] = [];

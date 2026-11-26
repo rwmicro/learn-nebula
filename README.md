@@ -103,7 +103,7 @@ comments survive an image update.
 - **Pages:** `app/` (home, `posts/[...slug]`, graph, cartes). Note `<main>` is an
   HTML string so content `<p>` stay direct children of `<main>` (dropcap rule).
 - **Build libs:** `lib/node/content.ts` (loading, tree, slugs, wikilinks),
-  `lib/node/markdown.ts` (unified pipeline), `lib/node/graph-data.ts`, `lib/node/seo.ts`.
+  `lib/node/markdown/` (unified pipeline), `lib/node/graph-data.ts`, `lib/node/seo.ts`.
 - **Backend:** `server/` — `routes/ask.ts` (RAG), `routes/comments.ts` (SQLite +
   Turnstile), `routes/translate.ts`.
 - **Client enhancers:** vanilla scripts in `public/js/`, bundled by

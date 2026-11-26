@@ -5,7 +5,7 @@
 // Card HTML comes from the .apkg. That's first-party for your own decks, but
 // decks are commonly shared/downloaded, and the study page injects it with
 // dangerouslySetInnerHTML, so anything executable has to go here. Mirrors
-// lib/node/markdown.ts rehypeStripUnsafe.
+// lib/node/markdown/hast.ts rehypeStripUnsafe.
 import { fromHtml } from "hast-util-from-html";
 import rehypeStringify from "rehype-stringify";
 import { unified } from "unified";

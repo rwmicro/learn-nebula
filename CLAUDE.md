@@ -101,7 +101,7 @@ image tag in `ci.yml` together with `@playwright/test`.
 - **Pages**: `app/page.tsx` (home), `app/posts/[...slug]/page.tsx` (notes via
   `components/note/SinglePage.tsx`), `app/graph/`, `app/cartes/` (Anki). Note `<main>`
   is built as an HTML string (`dangerouslySetInnerHTML`). The dropcap goes to
-  the `.dropcap` paragraph `rehypeOutline` (`lib/node/markdown.ts`) marks — the one
+  the `.dropcap` paragraph `rehypeOutline` (`lib/node/markdown/outline.ts`) marks — the one
   the note opens on, never a bold-only `.lead-in` or past a list; the same
   plugin lifts `###`-only notes to `##` and numbers sections (`.sec-n`). From
   640px the reading tools are a liquid-glass bar at the bottom
@@ -112,8 +112,11 @@ image tag in `ci.yml` together with `@playwright/test`.
   lead-ins, progress) and `noteSideHtml` on its right (path card, cited
   notes, backlinks, questions), unless "élargir" or focus is on.
 - **Content/build libs**: `lib/node/content.ts` (loading, tree, slugs, wikilinks,
-  backlinks, `getPdfAssets`, `getHomeTree`, `IGNORE_DIRS`), `lib/node/markdown.ts`
-  (unified pipeline: callouts, manim, YouTube facade, vault assets, sidenotes),
+  backlinks, `getPdfAssets`, `getHomeTree`, `IGNORE_DIRS`), `lib/node/markdown/`
+  (unified pipeline in `index.ts`, one file per plugin family: `math`,
+  `hast` (shared helpers, unsafe-URL strip), `callouts` (quiz, predict),
+  `outline`, `media` (vault assets, figures, YouTube facade, manim),
+  `widgets` (iso figures, prix), `sidenotes`, `links` (wikilinks)),
   `lib/node/graph-data.ts` (`buildGraph`; `theme` = level-2 discipline), `lib/node/html.ts`
   (note HTML fragments), `lib/site.ts` (config + CSP), `lib/node/seo.ts`/`lib/jsonld.ts`.
 - **Search** is the command palette, `public/js/palette.js` (⌘K / Ctrl K, "/",

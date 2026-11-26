@@ -46,7 +46,7 @@ export function vaultUrl(p) {
 
 /**
  * Pronunciation button with the same markup as the note's `.pron` players
- * (lib/node/markdown.ts pronPlayer), so /js/pronounce.js — loaded site-wide and
+ * (lib/node/markdown/media.ts pronPlayer), so /js/pronounce.js — loaded site-wide and
  * delegated on document — plays it with no extra code.
  */
 export function pronButton(url, label) {

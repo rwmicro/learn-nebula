@@ -13,7 +13,7 @@
  * nouns, and matching them across notes would be mostly noise.
  *
  * Pure and fs-free (lib/node/content.ts feeds it the notes), so it is unit-tested
- * in lib/glossary.test.ts and safe to import from lib/node/markdown.ts.
+ * in lib/glossary.test.ts and safe to import from lib/node/markdown/.
  */
 import type { Root, Element, ElementContent, Text } from "hast";
 

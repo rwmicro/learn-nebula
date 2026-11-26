@@ -1,6 +1,6 @@
 // Build-time data for the data-pack widgets (lib/widgets-extra.ts).
 //
-// rehypeWidgets (lib/node/markdown.ts) hands each data widget's `key: value` props
+// rehypeWidgets (lib/node/markdown/widgets.ts) hands each data widget's `key: value` props
 // here; what comes back is what the browser receives in data-props, plus an
 // optional no-JS fallback (a table of the same numbers). The reader's browser
 // never calls a third party: OWID and Wikidata are read during the build and
