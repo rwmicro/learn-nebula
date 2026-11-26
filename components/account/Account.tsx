@@ -62,6 +62,7 @@ export function Account() {
   const [busy, setBusy] = useState(false);
   const [expired, setExpired] = useState(false);
   const [ledgerAll, setLedgerAll] = useState(false);
+  const [freezeHelp, setFreezeHelp] = useState(false);
   useEffect(() => {
     if (new URLSearchParams(location.search).get("login") === "expired") setExpired(true);
     // Opening the e-mail link while already on this page only changes the
@@ -252,31 +253,59 @@ export function Account() {
             </div>
             <div className="acct-stat">
               <strong>{freezes}</strong>
-              <span>{plural(tr, locale, "streak.freezes", freezes)}</span>
+              <span className="acct-stat-k">
+                {plural(tr, locale, "streak.freezes", freezes)}
+                <button
+                  type="button"
+                  className="acct-info"
+                  aria-expanded={freezeHelp}
+                  aria-controls="acct-freeze-help"
+                  aria-label={tr("streak.freezeWhat")}
+                  title={tr("streak.freezeWhat")}
+                  onClick={() => setFreezeHelp((v) => !v)}
+                >
+                  ?
+                </button>
+              </span>
             </div>
           </div>
-          {next && (
-            <div className="acct-next">
-              <p>{plural(tr, locale, "streak.next", next.at - run, { m: next.at, bonus: next.bonus })}</p>
-              <div
-                className="acct-next-bar"
-                role="progressbar"
-                aria-valuemin={next.from}
-                aria-valuemax={next.at}
-                aria-valuenow={run}
-                aria-label={tr("streak.nextAria", { m: next.at })}
-              >
-                <span style={{ width: `${Math.round(((run - next.from) / (next.at - next.from)) * 100)}%` }} />
+          {freezeHelp && (
+            <p id="acct-freeze-help" className="acct-help">
+              {tr("streak.freezeHelp", { max: freeze?.max ?? MAX_FREEZES })}
+            </p>
+          )}
+          {/* The band already says how many days in a row: this says only
+              what the next bonus is. With no run, an invitation instead of
+              an empty bar. */}
+          {run === 0 ? (
+            <p className="acct-next acct-next--start">{tr("streak.start")}</p>
+          ) : (
+            next && (
+              <div className="acct-next">
+                <p>
+                  <span>{tr("streak.goal", { m: next.at, bonus: next.bonus })}</span>
+                  <span className="acct-next-n">{tr("jalons.count", { n: run, total: next.at })}</span>
+                </p>
+                <div
+                  className="acct-next-bar"
+                  role="progressbar"
+                  aria-valuemin={next.from}
+                  aria-valuemax={next.at}
+                  aria-valuenow={run}
+                  aria-label={tr("streak.nextAria", { m: next.at })}
+                >
+                  <span style={{ width: `${Math.round(((run - next.from) / (next.at - next.from)) * 100)}%` }} />
+                </div>
               </div>
-            </div>
+            )
           )}
           <p className="acct-private">{tr("account.private")}</p>
         </div>
       </section>
 
-      <Milestones className="acct-card acct-card--wide" />
+      <Milestones className="acct-card acct-card--jalons" />
 
-      <section className="acct-card acct-card--wide" aria-labelledby="acct-wardrobe">
+      <section className="acct-card acct-card--wardrobe" aria-labelledby="acct-wardrobe">
         <h2 id="acct-wardrobe">{tr("avatar.title")}</h2>
         <p className="acct-muted">{tr("avatar.intro")}</p>
         <div className="wardrobe-tabs" role="tablist">

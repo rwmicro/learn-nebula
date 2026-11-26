@@ -1088,9 +1088,11 @@
     "freezes": "congeladores de racha",
     "daysOne": "día seguido",
     "freezesOne": "congelador de racha",
-    "next": "Faltan {n} días para la racha de {m} días: +{bonus} monedas",
-    "nextOne": "Falta {n} día para la racha de {m} días: +{bonus} monedas",
-    "nextAria": "Progreso hacia la racha de {m} días"
+    "nextAria": "Progreso hacia la racha de {m} días",
+    "goal": "Racha de {m} días: +{bonus} monedas",
+    "start": "Lee una nota o repasa una tarjeta hoy para empezar tu racha.",
+    "freezeWhat": "¿Qué es un congelador de racha?",
+    "freezeHelp": "Un congelador protege tu racha: un día perdido gasta uno en lugar de romperla. Se compran en la tienda, como máximo {max} en reserva."
   },
   "shop": {
     "title": "Tienda",
@@ -1930,12 +1932,14 @@
     "bestRun": "Racha de {n} días",
     "right": "{n} preguntas acertadas",
     "disciplines": "{n} disciplinas exploradas",
-    "next": "{have} de {next} para el siguiente",
     "all": "Todos alcanzados",
     "reached": "{n} hito(s) alcanzado(s)",
     "read1": "Primera nota leída",
     "closest": "El más cercano",
-    "count": "{n} de {total}"
+    "count": "{n} de {total}",
+    "already": "Ya: {what}",
+    "stepsLabel": "Niveles",
+    "steps": "Niveles: {list}. {n} alcanzado(s)."
   },
   "chess": {
     "title": "Jugar al ajedrez",

@@ -6,12 +6,13 @@ import { useLocale } from "@/lib/client/use-locale";
 import { calendarDays, loadActivity } from "@/lib/personal";
 import { loadStore } from "@/lib/reading-progress";
 import { NOTE_PREFIX, parseNoteDeck } from "@/lib/note-quiz";
-import { disciplinesOf, longestRun, milestones, type MilestoneRow } from "@/lib/milestones";
+import { STEPS, disciplinesOf, longestRun, milestones, type MilestoneRow } from "@/lib/milestones";
 
 // "Jalons" (/compte/ and Moi): a few milestones from this browser's records
-// (lib/milestones.ts), each kind as one row: the thresholds reached as
-// filled marks, the next one with how far it is. Nothing shows before the
-// first record. Moi (MoiPhone.tsx) draws the same rows as badges, closest
+// (lib/milestones.ts), each kind as one row titled by the milestone ahead,
+// with how far it is and the last one reached in small; on the right, every
+// threshold of the kind as a number (reached, next, later). Nothing shows
+// before the first record. Moi (MoiPhone.tsx) draws the same rows as badges, closest
 // first.
 
 export function gatherMilestones(): MilestoneRow[] | null {
@@ -63,44 +64,62 @@ export function Milestones({ className = "" }: { className?: string }) {
     };
   }, []);
   if (!rows) return null;
-  const label = (r: MilestoneRow) => {
-    const n = r.reached.length ? r.reached[r.reached.length - 1] : (r.next ?? 0);
-    return tr(n === 1 && r.kind === "read" ? "jalons.read1" : `jalons.${r.kind}`, { n });
-  };
+  const label = (r: MilestoneRow, n: number) =>
+    tr(n === 1 && r.kind === "read" ? "jalons.read1" : `jalons.${r.kind}`, { n });
   return (
     <section className={`jalons ${className}`} aria-labelledby="jalons-h" data-pagefind-ignore>
       <h2 id="jalons-h" className="jalons-h">
         {tr("jalons.title")}
       </h2>
       <ul className="jalons-list">
-        {rows.map((r) => (
-          <li key={r.kind} className={r.reached.length ? "is-on" : undefined}>
-            <span className="jalons-ico" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-                <path d={MILESTONE_ICON[r.kind]} />
-              </svg>
-            </span>
-            <span className="jalons-tx">
-              <b>{label(r)}</b>
-              <small>
-                {r.next === null
-                  ? tr("jalons.all")
-                  : tr("jalons.next", { have: r.value, next: r.next })}
-              </small>
-              {r.next !== null && (
-                <i className="jalons-bar" aria-hidden="true">
-                  <i style={{ width: `${Math.round((100 * (r.value - r.from)) / (r.next - r.from))}%` }} />
-                </i>
-              )}
-            </span>
-            <span className="jalons-marks" aria-label={tr("jalons.reached", { n: r.reached.length, total: r.reached.length + (r.next === null ? 0 : 1) })}>
-              {r.reached.map((s) => (
-                <i key={s} className="on" title={String(s)} />
-              ))}
-              {r.next !== null && <i title={String(r.next)} />}
-            </span>
-          </li>
-        ))}
+        {rows.map((r) => {
+          const last = r.reached[r.reached.length - 1];
+          // The title is the milestone ahead (the bar measures it); the one
+          // already reached goes in small. All reached: the last one.
+          const title = r.next === null ? label(r, last) : label(r, r.next);
+          const steps = STEPS[r.kind];
+          return (
+            <li key={r.kind} className={r.reached.length ? "is-on" : undefined}>
+              <span className="jalons-ico" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                  <path d={MILESTONE_ICON[r.kind]} />
+                </svg>
+              </span>
+              <span className="jalons-tx">
+                <span className="jalons-top">
+                  <b>{title}</b>
+                  {r.next !== null && (
+                    <span className="jalons-count">{tr("jalons.count", { n: r.value, total: r.next })}</span>
+                  )}
+                </span>
+                {r.next !== null && (
+                  <i className="jalons-bar" aria-hidden="true">
+                    <i style={{ width: `${Math.round((100 * (r.value - r.from)) / (r.next - r.from))}%` }} />
+                  </i>
+                )}
+                <span className="jalons-foot">
+                  {(r.next === null || last !== undefined) && (
+                    <small>{r.next === null ? tr("jalons.all") : tr("jalons.already", { what: label(r, last) })}</small>
+                  )}
+                  <span
+                    className="jalons-steps"
+                    role="img"
+                    aria-label={tr("jalons.steps", { list: steps.join(", "), n: r.reached.length })}
+                  >
+                    <span className="jalons-steps-k" aria-hidden="true">
+                      {tr("jalons.stepsLabel")}
+                    </span>
+                    {steps.map((s) => (
+                      <i key={s} className={s <= r.value ? "on" : s === r.next ? "next" : undefined} aria-hidden="true">
+                        {s}
+                      </i>
+                    ))}
+                  </span>
+                </span>
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

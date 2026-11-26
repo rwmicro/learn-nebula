@@ -1088,9 +1088,11 @@
     "freezes": "gels de série",
     "daysOne": "jour de suite",
     "freezesOne": "gel de série",
-    "next": "Encore {n} jours pour la série de {m} jours : +{bonus} pièces",
-    "nextOne": "Encore {n} jour pour la série de {m} jours : +{bonus} pièces",
-    "nextAria": "Progression vers la série de {m} jours"
+    "nextAria": "Progression vers la série de {m} jours",
+    "goal": "Série de {m} jours : +{bonus} pièces",
+    "start": "Lis une note ou révise une carte aujourd’hui pour lancer ta série.",
+    "freezeWhat": "Qu’est-ce qu’un gel de série ?",
+    "freezeHelp": "Un gel protège ta série : un jour manqué en consomme un au lieu de la casser. Ils s’achètent dans la boutique, {max} en réserve au plus."
   },
   "shop": {
     "title": "Boutique",
@@ -1930,12 +1932,14 @@
     "bestRun": "Série de {n} jours",
     "right": "{n} questions réussies",
     "disciplines": "{n} disciplines explorées",
-    "next": "{have} sur {next} pour le prochain",
     "all": "Tous atteints",
     "reached": "{n} jalon(s) atteint(s)",
     "read1": "Première note lue",
     "closest": "Le plus proche",
-    "count": "{n} sur {total}"
+    "count": "{n} sur {total}",
+    "already": "Déjà : {what}",
+    "stepsLabel": "Paliers",
+    "steps": "Paliers : {list}. {n} atteint(s)."
   },
   "chess": {
     "title": "Jouer aux échecs",

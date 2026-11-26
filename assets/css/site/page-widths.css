@@ -22,11 +22,16 @@
     margin-inline: auto;
     padding-inline: 0;
   }
-  /* Two columns on these two (defis.css, progression.css): wider. */
+  /* Two columns on these (defis.css, progression.css): wider. */
   html body main.defis.defis {
     max-width: 60rem;
   }
   html body main.progression.progression {
+    max-width: 68rem;
+  }
+  /* Signed in, /compte/ pairs its cards (account.css): wider too. The
+     sign-in form and the "off" card keep the text measure. */
+  html body main.acct-page.acct-page:has(> .acct) {
     max-width: 68rem;
   }
 }

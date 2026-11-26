@@ -1088,9 +1088,11 @@
     "freezes": "pembeku runtunan",
     "daysOne": "hari berturut-turut",
     "freezesOne": "pembeku runtunan",
-    "next": "{n} hari lagi menuju runtunan {m} hari: +{bonus} koin",
-    "nextOne": "{n} hari lagi menuju runtunan {m} hari: +{bonus} koin",
-    "nextAria": "Kemajuan menuju runtunan {m} hari"
+    "nextAria": "Kemajuan menuju runtunan {m} hari",
+    "goal": "Runtunan {m} hari: +{bonus} koin",
+    "start": "Baca satu catatan atau ulas satu kartu hari ini untuk memulai runtunanmu.",
+    "freezeWhat": "Apa itu pembeku runtunan?",
+    "freezeHelp": "Pembeku melindungi runtunanmu: hari yang terlewat memakai satu pembeku alih-alih memutusnya. Beli di toko, paling banyak {max} sebagai cadangan."
   },
   "shop": {
     "title": "Toko",
@@ -1930,12 +1932,14 @@
     "bestRun": "Runtunan {n} hari",
     "right": "{n} jawaban benar",
     "disciplines": "{n} disiplin dijelajahi",
-    "next": "{have} dari {next} untuk tonggak berikutnya",
     "all": "Semua tercapai",
     "reached": "{n} tonggak tercapai",
     "read1": "Catatan pertama dibaca",
     "closest": "Terdekat",
-    "count": "{n} dari {total}"
+    "count": "{n} dari {total}",
+    "already": "Sudah: {what}",
+    "stepsLabel": "Tahap",
+    "steps": "Tahap: {list}. {n} tercapai."
   },
   "chess": {
     "title": "Main catur",

@@ -1088,9 +1088,11 @@
     "freezes": "连续保护",
     "daysOne": "天连续",
     "freezesOne": "连续保护",
-    "next": "再坚持 {n} 天达到 {m} 天连续：+{bonus} 金币",
-    "nextOne": "再坚持 {n} 天达到 {m} 天连续：+{bonus} 金币",
-    "nextAria": "{m} 天连续的进度"
+    "nextAria": "{m} 天连续的进度",
+    "goal": "连续 {m} 天：+{bonus} 金币",
+    "start": "今天读一篇笔记或复习一张卡片，开始你的连续记录。",
+    "freezeWhat": "什么是连续保护？",
+    "freezeHelp": "连续保护会守住你的连续记录：错过一天时消耗一个保护，而不是中断记录。可在商店购买，最多储备 {max} 个。"
   },
   "shop": {
     "title": "商店",
@@ -1930,12 +1932,14 @@
     "bestRun": "连续 {n} 天",
     "right": "答对 {n} 题",
     "disciplines": "探索了 {n} 个学科",
-    "next": "下一个：{have}/{next}",
     "all": "全部达成",
     "reached": "已达成 {n} 个",
     "read1": "读完第一篇笔记",
     "closest": "最接近",
-    "count": "{n}/{total}"
+    "count": "{n}/{total}",
+    "already": "已达成：{what}",
+    "stepsLabel": "阶段",
+    "steps": "阶段：{list}。已达成 {n} 个。"
   },
   "chess": {
     "title": "下国际象棋",
