@@ -656,9 +656,6 @@
     background: var(--wash-2);
     overflow: hidden;
   }
-  :root[data-theme="dark"] .na-grp {
-    background: var(--wash-2);
-  }
   .na-size {
     display: flex;
     align-items: center;

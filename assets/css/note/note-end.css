@@ -28,7 +28,7 @@ dialog.ne:not([data-family]) {
   --on-fam: var(--paper);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) dialog.ne {
+  :root:not([data-theme="light"]) dialog.ne {
     --on-fam: var(--paper);
   }
 }
@@ -169,11 +169,11 @@ html.ne-open {
   color: #f0c64a;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .ne-tiles .ne-coin {
+  :root:not([data-theme="light"]) .ne-tiles .ne-coin {
     border-color: #8a6d1d;
     background: #2f2816;
   }
-  :root:not([data-theme]) .ne-tiles .ne-coin :is(b, span) {
+  :root:not([data-theme="light"]) .ne-tiles .ne-coin :is(b, span) {
     color: #f0c64a;
   }
 }

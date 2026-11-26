@@ -23,9 +23,9 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
+  :root:not([data-theme="light"]) {
     --dash-card: #262522;
-  --seg-on: #403d38;
+    --seg-on: #403d38;
     --dash-shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 14px rgb(0 0 0 / 0.25);
     --dash-edge: #34322e;
   }
@@ -280,6 +280,11 @@
 
 :root[data-theme="dark"] .dash-due-icon {
   color: #f0a46a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .dash-due-icon {
+    color: #f0a46a;
+  }
 }
 
 .dash-due-icon svg {

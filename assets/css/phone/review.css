@@ -23,7 +23,7 @@
     --rsm-blue-w: #1f2a3a;
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) {
+    :root:not([data-theme="light"]) {
       --rsm-red: #e88a78;
       --rsm-amber: #e2b25e;
       --rsm-blue: #8db4ea;

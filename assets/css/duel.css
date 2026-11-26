@@ -16,7 +16,7 @@
   --duo-card: #262522;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .duo {
+  :root:not([data-theme="light"]) .duo {
     --duo-card: #262522;
   }
 }

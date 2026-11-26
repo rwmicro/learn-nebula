@@ -68,7 +68,7 @@
   --glass-on: rgb(255 255 255 / 0.1);
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
+  :root:not([data-theme="light"]) {
     --glass-bg: rgb(30 29 27 / 0.28);
     --glass-edge: rgb(255 255 255 / 0.16);
     --glass-inset:

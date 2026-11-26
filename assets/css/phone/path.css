@@ -16,7 +16,7 @@
     --on-fam: var(--paper);
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) main.parcours-page--path {
+    :root:not([data-theme="light"]) main.parcours-page--path {
       --on-fam: var(--paper);
     }
   }

@@ -262,6 +262,11 @@ image tag in `ci.yml` together with `@playwright/test`.
   `@import`: that hands the files to Tailwind, which rewrites them. Fluid type via `clamp()` + `cqi`
   container units. `app/not-found.tsx` is a global boundary — must NOT import
   route-scoped CSS.
+- **Dark theme, written twice**: every `:root[data-theme="dark"] X` rule
+  (the reader picked dark) needs its twin `@media (prefers-color-scheme: dark)
+  { :root:not([data-theme="light"]) X }` (the OS asks, nothing picked) with
+  the same declarations, inside the same other media queries.
+  `lib/dark-theme-css.test.ts` fails on a missing or drifted twin.
 - **Note-page scripts**: `public/js/*.js` are vanilla IIFEs bundled by **esbuild**
   (`scripts/bundle-js.mjs`) into `note.bundle.js`, loaded once via
   `components/note/NoteScripts.tsx` (the `SCRIPTS` array lists them). Only

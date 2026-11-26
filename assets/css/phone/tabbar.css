@@ -48,7 +48,7 @@
     --glass-on: rgb(255 255 255 / 0.13);
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) .tabbar {
+    :root:not([data-theme="light"]) .tabbar {
       --glass-bg: rgb(165 165 165 / 0.2);
       --glass-filter: blur(4px) saturate(1.15) brightness(1.15);
       --glass-edge: rgb(255 255 255 / 0.3);

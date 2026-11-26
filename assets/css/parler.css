@@ -1631,6 +1631,9 @@ label.pt-h {
   :root:not([data-theme="light"]) .pt-bub.is-me {
     color: #1b1426;
   }
+  :root:not([data-theme="light"]) .pt-setup .pt-scene {
+    --pt-scene-l: 70%;
+  }
 }
 @media (min-width: 1024px) and (max-width: 1279px) {
   .pt-hero-words span:nth-child(3) { display: none; }
