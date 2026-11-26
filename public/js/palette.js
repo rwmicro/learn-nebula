@@ -847,7 +847,7 @@ import { SEARCH_MISS_SETTLE_MS, normaliseSearchMiss, reportSearchMiss } from "..
     );
   }
   function docRow(d, q) {
-    const c = noteContext("", d.where.replace(/ › /g, " › "));
+    const c = noteContext("", d.where);
     const fam = pathFamily(c.discipline) || "";
     const where = c.lang || discLabel(c.discipline);
     return opt(
