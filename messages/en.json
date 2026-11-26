@@ -2484,6 +2484,11 @@
       "sub": "from first words to culture",
       "desc": "Pinyin and tones, greetings, grammar and characters, then measure words, vocabulary, dialogues and Chinese culture."
     },
+    "mathematiques-de-la-cryptographie-de-rsa-aux-reseaux-euclidiens": {
+      "title": "The mathematics of cryptography",
+      "sub": "from RSA to lattices",
+      "desc": "The mathematics behind modern cryptography: modular arithmetic and RSA, discrete logarithms, elliptic curves, hash functions, AES's finite fields, then the lattices of post-quantum cryptography."
+    },
     "mathematiques-en-prepa-de-sup-a-spe": {
       "title": "Mathematics in prépa",
       "sub": "first and second year",
@@ -3084,6 +3089,7 @@
     "anatomie": "Anatomy",
     "anthropologuesetbranches": "Anthropologists and branches",
     "anthropologuesetterrains": "Anthropologists and fieldwork",
+    "apprentissageetdeeplearning": "Learning and deep learning",
     "apprentissageetllm": "Learning and LLMs",
     "apprentissageetmachinelearning": "Learning and machine learning",
     "approfondissementsetprepaspe": "Going further and second-year prépa",
@@ -3171,9 +3177,12 @@
     "lesgrandesquestionsetphilosophieetautresdomaines": "The big questions and philosophy in other fields",
     "lespresocratiquesvievesieclesavjc": "The Presocratics (6th–5th centuries BCE)",
     "linguistesetbranches": "Linguists and branches",
+    "llmetaisecurity": "LLMs and AI security",
+    "machinelearningetapprentissage": "Machine learning and learning",
     "machinelearningetdeeplearning": "Machine learning and deep learning",
     "malwaredevelopment": "Malware development",
     "malwaredevelopmentetreverseengineering": "Malware development and reverse engineering",
+    "mathematiquesdelacryptographie": "Mathematics of cryptography",
     "mathspe": "Second-year prépa maths",
     "mathspeetmathsup": "Second and first year of prépa maths",
     "mathsup": "First-year prépa maths",

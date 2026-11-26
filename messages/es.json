@@ -2484,6 +2484,11 @@
       "sub": "de las primeras palabras a la cultura",
       "desc": "El pinyin y los tonos, los saludos, la gramática y los caracteres, luego los clasificadores, el vocabulario, los diálogos y la cultura china."
     },
+    "mathematiques-de-la-cryptographie-de-rsa-aux-reseaux-euclidiens": {
+      "title": "Matemáticas de la criptografía",
+      "sub": "de RSA a los retículos",
+      "desc": "Las matemáticas que sostienen la criptografía moderna: aritmética modular y RSA, logaritmo discreto, curvas elípticas, funciones hash, cuerpos finitos de AES y, por último, los retículos de la criptografía poscuántica."
+    },
     "mathematiques-en-prepa-de-sup-a-spe": {
       "title": "Matemáticas en prépa",
       "sub": "de primer a segundo año",
@@ -3084,6 +3089,7 @@
     "anatomie": "Anatomía",
     "anthropologuesetbranches": "Antropólogos y ramas",
     "anthropologuesetterrains": "Antropólogos y trabajo de campo",
+    "apprentissageetdeeplearning": "Aprendizaje y deep learning",
     "apprentissageetllm": "Aprendizaje y LLM",
     "apprentissageetmachinelearning": "Aprendizaje y machine learning",
     "approfondissementsetprepaspe": "Profundización y Spé",
@@ -3171,9 +3177,12 @@
     "lesgrandesquestionsetphilosophieetautresdomaines": "Las grandes preguntas y la filosofía en otros campos",
     "lespresocratiquesvievesieclesavjc": "Los presocráticos (siglos VI-V a. C.)",
     "linguistesetbranches": "Lingüistas y ramas",
+    "llmetaisecurity": "LLM y seguridad de la IA",
+    "machinelearningetapprentissage": "Machine learning y aprendizaje",
     "machinelearningetdeeplearning": "Machine learning y deep learning",
     "malwaredevelopment": "Desarrollo de malware",
     "malwaredevelopmentetreverseengineering": "Desarrollo de malware e ingeniería inversa",
+    "mathematiquesdelacryptographie": "Matemáticas de la criptografía",
     "mathspe": "Matemáticas de Spé",
     "mathspeetmathsup": "Matemáticas de Spé y de Sup",
     "mathsup": "Matemáticas de primer año de prépa",

@@ -2484,6 +2484,11 @@
       "sub": "dari kata pertama hingga budaya",
       "desc": "Pinyin dan nada, salam, tata bahasa dan aksara, lalu kata penggolong, kosakata, dialog dan budaya Tionghoa."
     },
+    "mathematiques-de-la-cryptographie-de-rsa-aux-reseaux-euclidiens": {
+      "title": "Matematika kriptografi",
+      "sub": "dari RSA hingga kisi",
+      "desc": "Matematika yang menopang kriptografi modern: aritmetika modular dan RSA, logaritma diskret, kurva eliptik, fungsi hash, medan hingga pada AES, lalu kisi dalam kriptografi pascakuantum."
+    },
     "mathematiques-en-prepa-de-sup-a-spe": {
       "title": "Matematika kelas persiapan",
       "sub": "tahun pertama dan kedua",
@@ -3084,6 +3089,7 @@
     "anatomie": "Anatomi",
     "anthropologuesetbranches": "Antropolog dan cabang ilmu",
     "anthropologuesetterrains": "Antropolog dan kerja lapangan",
+    "apprentissageetdeeplearning": "Pembelajaran dan deep learning",
     "apprentissageetllm": "Pembelajaran dan LLM",
     "apprentissageetmachinelearning": "Pembelajaran dan machine learning",
     "approfondissementsetprepaspe": "Pendalaman dan prépa tahun kedua",
@@ -3171,9 +3177,12 @@
     "lesgrandesquestionsetphilosophieetautresdomaines": "Pertanyaan besar dan filsafat di bidang lain",
     "lespresocratiquesvievesieclesavjc": "Para pra-Sokratik (abad ke-6–5 SM)",
     "linguistesetbranches": "Ahli bahasa dan cabang ilmu",
+    "llmetaisecurity": "LLM dan keamanan AI",
+    "machinelearningetapprentissage": "Machine learning dan pembelajaran",
     "machinelearningetdeeplearning": "Machine learning dan deep learning",
     "malwaredevelopment": "Pengembangan malware",
     "malwaredevelopmentetreverseengineering": "Pengembangan malware dan rekayasa balik",
+    "mathematiquesdelacryptographie": "Matematika kriptografi",
     "mathspe": "Matematika prépa tahun kedua",
     "mathspeetmathsup": "Matematika prépa tahun kedua dan pertama",
     "mathsup": "Matematika prépa tahun pertama",

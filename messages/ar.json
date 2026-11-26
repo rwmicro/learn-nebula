@@ -2484,6 +2484,11 @@
       "sub": "من الكلمات الأولى إلى الثقافة",
       "desc": "البينيين والنغمات، والتحيات، والقواعد والمقاطع الصينية، ثم المصنِّفات والمفردات والحوارات والثقافة الصينية."
     },
+    "mathematiques-de-la-cryptographie-de-rsa-aux-reseaux-euclidiens": {
+      "title": "رياضيات التشفير",
+      "sub": "من RSA إلى الشبكيات",
+      "desc": "الرياضيات التي يقوم عليها التشفير الحديث: الحساب المعياري وRSA، واللوغاريتم المتقطع، والمنحنيات الإهليلجية، ودوال التجزئة، والحقول المنتهية في AES، ثم الشبكيات في التشفير ما بعد الكمّي."
+    },
     "mathematiques-en-prepa-de-sup-a-spe": {
       "title": "الرياضيات في الأقسام التحضيرية",
       "sub": "من السنة الأولى إلى الثانية",
@@ -3084,6 +3089,7 @@
     "anatomie": "التشريح",
     "anthropologuesetbranches": "علماء الأنثروبولوجيا والفروع",
     "anthropologuesetterrains": "علماء الأنثروبولوجيا والميدان",
+    "apprentissageetdeeplearning": "التعلّم والتعلّم العميق",
     "apprentissageetllm": "التعلّم والنماذج اللغوية الكبيرة",
     "apprentissageetmachinelearning": "التعلّم وتعلّم الآلة",
     "approfondissementsetprepaspe": "التعمّق والسنة التحضيرية الثانية",
@@ -3171,9 +3177,12 @@
     "lesgrandesquestionsetphilosophieetautresdomaines": "الأسئلة الكبرى والفلسفة في مجالات أخرى",
     "lespresocratiquesvievesieclesavjc": "الفلاسفة قبل سقراط (القرنان السادس والخامس ق.م)",
     "linguistesetbranches": "اللسانيون والفروع",
+    "llmetaisecurity": "النماذج اللغوية الكبيرة وأمن الذكاء الاصطناعي",
+    "machinelearningetapprentissage": "تعلّم الآلة والتعلّم",
     "machinelearningetdeeplearning": "تعلّم الآلة والتعلّم العميق",
     "malwaredevelopment": "تطوير البرمجيات الخبيثة",
     "malwaredevelopmentetreverseengineering": "تطوير البرمجيات الخبيثة والهندسة العكسية",
+    "mathematiquesdelacryptographie": "رياضيات التشفير",
     "mathspe": "رياضيات السنة الثانية التحضيرية",
     "mathspeetmathsup": "رياضيات السنة الثانية والأولى التحضيرية",
     "mathsup": "رياضيات السنة التحضيرية الأولى",

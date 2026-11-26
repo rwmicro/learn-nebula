@@ -183,6 +183,12 @@ image tag in `ci.yml` together with `@playwright/test`.
   in `lib/cyber.ts` (tested). Lists come as numbered keys (`m1`, `r1`, `e1`…)
   because `widgetProps` keeps one value per key, and no widget prop is called
   `cible` (the goal-condition key).
+- **Calcul widgets** (pack `calcul`, `public/js/calcul/*.js` → `widgets-calcul.bundle.js`,
+  CSS `assets/css/widgets-calcul.css`): the arithmetic of public-key crypto
+  (`puissances-mod`, `rsa`, `courbe-elliptique` over ℝ or F_p, `anniversaire`)
+  and of LLMs (`moe-routeur` with DeepSeek-V3's bias balancing, `memoire-llm`:
+  weights, KV cache for MHA/GQA/MLA, full/LoRA/QLoRA). Every number they show
+  comes from `lib/calcul.ts` (tested; `MODELS` holds published configs only).
 - **Widget goals**: a widget block can carry `objectif`, `cible`, `indice`,
   `bravo`, `erreur` lines (syntax in pensine's `sources/CLAUDE.md`); builders in
   `public/js/widgets.js` publish their values through `ctx.report()` and

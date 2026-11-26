@@ -2484,6 +2484,11 @@
       "sub": "从入门词汇到文化",
       "desc": "拼音与声调、问候、语法与汉字，然后是量词、词汇、对话与中国文化。"
     },
+    "mathematiques-de-la-cryptographie-de-rsa-aux-reseaux-euclidiens": {
+      "title": "密码学中的数学",
+      "sub": "从 RSA 到格",
+      "desc": "支撑现代密码学的数学：模运算与 RSA、离散对数、椭圆曲线、哈希函数、AES 的有限域，以及后量子密码学中的格。"
+    },
     "mathematiques-en-prepa-de-sup-a-spe": {
       "title": "预科数学",
       "sub": "从一年级到二年级",
@@ -3084,6 +3089,7 @@
     "anatomie": "解剖学",
     "anthropologuesetbranches": "人类学家与分支",
     "anthropologuesetterrains": "人类学家与田野",
+    "apprentissageetdeeplearning": "学习与深度学习",
     "apprentissageetllm": "学习与大语言模型",
     "apprentissageetmachinelearning": "学习与机器学习",
     "approfondissementsetprepaspe": "深入与预科二年级",
@@ -3171,9 +3177,12 @@
     "lesgrandesquestionsetphilosophieetautresdomaines": "大问题与其他领域中的哲学",
     "lespresocratiquesvievesieclesavjc": "前苏格拉底哲学家（公元前6—前5世纪）",
     "linguistesetbranches": "语言学家与分支",
+    "llmetaisecurity": "大语言模型与人工智能安全",
+    "machinelearningetapprentissage": "机器学习与学习",
     "machinelearningetdeeplearning": "机器学习与深度学习",
     "malwaredevelopment": "恶意软件开发",
     "malwaredevelopmentetreverseengineering": "恶意软件开发与逆向工程",
+    "mathematiquesdelacryptographie": "密码学中的数学",
     "mathspe": "预科二年级数学",
     "mathspeetmathsup": "预科二年级与一年级数学",
     "mathsup": "预科一年级数学",
