@@ -1,6 +1,6 @@
 // Small pieces shared by the "sci" widgets (public/js/widgets-sci.js):
 // prop parsing, readout tables, segmented buttons, sliders, and a line-chart
-// frame. Visual grammar is main.css's .w-* plus widgets-extra.css's chart
+// frame. Visual grammar is note/*.css's .w-* plus widgets-extra.css's chart
 // classes; anything specific lives in assets/css/widgets-sci.css.
 import { el, svg, niceTicks, fmtShort } from "../widget-kit.js";
 
@@ -27,7 +27,11 @@ export function table(rows) {
   );
 }
 
-/** A labelled slider with its live value next to it. Returns { node, input, set }. */
+/**
+ * A labelled slider with its live value next to it. Returns { node, input, set }.
+ * @param {{ label: string, min: number, max: number, step: number, value: number,
+ *   format?: (v: number) => string, onInput: (v: number) => void }} opts
+ */
 export function slider({ label, min, max, step, value, format, onInput }) {
   const input = el("input", {
     type: "range",
@@ -101,6 +105,9 @@ export const uid = (p) => `${p}-${++uidN}`;
 /**
  * Line-chart frame: axes, gridlines, tick labels. Returns { root, X, Y, plot }
  * where `plot` is the <g> to draw the marks into, clipped to the plot area.
+ * @param {{ W: number, H: number, x: number[], y: number[], xTicks?: number[], yTicks?: number[],
+ *   xFmt?: (v: number) => string, yFmt?: (v: number) => string, xLabel?: string, yLabel?: string,
+ *   label: string, padL?: number }} opts
  */
 export function chart({
   W,

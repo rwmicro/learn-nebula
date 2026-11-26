@@ -26,6 +26,7 @@ are **not on PATH** here — use `npx pnpm@10.28.0 …` (or `node_modules/.bin/*
 ```bash
 node_modules/.bin/tsc --noEmit          # typecheck the app (fast; run after every change)
 node_modules/.bin/tsc -p server/tsconfig.json   # typecheck the Node server (server/ is excluded from the root tsconfig)
+node scripts/check-public-js.mjs        # typecheck public/js (checkJs, loose): no file may exceed its count in scripts/public-js-type-baseline.json; --update after fixing some
 node_modules/.bin/eslint .              # lint (0 errors required; a handful of warnings are known)
 node_modules/.bin/vitest run            # unit tests (lib/*.test.ts, server/*.test.ts)
 node scripts/bundle-js.mjs              # rebuild public/js/note.bundle.js after editing public/js/*.js

@@ -1,0 +1,17 @@
+{
+  // Type-checks the vanilla note scripts (public/js, bundled by
+  // scripts/bundle-js.mjs), which the root tsconfig never reached. A first,
+  // loose step: no implicit-any or null checks yet, to tighten folder by folder.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "checkJs": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "allowImportingTsExtensions": true,
+    "incremental": false,
+    "plugins": [],
+    "types": []
+  },
+  "include": ["types/public-js-globals.d.ts", "public/js/**/*.js"],
+  "exclude": ["public/js/**/*.bundle.js", "public/js/h/**", "public/js/data/**"]
+}
