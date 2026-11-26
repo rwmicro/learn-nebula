@@ -17,7 +17,7 @@
 // lib/site.ts holds unchanged.
 //
 // Each mount point says which pack it needs (`data-pack`, written at build by
-// rehypeWidgets in lib/markdown.ts), so only PACK_BUNDLE is imported here, not
+// rehypeWidgets in lib/node/markdown/widgets.ts), so only PACK_BUNDLE is imported here, not
 // the EXTRA_WIDGETS registry and its fallback texts.
 import { PACK_BUNDLE } from "../../lib/widgets-extra";
 

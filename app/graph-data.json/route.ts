@@ -1,4 +1,4 @@
-import { graphDataJson } from "@/lib/home-data";
+import { graphDataJson } from "@/lib/node/home-data";
 
 export const dynamic = "force-static";
 

@@ -1,5 +1,5 @@
 // Retrieval-practice cards in the note body (`> [!quiz] Question`, rendered by
-// lib/markdown.ts as .callout-quiz with a hidden .quiz-answer).
+// lib/node/markdown/callouts.ts as .callout-quiz with a hidden .quiz-answer).
 // - "Afficher la réponse" toggles the answer (aria-expanded on the button);
 // - once revealed, the reader grades themselves ("Je savais" / "Pas encore")
 //   and can add the question to their spaced-repetition reviews, stored with
@@ -27,7 +27,7 @@ import {
   saveNoteDeck,
 } from "../../lib/note-quiz.ts";
 import { dayKey } from "../../lib/srs.ts";
-import { loadSettings } from "../../lib/srs-settings.ts";
+import { loadSettings } from "../../lib/client/srs-settings.ts";
 // "Lire en leçon" rides along: only notes with questions offer it.
 import "./lesson.js";
 // The other exercises of a note ([!traduire], [!ordre]…, lib/exercises.ts).
@@ -201,7 +201,7 @@ import "./exercises.js";
       deck = gradeQuestion(deck, id, g);
     } else if (g && isCorrect(g)) {
       // Not in the reviews, but a correct answer still counts towards the
-      // note's "maîtrisée" state on reading paths (lib/path-study.ts).
+      // note's "maîtrisée" state on reading paths (lib/client/path-study.ts).
       deck = recordCorrect(deck, id);
     } else return; // "Pas encore" on an unsaved question: just for the reader
     try {

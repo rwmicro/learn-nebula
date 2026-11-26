@@ -141,7 +141,7 @@ export function frontiere(props, fig, ctx) {
       return;
     }
     btnRun.textContent = "Pause";
-    timer = setInterval(() => {
+    timer = window.setInterval(() => {
       avance(modele === "perceptron" ? 1 : nPas < 60 ? 2 : nPas < 300 ? 10 : 40);
       if (fini()) stop();
     }, modele === "perceptron" ? 140 : 40);

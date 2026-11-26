@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { t, pathName } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
 import {
   QUIZ_EVENT,
@@ -10,7 +10,7 @@ import {
   isDone,
   isStudyKey,
   loadStudyStates,
-} from "@/lib/path-study";
+} from "@/lib/client/path-study";
 import { fold } from "@/lib/palette-match";
 import type { PathFamily } from "@/lib/path-family";
 

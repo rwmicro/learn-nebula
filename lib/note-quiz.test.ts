@@ -22,7 +22,7 @@ import {
   extractQuizItems,
   recordCorrect,
 } from "./note-quiz";
-import { renderMarkdown, quizId } from "./markdown";
+import { renderMarkdown, quizId } from "./node/markdown";
 
 const T = "2026-09-30";
 const item = (q: string) => ({ q, a: `<p>${q}?</p>`, url: "/posts/n/", title: "N" });

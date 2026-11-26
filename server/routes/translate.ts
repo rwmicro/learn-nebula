@@ -5,7 +5,7 @@
 
 import crypto from "node:crypto";
 import { Hono, type Context } from "hono";
-import { renderMarkdown } from "../../lib/markdown.ts";
+import { renderMarkdown } from "../../lib/node/markdown/index.ts";
 import { env, canGenerate } from "../env.ts";
 import { getIp } from "../http.ts";
 import { Cooldown, InFlight, Quota } from "../ratelimit.ts";

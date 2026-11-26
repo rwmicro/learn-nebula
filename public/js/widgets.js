@@ -2,7 +2,7 @@
 //
 // A ```widget:<name> block in the vault becomes
 //   <figure class="widget" data-widget="<name>" data-props='{...}'>
-// (see rehypeWidgets in lib/markdown.ts). This script replaces the fallback
+// (see rehypeWidgets in lib/node/markdown/widgets.ts). This script replaces the fallback
 // paragraph inside each figure with the real thing.
 //
 // Everything here is plain DOM: the note HTML is static-exported, so there is
@@ -23,7 +23,8 @@
       else n.setAttribute(k, attrs[k]);
     }
     for (const c of children || []) {
-      n.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+      // Anything that is not a node (a string, an error's message…) goes in as text.
+      n.appendChild(c instanceof Node ? c : document.createTextNode(String(c)));
     }
     return n;
   }
@@ -2843,7 +2844,7 @@
   //
   // A widget block may set goals to reach, Brilliant-style: a task, the state
   // that solves it, an optional hint, and messages for the usual mistakes.
-  // Props are flat `key: value` lines (widgetProps in lib/markdown.ts), so
+  // Props are flat `key: value` lines (widgetProps in lib/node/markdown/widgets.ts), so
   // the 2nd, 3rd… goal take a suffix:
   //
   //   objectif: Le service compta a 50 postes. Trouvez le préfixe le plus long.
@@ -2956,7 +2957,7 @@
     const hintBtn = el("button", { type: "button", class: "w-goal-link" }, ["Un indice"]);
     const skipBtn = el("button", { type: "button", class: "w-goal-link" }, ["Passer"]);
     const checkBtn = el("button", { type: "button", class: "w-goal-btn" }, ["Vérifier"]);
-    // The title of the lesson screen (main.css shows it in lesson mode only).
+    // The title of the lesson screen (note/*.css shows it in lesson mode only).
     const action = el("p", { class: "w-goal-action" }, ["À toi de jouer"]);
     const head = el("div", { class: "w-goal" }, [
       el("div", { class: "w-goal-top" }, [kicker, steps]),

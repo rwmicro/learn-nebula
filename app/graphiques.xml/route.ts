@@ -1,7 +1,7 @@
 // /graphiques.xml — RSS 2.0 of the "un graphique, trois paragraphes" notes
-// (lib/graphiques.ts), newest first, for readers who want only those.
-import { getGraphiques } from "@/lib/graphiques";
-import { buildRss } from "@/lib/feed";
+// (lib/node/graphiques.ts), newest first, for readers who want only those.
+import { getGraphiques } from "@/lib/node/graphiques";
+import { buildRss } from "@/lib/node/feed";
 import { SITE_TITLE, absoluteURL } from "@/lib/site";
 
 export const dynamic = "force-static";

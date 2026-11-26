@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-// Styled from app.css (global), not main.css: not-found is Next's global
+// Styled from app.css (global), not note/*.css: not-found is Next's global
 // error boundary, so any route stylesheet it imported would load everywhere.
 export default function NotFound() {
   return (

@@ -5,7 +5,7 @@
 // condensed bar down from the top. Cheaper than a scroll listener and
 // throttles naturally.
 // Where the browser has `scroll-state(stuck)` container queries, the CSS does
-// it alone (lib/html.ts wraps the bar in a sticky .note-header-stuck; the
+// it alone (lib/node/html.ts wraps the bar in a sticky .note-header-stuck; the
 // bar is visibility:hidden until stuck, so no inert is needed) and this
 // observer is skipped.
 import { scrollProgress } from "../../lib/reading-progress";
@@ -48,7 +48,7 @@ import { scrollProgress } from "../../lib/reading-progress";
 // past. Decorative — aria-hidden, no focus — and drawn with a transform so a
 // scroll costs one composited property, at most once per frame.
 // With scroll-driven animations the CSS draws it from a view timeline on the
-// article body (main.css, `.reading-progress[data-timeline]`; its `contain`
+// article body (note/*.css, `.reading-progress[data-timeline]`; its `contain`
 // range is the same measure as scrollProgress()) and no listener is added.
 // Bodies shorter than the screen keep the script: the range differs there.
 (function () {

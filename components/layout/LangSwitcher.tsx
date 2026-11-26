@@ -82,7 +82,7 @@ export function LangSwitcher({ compact = false }: { compact?: boolean } = {}) {
 
   // Black & white, to sit in the masthead dateline. The current language is
   // on the highlighter yellow; the one under the pointer takes it too
-  // (`.lang-opt`, global.css: a plain :hover, not Tailwind's `hover:`, which
+  // (`.lang-opt`, site/site-bar.css: a plain :hover, not Tailwind's `hover:`, which
   // only fires under `@media (hover: hover)`).
   const btn = (active: boolean) =>
     ` 

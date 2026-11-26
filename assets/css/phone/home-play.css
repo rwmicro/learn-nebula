@@ -17,7 +17,7 @@
   min-width: 0;
   overflow: hidden;
   border: 0.5px solid var(--dash-edge);
-  border-radius: 1.375rem;
+  border-radius: var(--radius-lg);
   background: var(--dash-card);
   box-shadow: var(--dash-shadow);
   font-family: var(--font-ui);
@@ -85,7 +85,7 @@
   flex: none;
   width: 5.9rem;
   aspect-ratio: 1;
-  border-radius: 0.45rem;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   box-shadow:
     0 5px 14px rgb(0 0 0 / 0.35),
@@ -118,7 +118,7 @@
   gap: 0.15rem;
   min-width: 0;
   padding: 0.45rem 0.6rem;
-  border-radius: 0.9rem 0.9rem 0.9rem 0.25rem;
+  border-radius: var(--radius-md) var(--radius-md) var(--radius-md) var(--radius-xs);
   background: rgb(255 255 255 / 0.14);
 }
 .dash-talk-bubble b {
@@ -134,7 +134,7 @@
   margin: 0 1rem;
   padding: 1rem 1.1rem;
   border: 0.5px solid var(--dash-edge);
-  border-radius: 1.375rem;
+  border-radius: var(--radius-lg);
   background: var(--dash-card);
   box-shadow: var(--dash-shadow);
   font-family: var(--font-ui);

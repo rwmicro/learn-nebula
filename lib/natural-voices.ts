@@ -1,4 +1,4 @@
-// The downloadable voices of "Écouter" beside Piper (lib/piper-voice.ts), and
+// The downloadable voices of "Écouter" beside Piper (lib/client/piper-voice.ts), and
 // the pure text work their models need. All three run in
 // public/js/natural-voice-worker.js on onnxruntime-web:
 //  - Kokoro-82M (Apache 2.0, one 92 MB model for every language, a small

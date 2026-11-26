@@ -1,10 +1,10 @@
-// The note page as a phone app (lib/note-app.ts builds the markup, app.css
+// The note page as a phone app (lib/node/note-app.ts builds the markup, app.css
 // shows it under 640px): the section pill and its dots, the cover's floating
 // buttons, the bottom toolbar and the "Affichage" sheet. Its buttons proxy
 // the note's own controls (.audio-btn, .lesson-btn, .bookmark-btn,
 // .text-size-btn, .wide-text-btn, .focus-btn, .translate-wrap), which the
 // phone layout hides, so every feature keeps a single implementation.
-import { liquidGlassLater as liquidGlass } from "../../lib/glass/load";
+import { liquidGlassLater as liquidGlass } from "../../lib/client/glass/load";
 
 (function () {
   const root = document.querySelector(".na-chrome");
@@ -342,7 +342,7 @@ import { liquidGlassLater as liquidGlass } from "../../lib/glass/load";
     sheet.addEventListener(
       "touchstart",
       (e) => {
-        if (!e.target.closest(".na-grab, .na-sheet-h")) return;
+        if (!/** @type {Element} */ (e.target).closest(".na-grab, .na-sheet-h")) return;
         startY = e.touches[0].clientY;
       },
       { passive: true },
@@ -470,7 +470,7 @@ import { liquidGlassLater as liquidGlass } from "../../lib/glass/load";
   // Picking a language closes the sheet so the translated note shows.
   if (wrap)
     wrap.addEventListener("click", (e) => {
-      if (phone.matches && e.target.closest(".translate-menu-item")) setSheet(false);
+      if (phone.matches && /** @type {Element} */ (e.target).closest(".translate-menu-item")) setSheet(false);
     });
 
   document.addEventListener("i18n:change", () => {
@@ -478,7 +478,7 @@ import { liquidGlassLater as liquidGlass } from "../../lib/glass/load";
     update();
   });
 
-  // The floating chrome is liquid glass (lib/glass) on phones, the only
+  // The floating chrome is liquid glass (lib/client/glass) on phones, the only
   // screens that show it: the toolbar and the section pill as bars, the
   // round buttons as buttons, the green "next" tinted.
   let unglass = [];

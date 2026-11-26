@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { dayKey } from "@/lib/srs";
-import { isStarted, loadDeckProgress, storageOk } from "@/lib/review-item";
+import { isStarted, loadDeckProgress, storageOk } from "@/lib/client/review-item";
 import { countSaved, loadAllNoteDecks } from "@/lib/note-quiz";
 import { FRAGILE_LAPSES, practicePick, type PracticeMode } from "@/lib/practice";
 import { AppBack } from "@/components/layout/AppBack";

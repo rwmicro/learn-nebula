@@ -11,7 +11,7 @@
   --tile: var(--paper-raised, var(--paper));
   padding: 0;
   border: 1.5px solid var(--rule);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 2px 0 var(--rule);
   background: var(--tile);
   overflow: hidden;
@@ -60,7 +60,7 @@
   width: 50px;
   height: 50px;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--radius-md);
   background: var(--c);
   color: var(--paper);
   box-shadow: 0 4px 0 color-mix(in srgb, var(--c) 70%, #000);
@@ -97,7 +97,7 @@
   color: var(--ink);
   background: var(--tile, var(--paper));
   border: 1.5px solid var(--rule-strong);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   box-shadow: 0 3px 0 var(--rule-strong);
   padding: 0.35rem 0.85rem;
   cursor: pointer;
@@ -109,7 +109,7 @@
   place-items: center;
   min-width: 20px;
   height: 20px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--wash-2);
   color: var(--muted);
   font: 700 0.7rem var(--font-ui);
@@ -162,7 +162,7 @@
 }
 .ex-ghost {
   display: inline-block;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--wash-2);
 }
 
@@ -189,7 +189,7 @@
   color: var(--ink);
   background: var(--tile, var(--paper));
   border: 1.5px solid var(--c);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   padding: 0.55rem 0.8rem;
 }
 .ex-stage.is-typing .ex-line,
@@ -224,7 +224,7 @@
   place-items: center;
   width: 26px;
   height: 26px;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--c) 13%, transparent);
   color: var(--c);
   font: 700 0.85rem var(--font-ui);
@@ -234,7 +234,7 @@
   place-items: center;
   min-height: 50px;
   border: 1.5px dashed var(--rule-strong);
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   color: var(--muted);
   font: 500 0.88rem var(--font-ui);
 }
@@ -339,7 +339,7 @@
   height: 40px;
   padding: 0 1.1rem;
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   font: 700 0.85rem var(--font-ui);
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -397,7 +397,7 @@
 .ex-pickable .line {
   display: inline-block;
   width: 100%;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   border-left: 4px solid transparent;
   cursor: pointer;
 }
@@ -452,7 +452,7 @@
   margin: 1rem 0 0;
   padding: 0.75rem 1rem;
   border: 1.5px solid var(--rule);
-  border-radius: 18px;
+  border-radius: var(--radius-lg);
   background: var(--tile);
   font: 400 clamp(1.06rem, 1rem + 0.3vw, 1.15rem) / 1.42 var(--font-text);
 }
@@ -562,7 +562,7 @@
   position: absolute;
   display: block;
   width: 4px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   background: var(--rule-strong);
 }
 .is-wide .ex-axis-line {
@@ -708,7 +708,7 @@
 }
 
 /* A note's ornaments (lib/deco-art.ts): a fleuron between two sections
-   (rehypeOutline, lib/markdown.ts) and the vignette that closes it. */
+   (rehypeOutline, lib/node/markdown.ts) and the vignette that closes it. */
 .sec-fleuron {
   width: 7.5rem;
   margin: 2rem auto 1.5rem;

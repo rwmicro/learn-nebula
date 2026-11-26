@@ -5,7 +5,7 @@
 // the note's questions in the reviews, and the next step in the path's
 // colour. Its own small bundle (scripts/bundle-js.mjs), added by
 // components/note/NoteScripts.tsx only to notes that sit in a path.
-import { readHint } from "../../lib/account-client";
+import { readHint } from "../../lib/client/account-client";
 import {
   addQuestion,
   answeredCorrectly,

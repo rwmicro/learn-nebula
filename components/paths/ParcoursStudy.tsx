@@ -3,10 +3,10 @@
 import { recordActivity } from "@/lib/personal";
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { t, pathName } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
 import { dayKey, type Grade } from "@/lib/srs";
-import { loadSettings } from "@/lib/srs-settings";
+import { loadSettings } from "@/lib/client/srs-settings";
 import {
   addQuestion,
   answeredCorrectly,
@@ -40,8 +40,8 @@ import {
   type KnownStore,
   type NoteState,
   type PlacementAnswer,
-} from "@/lib/path-study";
-import type { PathQuizItem } from "@/lib/path-extras";
+} from "@/lib/client/path-study";
+import type { PathQuizItem } from "@/lib/node/path-extras";
 import { ReviewSession, type Graded, type ReviewItem } from "@/components/review/ReviewSession";
 
 export interface StudyNoteView {
@@ -60,7 +60,7 @@ type Tr = (k: string, vars?: Record<string, string | number>) => string;
  * and the ordered list are server-rendered (components/paths/Parcours.tsx); this
  * decorates them from the reader's localStorage and wires their buttons:
  *
- * - states: non lue / lue / connue / maîtrisée (lib/path-study.ts), the note
+ * - states: non lue / lue / connue / maîtrisée (lib/client/path-study.ts), the note
  *   to read next, on the nodes, edges, list items and the "next" callout;
  * - "Viser cette note" (◎ on a node, or the list's button): target mode keeps
  *   the target and its ancestors lit and sums up what is left to read;

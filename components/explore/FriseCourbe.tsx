@@ -1,5 +1,5 @@
 import { t, i18nProps } from "@/lib/i18n";
-import type { FriseCurve } from "@/lib/frise-data";
+import type { FriseCurve } from "@/lib/node/frise-data";
 import { bareTitle } from "@/components/explore/Frise";
 
 /**

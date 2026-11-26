@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------------------
- * Retrieval-practice cards: `> [!quiz] Question` (lib/markdown.ts quizCallout)
+ * Retrieval-practice cards: `> [!quiz] Question` (lib/node/markdown.ts quizCallout)
  * wired by /js/quiz.js. A callout in the garden accent: the question in the
  * body face, the answer behind a disclosure button, then self-grading and
  * "add to my reviews" (created by the script, never indexed by Pagefind).
@@ -115,7 +115,7 @@
   }
 }
 
-/* Multiple-choice cards and "À ton avis ?" (lib/markdown.ts choicesEl):
+/* Multiple-choice cards and "À ton avis ?" (lib/node/markdown.ts choicesEl):
  * answers as "pressable" buttons (a thicker bottom edge that gives on press),
  * then a feedback band — the garden green when right, amber (never red) when
  * not quite. The explanation of each answer is its own line in the vault. */

@@ -2,7 +2,7 @@
 // Kokoro and MMS, lib/natural-voices.ts), run
 // in a Web Worker so the page stays responsive while it speaks. Bundled as an
 // ES module by scripts/bundle-js.mjs into natural-voice.worker.js (git-ignored) and
-// driven by lib/piper-voice.ts.
+// driven by lib/client/piper-voice.ts.
 //
 // Text → phoneme ids with piper_phonemize (eSpeak NG in WebAssembly, from
 // /piper/, scripts/copy-piper.mjs), then ids → PCM samples with the

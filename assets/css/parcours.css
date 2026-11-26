@@ -3,7 +3,7 @@
    lists it reuses. Every colour is a palette token (global.css), so the
    inline SVG follows light/dark like the rest of the page.
 
-   Note states (components/paths/ParcoursStudy.tsx, lib/path-study.ts): non lue
+   Note states (components/paths/ParcoursStudy.tsx, lib/client/path-study.ts): non lue
    (plain), lue (green wash + check), connue (green wash, dashed frame +
    dashed check — close to lue), maîtrisée (solid green + star); plus "next"
    (blue frame) and the target (violet ring). */
@@ -1740,7 +1740,7 @@ a.parcours-tool {
 .parcours-done::backdrop {
   background: color-mix(in srgb, var(--ink) 35%, transparent);
 }
-/* Same diamond medal as the lesson end (main.css .lesson-medal), which this
+/* Same diamond medal as the lesson end (note/*.css .lesson-medal), which this
    page does not load. */
 .parcours-medal {
   width: 4rem;
@@ -2031,7 +2031,7 @@ a.parcours-tool {
     min-height: 4.5rem;
     margin: 1.4rem 0 0.6rem;
     padding: 0.7rem 0.95rem 0.6rem;
-    border-radius: 14px;
+    border-radius: var(--radius-md);
   }
   /* The phone's section heading over the painting: white, the count beside
      the name rather than across the band; no credit (it is in the image's
@@ -2055,7 +2055,7 @@ a.parcours-tool {
     min-height: 10.5rem;
     margin: 0.5rem 0 0.25rem;
     padding: 1rem 1.1rem 0.9rem;
-    border-radius: 18px;
+    border-radius: var(--radius-lg);
   }
   main.parcours-page--path .parcours-cover .themes-kicker {
     margin: 0 0 0.25rem;
@@ -2081,7 +2081,7 @@ a.parcours-tool {
     gap: 0;
     min-height: 0;
     padding: 0;
-    border-radius: 1.25rem 1.25rem 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     background: var(--fam-wash);
     color: var(--ink);
   }

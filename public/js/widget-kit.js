@@ -4,7 +4,7 @@
 // of its widgets. The older library, public/js/widgets.js, keeps its own copy
 // of el()/svg() on purpose: it is served raw, not bundled.
 //
-// Visual grammar is main.css's `.w-*` (hairlines, square corners, page
+// Visual grammar is note/*.css's `.w-*` (hairlines, square corners, page
 // surfaces); a pack adds only what it needs in assets/css/widgets-extra.css.
 import { holds, parseGoals } from "../../lib/widget-goals.ts";
 

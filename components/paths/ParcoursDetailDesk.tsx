@@ -1,8 +1,8 @@
 import { t, i18nProps, i18nAttrProps, disciplineKey, keyedProps, keyedText, levelNameKey, pathDescKey, pathName, pathNameProps, type I18nVars } from "@/lib/i18n";
-import type { ReadingPathView } from "@/lib/content";
+import type { ReadingPathView } from "@/lib/node/content";
 import { paintingKey, paintingText, type Painting } from "@/lib/paintings";
 import { srcSet } from "@/lib/responsive-image";
-import { splitMinutes } from "@/lib/path-study";
+import { splitMinutes } from "@/lib/client/path-study";
 import { roman, splitTranslation } from "@/lib/path-titles";
 
 // The path page from 1100px (parcours-detail-desk.css shows these and hides

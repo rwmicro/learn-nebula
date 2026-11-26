@@ -19,13 +19,13 @@
     left: max(0.85rem, env(safe-area-inset-left, 0px));
     right: max(0.85rem, env(safe-area-inset-right, 0px));
     bottom: calc(0.9rem + var(--gk-safe-b) * 0.6);
-    z-index: 1000;
+    z-index: var(--z-bar);
     display: flex;
     align-items: center;
     gap: 0.6rem;
     font-family: var(--font-ui);
     transition:
-      transform 0.32s cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 0.32s var(--ease-out),
       opacity 0.25s;
   }
   /* The bar's glass, after Apple Music's: a neutral grey pane that takes
@@ -48,7 +48,7 @@
     --glass-on: rgb(255 255 255 / 0.13);
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) .tabbar {
+    :root:not([data-theme="light"]) .tabbar {
       --glass-bg: rgb(165 165 165 / 0.2);
       --glass-filter: blur(4px) saturate(1.15) brightness(1.15);
       --glass-edge: rgb(255 255 255 / 0.3);
@@ -108,7 +108,7 @@
     margin: 0;
     padding: 0.25rem;
     list-style: none;
-    border-radius: 2rem;
+    border-radius: var(--radius-xl);
   }
   .tabbar-bar li {
     margin: 0;
@@ -122,7 +122,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.1rem;
-    border-radius: 1.7rem;
+    border-radius: var(--radius-xl);
     color: var(--ink);
     font-size: 0.72rem;
     font-weight: 600;
@@ -158,7 +158,7 @@
     bottom: 0.25rem;
     left: 0;
     z-index: 0;
-    border-radius: 1.7rem;
+    border-radius: var(--radius-xl);
     /* A soft grey pill, no rim of its own: the coloured icon says which
        tab is current. */
     background: var(--glass-on);
@@ -226,7 +226,7 @@
     min-width: 1.15rem;
     height: 1.15rem;
     padding: 0 0.3rem;
-    border-radius: 0.6rem;
+    border-radius: var(--radius-sm);
     background: #c2410c;
     color: #fff;
     font-size: 0.68rem;
@@ -260,7 +260,7 @@
   }
 
   /* Drop shadows on their own elements, under the glass they follow; the
-     glass keeps only its inner light. Once lib/glass draws a piece, its
+     glass keeps only its inner light. Once lib/client/glass draws a piece, its
      canvas casts the shadow and the element's own goes. */
   .tabbar .glass {
     box-shadow: var(--glass-inset);
@@ -269,7 +269,7 @@
     position: absolute;
     top: 0;
     height: 3.85rem;
-    border-radius: 2rem;
+    border-radius: var(--radius-xl);
     box-shadow: var(--glass-drop);
     pointer-events: none;
   }
@@ -365,7 +365,7 @@
     left: 4.45rem;
     right: 4.45rem;
     height: 3.85rem;
-    border-radius: 2rem;
+    border-radius: var(--radius-xl);
     opacity: 0;
     scale: 0.6 0.9;
     pointer-events: none;
@@ -515,7 +515,7 @@
     top: 0;
     left: 0;
     right: 0;
-    z-index: 900;
+    z-index: var(--z-sticky);
     margin: 0;
     padding: calc(0.5rem + env(safe-area-inset-top, 0px)) 0.875rem 0;
     background: none;
@@ -597,7 +597,7 @@
     height: 2.75rem;
     max-width: calc(100vw - 8rem);
     padding: 0 1rem 0 0.75rem;
-    border-radius: 1.375rem;
+    border-radius: var(--radius-lg);
     background: var(--glass-bg);
     -webkit-backdrop-filter: var(--glass-filter);
     backdrop-filter: var(--glass-filter);
@@ -611,7 +611,7 @@
     transform: translate(-50%, -0.4rem);
     transition:
       opacity 0.25s,
-      transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform 0.3s var(--ease-out);
     pointer-events: none;
   }
   :root[data-topbar="scrolled"] body:not(:has(.na-chrome)) .site-bar-brand {
@@ -672,7 +672,7 @@
   html .gk-pinned-trigger,
   html .to-top {
     bottom: calc(1rem + var(--gk-tabbar-h));
-    transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: bottom 0.32s var(--ease-out);
   }
   html .coin-toast {
     bottom: calc(1.4rem + var(--gk-tabbar-h));
@@ -683,7 +683,7 @@
   }
   html .path-dock:not([hidden]) {
     bottom: calc(0.75rem + var(--gk-tabbar-h));
-    transition: bottom 0.32s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: bottom 0.32s var(--ease-out);
   }
   html .parcours-dock:not([hidden]) {
     bottom: var(--gk-tabbar-h);

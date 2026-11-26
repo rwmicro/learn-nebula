@@ -35,7 +35,7 @@ export const LEECH_LAPSES = 6;
 const MAX_IVL = 36500;
 
 // The retention reviews schedule with when no explicit one is passed: the
-// reader's setting, installed by lib/srs-settings.ts loadSettings().
+// reader's setting, installed by lib/client/srs-settings.ts loadSettings().
 let activeRetention = DEFAULT_RETENTION;
 export function setRetention(r: number): void {
   if (RETENTIONS.includes(r as (typeof RETENTIONS)[number])) activeRetention = r;

@@ -10,7 +10,7 @@ import { SCENES } from "@/lib/deco-art";
 import { MyMarks } from "@/components/note/MyMarks";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { CHANGE_EVENT } from "@/lib/reading-progress";
 import {
   LINK_PARAM,
@@ -21,13 +21,10 @@ import {
   canCompress,
   collectProgress,
   decodeTransfer,
-  downloadExport,
   encodeTransfer,
-  exportText,
   hasChanges,
   payloadFromHash,
   planImport,
-  progressStorage,
   summarize,
   validateImport,
   type ImportError,
@@ -36,7 +33,8 @@ import {
   type ProgressFile,
   type Summary,
 } from "@/lib/progress-transfer";
-import type { AnkiDeck } from "@/lib/anki";
+import { downloadExport, exportText, progressStorage } from "@/lib/client/progress-storage";
+import type { AnkiDeck } from "@/lib/node/anki";
 import { ReviewStats } from "@/components/review/ReviewStats";
 import { AppSettings } from "@/components/layout/AppSettings";
 import { Calibration } from "@/components/progress/Calibration";

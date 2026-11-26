@@ -4,9 +4,9 @@
 // the manner of the ChatGPT / Claude apps — full screen on a phone, a tall
 // panel on the right from 640px. Mounted site-wide in the root layout.
 //
-// Every answer is written on the reader's device (lib/garden-ai.ts): Chrome's
+// Every answer is written on the reader's device (lib/client/garden-ai.ts): Chrome's
 // Gemini Nano when it covers the language, else Qwen3.5-2B downloaded once
-// after the reader agrees (lib/local-llm.ts). The server only retrieves the
+// after the reader agrees (lib/client/local-llm.ts). The server only retrieves the
 // passages and builds the prompt (/api/ask/context). Its own LLM is not
 // offered (SERVER_LLM_OFFERED); without a model the chat says so.
 //
@@ -21,7 +21,7 @@
 //
 // From 640px, desktop tools: the history as a column with a search (☰), a
 // panel the reader can widen (drag its edge, or « Élargir »), « Côte à côte »
-// (the page beside the chat, never under it: lib/chat-dock.ts), the ⋯ menu
+// (the page beside the chat, never under it: lib/client/chat-dock.ts), the ⋯ menu
 // (rename, pin, Markdown export, delete), keyboard shortcuts (Ctrl/⌘ J,
 // Ctrl/⌘ ⇧ O, Ctrl/⌘ \, Échap, ↑). Everywhere: formulas drawn by KaTeX
 // (loaded on demand), the answer's « [n] » as source pastilles that show their
@@ -31,10 +31,16 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { hasMath, markdownToHtml } from "@/lib/markdown-lite";
 import { escapeHtml } from "@/lib/escape";
-import { readAskStream } from "@/lib/ask-stream";
+import {
+  askContext,
+  askServerAnswer,
+  chatHistory,
+  lastPassage,
+  preferredLang,
+} from "@/lib/client/chat-ask";
 import {
   detectLanguage,
   nanoAvailability,
@@ -42,7 +48,7 @@ import {
   resetNano,
   warmNano,
   type Availability,
-} from "@/lib/browser-ai";
+} from "@/lib/client/browser-ai";
 import {
   CORRECTOR,
   deleteLocalModel,
@@ -55,16 +61,15 @@ import {
   onLoadProgress,
   setLocalModelEnabled,
   storageFree,
-  type ChatTurn,
   type LoadProgress,
-} from "@/lib/local-llm";
+} from "@/lib/client/local-llm";
 import {
   SERVER_LLM_OFFERED,
   aiRoute,
   deviceWord,
   generateOnDevice,
   type AiRoute,
-} from "@/lib/garden-ai";
+} from "@/lib/client/garden-ai";
 import {
   SOCRATIC_RULES,
   cardSystem,
@@ -76,13 +81,9 @@ import {
 } from "@/lib/ask-prompts";
 import {
   chatTitle,
-  deleteChat,
-  groupByNote,
   loadChats,
-  saveChat,
   type ChatMessage,
   type ChatMode,
-  type ChatNote,
   type ChatSource,
   type Conversation,
 } from "@/lib/chat-history";
@@ -97,7 +98,6 @@ import {
   downloadSecondsLeft,
   exportFileName,
   nextSection,
-  railGroups,
   searchChats,
   searchNotes,
   tickDownload,
@@ -107,7 +107,6 @@ import {
   canDock,
   dock,
   flashPassage,
-  headingWords,
   inDockFrame,
   isDocked,
   navigatePage,
@@ -116,362 +115,46 @@ import {
   pageWindow,
   undock,
   visibleSection,
-} from "@/lib/chat-dock";
-// Type-only: erased at build, so lib/content.ts (node:fs) never reaches the bundle.
-import type { ScopeOption } from "@/lib/content";
-import { HoldButton } from "@/components/ui/HoldButton";
+} from "@/lib/client/chat-dock";
+// Type-only: erased at build, so lib/node/content.ts (node:fs) never reaches the bundle.
+import type { ScopeOption } from "@/lib/node/content";
 import { ThinkingSprout } from "@/components/chat/ThinkingSprout";
+import { Ic } from "@/components/chat/chat-icons";
+import { ChatHistory } from "@/components/chat/ChatHistory";
+import { ChatRail } from "@/components/chat/ChatRail";
+import { ChatSettings } from "@/components/chat/ChatSettings";
+import { useConversations } from "@/components/chat/use-conversations";
+import { AttachButton, AttachMenu, Composer, ModeTabs } from "@/components/chat/ChatComposer";
+import { DownloadOffer, DownloadProgress } from "@/components/chat/ChatDownload";
+import {
+  DL_LATER_KEY,
+  LAYOUT_KEY,
+  RAIL_KEY,
+  REOPEN_KEY,
+  SCOPE_KEY,
+  SRC_COLORS,
+  WIDTH_KEY,
+  avColor,
+  emptyConv,
+  fmtGb,
+  katexMath,
+  katexReady,
+  loadKatex,
+  lsGet,
+  lsSet,
+  navigatorConnection,
+  newId,
+  readPage,
+  relTime,
+  sectionOf,
+  type DlState,
+  type Layout,
+  type NoteRef,
+  type PageNote,
+  type Sheet,
+  type SpeechRec,
+} from "@/components/chat/chat-helpers";
 
-const st = {
-  fill: "none",
-  stroke: "currentColor",
-  strokeWidth: 1.8,
-  strokeLinecap: "round" as const,
-  strokeLinejoin: "round" as const,
-};
-const Ic = {
-  sprout: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M12 21v-7" />
-      <path d="M12 14C7 14 4.5 11 4.5 6.5 9 6.5 12 9 12 14Z" />
-      <path d="M12 12c0-4.5 3-7.5 7.5-7.5 0 4.5-3 7.5-7.5 7.5Z" />
-    </svg>
-  ),
-  back: (
-    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.2} aria-hidden="true">
-      <path d="m15 5-7 7 7 7" />
-    </svg>
-  ),
-  edit: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M12 20h8M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
-    </svg>
-  ),
-  down: (
-    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.6} aria-hidden="true">
-      <path d="m6 9 6 6 6-6" />
-    </svg>
-  ),
-  doc: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M6 3h9l4 4v14H6z" />
-      <path d="M14 3v5h5M9 13h6M9 17h4" />
-    </svg>
-  ),
-  mic: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <rect x="9" y="3" width="6" height="11" rx="3" />
-      <path d="M5 11a7 7 0 0 0 14 0M12 18v3" />
-    </svg>
-  ),
-  up: (
-    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.4} aria-hidden="true">
-      <path d="M12 19V5M6 11l6-6 6 6" />
-    </svg>
-  ),
-  copy: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <rect x="8" y="8" width="12" height="12" rx="2" />
-      <path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3" />
-    </svg>
-  ),
-  thumb: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M7 11v9H4v-9h3Zm0 0 4-7c1.5 0 2.5 1 2.2 2.6L12.7 10H19a2 2 0 0 1 2 2.3l-1.2 6A2 2 0 0 1 17.8 20H7" />
-    </svg>
-  ),
-  speak: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M4 9v6h4l5 4V5L8 9H4ZM16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />
-    </svg>
-  ),
-  redo: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5" />
-    </svg>
-  ),
-  cards: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <rect x="3" y="7" width="14" height="13" rx="2" />
-      <path d="M7 4h12a2 2 0 0 1 2 2v11" />
-    </svg>
-  ),
-  chev: (
-    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.4} aria-hidden="true">
-      <path d="m9 5 7 7-7 7" />
-    </svg>
-  ),
-  chip: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <rect x="6" y="6" width="12" height="12" rx="2" />
-      <path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4" />
-    </svg>
-  ),
-  dl: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M12 4v11M7 10l5 5 5-5M5 20h14" />
-    </svg>
-  ),
-  wifi: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M2.5 9a14 14 0 0 1 19 0M5.5 12.5a9.5 9.5 0 0 1 13 0M8.7 15.8a5 5 0 0 1 6.6 0" />
-      <circle cx="12" cy="19" r="1" />
-    </svg>
-  ),
-  disk: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <rect x="3" y="5" width="18" height="14" rx="2" />
-      <path d="M7 15h.01M11 15h6" />
-    </svg>
-  ),
-  check: (
-    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.4} aria-hidden="true">
-      <path d="m5 12 5 5 9-10" />
-    </svg>
-  ),
-  q: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01" />
-    </svg>
-  ),
-  search: (
-    <svg viewBox="0 0 24 24" {...st} strokeWidth={2} aria-hidden="true">
-      <circle cx="11" cy="11" r="7" />
-      <path d="m20 20-3.5-3.5" />
-    </svg>
-  ),
-  side: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <rect x="3" y="4" width="18" height="16" rx="2" />
-      <path d="M9 4v16" />
-    </svg>
-  ),
-  dock: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <rect x="3" y="4" width="18" height="16" rx="2" />
-      <path d="M14 4v16M6.5 9h4M6.5 12.5h4" />
-    </svg>
-  ),
-  expand: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" />
-    </svg>
-  ),
-  shrink: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M20 4l-6 6M14 5v5h5M4 20l6-6M5 14h5v5" />
-    </svg>
-  ),
-  more: (
-    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.6} aria-hidden="true">
-      <circle cx="5" cy="12" r="0.8" />
-      <circle cx="12" cy="12" r="0.8" />
-      <circle cx="19" cy="12" r="0.8" />
-    </svg>
-  ),
-  plus: (
-    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.2} aria-hidden="true">
-      <path d="M12 5v14M5 12h14" />
-    </svg>
-  ),
-  pin: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M9 4h6l-1 6 4 3H6l4-3-1-6ZM12 13v7" />
-    </svg>
-  ),
-  trash: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13" />
-    </svg>
-  ),
-  kbd: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <rect x="2" y="6" width="20" height="12" rx="2" />
-      <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10" />
-    </svg>
-  ),
-  arrow: (
-    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.2} aria-hidden="true">
-      <path d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  ),
-  sel: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M4 7V4h3M17 4h3v3M20 17v3h-3M7 20H4v-3M8 12h8" />
-    </svg>
-  ),
-  sec: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <path d="M4 6h16M4 12h10M4 18h7" />
-    </svg>
-  ),
-  x: (
-    <svg viewBox="0 0 24 24" {...st} strokeWidth={2.2} aria-hidden="true">
-      <path d="M6 6l12 12M18 6 6 18" />
-    </svg>
-  ),
-  gear: (
-    <svg viewBox="0 0 24 24" {...st} aria-hidden="true">
-      <circle cx="12" cy="12" r="3" />
-      <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
-    </svg>
-  ),
-};
-
-/** Discipline colours for the history avatars (stable per name). */
-const AV = ["#6b4fbb", "#2d6cc0", "#3f6b4a", "#b8740f", "#009b8f", "#b3322f"];
-const avColor = (s: string) => {
-  let h = 0;
-  for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) | 0;
-  return AV[Math.abs(h) % AV.length];
-};
-const SRC_COLORS = ["#3f6b4a", "#6b4fbb", "#b8740f", "#2d6cc0", "#009b8f"];
-
-const SCOPE_KEY = "gkChatScope";
-const DL_LATER_KEY = "gkLocalLlmLater";
-/** Desktop layout: over the page, beside it, or wide (localStorage). Unset =
- *  beside the page where there is room (from 1100px), else over it. */
-const LAYOUT_KEY = "gkChatLayout";
-/** The history column shown (localStorage, "1"). */
-const RAIL_KEY = "gkChatRail";
-/** The panel's width in px, as the reader dragged it (localStorage). */
-const WIDTH_KEY = "gkChatWidth";
-/** A conversation to reopen on the next page load (sessionStorage): set
- *  while « côte à côte » (a reload) and when leaving it for another page. */
-const REOPEN_KEY = "gkChatReopen";
-type Layout = "overlay" | "dock" | "wide";
-
-function lsGet(k: string): string {
-  try {
-    return localStorage.getItem(k) ?? "";
-  } catch {
-    return "";
-  }
-}
-function lsSet(k: string, v: string) {
-  try {
-    if (v) localStorage.setItem(k, v);
-    else localStorage.removeItem(k);
-  } catch {
-    /* storage blocked */
-  }
-}
-
-// KaTeX for the formulas in answers: ~270 KB, so loaded the first time an
-// answer holds one, with the site's own stylesheet (public/katex/).
-type Katex = { renderToString(tex: string, o: object): string };
-let katexLib: Katex | null = null;
-let katexLoading: Promise<void> | null = null;
-function loadKatex(): Promise<void> {
-  if (!katexLoading) {
-    katexLoading = import("katex").then((m) => {
-      katexLib = ((m as unknown as { default?: Katex }).default ?? m) as Katex;
-      if (!document.querySelector('link[href="/katex/katex.min.css"]')) {
-        const l = document.createElement("link");
-        l.rel = "stylesheet";
-        l.href = "/katex/katex.min.css";
-        document.head.appendChild(l);
-      }
-    });
-  }
-  return katexLoading;
-}
-const katexMath = (tex: string, display: boolean) =>
-  katexLib!.renderToString(tex, { displayMode: display, throwOnError: false, output: "html" });
-const newId = () =>
-  `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
-
-interface PageNote extends ChatNote {
-  /** Folder slug of the note, the "Cette note" retrieval scope. */
-  folder: string;
-  /** Its section headings, for the suggestions. */
-  headings: string[];
-}
-
-function readPage(): PageNote | null {
-  if (typeof window === "undefined") return null;
-  // Beside the chat, the page is in the frame (lib/chat-dock.ts).
-  const win = pageWindow();
-  const document = win.document;
-  const location = win.location;
-  if (!location.pathname.startsWith("/posts/")) return null;
-  const title =
-    document
-      .querySelector("main h1")
-      ?.textContent?.replace(/\s+/g, " ")
-      .trim() ?? "";
-  if (!title) return null;
-  const slug = noteSlugFromPath(location.pathname) ?? "";
-  const folder = slug.split("/").slice(0, -1).join("/");
-  const discipline =
-    document
-      .querySelector("main .crumbs a, .note-header-crumb a")
-      ?.textContent?.trim() || undefined;
-  const headings = Array.from(
-    document.querySelectorAll("main .article-body h2"),
-  )
-    .map(headingWords)
-    .filter((h) => h.length > 2 && h.length < 70)
-    .slice(0, 6);
-  return {
-    title: title.slice(0, 200),
-    url: location.pathname,
-    discipline,
-    folder,
-    headings,
-  };
-}
-
-/** A heading's words, without its "#" anchor link or section number. */
-const headingText = headingWords;
-
-/** The heading of the section a passage sits in, for « Relire … ». */
-function sectionOf(passage: string): { title: string; id: string } | null {
-  const body = pageDoc().querySelector("main .article-body");
-  const probe = passage.replace(/\s+/g, " ").trim().slice(0, 40);
-  if (!body || !probe) return null;
-  let heading: Element | null = null;
-  for (const el of Array.from(
-    body.querySelectorAll("h2, h3, p, li, blockquote, td"),
-  )) {
-    if (/^H[23]$/.test(el.tagName)) heading = el;
-    else if ((el.textContent ?? "").replace(/\s+/g, " ").includes(probe)) break;
-  }
-  if (!heading || !heading.id) return null;
-  const title = headingText(heading);
-  return title ? { title, id: heading.id } : null;
-}
-
-function emptyConv(
-  note: PageNote | null,
-  scope: string,
-  mode: ChatMode,
-): Conversation {
-  return {
-    id: newId(),
-    title: "",
-    note: note
-      ? { title: note.title, url: note.url, discipline: note.discipline }
-      : null,
-    scope,
-    mode,
-    updated: Date.now(),
-    messages: [],
-  };
-}
-
-const fmtGb = (bytes: number, locale: string) =>
-  (bytes / 1e9).toLocaleString(locale, {
-    maximumFractionDigits: 1,
-    minimumFractionDigits: 1,
-  });
-const fmtMb = (bytes: number, locale: string) =>
-  bytes >= 1e9 ? `${fmtGb(bytes, locale)} Go` : `${Math.round(bytes / 1e6)} Mo`;
-
-type Sheet = null | "confirm" | "sources" | "unsupported" | "card" | "keys";
-type NoteRef = { title: string; href: string; folder?: string };
-type DlState = "idle" | "loading" | "ready" | "failed";
 
 export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const locale = useLocale();
@@ -482,10 +165,8 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"chat" | "history" | "settings">("chat");
   const [page, setPage] = useState<PageNote | null>(null);
-  const [conv, setConv] = useState<Conversation>(() =>
-    emptyConv(null, "", "answer"),
-  );
-  const [chats, setChats] = useState<Conversation[]>([]);
+  const { conv, setConv, convRef, chats, setChats, store, persist, updateConv, removeChat } =
+    useConversations();
   const [input, setInput] = useState("");
   // Passage waiting to be asked about (selection menu), shown above the field.
   const [passage, setPassage] = useState("");
@@ -556,7 +237,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     below: boolean;
   } | null>(null);
   const [, setMathTick] = useState(0);
-  // The frame's page (« côte à côte »): its chat only forwards (lib/chat-dock.ts).
+  // The frame's page (« côte à côte »): its chat only forwards (lib/client/chat-dock.ts).
   const [passive, setPassive] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
   const mainRef = useRef<HTMLDivElement>(null);
@@ -568,7 +249,6 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   /** A source to light up once the frame shows its note. */
   const pendingFlash = useRef<{ path: string; hash: string; excerpt?: string } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
-  const convRef = useRef(conv);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   // A question asked before the reader agreed to the download, sent after.
@@ -576,31 +256,11 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   const sendRef = useRef<
     (text: string, opts?: { passage?: string; mode?: ChatMode }) => void
   >(() => {});
+  const resumeRef = useRef<(c: Conversation) => void>(() => {});
+  /** The selection « + » offers, read when the menu opens. */
+  const [selShown, setSelShown] = useState("");
   const word = deviceWord();
 
-  useEffect(() => {
-    convRef.current = conv;
-  }, [conv]);
-
-  const store = () =>
-    typeof localStorage === "undefined" ? null : localStorage;
-
-  function persist(c: Conversation) {
-    const s = store();
-    if (!s || !c.messages.length) return;
-    try {
-      setChats(saveChat(s, c));
-    } catch {
-      /* storage blocked */
-    }
-  }
-
-  function updateConv(fn: (c: Conversation) => Conversation, save = false) {
-    const next = fn(convRef.current);
-    convRef.current = next;
-    setConv(next);
-    if (save) persist(next);
-  }
 
   function showToast(text: string) {
     setToast(text);
@@ -609,6 +269,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   // --- the download --------------------------------------------------------
   // The clock behind "time left": restarted with each new download.
+  const [secsLeftRaw, setSecsLeftRaw] = useState<number | null>(null);
   const dlClock = useRef<{ clock: DownloadClock | null; last: number }>({ clock: null, last: 0 });
   useEffect(
     () =>
@@ -617,6 +278,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         c.clock = tickDownload(c.clock, c.last, p.loaded, Date.now());
         c.last = p.loaded;
         setProgress(p);
+        setSecsLeftRaw(downloadSecondsLeft(c.clock, p.loaded, p.total, Date.now()));
       }),
     [],
   );
@@ -725,7 +387,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     lsSet(LAYOUT_KEY, l);
   }
 
-  /** The page beside the chat, in a frame its exact width (lib/chat-dock.ts). */
+  /** The page beside the chat, in a frame its exact width (lib/client/chat-dock.ts). */
   function enterDock() {
     if (isDocked() || !canDock()) return;
     dock({
@@ -892,7 +554,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       void openChat().then((ok) => {
         if (!ok) return;
         const c = s ? loadChats(s).find((x) => x.id === reopen) : undefined;
-        if (c) resume(c);
+        if (c) resumeRef.current(c);
         else newConversation();
       });
     }
@@ -913,7 +575,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     mq.addEventListener("change", onMq);
     // No aiRoute() here: it asks for a WebGPU adapter, which can wake the GPU
     // on every page view. It runs when the chat (or its download sheet)
-    // first opens; lib/local-llm.ts keeps the answer for the session.
+    // first opens; lib/client/local-llm.ts keeps the answer for the session.
 
     const passageOf = (e: Event) =>
       String((e as CustomEvent<{ text?: string }>).detail?.text ?? "")
@@ -993,7 +655,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   // Formulas: KaTeX arrives the first time an answer holds one.
   useEffect(() => {
-    if (katexLib || busy) return;
+    if (katexReady() || busy) return;
     if (conv.messages.some((m) => m.role === "assistant" && hasMath(m.text)))
       void loadKatex()
         .then(() => setMathTick((n) => n + 1))
@@ -1054,24 +716,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     if (el && busy) el.scrollTop = el.scrollHeight;
   }, [conv, busy, status]);
 
-  function preferredLang(): string {
-    try {
-      const saved = localStorage.getItem("locale");
-      if (saved) return saved.slice(0, 2);
-    } catch {
-      /* ignore */
-    }
-    return (navigator.language || "fr").slice(0, 2).toLowerCase();
-  }
-
   // --- asking --------------------------------------------------------------
-  function history(c: Conversation): ChatTurn[] {
-    return c.messages
-      .filter((m) => m.text.trim())
-      .slice(-6)
-      .map((m) => ({ role: m.role, content: m.text.slice(0, 1500) }));
-  }
-
   async function send(
     text: string,
     opts: {
@@ -1116,7 +761,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
         : question
           ? chatTitle(question, tr("chat.explainTitle"))
           : tr("chat.explainTitle"));
-    const prior = history(c0);
+    const prior = chatHistory(c0.messages);
     if (!opts.regenerate) {
       updateConv((c) => ({
         ...c,
@@ -1165,40 +810,30 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     if (mode === "own") {
       system = explainSystemDevice(lang);
       prompt = explainUser(
-        pass || lastPassage(c0),
+        pass || lastPassage(c0.messages),
         question,
         c0.note?.title ?? "",
       );
     } else {
       // Retrieval on the server, writing here.
       try {
-        const resp = await fetch("/api/ask/context", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
+        const ctx = await askContext(
+          {
             question: question || tr("chat.explainDefault"),
-            selection: pass || undefined,
-            locale: preferredLang(),
-            scope: c0.scope || undefined,
-            lang: lang || undefined,
-            socratic: mode === "socratic" || undefined,
-          }),
-          signal: ctrl.signal,
-        });
-        if (!resp.ok) {
+            selection: pass,
+            scope: c0.scope,
+            lang,
+            socratic: mode === "socratic",
+          },
+          ctrl.signal,
+        );
+        if (!ctx.ok) {
           setLast({
-            text: tr(resp.status === 429 ? "chat.errRate" : "chat.errContext"),
+            text: tr(ctx.status === 429 ? "chat.errRate" : "chat.errContext"),
           });
           return finish(ctrl, false);
         }
-        const ctx = (await resp.json()) as {
-          system: string;
-          user: string;
-          sources: ChatSource[];
-        };
-        const sources = (ctx.sources ?? []).filter(
-          (s) => s && s.url && /^\/(?!\/)/.test(s.url),
-        );
+        const sources = ctx.sources;
         system = ctx.system;
         prompt = ctx.user;
         setLast({ sources });
@@ -1225,7 +860,26 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       system += `\n${SOCRATIC_RULES}`;
 
     if (r === "server" && SERVER_LLM_OFFERED) {
-      await askServer(ctrl, question, pass, lang, mode, setLast);
+      await askServerAnswer(
+        {
+          mode,
+          question,
+          passage: pass,
+          noteTitle: c0.note?.title,
+          scope: c0.scope,
+          lang,
+        },
+        ctrl.signal,
+        {
+          sources: (s) => setLast({ sources: s }),
+          text: (t2) => {
+            setStatus("");
+            setLast({ text: t2 });
+          },
+          error: () => setLast({ text: tr("chat.errNoAnswer") }),
+          partialError: tr("chat.errNoAnswer"),
+        },
+      );
       return finish(ctrl, true);
     }
     if (r === "local" && !localModelLoaded()) {
@@ -1269,74 +923,12 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       finish(ctrl, false);
     }
   }
-  sendRef.current = (text, opts) => void send(text, opts);
-
-  function lastPassage(c: Conversation): string {
-    for (let i = c.messages.length - 1; i >= 0; i--)
-      if (c.messages[i].passage) return c.messages[i].passage!;
-    return "";
-  }
 
   function finish(ctrl: AbortController, save: boolean) {
     setBusy(false);
     setStatus("");
     if (abortRef.current === ctrl) abortRef.current = null;
     updateConv((c) => ({ ...c, updated: Date.now() }), save);
-  }
-
-  // The server's own LLM (Claude / an OpenAI-compatible backend). Not
-  // offered while SERVER_LLM_OFFERED is false; kept for when it is.
-  async function askServer(
-    ctrl: AbortController,
-    question: string,
-    pass: string,
-    lang: string,
-    mode: ChatMode,
-    setLast: (p: Partial<ChatMessage>) => void,
-  ) {
-    try {
-      const resp = await fetch(
-        mode === "own" ? "/api/ask/explain" : "/api/ask",
-        {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(
-            mode === "own"
-              ? {
-                  passage: pass,
-                  explanation: question,
-                  title: convRef.current.note?.title,
-                  lang: lang || undefined,
-                }
-              : {
-                  question,
-                  selection: pass || undefined,
-                  locale: preferredLang(),
-                  scope: convRef.current.scope || undefined,
-                  lang: lang || undefined,
-                  socratic: mode === "socratic" || undefined,
-                },
-          ),
-          signal: ctrl.signal,
-        },
-      );
-      if (!resp.ok || !resp.body)
-        return setLast({ text: tr("chat.errNoAnswer") });
-      await readAskStream(resp.body, {
-        onSources: (s) =>
-          setLast({
-            sources: s.filter((x) => x?.url && x.title) as ChatSource[],
-          }),
-        onChunk: (t2) => {
-          setStatus("");
-          setLast({ text: t2 });
-        },
-        partialError: tr("chat.errNoAnswer"),
-      });
-    } catch (e) {
-      if ((e as Error)?.name !== "AbortError")
-        setLast({ text: tr("chat.errNoAnswer") });
-    }
   }
 
   function stop() {
@@ -1575,8 +1167,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
 
   function deleteCurrent() {
     setMenu(null);
-    const s2 = store();
-    if (s2) setChats(deleteChat(s2, convRef.current.id));
+    removeChat(convRef.current.id);
     newConversation();
     showToast(tr("chat.convDeleted"));
   }
@@ -1750,7 +1341,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   }
 
   // --- keyboard -------------------------------------------------------------
-  onKeyRef.current = (e: KeyboardEvent) => {
+  function onKey(e: KeyboardEvent) {
     if (e.defaultPrevented) return;
     const mod = e.ctrlKey || e.metaKey;
     const k = e.key.toLowerCase();
@@ -1794,7 +1385,13 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       if (isDocked()) (document.activeElement as HTMLElement | null)?.blur();
       else if (wide) closeChat();
     }
-  };
+  }
+  // The window listeners call the latest closures through these refs.
+  useEffect(() => {
+    sendRef.current = (text, opts) => void send(text, opts);
+    resumeRef.current = resume;
+    onKeyRef.current = onKey;
+  });
 
   // --- rendering -----------------------------------------------------------
   const model = localModel();
@@ -1823,81 +1420,23 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       : 0;
   const loadingOnly =
     fromCache || pct >= 100 || (!!progress && progress.total < model.bytes / 2);
-  const secsLeft =
-    progress && !loadingOnly
-      ? downloadSecondsLeft(dlClock.current.clock, progress.loaded, progress.total, Date.now())
-      : null;
-  // The download as a ring of 60 dots (chat.css .gc-ring), one lit for each
-  // sixtieth that has arrived, every fifth a little larger, like a dial.
-  const RING_DOTS = 60;
-  const lit = Math.round((pct / 100) * RING_DOTS);
+  const secsLeft = progress && !loadingOnly ? secsLeftRaw : null;
   const progressCard = (
-    <div className="gc-prog">
-      <div
-        className="gc-ring"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={pct}
-        aria-label={tr(loadingOnly ? "chat.dlLoading" : "chat.dlProgress")}
-      >
-        <svg viewBox="0 0 100 100" aria-hidden="true">
-          {Array.from({ length: RING_DOTS }, (_, i) => {
-            const a = -Math.PI / 2 + (i / RING_DOTS) * Math.PI * 2;
-            return (
-              <circle
-                key={i}
-                className={i < lit ? "is-on" : undefined}
-                cx={(50 + 42 * Math.cos(a)).toFixed(2)}
-                cy={(50 + 42 * Math.sin(a)).toFixed(2)}
-                r={i % 5 === 0 ? 2.6 : 1.9}
-              />
-            );
-          })}
-        </svg>
-        <span className="gc-ring-pct">{pct} %</span>
-      </div>
-      <div className="gc-prog-tx">
-        <b>{tr(loadingOnly ? "chat.dlLoading" : "chat.dlProgress")}</b>
-        <dl className="gc-prog-st">
-          <div>
-            <dt>{tr("chat.dlGot")}</dt>
-            <dd>
-              {progress
-                ? tr("chat.dlBytes", {
-                    a: fmtMb(progress.loaded, locale),
-                    b: fmtMb(progress.total, locale),
-                  })
-                : "…"}
-            </dd>
-          </div>
-          {!loadingOnly && (
-            <div>
-              <dt>{tr("chat.dlLeft")}</dt>
-              <dd>
-                {secsLeft === null
-                  ? "…"
-                  : secsLeft >= 60
-                    ? tr("chat.dlLeftMin", { n: Math.ceil(secsLeft / 60) })
-                    : tr("chat.dlLeftSec", { n: Math.max(1, secsLeft) })}
-              </dd>
-            </div>
-          )}
-        </dl>
-        <button
-          type="button"
-          onClick={() => {
-            stop();
-            setLocalModelEnabled(false);
-            setDl("idle");
-            setWaitingModel(false);
-            setRoute("download");
-          }}
-        >
-          {tr("chat.dlCancel")}
-        </button>
-      </div>
-    </div>
+    <DownloadProgress
+      tr={tr}
+      locale={locale}
+      progress={progress}
+      pct={pct}
+      loadingOnly={loadingOnly}
+      secsLeft={secsLeft}
+      onCancel={() => {
+        stop();
+        setLocalModelEnabled(false);
+        setDl("idle");
+        setWaitingModel(false);
+        setRoute("download");
+      }}
+    />
   );
 
   const deviceBadge = (via?: ChatMessage["via"]) => (
@@ -2003,7 +1542,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             aria-live="polite"
             dangerouslySetInnerHTML={{
               __html: markdownToHtml(m.text, {
-                math: katexLib ? katexMath : undefined,
+                math: katexReady() ? katexMath : undefined,
                 cite: citeHtml(sources),
               }),
             }}
@@ -2134,7 +1673,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             <button
               type="button"
               onClick={() => {
-                setPassage(lastPassage(conv));
+                setPassage(lastPassage(conv.messages));
                 requestAnimationFrame(() => inputRef.current?.focus());
               }}
             >
@@ -2143,7 +1682,7 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
             <button
               type="button"
               onClick={() => {
-                const p = lastPassage(conv);
+                const p = lastPassage(conv.messages);
                 updateConv((c) => ({ ...c, mode: "socratic" }));
                 send(tr("chat.socStart"), { passage: p, mode: "socratic" });
               }}
@@ -2162,27 +1701,13 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   }
 
   const modes = (
-    <div className="gc-modes" role="tablist" aria-label={tr("chat.modesAria")}>
-      {(
-        [
-          ["answer", "chat.modeAnswer"],
-          ["socratic", "chat.modeSocratic"],
-          ["own", "chat.modeOwn"],
-        ] as const
-      ).map(([m, k]) => (
-        <button
-          key={m}
-          type="button"
-          role="tab"
-          aria-selected={conv.mode === m}
-          className={conv.mode === m ? "on" : ""}
-          disabled={busy || (m === "own" && !passage && !lastPassage(conv))}
-          onClick={() => updateConv((c) => ({ ...c, mode: m }))}
-        >
-          {tr(k)}
-        </button>
-      ))}
-    </div>
+    <ModeTabs
+      tr={tr}
+      mode={conv.mode}
+      busy={busy}
+      ownAvailable={!!(passage || lastPassage(conv.messages))}
+      onMode={(m) => updateConv((c) => ({ ...c, mode: m }))}
+    />
   );
 
   const canSend = !!(input.trim() || (passage && conv.mode !== "own"));
@@ -2190,256 +1715,88 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     ? searchNotes(noteIndex, noteQuery, page?.url ?? "")
     : [];
   const plusBtn = (
-    <button
-      type="button"
-      className={menu === "attach" ? "gc-plus gc-menu-btn on" : "gc-plus gc-menu-btn"}
-      aria-label={tr("chat.attach")}
-      title={tr("chat.attach")}
-      aria-expanded={menu === "attach"}
-      // Keep the page's selection: no focus change on press.
-      onMouseDown={(e) => e.preventDefault()}
-      onClick={() => {
+    <AttachButton
+      tr={tr}
+      open={menu === "attach"}
+      onToggle={() => {
         setAttachNotes(false);
+        setSelShown(lastSel.current);
         setMenu(menu === "attach" ? null : "attach");
       }}
-    >
-      {Ic.plus}
-    </button>
+    />
   );
   const attachMenu = menu === "attach" && (
-    <div className="gc-menu gc-attach" role="menu">
-      {attachNotes ? (
-        <>
-          <input
-            className="gc-menu-find"
-            autoFocus
-            value={noteQuery}
-            placeholder={tr("chat.attachFind")}
-            aria-label={tr("chat.attachFind")}
-            onChange={(e) => setNoteQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && notesFound[0]) {
-                e.preventDefault();
-                void attachNote(notesFound[0]);
-              }
-            }}
-          />
-          <div className="gc-menu-list">
-            {noteIndex === null ? (
-              <p className="gc-menu-empty">…</p>
-            ) : notesFound.length ? (
-              notesFound.map((n) => (
-                <button
-                  key={n.href}
-                  type="button"
-                  role="menuitem"
-                  onClick={() => void attachNote(n)}
-                >
-                  {Ic.doc}
-                  <span>
-                    {n.title}
-                    {n.folder && <small>{n.folder}</small>}
-                  </span>
-                </button>
-              ))
-            ) : (
-              <p className="gc-menu-empty">{tr("chat.attachNone")}</p>
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          <p>{tr("chat.attach")}</p>
-          {page && (
-            <button
-              type="button"
-              role="menuitem"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={attachSection}
-            >
-              {Ic.sec}
-              <span>{tr("chat.attachSection")}</span>
-            </button>
-          )}
-          <button
-            type="button"
-            role="menuitem"
-            disabled={!lastSel.current}
-            onMouseDown={(e) => e.preventDefault()}
-            onClick={attachSelection}
-          >
-            {Ic.sel}
-            <span>
-              {tr("chat.attachSelection")}
-              {lastSel.current && (
-                <small>
-                  « {lastSel.current.length > 50 ? `${lastSel.current.slice(0, 50)}…` : lastSel.current} »
-                </small>
-              )}
-            </span>
-          </button>
-          <button type="button" role="menuitem" onClick={openNotePicker}>
-            {Ic.doc}
-            <span>{tr("chat.attachNote")}</span>
-            <kbd>@</kbd>
-          </button>
-        </>
-      )}
-    </div>
+    <AttachMenu
+      tr={tr}
+      picking={attachNotes}
+      query={noteQuery}
+      notes={noteIndex}
+      found={notesFound}
+      onPage={!!page}
+      selection={selShown}
+      onQuery={setNoteQuery}
+      onAttachNote={(n) => void attachNote(n)}
+      onAttachSection={attachSection}
+      onAttachSelection={attachSelection}
+      onPickNote={openNotePicker}
+    />
   );
   const composer = (
-    <form
-      className={started ? "gc-comp gc-comp-pill" : "gc-comp"}
-      onSubmit={(e) => {
-        e.preventDefault();
+    <Composer
+      tr={tr}
+      inputRef={inputRef}
+      started={started}
+      busy={busy}
+      canSend={canSend}
+      mode={conv.mode}
+      input={input}
+      passage={passage}
+      passageFrom={passageFrom}
+      noteTitle={conv.note ? noteTitle : ""}
+      canDictate={canDictate}
+      listening={listening}
+      attachButton={plusBtn}
+      attachMenu={attachMenu}
+      onInput={setInput}
+      onSubmit={() => {
         if (busy) return stop();
         if (canSend) send(input);
       }}
-    >
-      {attachMenu}
-      {passage && (
-        <div className="gc-pin">
-          <span>
-            {passageFrom && <b className="gc-pin-from">{passageFrom}</b>}
-            {passage.length > 140 ? `${passage.slice(0, 140)}…` : passage}
-          </span>
-          <button
-            type="button"
-            onClick={() => {
-              setPassage("");
-              setPassageFrom("");
-            }}
-            aria-label={tr("chat.removePassage")}
-          >
-            ×
-          </button>
-        </div>
-      )}
-      {started && plusBtn}
-      <textarea
-        ref={inputRef}
-        rows={1}
-        value={input}
-        maxLength={1000}
-        onChange={(e) => {
-          // « @ » alone: pick a note to attach.
-          if (e.target.value === "@" && !input) {
-            setInput("");
-            setMenu("attach");
-            openNotePicker();
-            return;
-          }
-          setInput(e.target.value);
-        }}
-        onKeyDown={(e) => {
-          if (e.key === "ArrowUp" && !input && started && !busy) {
-            const last = msgs.map((m) => m.role).lastIndexOf("user");
-            if (last >= 0) {
-              e.preventDefault();
-              startEdit(last);
-            }
-            return;
-          }
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            e.currentTarget.form?.requestSubmit();
-          }
-        }}
-        placeholder={tr(
-          conv.mode === "own"
-            ? "chat.placeholderOwn"
-            : started
-              ? "chat.placeholderShort"
-              : "chat.placeholder",
-        )}
-        aria-label={tr("chat.placeholderShort")}
-      />
-      <div className="gc-comp-row">
-        {!started && plusBtn}
-        {!started && noteTitle && conv.note && (
-          <span className="gc-ctx">
-            {Ic.doc}
-            <span>{noteTitle}</span>
-            <button
-              type="button"
-              aria-label={tr("chat.removeNote")}
-              onClick={() =>
-                updateConv((c) => ({ ...c, note: null, scope: "" }))
-              }
-            >
-              ×
-            </button>
-          </span>
-        )}
-        <span className="gc-sp" />
-        {canDictate && (
-          <button
-            type="button"
-            className={listening ? "gc-mic on" : "gc-mic"}
-            onClick={dictate}
-            aria-label={tr("chat.dictate")}
-          >
-            {Ic.mic}
-          </button>
-        )}
-        <button
-          type="submit"
-          className={busy ? "gc-stop" : canSend ? "gc-send" : "gc-send off"}
-          aria-label={tr(busy ? "chat.stop" : "chat.send")}
-        >
-          {busy ? <i /> : Ic.up}
-        </button>
-      </div>
-    </form>
+      onAt={() => {
+        setInput("");
+        setMenu("attach");
+        openNotePicker();
+      }}
+      onEditLast={() => {
+        const last = msgs.map((m) => m.role).lastIndexOf("user");
+        if (last < 0) return false;
+        startEdit(last);
+        return true;
+      }}
+      onClearPassage={() => {
+        setPassage("");
+        setPassageFrom("");
+      }}
+      onRemoveNote={() => updateConv((c) => ({ ...c, note: null, scope: "" }))}
+      onDictate={dictate}
+    />
   );
 
   const dlCard = (
-    <div className="gc-dl">
-      <div className="gc-dl-hd">
-        <span className="gc-dl-ic">{Ic.chip}</span>
-        <div>
-          <b>
-            {tr(word === "phone" ? "chat.dlTitlePhone" : "chat.dlTitleDevice")}
-          </b>
-          <p>{tr("chat.dlText")}</p>
-        </div>
-      </div>
-      <div className="gc-facts">
-        <div>
-          {Ic.dl}
-          <span>
-            <strong>{gb} Go</strong> {tr("chat.dlOnce")}
-          </span>
-        </div>
-        <div>
-          {Ic.wifi}
-          <span>{tr("chat.dlWifi")}</span>
-        </div>
-        <div>
-          {Ic.disk}
-          <span>{tr("chat.dlKeep")}</span>
-        </div>
-      </div>
-      <div className="gc-btns">
-        <button type="button" className="gc-btn pri" onClick={openConfirm}>
-          {tr("chat.dlGo", { n: gb })}
-        </button>
-        <button
-          type="button"
-          className="gc-btn lnk"
-          onClick={() => {
-            setDlLater(true);
-            try {
-              sessionStorage.setItem(DL_LATER_KEY, "1");
-            } catch {
-              /* ignore */
-            }
-          }}
-        >
-          {tr("chat.dlLater")}
-        </button>
-      </div>
-    </div>
+    <DownloadOffer
+      tr={tr}
+      phone={word === "phone"}
+      gb={gb}
+      onGo={openConfirm}
+      onLater={() => {
+        setDlLater(true);
+        try {
+          sessionStorage.setItem(DL_LATER_KEY, "1");
+        } catch {
+          /* ignore */
+        }
+      }}
+    />
   );
 
   const home = (
@@ -2862,82 +2219,31 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
   );
 
   const railChats = searchChats(chats, railQuery);
+  const deleteChatOf = (c: Conversation, fromRail: boolean) => {
+    removeChat(c.id);
+    if (fromRail && c.id === conv.id) newConversation();
+  };
+  const openSettings = () => {
+    setView("settings");
+    void refreshNano();
+  };
   const railView = (
-    <aside className="gc-rail" aria-label={tr("chat.historyTitle")}>
-      <button
-        type="button"
-        className="gc-rail-new"
-        title={`${tr("chat.new")} (${modKey} ⇧ O)`}
-        onClick={() => {
-          newConversation();
-          focusComposer();
-        }}
-      >
-        {Ic.edit}
-        <span>{tr("chat.new")}</span>
-      </button>
-      <label className="gc-rail-find">
-        {Ic.search}
-        <input
-          type="search"
-          value={railQuery}
-          placeholder={tr("chat.railFind")}
-          aria-label={tr("chat.railFind")}
-          onChange={(e) => setRailQuery(e.target.value)}
-        />
-      </label>
-      <div className="gc-rail-list">
-        {railGroups(railChats, page?.url ?? null).map((g) => (
-          <div key={g.key}>
-            <div className="gc-rail-h">{tr(`chat.rail_${g.key}`)}</div>
-            {g.chats.map((c) => (
-              <div
-                key={c.id}
-                className={c.id === conv.id ? "gc-rail-i on" : "gc-rail-i"}
-              >
-                <button type="button" onClick={() => resume(c)} title={c.title}>
-                  <i
-                    style={{
-                      background: avColor(c.note?.discipline ?? c.note?.title ?? ""),
-                    }}
-                  />
-                  <span>{c.title}</span>
-                </button>
-                <button
-                  type="button"
-                  className="gc-rail-del"
-                  aria-label={tr("chat.delete")}
-                  title={tr("chat.delete")}
-                  onClick={() => {
-                    const s2 = store();
-                    if (s2) setChats(deleteChat(s2, c.id));
-                    if (c.id === conv.id) newConversation();
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        ))}
-        {!railChats.length && (
-          <p className="gc-rail-empty">
-            {tr(railQuery.trim() ? "chat.railNone" : "chat.historyEmpty")}
-          </p>
-        )}
-      </div>
-      <button
-        type="button"
-        className="gc-rail-set"
-        onClick={() => {
-          setView("settings");
-          void refreshNano();
-        }}
-      >
-        {Ic.gear}
-        <span>{tr("chat.settings")}</span>
-      </button>
-    </aside>
+    <ChatRail
+      tr={tr}
+      modKey={modKey}
+      chats={railChats}
+      query={railQuery}
+      currentId={conv.id}
+      pageUrl={page?.url ?? null}
+      onQuery={setRailQuery}
+      onNew={() => {
+        newConversation();
+        focusComposer();
+      }}
+      onResume={resume}
+      onDelete={(c) => deleteChatOf(c, true)}
+      onSettings={openSettings}
+    />
   );
 
   const citeSrc = cite ? msgs[cite.i]?.sources?.[cite.n - 1] : undefined;
@@ -2974,212 +2280,52 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
     </div>
   );
 
-  const groups = groupByNote(chats);
   const historyView = (
-    <>
-      <div className="gc-top">
-        <button
-          type="button"
-          className="gc-ib"
-          onClick={() => setView("chat")}
-          aria-label={tr("chat.back")}
-        >
-          {Ic.back}
-        </button>
-        <div className="gc-ttl" />
-        <button
-          type="button"
-          className="gc-ib"
-          onClick={() => {
-            setView("settings");
-            void refreshNano();
-          }}
-          aria-label={tr("chat.settings")}
-          title={tr("chat.settings")}
-        >
-          {Ic.gear}
-        </button>
-      </div>
-      <div className="gc-scroll">
-        <h2 className="gc-big">{tr("chat.historyTitle")}</h2>
-        {!groups.length && (
-          <p className="gc-empty">{tr("chat.historyEmpty")}</p>
-        )}
-        {groups.map((g) => (
-          <div className="gc-nb" key={g.note?.url ?? "all"}>
-            <div className="gc-nb-hd">
-              <span
-                className="gc-av"
-                style={{
-                  background: g.note
-                    ? avColor(g.note.discipline ?? g.note.title)
-                    : "#3f6b4a",
-                }}
-              >
-                {(g.note?.title ?? tr("chat.wholeGarden"))
-                  .slice(0, 1)
-                  .toUpperCase()}
-              </span>
-              <span className="gc-nb-t">
-                <b>{g.note?.title ?? tr("chat.wholeGarden")}</b>
-                <span>
-                  {g.note
-                    ? (g.note.discipline ?? "")
-                    : tr("chat.wholeGardenSub")}
-                </span>
-              </span>
-              {g.note && (
-                <a href={g.note.url} onClick={closeChat}>
-                  {tr("chat.openNote")}
-                </a>
-              )}
-            </div>
-            {g.chats.map((c) => (
-              <div className="gc-nb-q" key={c.id}>
-                <button type="button" onClick={() => resume(c)}>
-                  {c.title}
-                </button>
-                <time>{relTime(c.updated, locale)}</time>
-                <button
-                  type="button"
-                  className="gc-del"
-                  aria-label={tr("chat.delete")}
-                  onClick={() => {
-                    const s = store();
-                    if (s) setChats(deleteChat(s, c.id));
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </>
+    <ChatHistory
+      tr={tr}
+      locale={locale}
+      chats={chats}
+      onBack={() => setView("chat")}
+      onSettings={openSettings}
+      onOpenNote={closeChat}
+      onResume={resume}
+      onDelete={(c) => deleteChatOf(c, false)}
+    />
   );
 
   const downloadedOn = localModelDownloadedOn();
   const settingsView = (
-    <>
-      <div className="gc-top">
-        <button
-          type="button"
-          className="gc-ib"
-          onClick={() => setView("history")}
-          aria-label={tr("chat.back")}
-        >
-          {Ic.back}
-        </button>
-        <div className="gc-ttl" />
-        <span className="gc-ib" />
-      </div>
-      <div className="gc-scroll gc-set">
-        <h2 className="gc-big">{tr("chat.setTitle")}</h2>
-        {route === "nano" && (
-          <p className="gc-fine gc-fine-left">{tr("chat.setNano")}</p>
-        )}
-        {nano && (
-          <>
-            <div className="gc-grp">Gemini Nano (Chrome)</div>
-            <div className="gc-box">
-              <div className="gc-li">
-                <span className="gc-li-tx">
-                  {tr(`chat.nanoState.${nano}`)}
-                  {nano === "aside" && (
-                    <span>
-                      {nanoWhy(nanoSetAsideReason())}
-                    </span>
-                  )}
-                </span>
-                {nano === "aside" && (
-                  <button
-                    type="button"
-                    className="gc-btn sec"
-                    onClick={async () => {
-                      resetNano();
-                      await refreshNano();
-                      await refreshRoute();
-                    }}
-                  >
-                    {tr("chat.nanoRetry")}
-                  </button>
-                )}
-              </div>
-            </div>
-          </>
-        )}
-        <div className="gc-grp">{tr("chat.setModel")}</div>
-        <div className="gc-box">
-          <div className="gc-li">
-            <span className="gc-li-tx">
-              {tr(word === "phone" ? "chat.setUsePhone" : "chat.setUseDevice")}
-              <span>
-                {!onDisk.main
-                  ? tr("chat.setNotDownloaded", { name: model.name })
-                  : downloadedOn
-                    ? tr("chat.setDownloaded", {
-                        date: fmtDay(downloadedOn, locale),
-                        name: model.name,
-                      })
-                    : tr("chat.setOnDisk", { name: model.name })}
-              </span>
-            </span>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={route === "local"}
-              className={route === "local" ? "gc-tg on" : "gc-tg"}
-              onClick={() => {
-                if (route === "local") {
-                  setLocalModelEnabled(false);
-                  setRoute("download");
-                  setDl("idle");
-                } else if (route === "download") openConfirm();
-              }}
-            />
-          </div>
-          <div className="gc-li">
-            <span className="gc-li-tx">
-              {tr("chat.setSpace")}
-              {onDisk.corrector && (
-                <span>{tr("chat.setSpaceCorrector", { n: CORRECTOR.gb.toLocaleString(locale) })}</span>
-              )}
-            </span>
-            <em>
-              {tr("chat.setGb", {
-                n: ((onDisk.main ? model.gb : 0) + (onDisk.corrector ? CORRECTOR.gb : 0)).toLocaleString(locale),
-              })}
-            </em>
-          </div>
-          {onDisk.main && (
-            <HoldButton
-              className="gc-li gc-red"
-              hint={tr("hold.hint")}
-              tooShort={tr("hold.tooShort")}
-              onConfirm={async () => {
-                await deleteLocalModel();
-                void refreshOnDisk();
-                setRoute("download");
-                setDl("idle");
-                showToast(tr("chat.deleted"));
-              }}
-            >
-              {tr("chat.setDelete", { n: gb })}
-            </HoldButton>
-          )}
-        </div>
-        <div className="gc-grp">{tr("chat.setFail")}</div>
-        <div className="gc-box">
-          <div className="gc-li">
-            <span className="gc-li-tx">
-              {tr("chat.setFailA")}
-              <span>{tr("chat.setFailB")}</span>
-            </span>
-          </div>
-        </div>
-      </div>
-    </>
+    <ChatSettings
+      tr={tr}
+      locale={locale}
+      route={route}
+      nano={nano}
+      nanoWhy={nanoWhy}
+      phone={word === "phone"}
+      model={model}
+      onDisk={onDisk}
+      downloadedOn={downloadedOn}
+      onBack={() => setView("history")}
+      onRetryNano={async () => {
+        resetNano();
+        await refreshNano();
+        await refreshRoute();
+      }}
+      onToggleLocal={() => {
+        if (route === "local") {
+          setLocalModelEnabled(false);
+          setRoute("download");
+          setDl("idle");
+        } else if (route === "download") openConfirm();
+      }}
+      onDelete={async () => {
+        await deleteLocalModel();
+        void refreshOnDisk();
+        setRoute("download");
+        setDl("idle");
+        showToast(tr("chat.deleted"));
+      }}
+    />
   );
 
   const freeBytes = storage?.free ?? null;
@@ -3556,39 +2702,4 @@ export function GardenChat({ scopes = [] }: { scopes?: ScopeOption[] }) {
       )}
     </>
   );
-}
-
-interface SpeechRec {
-  lang: string;
-  interimResults: boolean;
-  onresult: (e: {
-    results: ArrayLike<ArrayLike<{ transcript: string }>>;
-  }) => void;
-  onend: () => void;
-  start(): void;
-}
-
-function navigatorConnection(): { type?: string } | undefined {
-  if (typeof navigator === "undefined") return undefined;
-  return (navigator as unknown as { connection?: { type?: string } })
-    .connection;
-}
-
-function fmtDay(day: string, locale: string): string {
-  try {
-    return new Date(`${day}T12:00:00`).toLocaleDateString(locale, {
-      day: "numeric",
-      month: "short",
-    });
-  } catch {
-    return day;
-  }
-}
-
-function relTime(ms: number, locale: string): string {
-  const d = new Date(ms);
-  const now = new Date();
-  if (d.toDateString() === now.toDateString())
-    return d.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" });
-  return d.toLocaleDateString(locale, { day: "numeric", month: "short" });
 }

@@ -5,7 +5,7 @@ import path from "node:path";
 import { LOCALES, DEFAULT_LOCALE, levelNameIn, levelNameKey, pathDescIn, pathDescKey, pathName, pathNameKeys, pathNameRef, splitPathName, t } from "./i18n";
 
 // Reading paths are named in the vault, in French (`parcours:` in a note's
-// frontmatter, lib/content.ts getReadingPaths()). Their translations live in
+// frontmatter, lib/node/content.ts getReadingPaths()). Their translations live in
 // messages/<locale>.json under `pathName.<slug>` ({ title, sub }: the parts
 // before and after " : "). A path missing there shows its French name in
 // every locale, which is how every path title stayed French until now.
@@ -99,7 +99,7 @@ async function untranslatedPaths(root: string): Promise<string[]> {
   vi.resetModules();
   const cwd = vi.spyOn(process, "cwd").mockReturnValue(root);
   try {
-    const { getReadingPaths } = await import("./content");
+    const { getReadingPaths } = await import("./node/content");
     return getReadingPaths()
       .filter((p) => {
         const e = fr[p.slug];
@@ -119,7 +119,7 @@ async function untranslatedTexts(root: string): Promise<string[]> {
   vi.resetModules();
   const cwd = vi.spyOn(process, "cwd").mockReturnValue(root);
   try {
-    const { getReadingPaths, getPost } = await import("./content");
+    const { getReadingPaths, getPost } = await import("./node/content");
     const { namedLevels } = await import("./level-names");
     const out: string[] = [];
     for (const p of getReadingPaths()) {

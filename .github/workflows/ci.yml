@@ -41,6 +41,11 @@ jobs:
       - name: Type-check (app)
         run: pnpm exec tsc --noEmit
 
+      # The vanilla note scripts (public/js): no file may gain type errors
+      # over scripts/public-js-type-baseline.json (a ratchet, see the script).
+      - name: Type-check (note scripts, ratchet)
+        run: pnpm typecheck:js
+
       # server/ (self-hosted Node backend) is excluded from the root tsconfig and
       # typechecked on its own. (The legacy Cloudflare functions/ are no longer
       # typechecked here — they depend on @cloudflare/workers-types, removed when
@@ -170,7 +175,7 @@ jobs:
       # This is where the WCAG contrast failure in .callout-warning would have
       # been caught — axe covers the whole page, not just what changed.
       - name: Browser tests (functional + accessibility)
-        run: pnpm exec playwright test tests/functional.spec.js tests/a11y.spec.js tests/parler.spec.js tests/echecs.spec.js tests/read-aloud.spec.js tests/translate.spec.js tests/locale.spec.js
+        run: pnpm exec playwright test tests/functional.spec.js tests/a11y.spec.js tests/parler.spec.js tests/echecs.spec.js tests/read-aloud.spec.js tests/translate.spec.js tests/locale.spec.js tests/chat.spec.js
 
       - name: Upload Playwright report on failure
         if: failure()

@@ -7,9 +7,9 @@
 // on touch, the first tap shows the card and a second tap follows the link.
 // Everything is set with textContent; the definition is already plain text.
 // With CSS anchor positioning the card is a popover anchored to the term
-// (lib/anchor-popover.ts): "hint" on hover screens, "manual" on touch, where
+// (lib/client/anchor-popover.ts): "hint" on hover screens, "manual" on touch, where
 // the two-tap logic below does its own dismissing. Elsewhere place() runs.
-import { anchoredCard, anchoredPopoverMode } from "../../lib/anchor-popover";
+import { anchoredCard, anchoredPopoverMode } from "../../lib/client/anchor-popover";
 
 (function () {
   if (!document.querySelector(".article-body")) return;
@@ -93,11 +93,11 @@ import { anchoredCard, anchoredPopoverMode } from "../../lib/anchor-popover";
 
   function scheduleClose() {
     clearTimeout(closeTimer);
-    closeTimer = setTimeout(close, CLOSE_DELAY);
+    closeTimer = window.setTimeout(close, CLOSE_DELAY);
   }
 
   const term = (e) =>
-    e.target instanceof Element ? e.target.closest(".article-body a.gloss") : null;
+    e.target instanceof Element ? /** @type {Element} */ (e.target).closest(".article-body a.gloss") : null;
 
   if (canHover) {
     document.addEventListener("mouseover", (e) => {
@@ -105,7 +105,7 @@ import { anchoredCard, anchoredPopoverMode } from "../../lib/anchor-popover";
       if (!el) return;
       clearTimeout(closeTimer);
       clearTimeout(openTimer);
-      openTimer = setTimeout(() => open(el), OPEN_DELAY);
+      openTimer = window.setTimeout(() => open(el), OPEN_DELAY);
     });
     document.addEventListener("mouseout", (e) => {
       const el = term(e);
@@ -132,7 +132,7 @@ import { anchoredCard, anchoredPopoverMode } from "../../lib/anchor-popover";
         if (openAtDown) return;
         e.preventDefault();
         open(el);
-      } else if (isShown() && !card.contains(e.target)) close();
+      } else if (isShown() && !card.contains(/** @type {Node} */ (e.target))) close();
     });
   }
   document.addEventListener("focusin", (e) => {

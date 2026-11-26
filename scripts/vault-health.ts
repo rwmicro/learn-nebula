@@ -5,9 +5,9 @@
 //
 // Written to data/ (baked into the image next to rag-chunks.json), NOT to
 // out/: it's served only through the admin-gated GET /api/admin/vault-health.
-// Run with tsx so it resolves links with the site's own lib/content.ts and
-// lib/vault-assets.ts — a link this report calls broken is one the rendered
-// page leaves broken. Detection logic lives in lib/vault-health.ts (unit-tested).
+// Run with tsx so it resolves links with the site's own lib/node/content.ts and
+// lib/node/vault-assets.ts — a link this report calls broken is one the rendered
+// page leaves broken. Detection logic lives in lib/node/vault-health.ts (unit-tested).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -19,8 +19,8 @@ import {
   getUnresolvedPrereqs,
   resolveRelativeNoteLink,
   resolveWikiLink,
-} from "../lib/content";
-import { resolveVaultAsset, resolveVaultAssetByName } from "../lib/vault-assets";
+} from "../lib/node/content";
+import { resolveVaultAsset, resolveVaultAssetByName } from "../lib/node/vault-assets";
 import {
   NEAR_EMPTY_CHARS,
   PREREQ_MISSING,
@@ -31,7 +31,7 @@ import {
   isMostlyEnglish,
   missingFields,
   stopwordScore,
-} from "../lib/vault-health";
+} from "../lib/node/vault-health";
 
 const ROOT = process.cwd();
 const POSTS_DIR = path.join(ROOT, "content", "posts");

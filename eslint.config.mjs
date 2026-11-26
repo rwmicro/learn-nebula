@@ -39,6 +39,81 @@ const config = [
       "@next/next/no-html-link-for-pages": "off",
     },
   },
+  // lib/ is split by where code runs (CLAUDE.md, "lib/ layout"):
+  //   lib/node/    needs Node (fs, the vault) — build, server components, server/
+  //   lib/client/  needs a browser (window, storage, WebGPU, hooks)
+  //   lib/*        shared, runs anywhere (pure logic, formats, i18n)
+  // Type-only imports cross freely; tests may wire layers together.
+  {
+    files: ["lib/*.{ts,tsx,js,mjs}"],
+    ignores: ["**/*.test.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["./node/*", "@/lib/node/*"],
+              allowTypeImports: true,
+              message:
+                "Shared lib/ code runs anywhere: no Node-only import (move the caller to lib/node/).",
+            },
+            {
+              group: ["./client/*", "@/lib/client/*"],
+              allowTypeImports: true,
+              message:
+                "Shared lib/ code runs anywhere: no browser-only import (move the caller to lib/client/).",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ["lib/client/**/*.{ts,tsx,js,mjs}"],
+    ignores: ["**/*.test.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["../node/*", "@/lib/node/*"],
+              allowTypeImports: true,
+              message: "Browser code can't import Node-only lib/node/.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: [
+      "lib/node/**/*.{ts,tsx,js,mjs}",
+      "server/**/*.ts",
+      "app/**/*.{ts,tsx}",
+    ],
+    ignores: ["**/*.test.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: [
+                "../client/*",
+                "../lib/client/*",
+                "../../lib/client/*",
+                "@/lib/client/*",
+              ],
+              allowTypeImports: true,
+              message: "Node-side code can't import browser-only lib/client/.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 ];
 
 export default config;

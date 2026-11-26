@@ -8,20 +8,23 @@ import {
   buildCSP,
 } from "@/lib/site";
 import { DEFAULT_LOCALE, t } from "@/lib/i18n";
-import { i18nAssetUrls } from "@/lib/i18n-assets";
+import { i18nAssetUrls } from "@/lib/node/i18n-assets";
 import { detectLocale, isAutomatedBrowser } from "@/lib/locale-detect";
-import { jsAsset } from "@/lib/js-assets";
+import { jsAsset } from "@/lib/node/js-assets";
 import { splashImages } from "@/lib/splash";
-import { getLanguageScopes } from "@/lib/content";
-import { notesIndexVersion, paletteExtraVersion } from "@/lib/home-data";
+import { getLanguageScopes } from "@/lib/node/content";
+import { notesIndexVersion, paletteExtraVersion } from "@/lib/node/home-data";
 import { Footer } from "@/components/layout/Footer";
 import { GardenChat } from "@/components/chat/GardenChat";
 import { SiteBar } from "@/components/layout/SiteBar";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import "../assets/css/fonts.css";
 // Global frame only (Tailwind + @theme + html/body/main margins). Article
-// typography lives in main.css, loaded per-route on note pages / 404.
+// typography lives in note/*.css, loaded per-route on note pages / 404.
 import "../assets/css/global.css";
+// What used to be its second half: the frame, site bar, lightbox, theme
+// menu, pronunciation, account… one file per area (assets/css/site/).
+import "../assets/css/site";
 // Command palette + its trigger buttons, and the view-transition rules.
 import "../assets/css/palette.css";
 // Phone "app" layer: the glass tab bar, the sticky top bar, safe areas and
@@ -31,7 +34,7 @@ import "../assets/css/chat.css";
 // The site footer, a sky over an etching (components/layout/Footer.tsx).
 import "../assets/css/footer.css";
 
-// Message bundles are static files (/i18n/<locale>.<hash>.js, lib/i18n-assets.ts)
+// Message bundles are static files (/i18n/<locale>.<hash>.js, lib/node/i18n-assets.ts)
 // cached for a year, not inlined: inlining all five cost ~220 KB per page, twice
 // (Next repeats inline scripts in the RSC payload). This small bootstrap writes
 // blocking <script> tags for the default bundle and, if the reader picked
@@ -147,7 +150,7 @@ export const metadata: Metadata = {
   title: SITE_TITLE,
   description: SITE_DESCRIPTION,
   // Feed autodiscovery (<link rel="alternate" type="application/rss+xml">)
-  // for app/feed.xml; lib/seo.ts repeats it for pages with a canonical URL.
+  // for app/feed.xml; lib/node/seo.ts repeats it for pages with a canonical URL.
   alternates: { types: FEED_ALTERNATES },
   // The linocut arch: E2-a on paper for light, the night version for a dark
   // OS (the tab follows the system, not the in-page toggle). Declared here

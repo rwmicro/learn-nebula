@@ -1,16 +1,16 @@
 // Table of contents: the left-margin rail on wide screens, and the
 // scrollspy that highlights the section currently in view.
 //
-// The TOC is rendered once, inside .note-aside (lib/html.ts buildToc). Above
+// The TOC is rendered once, inside .note-aside (lib/node/html.ts buildToc). Above
 // 1500px that aside is the fixed right-hand column; below it, a drawer behind
 // the "sommaire" toggle — which left a 1280-1500px screen with the article
 // centred in a 680px column and two thirds of the width empty. So a copy of
-// the TOC is placed in the left margin as a sticky rail; CSS (main.css,
+// the TOC is placed in the left margin as a sticky rail; CSS (note/*.css,
 // .toc-rail) shows it only in that band and only in the normal reading width
 // — "élargir" reclaims the margin, and the drawer remains the way in.
 // Sidenotes are inline below 1500px, so the left margin is free there.
 //
-// From 1100px the rail is the left column of the three (main.css): under the
+// From 1100px the rail is the left column of the three (note/*.css): under the
 // section being read it opens that section's subsections and lead-ins, and
 // ends on how far into the note the reader is and how long is left.
 import { scrollProgress } from "../../lib/reading-progress";

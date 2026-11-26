@@ -1,6 +1,6 @@
-// /donnees/carte.json: the countries the notes are about (lib/carte.ts), the
+// /donnees/carte.json: the countries the notes are about (lib/node/carte.ts), the
 // data behind /carte/. Documented on /donnees/.
-import { getCarte } from "@/lib/carte";
+import { getCarte } from "@/lib/node/carte";
 
 export const dynamic = "force-static";
 

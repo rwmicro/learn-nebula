@@ -171,7 +171,7 @@ import { BENCH } from "../../lib/deco-bench";
   }
 
   list.addEventListener("click", async (e) => {
-    const btn = e.target instanceof Element && e.target.closest(".comment-like");
+    const btn = e.target instanceof Element && /** @type {Element} */ (e.target).closest(".comment-like");
     if (!btn || btn.disabled) return;
     const id = Number(btn.dataset.like);
     const c = lastComments && lastComments.find((x) => x.id === id);

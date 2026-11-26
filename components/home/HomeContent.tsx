@@ -2,9 +2,9 @@
 
 import { HomeBookmarks } from "@/components/home/HomeBookmarks";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { HomeTreeNode } from "@/lib/content";
-import type { HomeData } from "@/lib/home-data";
-import type { GraphData } from "@/lib/graph-data";
+import type { HomeTreeNode } from "@/lib/node/content";
+import type { HomeData } from "@/lib/node/home-data";
+import type { GraphData } from "@/lib/node/graph-data";
 import { CircularGraph } from "@/components/explore/CircularGraph";
 import { t, folderKey, DEFAULT_LOCALE, LOCALES, type Locale } from "@/lib/i18n";
 import { folderAnchor } from "@/lib/slug";
@@ -94,7 +94,7 @@ export function LazyGraph({ graphData }: { graphData: GraphData | null }) {
   );
 }
 
-// Fetch /home-data.json once (lib/home-data.ts). The version is the file's
+// Fetch /home-data.json once (lib/node/home-data.ts). The version is the file's
 // content hash, so the URL changes with each build and the service worker's
 // stale-while-revalidate can never serve last build's tree. Null until it
 // lands, or for good if it fails: the shell tree and Pagefind still work.

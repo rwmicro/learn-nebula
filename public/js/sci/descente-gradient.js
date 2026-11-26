@@ -77,7 +77,7 @@ export function descenteGradient(props, fig, ctx) {
       return;
     }
     btnRun.textContent = "Pause";
-    timer = setInterval(() => {
+    timer = window.setInterval(() => {
       avance(n < 20 ? 1 : n < 100 ? 3 : 12);
       if (fini()) stop();
     }, 45);

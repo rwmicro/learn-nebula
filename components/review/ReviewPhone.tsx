@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { GRADES, type Grade } from "@/lib/srs";
 import { diff } from "@/lib/typed-answer";
-import type { ReviewItem } from "@/lib/review-item";
+import type { ReviewItem } from "@/lib/client/review-item";
 import { DeckFace } from "@/components/review/DeckFace";
 import { SCENES } from "@/lib/deco-art";
 import { formatInterval } from "@/components/review/ReviewSession";

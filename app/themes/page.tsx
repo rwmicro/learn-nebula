@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { getDisciplines, getTags } from "@/lib/content";
+import { getDisciplines, getTags } from "@/lib/node/content";
 import { ThemesIndex } from "@/components/explore/Themes";
 import { SITE_TITLE } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import "@/assets/css/themes.css";
 
 export const metadata: Metadata = pageMetadata({

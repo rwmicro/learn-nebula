@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { calendarDays, loadActivity } from "@/lib/personal";
 import { loadStore } from "@/lib/reading-progress";
 import { NOTE_PREFIX, parseNoteDeck } from "@/lib/note-quiz";

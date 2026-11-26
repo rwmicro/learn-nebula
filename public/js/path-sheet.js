@@ -1,5 +1,5 @@
 // "Étape 4/20" on a note of a reading path opens the path's steps
-// (lib/path-step.ts pathSheetHtml): a panel from the bottom on a phone, a
+// (lib/node/path-step.ts pathSheetHtml): a panel from the bottom on a phone, a
 // card in the middle elsewhere. Ticks the steps this browser has read and
 // shows how far along the path the reader is; scrolls this note's step into
 // view. Closes on Escape (native <dialog>), the × button or a tap outside.

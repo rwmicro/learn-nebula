@@ -1,10 +1,10 @@
-// The note's reading bar from 640px up (lib/html.ts noteDockHtml, main.css
+// The note's reading bar from 640px up (lib/node/html.ts noteDockHtml, note/*.css
 // `.note-dock`): liquid glass floating at the bottom, its rim bending what
-// scrolls under it (lib/glass, the liquid-glass kit's WebGL2 shader). One bar, the same
+// scrolls under it (lib/client/glass, the liquid-glass kit's WebGL2 shader). One bar, the same
 // whichever way the reader scrolls: contents, the progress ring and the
 // section being read, the reading tools, the next note and the assistant.
 // Phones have their own toolbar (note-app.js) and never see this one.
-import { liquidGlassLater as liquidGlass } from "../../lib/glass/load";
+import { liquidGlassLater as liquidGlass } from "../../lib/client/glass/load";
 import { scrollProgress } from "../../lib/reading-progress";
 
 (function () {
@@ -86,7 +86,7 @@ import { scrollProgress } from "../../lib/reading-progress";
   window.addEventListener("resize", onScroll, { passive: true });
   paint();
 
-  // The right-hand column (main.css .note-side) stays on screen while it
+  // The right-hand column (note/*.css .note-side) stays on screen while it
   // fits; a taller one (a long path card, many links) scrolls with the page
   // instead, so none of it waits behind a scrollbar of its own.
   const side = document.querySelector(".note-side");
@@ -182,7 +182,7 @@ import { scrollProgress } from "../../lib/reading-progress";
     };
     clearTimeout(tipWait);
     if (tipOn) place();
-    else tipWait = setTimeout(place, 350);
+    else tipWait = window.setTimeout(place, 350);
   }
   function hideTip(now) {
     clearTimeout(tipWait);
@@ -192,7 +192,7 @@ import { scrollProgress } from "../../lib/reading-progress";
       tipOn = false;
     };
     if (now === true) off();
-    else tipLeave = setTimeout(off, 300);
+    else tipLeave = window.setTimeout(off, 300);
   }
   const hover = matchMedia("(hover: hover)");
   for (const el of bar.querySelectorAll("button, a, summary")) {

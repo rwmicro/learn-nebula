@@ -11,7 +11,7 @@
 // ?tulipe=debug shows what the browser reports during the gesture.
 //
 // The look is the "Aube" print of the linocut logo: warm paper with ink
-// streaks in light, the logo's night sky in dark (colours in global.css,
+// streaks in light, the logo's night sky in dark (colours in assets/css/site/tulip.css,
 // .gk-bloom). Two blades, a stem, a bud that colours and opens in three
 // petals, the sun (or moon) rising once it has opened.
 (function () {

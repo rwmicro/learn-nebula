@@ -3,7 +3,7 @@
 // Prérequis suggérés — GET /api/admin/prereq-suggestions, the draft edges
 // scripts/prereq-suggestions.ts writes at build time (data/
 // prereq-suggestions.json, never a public file; heuristics in
-// lib/prereq-suggest.ts). "Accepter" opens a pull request on the vault
+// lib/node/prereq-suggest.ts). "Accepter" opens a pull request on the vault
 // (PrereqAcceptButton, when the server has a token); "Copier" copies the
 // ready-to-paste frontmatter line; "Ignorer" is remembered in this browser only.
 

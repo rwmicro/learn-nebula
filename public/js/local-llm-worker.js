@@ -1,7 +1,7 @@
 // The garden assistant's downloaded model (Qwen3.5-2B, ~1.4 GB, WebGPU), run
 // in a Web Worker so the page stays responsive while it loads and writes.
 // Bundled as an ES module by scripts/bundle-js.mjs into local-llm.worker.js
-// (git-ignored) and driven by lib/local-llm.ts. The server still retrieves
+// (git-ignored) and driven by lib/client/local-llm.ts. The server still retrieves
 // the passages (/api/ask/context); only the writing happens here.
 //
 // Messages in:  {type: "load", dtype, model}    download / compile only
@@ -18,7 +18,7 @@ import {
   InterruptableStoppingCriteria,
 } from "@huggingface/transformers";
 
-// The models lib/local-llm.ts may ask for: the assistant's (Qwen3.5-2B, or
+// The models lib/client/local-llm.ts may ask for: the assistant's (Qwen3.5-2B, or
 // LFM2-700M on iOS) and the optional corrector of /parler/ (Qwen3.5-4B).
 const MODELS = new Set([
   "onnx-community/Qwen3.5-2B-ONNX",

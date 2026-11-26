@@ -1,8 +1,8 @@
 // /feed.xml — RSS 2.0 of the 30 notes most recently planted or re-tended.
 // "Recent" is getRecentNotes()'s: frontmatter `updated` (last tended) when the
 // note declares it, else its planting `date`; notes with neither are left out.
-import { getAllPosts, getRecentNotes } from "@/lib/content";
-import { buildRss, firstParagraph } from "@/lib/feed";
+import { getAllPosts, getRecentNotes } from "@/lib/node/content";
+import { buildRss, firstParagraph } from "@/lib/node/feed";
 import { SITE_TITLE, SITE_DESCRIPTION, absoluteURL } from "@/lib/site";
 
 export const dynamic = "force-static";

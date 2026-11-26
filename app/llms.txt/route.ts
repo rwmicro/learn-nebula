@@ -4,8 +4,8 @@
 // ~1000+ notes, enumerating them here would defeat the format's own point
 // (reducing token waste). /themes/ links a page per discipline, and
 // sitemap.xml is where an agent goes to actually walk the full note list.
-import { getDomains } from "@/lib/content";
-import { getAnkiManifest } from "@/lib/anki";
+import { getDomains } from "@/lib/node/content";
+import { getAnkiManifest } from "@/lib/node/anki";
 import { SITE_TITLE, SITE_URL } from "@/lib/site";
 
 export const dynamic = "force-static";

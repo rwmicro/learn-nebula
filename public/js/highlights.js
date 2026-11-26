@@ -254,19 +254,19 @@ const colorClass = (c) => (c === 2 || c === 3 ? ` hl--c${c}` : "");
     unwrap(id);
   });
   article.addEventListener("click", (e) => {
-    const m = e.target instanceof Element && e.target.closest("mark.hl");
+    const m = e.target instanceof Element && /** @type {Element} */ (e.target).closest("mark.hl");
     if (!m || (window.getSelection() && !window.getSelection().isCollapsed)) return;
     openCard(m);
   });
   article.addEventListener("keydown", (e) => {
-    const m = e.target instanceof Element && e.target.closest("mark.hl");
+    const m = e.target instanceof Element && /** @type {Element} */ (e.target).closest("mark.hl");
     if (m && (e.key === "Enter" || e.key === " ")) {
       e.preventDefault();
       openCard(m);
     }
   });
   document.addEventListener("pointerdown", (e) => {
-    if (!card.hidden && !card.contains(e.target) && !(e.target instanceof Element && e.target.closest("mark.hl"))) {
+    if (!card.hidden && !card.contains(/** @type {Node} */ (e.target)) && !(e.target instanceof Element && /** @type {Element} */ (e.target).closest("mark.hl"))) {
       card.hidden = true;
       openId = null;
     }

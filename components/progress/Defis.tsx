@@ -3,12 +3,12 @@
 import { weekPots } from "@/lib/deco-art";
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { calendarDays, currentRun, loadActivity, localDay } from "@/lib/personal";
 import { loadStore } from "@/lib/reading-progress";
 import { loadLog } from "@/lib/srs-log";
 import { dayKey } from "@/lib/srs";
-import { authConfig, fetchMe, readHint } from "@/lib/account-client";
+import { authConfig, fetchMe, readHint } from "@/lib/client/account-client";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 // /defis/ — the day run and three small goals for today, from this browser's

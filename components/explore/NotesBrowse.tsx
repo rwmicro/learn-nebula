@@ -2,14 +2,14 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { useReadingStore } from "@/components/home/HomeContent";
 import {
   isRead,
   savedProgress,
   type ReadingStore,
 } from "@/lib/reading-progress";
-import type { FolderRow, NoteRow } from "@/lib/notes-browse";
+import type { FolderRow, NoteRow } from "@/lib/node/notes-browse";
 import { splitRank } from "@/lib/folder-label";
 import { DisciplineIcon } from "@/components/ui/DisciplineIcon";
 

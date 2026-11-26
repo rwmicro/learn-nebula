@@ -27,7 +27,7 @@ main.ds {
   color: var(--ink-2);
 }
 .ds code {
-  font: 500 0.8125rem ui-monospace, monospace;
+  font: 500 0.8125rem var(--font-mono);
   color: var(--ink);
 }
 .ds-swatches,
@@ -50,7 +50,7 @@ main.ds {
 .ds-fam {
   height: 3.5rem;
   border: 1px solid var(--rule);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
 }
 .ds-fam {
   background: var(--fam);
@@ -87,7 +87,7 @@ main.ds {
   display: block;
   height: 0.5rem;
   margin-bottom: 0.25rem;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-xs);
   background: var(--garden-wash);
   box-shadow: inset 0 0 0 1px var(--garden);
 }
@@ -115,7 +115,7 @@ main.ds {
   align-items: center;
   height: var(--chip-h);
   padding: var(--chip-pad);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--chip-bg);
   font: var(--chip-font);
 }
@@ -128,7 +128,7 @@ main.ds {
   align-items: flex-end;
   height: 12rem;
   max-width: 24rem;
-  border-radius: 1rem;
+  border-radius: var(--radius-md);
   background: var(--sheet-scrim);
   overflow: hidden;
 }

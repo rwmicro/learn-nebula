@@ -12,7 +12,7 @@ body:has(.flashcards-main) {
 }
 
 /* Note-questions review (/cartes/revision/, components/note/NoteReview.tsx): the
-   saved question/answer HTML comes from the note pages, without main.css. */
+   saved question/answer HTML comes from the note pages, without note/*.css. */
 .note-review-q > :first-child,
 .note-review-a > :first-child {
   margin-top: 0;
@@ -190,14 +190,14 @@ body:has(.flashcards-main) {
   display: grid;
   grid-template-columns: 1fr 1fr;
   padding: 3px;
-  border-radius: 0.6875rem;
+  border-radius: var(--radius-sm);
   background: var(--wash-2);
 }
 .fc-seg button {
   height: 2.125rem;
   padding: 0 1rem;
   border: 0;
-  border-radius: 0.5625rem;
+  border-radius: var(--radius-sm);
   background: none;
   font: 500 0.95rem var(--fc-sans);
   color: var(--ink-2);
@@ -218,7 +218,7 @@ body:has(.flashcards-main) {
   grid-template-columns: repeat(3, 1fr);
   margin: 0;
   border: 0.5px solid var(--dash-edge);
-  border-radius: 1.125rem;
+  border-radius: var(--radius-lg);
   background: var(--dash-card);
   box-shadow: var(--dash-shadow);
 }
@@ -256,7 +256,7 @@ body:has(.flashcards-main) {
   margin-top: 1.5rem;
   overflow: hidden;
   border: 0.5px solid var(--dash-edge);
-  border-radius: 1.125rem;
+  border-radius: var(--radius-lg);
   background: var(--dash-card);
   box-shadow: var(--dash-shadow);
 }
@@ -309,7 +309,7 @@ body:has(.flashcards-main) {
   margin: 1rem auto 0;
   padding: 2px;
   border: 1px solid var(--rule);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--paper);
   font: 500 0.875rem var(--font-ui);
   color: var(--ink-2);

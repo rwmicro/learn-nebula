@@ -41,7 +41,7 @@ export const MENU: { name: string; href: string; home?: string }[] = [
 ];
 
 /** RSS autodiscovery (app/feed.xml) for `metadata.alternates.types`. Shared
- *  by the root layout and lib/seo.ts: Next merges metadata shallowly, so a
+ *  by the root layout and lib/node/seo.ts: Next merges metadata shallowly, so a
  *  page that sets its own `alternates` (the canonical URL) would otherwise
  *  drop the layout's feed link. */
 export const FEED_ALTERNATES = {
@@ -91,7 +91,7 @@ export function buildCSP({ meta = false }: { meta?: boolean } = {}): string {
     scriptSrc,
     // The site's own WebSocket (/api/room/, the /duel/ signalling) spelled out:
     // CSP3 lets 'self' match ws(s): on the same host, older Safari didn't.
-    // Hugging Face: the assistant's downloadable model (lib/local-llm.ts) is
+    // Hugging Face: the assistant's downloadable model (lib/client/local-llm.ts) is
     // fetched from huggingface.co, which redirects to its *.hf.co CDN.
     `connect-src 'self' ${SITE_URL.replace(/^http/, "ws")} https://cloudflareinsights.com https://huggingface.co https://*.hf.co`,
     // Turnstile's challenge iframe + the click-to-load YouTube facade (#16),
@@ -100,7 +100,7 @@ export function buildCSP({ meta = false }: { meta?: boolean } = {}): string {
     "form-action 'none'",
   ];
   // 'self': the chat's « côte à côte » frames the site's own pages
-  // (lib/chat-dock.ts); no other origin may.
+  // (lib/client/chat-dock.ts); no other origin may.
   if (!meta) directives.push("frame-ancestors 'self'");
   // Only force HTTPS upgrades on an HTTPS site (not on a .onion HTTP build).
   if (!dev && SITE_URL.startsWith("https://"))

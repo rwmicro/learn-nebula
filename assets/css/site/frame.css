@@ -1,0 +1,310 @@
+/* Site-wide, after global.css (assets/css/site/index.ts): html, body, the page
+   frame, growth badges, the home's small pieces, the floating « IA » trigger,
+   the right gutter, print. */
+
+/* ===========================================================================
+ * Page frame — loaded on EVERY route. Deliberately minimal: no bare element
+ * typography (h1, a, p, table, code…). The article typography + note widgets
+ * live in note/*.css (note pages + 404 only); the /graph page in graph.css.
+ * ======================================================================== */
+html {
+  /* % (not px) so the user's browser font-size preference is respected;
+     93.75% of the 16px default == the previous 15px base. */
+  font-size: 93.75%;
+  /* border: #008000 solid 25px; */
+}
+
+body {
+  margin: 2rem auto;
+  font-family: var(--font-text);
+  font-weight: 440;
+  background-color: var(--paper);
+  color: var(--ink);
+  width: 100%;
+  max-width: 1100px;
+  counter-reset: margin-counter;
+  /* Alegreya's default figures are old-style: in a counter, "0 cartes" reads
+     as "o cartes". Interface numbers are lining; running text in a note
+     keeps its old-style figures (note/*.css, `main p`). */
+  font-variant-numeric: lining-nums;
+}
+
+@media (max-width: 1650px) {
+  body {
+    margin: 0rem auto;
+  }
+}
+
+/* Growth-stage badge — the digital-garden convention that a note is published
+   as a seedling and matures in public. Lives here, not in note/*.css: it appears
+   on note pages *and* in the home "latest growth" list, and note/*.css only loads
+   on /posts/*. Coloured sprout-green → settled ink rather than given icons. */
+.growth-stage {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  text-transform: lowercase;
+  letter-spacing: 0.02em;
+  color: var(--growth-c, var(--muted));
+}
+.growth-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  flex: none;
+}
+/* Sprout → settled, all three ≥ 4.5:1 against the #fcfcfc page (WCAG 2.1 AA
+   for normal text). The first pass used a brighter #6a9b4f for seedling; it
+   read nicely but measured 3.19:1, which axe caught. Keep the progression
+   legible by darkening the whole ramp rather than only the failing end. */
+.growth-seedling {
+  --growth-c: var(--growth-1);
+}
+.growth-budding {
+  --growth-c: var(--growth-2);
+}
+.growth-evergreen {
+  --growth-c: var(--growth-3);
+}
+
+/* Home "latest growth": a short way back into what is being worked on, not a
+   reverse-chronological feed — a garden deliberately has no front page of
+   newest-first posts. */
+.recent-notes {
+  max-width: 44rem;
+  margin: 2.4rem auto 0;
+  padding: 0 1rem;
+  text-align: start;
+}
+.recent-notes-title {
+  font-family: var(--font-caps);
+  text-transform: lowercase;
+  font-weight: 700;
+  font-size: clamp(1.15rem, 1rem + 0.5vw, 1.35rem);
+  margin: 0 0 0.5rem;
+  color: var(--ink);
+}
+.recent-notes .recent-notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.recent-notes .recent-notes-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.6rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.recent-notes .recent-notes-list li:last-child {
+  border-bottom: 0;
+}
+.recent-notes-list a {
+  font-family: var(--font-text);
+  font-size: 1.15rem;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.recent-meta {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-inline-start: auto;
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+.recent-meta time {
+  font-style: italic;
+}
+.recent-notes-more {
+  display: inline-block;
+  margin-top: 0.6rem;
+  font-family: var(--font-ui);
+  font-size: 0.95rem;
+  color: var(--link);
+  text-decoration: none;
+}
+.recent-notes-more:hover {
+  text-decoration: underline;
+}
+
+/* Home hero image (#10): a plain brown border (no wood effect). */
+.home-frame {
+  display: block;
+  border: clamp(10px, 2vw, 5px) solid #6e4a2a;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.home-frame picture {
+  display: block;
+}
+.home-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Circular-graph mini-map preview on the home page. The full styling lives in
+   graph.css (loaded only on /graph); these core rendering rules are needed
+   site-wide so the home teaser draws its links/nodes. */
+.cg-preview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.cg-preview .cg-svg {
+  display: block;
+}
+.cg-links path {
+  stroke: var(--rule);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.cg-nodes circle {
+  stroke: var(--paper);
+  stroke-width: 0.5;
+  vector-effect: non-scaling-stroke;
+}
+/* The root dot is ink (its #111 fill attribute is the no-CSS fallback). */
+.cg-nodes circle[data-kind="root"] {
+  fill: var(--ink);
+}
+
+/* Floating trigger on note pages — the "AI" button that opens the assistant. */
+.gk-pinned-trigger {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: calc(var(--z-bar) + 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 1.1rem;
+  border: 1px solid var(--garden-fill);
+  background: var(--garden-fill);
+  color: var(--garden-fill-ink);
+  border-radius: var(--radius-pill);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+  font-family: var(--font-caps);
+  text-transform: lowercase;
+  font-weight: 700;
+  letter-spacing: -0.01rem;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+.gk-pinned-trigger:hover {
+  background: var(--garden-fill-hover);
+  border-color: var(--garden-fill-hover);
+}
+/* Phones: a round sprout button instead of the pill, on one row with
+   "Étape suivante" / "Remonter" (note/*.css, path-step.css). The label stays
+   for screen readers. */
+@media (max-width: 639.98px) {
+  .gk-pinned-trigger {
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+    bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+  .gk-pinned-trigger svg {
+    width: 22px;
+    height: 22px;
+  }
+  .gk-pinned-trigger-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+/* Touch widths: the bottom buttons slide away while reading down
+   (reader-tools.js sets html.fabs-tucked) and come back on the way up. */
+@media (max-width: 900px) {
+  .gk-pinned-trigger,
+  .to-top,
+  .path-dock {
+    transition:
+      transform 0.25s ease,
+      opacity 0.2s ease;
+  }
+  html.fabs-tucked .gk-pinned-trigger,
+  html.fabs-tucked .to-top,
+  html.fabs-tucked .path-dock:not([hidden]) {
+    transform: translateY(calc(100% + 1.5rem));
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: reduce) {
+  .gk-pinned-trigger,
+  .to-top,
+  .path-dock {
+    transition: none;
+  }
+}
+
+::selection {
+  background-color: var(--mark);
+  color: #000000;
+}
+::-moz-selection {
+  background-color: var(--mark);
+  color: #000000;
+}
+
+/* The home reclaims this right gutter (HomeContent) and note pages use it for
+   the aside; kept global so both keep working. */
+main,
+footer {
+  margin-left: 2rem;
+  margin-right: 26rem;
+}
+
+@media screen and (max-width: 1080px) {
+  body {
+    max-width: 680px;
+  }
+  /* 680px is a note's reading measure: the index pages size their own
+     column (a tablet in portrait is under this breakpoint). */
+  body:has(> main:is(.cartes-index, .nb, .themes-page)) {
+    max-width: none;
+  }
+  body:has(> main:is(.cartes-index, .nb, .themes-page)) > footer {
+    max-width: 64rem;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+  }
+  main,
+  footer {
+    margin: 0 1.2rem;
+  }
+}
+
+@media screen and (max-width: 639.98px) {
+  main,
+  footer {
+    margin: 0 0.9rem;
+  }
+}
+
+@media print {
+  html {
+    font-size: 12px;
+  }
+  main,
+  footer {
+    margin-left: 1rem;
+    margin-right: 18rem;
+  }
+}

@@ -4,7 +4,7 @@
 // ~3400px for a long timeline), so in the page they scroll sideways, and on a
 // phone a reader sees a slice of one at a time. Shrinking them to fit is not
 // the answer: their labels would drop to 3-5px (see .mermaid-diagram svg in
-// main.css). This adds an "Agrandir" button to each diagram, and a tap or click
+// note/*.css). This adds an "Agrandir" button to each diagram, and a tap or click
 // on the diagram itself does the same: the diagram opens in a <dialog> fitted
 // to the screen, where it pans (drag, arrows), zooms (pinch, wheel, +/−, double
 // tap) and closes with Escape.
@@ -51,7 +51,7 @@
     document.body.appendChild(dlg);
 
     dlg.addEventListener("click", (e) => {
-      const b = e.target.closest("[data-act]");
+      const b = /** @type {Element} */ (e.target).closest("[data-act]");
       if (!b) return;
       const r = stage.getBoundingClientRect();
       if (b.dataset.act === "close") dlg.close();
@@ -224,7 +224,7 @@
     // the diagram itself carries (mermaid `click … href`). A drag that scrolls
     // the figure sideways fires no click, so scrolling keeps working.
     figure.addEventListener("click", (e) => {
-      if (e.target.closest("a")) return;
+      if (/** @type {Element} */ (e.target).closest("a")) return;
       if (window.getSelection && String(window.getSelection())) return;
       open(figure);
     });

@@ -1,4 +1,4 @@
-import type { GraphData, GraphNode } from "./graph-data";
+import type { GraphData, GraphNode } from "./node/graph-data";
 import { PATH_FAMILIES, familyOfFolder, type PathFamily } from "./path-family";
 
 /**

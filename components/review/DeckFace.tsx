@@ -2,7 +2,7 @@
 
 import { useMemo } from "react";
 import { adaptDeckCss, adaptInlineStyles } from "@/lib/deck-css";
-import { useDarkTheme } from "@/lib/use-dark";
+import { useDarkTheme } from "@/lib/client/use-dark";
 
 /**
  * One face of an Anki card, in the site's type and theme. The deck's own CSS

@@ -16,7 +16,7 @@
     --on-fam: var(--paper);
   }
   @media (prefers-color-scheme: dark) {
-    :root:not([data-theme]) main.parcours-page--path {
+    :root:not([data-theme="light"]) main.parcours-page--path {
       --on-fam: var(--paper);
     }
   }
@@ -40,7 +40,7 @@
   main.parcours-page--path .offline-path-btn {
     position: fixed;
     top: calc(0.5rem + env(safe-area-inset-top, 0px));
-    z-index: 901;
+    z-index: calc(var(--z-sticky) + 1);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -139,7 +139,7 @@
     margin: 0;
     padding: 0.625rem 4rem 0.625rem 1.375rem;
     border: 0;
-    border-radius: 2.125rem;
+    border-radius: var(--radius-xl);
     background: var(--garden-fill);
     box-shadow: none;
     color: var(--garden-fill-ink);
@@ -179,7 +179,7 @@
     margin: 0;
     padding: 0.7rem 0.8rem 0.65rem;
     border: 0;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     background: var(--fam-wash, var(--wash-2));
     box-shadow: none;
     color: var(--ink);
@@ -246,7 +246,7 @@
     gap: 0.75rem;
     margin: 0 0.75rem;
     padding: 0.625rem 0.75rem 0.625rem 0.875rem;
-    border-radius: 1.25rem;
+    border-radius: var(--radius-lg);
     background: var(--fam, var(--garden));
     box-shadow: 0 8px 24px color-mix(in srgb, var(--fam, var(--garden)) 35%, transparent);
     color: var(--on-fam);
@@ -271,7 +271,7 @@
     height: 0.375rem;
     margin-top: 0.4375rem;
     overflow: hidden;
-    border-radius: 0.1875rem;
+    border-radius: var(--radius-xs);
     background: color-mix(in srgb, var(--on-fam) 28%, transparent);
   }
   .road-bar-p i {
@@ -287,7 +287,7 @@
     width: 2.75rem;
     height: 2.75rem;
     border: 1.5px solid color-mix(in srgb, var(--on-fam) 35%, transparent);
-    border-radius: 0.875rem;
+    border-radius: var(--radius-md);
     background: color-mix(in srgb, var(--on-fam) 18%, transparent);
     color: var(--on-fam);
   }
@@ -509,7 +509,7 @@
   .road-chest .road-disk {
     width: 5.25rem;
     height: 4.625rem;
-    border-radius: 1.25rem;
+    border-radius: var(--radius-lg);
     --bg: #f3c64a;
     --sh: #c99a1c;
     --fg: #6b4800;
@@ -620,7 +620,7 @@
     width: 16.75rem;
     padding: 0.875rem;
     border: 0.5px solid var(--dash-edge);
-    border-radius: 1.25rem;
+    border-radius: var(--radius-lg);
     background: var(--dash-card);
     box-shadow: 0 12px 30px rgb(0 0 0 / 0.12);
   }

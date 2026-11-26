@@ -6,8 +6,8 @@
 //
 // Like data/vault-health.json, written to data/ (NOT out/) and served only
 // through the admin-gated GET /api/admin/prereq-suggestions. Run with tsx so
-// link targets resolve with the site's own lib/content.ts. Heuristics live in
-// lib/prereq-suggest.ts (unit-tested).
+// link targets resolve with the site's own lib/node/content.ts. Heuristics live in
+// lib/node/prereq-suggest.ts (unit-tested).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -17,14 +17,14 @@ import {
   getReadingPaths,
   resolveRelativeNoteLink,
   resolveWikiLink,
-} from "../lib/content";
+} from "../lib/node/content";
 import { parsePrereqField } from "../lib/prereq-graph";
 import {
   prereqYaml,
   scanLinks,
   suggestPrereqs,
   type SuggestNote,
-} from "../lib/prereq-suggest";
+} from "../lib/node/prereq-suggest";
 
 const OUT = path.join(process.cwd(), "data", "prereq-suggestions.json");
 

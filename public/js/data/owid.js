@@ -3,7 +3,7 @@
 // then compare), pyramide (age structure through the years), recit (the chart
 // pinned while the note's steps scroll past it), and in owid-more.js bulles,
 // pente, multiples. Data comes in data-props, prepared at build by
-// lib/widget-data.ts.
+// lib/node/widget-data.ts.
 import { el, svg, fmt, esc, seriesVar, drawWidth, download, tooltip, reducedMotion } from "../widget-kit.js";
 import { lineChart, tableRows, fmtValue, nearest, legend } from "./chart.js";
 import { bulles, pente, multiples, projectionPanel } from "./owid-more.js";

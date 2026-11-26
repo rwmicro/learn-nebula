@@ -158,7 +158,7 @@
 }
 .cy-msg-l {
   fill: var(--muted);
-  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-family: var(--font-mono);
 }
 .cy-msg-l.is-now {
   fill: var(--link);
@@ -244,10 +244,7 @@
 }
 .cy-policy {
   padding: 0.45rem 0.3rem;
-  font:
-    var(--text-micro) ui-monospace,
-    Menlo,
-    monospace;
+  font: var(--text-micro) var(--font-mono);
   color: var(--muted);
   white-space: pre-wrap;
 }
@@ -336,10 +333,7 @@
   padding: 0.25rem 0.35rem 0.25rem 0.55rem;
   border: 1px solid var(--rule);
   border-radius: var(--radius-sm);
-  font:
-    var(--text-meta) ui-monospace,
-    Menlo,
-    monospace;
+  font: var(--text-meta) var(--font-mono);
 }
 .cy-host span {
   overflow-wrap: anywhere;
@@ -374,10 +368,7 @@
   width: 100%;
   margin-top: 0.3rem;
   border-collapse: collapse;
-  font:
-    var(--text-meta) ui-monospace,
-    Menlo,
-    monospace;
+  font: var(--text-meta) var(--font-mono);
 }
 .cy-pkt td {
   padding: 0.1rem 0;
@@ -390,7 +381,7 @@
 }
 .cy-chg {
   padding: 0 0.2rem;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   color: var(--link);
   background: var(--link-wash);
   font-weight: 700;
@@ -411,7 +402,7 @@
 .cy-nat-table td {
   padding: 0.3rem 0.5rem 0.3rem 0;
   border-bottom: 1px solid var(--rule-soft);
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 .cy-nat-table tr.is-new td {
@@ -471,7 +462,7 @@
 .cy-node-a {
   fill: var(--muted);
   font-size: 11.5px;
-  font-family: ui-monospace, Menlo, monospace;
+  font-family: var(--font-mono);
 }
 .cy-listen {
   fill: var(--link);
@@ -487,10 +478,7 @@
 .cy-jwt-token {
   margin-bottom: 0.8rem;
   padding: 0.5rem 0.6rem;
-  font:
-    var(--text-meta) / 1.5 ui-monospace,
-    Menlo,
-    monospace;
+  font: var(--text-meta) / 1.5 var(--font-mono);
   word-break: break-all;
   background: var(--wash);
   border: 1px solid var(--rule-soft);
@@ -521,10 +509,7 @@
   min-height: 7rem;
   padding: 0.4rem 0.5rem;
   resize: vertical;
-  font:
-    var(--text-meta) / 1.45 ui-monospace,
-    Menlo,
-    monospace;
+  font: var(--text-meta) / 1.45 var(--font-mono);
   color: var(--ink);
   background: var(--paper);
   border: 1px solid var(--rule-strong);
@@ -533,10 +518,7 @@
 .cy-jwt-log {
   min-height: 1.3em;
   margin: 0.2rem 0 0;
-  font:
-    var(--text-micro) ui-monospace,
-    Menlo,
-    monospace;
+  font: var(--text-micro) var(--font-mono);
   color: var(--muted);
 }
 .cy-jwt-log b {
@@ -671,10 +653,7 @@
   padding-top: 0.1rem;
   text-align: right;
   color: var(--muted);
-  font:
-    var(--text-micro) ui-monospace,
-    Menlo,
-    monospace;
+  font: var(--text-micro) var(--font-mono);
 }
 .cy-kc-dot {
   position: relative;
@@ -717,10 +696,7 @@
   color: var(--muted);
 }
 .cy-pw {
-  font:
-    1.05em ui-monospace,
-    Menlo,
-    monospace;
+  font: 1.05em var(--font-mono);
   letter-spacing: 0.04em;
   color: var(--ink);
 }
@@ -742,13 +718,13 @@
 .cy-ck-bar {
   height: 0.7rem;
   overflow: hidden;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--wash-2);
 }
 .cy-ck-bar i {
   display: block;
   height: 100%;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   background: var(--link);
   transition: width 0.25s;
 }

@@ -18,14 +18,14 @@
 .pnc button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: inherit; }
 .pnc :is(a, button):focus-visible { outline: 2px solid var(--fam); outline-offset: 2px; }
 
-.pnc-card { min-width: 0; background: var(--paper-raised); border: 1px solid var(--rule); border-radius: 22px; padding: 28px 32px 24px; box-shadow: 0 18px 50px rgb(0 0 0 / .07); }
+.pnc-card { min-width: 0; background: var(--paper-raised); border: 1px solid var(--rule); border-radius: var(--radius-lg); padding: 28px 32px 24px; box-shadow: 0 18px 50px rgb(0 0 0 / .07); }
 .pnc-top { display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 30px; align-items: start; }
 .pnc-k { margin: 0; font: 600 12.5px var(--font-caps); letter-spacing: .16em; text-transform: uppercase; color: var(--fam); }
 .pnc-h { margin: 12px 0 0; font: 500 clamp(36px, 4.2vw, 54px)/1.02 var(--font-text); letter-spacing: -.01em; text-wrap: balance; }
 .pnc-sub { margin: 8px 0 0; font: italic 400 21px/1.3 var(--font-text); color: var(--ink-soft); }
 .pnc-desc { margin: 14px 0 0; max-width: 32em; font: 400 17px/1.55 var(--font-text); color: var(--ink-soft); }
 .pnc-cta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
-.pnc .pnc-btn { display: inline-flex; align-items: center; gap: 9px; height: 46px; padding: 0 18px; border-radius: 999px; border: 1px solid var(--rule); background: var(--paper); font: 600 15px var(--font-ui); white-space: nowrap; }
+.pnc .pnc-btn { display: inline-flex; align-items: center; gap: 9px; height: 46px; padding: 0 18px; border-radius: var(--radius-pill); border: 1px solid var(--rule); background: var(--paper); font: 600 15px var(--font-ui); white-space: nowrap; }
 .pnc-btn svg { width: 17px; height: 17px; flex: none; }
 .pnc .pnc-btn.main { height: 48px; padding: 0 22px; background: var(--fam); border-color: transparent; color: var(--pnc-on-fam); font-size: 16.5px; }
 .pnc-btn.main svg { width: 14px; height: 14px; }
@@ -34,7 +34,7 @@
 .pnc .pnc-btn.main:hover { filter: brightness(1.08); }
 
 .pnc-fig { margin: 0; }
-.pnc-frame { display: block; padding: 9px; background: var(--paper); border: 1px solid var(--rule); border-radius: 3px; box-shadow: 0 10px 28px rgb(0 0 0 / .1); transform: rotate(.6deg); }
+.pnc-frame { display: block; padding: 9px; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--radius-xs); box-shadow: 0 10px 28px rgb(0 0 0 / .1); transform: rotate(.6deg); }
 .pnc-frame img { display: block; width: 100%; height: 210px; object-fit: cover; }
 .pnc-fig figcaption { margin-top: 12px; padding-left: 11px; border-left: 3px solid var(--fam); font: italic 400 12.5px/1.45 var(--font-ui); color: var(--muted); }
 .pnc-fig figcaption b { display: block; font-weight: 500; color: var(--ink-soft); }
@@ -45,9 +45,9 @@
 .pnc-fil-h span { font: 700 12.5px var(--font-caps); letter-spacing: .16em; text-transform: uppercase; }
 .pnc-fil-h em { font: italic 400 14.5px var(--font-text); color: var(--muted); }
 .pnc-lv { display: grid; gap: 6px; margin-bottom: 16px; }
-.pnc-lv button { min-width: 0; display: block; padding: 2px 0; border-radius: 6px; }
-.pnc-lv .b { display: block; height: 6px; border-radius: 9px; background: var(--rule); overflow: hidden; }
-.pnc-lv .b i { display: block; height: 100%; border-radius: 9px; background: var(--fam); }
+.pnc-lv button { min-width: 0; display: block; padding: 2px 0; border-radius: var(--radius-sm); }
+.pnc-lv .b { display: block; height: 6px; border-radius: var(--radius-sm); background: var(--rule); overflow: hidden; }
+.pnc-lv .b i { display: block; height: 100%; border-radius: var(--radius-sm); background: var(--fam); }
 .pnc-lv .t { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; font: 500 13px var(--font-ui); color: var(--muted); white-space: nowrap; }
 .pnc-lv .t b { min-width: 0; overflow: hidden; text-overflow: ellipsis; font: 600 13.5px var(--font-ui); color: var(--ink-soft); }
 .pnc-lv .t b span { margin-right: 5px; font-family: var(--font-caps); letter-spacing: .06em; color: var(--muted); }
@@ -58,7 +58,7 @@
 .pnc-lv [aria-pressed="true"] .t b { color: var(--ink); }
 .pnc-lv button:hover .t b { color: var(--ink); }
 
-.pnc-steps { --n: 9; list-style: none; margin: 0; padding: 16px 8px 14px; border-radius: 14px; background: var(--wash); display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); position: relative; }
+.pnc-steps { --n: 9; list-style: none; margin: 0; padding: 16px 8px 14px; border-radius: var(--radius-md); background: var(--wash); display: grid; grid-template-columns: repeat(var(--n), minmax(0, 1fr)); position: relative; }
 .pnc-steps::before { content: ""; position: absolute; left: calc(100% / var(--n) / 2); right: calc(100% / var(--n) / 2); top: 27px; height: 1.5px; background: var(--rule); }
 .pnc-steps li { position: relative; z-index: 1; min-width: 0; text-align: center; padding: 0 3px; }
 .pnc-steps a { display: flex; flex-direction: column; align-items: center; }
@@ -78,18 +78,18 @@
 .pnc-side-h { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 4px 0; }
 .pnc-side-h span { font: 700 12.5px var(--font-caps); letter-spacing: .16em; text-transform: uppercase; }
 .pnc-side-h em { font: italic 400 13.5px var(--font-text); color: var(--muted); }
-.pnc .pnc-door { position: relative; flex: 1; min-height: 200px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; border-radius: 18px; overflow: hidden; color: #f4efe6; background: #1a1410; isolation: isolate; }
+.pnc .pnc-door { position: relative; flex: 1; min-height: 200px; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; border-radius: var(--radius-lg); overflow: hidden; color: #f4efe6; background: #1a1410; isolation: isolate; }
 .pnc-door picture, .pnc-door img { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -2; }
 .pnc-door img { object-fit: cover; transition: transform .4s ease; }
 .pnc-door::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgb(14 10 8 / .08) 20%, rgb(14 10 8 / .9)); }
 .pnc-door:hover img { transform: scale(1.03); }
 .pnc-door .k { font: 700 11.5px var(--font-caps); letter-spacing: .14em; text-transform: uppercase; color: #f0cf96; }
 .pnc-door b { margin: 6px 0 2px; font: 500 22px/1.08 var(--font-text); }
-.pnc-door .bar { margin-top: 12px; height: 4px; border-radius: 9px; background: rgb(255 255 255 / .22); }
-.pnc-door .bar i { display: block; height: 100%; border-radius: 9px; background: #f0cf96; }
+.pnc-door .bar { margin-top: 12px; height: 4px; border-radius: var(--radius-sm); background: rgb(255 255 255 / .22); }
+.pnc-door .bar i { display: block; height: 100%; border-radius: var(--radius-sm); background: #f0cf96; }
 .pnc-door .go { margin-top: 14px; display: inline-flex; gap: 7px; align-items: center; font: 600 14px var(--font-ui); }
 .pnc-door .go svg { width: 16px; height: 16px; }
-.pnc-all { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--rule); font: 500 14.5px var(--font-ui); color: var(--ink-soft); }
+.pnc-all { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--rule); font: 500 14.5px var(--font-ui); color: var(--ink-soft); }
 .pnc-all:hover { color: var(--ink); border-color: var(--rule-strong, var(--muted)); }
 
 ::view-transition-group(pnc-card) { animation-duration: .35s; }

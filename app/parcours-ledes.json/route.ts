@@ -3,8 +3,8 @@
 // next note's opening under its title (components/paths/ParcoursDeskHero.tsx);
 // fetched when the hero has a note to show rather than serialised into the
 // page, which would carry the whole map for one line.
-import { getPost, getReadingPaths } from "@/lib/content";
-import { extractPlain } from "@/lib/markdown";
+import { getPost, getReadingPaths } from "@/lib/node/content";
+import { extractPlain } from "@/lib/node/markdown";
 import { openingParagraph } from "@/lib/home-picks";
 
 export const dynamic = "force-static";

@@ -1,5 +1,5 @@
 /* Widget pack "sci" (lib/widgets-extra.ts). Note pages only.
-   Builds on main.css's .w-* grammar and widgets-extra.css's chart classes;
+   Builds on note/*.css's .w-* grammar and widgets-extra.css's chart classes;
    every colour is a theme token so light and dark both work. */
 
 /* ------------------------------------------------------------ shared */
@@ -480,7 +480,7 @@
   flex: 1;
   min-width: 0;
   width: auto;
-  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-family: var(--font-mono);
   font-size: var(--text-meta);
 }
 .sci-xss-panes {
@@ -494,7 +494,7 @@
   letter-spacing: 0;
   color: var(--ink-soft);
   margin-top: 0.4rem;
-  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-family: var(--font-mono);
   font-weight: 500;
 }
 .sci-xss-safe,
@@ -847,7 +847,7 @@
 }
 
 /* List items inside these widgets: not the article's paragraph rhythm
-   (main.css `main ul li`) nor its bullets. */
+   (note/*.css `main ul li`) nor its bullets. */
 .w-root[class*="sci-"] li {
   font-size: inherit;
   line-height: 1.4;
@@ -1024,7 +1024,7 @@
   width: 0.75em;
   height: 0.75em;
   margin-right: 0.35em;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   vertical-align: -0.05em;
 }
 .algo-key.is-cmp::before {

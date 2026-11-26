@@ -1,5 +1,5 @@
 /**
- * Note questions (`> [!quiz]` callouts, lib/markdown.ts) saved for spaced
+ * Note questions (`> [!quiz]` callouts, lib/node/markdown/callouts.ts) saved for spaced
  * repetition — pure, React-free, shared by public/js/quiz.js (note pages) and
  * components/note/NoteReview.tsx (/cartes/revision/).
  *
@@ -40,7 +40,7 @@ export interface NoteDeck extends Progress {
   items: Record<string, NoteQuestion>;
   /** Question id → last day it was answered correctly ("YYYY-MM-DD"): a
    *  "Je savais" on the note page, a good/easy grade in a review. Kept for
-   *  every question, saved or not — it is what "maîtrisée" (lib/path-study.ts)
+   *  every question, saved or not — it is what "maîtrisée" (lib/client/path-study.ts)
    *  is derived from. Optional: entries written before it existed have none,
    *  and fall back on their scheduling state (see answeredCorrectly). */
   ok?: Record<string, string>;
@@ -309,7 +309,7 @@ export function loadAllNoteDecks(store: Store): Record<string, NoteDeck> {
 
 /** One `[!quiz]` card as rendered in a note's HTML. */
 export interface QuizItem {
-  /** Question id (lib/markdown.ts quizId), the key in the note's entry. */
+  /** Question id (lib/node/markdown/callouts.ts quizId), the key in the note's entry. */
   id: string;
   /** DOM id of the card on the note page ("q-<id>", "-2"… for repeats). */
   domId: string;
@@ -335,7 +335,7 @@ const attr = (tag: string, name: string) =>
   tag.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1] ?? "";
 
 /**
- * Every quiz card in a note's rendered HTML (lib/markdown.ts quizCallout), in
+ * Every quiz card in a note's rendered HTML (lib/node/markdown/callouts.ts quizCallout), in
  * document order: question and answer HTML exactly as the note page shows
  * them, so a path's revision session works without visiting the notes. Pure
  * string scanning — the markup is our own, from a known pipeline.

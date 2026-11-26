@@ -6,7 +6,7 @@
 // "Reprendre" card and the per-folder counts) and components/note/ReadMarks.tsx
 // (checkmarks on /themes/, /disciplines/ and /parcours/).
 
-import type { HomeTreeNode } from "./content";
+import type { HomeTreeNode } from "./node/content";
 
 export const STORAGE_KEY = "gkReading";
 /** Past this many notes the oldest entries go: unfinished ones first, then

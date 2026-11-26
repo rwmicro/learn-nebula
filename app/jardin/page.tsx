@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { getAllPosts, getWikiLinkEdges, INDEX_NOTE } from "@/lib/content";
+import { getAllPosts, getWikiLinkEdges, INDEX_NOTE } from "@/lib/node/content";
 import { gardenStats } from "@/lib/garden-stats";
 import { GardenStats } from "@/components/explore/GardenStats";
 import { SITE_TITLE } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import "@/assets/css/jardin.css";
 
 export const metadata: Metadata = pageMetadata({

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPost, getReadingPaths } from "@/lib/content";
-import { noteExtras } from "@/lib/path-extras";
+import { getPost, getReadingPaths } from "@/lib/node/content";
+import { noteExtras } from "@/lib/node/path-extras";
 import { extractDefinitions, keyPoints } from "@/lib/path-sheet";
 import { PathSheet, type SheetNote } from "@/components/paths/PathSheet";
 import { SITE_TITLE } from "@/lib/site";

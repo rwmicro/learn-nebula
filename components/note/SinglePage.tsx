@@ -1,5 +1,5 @@
 import { partnerInviteHtml, partnerLangOfPath } from "@/lib/partner-invite";
-import type { Doc, SiblingRef } from "@/lib/content";
+import type { Doc, SiblingRef } from "@/lib/node/content";
 import { CUL_DE_LAMPE } from "@/lib/deco-art";
 import {
   formatDateLong,
@@ -13,11 +13,11 @@ import {
   getReadingPathOf,
   getReadingPaths,
   getDisciplines,
-} from "@/lib/content";
+} from "@/lib/node/content";
 import { langFromSlug } from "@/lib/read-aloud";
-import { pathStepHtml, pathStepOf } from "@/lib/path-step";
-import { extractPlain, renderMarkdown } from "@/lib/markdown";
-import { readingMinutes as minutesOfText } from "@/lib/path-extras";
+import { pathStepHtml, pathStepOf } from "@/lib/node/path-step";
+import { extractPlain, renderMarkdown } from "@/lib/node/markdown";
+import { readingMinutes as minutesOfText } from "@/lib/node/path-extras";
 import {
   dropcapHtml,
   escapeHtml,
@@ -53,14 +53,14 @@ import {
   prerenderNextHtml,
   type NextUp,
   objectivesHtml,
-} from "@/lib/html";
+} from "@/lib/node/html";
 import { t, i18nAttrs, i18nAttr, folderKey, pathName, pathNameAttrs, pathNameKeys, pathNameRef } from "@/lib/i18n";
 import { citeHtml } from "@/lib/cite";
 import { JsonLd } from "@/components/layout/JsonLd";
 import { NoteFeatureScripts } from "@/components/note/NoteScripts";
 import { franc } from "franc-min";
 import { familyOfPrefix } from "@/lib/path-family";
-import { coverImgHtml, leadCover, noteAppChromeHtml, noteCrumbsHtml, type NoteAppInput } from "@/lib/note-app";
+import { coverImgHtml, leadCover, noteAppChromeHtml, noteCrumbsHtml, type NoteAppInput } from "@/lib/node/note-app";
 
 /**
  * Single-page layout (layouts/single.html): dropcap, subtitle, title, body and
@@ -87,7 +87,7 @@ export async function SinglePage({
     glossary: note ? getGlossaryFor(doc) : undefined,
   });
   const { plain, hasMath, hasQuiz, hasGlossary } = rendered;
-  // Phone layout (lib/note-app.ts): a note that opens on a picture gets it as
+  // Phone layout (lib/node/note-app.ts): a note that opens on a picture gets it as
   // a cover; that figure is then marked so it doesn't show twice.
   const cover = note ? leadCover(rendered.html) : null;
   const html = cover ? cover.html : rendered.html;
@@ -318,7 +318,7 @@ export async function SinglePage({
       : subtitle) +
     `<h1 class='title-note'>${escapeHtml(fm.title)}</h1>` +
     (cover ? `</div>` : "") +
-    // One line under the title (from 640px; lib/note-app.ts has the phone's
+    // One line under the title (from 640px; lib/node/note-app.ts has the phone's
     // own): the date, the reading time, the growth stage, "last tended", the
     // history, and "Lue" once the reader has finished it (/js/reading-state.js).
     (note

@@ -1,11 +1,11 @@
 import { blackletter } from "@/components/layout/Header";
 import { t, i18nProps, i18nAttrProps, disciplineKey, keyedProps, keyedText, pathDescKey, pathName, pathNameProps, pathNameRef, splitPathName, type I18nVar, type I18nVars } from "@/lib/i18n";
-import type { ReadingPathView } from "@/lib/content";
-import type { PathExtras } from "@/lib/path-extras";
+import type { ReadingPathView } from "@/lib/node/content";
+import type { PathExtras } from "@/lib/node/path-extras";
 import { PATH_FAMILIES, pathFamily, type PathFamily } from "@/lib/path-family";
 import { paintingFor, paintingKey, paintingText } from "@/lib/paintings";
 import { ART, levelArt } from "@/lib/road-art";
-import { splitMinutes } from "@/lib/path-study";
+import { splitMinutes } from "@/lib/client/path-study";
 import { fold } from "@/lib/palette-match";
 import { deskLines, placeLines, timeBuckets, LANG_HELLO, type PlacedLine } from "@/lib/path-desk";
 import { ParcoursDeskHero, type HeroLevels } from "@/components/paths/ParcoursDeskHero";

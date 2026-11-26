@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 
 /** Cache the service worker keeps for good (public/sw.js never trims it). */
 const SAVED_CACHE = "gk-saved";

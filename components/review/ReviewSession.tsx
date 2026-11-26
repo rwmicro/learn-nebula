@@ -5,21 +5,21 @@ import { calendarDays, currentRun, loadActivity, localDay, recordActivity } from
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { GRADES, preview, type Grade } from "@/lib/srs";
 import { recordReview } from "@/lib/srs-log";
 import { diff, isMatch } from "@/lib/typed-answer";
-import type { Graded, ReviewItem } from "@/lib/review-item";
+import type { Graded, ReviewItem } from "@/lib/client/review-item";
 import { GRADE_COLOR, btn, btnGrade, quiet } from "@/components/review/srs-ui";
 import { DeckFace } from "@/components/review/DeckFace";
 import { loadStore } from "@/lib/reading-progress";
 import { familyOfPrefix } from "@/lib/path-family";
-import { usePhone } from "@/lib/use-phone";
+import { usePhone } from "@/lib/client/use-phone";
 import { PhoneEnd, PhoneSession, type SessionEnd } from "@/components/review/ReviewPhone";
 import { usePipWindow } from "@/components/review/ReviewPip";
-import { keepAwake } from "@/lib/wake-lock";
+import { keepAwake } from "@/lib/client/wake-lock";
 
-export type { Graded, ReviewItem } from "@/lib/review-item";
+export type { Graded, ReviewItem } from "@/lib/client/review-item";
 
 const keyOf = (x: ReviewItem) => `${x.kind}\n${x.slug}\n${x.id}`;
 
@@ -50,7 +50,7 @@ export function formatInterval(days: number, locale: string, tr: (k: string, v?:
  * (→ good, ← again) once the answer shows.
  * Card HTML is this site's own build output (rendered notes, or decks
  * sanitized by scripts/build-anki.mjs) — the same trust as the page itself.
- * The screen stays on while cards are left (lib/wake-lock.ts), and on a
+ * The screen stays on while cards are left (lib/client/wake-lock.ts), and on a
  * computer "Réviser en flottant" moves the card and its buttons into a
  * Picture-in-Picture window (components/review/ReviewPip.tsx), same state.
  */

@@ -6,13 +6,13 @@
 // nothing on the device the button opens the download (or "not available
 // here") sheet of components/chat/GardenChat.tsx. The server's translation
 // (/api/translate) only runs while SERVER_LLM_OFFERED is on.
-// LanguageDetector (lib/browser-ai.ts) also checks, when its model is already
+// LanguageDetector (lib/client/browser-ai.ts) also checks, when its model is already
 // there, whether the note is in a language other than the reader's, and
 // highlights the button if so.
-import { detectLanguage, promptAvailable } from "../../lib/browser-ai.ts";
-import { SERVER_LLM_OFFERED, localModelLangs } from "../../lib/garden-ai-flags.ts";
+import { detectLanguage, promptAvailable } from "../../lib/client/browser-ai.ts";
+import { SERVER_LLM_OFFERED, localModelLangs } from "../../lib/client/garden-ai-flags.ts";
 
-// The model side (lib/garden-ai.ts, lib/local-llm.ts) is its own bundle,
+// The model side (lib/client/garden-ai.ts, lib/client/local-llm.ts) is its own bundle,
 // translate-device.bundle.js, fetched on the first translation that needs it:
 // most readers never translate, and it would weigh on every note.
 let devicePromise = null;
@@ -315,7 +315,7 @@ function loadDevice() {
   }
 
   // Only the languages something on this device can translate into: the
-  // downloaded model's own (lib/garden-ai-flags.ts) when this device can run
+  // downloaded model's own (lib/client/garden-ai-flags.ts) when this device can run
   // one, then the ones Chrome's Translator or Gemini Nano say they cover.
   // Under the list, a line says what picking one will ask for first.
   const menuNote = document.createElement("p");
@@ -409,7 +409,7 @@ function loadDevice() {
   // Outside click / escape close the menu.
   document.addEventListener("click", (e) => {
     if (menu.hidden) return;
-    if (!wrap.contains(e.target)) closeMenu();
+    if (!wrap.contains(/** @type {Node} */ (e.target))) closeMenu();
   });
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape" && !menu.hidden) closeMenu(true);
@@ -445,7 +445,7 @@ function loadDevice() {
   });
 
   menu.addEventListener("click", (e) => {
-    const item = e.target.closest(".translate-menu-item");
+    const item = /** @type {Element} */ (e.target).closest(".translate-menu-item");
     if (!item) return;
     closeMenu();
     // The "Aa" panel of the reading bar would stay open over the text.

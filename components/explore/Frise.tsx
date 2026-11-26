@@ -1,12 +1,12 @@
 import { t, folderKey, i18nProps } from "@/lib/i18n";
 import { familyOfFolder } from "@/lib/path-family";
 import { Fragment, type ReactNode } from "react";
-import type { TimelineEntry } from "@/lib/content";
+import type { TimelineEntry } from "@/lib/node/content";
 import { PageHeader } from "@/components/ui/PageHeader";
 
 /**
  * Every note that declares a historical `year` in its frontmatter (see
- * lib/content.ts's getTimeline()), oldest first, on a vertical line cut into
+ * lib/node/content.ts's getTimeline()), oldest first, on a vertical line cut into
  * the four usual periods. Deliberately not a to-scale axis: history spans
  * millennia unevenly, and a note is either from -3000 or from 1950 with
  * nothing readable in between at any sane page height. A period's length

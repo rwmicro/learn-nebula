@@ -16,7 +16,7 @@
 // selection, out of the way of the OS's own copy/paste bubble (which goes
 // above); with a mouse it sits above, like most editors.
 // Built at runtime and appended to <body>, so Pagefind never indexes it;
-// print hides it (main.css).
+// print hides it (note/*.css).
 import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fragment.ts";
 import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
 
@@ -166,15 +166,15 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
 
   function schedule(delay) {
     clearTimeout(timer);
-    timer = setTimeout(check, delay);
+    timer = window.setTimeout(check, delay);
   }
 
   document.addEventListener("pointerdown", (e) => {
     lastPointer = e.pointerType || "mouse";
-    if (!menu.contains(e.target)) hide();
+    if (!menu.contains(/** @type {Node} */ (e.target))) hide();
   });
   document.addEventListener("pointerup", (e) => {
-    if (menu.contains(e.target)) return;
+    if (menu.contains(/** @type {Node} */ (e.target))) return;
     schedule(10);
   });
   // Touch handles and keyboard (Shift+arrows) only report through
@@ -204,10 +204,10 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
       return;
     }
     // role="toolbar": arrow keys move between its buttons.
-    if (menu.contains(e.target) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+    if (menu.contains(/** @type {Node} */ (e.target)) && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
       e.preventDefault();
       const btns = [explain, ownBtn, hlBtn, copyBtn, reportBtn];
-      const i = btns.indexOf(e.target);
+      const i = btns.indexOf(/** @type {HTMLButtonElement} */ (e.target));
       const d = e.key === "ArrowRight" ? 1 : btns.length - 1;
       btns[(Math.max(0, i) + d) % btns.length].focus();
     }
@@ -271,7 +271,7 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
       live.textContent = "";
       setTimeout(() => (live.textContent = tt(key)), 30);
       clearTimeout(resetTimer);
-      resetTimer = setTimeout(hide, 1400);
+      resetTimer = window.setTimeout(hide, 1400);
     };
     copying = true;
     copy(url)
@@ -290,7 +290,10 @@ import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
     dlg.className = "report-dlg";
     dlg.setAttribute("aria-labelledby", "report-dlg-title");
     dlg.setAttribute("data-pagefind-ignore", "");
-    const esc = window.__i18n && window.__i18n.escapeHtml ? window.__i18n.escapeHtml : (s) => s;
+    // Own escape, never an identity fallback: the passage is reader-selected
+    // text from the page and goes into innerHTML below.
+    const esc = (s) =>
+      String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
     dlg.innerHTML =
       `<form method="dialog" class="report-form">` +
       `<h2 id="report-dlg-title" class="report-title">${esc(tt("report.title"))}</h2>` +

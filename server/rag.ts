@@ -222,7 +222,7 @@ export interface RagHit {
   cosine: number;
 }
 
-// A scope slug is a slugified folder path (lib/content.ts slugifyPath), so it is
+// A scope slug is a slugified folder path (lib/node/content.ts slugifyPath), so it is
 // strictly [a-z0-9-] segments — which also makes it safe to echo into the LLM
 // prompt. Anything else is treated as "no scope" rather than rejected, so a
 // stale client can never break asking.

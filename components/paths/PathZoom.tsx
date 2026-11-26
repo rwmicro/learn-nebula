@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { centreOn, clampView, fits, fitScale, openingScale, reveal, zoomAt, type Box, type View } from "@/lib/zoom-pan";
 
 /**

@@ -1,7 +1,7 @@
 import { folderKey, t } from "./i18n";
 import { splitRank } from "./folder-label";
 import { pathLevels } from "./path-levels";
-import type { ReadingPathView } from "./content";
+import type { ReadingPathView } from "./node/content";
 
 // A reading path's level names, in French as the build names them; the
 // bundles translate each under `levelName.*` (levelNameKey() in lib/i18n.ts,

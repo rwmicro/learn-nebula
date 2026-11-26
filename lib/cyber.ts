@@ -4,7 +4,7 @@
 // chain and the cracking times. The widgets only draw what these return, so
 // every rule a reader learns from them is tested here (lib/cyber.test.ts).
 //
-// Props arrive as strings, one per key (widgetProps in lib/markdown.ts): a
+// Props arrive as strings, one per key (widgetProps in lib/node/markdown/widgets.ts): a
 // key repeated in a block overwrites the previous one, so lists are written
 // as numbered keys (m1, m2…, r1, r2…), read back in order by `numbered()`.
 

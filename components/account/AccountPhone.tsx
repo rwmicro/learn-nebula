@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Avatar } from "@/components/account/Avatar";
 import { localDay } from "@/lib/personal";
-import { logout, readHint, syncNow, writeHint, type Me } from "@/lib/account-client";
+import { logout, readHint, syncNow, writeHint, type Me } from "@/lib/client/account-client";
 import { ITEMS, MAX_FREEZES, type Look } from "@/lib/avatar";
 import {
   ago,

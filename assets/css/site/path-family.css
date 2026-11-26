@@ -1,0 +1,18 @@
+/* Site-wide, after global.css (assets/css/site/index.ts): the reading-path
+   colour families (lib/path-family.ts). */
+
+/* Reading-path colour families (lib/path-family.ts): an element with
+   data-family gets --fam (accent) and --fam-wash (tint) for its subtree.
+   Hues kept apart from each other; lightness follows light/dark (--fam-l). */
+[data-family] {
+  --fam: hsl(var(--fam-h) var(--fam-s) var(--fam-l));
+  --fam-wash: hsl(var(--fam-h) var(--fam-s) var(--fam-l) / 0.13);
+}
+[data-family="sciences"] { --fam-h: 218; --fam-s: 62%; }
+[data-family="informatique"] { --fam-h: 186; --fam-s: 70%; }
+[data-family="vivant"] { --fam-h: 135; --fam-s: 42%; }
+[data-family="pensee"] { --fam-h: 40; --fam-s: 75%; }
+[data-family="societe"] { --fam-h: 12; --fam-s: 62%; }
+[data-family="arts"] { --fam-h: 332; --fam-s: 52%; }
+[data-family="langues"] { --fam-h: 270; --fam-s: 45%; }
+[data-family="jeux"] { --fam-h: 210; --fam-s: 12%; }

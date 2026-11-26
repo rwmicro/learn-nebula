@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { t, levelNameIn, pathName, splitPathName } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { useHomeData } from "@/components/home/HomeContent";
 import { resumePath, useRetention } from "@/components/home/HomeDashboard";
 import { ERAGNY, paintingByline, paintingFor, paintingText, type Painting } from "@/lib/paintings";
-import { splitMinutes } from "@/lib/path-study";
+import { splitMinutes } from "@/lib/client/path-study";
 import type { PathFamily } from "@/lib/path-family";
 import { useStore } from "@/components/paths/ParcoursDeskBits";
 import { PathNowCard } from "@/components/paths/PathNowCard";

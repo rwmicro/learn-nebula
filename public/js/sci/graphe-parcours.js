@@ -65,7 +65,7 @@ export function grapheParcours(props, fig, ctx) {
       return;
     }
     btnRun.textContent = "Pause";
-    timer = setInterval(() => {
+    timer = window.setInterval(() => {
       avance();
       if (k >= frames.length - 1) stop();
     }, 600);

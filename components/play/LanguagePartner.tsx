@@ -2,9 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { t, keyedText, knownKey, textSlug } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { addQuestion, loadNoteDeck, saveNoteDeck } from "@/lib/note-quiz";
-import { aiRoute, generateOnDevice, type AiRoute } from "@/lib/garden-ai";
+import { aiRoute, generateOnDevice, type AiRoute } from "@/lib/client/garden-ai";
 import {
   CORRECTOR,
   correctorEnabled,
@@ -19,7 +19,7 @@ import {
   setCorrectorEnabled,
   setLocalModelEnabled,
   type ChatTurn,
-} from "@/lib/local-llm";
+} from "@/lib/client/local-llm";
 import {
   addToHistory,
   closestExpr,
@@ -71,7 +71,7 @@ import {
   type Listening,
   type ListenMode,
   type Speaking,
-} from "@/lib/partner-voice";
+} from "@/lib/client/partner-voice";
 import { normaliseSpoken } from "@/lib/speech-match";
 
 // /parler/: a voice partner per language, on the model of /echecs/'s bot.
@@ -88,7 +88,7 @@ import { normaliseSpoken } from "@/lib/speech-match";
 // - the review: goals, hints, the lines to work on (each can become a card),
 //   the vault note, the way to the next level.
 //
-// Everything runs in the browser (lib/garden-ai.ts): the partner is Gemini
+// Everything runs in the browser (lib/client/garden-ai.ts): the partner is Gemini
 // Nano or the downloaded model, the corrector a bigger one, desktop only.
 
 type Phase = "setup" | "warmup" | "talk" | "review";

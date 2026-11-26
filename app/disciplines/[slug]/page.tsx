@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getDisciplines } from "@/lib/content";
+import { getDisciplines } from "@/lib/node/content";
 import { DisciplinePage } from "@/components/explore/Themes";
 import { disciplineKey, t } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import "@/assets/css/themes.css";
 
 type Params = { params: Promise<{ slug: string }> };

@@ -90,9 +90,6 @@ importers:
       smol-toml:
         specifier: ^1.9.0
         version: 1.9.0
-      tsx:
-        specifier: ^4.23.12
-        version: 4.23.12
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -196,6 +193,9 @@ importers:
       tailwindcss:
         specifier: ^4.3.1
         version: 4.3.2
+      tsx:
+        specifier: ^4.23.12
+        version: 4.23.12
       typescript:
         specifier: ^5.7.2
         version: 5.9.3

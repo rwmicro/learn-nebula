@@ -1,7 +1,7 @@
 // paires: minimal pairs. Two words that differ by one sound (a tone, a vowel
 // length, r against rr); the reader hears one and picks which. The clips are
 // the note's own pronunciation recordings, resolved to /vault URLs at build
-// (lib/widget-data.ts paires).
+// (lib/node/widget-data.ts paires).
 //
 // Props (from the build): title, hint, pairs: [[{src, label}, {src, label}], …]
 import { el } from "../widget-kit.js";

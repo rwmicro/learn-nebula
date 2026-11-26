@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts, getDisciplines, getReadingPaths, INDEX_NOTE } from "@/lib/content";
+import { getAllPosts, getDisciplines, getReadingPaths, INDEX_NOTE } from "@/lib/node/content";
 import { absoluteURL } from "@/lib/site";
 
 export const dynamic = "force-static";

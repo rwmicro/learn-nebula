@@ -1,6 +1,6 @@
 // Minimal Markdown → HTML for the RAG assistant's answers (the system prompt
 // promises "**gras**, *italique*, `code`, listes `- `"). Dependency-free by
-// design — lib/markdown.ts's unified/remark pipeline is a build-time,
+// design — the unified/remark pipeline in lib/node/markdown/ is a build-time,
 // Node-oriented tool for the whole note corpus, far too heavy to ship into a
 // client bundle just to format a chat reply.
 //

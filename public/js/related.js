@@ -1,5 +1,5 @@
 // "Notes proches": fetches /api/related (server/rag.ts's embedding index) and
-// fills in the placeholder lib/html.ts's relatedNotesHtml() renders. That index
+// fills in the placeholder lib/node/html.ts's relatedNotesHtml() renders. That index
 // only exists at server runtime (embeddings are computed once the Node server
 // starts, not at this static build), so unlike backlinks this can't be baked
 // in ahead of time. Silently removes itself on any failure or empty result —

@@ -18,7 +18,7 @@ h4,
   text-wrap: pretty;
 }
 
-/* Link-preview and glossary cards as anchored popovers (lib/anchor-popover.ts):
+/* Link-preview and glossary cards as anchored popovers (lib/client/anchor-popover.ts):
    below the link, running towards the line's end; flipped across or above
    when that would leave the screen; centred on the screen as a last resort
    on narrow ones. Hidden while the link itself is scrolled out of view. */
@@ -44,14 +44,14 @@ h4,
   position-visibility: anchors-visible;
 }
 
-/* Condensed bar (mobile/tablet) without the observer: lib/html.ts wraps it in
+/* Condensed bar (mobile/tablet) without the observer: lib/node/html.ts wraps it in
    a zero-height sticky element placed right after the in-flow header, which
    gets stuck exactly when that header has scrolled away. */
 @supports (container-type: scroll-state) {
   .note-header-stuck {
     position: sticky;
     top: 0;
-    z-index: 900;
+    z-index: var(--z-sticky);
     height: 0;
     container-type: scroll-state;
   }

@@ -3,7 +3,7 @@
 import { SCENES } from "@/lib/deco-art";
 import { useEffect, useState, type ReactNode } from "react";
 import { Avatar } from "@/components/account/Avatar";
-import { requestLink, type AuthConfig } from "@/lib/account-client";
+import { requestLink, type AuthConfig } from "@/lib/client/account-client";
 import { SITE_TITLE } from "@/lib/site";
 import { defaultLook } from "@/lib/avatar";
 import { nextParam, useTurnstile } from "@/components/account/use-turnstile";

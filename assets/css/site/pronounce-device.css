@@ -1,0 +1,41 @@
+/* Site-wide, after global.css (assets/css/site/index.ts): the coach's on-
+   device « reconnu » line. */
+
+/* --- Pronunciation coach: the on-device "reconnu" line (pronounce.js) --- */
+.pron-coach-heard {
+  display: flex;
+  width: fit-content;
+  max-width: 100%;
+  margin: -4px auto 12px;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted-warm);
+}
+.pron-coach-heard[hidden] {
+  display: none;
+}
+.pron-coach-heard i {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  border-radius: 50%;
+  font-style: normal;
+  line-height: 1;
+  background: var(--rule-strong);
+  color: var(--paper-raised);
+}
+.pron-coach-heard i svg {
+  width: 12px;
+  height: 12px;
+}
+.pron-coach-heard.is-ok {
+  color: var(--garden);
+}
+.pron-coach-heard.is-ok i {
+  background: var(--garden);
+}
+/* --- end Browser AI --- */

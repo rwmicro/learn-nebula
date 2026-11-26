@@ -1,6 +1,6 @@
 import { MENU } from "@/lib/site";
 import { t, i18nAttrs, i18nAttrProps } from "@/lib/i18n";
-import { paletteButtonHtml, themeToggleHtml } from "@/lib/html";
+import { paletteButtonHtml, themeToggleHtml } from "@/lib/node/html";
 import { SiteNavLinks } from "@/components/layout/SiteNavLinks";
 import { AccountChip, ReviewPill } from "@/components/account/AccountChip";
 import { MeButton } from "@/components/layout/MeButton";
@@ -11,7 +11,7 @@ import { blackletter } from "@/components/layout/Header";
 
 // The one site menu, the same on every page: the home's masthead lists the
 // same links (components/layout/Header.tsx) and this slim bar is hidden there (CSS,
-// global.css `.site-bar`), every other page opens with it. Before, the home
+// assets/css/site/site-bar.css `.site-bar`), every other page opens with it. Before, the home
 // menu had no Parcours / Frise / Cartes, and a note page had its menu only at
 // the very bottom, after the comments.
 //
@@ -20,7 +20,7 @@ import { blackletter } from "@/components/layout/Header";
 // language (the home's inline list folded into a dropdown), search,
 // light/dark, and the account button.
 //
-// From 1024px (global.css, "Bandeau"), the bar is the home's masthead in
+// From 1024px (site/site-bar-wide.css, "Bandeau"), the bar is the home's masthead in
 // small: the name in blackletter and the edition date beside the tools, a
 // double rule, then the links centred in small capitals. The blackletter
 // face reaches the CSS as --bl, so phones never apply it.
@@ -42,7 +42,7 @@ export function SiteBar() {
       <div className="site-bar-inner">
         <a className="site-bar-brand" href="/">
           {/* The linocut logo: the paper print in light, the night print in
-              dark (global.css shows one per theme, toggle included). */}
+              dark (site/site-bar.css shows one per theme, toggle included). */}
           {/* eslint-disable-next-line @next/next/no-img-element -- static export, 4 KB PNGs */}
           <img className="site-bar-logo site-bar-logo--light" src="/brand/logo-clair.png" width="24" height="24" alt="" />
           {/* eslint-disable-next-line @next/next/no-img-element */}

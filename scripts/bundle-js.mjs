@@ -7,7 +7,7 @@
 import { build } from "esbuild";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { HASHED_SCRIPTS, hashedScriptName } from "../lib/hashed-scripts.js";
+import { HASHED_SCRIPTS, hashedScriptName } from "../lib/node/hashed-scripts.js";
 
 const JS_DIR = join(process.cwd(), "public", "js");
 
@@ -102,15 +102,15 @@ console.log(`bundle-js: bundled ${SCRIPTS.length} scripts → public/js/note.bun
 // diagram-zoom / mermaid-render: fetched by diagrams-loader.js on a note with a
 // diagram; mermaid-render is bundled for lib/mermaid-source.js.
 // translate-device: fetched by translate.js on the first translation the
-// Translator API can't do (the device model, lib/garden-ai.ts).
+// Translator API can't do (the device model, lib/client/garden-ai.ts).
 // natural-voice: fetched by read-aloud.js once the reader turns the natural voice on.
 // read-aloud: "Écouter" itself (passages by language, the relay, "Voix"),
 // fetched by audio.js the first time the reader goes for the button.
-// liquid-glass: the drawn glass of the floating chrome (lib/glass), fetched by
-// lib/glass/load.ts; it keeps the kit's MIT notice (lib/glass/LICENSE).
+// liquid-glass: the drawn glass of the floating chrome (lib/client/glass), fetched by
+// lib/client/glass/load.ts; it keeps the kit's MIT notice (lib/client/glass/LICENSE).
 const BANNERS = {
   "liquid-glass":
-    "/* Liquid Glass UI, https://github.com/bilalgursen/liquid-glass — MIT License, Copyright (c) 2026 Bilal Abdullah Gürşen (lib/glass/LICENSE). */",
+    "/* Liquid Glass UI, https://github.com/bilalgursen/liquid-glass — MIT License, Copyright (c) 2026 Bilal Abdullah Gürşen (lib/client/glass/LICENSE). */",
 };
 for (const name of ["palette", "quiz", "glossary", "note-end", "study-tools", "widgets-data", "widgets-sci", "widgets-lang", "widgets-cyber", "widgets-calcul", "pronounce", "diagram-zoom", "mermaid-render", "translate-device", "natural-voice", "read-aloud", "liquid-glass"]) {
   await build({
@@ -129,7 +129,7 @@ for (const name of ["palette", "quiz", "glossary", "note-end", "study-tools", "w
 }
 
 // The assistant's downloaded model (public/js/local-llm-worker.js): a module
-// Web Worker that lib/local-llm.ts starts only once the reader opts in, so
+// Web Worker that lib/client/local-llm.ts starts only once the reader opts in, so
 // Transformers.js (~1 MB) never loads otherwise. ESM because onnxruntime-web
 // imports its WebGPU glue (/ort/, scripts/copy-ort.mjs) with import().
 await build({
@@ -147,7 +147,7 @@ await build({
 console.log("bundle-js: public/js/local-llm-worker.js → public/js/local-llm.worker.js");
 
 // The natural reading voice (public/js/natural-voice-worker.js): a module Web Worker
-// that lib/piper-voice.ts starts only once the reader turns the voice on.
+// that lib/client/piper-voice.ts starts only once the reader turns the voice on.
 // Not "piper…": the production proxy's WAF (ModSecurity CRS 932236/932239)
 // answers 403 to a path whose last segment starts with a Unix command name
 // ("pip", "pipe"…), so /js/piper.worker.js never loaded and the voice stayed
@@ -168,9 +168,9 @@ await build({
 });
 console.log("bundle-js: public/js/natural-voice-worker.js → public/js/natural-voice.worker.js");
 
-// Hashed copies of the scripts every navigation loads (lib/hashed-scripts.js),
+// Hashed copies of the scripts every navigation loads (lib/node/hashed-scripts.js),
 // served immutable from /js/h/ (server/static-cache.ts); the layout points at
-// them through lib/js-assets.ts. The folder is rebuilt from scratch so it
+// them through lib/node/js-assets.ts. The folder is rebuilt from scratch so it
 // never piles up old hashes.
 const HASHED_DIR = join(JS_DIR, "h");
 rmSync(HASHED_DIR, { recursive: true, force: true });

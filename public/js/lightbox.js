@@ -44,7 +44,7 @@
     nextBtn = overlay.querySelector(".lb-next");
 
     overlay.addEventListener("click", (e) => {
-      if (e.target === overlay || e.target.classList.contains("lb-stage")) close();
+      if (e.target === overlay || /** @type {Element} */ (e.target).classList.contains("lb-stage")) close();
     });
     overlay.querySelector(".lb-close").addEventListener("click", close);
     prevBtn.addEventListener("click", (e) => { e.stopPropagation(); go(-1); });
@@ -187,8 +187,8 @@
   });
 
   document.addEventListener("click", (e) => {
-    const a = e.target.closest("main a");
-    const img = e.target.closest("main img:not([data-no-lightbox])");
+    const a = /** @type {Element} */ (e.target).closest("main a");
+    const img = /** @type {Element} */ (e.target).closest("main img:not([data-no-lightbox])");
     let target = null;
     if (a && IMG_EXT.test(a.getAttribute("href") || "")) target = a;
     else if (img) target = img;

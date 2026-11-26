@@ -342,7 +342,7 @@ footer.gf[data-ciel="estampe"] .gf-col h2,
 footer.gf[data-ciel="estampe"] .gf-col a {
   display: inline-block;
   padding: 0.12em 0.42em;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   white-space: nowrap;
   background: var(--gf-label);
   text-shadow: none;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildClusters, familyOf } from "./graph-families";
-import type { GraphData } from "./graph-data";
+import type { GraphData } from "./node/graph-data";
 
 describe("familyOf", () => {
   it("places the vault's folder names, accents and separators as on disk", () => {

@@ -3,8 +3,10 @@
 // browser's localStorage; this file is the one place that says which keys are
 // *progress* (worth carrying to another device) as opposed to preferences
 // (theme, text size, assistant position…), and how two copies of each merge.
-// Pure apart from the small storage/compression helpers at the end, so the
-// format, validation and merge rules are unit-tested (progress-transfer.test.ts).
+// Pure apart from the compression helpers at the end (Web streams, in Node
+// too), so the format, validation and merge rules are unit-tested
+// (progress-transfer.test.ts) and the server merges with them. The browser
+// glue (localStorage, the download) is lib/client/progress-storage.ts.
 
 import { parseStore as parseReading } from "./reading-progress";
 import { parseNoteDeck } from "./note-quiz";
@@ -168,7 +170,7 @@ function parseOk(v: unknown): Record<string, string> {
 
 // --- reading what's in storage -------------------------------------------
 
-type ReadStore = Pick<Storage, "getItem" | "key" | "length">;
+export type ReadStore = Pick<Storage, "getItem" | "key" | "length">;
 type WriteStore = Pick<Storage, "setItem" | "removeItem">;
 
 /** Progress currently in `store`, key → parsed value. Junk is skipped. */
@@ -662,45 +664,6 @@ export async function decodeTransfer(payload: string): Promise<string> {
     new DecompressionStream("deflate-raw"),
   );
   return new TextDecoder().decode(bytes);
-}
-
-// --- browser glue (shared by /progression/ and the command palette) ---------
-
-/** localStorage, or null when it's blocked (private mode, disabled storage). */
-export function progressStorage(): Storage | null {
-  try {
-    if (typeof localStorage === "undefined") return null;
-    localStorage.setItem("srs:probe", "1");
-    localStorage.removeItem("srs:probe");
-    return localStorage;
-  } catch {
-    return null;
-  }
-}
-
-/** The export file's text for what this browser holds. */
-export function exportText(store: ReadStore, now = new Date()): string {
-  return JSON.stringify(buildExport(collectProgress(store), now), null, 1);
-}
-
-/** Download this browser's progress as a dated JSON file; returns its name,
- *  or null when storage is blocked. */
-export function downloadExport(now = new Date()): string | null {
-  const store = progressStorage();
-  if (!store) return null;
-  const name = exportFilename(now);
-  const url = URL.createObjectURL(
-    new Blob([exportText(store, now)], { type: "application/json" }),
-  );
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = name;
-  a.rel = "noopener";
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
-  return name;
 }
 
 /** Fired on window after an import rewrites progress in this tab. */

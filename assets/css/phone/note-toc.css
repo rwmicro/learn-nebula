@@ -1,4 +1,4 @@
-/* --- Note "Sommaire" sheet (phone; lib/note-app.ts, note-app.js) ---------- */
+/* --- Note "Sommaire" sheet (phone; lib/node/note-app.ts, note-app.js) ---------- */
 @media (max-width: 639.98px) {
   .na-toc-sheet {
     padding-left: 0.75rem;
@@ -27,7 +27,7 @@
     align-items: center;
     gap: 0.75rem;
     padding: 0.625rem;
-    border-radius: 0.75rem;
+    border-radius: var(--radius-md);
     font: 400 1.03125rem/1.25 var(--font-text);
     color: var(--ink);
     text-decoration: none;
@@ -73,7 +73,7 @@
     margin: 0.625rem 0.25rem 0;
     padding: 0.75rem 0.875rem;
     border: 0;
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     background: var(--wash-2);
     color: var(--ink);
     text-align: left;
@@ -85,7 +85,7 @@
     place-items: center;
     width: 2.25rem;
     height: 2.25rem;
-    border-radius: 0.625rem;
+    border-radius: var(--radius-sm);
     background: var(--fam-wash, var(--garden-wash));
     color: var(--fam, var(--garden));
   }

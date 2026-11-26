@@ -262,7 +262,7 @@
   .jardin-figs > div + div {
     padding: 0.85rem 1rem;
     border: 0.5px solid var(--rule);
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     background: var(--paper-raised);
   }
   .jardin-figs > div:first-child {
@@ -286,7 +286,7 @@
   .jardin-bars,
   .jardin-cited {
     border: 0.5px solid var(--rule);
-    border-radius: 1rem;
+    border-radius: var(--radius-md);
     background: var(--paper-raised);
   }
   .jardin-chart--narrow {
@@ -315,7 +315,7 @@
   }
   .jardin-bar-track {
     height: 6px;
-    border-radius: 3px;
+    border-radius: var(--radius-xs);
   }
   .jardin-cited {
     padding: 0 1rem;

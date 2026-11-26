@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { getAllPosts, INDEX_NOTE } from "@/lib/content";
-import { getTopFolders } from "@/lib/notes-browse";
+import { getAllPosts, INDEX_NOTE } from "@/lib/node/content";
+import { getTopFolders } from "@/lib/node/notes-browse";
 import { t } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import { FolderRows, ResumeFolder } from "@/components/explore/NotesBrowse";
 import { NotesViews } from "@/components/explore/NotesViews";
 import "@/assets/css/notes-browse.css";

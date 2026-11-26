@@ -35,7 +35,7 @@
   }
   .rv-today {
     padding: 1.125rem;
-    border-radius: 1.25rem;
+    border-radius: var(--radius-lg);
     background: var(--garden-deep);
     color: var(--garden-deep-ink);
   }
@@ -58,7 +58,7 @@
     justify-content: space-between;
     gap: 0.75rem;
     padding: 0.625rem 0.875rem;
-    border-radius: 0.75rem;
+    border-radius: var(--radius-md);
     background: rgb(255 255 255 / 0.14);
   }
   .rv-starters b {
@@ -153,7 +153,7 @@
     list-style: none;
     overflow: hidden;
     border: 0.5px solid var(--dash-edge);
-    border-radius: 1.125rem;
+    border-radius: var(--radius-lg);
     background: var(--dash-card);
     box-shadow: var(--dash-shadow);
   }
@@ -189,7 +189,7 @@
     place-items: center;
     width: 2.25rem;
     height: 2.25rem;
-    border-radius: 0.625rem;
+    border-radius: var(--radius-sm);
     background: var(--fam-wash, var(--garden-wash));
     color: var(--fam, var(--garden));
   }
@@ -221,7 +221,7 @@
     min-width: 1.625rem;
     height: 1.5rem;
     padding: 0 0.5rem;
-    border-radius: 0.75rem;
+    border-radius: var(--radius-md);
     background: var(--garden-fill);
     color: var(--garden-fill-ink);
     font: 700 0.8125rem/1.5rem var(--font-ui);

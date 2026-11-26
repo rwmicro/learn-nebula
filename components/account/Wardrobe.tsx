@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Avatar } from "@/components/account/Avatar";
-import type { Me } from "@/lib/account-client";
+import type { Me } from "@/lib/client/account-client";
 import { ITEMS, ITEM_BY_ID, MAX_FREEZES, STREAK_FREEZE, sanitizeLook, type Look, type Slot } from "@/lib/avatar";
 import { plural, type AccountData, type FreezeInfo, type Tr } from "@/components/account/shared";
 import { Coin, CoinPill, IconCheck, IconLock, IconSnow, TopBar } from "@/components/account/icons";

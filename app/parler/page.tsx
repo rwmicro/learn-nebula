@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { LanguagePartner } from "@/components/play/LanguagePartner";
-import { getAllPosts, slugifyPath } from "@/lib/content";
+import { getAllPosts, slugifyPath } from "@/lib/node/content";
 import { PARTNER_LANGS, VAULT_FOLDER, type PartnerLang } from "@/lib/partner-scenes";
 import { t } from "@/lib/i18n";
 import { SITE_TITLE } from "@/lib/site";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata } from "@/lib/node/seo";
 import "@/assets/css/parler.css";
 import { PageHeader } from "@/components/ui/PageHeader";
 

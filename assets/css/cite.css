@@ -44,7 +44,7 @@ main .cite-note .cite-text,
   overflow-wrap: anywhere;
 }
 .cite-bib {
-  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-family: var(--font-mono);
   font-size: 0.78rem;
   white-space: pre;
   overflow-x: auto;

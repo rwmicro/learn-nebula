@@ -14,7 +14,7 @@
   -webkit-backdrop-filter: blur(14px) saturate(1.6);
   backdrop-filter: blur(14px) saturate(1.6);
   border: 0.5px solid var(--rule-strong);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   box-shadow: 0 10px 30px rgb(0 0 0 / 0.14);
   overflow-x: auto;
   scrollbar-width: none;
@@ -37,7 +37,7 @@
   color: var(--ink-soft);
   background: none;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
   white-space: nowrap;
 }
@@ -181,7 +181,7 @@
   font: inherit;
   min-height: 2.5rem;
   padding: 0.4rem 1rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   cursor: pointer;
 }
 .report-cancel {
@@ -297,9 +297,9 @@
   display: none;
 }
 
-/* From 640px (phones have lib/note-app.ts's own chrome): one row on the text
+/* From 640px (phones have lib/node/note-app.ts's own chrome): one row on the text
    column, discipline chip · title · time left, and under it the chapter
-   strip (lib/html.ts noteChaptersHtml; piste E of the 2026-11-25 mockups).
+   strip (lib/node/html.ts noteChaptersHtml; piste E of the 2026-11-25 mockups).
    The strip names the section being read, so the row drops it. */
 @media (min-width: 640px) {
   .note-header-condensed {
@@ -402,7 +402,7 @@
     white-space: nowrap;
     color: var(--muted);
     text-decoration: none;
-    border-radius: 0.6rem 0.6rem 0 0;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
   }
   .note-chapters a::before {
     content: counter(chapter, lower-roman);
@@ -441,7 +441,7 @@
     right: 0.7rem;
     bottom: 0;
     height: 2px;
-    border-radius: 2px;
+    border-radius: var(--radius-xs);
     background: linear-gradient(90deg, var(--garden) calc(var(--ch-p, 0) * 100%), var(--rule-strong) 0);
   }
   /* A link from the strip lands below the bar, not under it. */
@@ -462,7 +462,7 @@
   position: fixed;
   right: 1.1rem;
   bottom: 1.1rem;
-  z-index: 950;
+  z-index: var(--z-float);
   display: grid;
   place-items: center;
   width: 2.9rem;
@@ -674,7 +674,7 @@ body:has(.gc) .to-top {
   }
 }
 
-/* "Affichage ▾" (lib/html.ts noteMoreHtml): size, width, focus and
+/* "Affichage ▾" (lib/node/html.ts noteMoreHtml): size, width, focus and
  * "Traduire" in a small panel under the row, each on its own line. */
 .note-more {
   position: relative;
@@ -785,7 +785,7 @@ html.lesson-open {
 .lesson {
   position: fixed;
   inset: 0;
-  z-index: 1500;
+  z-index: var(--z-modal);
   display: flex;
   flex-direction: column;
   background: var(--paper);
@@ -855,7 +855,7 @@ html.lesson-open {
 .lesson-stage > :first-child {
   margin-top: 0;
 }
-/* The dropcap rule (lib/html.ts) matches the stage too: keep it for the
+/* The dropcap rule (lib/node/html.ts) matches the stage too: keep it for the
    note's opening step only. */
 .lesson-stage[data-later] > p.dropcap::first-letter {
   float: none;
@@ -1177,7 +1177,7 @@ mark.hl--new {
 }
 .hl-card {
   position: absolute;
-  z-index: 1200;
+  z-index: var(--z-drawer);
   padding: 0.7rem;
   background: var(--paper-raised);
   border: 1px solid var(--rule-strong);
@@ -1379,7 +1379,7 @@ mark.hl--new {
   }
 }
 
-/* ```iso:<name>``` figures (lib/markdown.ts rehypeIsoFigures). The plate's own
+/* ```iso:<name>``` figures (lib/node/markdown.ts rehypeIsoFigures). The plate's own
    look is the kit's /figures/iso.css; here it only takes the column's width
    and a margin that matches the other figures. */
 .iso-mount {

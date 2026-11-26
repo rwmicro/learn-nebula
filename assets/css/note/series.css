@@ -22,7 +22,7 @@
   margin: 1.4rem 0;
   padding: 1.2rem 1.25rem 1.1rem;
   border: 1.5px solid var(--rule);
-  border-radius: 22px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 2px 0 var(--rule);
   background: var(--paper-raised, var(--paper));
 }
@@ -54,7 +54,7 @@
 }
 .ex-launch-pills > span {
   padding: 0.3rem 0.75rem;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: color-mix(in srgb, var(--c) 12%, transparent);
   color: color-mix(in srgb, var(--c) 80%, var(--ink));
   font: 600 0.85rem var(--font-ui);
@@ -67,7 +67,7 @@
 .ex-launch-go {
   min-height: 52px;
   border: 0;
-  border-radius: 16px;
+  border-radius: var(--radius-md);
   background: var(--garden-fill);
   color: var(--garden-fill-ink);
   font: 700 1rem var(--font-ui);
@@ -146,7 +146,7 @@
   display: grid;
   gap: 0.05rem;
   padding: 0.45rem 0.65rem;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   background: var(--paper-raised, var(--paper));
   border: 1px solid var(--rule);
 }
@@ -205,7 +205,7 @@
   gap: 0.75rem;
   padding: 1rem 1.1rem;
   border: 1.5px solid var(--rule);
-  border-radius: 20px;
+  border-radius: var(--radius-lg);
   background: var(--paper-raised, var(--paper));
   text-align: start;
 }

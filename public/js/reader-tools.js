@@ -6,7 +6,7 @@
 //   and come back on the way up or at the end of the note;
 // - the condensed header (from 640px) shows the time left ("encore 6 min") and
 //   the chapter being read, in its chapter strip when the note has sections;
-// - "Et ensuite ?" (lib/html.ts nextUpHtml): picks the first note of the
+// - "Et ensuite ?" (lib/node/html.ts nextUpHtml): picks the first note of the
 //   discipline this browser hasn't read yet;
 // - "À lire plus tard" and the focus mode buttons of the note-actions row,
 //   and its "Affichage" menu;
@@ -70,7 +70,7 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
     return cur ? cur.textContent.replace(/#\s*$/, "").trim() : "";
   }
 
-  // --- condensed header: chapter strip (lib/html.ts noteChaptersHtml) -------
+  // --- condensed header: chapter strip (lib/node/html.ts noteChaptersHtml) -------
   const strip = document.querySelector(".note-chapters");
   const chLinks = strip ? Array.from(strip.querySelectorAll("a[data-chapter]")) : [];
   const chHeads = chLinks.map((a) => document.getElementById(a.getAttribute("data-chapter")));
@@ -153,7 +153,7 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
   update();
 
   // --- floating buttons tuck away while reading down (touch widths) ---------
-  // A class on <html> (styled in main.css / path-step.css / global.css), so
+  // A class on <html> (styled in note/*.css / path-step.css / global.css), so
   // the React "Demander à l'IA" pill follows without knowing about it.
   const narrow = window.matchMedia("(max-width: 900px)");
   const root = document.documentElement;
@@ -332,7 +332,7 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
   const more = document.querySelector(".note-more");
   if (more) {
     document.addEventListener("click", (e) => {
-      if (more.open && e.target instanceof Node && !more.contains(e.target)) more.open = false;
+      if (more.open && e.target instanceof Node && !more.contains(/** @type {Node} */ (e.target))) more.open = false;
     });
     more.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && more.open) {

@@ -48,7 +48,7 @@
     sw.postMessage({ type: "warm", url: url });
   }
   function linkOf(e) {
-    return e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    return e.target && /** @type {Element} */ (e.target).closest ? /** @type {Element} */ (e.target).closest("a[href]") : null;
   }
   document.addEventListener("touchstart", function (e) { warm(linkOf(e)); }, { passive: true, capture: true });
   document.addEventListener("mousedown", function (e) { warm(linkOf(e)); }, true);
@@ -56,6 +56,6 @@
   document.addEventListener("mouseover", function (e) {
     var a = linkOf(e);
     clearTimeout(hoverTimer);
-    if (a) hoverTimer = setTimeout(function () { warm(a); }, 80);
+    if (a) hoverTimer = window.setTimeout(function () { warm(a); }, 80);
   }, true);
 })();

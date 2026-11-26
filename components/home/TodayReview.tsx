@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { t } from "@/lib/i18n";
-import { useLocale } from "@/lib/use-locale";
+import { useLocale } from "@/lib/client/use-locale";
 import { addDays, buildQueue, dayKey, grade as gradeCard, type Grade, type Progress } from "@/lib/srs";
 import { fetchJsonPool } from "@/lib/fetch-pool";
-import { deckSettings, loadSettings } from "@/lib/srs-settings";
+import { deckSettings, loadSettings } from "@/lib/client/srs-settings";
 import { migrateDeck, studyCards, type DeckData } from "@/lib/deck-cards";
 import {
   dueQuestions,
@@ -23,8 +23,8 @@ import {
   storageOk,
   type Graded,
   type ReviewItem,
-} from "@/lib/review-item";
-import type { AnkiDeck } from "@/lib/anki";
+} from "@/lib/client/review-item";
+import type { AnkiDeck } from "@/lib/node/anki";
 import { ReviewSession } from "@/components/review/ReviewSession";
 import { familyOfFolder } from "@/lib/path-family";
 import { PRACTICE_SIZE, interleaveBy, practicePick, shuffled, type PracticeMode } from "@/lib/practice";

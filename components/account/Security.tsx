@@ -1,8 +1,8 @@
 "use client";
 
 // Two settings of /compte that depend on recent browser APIs: the reader's
-// passkeys (lib/passkey-client.ts) and the daily review reminder by Web Push
-// (lib/push-client.ts). Each renders nothing when the browser or the server
+// passkeys (lib/client/passkey-client.ts) and the daily review reminder by Web Push
+// (lib/client/push-client.ts). Each renders nothing when the browser or the server
 // can't do it. `phone` picks the phone screens' rows over the desktop card's
 // sub-sections (components/account/AccountPhone.tsx, components/account/Account.tsx).
 
@@ -13,8 +13,8 @@ import {
   listPasskeys,
   passkeysSupported,
   type Passkey,
-} from "@/lib/passkey-client";
-import { DEFAULT_HOUR, pushState, subscribePush, unsubscribePush, type PushState } from "@/lib/push-client";
+} from "@/lib/client/passkey-client";
+import { DEFAULT_HOUR, pushState, subscribePush, unsubscribePush, type PushState } from "@/lib/client/push-client";
 import type { Tr } from "@/components/account/shared";
 
 /** Fired after a passkey is created elsewhere (the conditional create that

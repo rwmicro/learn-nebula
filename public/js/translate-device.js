@@ -3,7 +3,7 @@
 // (translate-device.bundle.js), since most readers never translate.
 //
 // Two translators, one run: Chrome's Translator API where it covers the
-// pair, else the device's model (lib/garden-ai.ts: Gemini Nano, or the
+// pair, else the device's model (lib/client/garden-ai.ts: Gemini Nano, or the
 // downloaded Qwen3.5 / LFM2). The note's leaf blocks are marked as waiting,
 // then sent in small batches (lib/translate-plan.ts): table cells and short
 // lines several to a call, a paragraph alone. Inline markup travels as short
@@ -15,10 +15,10 @@
 // The body is saved after every batch, with its marks: "Arrêter", a closed
 // tab or a failed passage lose nothing, and picking the language again
 // resumes where it stopped.
-import { aiRoute, deviceError, openDeviceSeries } from "../../lib/garden-ai.ts";
-import { deviceWord, localModelLangs } from "../../lib/garden-ai-flags.ts";
+import { aiRoute, deviceError, openDeviceSeries } from "../../lib/client/garden-ai.ts";
+import { deviceWord, localModelLangs } from "../../lib/client/garden-ai-flags.ts";
 import { translateSystem } from "../../lib/ask-prompts.ts";
-import { localModel } from "../../lib/local-llm.ts";
+import { localModel } from "../../lib/client/local-llm.ts";
 import { columnLangs } from "../../lib/read-aloud-dom.ts";
 import {
   batchPrompt,
@@ -795,7 +795,7 @@ export function createTranslator(ctx) {
 
   // "Réessayer" under a passage: the same run, over what is still marked.
   articleBody.addEventListener("click", (e) => {
-    if (e.target.closest(".translate-retry") && shown) ctx.pick(shown);
+    if (/** @type {Element} */ (e.target).closest(".translate-retry") && shown) ctx.pick(shown);
   });
 
   return { translate, clear, state, showing: () => shown };

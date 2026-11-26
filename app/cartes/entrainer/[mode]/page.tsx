@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAnkiManifest } from "@/lib/anki";
+import { getAnkiManifest } from "@/lib/node/anki";
 import { TodayReview } from "@/components/home/TodayReview";
 import { PRACTICE_MODES, type PracticeMode } from "@/lib/practice";
 import { t } from "@/lib/i18n";

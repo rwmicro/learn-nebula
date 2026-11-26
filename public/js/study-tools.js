@@ -396,7 +396,8 @@ import {
 
   // --- a highlight as a cloze card ---------------------------------------------
   window.addEventListener("gk:cloze", (e) => {
-    const d = e.detail || {};
+    const d = e.detail;
+    if (!d) return;
     const mark = d.mark;
     const quote = (d.quote || "").trim();
     const block = mark && mark.closest("p, li, td, blockquote");
@@ -407,7 +408,9 @@ import {
     const cloze = clozeOf(one, quote);
     const reply = (key) => d.done && d.done(key);
     if (!cloze) return reply("study.clozeNone");
-    const esc = I().escapeHtml || ((s) => s);
+    const esc =
+      I().escapeHtml ||
+      ((s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]));
     const h = sectionOf(mark);
     const ok = addCard(`c-${hash(quote + one)}`, {
       q: `<p>${esc(cloze)}</p>`,
@@ -431,6 +434,6 @@ import {
   setTimeout(paintDots, 1500);
   window.addEventListener("gk:quiz-change", paintDots);
   document.addEventListener("click", (e) => {
-    if (e.target instanceof Element && e.target.closest(".quiz-self-btn, .quiz-choice")) setTimeout(paintDots, 0);
+    if (e.target instanceof Element && /** @type {Element} */ (e.target).closest(".quiz-self-btn, .quiz-choice")) setTimeout(paintDots, 0);
   });
 })();

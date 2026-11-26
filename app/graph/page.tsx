@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { graphDataVersion } from "@/lib/home-data";
+import { graphDataVersion } from "@/lib/node/home-data";
 import { GraphLoader } from "@/components/explore/GraphLoader";
 import { SITE_TITLE } from "@/lib/site";
 import "@/assets/css/graph.css";
