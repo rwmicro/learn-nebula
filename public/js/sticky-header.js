@@ -48,7 +48,7 @@ import { scrollProgress } from "../../lib/reading-progress";
 // past. Decorative — aria-hidden, no focus — and drawn with a transform so a
 // scroll costs one composited property, at most once per frame.
 // With scroll-driven animations the CSS draws it from a view timeline on the
-// article body (main.css, `.reading-progress[data-timeline]`; its `contain`
+// article body (note/*.css, `.reading-progress[data-timeline]`; its `contain`
 // range is the same measure as scrollProgress()) and no listener is added.
 // Bodies shorter than the screen keep the script: the range differs there.
 (function () {

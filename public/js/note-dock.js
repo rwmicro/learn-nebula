@@ -1,4 +1,4 @@
-// The note's reading bar from 640px up (lib/html.ts noteDockHtml, main.css
+// The note's reading bar from 640px up (lib/html.ts noteDockHtml, note/*.css
 // `.note-dock`): liquid glass floating at the bottom, its rim bending what
 // scrolls under it (lib/glass, the liquid-glass kit's WebGL2 shader). One bar, the same
 // whichever way the reader scrolls: contents, the progress ring and the
@@ -86,7 +86,7 @@ import { scrollProgress } from "../../lib/reading-progress";
   window.addEventListener("resize", onScroll, { passive: true });
   paint();
 
-  // The right-hand column (main.css .note-side) stays on screen while it
+  // The right-hand column (note/*.css .note-side) stays on screen while it
   // fits; a taller one (a long path card, many links) scrolls with the page
   // instead, so none of it waits behind a scrollbar of its own.
   const side = document.querySelector(".note-side");

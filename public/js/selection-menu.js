@@ -16,7 +16,7 @@
 // selection, out of the way of the OS's own copy/paste bubble (which goes
 // above); with a mouse it sits above, like most editors.
 // Built at runtime and appended to <body>, so Pagefind never indexes it;
-// print hides it (main.css).
+// print hides it (note/*.css).
 import { selectionEligible, textFragmentUrl, MAX_CHARS } from "../../lib/text-fragment.ts";
 import { REPORT_MAX, REPORT_MIN_REMARK } from "../../lib/feedback.ts";
 

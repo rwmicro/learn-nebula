@@ -20,7 +20,7 @@ import { SiteBar } from "@/components/layout/SiteBar";
 import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import "../assets/css/fonts.css";
 // Global frame only (Tailwind + @theme + html/body/main margins). Article
-// typography lives in main.css, loaded per-route on note pages / 404.
+// typography lives in note/*.css, loaded per-route on note pages / 404.
 import "../assets/css/global.css";
 // Command palette + its trigger buttons, and the view-transition rules.
 import "../assets/css/palette.css";

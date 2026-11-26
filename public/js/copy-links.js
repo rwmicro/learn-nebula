@@ -5,7 +5,7 @@
 // Both show a short "copié" confirmation. Labels come from the i18n runtime
 // and carry data-i18n markers, so a later locale switch relabels them too.
 // The buttons are created here, after the build, so Pagefind never sees them;
-// the print stylesheet hides them (main.css).
+// the print stylesheet hides them (note/*.css).
 (function () {
   const article = document.querySelector(".article-body");
   if (!article) return;

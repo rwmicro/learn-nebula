@@ -2956,7 +2956,7 @@
     const hintBtn = el("button", { type: "button", class: "w-goal-link" }, ["Un indice"]);
     const skipBtn = el("button", { type: "button", class: "w-goal-link" }, ["Passer"]);
     const checkBtn = el("button", { type: "button", class: "w-goal-btn" }, ["Vérifier"]);
-    // The title of the lesson screen (main.css shows it in lesson mode only).
+    // The title of the lesson screen (note/*.css shows it in lesson mode only).
     const action = el("p", { class: "w-goal-action" }, ["À toi de jouer"]);
     const head = el("div", { class: "w-goal" }, [
       el("div", { class: "w-goal-top" }, [kicker, steps]),

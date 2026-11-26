@@ -992,7 +992,7 @@ export function rehypeOutline() {
 }
 
 // Speaker icon shared by every `.pron` player (see rehypeVaultAssets below).
-// The two outer arcs carry `.pron-wave` so main.css can pulse them while
+// The two outer arcs carry `.pron-wave` so note/*.css can pulse them while
 // `data-state="playing"` without needing a second icon swapped in by JS.
 const PRON_ICON_SVG =
   '<svg class="pron-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">' +

@@ -55,7 +55,7 @@ import { answerMarks, bankWords, periodYear, roundSizes, sameSentence } from "..
   const inLesson = (card) => !!card.closest(".lesson-stage");
 
   /** The feedback band and the explanation: shown once answered. In lesson
-   *  mode the explanation also rides in the band (main.css shows it there). */
+   *  mode the explanation also rides in the band (note/*.css shows it there). */
   function finish(card, ok, answerText, { answerNode = null, gloss = null } = {}) {
     card.classList.add("is-answered");
     const fb = card.querySelector(".quiz-feedback");

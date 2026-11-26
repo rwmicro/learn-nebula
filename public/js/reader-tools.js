@@ -153,7 +153,7 @@ import { loadBookmarks, saveBookmarks, toggleBookmark, isBookmarked } from "../.
   update();
 
   // --- floating buttons tuck away while reading down (touch widths) ---------
-  // A class on <html> (styled in main.css / path-step.css / global.css), so
+  // A class on <html> (styled in note/*.css / path-step.css / global.css), so
   // the React "Demander à l'IA" pill follows without knowing about it.
   const narrow = window.matchMedia("(max-width: 900px)");
   const root = document.documentElement;

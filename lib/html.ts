@@ -439,7 +439,7 @@ export function noteHeaderHtml(
     `</div>` +
     `</header>` +
     // Zero-height sticky wrapper: a `scroll-state(stuck)` container, so the
-    // CSS alone shows the bar once the header has gone (main.css); the
+    // CSS alone shows the bar once the header has gone (note/*.css); the
     // IntersectionObserver in /js/sticky-header.js is the fallback.
     `<div class="note-header-stuck">` +
     `<div class="note-header-condensed" data-pagefind-ignore>` +
@@ -570,7 +570,7 @@ export function buildToc(
     if (text) items.push({ level: m[1], id: idMatch[1], text });
   }
   // "Sommaire" in the drawer, "Sur cette page" over the left rail (toc.js
-  // clones this nav; main.css shows the title that fits where it is).
+  // clones this nav; note/*.css shows the title that fits where it is).
   const toc =
     items.filter((i) => i.level !== "sub").length >= 2
       ? `<nav class="toc" aria-label="${escapeHtml(t("sidebar.tocTitle"))}"${i18nAttr("aria-label", "sidebar.tocTitle")}><p class="toc-title"${i18nAttrs("sidebar.tocTitle")}>${escapeHtml(t("sidebar.tocTitle"))}</p>` +
@@ -605,7 +605,7 @@ export function commentsHtml(slug: string): string {
     : "";
   return (
     `<section class="comments" data-pagefind-ignore data-slug="${escapeHtml(slug)}">` +
-    // Phones: folded behind one row until tapped (main.css, no script).
+    // Phones: folded behind one row until tapped (note/*.css, no script).
     `<input type="checkbox" id="comments-open" class="fold-toggle">` +
     `<label for="comments-open" class="fold-row"><b${i18nAttrs("comments.title")}>${escapeHtml(t("comments.title"))}</b>` +
     `<small${i18nAttrs("comments.rowSub")}>${escapeHtml(t("comments.rowSub"))}</small></label>` +
@@ -970,7 +970,7 @@ export function lessonButtonHtml(): string {
 }
 
 /** The note's reading tools from 640px up: a liquid-glass bar floating at
- *  the bottom (main.css `.note-dock`, public/js/note-dock.js). Sommaire (the
+ *  the bottom (note/*.css `.note-dock`, public/js/note-dock.js). Sommaire (the
  *  drawer, until the aside has its own column), the reading actions passed
  *  in `tools`, then the assistant (proxying the floating "Demander à l'IA"
  *  button, which the bar replaces). One bar whichever way the reader
@@ -1099,7 +1099,7 @@ export function prerenderNextHtml(slug: string | undefined): string {
   return `<script type="speculationrules">${JSON.stringify(rules).replace(/</g, "\\u003c")}</script>`;
 }
 
-/** The right-hand column from 1100px (main.css `.note-side`): the reading
+/** The right-hand column from 1100px (note/*.css `.note-side`): the reading
  *  path's card, then what the note cites, what links to it, and its
  *  questions. Below that width only the path card shows, in the flow, as the
  *  strip under the title; the rest is already at the end of the note. */

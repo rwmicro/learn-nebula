@@ -4,7 +4,7 @@
 // ~3400px for a long timeline), so in the page they scroll sideways, and on a
 // phone a reader sees a slice of one at a time. Shrinking them to fit is not
 // the answer: their labels would drop to 3-5px (see .mermaid-diagram svg in
-// main.css). This adds an "Agrandir" button to each diagram, and a tap or click
+// note/*.css). This adds an "Agrandir" button to each diagram, and a tap or click
 // on the diagram itself does the same: the diagram opens in a <dialog> fitted
 // to the screen, where it pans (drag, arrows), zooms (pinch, wheel, +/−, double
 // tap) and closes with Escape.

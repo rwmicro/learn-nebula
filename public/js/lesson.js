@@ -126,7 +126,7 @@ import { keepAwake } from "../../lib/wake-lock";
     (document.querySelector("main#main") || document.body).appendChild(root);
     document.documentElement.classList.add("lesson-open");
 
-    // The answered question's feedback docks just above this bar (main.css).
+    // The answered question's feedback docks just above this bar (note/*.css).
     const bottom = root.querySelector(".lesson-bottom");
     const sizeBottom = () =>
       root.style.setProperty("--lesson-bottom-h", `${bottom.offsetHeight}px`);
@@ -162,7 +162,7 @@ import { keepAwake } from "../../lib/wake-lock";
         marks.push({ node: n, mark });
         stage.appendChild(n);
       }
-      // The note's dropcap belongs to its opening only (main.css).
+      // The note's dropcap belongs to its opening only (note/*.css).
       stage.toggleAttribute("data-later", k > 0);
       if (steps[k].kind === "question") {
         // "Discipline · Note" above the question, as the mockups' kicker.
@@ -208,7 +208,7 @@ import { keepAwake } from "../../lib/wake-lock";
       );
     }
     // An exercise not yet answered: the bottom button is its "Vérifier"
-    // (the card's own is hidden here, main.css).
+    // (the card's own is hidden here, note/*.css).
     function proxyCheck() {
       const step = steps[i];
       if (!step || step.kind !== "question" || skipped.has(i)) return null;

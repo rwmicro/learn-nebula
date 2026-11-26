@@ -1,7 +1,7 @@
 // The link-preview and glossary cards (public/js/popover.js, glossary.js)
 // placed by the browser instead of by script, where it can: the card is a
 // popover in the top layer, tied to its link by CSS anchor positioning
-// (assets/css/main.css, `.note-popover[popover]`), so it follows the link on
+// (assets/css/note/, `.note-popover[popover]`), so it follows the link on
 // scroll and turns over by itself near the edges (position-try-fallbacks).
 // popover="hint" where supported (it never closes an open menu or dialog),
 // "manual" otherwise. Browsers without anchor positioning keep the scripts'
